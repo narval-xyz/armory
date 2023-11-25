@@ -16,7 +16,10 @@
     "baseUrl": ".",
     "paths": {
       "@narval/is-even": ["packages/is-evn/src/index.ts"],
-      "@narval/is-odd": ["packages/is-odd/src/index.ts"]
+      "@narval/is-odd": ["packages/is-odd/src/index.ts"],
+      "@narval/transaction-engine-module": [
+        "packages/transaction-engine-module/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]
