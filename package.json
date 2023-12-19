@@ -2,7 +2,10 @@
   "name": "@narval/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "docker:stop": "docker-compose stop",
+    "docker:up": "docker-compose up --detach"
+  },
   "private": true,
   "workspaces": [
     "apps/documentation"
