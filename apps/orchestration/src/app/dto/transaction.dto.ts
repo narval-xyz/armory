@@ -1,23 +1,23 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 
-type Hex = `0x${string}`;
+type Hex = `0x${string}`
 
 export class TransactionDto {
   @ApiProperty()
-  from: string;
+  from: string
 
   @ApiProperty()
-  data?: Hex;
+  data?: Hex
 
   @ApiProperty()
-  to?: string;
+  to?: string
 
   @ApiProperty()
-  value?: bigint;
+  value?: bigint
 
   @ApiProperty()
-  gas?: bigint;
+  gas?: bigint
 
   @ApiProperty()
-  nonce?: number;
+  nonce?: number
 }

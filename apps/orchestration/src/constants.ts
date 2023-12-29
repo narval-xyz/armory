@@ -1,1 +1,1 @@
-export const APPLICATION_NAME = 'orchestration';
+export const APPLICATION_NAME = 'orchestration'
