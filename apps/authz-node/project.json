@@ -1,0 +1,57 @@
+{
+  "name": "apps/authz-node",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/authz-node/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/authz-node",
+        "main": "apps/authz-node/src/main.ts",
+        "tsConfig": "apps/authz-node/tsconfig.app.json",
+        "assets": ["apps/authz-node/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/authz-node/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "apps/authz-node:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "apps/authz-node:build:development"
+        },
+        "production": {
+          "buildTarget": "apps/authz-node:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/authz-node/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/authz-node/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
