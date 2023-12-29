@@ -1,20 +1,20 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { EvaluateDto } from './dto/evaluate.dto';
-import { EvaluationDto } from './dto/evaluation.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common'
+import { ApiOkResponse } from '@nestjs/swagger'
+import { EvaluateDto } from './dto/evaluate.dto'
+import { EvaluationDto } from './dto/evaluation.dto'
 
 @Controller()
 export class AppController {
   @Post('/evaluate')
   @ApiOkResponse({
     description: 'The transaction has been successfully evaluated',
-    type: EvaluationDto,
+    type: EvaluationDto
   })
   evaluate(@Body() evaluate: EvaluateDto): EvaluationDto {
-    console.log(evaluate);
+    console.log(evaluate)
 
     return {
-      status: 'permitted',
-    };
+      status: 'permitted'
+    }
   }
 }
