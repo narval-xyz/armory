@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { ApiOkResponse } from '@nestjs/swagger'
-import { PrismaService } from '../../persistence/service/prisma.service'
-import { Decision } from '../domain.type'
+import { PrismaService } from '../../../../persistence/service/prisma.service'
+import { Decision } from '../../../core/type/domain.type'
 import { AuthorizationRequestDto } from '../dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '../dto/authorization-response.dto'
 
