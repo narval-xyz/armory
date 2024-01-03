@@ -1,12 +1,15 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common'
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { ApiOkResponse } from '@nestjs/swagger'
+import { PrismaService } from '../../persistence/service/prisma.service'
 import { Decision } from '../domain.type'
-import { AuthorizationRequestDto } from '../dtos/authorization-request.dto'
-import { AuthorizationResponseDto } from '../dtos/authorization-response.dto'
+import { AuthorizationRequestDto } from '../dto/authorization-request.dto'
+import { AuthorizationResponseDto } from '../dto/authorization-response.dto'
 
 @Controller('/policy-engine')
 export class FacadeController {
   private logger = new Logger(FacadeController.name)
+
+  constructor(private prismaService: PrismaService) {}
 
   @Post('/evaluation')
   @ApiOkResponse({
@@ -25,5 +28,10 @@ export class FacadeController {
         }
       ]
     }
+  }
+
+  @Get('/users')
+  justCheckingTheDatabase() {
+    return this.prismaService.user.findMany()
   }
 }
