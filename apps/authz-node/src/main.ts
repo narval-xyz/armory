@@ -15,7 +15,7 @@ async function bootstrap() {
 
   await app.listen(port)
 
-  logger.log(`🚀 dauthz-node is running on port ${port}`)
+  logger.log(`dauthz-node is running on port ${port}`)
 }
 
 bootstrap()

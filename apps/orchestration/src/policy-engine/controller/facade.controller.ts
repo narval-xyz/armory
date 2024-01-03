@@ -30,6 +30,7 @@ export class FacadeController {
     }
   }
 
+  // Temporary endpoint to end-to-end test the connectivity with the database.
   @Get('/users')
   justCheckingTheDatabase() {
     return this.prismaService.user.findMany()
