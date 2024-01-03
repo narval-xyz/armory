@@ -1,33 +1,42 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
-import { Logger } from '@nestjs/common'
+import { INestApplication, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { AppModule } from './app/app.module'
+import { OrchestrationModule } from './orchestration.module'
 
 const APPLICATION_NAME = 'orchestration'
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
-  app.setGlobalPrefix(APPLICATION_NAME)
-  const port = process.env.PORT || 3000
-
-  const config = new DocumentBuilder().setTitle('Orchestration').setVersion('1.0').addTag(APPLICATION_NAME).build()
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('docs', app, document, {
+const setupSwagger = (app: INestApplication): void => {
+  const document = SwaggerModule.createDocument(
+    app,
+    new DocumentBuilder().setTitle('Orchestration').setVersion('1.0').addTag(APPLICATION_NAME).build()
+  )
+  SwaggerModule.setup(`${APPLICATION_NAME}/docs`, app, document, {
     swaggerOptions: {
       // Temporary disable the "Try it out" button while the API is just a
       // placeholder.
       supportedSubmitMethods: []
     }
   })
+}
+
+async function bootstrap() {
+  const logger = new Logger('OrchestrationBootstrap')
+  const app = await NestFactory.create(OrchestrationModule)
+  const configService = app.get(ConfigService)
+  const port = configService.get('PORT')
+
+  if (!port) {
+    throw new Error('Missing PORT environment variable')
+  }
+
+  app.setGlobalPrefix(APPLICATION_NAME)
+
+  setupSwagger(app)
 
   await app.listen(port)
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${APPLICATION_NAME}`)
+
+  logger.log(`🚀 Orchestration is running on port ${port}`)
 }
 
 bootstrap()
