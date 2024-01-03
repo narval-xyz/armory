@@ -4,14 +4,12 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { OrchestrationModule } from './orchestration.module'
 
-const APPLICATION_NAME = 'orchestration'
-
 const setupSwagger = (app: INestApplication): void => {
   const document = SwaggerModule.createDocument(
     app,
-    new DocumentBuilder().setTitle('Orchestration').setVersion('1.0').addTag(APPLICATION_NAME).build()
+    new DocumentBuilder().setTitle('Orchestration').setVersion('1.0').addTag('Orchestration').build()
   )
-  SwaggerModule.setup(`${APPLICATION_NAME}/docs`, app, document, {
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       // Temporary disable the "Try it out" button while the API is just a
       // placeholder.
@@ -30,13 +28,11 @@ async function bootstrap() {
     throw new Error('Missing PORT environment variable')
   }
 
-  app.setGlobalPrefix(APPLICATION_NAME)
-
   setupSwagger(app)
 
   await app.listen(port)
 
-  logger.log(`🚀 Orchestration is running on port ${port}`)
+  logger.log(`Orchestration is running on port ${port}`)
 }
 
 bootstrap()
