@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsString } from 'class-validator'
-import { Decision } from '../domain.type'
+import { Decision } from '../../../core/type/domain.type'
 
 class ReasonDto {
   @ApiProperty()
