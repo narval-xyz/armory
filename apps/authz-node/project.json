@@ -14,7 +14,6 @@
         "outputPath": "dist/apps/authz-node",
         "main": "apps/authz-node/src/main.ts",
         "tsConfig": "apps/authz-node/tsconfig.app.json",
-        "assets": ["apps/authz-node/src/assets"],
         "isolatedConfig": true,
         "webpackConfig": "apps/authz-node/webpack.config.js"
       },
