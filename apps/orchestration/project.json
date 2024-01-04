@@ -57,6 +57,12 @@
       "options": {
         "jestConfig": "apps/orchestration/jest.e2e.ts"
       }
+    },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsc --noEmit --project apps/orchestration/tsconfig.app.json"
+      }
     }
   },
   "tags": []

@@ -52,7 +52,8 @@ jobs:
           node-version: '20.4.0'
 
       - name: Install dependencies
-        run: make install/ci
+        run: |
+          make install/ci
 
       - name: Code format
         shell: bash
@@ -67,20 +68,17 @@ jobs:
           make orchestration/test/db/setup
           make orchestration/db/generate-types
 
-      # - name: Test types
-      #   shell: bash
-      #   run: npm run test:type
+      - name: Test types
+        shell: bash
+        run: |
+          make orchestration/test/type
 
-      # - name: Test unit
-      #   shell: bash
-      #   run: npm run test:unit
+      - name: Test unit
+        shell: bash
+        run: |
+          make orchestration/test/unit
 
-      # - name: Test integration
-      #   shell: bash
-      #   run: |
-      #     npm run test:integration
-
-      # - name: Test E2E
-      #   shell: bash
-      #   run: |
-      #     npm run test:e2e
+      - name: Test E2E
+        shell: bash
+        run: |
+          make orchestration/test/e2e
