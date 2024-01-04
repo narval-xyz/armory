@@ -1,3 +1,6 @@
+install/ci:
+	npm ci
+
 docker/stop:
 	docker-compose stop
 
@@ -11,6 +14,15 @@ format:
 format/check:
 	npx prettier \
 		--check "apps/**/*.ts" "packages/**/*.ts" "./*.{js,json}"
+
+lint:
+	npx nx run-many \
+		--target lint \
+		--fix
+
+lint/check:
+	npx nx run-many \
+		--target lint
 
 orchestration/db/generate-types:
 	npx prisma generate \
@@ -34,3 +46,6 @@ orchestration/test/db/setup:
 		--schema ./apps/orchestration/src/persistence/schema/schema.prisma \
 		--skip-seed \
 		--force
+
+orchestration/test/copy-default-env:
+	cp ./apps/orchestration/.env.test.default ./apps/orchestration/.env.test
