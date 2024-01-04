@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { Config } from './orchestration.config'
 
 /**
  * Sets up Swagger documentation for the application.
@@ -54,12 +55,8 @@ const setupRestValidation = (app: INestApplication, logger: Logger): INestApplic
 async function bootstrap() {
   const logger = new Logger('OrchestrationBootstrap')
   const application = await NestFactory.create(OrchestrationModule)
-  const configService = application.get(ConfigService)
-  const port = configService.get('PORT')
-
-  if (!port) {
-    throw new Error('Missing PORT environment variable')
-  }
+  const configService = application.get<ConfigService<Config, true>>(ConfigService)
+  const port = configService.get('port', { infer: true })
 
   await lastValueFrom(
     of(application).pipe(

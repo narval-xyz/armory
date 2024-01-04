@@ -1,8 +1,10 @@
+import { load } from '@app/orchestration/orchestration.config'
 import { PersistenceModule } from '@app/orchestration/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/persistence/service/test-prisma.service'
 import { Action, Decision } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 
@@ -13,7 +15,14 @@ describe('Policy Engine Cluster Facade', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [PolicyEngineModule, PersistenceModule]
+      imports: [
+        ConfigModule.forRoot({
+          load: [load],
+          isGlobal: true
+        }),
+        PolicyEngineModule,
+        PersistenceModule
+      ]
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
