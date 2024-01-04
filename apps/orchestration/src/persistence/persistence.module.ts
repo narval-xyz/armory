@@ -1,7 +1,7 @@
+import { PrismaService } from '@app/orchestration/persistence/service/prisma.service'
+import { TestPrismaService } from '@app/orchestration/persistence/service/test-prisma.service'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { PrismaService } from './service/prisma.service'
-import { TestPrismaService } from './service/test-prisma.service'
 
 @Module({
   imports: [ConfigModule.forRoot()],

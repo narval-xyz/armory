@@ -1,11 +1,11 @@
+import { PrismaService } from '@app/orchestration/persistence/service/prisma.service'
+import { Decision } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
+import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
 import { HttpService } from '@nestjs/axios'
 import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nestjs/common'
 import { ApiOkResponse } from '@nestjs/swagger'
 import { lastValueFrom, map, tap } from 'rxjs'
-import { PrismaService } from '../../../../persistence/service/prisma.service'
-import { Decision } from '../../../core/type/domain.type'
-import { AuthorizationRequestDto } from '../dto/authorization-request.dto'
-import { AuthorizationResponseDto } from '../dto/authorization-response.dto'
 
 @Controller('/policy-engine')
 export class FacadeController {

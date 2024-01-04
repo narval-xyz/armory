@@ -1,6 +1,6 @@
+import { PrismaService } from '@app/orchestration/persistence/service/prisma.service'
 import { createMock } from '@golevelup/ts-jest'
 import { ConfigService } from '@nestjs/config'
-import { PrismaService } from '../../prisma.service'
 
 describe('PrismaService', () => {
   describe('constructor', () => {

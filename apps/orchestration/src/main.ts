@@ -1,9 +1,9 @@
+import { OrchestrationModule } from '@app/orchestration/orchestration.module'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
-import { OrchestrationModule } from './orchestration.module'
 
 /**
  * Sets up Swagger documentation for the application.

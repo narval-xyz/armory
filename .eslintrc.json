@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx"],
+  "plugins": ["@nx", "no-relative-import-paths"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -10,7 +10,7 @@
           "error",
           {
             "enforceBuildableLibDependency": true,
-            "allow": [],
+            "allow": ["@app/**"],
             "depConstraints": [
               {
                 "sourceTag": "*",
@@ -24,7 +24,14 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
-      "rules": {}
+      "rules": {
+        "no-relative-import-paths/no-relative-import-paths": [
+          "error",
+          {
+            "allowSameFolder": true
+          }
+        ]
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

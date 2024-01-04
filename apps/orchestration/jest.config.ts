@@ -9,7 +9,10 @@ const config: Config = {
   },
   setupFiles: ['<rootDir>/jest.setup.ts'],
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/apps/orchestration'
+  coverageDirectory: '../../coverage/apps/orchestration',
+  moduleNameMapper: {
+    '^@app/orchestration/(.*)$': '<rootDir>/src/$1'
+  }
 }
 
 export default config

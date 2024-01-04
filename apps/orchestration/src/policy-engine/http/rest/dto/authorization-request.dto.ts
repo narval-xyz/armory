@@ -1,6 +1,6 @@
+import { Action, Intent } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Equals, IsEnum, IsString } from 'class-validator'
-import { Action, Intent } from '../../../core/type/domain.type'
 
 class SignatureDto {
   @ApiProperty()
