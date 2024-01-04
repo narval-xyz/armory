@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios'
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nestjs/common'
 import { ApiOkResponse } from '@nestjs/swagger'
 import { lastValueFrom, map, tap } from 'rxjs'
 import { PrismaService } from '../../../../persistence/service/prisma.service'
@@ -14,6 +14,7 @@ export class FacadeController {
   constructor(private prisma: PrismaService, private http: HttpService) {}
 
   @Post('/evaluation')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'The authorization evaluation has been successfully processed.',
     type: AuthorizationResponseDto

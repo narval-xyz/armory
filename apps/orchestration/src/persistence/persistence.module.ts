@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { PrismaService } from './service/prisma.service'
+import { TestPrismaService } from './service/test-prisma.service'
 
 @Module({
   imports: [ConfigModule.forRoot()],
-  exports: [PrismaService],
-  providers: [PrismaService]
+  exports: [PrismaService, TestPrismaService],
+  providers: [PrismaService, TestPrismaService]
 })
 export class PersistenceModule {}

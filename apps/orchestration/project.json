@@ -44,11 +44,18 @@
         "lintFilePatterns": ["apps/orchestration/**/*.ts"]
       }
     },
-    "test": {
+    "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.config.ts"
+        "jestConfig": "apps/orchestration/jest.unit.ts"
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/orchestration/jest.e2e.ts"
       }
     }
   },
