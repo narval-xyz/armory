@@ -1,9 +1,9 @@
-name: Orchestration CI
+name: AuthZ CI
 
 on:
   push:
     paths:
-      - apps/orchestration/**
+      - apps/authz-node/**
       - .github/workflows/**
       - Makefile
       - jest.config.ts
@@ -61,24 +61,29 @@ jobs:
           make format/check
           make lint/check
 
-      - name: Setup database and Prisma types
-        shell: bash
-        run: |
-          make orchestration/test/copy-default-env
-          make orchestration/test/db/setup
-          make orchestration/db/generate-types
+      # - name: Setup database and Prisma types
+      #   shell: bash
+      #   run: |
+      #     make orchestration/test/copy-default-env
+      #     make orchestration/test/db/setup
+      #     make orchestration/db/generate-types
 
       - name: Test types
         shell: bash
         run: |
-          make orchestration/test/type
+          make authz/test/type
 
       - name: Test unit
         shell: bash
         run: |
-          make orchestration/test/unit
+          make authz/test/unit
 
-      - name: Test E2E
+      - name: Test integration
         shell: bash
         run: |
-          make orchestration/test/e2e
+          make authz/test/integration
+
+      # - name: Test E2E
+      #   shell: bash
+      #   run: |
+      #     make orchestration/test/e2e

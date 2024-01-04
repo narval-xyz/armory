@@ -1,4 +1,5 @@
 include ./apps/orchestration/Makefile
+include ./apps/authz-node/Makefile
 
 install/ci:
 	npm ci
