@@ -44,11 +44,24 @@
         "lintFilePatterns": ["apps/orchestration/**/*.ts"]
       }
     },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsc --noEmit --project apps/authz-node/tsconfig.app.json"
+      }
+    },
     "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/orchestration/jest.unit.ts"
+      }
+    },
+    "test:integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/orchestration/jest.integration.ts"
       }
     },
     "test:e2e": {
