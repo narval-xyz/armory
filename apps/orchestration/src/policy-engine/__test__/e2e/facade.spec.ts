@@ -1,10 +1,10 @@
+import { PersistenceModule } from '@app/orchestration/persistence/persistence.module'
+import { TestPrismaService } from '@app/orchestration/persistence/service/test-prisma.service'
+import { Action, Decision } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { PersistenceModule } from '../../../persistence/persistence.module'
-import { TestPrismaService } from '../../../persistence/service/test-prisma.service'
-import { Action, Decision } from '../../core/type/domain.type'
-import { PolicyEngineModule } from '../../policy-engine.module'
 
 describe('Policy Engine Cluster Facade', () => {
   let app: INestApplication

@@ -1,3 +1,5 @@
+/* eslint-disable no-relative-import-paths/no-relative-import-paths */
+
 import type { Config } from 'jest'
 import sharedConfig from './jest.config'
 
