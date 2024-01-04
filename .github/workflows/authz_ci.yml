@@ -61,12 +61,16 @@ jobs:
           make format/check
           make lint/check
 
-      # - name: Setup database and Prisma types
-      #   shell: bash
-      #   run: |
-      #     make orchestration/test/copy-default-env
-      #     make orchestration/test/db/setup
-      #     make orchestration/db/generate-types
+      # TODO: Finish once the authz-node has a database.
+      - name: Setup database and Prisma types
+        shell: bash
+        run: |
+          # make orchestration/test/copy-default-env
+          # make orchestration/test/db/setup
+
+          # Generate the orchestration Prisma client types to prevent the type
+          # tests to fail.
+          make orchestration/db/generate-types
 
       - name: Test types
         shell: bash
