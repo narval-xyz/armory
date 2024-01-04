@@ -1,3 +1,4 @@
+import { Config } from '@app/orchestration/orchestration.config'
 import { Inject, Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClient } from '@prisma/client/orchestration'
@@ -6,12 +7,8 @@ import { PrismaClient } from '@prisma/client/orchestration'
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
   private logger = new Logger(PrismaService.name)
 
-  constructor(@Inject(ConfigService) configService: ConfigService) {
-    const url = configService.get('ORCHESTRATION_DATABASE_URL')
-
-    if (!url) {
-      throw new Error('Missing ORCHESTRATION_DATABASE_URL environment variable')
-    }
+  constructor(@Inject(ConfigService) configService: ConfigService<Config, true>) {
+    const url = configService.get('database.url', { infer: true })
 
     super({
       datasources: {

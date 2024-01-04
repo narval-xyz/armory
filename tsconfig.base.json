@@ -12,6 +12,7 @@
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
+    "strictNullChecks": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
