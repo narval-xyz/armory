@@ -44,11 +44,18 @@
         "lintFilePatterns": ["apps/authz-node/**/*.ts"]
       }
     },
-    "test": {
+    "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/authz-node/jest.config.ts"
+        "jestConfig": "apps/authz-node/jest.unit.ts"
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/authz-node/jest.e2e.ts"
       }
     }
   },

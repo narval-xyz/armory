@@ -1,6 +1,7 @@
-/* eslint-disable */
-export default {
-  displayName: 'apps/authz-node',
+import type { Config } from 'jest'
+
+const config: Config = {
+  displayName: 'apps/orchestration',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
@@ -9,3 +10,5 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/authz-node'
 }
+
+export default config

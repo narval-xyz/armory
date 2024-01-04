@@ -27,3 +27,10 @@ orchestration/db/seed:
 		ts-node \
 		--compiler-options "{\"module\":\"CommonJS\"}" \
 		./apps/orchestration/src/persistence/seed.ts
+
+orchestration/test/db/setup:
+	npx dotenv -e ./apps/orchestration/.env.test --override -- \
+		prisma migrate reset \
+		--schema ./apps/orchestration/src/persistence/schema/schema.prisma \
+		--skip-seed \
+		--force
