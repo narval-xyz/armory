@@ -1,3 +1,9 @@
+include ./apps/orchestration/Makefile
+include ./apps/authz-node/Makefile
+
+install/ci:
+	npm ci
+
 docker/stop:
 	docker-compose stop
 
@@ -12,25 +18,11 @@ format/check:
 	npx prettier \
 		--check "apps/**/*.ts" "packages/**/*.ts" "./*.{js,json}"
 
-orchestration/db/generate-types:
-	npx prisma generate \
-		--schema ./apps/orchestration/src/persistence/schema/schema.prisma
+lint:
+	npx nx run-many \
+		--target lint \
+		--fix
 
-orchestration/db/migrate:
-	npx dotenv -e ./apps/orchestration/.env -- \
-		prisma migrate dev \
-			--schema ./apps/orchestration/src/persistence/schema/schema.prisma
-
-# Reference: https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding#seeding-your-database-with-typescript-or-javascript
-orchestration/db/seed:
-	npx dotenv -e ./apps/orchestration/.env -- \
-		ts-node \
-		--compiler-options "{\"module\":\"CommonJS\"}" \
-		./apps/orchestration/src/persistence/seed.ts
-
-orchestration/test/db/setup:
-	npx dotenv -e ./apps/orchestration/.env.test --override -- \
-		prisma migrate reset \
-		--schema ./apps/orchestration/src/persistence/schema/schema.prisma \
-		--skip-seed \
-		--force
+lint/check:
+	npx nx run-many \
+		--target lint

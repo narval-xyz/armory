@@ -1,7 +1,7 @@
 import type { Config } from 'jest'
 
 const config: Config = {
-  displayName: 'apps/orchestration',
+  displayName: 'apps/authz-node',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
