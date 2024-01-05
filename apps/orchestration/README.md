@@ -17,8 +17,14 @@ make orchestration/start/dev
 
 ## Testing
 
-Firs time? Run `orchestration/copy-default-env` and `make
-orchestration/test/db/setup` to setup the test database.
+Firs time? Setup the test database:
+
+```bash
+make orchestration/test/copy-default-env
+make orchestration/test/db/setup
+```
+
+Running the tests:
 
 ```bash
 make orchestration/test/type
