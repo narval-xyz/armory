@@ -54,21 +54,26 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.unit.ts"
+        "jestConfig": "apps/orchestration/jest.unit.ts",
+        "verbose": true
       }
     },
     "test:integration": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.integration.ts"
+        "jestConfig": "apps/orchestration/jest.integration.ts",
+        "verbose": true,
+        "runInBand": true
       }
     },
     "test:e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.e2e.ts"
+        "jestConfig": "apps/orchestration/jest.e2e.ts",
+        "verbose": true,
+        "runInBand": true
       }
     }
   },
