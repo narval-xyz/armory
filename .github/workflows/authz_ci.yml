@@ -65,12 +65,12 @@ jobs:
       - name: Setup database and Prisma types
         shell: bash
         run: |
-          # make orchestration/test/copy-default-env
+          make authz/copy-default-env
           # make orchestration/test/db/setup
 
           # Generate the orchestration Prisma client types to prevent the type
           # tests to fail.
-          make orchestration/db/generate-types
+          # make orchestration/db/generate-types
 
       # Temporary disable while we don't figure out how to scope the check only
       # to oen application.

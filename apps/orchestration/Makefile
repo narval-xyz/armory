@@ -4,6 +4,7 @@ ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/persistence/sc
 
 orchestration/copy-default-env:
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
+	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test
 
 orchestration/db/generate-types:
 	npx prisma generate \
@@ -27,9 +28,6 @@ orchestration/test/db/setup:
 		--schema ${ORCHESTRATION_DATABASE_SCHEMA} \
 		--skip-seed \
 		--force
-
-orchestration/test/copy-default-env:
-	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test
 
 orchestration/test/type:
 	npx nx test:type ${ORCHESTRATION_PROJECT_NAME}

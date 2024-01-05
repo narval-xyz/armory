@@ -11,7 +11,7 @@ make orchestration/db/migrate
 
 ## Testing
 
-Firs time? Run `orchestration/test/copy-default-env` and `make
+Firs time? Run `orchestration/copy-default-env` and `make
 orchestration/test/db/setup` to setup the test database.
 
 ```bash
