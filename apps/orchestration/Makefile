@@ -2,6 +2,9 @@ ORCHESTRATION_PROJECT_NAME := apps/orchestration
 ORCHESTRATION_PROJECT_DIR := ./apps/orchestration
 ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/persistence/schema/schema.prisma
 
+orchestration/start/dev:
+	npx nx serve ${ORCHESTRATION_PROJECT_NAME}
+
 orchestration/copy-default-env:
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test

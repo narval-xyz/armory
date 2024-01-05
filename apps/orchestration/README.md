@@ -9,6 +9,12 @@ make orchestration/copy-default-env
 make orchestration/db/migrate
 ```
 
+## Running
+
+```bash
+make orchestration/start/dev
+```
+
 ## Testing
 
 Firs time? Run `orchestration/copy-default-env` and `make
