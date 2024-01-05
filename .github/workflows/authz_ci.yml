@@ -10,6 +10,8 @@ on:
       - jest.preset.js
       - .eslintrc.json
       - .prettierrc
+      - package.json
+      - package-lock.json
 
 jobs:
   build-and-test:
