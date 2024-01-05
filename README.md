@@ -10,3 +10,33 @@
 ## Description
 
 TBD
+
+## Application
+
+- [AuthZ](./apps/authz-node/README.md)
+- [Orchestration](./apps/orchestration/README.md)
+
+## Docker
+
+We use Docker & `docker-compose` to run the application's dependencies.
+
+```bash
+make docker/up
+make docker/stop
+```
+
+## Formatting
+
+We use [Prettier](https://prettier.io/) and [ESLint](https://eslint.org/) to
+ensure code consistency. You can run the following commands to format and lint
+the whole code base.
+
+```bash
+# Format and lint all the code.
+make format
+make lint
+
+# Check for formatting and linting errors without fixing them.
+make format/check
+make lint/check
+```

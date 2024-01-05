@@ -2,6 +2,9 @@ ORCHESTRATION_PROJECT_NAME := apps/orchestration
 ORCHESTRATION_PROJECT_DIR := ./apps/orchestration
 ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/persistence/schema/schema.prisma
 
+orchestration/copy-default-env:
+	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
+
 orchestration/db/generate-types:
 	npx prisma generate \
 		--schema ${ORCHESTRATION_DATABASE_SCHEMA}
