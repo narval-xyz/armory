@@ -1,6 +1,9 @@
 AUTHZ_PROJECT_NAME := apps/authz-node
 AUTHZ_PROJECT_DIR := ./apps/authz-node
 
+authz/setup:
+	make authz/copy-default-env
+
 authz/start/dev:
 	npx nx serve ${AUTHZ_PROJECT_NAME}
 

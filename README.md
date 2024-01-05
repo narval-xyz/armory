@@ -11,6 +11,16 @@
 
 TBD
 
+## Getting started
+
+To setup the project, run the following command:
+
+```bash
+make setup
+```
+
+At the end, you must have a working environment ready to run any application.
+
 ## Application
 
 - [AuthZ](./apps/authz-node/README.md)
