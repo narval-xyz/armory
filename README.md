@@ -16,6 +16,8 @@ TBD
 To setup the project, run the following command:
 
 ```bash
+git clone git@github.com:narval-xyz/narval.git
+cd narval
 make setup
 ```
 
