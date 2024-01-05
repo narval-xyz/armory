@@ -64,7 +64,7 @@ jobs:
       - name: Setup database and Prisma types
         shell: bash
         run: |
-          make orchestration/test/copy-default-env
+          make orchestration/copy-default-env
           make orchestration/test/db/setup
           make orchestration/db/generate-types
 
