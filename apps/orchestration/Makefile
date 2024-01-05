@@ -5,6 +5,11 @@ ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/persistence/sc
 orchestration/start/dev:
 	npx nx serve ${ORCHESTRATION_PROJECT_NAME}
 
+orchestration/setup:
+	make orchestration/copy-default-env
+	make orchestration/db/migrate
+	make orchestration/test/db/setup
+
 orchestration/copy-default-env:
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test
