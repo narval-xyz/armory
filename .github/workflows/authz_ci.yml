@@ -3,7 +3,7 @@ name: AuthZ CI
 on:
   push:
     paths:
-      - apps/authz-node/**
+      - apps/authz/**
       - .github/workflows/**
       - Makefile
       - jest.config.ts
