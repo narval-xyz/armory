@@ -1,5 +1,5 @@
 {
-  "name": "apps/orchestration",
+  "name": "orchestration",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/orchestration/src",
   "projectType": "application",
@@ -26,14 +26,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "apps/orchestration:build"
+        "buildTarget": "orchestration:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "apps/orchestration:build:development"
+          "buildTarget": "orchestration:build:development"
         },
         "production": {
-          "buildTarget": "apps/orchestration:build:production"
+          "buildTarget": "orchestration:build:production"
         }
       }
     },
@@ -47,7 +47,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc --noEmit --project apps/authz-node/tsconfig.app.json"
+        "command": "npx tsc --noEmit --project apps/authz/tsconfig.app.json"
       }
     },
     "test:unit": {

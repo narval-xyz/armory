@@ -1,4 +1,4 @@
-ORCHESTRATION_PROJECT_NAME := apps/orchestration
+ORCHESTRATION_PROJECT_NAME := orchestration
 ORCHESTRATION_PROJECT_DIR := ./apps/orchestration
 ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/persistence/schema/schema.prisma
 

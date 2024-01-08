@@ -25,7 +25,7 @@ At the end, you must have a working environment ready to run any application.
 
 ## Application
 
-- [AuthZ](./apps/authz-node/README.md)
+- [AuthZ](./apps/authz/README.md)
 - [Orchestration](./apps/orchestration/README.md)
 
 ## Docker

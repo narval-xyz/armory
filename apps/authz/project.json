@@ -1,7 +1,7 @@
 {
-  "name": "apps/authz-node",
+  "name": "authz",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/authz-node/src",
+  "sourceRoot": "apps/authz/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -11,11 +11,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/authz-node",
-        "main": "apps/authz-node/src/main.ts",
-        "tsConfig": "apps/authz-node/tsconfig.app.json",
+        "outputPath": "dist/apps/authz",
+        "main": "apps/authz/src/main.ts",
+        "tsConfig": "apps/authz/tsconfig.app.json",
         "isolatedConfig": true,
-        "webpackConfig": "apps/authz-node/webpack.config.js"
+        "webpackConfig": "apps/authz/webpack.config.js"
       },
       "configurations": {
         "development": {},
@@ -26,14 +26,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "apps/authz-node:build"
+        "buildTarget": "authz:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "apps/authz-node:build:development"
+          "buildTarget": "authz:build:development"
         },
         "production": {
-          "buildTarget": "apps/authz-node:build:production"
+          "buildTarget": "authz:build:production"
         }
       }
     },
@@ -41,10 +41,9 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/authz-node/**/*.ts"]
+        "lintFilePatterns": ["apps/authz/**/*.ts"]
       }
     },
-
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
@@ -55,7 +54,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/authz-node/jest.unit.ts",
+        "jestConfig": "apps/authz/jest.unit.ts",
         "verbose": true
       }
     },
@@ -63,7 +62,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/authz-node/jest.integration.ts",
+        "jestConfig": "apps/authz/jest.integration.ts",
         "verbose": true,
         "runInBand": true
       }
@@ -72,7 +71,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/authz-node/jest.e2e.ts",
+        "jestConfig": "apps/authz/jest.e2e.ts",
         "verbose": true,
         "runInBand": true
       }

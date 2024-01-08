@@ -1,5 +1,5 @@
-AUTHZ_PROJECT_NAME := apps/authz-node
-AUTHZ_PROJECT_DIR := ./apps/authz-node
+AUTHZ_PROJECT_NAME := authz
+AUTHZ_PROJECT_DIR := ./apps/authz
 
 authz/setup:
 	make authz/copy-default-env
