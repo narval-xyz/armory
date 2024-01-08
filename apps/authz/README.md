@@ -6,7 +6,7 @@ TBD
 
 ```bash
 # Boot PostgreSQL and Redis
-make docker/up 
+make docker/up
 make authz/copy-default-env
 ```
 
