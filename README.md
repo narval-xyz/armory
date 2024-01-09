@@ -52,3 +52,11 @@ make lint
 make format/check
 make lint/check
 ```
+
+## Creating a NestJS library
+
+Run the command below and follow the instructions to create a new NestJS library.
+
+```bash
+ npx nx g @nx/nest:library
+```
