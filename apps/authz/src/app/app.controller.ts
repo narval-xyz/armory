@@ -1,3 +1,4 @@
+import { transactionRequestIntent } from '@narval/transaction-request-intent'
 import { Controller, Get, Logger } from '@nestjs/common'
 
 import { AppService } from './app.service'
@@ -16,7 +17,8 @@ export class AppController {
   @Get('/ping')
   ping() {
     this.logger.log({
-      message: 'Received ping'
+      message: 'Received ping',
+      test: transactionRequestIntent()
     })
 
     return 'pong'

@@ -18,7 +18,8 @@
     "paths": {
       "@app/authz/*": ["apps/authz/src/*"],
       "@app/orchestration/*": ["apps/orchestration/src/*"],
-      "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"]
+      "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"],
+      "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
