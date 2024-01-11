@@ -1,8 +1,20 @@
-import { Action, Intent } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { Action, Address, Hex } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
-import { Equals, IsEnum, IsString } from 'class-validator'
+import { Type } from 'class-transformer'
+import {
+  IsDefined,
+  IsEnum,
+  IsEthereumAddress,
+  IsHexadecimal,
+  IsString,
+  Validate,
+  ValidateNested
+} from 'class-validator'
+import { RequestHash } from './validator/request-hash.validator'
 
-class SignatureDto {
+export class SignatureDto {
+  @IsDefined()
+  @IsString()
   @ApiProperty()
   hash: string
 
@@ -12,12 +24,12 @@ class SignatureDto {
   type?: string = 'ECDSA'
 }
 
-class AuthenticationDto {
+export class AuthenticationDto {
   @ApiProperty()
   signature: SignatureDto
 }
 
-class ApprovalDto {
+export class ApprovalDto {
   @ApiProperty({
     type: () => SignatureDto,
     isArray: true
@@ -25,53 +37,46 @@ class ApprovalDto {
   signatures: SignatureDto[]
 }
 
-class TransferNativeIntentDto {
+export class SignTransactionRequestDto {
+  @IsDefined()
+  @IsEthereumAddress()
   @ApiProperty({
-    default: Intent.TRANSFER_NATIVE
+    required: true,
+    format: 'EthereumAddress(0x[Aa-fF0-9]{40})'
   })
-  @IsString()
-  @Equals(Intent.TRANSFER_NATIVE)
-  type: string = Intent.TRANSFER_NATIVE
+  from: Address
+
+  @IsEthereumAddress()
+  @ApiProperty({
+    format: 'EthereumAddress(0x[Aa-fF0-9]{40})'
+  })
+  to: Address
+
+  @IsHexadecimal()
+  @ApiProperty({
+    type: 'string',
+    format: 'Hexadecimal'
+  })
+  data: Hex
 }
 
-class TransferTokenIntentDto {
+export class SignMessageRequestDto {
+  @IsString()
+  @IsDefined()
   @ApiProperty({
-    default: Intent.TRANSFER_TOKEN
+    required: true
   })
-  @IsString()
-  @Equals(Intent.TRANSFER_TOKEN)
-  type: string = Intent.TRANSFER_TOKEN
-}
-
-@ApiExtraModels(TransferNativeIntentDto, TransferTokenIntentDto)
-class SignTransactionRequestDto {
-  @ApiProperty()
-  @IsString()
-  from: string
-
-  @ApiProperty()
-  @IsString()
-  to: string
-
-  @ApiProperty({
-    oneOf: [{ $ref: getSchemaPath(TransferNativeIntentDto) }, { $ref: getSchemaPath(TransferTokenIntentDto) }]
-  })
-  intent: TransferNativeIntentDto | TransferTokenIntentDto
-}
-
-class SignMessageRequestDto {
-  @ApiProperty()
-  @IsString()
   message: string
 }
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
+  @IsEnum(Action)
+  @IsDefined()
   @ApiProperty({
     enum: Action
   })
-  @IsEnum(Action)
-  action: Action
+  action: `${Action}`
 
   @ApiProperty()
   authentication: AuthenticationDto
@@ -79,8 +84,29 @@ export class AuthorizationRequestDto {
   @ApiProperty()
   approval: ApprovalDto
 
+  @ValidateNested()
+  @Type((opts) => {
+    return opts?.object.action === Action.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
+  })
   @ApiProperty({
     oneOf: [{ $ref: getSchemaPath(SignTransactionRequestDto) }, { $ref: getSchemaPath(SignMessageRequestDto) }]
   })
   request: SignTransactionRequestDto | SignMessageRequestDto
+
+  @IsString()
+  @IsDefined()
+  @Validate(RequestHash)
+  @ApiProperty({
+    description: 'The hash of the request in EIP-191 format.',
+    required: true
+  })
+  hash: string
+
+  isSignTransaction(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignTransactionRequestDto {
+    return this.action === Action.SIGN_TRANSACTION
+  }
+
+  isSignMessage(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignMessageRequestDto {
+    return this.action === Action.SIGN_MESSAGE
+  }
 }

@@ -53,10 +53,19 @@ make format/check
 make lint/check
 ```
 
-## Creating a NestJS library
+## Generating a new project
 
-Run the command below and follow the instructions to create a new NestJS library.
+NX provides two types of projects: applications and libraries. Run the commands
+below to generate a project of your choice.
 
 ```bash
+# Generate an standard JavaScript library.
+ npx nx g @nrwl/workspace:lib
+ # Generate an NestJS library.
  npx nx g @nx/nest:library
+ # Generate an NestJS application.
+ npx nx g @nx/nest:application
 ```
+
+For more information about code generation, please refer to the [NX
+documentation](https://nx.dev/nx-api/nx).

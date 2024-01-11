@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output into a separate subdirectory so multiple schemas can be used in a
+  // monorepo.
+  //
+  // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
+  output   = "../../../../../../../node_modules/@prisma/client/orchestration"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ORCHESTRATION_DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  authorizationRequests AuthorizationRequest[]
+
+  @@map("organization")
+}
+
+enum AuthorizationRequestStatus {
+  CREATED
+  CANCELED
+  PROCESSING
+  APPROVING
+  PERMITTED
+  FORBIDDEN
+}
+
+enum AuthorizationRequestAction {
+  signTransaction
+  signMessage
+}
+
+model AuthorizationRequest {
+  id             String                     @id @default(uuid()) @db.VarChar(255)
+  orgId          String
+  initiatorId    String                     @map("initiator_id")
+  status         AuthorizationRequestStatus @default(CREATED)
+  action         AuthorizationRequestAction
+  hash           String
+  request        Json
+  idempotencyKey String?                    @unique @map("idempotency_key")
+  createdAt      DateTime                   @default(now()) @map("created_at")
+  updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
+
+  org Organization @relation(fields: [orgId], references: [id])
+  // TODO (@wcalderipe, 10/01/24): Add relationship with the User model via initiatorId.
+
+  @@map("authorization_request")
+}
+
+model AuthorizationRequestApproval {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  signerId  String   @map("signer_id")
+  signature String
+  alg       String   @default("ECDSA")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // signer User @relation(fields: [signerId], references: [id])
+
+  @@map("authorization_request_approval")
+}

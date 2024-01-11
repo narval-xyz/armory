@@ -1,26 +1,31 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
+    "baseUrl": ".",
     "declaration": false,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
     "lib": ["es2020", "dom"],
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "paths": {
       "@app/authz/*": ["apps/authz/src/*"],
       "@app/orchestration/*": ["apps/orchestration/src/*"],
       "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"],
       "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"]
-    }
+    },
+    "removeComments": true,
+    "rootDir": ".",
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "target": "es2015"
   },
   "exclude": ["node_modules", "tmp"]
 }
