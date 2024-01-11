@@ -1,0 +1,34 @@
+{
+  "action": "signTransaction",
+  "request": {
+    "type": "eip1559",
+    "chain_id": 137,
+    "max_fee_per_gas": "20000000000",
+    "max_priority_fee_per_gas": "3000000000",
+    "gas": "21000",
+    "nonce": 1,
+    "from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+    "to": "0x94f557dddb245b11d031f57ba7f2c4f28c4a203e"
+  },
+  "intent": {
+    "type": "callContract",
+    "from": {
+      "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+      "address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
+    },
+    "to": {
+      "uid": "eip155:137:0x94f557dddb245b11d031f57ba7f2c4f28c4a203e",
+      "chain_id": 137,
+      "address": "0x94f557dddb245b11d031f57ba7f2c4f28c4a203e"
+    },
+    "contract_function": {
+      "hex_signature": "0x1521465b"
+    }
+  },
+  "resource": {
+    "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
+  },
+  "principal": {
+    "uid": "0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23"
+  }
+}

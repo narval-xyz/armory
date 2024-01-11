@@ -28,3 +28,8 @@ authz/test/integration:
 
 authz/test/e2e:
 	npx nx test:e2e ${AUTHZ_PROJECT_NAME}
+
+authz/rego/compile:
+	mkdir -p ./rego-build
+	opa build -t wasm -e main/evaluate -o ./rego-build/policies.gz ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/main.rego
+	tar -xzf ./rego-build/policies.gz -C ./rego-build/

@@ -1,6 +1,7 @@
 import { transactionRequestIntent } from '@narval/transaction-request-intent'
-import { Controller, Get, Logger } from '@nestjs/common'
+import { Controller, Get, Logger, Post } from '@nestjs/common'
 
+import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
 import { AppService } from './app.service'
 
 @Controller()
@@ -22,5 +23,20 @@ export class AppController {
     })
 
     return 'pong'
+  }
+
+  @Post('/evaluation')
+  async evaluate() {
+    this.logger.log({
+      message: 'Received evaluation',
+    })
+    const fakeRequest = await generateInboundRequest()
+    const result = await this.appService.runEvaluation(fakeRequest)
+    this.logger.log({
+      message: 'Evaluation Result',
+      result
+    })
+
+    return result
   }
 }
