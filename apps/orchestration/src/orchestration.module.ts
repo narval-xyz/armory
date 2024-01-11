@@ -1,8 +1,8 @@
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
-import { TransactionEngineModule } from '@narval/transaction-engine-module'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { load } from './orchestration.config'
+import { QueueModule } from './shared/module/queue/queue.module'
 
 @Module({
   imports: [
@@ -10,8 +10,8 @@ import { load } from './orchestration.config'
       load: [load],
       isGlobal: true
     }),
-    PolicyEngineModule,
-    TransactionEngineModule
+    QueueModule.forRoot(),
+    PolicyEngineModule
   ]
 })
 export class OrchestrationModule {}

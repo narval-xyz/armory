@@ -1,15 +1,21 @@
 AUTHZ_PROJECT_NAME := authz
 AUTHZ_PROJECT_DIR := ./apps/authz
 
-authz/setup:
-	make authz/copy-default-env
+# === Start ===
 
 authz/start/dev:
 	npx nx serve ${AUTHZ_PROJECT_NAME}
 
+# === Setup ===
+
+authz/setup:
+	make authz/copy-default-env
+
 authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env
 	cp ${AUTHZ_PROJECT_DIR}/.env.test.default ${AUTHZ_PROJECT_DIR}/.env.test
+
+# === Testing ===
 
 authz/test/type:
 	npx nx test:type ${AUTHZ_PROJECT_NAME}

@@ -1,81 +1,75 @@
-import { PrismaService } from '@app/orchestration/persistence/service/prisma.service'
-import { Decision } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
+import { Action, CreateAuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
-import { HttpService } from '@nestjs/axios'
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post } from '@nestjs/common'
-import { ApiOkResponse } from '@nestjs/swagger'
-import { lastValueFrom, map, tap } from 'rxjs'
+import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { plainToInstance } from 'class-transformer'
+
+// Not in love with the gymnastics required to bend a DTO to a domain object.
+// Most of the complexity came from the discriminated union type.
+// It's fine for now to keep it ugly here but I'll look at the problem later
+const toDomainType = (orgId: string, body: AuthorizationRequestDto): CreateAuthorizationRequest => {
+  const dto = plainToInstance(AuthorizationRequestDto, body)
+  const shared = {
+    orgId,
+    initiatorId: '97389cac-20f0-4d02-a3a9-b27c564ffd18',
+    hash: dto.hash
+  }
+
+  if (dto.isSignMessage(dto.request)) {
+    return {
+      ...shared,
+      action: Action.SIGN_MESSAGE,
+      request: {
+        message: dto.request.message
+      }
+    }
+  }
+
+  return {
+    ...shared,
+    action: Action.SIGN_TRANSACTION,
+    request: {
+      from: dto.request.from,
+      to: dto.request.to,
+      data: dto.request.data
+    }
+  }
+}
 
 @Controller('/policy-engine')
+@ApiTags('Policy Engine')
 export class FacadeController {
-  private logger = new Logger(FacadeController.name)
+  constructor(private authorizationRequestService: AuthorizationRequestService) {}
 
-  constructor(private prisma: PrismaService, private http: HttpService) {}
-
-  @Post('/evaluation')
+  @Post('/evaluations')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({
-    description: 'The authorization evaluation has been successfully processed.',
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The authorization evaluation has been successfully submit',
     type: AuthorizationResponseDto
   })
-  evaluate(@Body() evaluation: AuthorizationRequestDto): AuthorizationResponseDto {
-    this.logger.log(evaluation)
+  async evaluation(@OrgId() orgId: string, @Body() body: AuthorizationRequestDto): Promise<AuthorizationResponseDto> {
+    const authzRequest = await this.authorizationRequestService.create(toDomainType(orgId, body))
 
-    return {
-      decision: Decision.CONFIRM,
-      reasons: [
-        {
-          code: 'require_approval',
-          message: 'Missing one or more approval(s)'
-        }
-      ]
-    }
+    return new AuthorizationResponseDto(authzRequest)
   }
 
-  @Get('/ping')
-  async ping() {
-    const cluster = [
-      {
-        host: 'localhost',
-        port: 3010,
-        protocol: 'http'
-      },
-      {
-        host: 'localhost',
-        port: 3010,
-        protocol: 'http'
-      }
-    ]
+  @Get('/evaluations/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The authorization evaluation request',
+    type: AuthorizationResponseDto
+  })
+  async getBydId(@Param('id') id: string): Promise<AuthorizationResponseDto | null> {
+    const authzRequest = await this.authorizationRequestService.findById(id)
 
-    const responses: string[] = []
-
-    for (const { protocol, host, port } of cluster) {
-      const url = `${protocol}://${host}:${port}/ping`
-
-      const response = await lastValueFrom(
-        this.http.get(url).pipe(
-          map((response) => response.data),
-          tap((data) =>
-            this.logger.log({
-              message: 'Received response from node',
-              response: data,
-              url
-            })
-          ),
-          map((pong) => `${pong} from ${url}`)
-        )
-      )
-
-      responses.push(response)
+    if (authzRequest) {
+      return new AuthorizationResponseDto(authzRequest)
     }
 
-    return responses
-  }
-
-  // Temporary endpoint to end-to-end test the connectivity with the database.
-  @Get('/users')
-  justCheckingTheDatabase() {
-    return this.prisma.user.findMany()
+    return null
   }
 }

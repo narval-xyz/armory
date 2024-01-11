@@ -3,22 +3,23 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { lastValueFrom, map, of, switchMap, tap } from 'rxjs'
 import { Config } from './orchestration.config'
 
 /**
  * Sets up Swagger documentation for the application.
  *
  * @param app - The INestApplication instance.
- * @param logger - The logger instance.
  * @returns The modified INestApplication instance.
  */
-const setupSwagger = (app: INestApplication, logger: Logger): INestApplication => {
-  logger.log('Setting up Swagger')
-
+const withSwagger = (app: INestApplication): INestApplication => {
   const document = SwaggerModule.createDocument(
     app,
-    new DocumentBuilder().setTitle('Orchestration').setVersion('1.0').addTag('Orchestration').build()
+    new DocumentBuilder()
+      .setTitle('Orchestration')
+      .setDescription('Orchestration is the most secure infrastructure to run authorization for web3.')
+      .setVersion('1.0')
+      .build()
   )
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
@@ -35,12 +36,9 @@ const setupSwagger = (app: INestApplication, logger: Logger): INestApplication =
  * Sets up REST global validation for the application.
  *
  * @param app - The INestApplication instance.
- * @param logger - The logger instance.
  * @returns The modified INestApplication instance.
  */
-const setupRestValidation = (app: INestApplication, logger: Logger): INestApplication => {
-  logger.log('Setting up REST global validation')
-
+const withRestValidation = (app: INestApplication): INestApplication => {
   app.useGlobalPipes(new ValidationPipe())
 
   return app
@@ -52,7 +50,7 @@ const setupRestValidation = (app: INestApplication, logger: Logger): INestApplic
  * @returns {Promise<void>} A promise that resolves when the application is
  * successfully bootstrapped.
  */
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const logger = new Logger('OrchestrationBootstrap')
   const application = await NestFactory.create(OrchestrationModule)
   const configService = application.get<ConfigService<Config, true>>(ConfigService)
@@ -60,8 +58,10 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
-      map((app) => setupSwagger(app, logger)),
-      map((app) => setupRestValidation(app, logger)),
+      map((app) => withSwagger(app)),
+      tap(() => logger.log('Added Swagger')),
+      map((app) => withRestValidation(app)),
+      tap(() => logger.log('Added REST global validation')),
       switchMap((app) => app.listen(port))
     )
   )

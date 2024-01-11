@@ -32,3 +32,10 @@ make orchestration/test/unit
 make orchestration/test/integration
 make orchestration/test/e2e
 ```
+
+## Database
+
+```bash
+make orchestration/db/migrate
+make orchestration/db/create-migration NAME=your-migration-name
+```

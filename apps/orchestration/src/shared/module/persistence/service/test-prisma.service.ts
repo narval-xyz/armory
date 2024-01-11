@@ -6,7 +6,7 @@ import { PrismaService } from './prisma.service'
 export class TestPrismaService {
   constructor(private prisma: PrismaService) {}
 
-  getPrismaClient(): PrismaClient {
+  getClient(): PrismaClient {
     return this.prisma
   }
 
