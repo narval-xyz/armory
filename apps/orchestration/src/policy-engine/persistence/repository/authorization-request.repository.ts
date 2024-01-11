@@ -1,47 +1,15 @@
 import {
-  Action,
   AuthorizationRequest,
   AuthorizationRequestStatus,
-  CreateAuthorizationRequest,
-  MessageRequest,
-  TransactionRequest
+  CreateAuthorizationRequest
 } from '@app/orchestration/policy-engine/core/type/domain.type'
+import {
+  decodeAuthorizationRequest,
+  isDecodeError,
+  isDecodeSuccess
+} from '@app/orchestration/policy-engine/persistence/decode/decode-authorization-request.strategy'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { Injectable } from '@nestjs/common'
-import { AuthorizationRequest as AuthorizationRequestModel } from '@prisma/client/orchestration'
-
-const toDomainType = (model: AuthorizationRequestModel): AuthorizationRequest => {
-  const shared = {
-    id: model.id,
-    orgId: model.orgId,
-    initiatorId: model.initiatorId,
-    status: model.status,
-    hash: model.hash,
-    idempotencyKey: model.idempotencyKey,
-    createdAt: model.createdAt,
-    updatedAt: model.updatedAt
-  }
-
-  if (model.action === Action.SIGN_MESSAGE) {
-    return {
-      ...shared,
-      action: model.action,
-      request: {
-        // IMPORTANT: Get rid of this force cast.
-        message: (model.request as MessageRequest).message
-      }
-    }
-  }
-
-  // IMPORTANT: Get rid of this force cast.
-  const request = model.request as TransactionRequest
-
-  return {
-    ...shared,
-    action: model.action,
-    request
-  }
-}
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
 
 @Injectable()
 export class AuthorizationRequestRepository {
@@ -74,7 +42,16 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    return toDomainType(model)
+    const decode = decodeAuthorizationRequest(model)
+
+    if (decode.success) {
+      return decode.authorizationRequest
+    }
+
+    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
+    throw new BadRequestException('Invalid authorization request', {
+      description: decode.reason
+    })
   }
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
@@ -83,7 +60,16 @@ export class AuthorizationRequestRepository {
     })
 
     if (model) {
-      return toDomainType(model)
+      const decode = decodeAuthorizationRequest(model)
+
+      if (decode.success) {
+        return decode.authorizationRequest
+      }
+
+      // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
+      throw new InternalServerErrorException('Invalid stored authorization request', {
+        description: decode.reason
+      })
     }
 
     return null
@@ -98,7 +84,17 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    return models.map(toDomainType)
+    const decodes = models.map(decodeAuthorizationRequest)
+    const errors = decodes.filter(isDecodeError)
+
+    if (errors.length) {
+      // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
+      throw new InternalServerErrorException('Invalid stored authorization request', {
+        description: errors.map(({ reason }) => reason).join(', ')
+      })
+    }
+
+    return decodes.filter(isDecodeSuccess).map(({ authorizationRequest }) => authorizationRequest)
   }
 
   async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
@@ -107,6 +103,15 @@ export class AuthorizationRequestRepository {
       data: { status }
     })
 
-    return toDomainType(model)
+    const decode = decodeAuthorizationRequest(model)
+
+    if (decode.success) {
+      return decode.authorizationRequest
+    }
+
+    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
+    throw new InternalServerErrorException('Invalid stored authorization request', {
+      description: decode.reason
+    })
   }
 }

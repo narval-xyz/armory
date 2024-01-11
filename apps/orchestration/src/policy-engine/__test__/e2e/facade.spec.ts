@@ -113,6 +113,48 @@ describe('Policy Engine Cluster Facade', () => {
         updatedAt: expect.any(String)
       })
     })
+
+    it('evaluates a sign transaction authorization request', async () => {
+      const signTransactionRequest = {
+        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+        to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+        data: '0x'
+      }
+      const payload = {
+        action: Action.SIGN_TRANSACTION,
+        hash: hashMessage(JSON.stringify(signTransactionRequest)),
+        request: signTransactionRequest,
+        authentication: {
+          signature: {
+            hash: 'string'
+          }
+        },
+        approval: {
+          signatures: [
+            {
+              hash: 'string'
+            }
+          ]
+        }
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(EVALUATIONS_ENDPOINT)
+        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .send(payload)
+
+      expect(status).toEqual(HttpStatus.OK)
+      expect(body).toMatchObject({
+        id: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        action: payload.action,
+        hash: payload.hash,
+        request: payload.request,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
+    })
   })
 
   describe('GET /evaluations/:id', () => {
