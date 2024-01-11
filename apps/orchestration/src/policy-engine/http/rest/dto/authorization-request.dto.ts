@@ -1,15 +1,7 @@
 import { Action, Address, Hex } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import {
-  IsDefined,
-  IsEnum,
-  IsEthereumAddress,
-  IsHexadecimal,
-  IsString,
-  Validate,
-  ValidateNested
-} from 'class-validator'
+import { IsDefined, IsEnum, IsEthereumAddress, IsString, Validate, ValidateNested } from 'class-validator'
 import { RequestHash } from './validator/request-hash.validator'
 
 export class SignatureDto {
@@ -42,17 +34,17 @@ export class SignTransactionRequestDto {
   @IsEthereumAddress()
   @ApiProperty({
     required: true,
-    format: 'EthereumAddress(0x[Aa-fF0-9]{40})'
+    format: 'EthereumAddress'
   })
   from: Address
 
   @IsEthereumAddress()
   @ApiProperty({
-    format: 'EthereumAddress(0x[Aa-fF0-9]{40})'
+    format: 'EthereumAddress'
   })
   to: Address
 
-  @IsHexadecimal()
+  @IsString()
   @ApiProperty({
     type: 'string',
     format: 'Hexadecimal'
@@ -88,6 +80,7 @@ export class AuthorizationRequestDto {
   @Type((opts) => {
     return opts?.object.action === Action.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
   })
+  @IsDefined()
   @ApiProperty({
     oneOf: [{ $ref: getSchemaPath(SignTransactionRequestDto) }, { $ref: getSchemaPath(SignMessageRequestDto) }]
   })
