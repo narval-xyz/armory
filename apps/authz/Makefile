@@ -29,7 +29,13 @@ authz/test/integration:
 authz/test/e2e:
 	npx nx test:e2e ${AUTHZ_PROJECT_NAME}
 
+# === Open Policy Agent & Rego ===
+
 authz/rego/compile:
 	mkdir -p ./rego-build
-	opa build -t wasm -e main/evaluate -o ./rego-build/policies.gz ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/main.rego
+	opa build \
+		--target wasm \
+		--entrypoint main/evaluate \
+		--output ./rego-build/policies.gz \
+		${AUTHZ_PROJECT_DIR}/src/app/opa/rego/main.rego
 	tar -xzf ./rego-build/policies.gz -C ./rego-build/
