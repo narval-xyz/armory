@@ -1,0 +1,44 @@
+name: Transaction Request Intent CI
+
+on:
+  push:
+    paths:
+      - packages/transaction-request-intent/**
+      - .github/workflows/transaction_request_intent_ci.yml
+      - Makefile
+      - jest.config.ts
+      - jest.preset.js
+      - .eslintrc.json
+      - .prettierrc
+      - package.json
+      - package-lock.json
+
+jobs:
+  build-and-test:
+    name: Build and test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.4.0'
+
+      - name: Install dependencies
+        run: |
+          make install/ci
+
+      - name: Code format
+        shell: bash
+        run: |
+          make format/check
+          make lint/check
+
+      - name: Test unit
+        shell: bash
+        run: |
+           make transaction-request-intent/test/unit
