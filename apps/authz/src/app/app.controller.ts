@@ -1,7 +1,5 @@
-import { transactionRequestIntent } from '@narval/transaction-request-intent'
-import { Controller, Get, Logger, Post } from '@nestjs/common'
-
 import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
+import { Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 
 @Controller()
@@ -18,8 +16,7 @@ export class AppController {
   @Get('/ping')
   ping() {
     this.logger.log({
-      message: 'Received ping',
-      test: transactionRequestIntent()
+      message: 'Received ping'
     })
 
     return 'pong'
