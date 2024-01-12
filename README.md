@@ -3,8 +3,9 @@
 </p>
 <p align="center">Narval is the most advanced and secure authorization stack for web3.</p>
 <p align="center">
-<a href="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml/badge.svg?branch=main" alt="Orchestration CI" /></a>
-<a href="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml/badge.svg?branch=main" alt="AuthZ CI" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml/badge.svg?branch=main" alt="@app/orchestration" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml/badge.svg?branch=main" alt="@app/authz" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
 </p>
 
 ## Description
@@ -23,10 +24,11 @@ make setup
 
 At the end, you must have a working environment ready to run any application.
 
-## Application
+## Project
 
-- [AuthZ](./apps/authz/README.md)
-- [Orchestration](./apps/orchestration/README.md)
+- [@app/authz](./apps/authz/README.md)
+- [@app/orchestration](./apps/orchestration/README.md)
+- [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md)
 
 ## Docker
 
