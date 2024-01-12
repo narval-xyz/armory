@@ -136,14 +136,14 @@ export const safeDecode = (txRequest: TransactionRequest): Decode => {
       success: true,
       intent
     }
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof TransactionRequestIntentError) {
       return {
         success: false,
         error: {
           message: error.message,
           status: error.status,
-          context: error.context
+          context: error.context || {}
         }
       }
     }
@@ -152,7 +152,9 @@ export const safeDecode = (txRequest: TransactionRequest): Decode => {
       error: {
         message: 'Unknown error',
         status: 500,
-        context: error
+        context: {
+          error
+        }
       }
     }
   }

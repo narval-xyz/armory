@@ -1,9 +1,9 @@
 export class TransactionRequestIntentError extends Error {
-  readonly context?: any
+  readonly context?: Record<string, unknown>
 
   readonly status: number
 
-  constructor({ context, message, status }: { context?: any; message: string; status: number }) {
+  constructor({ context, message, status }: { context?: Record<string, unknown>; message: string; status: number }) {
     super(message)
 
     this.status = status
