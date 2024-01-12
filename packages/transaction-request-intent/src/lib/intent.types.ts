@@ -8,7 +8,7 @@ export type ContractFunction = {
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
   amount: string
-  native: Caip10
+  native: Caip19
 }
 
 export type TransferErc20 = {

@@ -43,7 +43,7 @@ type DecodeError = {
   error: {
     message: string
     status: number
-    context: any
+    context: Record<string, unknown>
   }
 }
 
