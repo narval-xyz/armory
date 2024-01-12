@@ -1,6 +1,6 @@
 import { AbiParameter, decodeAbiParameters } from 'viem';
 import { Erc20Methods } from './methodId';
-import { Erc20TransferAbi, Erc20TransferAbiParameters, Erc20TransferFromAbiParameters, Erc721TransferAbi, Erc721TransferFromAbiParameters } from './abis';
+import { Erc20TransferAbi, Erc20TransferAbiParameters, Erc721SafeTransferFromAbiParameters, Erc721TransferAbi, TransferFromAbiParameters } from './abis';
 
 export function decodeAbiParametersWrapper<TParams extends readonly AbiParameter[], TReturnType>(
   params: TParams, 
@@ -20,7 +20,7 @@ export const extractErc20TransferAmount = (data: `0x${string}`): string => {
 }
 
 export const extractErc20TransferFromAmount = (data: `0x${string}`): string => {
-  const paramValues = decodeAbiParameters(Erc20TransferFromAbiParameters, data);
+  const paramValues = decodeAbiParameters(TransferFromAbiParameters, data);
 
     const amount = paramValues[2];
     if (!amount) throw new Error('Malformed transaction request');
@@ -48,7 +48,7 @@ export const extractErc721AssetId = (data: `0x${string}`, methodId: string): str
   }
 
   // No need for specific mapping here, tokenId is always the third parameter
-  const paramValues = decodeAbiParameters(Erc721TransferFromAbiParameters, data);
+  const paramValues = decodeAbiParameters(Erc721SafeTransferFromAbiParameters, data);
 
   if (!paramValues[2]) throw new Error('Malformed transaction request');
   return paramValues[2].toString();

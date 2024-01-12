@@ -23,6 +23,7 @@ export const NATIVE_TRANSFER = 'nativeTransfer';
 
 // TODO: Move below in a folder shared with other apps, these should be shared within the whole project
 export enum AssetTypeEnum {
+  AMBIGUOUS = 'ambiguous',
   ERC1155 = 'erc1155',
   ERC20 = 'erc20',
   ERC721 = 'erc721',
