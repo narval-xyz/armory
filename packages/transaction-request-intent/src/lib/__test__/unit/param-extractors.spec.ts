@@ -1,4 +1,4 @@
-import { extractErc20TransferAmount } from '../../../utils/standard-functions/param-extractors'
+import { extractErc20TransferAmount } from '../../param-extractors'
 
 jest.mock('viem', () => ({
   decodeAbiParameters: jest

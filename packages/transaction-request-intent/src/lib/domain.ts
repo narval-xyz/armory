@@ -19,7 +19,7 @@ export enum Intents {
   CALL_CONTRACT = 'callContract'
 }
 
-export const NATIVE_TRANSFER = 'nativeTransfer'
+export const NULL_METHOD_ID = '0x00000000'
 
 // TODO: Move below in a folder shared with other apps, these should be shared within the whole project
 export enum AssetTypeEnum {

@@ -1,8 +1,9 @@
-import { IntentRequest } from '../shared/types'
-import { encodeEoaAccountId, encodeEoaAssetId } from '../utils/caip'
-import { AssetTypeEnum, EipStandardEnum, Intents } from '../utils/domain'
-import { Intent, TransferErc20, TransferErc721 } from '../utils/intent.types'
-import { extractErc20Amount, extractErc721AssetId } from '../utils/standard-functions/param-extractors'
+import { encodeEoaAccountId, encodeEoaAssetId } from './caip'
+import { AssetTypeEnum, EipStandardEnum, Intents } from './domain'
+import { TransactionRequestIntentError } from './error'
+import { Intent, TransferErc20, TransferErc721 } from './intent.types'
+import { extractErc20Amount, extractErc721AssetId } from './param-extractors'
+import { IntentRequest } from './types'
 
 export const decodeErc721 = ({
   data,
@@ -77,6 +78,12 @@ export const decodeIntent = (request: IntentRequest): Intent => {
         methodId
       })
     default:
-      throw new Error('Unsupported intent')
+      throw new TransactionRequestIntentError({
+        message: 'Unsupported intent',
+        status: 400,
+        context: {
+          request
+        }
+      })
   }
 }

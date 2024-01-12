@@ -1,7 +1,7 @@
-import { IntentRequest } from '../../../shared/types'
-import { AssetTypeEnum, Intents } from '../../../utils/domain'
-import { Erc20Methods } from '../../../utils/standard-functions/methodId'
 import { decodeIntent } from '../../decoders'
+import { AssetTypeEnum, Intents } from '../../domain'
+import { Erc20Methods } from '../../methodId'
+import { IntentRequest } from '../../types'
 
 jest.mock('viem', () => ({
   decodeAbiParameters: jest
