@@ -22,7 +22,7 @@
       }
     },
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["**/apps/**/*.ts", "**/apps/**/*.tsx"],
       "extends": ["plugin:@nx/typescript"],
       "rules": {
         "no-relative-import-paths/no-relative-import-paths": [
@@ -32,6 +32,11 @@
           }
         ]
       }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nx/typescript"],
+      "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],

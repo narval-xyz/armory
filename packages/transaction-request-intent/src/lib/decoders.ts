@@ -1,21 +1,21 @@
-import { Intent, TransferErc20, TransferErc721 } from '../../src/utils/intent.types';
-import { encodeEoaAccountId, encodeEoaAssetId } from '../../src/utils/caip';
-import { AssetTypeEnum, EipStandardEnum, Intents } from '../../src/utils/domain';
-import { extractErc20Amount, extractErc721AssetId } from '../../src/utils/standard-functions/param-extractors';
-import { IntentRequest } from '../../src/shared/types';
+import { IntentRequest } from '../shared/types'
+import { encodeEoaAccountId, encodeEoaAssetId } from '../utils/caip'
+import { AssetTypeEnum, EipStandardEnum, Intents } from '../utils/domain'
+import { Intent, TransferErc20, TransferErc721 } from '../utils/intent.types'
+import { extractErc20Amount, extractErc721AssetId } from '../utils/standard-functions/param-extractors'
 
 export const decodeErc721 = ({
   data,
   methodId,
   chainId,
   assetType,
-  to,
+  to
 }: {
-  data: `0x${string}`,
-  methodId: string,
-  chainId: number,
-  assetType: AssetTypeEnum,
-  to: `0x${string}`,
+  data: `0x${string}`
+  methodId: string
+  chainId: number
+  assetType: AssetTypeEnum
+  to: `0x${string}`
 }) => {
   const intent: TransferErc721 = {
     type: Intents.TRANSFER_ERC721,
@@ -24,42 +24,41 @@ export const decodeErc721 = ({
       assetType,
       chainId,
       evmAccountAddress: to,
-      tokenId: extractErc721AssetId(data, methodId),
+      tokenId: extractErc721AssetId(data, methodId)
     }),
     nftContract: encodeEoaAccountId({
       chainId,
-      evmAccountAddress: to,
-    }),
+      evmAccountAddress: to
+    })
   }
-  return intent;
+  return intent
 }
 
 export const decodeErc20 = ({
   to,
   data,
   chainId,
-  methodId,
+  methodId
 }: {
-  to: `0x${string}`,
-  data: `0x${string}`,
-  chainId: number,
-  methodId: string,
+  to: `0x${string}`
+  data: `0x${string}`
+  chainId: number
+  methodId: string
 }): TransferErc20 => {
-  
   const intent: TransferErc20 = {
     type: Intents.TRANSFER_ERC20,
     amount: extractErc20Amount(data, methodId),
     token: encodeEoaAccountId({
       chainId,
-      evmAccountAddress: to,
-    }),
+      evmAccountAddress: to
+    })
   }
 
-  return intent;
-};
+  return intent
+}
 
 export const decodeIntent = (request: IntentRequest): Intent => {
-  const { methodId, type } = request;
+  const { methodId, type } = request
 
   switch (type) {
     case Intents.TRANSFER_ERC20:
@@ -67,17 +66,17 @@ export const decodeIntent = (request: IntentRequest): Intent => {
         to: request.validatedFields.to,
         data: request.validatedFields.data,
         chainId: +request.validatedFields.chainId,
-        methodId,
-      });
+        methodId
+      })
     case Intents.TRANSFER_ERC721:
       return decodeErc721({
         assetType: request.assetType,
         to: request.validatedFields.to,
         data: request.validatedFields.data,
         chainId: +request.validatedFields.chainId,
-        methodId,
-      });
+        methodId
+      })
     default:
-      throw new Error('Unsupported intent');
+      throw new Error('Unsupported intent')
   }
 }

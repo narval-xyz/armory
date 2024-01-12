@@ -1,3 +1,5 @@
+import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
+import { BlockchainActions } from '@app/authz/shared/types/enums'
 import {
   ApprovalSignature,
   AuthZRequest,
@@ -5,12 +7,10 @@ import {
   AuthZResponse,
   NarvalDecision
 } from '@app/authz/shared/types/http'
+import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Injectable } from '@nestjs/common'
 import { recoverMessageAddress } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { BlockchainActions } from '@app/authz/shared/types/enums'
-import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
-import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
 import { OpaService } from './opa/opa.service'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -33,7 +33,7 @@ export class AppService {
           message: verificationMessage,
           signature: sig
         })
-        const userId = await this.persistenceRepository.getUserForAddress(address);
+        const userId = await this.persistenceRepository.getUserForAddress(address)
 
         return {
           signature: sig,
@@ -105,7 +105,7 @@ export class AppService {
       signature: authn.signature
     })
     console.log('Recovered Principal address', recoveredAddress)
-    const principalUserId = await this.persistenceRepository.getUserForAddress(recoveredAddress);
+    const principalUserId = await this.persistenceRepository.getUserForAddress(recoveredAddress)
 
     if (!principalUserId) throw new Error(`Could not find user for address ${recoveredAddress}`)
     // Populate any approval signatures with recovered address/user info
@@ -139,6 +139,6 @@ export class AppService {
 
     console.log('End')
 
-    return authzResponse;
+    return authzResponse
   }
 }

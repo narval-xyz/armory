@@ -1,6 +1,3 @@
-import { Address, toHex } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { AccountType, BlockchainActions, Intents, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
 import {
   AddressBookAccount,
   RegoData,
@@ -10,9 +7,12 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
+import { AccountType, BlockchainActions, Intents, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
 import { AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
 import { TransferNative } from '@app/authz/shared/types/intents'
 import { RegoInput } from '@app/authz/shared/types/rego'
+import { Address, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 export const ONE_ETH = 1000000000000000000n
 
@@ -260,32 +260,31 @@ export const mockEntityData: RegoData = {
   }
 }
 
-
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
 export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
-  const txRequest = NATIVE_TRANSFER_TX_REQUEST;
+  const txRequest = NATIVE_TRANSFER_TX_REQUEST
 
   const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
-    message: JSON.stringify(txRequest),
-  });
+    message: JSON.stringify(txRequest)
+  })
   const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
-    message: JSON.stringify(txRequest),
-  });
+    message: JSON.stringify(txRequest)
+  })
   const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
-    message: JSON.stringify(txRequest),
-  });
+    message: JSON.stringify(txRequest)
+  })
 
   return {
     authn: {
-      signature: signatureMatt,
+      signature: signatureMatt
     },
     request: {
       activityType: BlockchainActions.SIGN_TRANSACTION,
       intent: NATIVE_TRANSFER_INTENT,
       transactionRequest: txRequest,
-      resourceId: NATIVE_TRANSFER_INTENT.from.uid,
+      resourceId: NATIVE_TRANSFER_INTENT.from.uid
     },
-    approvalSignatures: [approvalSigAAUser, approvalSigBBUser],
-  };
-};
+    approvalSignatures: [approvalSigAAUser, approvalSigBBUser]
+  }
+}
