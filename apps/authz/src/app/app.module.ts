@@ -1,6 +1,6 @@
+import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Logger, Module, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { load } from './app.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'

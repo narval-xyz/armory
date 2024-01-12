@@ -1,5 +1,5 @@
-import { Intents } from './enums'
 import { AddressBookAccount, Wallet } from './entities.types'
+import { Intents } from './enums'
 
 // Here define the types for Spending Limits that will be added to the concerned Transfer types.
 // Also, need to enrich with thirdparties metadata such as usd prices, rates..

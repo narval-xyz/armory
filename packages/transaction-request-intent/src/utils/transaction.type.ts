@@ -1,20 +1,19 @@
-
-import { AccessList, Address, Hex } from 'viem';
+import { AccessList, Address, Hex } from 'viem'
 
 export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionType = '2'> = {
   /** Contract code or a hashed method call with encoded args */
-  data?: Hex;
+  data?: Hex
   /** Transaction sender */
-  from: Address;
+  from: Address
   /** Gas provided for transaction execution */
-  gas?: TQuantity;
+  gas?: TQuantity
   /** Unique number identifying this transaction */
-  nonce?: TIndex;
+  nonce?: TIndex
   /** Transaction recipient */
-  to?: Address | null;
+  to?: Address | null
   /** Value in wei sent with this transaction */
-  value?: TQuantity;
-  chainId: string | null;
-  accessList?: AccessList;
-  type?: TTransactionType;
-};
+  value?: TQuantity
+  chainId: string | null
+  accessList?: AccessList
+  type?: TTransactionType
+}

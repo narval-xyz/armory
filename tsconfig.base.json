@@ -17,6 +17,7 @@
       "@app/orchestration/*": ["apps/orchestration/src/*"],
       "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"],
       "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"]
+      // "@narval/transaction-request-intent/*": ["packages/transaction-request-intent/src/*"]
     },
     "removeComments": true,
     "rootDir": ".",

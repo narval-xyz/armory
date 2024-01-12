@@ -66,7 +66,6 @@ export type AuthZResponse = {
   approvalsMissing?: ApprovalRequirement[]
 }
 
-
 export type ApprovalSignature = {
   signature: string
   address: string
