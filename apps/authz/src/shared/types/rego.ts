@@ -1,6 +1,6 @@
+import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Actions } from './enums'
 import { TransactionRequest } from './http'
-import { Intent } from './intents'
 
 export type RegoInput = {
   activityType: Actions

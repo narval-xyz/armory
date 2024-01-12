@@ -7,14 +7,17 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { AccountType, BlockchainActions, Intents, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
+import { AccountType, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
 import { AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
-import { TransferNative } from '@app/authz/shared/types/intents'
 import { RegoInput } from '@app/authz/shared/types/rego'
+import { safeDecode } from '@narval/transaction-request-intent'
+import { Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
+import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
+import { Intent, TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const ONE_ETH = 1000000000000000000n
+export const ONE_ETH = BigInt('1000000000000000000')
 
 export const USDC_TOKEN = {
   uid: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
@@ -154,10 +157,17 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
   type: Intents.TRANSFER_NATIVE,
-  from: TREASURY_WALLET_X,
-  to: ACCOUNT_Q_137,
   amount: toHex(ONE_ETH),
-  native: TREASURY_WALLET_X.uid // Assuming NativeId is a Caip10 string // TODO: This doesn't make sense, what is this field supposed to be?
+  native: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
+}
+
+export const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
+  from: TREASURY_WALLET_X.address as Address,
+  to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD' as Address,
+  chainId: ACCOUNT_Q_137.chainId,
+  data: '0xa9059cbb000000000000000000000000031d8c0ca142921c459bcb28104c0ff37928f9ed000000000000000000000000000000000000000000005ab7f55035d1e7b4fe6d',
+  nonce: 192,
+  type: '2'
 }
 
 export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
@@ -260,10 +270,19 @@ export const mockEntityData: RegoData = {
   }
 }
 
+export const generateIntent = (request: TransactionRequest): Intent => {
+  const intent = safeDecode(request)
+  if (!intent.success) {
+    throw new Error('Failed to decode intent')
+  }
+  return intent.intent
+}
+
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
-  const txRequest = NATIVE_TRANSFER_TX_REQUEST
+export const generateInboundRequest = async (generate: boolean = false): Promise<AuthZRequestPayload> => {
+  const txRequest = ERC20_TRANSFER_TX_REQUEST
+  const intent = generate ? generateIntent(txRequest) : NATIVE_TRANSFER_INTENT
 
   const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
     message: JSON.stringify(txRequest)
@@ -281,9 +300,9 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
     },
     request: {
       activityType: BlockchainActions.SIGN_TRANSACTION,
-      intent: NATIVE_TRANSFER_INTENT,
+      intent,
       transactionRequest: txRequest,
-      resourceId: NATIVE_TRANSFER_INTENT.from.uid
+      resourceId: NATIVE_TRANSFER_TX_REQUEST.from
     },
     approvalSignatures: [approvalSigAAUser, approvalSigBBUser]
   }

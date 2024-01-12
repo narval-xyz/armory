@@ -1,18 +1,8 @@
-import {
-  AddressBookAccount,
-  RegoData,
-  RolePermission,
-  User,
-  UserGroup,
-  Wallet,
-  WalletGroup
-} from '@app/authz/shared/types/entities.types'
-import { AccountType, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
-import { TransactionRequest } from '@app/authz/shared/types/http'
 import { Address } from 'viem'
 import { Caip19 } from '../../caip'
 import { Intents } from '../../domain'
 import { TransferNative } from '../../intent.types'
+import { TransactionRequest } from '../../transaction.type'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
@@ -24,11 +14,104 @@ export const USDC_TOKEN = {
   decimals: 6
 }
 
+type UUID = string
+
+// ENTITIES: user, user group, wallet, wallet group, and address book.
+export type User = {
+  uid: string // Pubkey
+  role: UserRoles
+}
+
+export type UserGroup = {
+  uid: string
+  name: string
+  users: string[] // userIds
+}
+
+export type Wallet = {
+  uid: string
+  address: string
+  accountType: AccountType
+  chainId?: string
+  assignees?: string[] // userIds
+}
+
+export type WalletGroup = {
+  uid: string
+  name: string
+  wallets: string[] // walletIds
+}
+
+export type AddressBookAccount = {
+  uid: string
+  address: string
+  chainId: string
+  classification: string
+}
+
+export type AddressBook = {
+  orgId: UUID
+  name: string
+  accounts: AddressBookAccount[]
+}
+
+export type RolePermission = {
+  permit: boolean
+  admin_quorum_threshold?: number
+}
+
+export type RegoData = {
+  entities: {
+    users: Record<string, User>
+    user_groups: Record<string, UserGroup>
+    wallets: Record<string, Wallet>
+    wallet_groups: Record<string, WalletGroup>
+    address_book: Record<string, AddressBookAccount>
+  }
+  permissions: Record<string, Record<string, RolePermission>>
+}
+
+export enum AccountType {
+  EOA = 'eoa',
+  AA = '4337'
+}
+
+export enum BlockchainActions {
+  SIGN_TRANSACTION = 'signTransaction',
+  SIGN_RAW = 'signRaw',
+  SIGN_MESSAGE = 'signMessage',
+  SIGN_TYPED_DATA = 'signTypedData'
+}
+
+export enum UserRoles {
+  ROOT = 'root',
+  ADMIN = 'admin',
+  MEMBER = 'member',
+  MANAGER = 'manager'
+}
+
+export enum ResourceActions {
+  CREATE_USER = 'user:create',
+  EDIT_USER = 'user:edit',
+  DELETE_USER = 'user:delete',
+  CHANGE_USER_ROLE = 'user:change-role',
+  CREATE_WALLET = 'wallet:create',
+  EDIT_WALLET = 'wallet:edit',
+  ASSIGN_WALLET = 'wallet:assign',
+  UNASSIGN_WALLET = 'wallet:unassign',
+  CREATE_USER_GROUP = 'user-group:create',
+  EDIT_USER_GROUP = 'user-group:edit',
+  DELETE_USER_GROUP = 'user-group:delete',
+  CREATE_WALLET_GROUP = 'wallet-group:create',
+  EDIT_WALLET_GROUP = 'wallet-group:edit',
+  DELETE_WALLET_GROUP = 'wallet-group:delete'
+}
+
 /**
  * User & User Groups
  */
 
-export const ROOT_USER: User = {
+export const ROOT_USER = {
   uid: 'u:root_user',
   role: UserRoles.ROOT
 }

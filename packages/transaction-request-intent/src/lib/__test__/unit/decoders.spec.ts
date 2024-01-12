@@ -1,12 +1,13 @@
-import { decodeIntent } from '../../decoders'
+import { decode, decodeIntent, safeDecode } from '../../decoders'
 import { AssetTypeEnum, Intents } from '../../domain'
 import { Erc20Methods } from '../../methodId'
 import { IntentRequest } from '../../types'
+import { ERC20_TRANSFER_TX_REQUEST } from './mocks'
 
 jest.mock('viem', () => ({
   decodeAbiParameters: jest
     .fn()
-    .mockReturnValueOnce(['0x031d8C0cA142921c459bCB28104c0FF37928F9eD', BigInt('428406414311469998210669')])
+    .mockReturnValue(['0x031d8C0cA142921c459bCB28104c0FF37928F9eD', BigInt('428406414311469998210669')])
 }))
 
 describe('decodeIntent', () => {
@@ -28,6 +29,31 @@ describe('decodeIntent', () => {
       type: Intents.TRANSFER_ERC20,
       amount: '428406414311469998210669',
       token: 'eip155:1:0x000000000000000000000000000000000000000001'
+    })
+  })
+})
+
+describe('decode', () => {
+  it('decodes ERC20 transaction request correctly', () => {
+    const dec = decode(ERC20_TRANSFER_TX_REQUEST)
+    expect(dec).toEqual({
+      type: Intents.TRANSFER_ERC20,
+      amount: '428406414311469998210669',
+      token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'
+    })
+  })
+})
+
+describe('safeDecode', () => {
+  it('decodes ERC20 transaction request correctly', () => {
+    const dec = safeDecode(ERC20_TRANSFER_TX_REQUEST)
+    expect(dec).toEqual({
+      success: true,
+      intent: {
+        type: 'transferErc20',
+        amount: '428406414311469998210669',
+        token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'
+      }
     })
   })
 })

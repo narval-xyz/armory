@@ -1,15 +1,13 @@
 import { AmbiguousAbi, Erc20TransferAbi, Erc721TransferAbi } from './abis'
-import { decodeIntent } from './decoders'
 import { AssetTypeEnum, Intents, NULL_METHOD_ID } from './domain'
 import { TransactionRequestIntentError } from './error'
-import { Intent } from './intent.types'
 import { TransactionRequest } from './transaction.type'
-import { Decode, IntentRequest } from './types'
+import { IntentRequest } from './types'
 
 const methodIdToAssetTypeMap: { [key: string]: AssetTypeEnum } = {
   ...Object.entries(Erc20TransferAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.ERC20 }), {}),
   ...Object.entries(Erc721TransferAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.ERC721 }), {}),
-  ...Object.entries(AmbiguousAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.AMBIGUOUS }), {})
+  ...Object.entries(AmbiguousAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.AMBIGUOUS_TRANSFER }), {})
 }
 
 export const determineType = (methodId: string, value?: string): AssetTypeEnum => {
@@ -120,42 +118,5 @@ export const validateIntent = (txRequest: TransactionRequest): IntentRequest => 
           txRequest
         }
       })
-  }
-}
-
-export const decode = (txRequest: TransactionRequest): Intent => {
-  const request = validateIntent(txRequest)
-  return decodeIntent(request)
-}
-
-export const safeDecode = (txRequest: TransactionRequest): Decode => {
-  const request = validateIntent(txRequest)
-  try {
-    const intent = decodeIntent(request)
-    return {
-      success: true,
-      intent
-    }
-  } catch (error) {
-    if (error instanceof TransactionRequestIntentError) {
-      return {
-        success: false,
-        error: {
-          message: error.message,
-          status: error.status,
-          context: error.context || {}
-        }
-      }
-    }
-    return {
-      success: false,
-      error: {
-        message: 'Unknown error',
-        status: 500,
-        context: {
-          error
-        }
-      }
-    }
   }
 }
