@@ -272,161 +272,214 @@ check_transfer_token_operation(operation) {
 
 # SIGNATURES_CRITERIA
 
-check_signers(requirements) = result {
-    requirements.countPrincipal == true
-    requirements.entityType == "Narval::User"
+match_signers(possible_signers, threshold) = result {
+    signature := input.signatures[_]
+    signature.signer == input.principal.uid
 
-    threshold := requirements.threshold
-
-    possible_signers := {signer | signer := requirements.entityIds[_]} | {input.principal.uid}
-
-	matched_signers := {signer | 
+    matched_signers := {signer | 
         signature := input.signatures[_]
         signer := signature.signer
         signer in possible_signers
     }
 
-	missing_signers := {signer |
-		signer := possible_signers[_]
-		not signer in matched_signers
-	}
+    missing_signers := {signer |
+        signer := possible_signers[_]
+        not signer in matched_signers
+    }
 
-	result := {
-		"matched_signers": matched_signers,
-		"missing_signers": missing_signers,
-		"threshold_passed": count(matched_signers) >= threshold
-	}
+    result := {
+        "matched_signers": matched_signers,
+        "missing_signers": missing_signers,
+        "threshold_passed": count(matched_signers) >= threshold
+    }
 }
 
-check_signers(requirements) = result {
-    requirements.countPrincipal == false
-    requirements.entityType == "Narval::User"
+check_approval(approval) = result {
+    approval.countPrincipal == true
+    approval.entityType == "Narval::User"
 
-    threshold := requirements.threshold
+    possible_signers := {signer | signer := approval.entityIds[_]} | {input.principal.uid}
+    match := match_signers(possible_signers, approval.threshold)
+
+    result := {
+        "approval": approval,
+        "match": match
+    }
+}
+
+check_approval(approval) = result {
+    approval.countPrincipal == false
+    approval.entityType == "Narval::User"
 
     possible_signers := {signer | 
-        signer := requirements.entityIds[_]
+        signer := approval.entityIds[_]
         signer != input.principal.uid
     }
 
-	matched_signers := {signer | 
-        signature := input.signatures[_]
-        signer := signature.signer
-        signer in possible_signers
+    match := match_signers(possible_signers, approval.threshold)
+
+    result := {
+        "approval": approval,
+        "match": match
     }
-
-	missing_signers := {signer |
-		signer := possible_signers[_]
-		not signer in matched_signers
-	}
-
-	result := {
-		"matched_signers": matched_signers,
-		"missing_signers": missing_signers,
-		"threshold_passed": count(matched_signers) >= threshold
-	}
 }
 
-check_signers(requirements) := result {
-    requirements.countPrincipal == true
-    requirements.entityType == "Narval::UserGroup"
-
-    threshold := requirements.threshold
+check_approval(approval) = result {
+    approval.countPrincipal == true
+    approval.entityType == "Narval::UserGroup"
 
     possible_signers := {user | 
-        group := requirements.entityIds[_]
+        group := approval.entityIds[_]
         signers := data.entities.user_groups[group].users
         user := signers[_]
     } | {input.principal.uid}
 
+    match := match_signers(possible_signers, approval.threshold)
 
-	matched_signers := {signer | 
-        signature := input.signatures[_]
-        signer := signature.signer
-        signer in possible_signers
+    result := {
+        "approval": approval,
+        "match": match
     }
-
-	missing_signers := {signer |
-		signer := possible_signers[_]
-		not signer in matched_signers
-	}
-
-	result := {
-        "matched_signers": matched_signers,
-        "missing_signers": missing_signers,
-        "threshold_passed": count(matched_signers) >= threshold
-	}
 }
 
-check_signers(requirements) := result {
-    requirements.countPrincipal == false
-    requirements.entityType == "Narval::UserGroup"
-
-    threshold := requirements.threshold
+check_approval(approval) = result {
+    approval.countPrincipal == false
+    approval.entityType == "Narval::UserGroup"
 
     possible_signers := {user | 
-        group := requirements.entityIds[_]
+        group := approval.entityIds[_]
         signers := data.entities.user_groups[group].users
         user := signers[_]
         user != input.principal.uid
     }
 
-	matched_signers := {signer | 
-        signature := input.signatures[_]
-        signer := signature.signer
-        signer in possible_signers
+    match := match_signers(possible_signers, approval.threshold)
+
+    result := {
+        "approval": approval,
+        "match": match
     }
+}
 
-	missing_signers := {signer |
-		signer := possible_signers[_]
-		not signer in matched_signers
-	}
+get_approvals_result(approvals) := result {
+    approvalsSatisfied := [approval | approval = approvals[_]; approval.match.threshold_passed == true]
+    approvalsMissing := [approval | approval = approvals[_]; approval.match.threshold_passed == false]
 
-	result := {
-        "matched_signers": matched_signers,
-        "missing_signers": missing_signers,
-        "threshold_passed": count(matched_signers) >= threshold
-	}
+    result := {
+        "approvalsSatisfied": approvalsSatisfied,
+        "approvalsMissing": approvalsMissing
+    }
 }
 
 # EXAMPLES USING CRITERIAS
 
-permit[{"policyId": "test-policy-1-uid", "reason": "permit principal id"}] {
+default evaluate := {
+	"permit": false,
+	"reasons": set(),
+	# The default flag indicates whether the rule was evaluated as expected or if
+	# it fell back to the default value. It also helps identify cases of what we
+	# call "implicit deny" in the legacy policy engine.
+	"default": true,
+}
+
+evaluate := decision {
+	confirm_set := {p | p = permit[_]}
+	forbid_set := {f | f = forbid[_]}
+	count(forbid_set) == 0
+
+	# If ALL Approval in confirm_set has count(approval.approvalsMissing) == 0, set "permit": true.
+	# We "Stack" approvals, so multiple polices that match & each have different requirements, ALL must succeed.
+	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive, but that's done at the policy-builder time, not here.
+
+	# Filter confirm_set to only include objects where approvalsMissing is empty
+	filtered_confirm_set := {p | p = confirm_set[_]; count(p.approvalsMissing) == 0}
+
+	decision := {
+		"permit": count(filtered_confirm_set) == count(confirm_set),
+		"reasons": confirm_set,
+	}
+}
+
+evaluate := decision {
+	permit_set := {p | p = permit[_]}
+	forbid_set := {f | f = forbid[_]}
+
+	# If the forbid set is not empty, set "permit": false.
+	count(forbid_set) > 0
+
+  # TODO: forbid rules need the same response structure as permit so we can have the policyId
+	decision := {
+		"permit": false,
+		"reasons": set(),
+	}
+}
+
+permit[{"policyId": "test-policy-1"}] := reason {
     check_principal_id({"test-bob-uid"})
     check_wallet_assignees({"test-bob-uid"})
     check_transfer_token_type({"transferToken"})
     check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
     check_transfer_token_operation({"operator": "eq", "value": 1000000000000000000})
 
-    check_signers({
+    approvalsRequired = [{
         "threshold": 1,
-        "countPrincipal": false,
+        "countPrincipal": true,
         "entityType": "Narval::UserGroup",
         "entityIds": ["test-user-group-one-uid"]
-    })
+    }, {
+        "threshold": 2,
+        "countPrincipal": true,
+        "entityType": "Narval::User",
+        "entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
+    }]
+
+    approvalsResults = [res | 
+        approval := approvalsRequired[_]
+        res := check_approval(approval)
+    ]
+
+    approvals := get_approvals_result(approvalsResults)
+
+	reason := {
+		"policyId": "test-policy-1",
+        "approvalsSatisfied": approvals.approvalsSatisfied,
+        "approvalsMissing": approvals.approvalsMissing
+    }
 }
 
-permit[{"policyId": "test-policy-2-uid", "reason": "permit transfer to internal destination"}] {
+permit[{"policyId": "test-policy-2"}] := reason {
+    check_principal_id({"test-bob-uid"})
     check_wallet_assignees({"test-bob-uid"})
-    check_destination_classification({"internal"})
     check_transfer_token_type({"transferToken"})
     check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
     check_transfer_token_operation({"operator": "eq", "value": 1000000000000000000})
 
+    approvalsRequired = [{
+        "threshold": 1,
+        "countPrincipal": true,
+        "entityType": "Narval::UserGroup",
+        "entityIds": ["test-user-group-one-uid"]
+    }, {
+        "threshold": 2,
+        "countPrincipal": true,
+        "entityType": "Narval::User",
+        "entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
+    }]
+
+    approvalsResults = [res | 
+        approval := approvalsRequired[_]
+        res := check_approval(approval)
+    ]
+
+    approvals := get_approvals_result(approvalsResults)
+
+	reason := {
+		"policyId": "test-policy-2",
+        "approvalsSatisfied": approvals.approvalsSatisfied,
+        "approvalsMissing": approvals.approvalsMissing
+    }
 }
 
-permit[{"policyId": "test-policy-3-uid", "reason": "permit user group"}] {
-    check_wallet_assignees({"test-bob-uid"})
-    check_principal_groups({"test-user-group-one-uid"})
-    check_transfer_token_type({"transferToken"})
-    check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
-    check_transfer_token_operation({"operator": "eq", "value": 1000000000000000000})
-}
-
-permit[{"policyId": "test-policy-4-uid", "reason": "permit wallet group"}] {
-    check_wallet_assignees({"test-bob-uid"})
-    check_wallet_groups({"test-wallet-group-one-uid"})
-    check_transfer_token_type({"transferToken"})
-    check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
-    check_transfer_token_operation({"operator": "eq", "value": 1000000000000000000})
+forbid[{"policyId": "test-policy-3"}] {
+	2 == 1
 }

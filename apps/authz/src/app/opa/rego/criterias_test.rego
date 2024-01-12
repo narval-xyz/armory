@@ -3,7 +3,7 @@ package criterias
 import future.keywords.every
 import future.keywords.in
 
-request := {
+request = {
     "action": "signTransaction",
     "principal": {"uid": "test-bob-uid"},
     "resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
@@ -56,7 +56,7 @@ request := {
     ]
 }
 
-entities := {
+entities = {
     "users": {
         "test-bob-uid": {
             "uid": "test-bob-uid",
@@ -117,6 +117,34 @@ entities := {
             "chain_id": 1,
             "classification": "wallet",
         }
+    }
+}
+
+approvals_satisfied = {
+    "approval": {
+        "threshold": 1,
+        "countPrincipal": true,
+        "entityType": "Narval::UserGroup",
+        "entityIds": ["test-user-group-one-uid"]
+    },
+    "match": {
+        "matched_signers": {"test-bob-uid"},
+        "missing_signers": {"test-bar-uid"},
+        "threshold_passed": true
+    }
+}
+
+approvals_missing = {
+    "approval": {
+        "threshold": 2,
+        "countPrincipal": true,
+        "entityType": "Narval::User",
+        "entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
+    },
+    "match": {
+        "matched_signers": {"test-bob-uid"},
+        "missing_signers": {"test-bar-uid", "test-signer-uid"},
+        "threshold_passed": false
     }
 }
 
@@ -295,62 +323,127 @@ test_check_transfer_token_operation {
         with data.entities as entities
 }
 
-test_check_signers {
-    res := check_signers({
-		    "threshold": 2,
-            "countPrincipal": true,
-			"entityType": "Narval::User",
-			"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
-		}) with input as request with data.entities as entities
+test_check_approval {
+    required_approval = {
+        "threshold": 2,
+        "countPrincipal": true,
+        "entityType": "Narval::User",
+        "entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
+    }
+    res = check_approval(required_approval) with input as request with data.entities as entities
 
     res == {
-		"matched_signers": {"test-bob-uid"},
-		"missing_signers": {"test-bar-uid", "test-signer-uid"},
-		"threshold_passed": false
-	}
-}
-
-test_check_signers {
-    res := check_signers({
-		    "threshold": 1,
-            "countPrincipal": false,
-			"entityType": "Narval::User",
-			"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
-		}) with input as request with data.entities as entities
-
-    res == {
-		"matched_signers": set(),
-		"missing_signers": {"test-bar-uid", "test-signer-uid"},
-		"threshold_passed": false
-	}
-}
-
-test_check_signers {
-    res := check_signers({
-		    "threshold": 2,
-            "countPrincipal": true,
-			"entityType": "Narval::UserGroup",
-			"entityIds": ["test-user-group-one-uid"]
-		}) with input as request with data.entities as entities
-
-    res == {
-        "matched_signers": {"test-bob-uid"},
-        "missing_signers": {"test-bar-uid"},
-        "threshold_passed": false
+        "approval": required_approval,
+        "match": {
+            "matched_signers": {"test-bob-uid"},
+            "missing_signers": {"test-bar-uid", "test-signer-uid"},
+            "threshold_passed": false
+        }
     }
 }
 
-test_check_signers {
-    res := check_signers({
-		    "threshold": 1,
-            "countPrincipal": false,
-			"entityType": "Narval::UserGroup",
-			"entityIds": ["test-user-group-one-uid"]
-		}) with input as request with data.entities as entities
+test_check_approval {
+    required_approval = {
+        "threshold": 1,
+        "countPrincipal": false,
+        "entityType": "Narval::User",
+        "entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"]
+    }
+
+    res := check_approval(required_approval) with input as request with data.entities as entities
 
     res == {
-        "matched_signers": set(),
-        "missing_signers": {"test-bar-uid"},
-        "threshold_passed": false
+        "approval": required_approval,
+        "match": {
+            "matched_signers": set(),
+            "missing_signers": {"test-bar-uid", "test-signer-uid"},
+            "threshold_passed": false
+        }
+    }
+}
+
+test_check_approval {
+    required_approval = {
+        "threshold": 2,
+        "countPrincipal": true,
+        "entityType": "Narval::UserGroup",
+        "entityIds": ["test-user-group-one-uid"]
+    }
+
+    res := check_approval(required_approval) with input as request with data.entities as entities
+
+    res == {
+        "approval": required_approval,
+        "match": {
+            "matched_signers": {"test-bob-uid"},
+            "missing_signers": {"test-bar-uid"},
+            "threshold_passed": false
+        }
+    }
+}
+
+test_check_approval {
+    required_approval = {
+        "threshold": 1,
+        "countPrincipal": false,
+        "entityType": "Narval::UserGroup",
+        "entityIds": ["test-user-group-one-uid"]
+    }
+
+    res := check_approval(required_approval) with input as request with data.entities as entities
+
+    res == {
+        "approval": required_approval,
+        "match": {
+            "matched_signers": set(),
+            "missing_signers": {"test-bar-uid"},
+            "threshold_passed": false
+        }
+    }
+}
+
+test_get_approvals_result {
+    res := get_approvals_result([approvals_satisfied, approvals_missing])
+
+    res == {
+        "approvalsSatisfied": [approvals_satisfied],
+        "approvalsMissing": [approvals_missing]
+    }
+}
+
+test_permit {
+    res := permit with input as request with data.entities as entities
+
+    res == {
+        {"policyId": "test-policy-1"}: {
+            "policyId": "test-policy-1",
+            "approvalsSatisfied": [approvals_satisfied],
+            "approvalsMissing": [approvals_missing]
+        },
+        {"policyId": "test-policy-2"}: {
+            "policyId": "test-policy-2",
+            "approvalsSatisfied": [approvals_satisfied],
+            "approvalsMissing": [approvals_missing]
+        }
+    }
+}
+
+test_evaluate {
+    res := evaluate with input as request with data.entities as entities
+
+    res == {
+		"permit": false,
+		"reasons": {
+            {
+                "policyId": "test-policy-1",
+                "approvalsSatisfied": [approvals_satisfied],
+                "approvalsMissing": [approvals_missing]
+            },
+            {
+                "policyId": "test-policy-2",
+                "approvalsSatisfied": [approvals_satisfied],
+                "approvalsMissing": [approvals_missing]
+            }
+        }
     }
 }
