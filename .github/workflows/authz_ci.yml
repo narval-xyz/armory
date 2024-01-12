@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - apps/authz/**
-      - .github/workflows/**
+      - .github/workflows/authz_ci.yml
       - Makefile
       - jest.config.ts
       - jest.preset.js
