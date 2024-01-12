@@ -22,7 +22,7 @@
             "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
             "address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
             "accountType": "eoa",
-            "assignees": ["test-bob-uid", "test-bar-uid"]
+            "assignees": ["test-bob-uid", "test-bar-uid", "test-foo-uid"]
         }},
         "user_groups": {
             "test-user-group-one-uid": {
