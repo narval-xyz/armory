@@ -35,7 +35,9 @@ describe('decodeIntent', () => {
 
 describe('decode', () => {
   it('decodes ERC20 transaction request correctly', () => {
-    const dec = decode(ERC20_TRANSFER_TX_REQUEST)
+    const dec = decode({
+      txRequest: ERC20_TRANSFER_TX_REQUEST
+    })
     expect(dec).toEqual({
       type: Intents.TRANSFER_ERC20,
       amount: '428406414311469998210669',
@@ -46,7 +48,9 @@ describe('decode', () => {
 
 describe('safeDecode', () => {
   it('decodes ERC20 transaction request correctly', () => {
-    const dec = safeDecode(ERC20_TRANSFER_TX_REQUEST)
+    const dec = safeDecode({
+      txRequest: ERC20_TRANSFER_TX_REQUEST
+    })
     expect(dec).toEqual({
       success: true,
       intent: {

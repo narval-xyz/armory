@@ -10,8 +10,8 @@ export const Erc20Methods = {
 
 export const Erc721Methods = {
   TRANSFER_FROM: '0x23b872dd',
-  SAFE_TRANSFER_FROM: '0x40c10f19',
-  SAFE_TRNSFER_FROM_WITH_BYTES: '0xb88d4fde'
+  SAFE_TRANSFER_FROM: '0x42842e0e',
+  SAFE_TRANSFER_FROM_WITH_BYTES: '0xb88d4fde'
 }
 
 export const Erc1155Methods = {

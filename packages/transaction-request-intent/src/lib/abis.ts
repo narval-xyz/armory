@@ -37,65 +37,53 @@ export const Erc721TransferAbi = {
   '0xb88d4fde': Erc721SafeTransferFromBytesAbiParameters
 }
 
-// export const Erc1155TransferSignatures: {[key: string]: AbiParameter} = {
-//   "0xa22cb465": {
-//       "constant": false,
-//       "inputs": [
-//           {
-//               "name": "from",
-//               "type": "address"
-//           },
-//           {
-//               "name": "to",
-//               "type": "address"
-//           },
-//           {
-//               "name": "id",
-//               "type": "uint256"
-//           },
-//           {
-//               "name": "amount",
-//               "type": "uint256"
-//           },
-//           {
-//               "name": "data",
-//               "type": "bytes"
-//           }
-//       ],
-//       "name": "safeTransferFrom",
-//       "outputs": [],
-//       "payable": false,
-//       "stateMutability": "nonpayable",
-//       "type": "function"
-//   },
-//   "0xf242432a": {
-//       "constant": false,
-//       "inputs": [
-//           {
-//               "name": "from",
-//               "type": "address"
-//           },
-//           {
-//               "name": "to",
-//               "type": "address"
-//           },
-//           {
-//               "name": "ids",
-//               "type": "uint256[]"
-//           },
-//           {
-//               "name": "amounts",
-//               "type": "uint256[]"
-//           },
-//           {
-//               "name": "data",
-//               "type": "bytes"
-//           }
-//       ],
-//       "name": "safeBatchTransferFrom",
-//       "outputs": [],
-//       "payable": false,
-//       "stateMutability": "nonpayable",
-//       "type": "function"
-//   }
-// };
+export const Erc1155SafeTransferFromAbiParameters: AbiParameter[] = [
+  {
+    name: 'from',
+    type: 'address'
+  },
+  {
+    name: 'to',
+    type: 'address'
+  },
+  {
+    name: 'id',
+    type: 'uint256'
+  },
+  {
+    name: 'amount',
+    type: 'uint256'
+  },
+  {
+    name: 'data',
+    type: 'bytes'
+  }
+]
+
+export const Erc1155SafeBatchTransferFromAbiParameters: AbiParameter[] = [
+  {
+    name: 'from',
+    type: 'address'
+  },
+  {
+    name: 'to',
+    type: 'address'
+  },
+  {
+    name: 'ids',
+    type: 'uint256[]'
+  },
+  {
+    name: 'amounts',
+    type: 'uint256[]'
+  },
+  {
+    name: 'data',
+    type: 'bytes'
+  }
+]
+
+export const Erc1155TransferAbi = {
+  '0xa22cb465': Erc1155SafeTransferFromAbiParameters,
+  '0xf242432a': Erc1155SafeBatchTransferFromAbiParameters
+}

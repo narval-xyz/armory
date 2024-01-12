@@ -5,7 +5,7 @@ import { validateIntent } from './intent'
 import { Intent, TransferErc20, TransferErc721 } from './intent.types'
 import { extractErc20Amount, extractErc721AssetId } from './param-extractors'
 import { TransactionRequest } from './transaction.type'
-import { Decode, IntentRequest } from './types'
+import { Decode, IntentRequest, TransactionRegistry } from './types'
 
 export const decodeErc721 = ({
   data,
@@ -90,13 +90,29 @@ export const decodeIntent = (request: IntentRequest): Intent => {
   }
 }
 
-export const decode = (txRequest: TransactionRequest): Intent => {
-  const request = validateIntent(txRequest)
+export const decode = ({
+  txRequest,
+  // contractRegistry,
+  transactionRegistry
+}: {
+  txRequest: TransactionRequest
+  // contractRegistry?: ContractRegistry
+  transactionRegistry?: TransactionRegistry
+}): Intent => {
+  const request = validateIntent(txRequest, transactionRegistry)
   return decodeIntent(request)
 }
 
-export const safeDecode = (txRequest: TransactionRequest): Decode => {
-  const request = validateIntent(txRequest)
+export const safeDecode = ({
+  txRequest,
+  // contractRegistry,
+  transactionRegistry
+}: {
+  txRequest: TransactionRequest
+  // contractRegistry?: ContractRegistry
+  transactionRegistry?: TransactionRegistry
+}): Decode => {
+  const request = validateIntent(txRequest, transactionRegistry)
   try {
     const intent = decodeIntent(request)
     return {
