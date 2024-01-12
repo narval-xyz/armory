@@ -2,12 +2,13 @@ import { AssetTypeEnum, Intents, NATIVE_TRANSFER } from '../../src/utils/domain'
 import { TransactionRequest } from '../../src/utils/transaction.type';
 import { Intent } from '../../src/utils/intent.types';
 import { decodeIntent } from './decoders';
-import { Erc20TransferAbi, Erc721TransferAbi } from '../../src/utils/standard-functions/abis';
+import { AmbiguousAbi, Erc20TransferAbi, Erc721TransferAbi } from '../../src/utils/standard-functions/abis';
 import { IntentRequest } from '../../src/shared/types';
 
 const methodIdToAssetTypeMap: { [key: string]: AssetTypeEnum } = {
   ...Object.entries(Erc20TransferAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.ERC20 }), {}),
   ...Object.entries(Erc721TransferAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.ERC721 }), {}),
+  ...Object.entries(AmbiguousAbi).reduce((acc, [key]) => ({ ...acc, [key]: AssetTypeEnum.AMBIGUOUS }), {}),
   [NATIVE_TRANSFER]: AssetTypeEnum.NATIVE,
 };
 

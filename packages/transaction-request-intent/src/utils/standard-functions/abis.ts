@@ -5,7 +5,7 @@ export const Erc20TransferAbiParameters: AbiParameter[] = [
   { type: 'uint256', name: 'amount' },
 ];
 
-export const Erc20TransferFromAbiParameters: AbiParameter[] = [
+export const TransferFromAbiParameters: AbiParameter[] = [
   { type: 'address', name: 'sender' },
   { type: 'address', name: 'recipient' },
   { type: 'uint256', name: 'amount' },
@@ -13,16 +13,19 @@ export const Erc20TransferFromAbiParameters: AbiParameter[] = [
 
 export const Erc20TransferAbi = {
   '0xa9059cbb': Erc20TransferAbiParameters,
-  '0x23b872dd': Erc20TransferFromAbiParameters,
 }
 
-export const Erc721TransferFromAbiParameters: AbiParameter[] = [
+export const AmbiguousAbi = {
+  '0x23b872dd': TransferFromAbiParameters,
+}
+
+export const Erc721SafeTransferFromAbiParameters: AbiParameter[] = [
   { type: 'address', name: 'from' },
   { type: 'address', name: 'to' },
   { type: 'uint256', name: 'tokenId' },
 ];
 
-export const Erc721SafeTransferFromAbiParameters: AbiParameter[] = [
+export const Erc721SafeTransferFromBytesAbiParameters: AbiParameter[] = [
   { type: 'address', name: 'from' },
   { type: 'address', name: 'to' },
   { type: 'uint256', name: 'tokenId' },
@@ -30,9 +33,8 @@ export const Erc721SafeTransferFromAbiParameters: AbiParameter[] = [
 ];
 
 export const Erc721TransferAbi = {
-  '0x23b872dd': Erc721TransferFromAbiParameters,
-  '0x42842e0e': Erc721TransferFromAbiParameters,
-  '0xb88d4fde': Erc721SafeTransferFromAbiParameters,
+  '0x42842e0e': Erc721SafeTransferFromAbiParameters,
+  '0xb88d4fde': Erc721SafeTransferFromBytesAbiParameters,
 };
 
 // export const Erc1155TransferSignatures: {[key: string]: AbiParameter} = {
