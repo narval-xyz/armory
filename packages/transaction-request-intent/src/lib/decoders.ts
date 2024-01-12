@@ -1,9 +1,11 @@
 import { encodeEoaAccountId, encodeEoaAssetId } from './caip'
 import { AssetTypeEnum, EipStandardEnum, Intents } from './domain'
 import { TransactionRequestIntentError } from './error'
+import { validateIntent } from './intent'
 import { Intent, TransferErc20, TransferErc721 } from './intent.types'
 import { extractErc20Amount, extractErc721AssetId } from './param-extractors'
-import { IntentRequest } from './types'
+import { TransactionRequest } from './transaction.type'
+import { Decode, IntentRequest } from './types'
 
 export const decodeErc721 = ({
   data,
@@ -85,5 +87,42 @@ export const decodeIntent = (request: IntentRequest): Intent => {
           request
         }
       })
+  }
+}
+
+export const decode = (txRequest: TransactionRequest): Intent => {
+  const request = validateIntent(txRequest)
+  return decodeIntent(request)
+}
+
+export const safeDecode = (txRequest: TransactionRequest): Decode => {
+  const request = validateIntent(txRequest)
+  try {
+    const intent = decodeIntent(request)
+    return {
+      success: true,
+      intent
+    }
+  } catch (error) {
+    if (error instanceof TransactionRequestIntentError) {
+      return {
+        success: false,
+        error: {
+          message: error.message,
+          status: error.status,
+          context: error.context || {}
+        }
+      }
+    }
+    return {
+      success: false,
+      error: {
+        message: 'Unknown error',
+        status: 500,
+        context: {
+          error
+        }
+      }
+    }
   }
 }

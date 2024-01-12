@@ -1,5 +1,5 @@
+import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Actions } from './enums'
-import { Intent } from './intents'
 
 // Types ripped from viem; combining a few though because they don't have chainId on txRequest
 export type Hex = `0x${string}`

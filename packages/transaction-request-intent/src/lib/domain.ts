@@ -11,6 +11,15 @@ export enum PolicyManagementActions {
 
 export type Actions = BlockchainActions | PolicyManagementActions
 
+export enum Category {
+  ASSET_OPERATIONS = 'AssetOperations',
+  CONTRACT_LIFECYCLE = 'ContractLifecycle',
+  TRANSACTION_MANAGEMENT = 'TransactionManagement',
+  GENERIC_CONTRACT_CALLS = 'GenericContractCalls',
+  AUTHORIZATION_SIGNATURES = 'AuthorizationSignatures',
+  UNKNOWN = 'Unknown'
+}
+
 export enum Intents {
   TRANSFER_NATIVE = 'transferNative',
   TRANSFER_ERC20 = 'transferErc20',
@@ -23,7 +32,7 @@ export const NULL_METHOD_ID = '0x00000000'
 
 // TODO: Move below in a folder shared with other apps, these should be shared within the whole project
 export enum AssetTypeEnum {
-  AMBIGUOUS = 'ambiguous',
+  AMBIGUOUS_TRANSFER = 'ambiguousTransfer',
   ERC1155 = 'erc1155',
   ERC20 = 'erc20',
   ERC721 = 'erc721',

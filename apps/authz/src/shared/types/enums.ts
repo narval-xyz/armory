@@ -28,13 +28,6 @@ export enum ResourceActions {
 
 export type Actions = BlockchainActions | PolicyManagementActions | ResourceActions
 
-export enum Intents {
-  TRANSFER_NATIVE = 'transferNative',
-  TRANSFER_TOKEN = 'transferToken',
-  TRANSFER_NFT = 'transferNft',
-  CALL_CONTRACT = 'callContract'
-}
-
 export enum AccountType {
   EOA = 'eoa',
   AA = '4337'
