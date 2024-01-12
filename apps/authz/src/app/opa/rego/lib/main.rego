@@ -12,21 +12,22 @@ default evaluate := {
 }
 
 evaluate := decision {
-	confirm_set := {p | p = permit[_]}
+	permit_set := {p | p = permit[_]}
 	forbid_set := {f | f = forbid[_]}
-	count(confirm_set) > 0
-	count(forbid_set) == 0
 
-	# If ALL Approval in confirm_set has count(approval.approvalsMissing) == 0, set "permit": true.
+	count(forbid_set) == 0
+	count(permit_set) > 0
+
+	# If ALL Approval in permit_set has count(approval.approvalsMissing) == 0, set "permit": true.
 	# We "Stack" approvals, so multiple polices that match & each have different requirements, ALL must succeed.
 	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive, but that's done at the policy-builder time, not here.
 
-	# Filter confirm_set to only include objects where approvalsMissing is empty
-	filtered_confirm_set := {p | p = confirm_set[_]; count(p.approvalsMissing) == 0}
+	# Filter permit_set to only include objects where approvalsMissing is empty
+	filtered_permit_set := {p | p = permit_set[_]; count(p.approvalsMissing) == 0}
 
 	decision := {
-		"permit": count(filtered_confirm_set) == count(confirm_set),
-		"reasons": confirm_set,
+		"permit": count(filtered_permit_set) == count(permit_set),
+		"reasons": permit_set,
 	}
 }
 
@@ -44,6 +45,16 @@ evaluate := decision {
 	}
 }
 
-forbid[{"policyId": "test-forbid-policy"}] {
-	2 == 1
+permit[{"policyId": "allow-root-user"}] := reason {
+	is_principal_root_user
+
+	reason := {
+		"policyId": "allow-root-user",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
+}
+
+forbid[{"policyId": "default-forbid-policy"}] {
+	false
 }

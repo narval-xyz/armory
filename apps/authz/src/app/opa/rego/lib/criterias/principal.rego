@@ -2,6 +2,14 @@ package main
 
 import future.keywords.in
 
+is_principal_root_user {
+	principal.role == "root"
+}
+
+is_principal_assigned_to_wallet {
+	principal.uid in resource.assignees
+}
+
 check_principal_id(values) {
 	values == wildcard
 }
