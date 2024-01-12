@@ -12,12 +12,16 @@ export enum PolicyManagementActions {
 export type Actions = BlockchainActions | PolicyManagementActions
 
 export enum Category {
-  ASSET_OPERATIONS = 'AssetOperations',
+  TRANSFER = 'transfer',
   CONTRACT_LIFECYCLE = 'ContractLifecycle',
   TRANSACTION_MANAGEMENT = 'TransactionManagement',
   GENERIC_CONTRACT_CALLS = 'GenericContractCalls',
-  AUTHORIZATION_SIGNATURES = 'AuthorizationSignatures',
-  UNKNOWN = 'Unknown'
+  AUTHORIZATION_SIGNATURES = 'AuthorizationSignatures'
+}
+
+export enum TransactionStatus {
+  PENDING = 'pending',
+  FAILED = 'failed'
 }
 
 export enum Intents {
@@ -25,7 +29,9 @@ export enum Intents {
   TRANSFER_ERC20 = 'transferErc20',
   TRANSFER_ERC721 = 'transferErc721',
   TRANSFER_ERC1155 = 'transferErc1155',
-  CALL_CONTRACT = 'callContract'
+  CALL_CONTRACT = 'callContract',
+  RETRY_TRANSACTION = 'retryTransaction',
+  CANCEL_TRANSACTION = 'cancelTransaction'
 }
 
 export const NULL_METHOD_ID = '0x00000000'

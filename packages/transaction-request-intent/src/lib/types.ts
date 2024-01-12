@@ -1,4 +1,5 @@
-import { AssetTypeEnum, Intents } from './domain'
+import { Caip10, Caip19 } from './caip'
+import { AssetTypeEnum, Intents, TransactionStatus } from './domain'
 import { Intent } from './intent.types'
 
 export type TransferIntent = {
@@ -48,3 +49,31 @@ type DecodeError = {
 }
 
 export type Decode = DecodeSuccess | DecodeError
+
+enum ContractStandard {
+  ERC20 = 'erc20',
+  ERC721 = 'erc721',
+  ERC1155 = 'erc1155',
+  UNKNOWN = 'unknown'
+}
+
+type Contract =
+  | {
+      standard: ContractStandard.ERC20
+    }
+  | {
+      standard: ContractStandard.ERC721
+    }
+  | {
+      standard: ContractStandard.ERC1155
+      tokenIds: Caip19[]
+      nftIds: Caip19[]
+    }
+
+export type ContractRegistry = {
+  [key: Caip10]: Contract
+}
+
+export type TransactionRegistry = {
+  [key: string]: TransactionStatus // Append from and nonce for key
+}

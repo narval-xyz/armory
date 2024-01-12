@@ -8,14 +8,12 @@ import {
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
 import { AccountType, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
-import { AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
+import { TransactionRequest } from '@app/authz/shared/types/http'
 import { RegoInput } from '@app/authz/shared/types/rego'
-import { safeDecode } from '@narval/transaction-request-intent'
 import { Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
-import { Intent, TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
+import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
@@ -267,43 +265,5 @@ export const mockEntityData: RegoData = {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     }
-  }
-}
-
-export const generateIntent = (request: TransactionRequest): Intent => {
-  const intent = safeDecode(request)
-  if (!intent.success) {
-    throw new Error('Failed to decode intent')
-  }
-  return intent.intent
-}
-
-// stub out the actual tx request & signature
-// This is what would be the initial input from the external service
-export const generateInboundRequest = async (generate: boolean = false): Promise<AuthZRequestPayload> => {
-  const txRequest = ERC20_TRANSFER_TX_REQUEST
-  const intent = generate ? generateIntent(txRequest) : NATIVE_TRANSFER_INTENT
-
-  const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
-    message: JSON.stringify(txRequest)
-  })
-  const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
-    message: JSON.stringify(txRequest)
-  })
-  const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
-    message: JSON.stringify(txRequest)
-  })
-
-  return {
-    authn: {
-      signature: signatureMatt
-    },
-    request: {
-      activityType: BlockchainActions.SIGN_TRANSACTION,
-      intent,
-      transactionRequest: txRequest,
-      resourceId: NATIVE_TRANSFER_TX_REQUEST.from
-    },
-    approvalSignatures: [approvalSigAAUser, approvalSigBBUser]
   }
 }
