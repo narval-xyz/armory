@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - apps/orchestration/**
-      - .github/workflows/**
+      - .github/workflows/orchestration_ci.yml
       - Makefile
       - jest.config.ts
       - jest.preset.js
