@@ -2,12 +2,16 @@ package main
 
 import future.keywords.in
 
+signatures := input.signatures
+users_entities := data.entities.users
+user_groups_entities := data.entities.user_groups
+
 match_signers(possible_signers, threshold) = result {
-	signature := input.signatures[_]
-	signature.signer == input.principal.uid
+	signature := signatures[_]
+	signature.signer == principal.uid
 
 	matched_signers := {signer |
-		signature := input.signatures[_]
+		signature := signatures[_]
 		signer := signature.signer
 		signer in possible_signers
 	}
@@ -24,11 +28,13 @@ match_signers(possible_signers, threshold) = result {
 	}
 }
 
+# User approvals
+
 check_approval(approval) = result {
 	approval.countPrincipal == true
 	approval.entityType == "Narval::User"
 
-	possible_signers := {signer | signer := approval.entityIds[_]} | {input.principal.uid}
+	possible_signers := {signer | signer := approval.entityIds[_]} | {principal.uid}
 	match := match_signers(possible_signers, approval.threshold)
 
 	result := {
@@ -43,7 +49,7 @@ check_approval(approval) = result {
 
 	possible_signers := {signer |
 		signer := approval.entityIds[_]
-		signer != input.principal.uid
+		signer != principal.uid
 	}
 
 	match := match_signers(possible_signers, approval.threshold)
@@ -54,15 +60,17 @@ check_approval(approval) = result {
 	}
 }
 
+# User group approvals
+
 check_approval(approval) = result {
 	approval.countPrincipal == true
 	approval.entityType == "Narval::UserGroup"
 
 	possible_signers := {user |
 		group := approval.entityIds[_]
-		signers := data.entities.user_groups[group].users
+		signers := user_groups_entities[group].users
 		user := signers[_]
-	} | {input.principal.uid}
+	} | {principal.uid}
 
 	match := match_signers(possible_signers, approval.threshold)
 
@@ -78,9 +86,9 @@ check_approval(approval) = result {
 
 	possible_signers := {user |
 		group := approval.entityIds[_]
-		signers := data.entities.user_groups[group].users
+		signers := user_groups_entities[group].users
 		user := signers[_]
-		user != input.principal.uid
+		user != principal.uid
 	}
 
 	match := match_signers(possible_signers, approval.threshold)
@@ -91,14 +99,16 @@ check_approval(approval) = result {
 	}
 }
 
+# User role approvals
+
 check_approval(approval) = result {
 	approval.countPrincipal == true
 	approval.entityType == "Narval::UserRole"
 
 	possible_signers := {user.uid |
-		user := data.entities.users[_]
+		user := users_entities[_]
 		user.role in approval.entityIds
-	} | {input.principal.uid}
+	} | {principal.uid}
 
 	match := match_signers(possible_signers, approval.threshold)
 
@@ -113,9 +123,9 @@ check_approval(approval) = result {
 	approval.entityType == "Narval::UserRole"
 
 	possible_signers := {user.uid |
-		user := data.entities.users[_]
+		user := users_entities[_]
 		user.role in approval.entityIds
-		user.uid != input.principal.uid
+		user.uid != principal.uid
 	}
 
 	match := match_signers(possible_signers, approval.threshold)
