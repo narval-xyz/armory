@@ -5,13 +5,35 @@ import {
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { Injectable } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
+import { Injectable, Logger, UnprocessableEntityException } from '@nestjs/common'
+import { catchError, delay, lastValueFrom, map, switchMap, tap } from 'rxjs'
+import { v4 as uuid } from 'uuid'
+
+const getStatus = (decision: string): AuthorizationRequestStatus => {
+  const statuses: Map<string, AuthorizationRequestStatus> = new Map([
+    ['Permit', AuthorizationRequestStatus.PERMITTED],
+    ['Forbid', AuthorizationRequestStatus.FORBIDDEN],
+    ['Confirm', AuthorizationRequestStatus.APPROVING]
+  ])
+
+  const status = statuses.get(decision)
+
+  if (status) {
+    return status
+  }
+
+  throw Error('Unknown status returned from the AuthZ')
+}
 
 @Injectable()
 export class AuthorizationRequestService {
+  private logger = new Logger(AuthorizationRequestService.name)
+
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
-    private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer
+    private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
+    private httpService: HttpService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -27,16 +49,68 @@ export class AuthorizationRequestService {
   }
 
   async process(id: string) {
-    await this.authzRequestRepository.findById(id)
+    const authzRequest = await this.authzRequestRepository.findById(id)
 
-    await this.authzRequestRepository.changeStatus(id, AuthorizationRequestStatus.PROCESSING)
+    if (authzRequest) {
+      await this.authzRequestRepository.changeStatus(id, AuthorizationRequestStatus.PROCESSING)
 
-    await new Promise((resolve) => {
-      setTimeout(() => resolve(true), 3000)
-    })
+      await this.evaluate(authzRequest)
+    }
   }
 
-  async complete(id: string) {
-    await this.authzRequestRepository.changeStatus(id, AuthorizationRequestStatus.APPROVING)
+  async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
+    return this.authzRequestRepository.changeStatus(id, status)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async complete(id: string) {}
+
+  async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
+    this.logger.log('Sending authorization request to cluster evaluation', {
+      input
+    })
+
+    return lastValueFrom(
+      this.httpService.post('http://localhost:3010/evaluation', input).pipe(
+        delay(3000), // fake some delay
+        tap((response) => {
+          this.logger.log('Received evaluation response', {
+            status: response.status,
+            headers: response.headers,
+            response: response.data
+          })
+        }),
+        map((response) => response.data),
+        switchMap((evaluation) => {
+          return this.authzRequestRepository.update({
+            ...input,
+            status: getStatus(evaluation.decision),
+            evaluations: [
+              {
+                id: uuid(),
+                decision: evaluation.decision,
+                signature: evaluation.permitSignature,
+                createdAt: new Date()
+              }
+            ]
+          })
+        }),
+        tap((authzRequest) => {
+          this.logger.log('Authorization request status updated', {
+            orgId: authzRequest.orgId,
+            id: authzRequest.id,
+            status: authzRequest.status,
+            evaluations: authzRequest.evaluations
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Authorization request evaluation failed')
+
+          throw new UnprocessableEntityException('Authorization request evaluation error', {
+            description: error.message
+          })
+        })
+      )
+    )
   }
 }

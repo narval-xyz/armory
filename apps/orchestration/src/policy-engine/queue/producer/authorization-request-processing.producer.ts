@@ -1,42 +1,60 @@
-import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import {
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
+} from '@app/orchestration/orchestration.constant'
 import {
   AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { InjectQueue } from '@nestjs/bull'
 import { Injectable, Logger } from '@nestjs/common'
-import { Queue } from 'bull'
+import { BackoffOptions, Job, Queue } from 'bull'
+
+type JobOption = {
+  attempts: number
+  backoff: BackoffOptions
+}
+
+export const DEFAULT_JOB_OPTIONS: JobOption = {
+  attempts: AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
+  backoff: AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
+}
 
 @Injectable()
 export class AuthorizationRequestProcessingProducer {
   private logger = new Logger(AuthorizationRequestProcessingProducer.name)
 
   constructor(
-    @InjectQueue(AUTHORIZATION_REQUEST_PROCESSING_QUEUE) private processingQueue: Queue,
+    @InjectQueue(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
+    private processingQueue: Queue<AuthorizationRequestProcessingJob>,
     private authzRequestRepository: AuthorizationRequestRepository
   ) {}
 
-  async add(authzRequest: AuthorizationRequest) {
-    await this.processingQueue.add(
+  async add(authzRequest: AuthorizationRequest): Promise<Job<AuthorizationRequestProcessingJob>> {
+    return this.processingQueue.add(
       {
         id: authzRequest.id
       },
       {
-        jobId: authzRequest.id
+        jobId: authzRequest.id,
+        ...DEFAULT_JOB_OPTIONS
       }
     )
   }
 
-  async bulkAdd(requests: AuthorizationRequest[]) {
+  async bulkAdd(requests: AuthorizationRequest[]): Promise<Job<AuthorizationRequestProcessingJob>[]> {
     const jobs = requests.map(({ id }) => ({
       data: { id },
       opts: {
-        jobId: id
+        jobId: id,
+        ...DEFAULT_JOB_OPTIONS
       }
     }))
 
-    await this.processingQueue.addBulk(jobs)
+    return this.processingQueue.addBulk(jobs)
   }
 
   async onApplicationBootstrap() {

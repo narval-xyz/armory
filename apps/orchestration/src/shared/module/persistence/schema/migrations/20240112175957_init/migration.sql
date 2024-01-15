@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "AuthorizationRequestStatus" AS ENUM ('CREATED', 'CANCELED', 'PROCESSING', 'APPROVING', 'PERMITTED', 'FORBIDDEN');
+CREATE TYPE "AuthorizationRequestStatus" AS ENUM ('CREATED', 'FAILED', 'CANCELED', 'PROCESSING', 'APPROVING', 'PERMITTED', 'FORBIDDEN');
 
 -- CreateEnum
 CREATE TYPE "AuthorizationRequestAction" AS ENUM ('signTransaction', 'signMessage');
@@ -17,7 +17,7 @@ CREATE TABLE "organization" (
 -- CreateTable
 CREATE TABLE "authorization_request" (
     "id" VARCHAR(255) NOT NULL,
-    "orgId" TEXT NOT NULL,
+    "org_id" TEXT NOT NULL,
     "initiator_id" TEXT NOT NULL,
     "status" "AuthorizationRequestStatus" NOT NULL DEFAULT 'CREATED',
     "action" "AuthorizationRequestAction" NOT NULL,
@@ -42,8 +42,20 @@ CREATE TABLE "authorization_request_approval" (
     CONSTRAINT "authorization_request_approval_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "evaluation_log" (
+    "id" VARCHAR(255) NOT NULL,
+    "org_id" TEXT NOT NULL,
+    "request_id" TEXT NOT NULL,
+    "decision" TEXT NOT NULL,
+    "signature" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "evaluation_log_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
 
 -- AddForeignKey
-ALTER TABLE "authorization_request" ADD CONSTRAINT "authorization_request_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "evaluation_log" ADD CONSTRAINT "evaluation_log_request_id_fkey" FOREIGN KEY ("request_id") REFERENCES "authorization_request"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

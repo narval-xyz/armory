@@ -1,6 +1,13 @@
-import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import {
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
+} from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import { OnQueueActive, OnQueueCompleted, Process, Processor } from '@nestjs/bull'
+import {
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '@app/orchestration/policy-engine/core/type/domain.type'
+import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
 
@@ -11,7 +18,7 @@ export class AuthorizationRequestProcessingConsumer {
   constructor(private authzService: AuthorizationRequestService) {}
 
   @Process()
-  async process(job: Job<unknown>) {
+  async process(job: Job<AuthorizationRequestProcessingJob>) {
     this.logger.log('Processing authorization request job', {
       id: job.id,
       data: job.data
@@ -23,7 +30,7 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueActive()
-  onActive(job: Job<unknown>) {
+  onActive(job: Job<AuthorizationRequestProcessingJob>) {
     this.logger.log('Consuming authorization request job', {
       id: job.id,
       data: job.data
@@ -31,7 +38,7 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueCompleted()
-  onCompleted(job: Job<unknown>, result: unknown) {
+  onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
     this.logger.log('Completed authorization request job', {
       id: job.id,
       data: job.data,
@@ -39,5 +46,23 @@ export class AuthorizationRequestProcessingConsumer {
     })
 
     this.authzService.complete(job.id.toString())
+  }
+
+  @OnQueueFailed()
+  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: Error): Promise<void> {
+    const log = {
+      id: job.id,
+      attemptsMade: job.attemptsMade,
+      maxAttempts: AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
+      error
+    }
+
+    if (job.attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS) {
+      this.logger.error('Process authorization request failed', log)
+
+      await this.authzService.changeStatus(job.id.toString(), AuthorizationRequestStatus.FAILED)
+    } else {
+      this.logger.log('Retrying to process authorization request', log)
+    }
   }
 }

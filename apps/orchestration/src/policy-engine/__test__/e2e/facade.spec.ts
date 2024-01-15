@@ -57,6 +57,13 @@ describe('Policy Engine Cluster Facade', () => {
     await app.init()
   })
 
+  afterAll(async () => {
+    await testPrismaService.truncateAll()
+    await authzRequestProcessingQueue.empty()
+    await module.close()
+    await app.close()
+  })
+
   beforeEach(async () => {
     await testPrismaService.getClient().organization.create({ data: org })
   })
@@ -64,13 +71,6 @@ describe('Policy Engine Cluster Facade', () => {
   afterEach(async () => {
     await testPrismaService.truncateAll()
     await authzRequestProcessingQueue.empty()
-  })
-
-  afterAll(async () => {
-    await testPrismaService.truncateAll()
-    await authzRequestProcessingQueue.empty()
-
-    module.close()
   })
 
   describe('POST /evaluations', () => {
@@ -171,7 +171,8 @@ describe('Policy Engine Cluster Facade', () => {
       hash: hashMessage(JSON.stringify(signMessageRequest)),
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      evaluations: []
     }
 
     beforeEach(async () => {

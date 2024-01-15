@@ -10,6 +10,7 @@ import {
 } from '@app/orchestration/policy-engine/persistence/decode/decode-authorization-request.strategy'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
+import { omit } from 'lodash/fp'
 
 @Injectable()
 export class AuthorizationRequestRepository {
@@ -25,7 +26,8 @@ export class AuthorizationRequestRepository {
     status,
     idempotencyKey,
     createdAt,
-    updatedAt
+    updatedAt,
+    evaluations
   }: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
     const model = await this.prismaService.authorizationRequest.create({
       data: {
@@ -38,7 +40,46 @@ export class AuthorizationRequestRepository {
         hash,
         idempotencyKey,
         createdAt,
-        updatedAt
+        updatedAt,
+        evaluationLog: {
+          create: evaluations.map((evaluation) => ({
+            ...evaluation,
+            orgId
+          }))
+        }
+      },
+      include: {
+        evaluationLog: true
+      }
+    })
+
+    const decode = decodeAuthorizationRequest(model)
+
+    if (decode.success) {
+      return decode.authorizationRequest
+    }
+
+    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
+    throw new BadRequestException('Invalid authorization request', {
+      description: decode.reason
+    })
+  }
+
+  async update(
+    input: Partial<AuthorizationRequest> & Pick<AuthorizationRequest, 'id' | 'orgId'>
+  ): Promise<AuthorizationRequest> {
+    const model = await this.prismaService.authorizationRequest.update({
+      where: {
+        id: input.id
+      },
+      data: {
+        ...omit('evaluations', input),
+        evaluationLog: {
+          create: input.evaluations?.map((evaluation) => ({
+            ...evaluation,
+            orgId: input.orgId
+          }))
+        }
       }
     })
 
@@ -56,7 +97,10 @@ export class AuthorizationRequestRepository {
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
     const model = await this.prismaService.authorizationRequest.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        evaluationLog: true
+      }
     })
 
     if (model) {
@@ -81,6 +125,9 @@ export class AuthorizationRequestRepository {
     const models = await this.prismaService.authorizationRequest.findMany({
       where: {
         status: Array.isArray(statusOrStatuses) ? { in: statusOrStatuses } : statusOrStatuses
+      },
+      include: {
+        evaluationLog: true
       }
     })
 
@@ -100,7 +147,10 @@ export class AuthorizationRequestRepository {
   async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
     const model = await this.prismaService.authorizationRequest.update({
       where: { id },
-      data: { status }
+      data: { status },
+      include: {
+        evaluationLog: true
+      }
     })
 
     const decode = decodeAuthorizationRequest(model)
