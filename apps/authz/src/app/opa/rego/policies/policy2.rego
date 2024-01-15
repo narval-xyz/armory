@@ -2,20 +2,21 @@ package main
 
 import future.keywords.in
 
-permit[{"policyId": "test-policy-1"}] := reason {
+permit[{"policyId": "test-policy-2"}] := reason {
 	not is_principal_root_user
 	is_principal_assigned_to_wallet
+	
 	check_transfer_token_type({"transferToken"})
 	check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
-	check_transfer_token_operation({"operator": "lte", "value": 1000000000000000000})
-
+	check_transfer_token_operation({"operator": "lte", "value": "1000000000000000000"})
+	
 	approvalsRequired = [
 		{
 			"threshold": 2,
 			"countPrincipal": false,
-			"entityType": "Narval::User",
-			"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
-		}
+			"entityType": "Narval::UserGroup",
+			"entityIds": ["test-user-group-one-uid"],
+		},
 	]
 
 	approvalsResults = [res |
@@ -24,9 +25,9 @@ permit[{"policyId": "test-policy-1"}] := reason {
 	]
 
 	approvals := get_approvals_result(approvalsResults)
-
+	
 	reason := {
-		"policyId": "test-policy-1",
+		"policyId": "test-policy-2",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
 		"approvalsMissing": approvals.approvalsMissing,
 	}

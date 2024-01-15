@@ -1,4 +1,4 @@
-package criterias
+package main
 
 import future.keywords.every
 import future.keywords.in
@@ -28,7 +28,7 @@ request = {
 			"chain_id": 137,
 			"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		},
-		"amount": 1000000000000000000,
+		"amount": "1000000000000000000",
 		"token": {
 			"uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -146,6 +146,16 @@ approvals_missing = {
 		"possible_signers": {"test-bar-uid", "test-signer-uid"},
 		"threshold_passed": false,
 	},
+}
+
+test_is_principal_root_user {
+	is_principal_root_user with input as request
+		with data.entities as entities
+}
+
+test_is_principal_assigned_to_wallet {
+	is_principal_assigned_to_wallet with input as request
+		with data.entities as entities
 }
 
 test_principal {
@@ -295,7 +305,7 @@ test_check_transfer_token_address {
 }
 
 test_check_transfer_token_operation {
-	check_transfer_token_operation({"operator": "lte", "value": 1000000000000000000}) with input as request
+	check_transfer_token_operation({"operator": "lte", "value": "1000000000000000000"}) with input as request
 		with data.entities as entities
 }
 
@@ -378,6 +388,46 @@ test_check_approval {
 	}
 }
 
+test_check_approval {
+	required_approval = {
+		"threshold": 2,
+		"countPrincipal": false,
+		"entityType": "Narval::UserRole",
+		"entityIds": ["root", "admin"],
+	}
+
+	res := check_approval(required_approval) with input as request with data.entities as entities
+
+	res == {
+		"approval": required_approval,
+		"match": {
+			"matched_signers": {"test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
+			"possible_signers": set(),
+			"threshold_passed": true,
+		},
+	}
+}
+
+test_check_approval {
+	required_approval = {
+		"threshold": 2,
+		"countPrincipal": true,
+		"entityType": "Narval::UserRole",
+		"entityIds": ["root", "admin"],
+	}
+
+	res := check_approval(required_approval) with input as request with data.entities as entities
+
+	res == {
+		"approval": required_approval,
+		"match": {
+			"matched_signers": {"test-bob-uid", "test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
+			"possible_signers": set(),
+			"threshold_passed": true,
+		},
+	}
+}
+
 test_get_approvals_result {
 	res := get_approvals_result([approvals_satisfied, approvals_missing])
 
@@ -390,36 +440,22 @@ test_get_approvals_result {
 test_permit {
 	res := permit with input as request with data.entities as entities
 
-	res == {
-		{"policyId": "test-policy-1"}: {
-			"policyId": "test-policy-1",
-			"approvalsSatisfied": [approvals_satisfied],
-			"approvalsMissing": [approvals_missing],
-		},
-		{"policyId": "test-policy-2"}: {
-			"policyId": "test-policy-2",
-			"approvalsSatisfied": [approvals_satisfied],
-			"approvalsMissing": [approvals_missing],
-		},
-	}
+	res == {{"policyId": "allow-root-user"}: {
+		"policyId": "allow-root-user",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}}
 }
 
 test_evaluate {
 	res := evaluate with input as request with data.entities as entities
 
 	res == {
-		"permit": false,
-		"reasons": {
-			{
-				"policyId": "test-policy-1",
-				"approvalsSatisfied": [approvals_satisfied],
-				"approvalsMissing": [approvals_missing],
-			},
-			{
-				"policyId": "test-policy-2",
-				"approvalsSatisfied": [approvals_satisfied],
-				"approvalsMissing": [approvals_missing],
-			},
-		},
+		"permit": true,
+		"reasons": {{
+			"policyId": "allow-root-user",
+			"approvalsSatisfied": [],
+			"approvalsMissing": [],
+		}},
 	}
 }

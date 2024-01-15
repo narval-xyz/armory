@@ -31,6 +31,25 @@ authz/test/e2e:
 
 # === Open Policy Agent & Rego ===
 
+authz/rego/bundle:
+	opa build \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/policies.tar.gz
+
+authz/rego/eval:
+	opa eval \
+		--format="pretty" \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/policies.tar.gz \
+		--input ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/input.json \
+		'data.main.evaluate'
+
+authz/rego/test:
+	opa test \
+	--format="pretty" \
+	${AUTHZ_PROJECT_DIR}/src/app/opa/rego/lib \
+	--verbose \
+	--watch
+
 authz/rego/compile:
 	mkdir -p ./rego-build
 	opa build \
