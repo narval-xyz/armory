@@ -1,5 +1,12 @@
 import { SetOptional } from 'type-fest'
 
+export type Evaluation = {
+  id: string
+  decision: string
+  signature?: string | null
+  createdAt: Date
+}
+
 export enum Action {
   SIGN_TRANSACTION = 'signTransaction',
   SIGN_MESSAGE = 'signMessage'
@@ -8,6 +15,7 @@ export enum Action {
 export enum AuthorizationRequestStatus {
   CREATED = 'CREATED',
   CANCELED = 'CANCELED',
+  FAILED = 'FAILED',
   PROCESSING = 'PROCESSING',
   APPROVING = 'APPROVING',
   PERMITTED = 'PERMITTED',
@@ -30,6 +38,7 @@ export type SharedAuthorizationRequest = {
   idempotencyKey?: string | null
   createdAt: Date
   updatedAt: Date
+  evaluations: Evaluation[]
 }
 
 export type Hex = `0x${string}`
@@ -49,7 +58,6 @@ export type AccessList = { address: Address; storageKeys: Hex[] }[]
 //   accessList?: AccessList
 //   type?: TTransactionType
 // }
-
 // Temporary lite version
 export type TransactionRequest = {
   data?: Hex
@@ -81,4 +89,8 @@ export function isSignTransaction(request: AuthorizationRequest): request is Sig
 
 export function isSignMessage(request: AuthorizationRequest): request is SignMessageAuthorizationRequest {
   return (request as SignMessageAuthorizationRequest).action === Action.SIGN_MESSAGE
+}
+
+export type AuthorizationRequestProcessingJob = {
+  id: string
 }

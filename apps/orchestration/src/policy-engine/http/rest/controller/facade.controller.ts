@@ -3,18 +3,7 @@ import { Action, CreateAuthorizationRequest } from '@app/orchestration/policy-en
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
 import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  NotFoundException,
-  Param,
-  Post,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { plainToInstance } from 'class-transformer'
 
@@ -26,7 +15,8 @@ const toDomainType = (orgId: string, body: AuthorizationRequestDto): CreateAutho
   const shared = {
     orgId,
     initiatorId: '97389cac-20f0-4d02-a3a9-b27c564ffd18',
-    hash: dto.hash
+    hash: dto.hash,
+    evaluations: []
   }
 
   if (dto.isSignMessage(dto.request)) {
@@ -51,7 +41,6 @@ const toDomainType = (orgId: string, body: AuthorizationRequestDto): CreateAutho
 }
 
 @Controller('/policy-engine')
-@UsePipes(new ValidationPipe())
 @ApiTags('Policy Engine')
 export class FacadeController {
   constructor(private authorizationRequestService: AuthorizationRequestService) {}

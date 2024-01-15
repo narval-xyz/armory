@@ -2,7 +2,7 @@ import { PrismaService } from '@app/orchestration/shared/module/persistence/serv
 import { createMock } from '@golevelup/ts-jest'
 import { ConfigService } from '@nestjs/config'
 
-describe('PrismaService', () => {
+describe(PrismaService.name, () => {
   describe('constructor', () => {
     it('does not throw when ORCHESTRATION_DATABASE_URL is present', () => {
       const configServiceMock = createMock<ConfigService>({

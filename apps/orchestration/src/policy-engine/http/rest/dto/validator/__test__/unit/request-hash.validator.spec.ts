@@ -1,7 +1,7 @@
 import { RequestHash } from '@app/orchestration/policy-engine/http/rest/dto/validator/request-hash.validator'
 import { ValidationArguments } from 'class-validator'
 
-describe('RequestHash Validator', () => {
+describe(RequestHash.name, () => {
   let validator: RequestHash
 
   beforeEach(() => {

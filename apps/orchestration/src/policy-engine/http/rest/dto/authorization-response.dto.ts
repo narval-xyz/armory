@@ -1,43 +1,57 @@
 import { Action, AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import { IsString } from 'class-validator'
 
-export class AuthorizationResponseDto {
-  @ApiProperty({
-    required: true
-  })
+export class EvaluationDto {
+  @ApiProperty()
   id: string
 
-  @ApiProperty({
-    required: true
-  })
-  orgId: string
+  @ApiProperty()
+  decision: string
 
   @ApiProperty({
-    required: true
+    type: String
   })
+  signature?: string | null
+
+  @ApiProperty()
+  createdAt: Date
+}
+
+export class AuthorizationResponseDto {
+  @ApiProperty()
+  id: string
+
+  @ApiProperty()
+  orgId: string
+
+  @ApiProperty()
   initiatorId: string
 
   @IsString()
   idempotencyKey?: string | null
 
   @ApiProperty({
-    required: true,
     enum: Action
   })
   action: `${Action}`
 
   @ApiProperty({
-    required: true,
     enum: AuthorizationRequestStatus
   })
   status: `${AuthorizationRequestStatus}`
 
   @ApiProperty({
-    description: 'The hash of the request in EIP-191 format.',
-    required: true
+    description: 'The hash of the request in EIP-191 format.'
   })
   hash: string
+
+  @ApiProperty({
+    type: [EvaluationDto]
+  })
+  @Type(() => EvaluationDto)
+  evaluations: EvaluationDto[]
 
   // TODO: Figure out the request discrimination. It's been too painful.
   // @ApiProperty({

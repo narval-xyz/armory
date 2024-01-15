@@ -1,7 +1,7 @@
-import { Action, AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { Action, AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { signMessageRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-message-request.schema'
 import { signTransactionRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-transaction-request.schema'
-import { AuthorizationRequest as AuthorizationRequestModel } from '@prisma/client/orchestration'
+import { AuthorizationRequest as AuthorizationRequestModel, EvaluationLog } from '@prisma/client/orchestration'
 
 type DecodeSuccess = {
   success: true
@@ -13,11 +13,20 @@ type DecodeError = {
   reason: string
 }
 
+type Model = AuthorizationRequestModel & { evaluationLog?: EvaluationLog[] }
+
 interface DecodeAuthorizationRequestStrategy {
-  decode(model: AuthorizationRequestModel): DecodeError | DecodeSuccess
+  decode(model: Model): DecodeError | DecodeSuccess
 }
 
-const getSharedAttributes = (model: AuthorizationRequestModel) => ({
+const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
+  id,
+  decision,
+  signature,
+  createdAt
+})
+
+const getSharedAttributes = (model: Model) => ({
   id: model.id,
   orgId: model.orgId,
   initiatorId: model.initiatorId,
@@ -25,11 +34,12 @@ const getSharedAttributes = (model: AuthorizationRequestModel) => ({
   hash: model.hash,
   idempotencyKey: model.idempotencyKey,
   createdAt: model.createdAt,
-  updatedAt: model.updatedAt
+  updatedAt: model.updatedAt,
+  evaluations: (model.evaluationLog || []).map(buildEvaluation)
 })
 
 class SignMessageDecodeStrategy implements DecodeAuthorizationRequestStrategy {
-  decode(model: AuthorizationRequestModel): DecodeSuccess | DecodeError {
+  decode(model: Model): DecodeSuccess | DecodeError {
     if (model.action === Action.SIGN_MESSAGE) {
       const decode = signMessageRequestSchema.safeParse(model.request)
 
@@ -58,7 +68,7 @@ class SignMessageDecodeStrategy implements DecodeAuthorizationRequestStrategy {
 }
 
 class SignTransactionDecodeStrategy implements DecodeAuthorizationRequestStrategy {
-  decode(model: AuthorizationRequestModel): DecodeSuccess | DecodeError {
+  decode(model: Model): DecodeSuccess | DecodeError {
     if (model.action === Action.SIGN_TRANSACTION) {
       const decode = signTransactionRequestSchema.safeParse(model.request)
 
@@ -90,7 +100,7 @@ export const isDecodeSuccess = (decode: DecodeError | DecodeSuccess): decode is 
 
 export const isDecodeError = (decode: DecodeError | DecodeSuccess): decode is DecodeError => decode.success === false
 
-export const decodeAuthorizationRequest = (model: AuthorizationRequestModel): DecodeError | DecodeSuccess => {
+export const decodeAuthorizationRequest = (model: Model): DecodeError | DecodeSuccess => {
   const strategies = new Map<`${Action}`, DecodeAuthorizationRequestStrategy>([
     [Action.SIGN_MESSAGE, new SignMessageDecodeStrategy()],
     [Action.SIGN_TRANSACTION, new SignTransactionDecodeStrategy()]

@@ -5,8 +5,7 @@
 ```bash
 # Boot PostgreSQL and Redis
 make docker/up 
-make orchestration/copy-default-env
-make orchestration/db/migrate
+make orchestration/setup
 ```
 
 ## Running
@@ -17,7 +16,7 @@ make orchestration/start/dev
 
 ## Testing
 
-Firs time? Setup the test database:
+First time? Setup the test database:
 
 ```bash
 make orchestration/test/copy-default-env
@@ -27,6 +26,8 @@ make orchestration/test/db/setup
 Running the tests:
 
 ```bash
+# Run all tests
+make orchestration/test
 make orchestration/test/type
 make orchestration/test/unit
 make orchestration/test/integration

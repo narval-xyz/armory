@@ -69,3 +69,8 @@ orchestration/test/integration:
 
 orchestration/test/e2e:
 	npx nx test:e2e ${ORCHESTRATION_PROJECT_NAME}
+
+orchestration/test:
+	make orchestration/test/unit
+	make orchestration/test/integration
+	make orchestration/test/e2e

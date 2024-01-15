@@ -15,9 +15,14 @@ const orgs: Organization[] = [
 ]
 
 async function main() {
-  await prisma.organization.createMany({
-    data: orgs
-  })
+  logger.log('Seeding Orchestration database')
+
+  for (const org of orgs) {
+    logger.log(`Creating organization ${org.name} (ID: ${org.id})`)
+    await prisma.organization.create({
+      data: org
+    })
+  }
 
   logger.log('Orchestration database germinated 🌱')
 }
