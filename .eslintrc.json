@@ -22,18 +22,6 @@
       }
     },
     {
-      "files": ["**/apps/**/*.ts", "**/apps/**/*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
-      "rules": {
-        "no-relative-import-paths/no-relative-import-paths": [
-          "error",
-          {
-            "allowSameFolder": true
-          }
-        ]
-      }
-    },
-    {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
       "rules": {}
