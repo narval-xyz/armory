@@ -2,26 +2,22 @@ package main
 
 import future.keywords.in
 
-transfer_token_type := input.intent.type
+transfer_token_type = input.intent.type
 
-transfer_token_amount := input.intent.amount
+transfer_token_amount = to_number(input.intent.amount)
 
-transfer_token_address := result {
+transfer_token_address = input.intent.native.address
+
+transfer_token_address = input.intent.token.address
+
+transfer_token_address = result {
 	not input.intent.native.address
 	result := input.intent.native
 }
 
-transfer_token_address := result {
-	result := input.intent.native.address
-}
-
-transfer_token_address := result {
+transfer_token_address = result {
 	not input.intent.token.address
 	result := input.intent.token
-}
-
-transfer_token_address := result {
-	result := input.intent.token.address
 }
 
 check_transfer_token_type(values) {
@@ -46,30 +42,30 @@ check_transfer_token_operation(operation) {
 
 check_transfer_token_operation(operation) {
 	operation.operator == "eq"
-	to_number(operation.value) == to_number(transfer_token_amount)
+	to_number(operation.value) == transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
 	operation.operator == "neq"
-	to_number(operation.value) != to_number(transfer_token_amount)
+	to_number(operation.value) != transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
 	operation.operator == "gt"
-	to_number(operation.value) < to_number(transfer_token_amount)
+	to_number(operation.value) < transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
 	operation.operator == "lt"
-	to_number(operation.value) > to_number(transfer_token_amount)
+	to_number(operation.value) > transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
 	operation.operator == "gte"
-	to_number(operation.value) <= to_number(transfer_token_amount)
+	to_number(operation.value) <= transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
 	operation.operator == "lte"
-	to_number(operation.value) >= to_number(transfer_token_amount)
+	to_number(operation.value) >= transfer_token_amount
 }

@@ -3,6 +3,16 @@ package main
 import future.keywords.every
 import future.keywords.in
 
+mock_now_s = 1630540800
+
+twenty_hours_ago = mock_now_s - ((20 * 60) * 60)
+
+eleven_hours_ago = mock_now_s - ((11 * 60) * 60)
+
+ten_hours_ago = mock_now_s - ((10 * 60) * 60)
+
+nine_hours_ago = mock_now_s - ((9 * 60) * 60)
+
 request = {
 	"action": "signTransaction",
 	"principal": {"uid": "test-bob-uid"},
@@ -54,6 +64,46 @@ request = {
 			"hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c",
 		},
 	],
+	"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+		"uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"symbol": "USDC",
+		"chain_id": 137,
+		"decimals": 6,
+	}},
+	"spendings": {
+		"source": "narval-spendings-feed",
+		"signature": "some-random-signature",
+		"data": [
+			{
+				"amount": "3051",
+				"smallest_unit": "3051000000",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"USD": "0.99"},
+				"timestamp": eleven_hours_ago,
+				"chain_id": 137,
+				"initiated_by": "test-bob-uid",
+			},
+			{
+				"amount": "2000",
+				"smallest_unit": "2000000000",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"USD": "0.99"},
+				"timestamp": ten_hours_ago,
+				"chain_id": 137,
+				"initiated_by": "test-bob-uid",
+			},
+			{
+				"amount": "1500",
+				"smallest_unit": "1500000000",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"USD": "0.99"},
+				"timestamp": twenty_hours_ago,
+				"chain_id": 137,
+				"initiated_by": "test-bob-uid",
+			},
+		],
+	},
 }
 
 entities = {
@@ -159,14 +209,14 @@ test_is_principal_assigned_to_wallet {
 }
 
 test_principal {
-	res := principal with input as request
+	res = principal with input as request
 		with data.entities as entities
 
 	res == {"uid": "test-bob-uid", "role": "root"}
 }
 
 test_resource {
-	res := resource with input as request
+	res = resource with input as request
 		with data.entities as entities
 
 	res == {
@@ -178,7 +228,7 @@ test_resource {
 }
 
 test_source {
-	res := source with input as request
+	res = source with input as request
 		with data.entities as entities
 
 	res == {
@@ -190,7 +240,7 @@ test_source {
 }
 
 test_destination {
-	res := destination with input as request
+	res = destination with input as request
 		with data.entities as entities
 
 	res == {
@@ -202,7 +252,7 @@ test_destination {
 }
 
 test_principal_groups {
-	groups := principal_groups with input as request
+	groups = principal_groups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
@@ -216,14 +266,14 @@ test_wallet_groups {
 }
 
 test_signers_roles {
-	roles := signers_roles with input as request
+	roles = signers_roles with input as request
 		with data.entities as entities
 
 	roles == {"root", "member", "admin"}
 }
 
 test_signers_groups {
-	groups := signers_groups with input as request
+	groups = signers_groups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
@@ -336,7 +386,7 @@ test_check_approval {
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
 	}
 
-	res := check_approval(required_approval) with input as request with data.entities as entities
+	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
@@ -356,7 +406,7 @@ test_check_approval {
 		"entityIds": ["test-user-group-one-uid"],
 	}
 
-	res := check_approval(required_approval) with input as request with data.entities as entities
+	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
@@ -376,7 +426,7 @@ test_check_approval {
 		"entityIds": ["test-user-group-one-uid"],
 	}
 
-	res := check_approval(required_approval) with input as request with data.entities as entities
+	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
@@ -396,7 +446,7 @@ test_check_approval {
 		"entityIds": ["root", "admin"],
 	}
 
-	res := check_approval(required_approval) with input as request with data.entities as entities
+	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
@@ -416,7 +466,7 @@ test_check_approval {
 		"entityIds": ["root", "admin"],
 	}
 
-	res := check_approval(required_approval) with input as request with data.entities as entities
+	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
@@ -429,7 +479,7 @@ test_check_approval {
 }
 
 test_get_approvals_result {
-	res := get_approvals_result([approvals_satisfied, approvals_missing])
+	res = get_approvals_result([approvals_satisfied, approvals_missing])
 
 	res == {
 		"approvalsSatisfied": [approvals_satisfied],
@@ -437,8 +487,19 @@ test_get_approvals_result {
 	}
 }
 
+test_get_spending_amount {
+	tokens = {
+		"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+	}
+	start = substract_from_date(mock_now_s, (12 * 60) * 60)
+	res = get_spending_amount(tokens, start) with input as request with data.entities as entities
+
+	res == (3051000000 * 0.99) + (2000000000 * 0.99)
+}
+
 test_permit {
-	res := permit with input as request with data.entities as entities
+	res = permit with input as request with data.entities as entities
 
 	res == {{"policyId": "allow-root-user"}: {
 		"policyId": "allow-root-user",
@@ -447,8 +508,14 @@ test_permit {
 	}}
 }
 
+test_forbid {
+	res = forbid with input as request with data.entities as entities
+
+	res == set()
+}
+
 test_evaluate {
-	res := evaluate with input as request with data.entities as entities
+	res = evaluate with input as request with data.entities as entities
 
 	res == {
 		"permit": true,
