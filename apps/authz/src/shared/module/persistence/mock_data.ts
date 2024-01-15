@@ -1,3 +1,4 @@
+import { hashBody } from '@app/authz/shared/lib/utils'
 import {
   AddressBookAccount,
   RegoData,
@@ -7,13 +8,14 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { AccountType, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
-import { TransactionRequest } from '@app/authz/shared/types/http'
+import { AccountType, Alg, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
+import { AuthCredential, AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
 import { RegoInput } from '@app/authz/shared/types/rego'
 import { Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
@@ -71,10 +73,32 @@ export const UNSAFE_PRIVATE_KEY_AAUSER = '0x2f069925bbd2bc2a9fddeab641dea34f7893
 export const UNSAFE_PRIVATE_KEY_BBUSER = '0xa1f1830a6d1765aa1b57ad76731d1c3463658523e11dc853b7af7827549096c3' // 0xab88c8785D0C00082dE75D801Fcb1d5066a6311e
 
 // User AuthN Address <> UserId mapping; one user can  have multiple authn pubkeys
+// @deprecated, use Credential store
 export const userAddressStore: { [key: string]: string } = {
   '0xd75D626a116D4a1959fE3bB938B2e7c116A05890': MATT.uid,
   '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06': AAUser.uid,
   '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e': BBUser.uid
+}
+
+export const userCredentialStore: { [key: string]: AuthCredential } = {
+  '0xd75D626a116D4a1959fE3bB938B2e7c116A05890': {
+    userId: MATT.uid,
+    id: 'credentialId1',
+    alg: Alg.ES256K,
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+  },
+  '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06': {
+    userId: AAUser.uid,
+    id: 'credentialId1',
+    alg: Alg.ES256K,
+    pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
+  },
+  '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e': {
+    userId: BBUser.uid,
+    id: 'credentialId1',
+    alg: Alg.ES256K,
+    pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
+  }
 }
 
 /**
@@ -180,7 +204,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
 
 export const REGO_REQUEST: RegoInput = {
   activityType: BlockchainActions.SIGN_TRANSACTION,
-  request: NATIVE_TRANSFER_TX_REQUEST,
+  transactionRequest: NATIVE_TRANSFER_TX_REQUEST,
   intent: NATIVE_TRANSFER_INTENT,
   resource: {
     uid: TREASURY_WALLET_X.uid
@@ -265,5 +289,51 @@ export const mockEntityData: RegoData = {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     }
+  }
+}
+
+// stub out the actual tx request & signature
+// This is what would be the initial input from the external service
+export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
+  const txRequest = ERC20_TRANSFER_TX_REQUEST
+  const request = {
+    activityType: BlockchainActions.SIGN_TRANSACTION,
+    transactionRequest: txRequest,
+    resourceId: NATIVE_TRANSFER_TX_REQUEST.from
+  }
+
+  const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
+    message: hashBody(request)
+  })
+  const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
+    message: hashBody(request)
+  })
+  const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
+    message: hashBody(request)
+  })
+
+  return {
+    authn: {
+      sig: signatureMatt,
+      alg: Alg.ES256K,
+      pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+    },
+    request: {
+      activityType: BlockchainActions.SIGN_TRANSACTION,
+      transactionRequest: txRequest,
+      resourceId: NATIVE_TRANSFER_TX_REQUEST.from
+    },
+    approvals: [
+      {
+        sig: approvalSigAAUser,
+        alg: Alg.ES256K,
+        pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
+      },
+      {
+        sig: approvalSigBBUser,
+        alg: Alg.ES256K,
+        pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
+      }
+    ]
   }
 }

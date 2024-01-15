@@ -1,15 +1,19 @@
+import { hashBody } from '@app/authz/shared/lib/utils'
 import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
-import { BlockchainActions } from '@app/authz/shared/types/enums'
+import { Alg } from '@app/authz/shared/types/enums'
 import {
-  ApprovalSignature,
+  AuthCredential,
   AuthZRequest,
   AuthZRequestPayload,
   AuthZResponse,
-  NarvalDecision
+  NarvalDecision,
+  RequestSignature
 } from '@app/authz/shared/types/http'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
+import { safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
-import { recoverMessageAddress } from 'viem'
+import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
+import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { OpaService } from './opa/opa.service'
 
@@ -18,46 +22,58 @@ const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b084
 @Injectable()
 export class AppService {
   constructor(private persistenceRepository: PersistenceRepository, private opaService: OpaService) {}
-  getData(): { message: string } {
-    return { message: 'Hello AuthZ API' }
+
+  async #verifySignature(requestSignature: RequestSignature, verificationMessage: string): Promise<AuthCredential> {
+    const { pubKey, alg, sig } = requestSignature
+    const credential = await this.persistenceRepository.getCredentialForPubKey(pubKey)
+    if (alg === Alg.ES256K) {
+      // TODO: ensure sig & pubkey begins with 0x
+      const signature = sig.startsWith('0x') ? sig : `0x${sig}`
+      const address = pubKey as Hex
+      const valid = await verifyMessage({
+        message: verificationMessage,
+        address,
+        signature: signature as Hex
+      })
+      if (!valid) throw new Error('Invalid Signature')
+    }
+    // TODO: verify other alg types
+
+    return credential
   }
 
   async #populateApprovals(
-    approvalSignatures: `0x${string}`[] | undefined,
+    approvals: RequestSignature[] | undefined,
     verificationMessage: string
-  ): Promise<ApprovalSignature[] | null> {
-    if (!approvalSignatures) return null
+  ): Promise<AuthCredential[] | null> {
+    if (!approvals) return null
     const approvalSigs = await Promise.all(
-      approvalSignatures.map(async (sig) => {
-        const address = await recoverMessageAddress({
-          message: verificationMessage,
-          signature: sig
-        })
-        const userId = await this.persistenceRepository.getUserForAddress(address)
-
-        return {
-          signature: sig,
-          address,
-          userId
-        }
+      approvals.map(async ({ sig, alg, pubKey }) => {
+        const credential = await this.#verifySignature({ sig, alg, pubKey }, verificationMessage)
+        return credential
       })
     )
     return approvalSigs
   }
 
-  #getRegoInputFromRequest(
-    principalId: string,
-    request: AuthZRequest,
-    approvals: ApprovalSignature[] | null
-  ): RegoInput {
-    const intent = request.activityType === BlockchainActions.SIGN_TRANSACTION ? request.intent : undefined
+  #buildRegoInput({
+    principal,
+    request,
+    approvals,
+    intent
+  }: {
+    principal: AuthCredential
+    request: AuthZRequest
+    approvals: AuthCredential[] | null
+    intent?: Intent
+  }): RegoInput {
     // intent only exists in SignTransaction actions
     return {
       activityType: request.activityType,
       intent,
-      request: request.transactionRequest,
+      transactionRequest: request.transactionRequest,
       principal: {
-        uid: principalId
+        uid: principal.userId
       },
       resource: {
         uid: request.resourceId
@@ -93,25 +109,32 @@ export class AppService {
     }
   }
 
-  async runEvaluation({ request, authn, approvalSignatures }: AuthZRequestPayload) {
-    /**
-     * Actual Eval Flow
-     */
+  /**
+   * Actual Eval Flow
+   */
+  async runEvaluation({ request, authn, approvals }: AuthZRequestPayload) {
+    // Pre-Process
+    // verify the signatures of the Principal and any Approvals
+    const verificationMessage = hashBody(request)
+    const principalCredential = await this.#verifySignature(authn, verificationMessage)
+    if (!principalCredential) throw new Error(`Could not find principal`)
+    const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)
 
-    // Pre-Process - verify the signature/recover the address
-    const verificationMessage = JSON.stringify(request.transactionRequest)
-    const recoveredAddress = await recoverMessageAddress({
-      message: verificationMessage,
-      signature: authn.signature
+    // Decode the intent
+    const intentResult = request.transactionRequest
+      ? safeDecode({
+          txRequest: request.transactionRequest
+        })
+      : undefined
+    if (intentResult?.success === false) throw new Error(`Could not decode intent: ${intentResult.error.message}`)
+    const intent = intentResult?.intent
+
+    const input = this.#buildRegoInput({
+      principal: principalCredential,
+      request,
+      approvals: populatedApprovals,
+      intent
     })
-    console.log('Recovered Principal address', recoveredAddress)
-    const principalUserId = await this.persistenceRepository.getUserForAddress(recoveredAddress)
-
-    if (!principalUserId) throw new Error(`Could not find user for address ${recoveredAddress}`)
-    // Populate any approval signatures with recovered address/user info
-    const populatedApprovals = await this.#populateApprovals(approvalSignatures, verificationMessage)
-
-    const input = this.#getRegoInputFromRequest(principalUserId, request, populatedApprovals)
 
     // Actual Rego Evaluation
     const resultSet: OpaResult[] = await this.opaService.evaluate(input)
@@ -123,7 +146,7 @@ export class AppService {
 
     const authzResponse: AuthZResponse = {
       decision: finalDecision.decision,
-      transactionRequest: request.transactionRequest,
+      request,
       totalApprovalsRequired: finalDecision.totalApprovalsRequired,
       approvalsSatisfied: finalDecision.approvalsSatisfied,
       approvalsMissing: finalDecision.approvalsMissing
@@ -131,10 +154,16 @@ export class AppService {
 
     // If we are allowing, then the ENGINE signs the verification too
     if (finalDecision.decision === NarvalDecision.Permit) {
-      const permitSignature = await privateKeyToAccount(ENGINE_PRIVATE_KEY).signMessage({
+      // TODO: store a global configuration on the response signature alg
+      const engineAccount = privateKeyToAccount(ENGINE_PRIVATE_KEY)
+      const permitSignature = await engineAccount.signMessage({
         message: verificationMessage
       })
-      authzResponse.permitSignature = permitSignature
+      authzResponse.permitSignature = {
+        sig: permitSignature,
+        alg: Alg.ES256K,
+        pubKey: engineAccount.address // TODO: should this be account.publicKey?
+      }
     }
 
     console.log('End')

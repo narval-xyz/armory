@@ -55,6 +55,6 @@ authz/rego/compile:
 	opa build \
 		--target wasm \
 		--entrypoint main/evaluate \
-		--output ./rego-build/policies.gz \
-		${AUTHZ_PROJECT_DIR}/src/app/opa/rego/main.rego
+		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+		--output ./rego-build/policies.gz
 	tar -xzf ./rego-build/policies.gz -C ./rego-build/
