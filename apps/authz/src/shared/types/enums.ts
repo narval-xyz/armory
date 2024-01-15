@@ -61,3 +61,9 @@ export enum IdentityOperators {
   CONTAINS = 'contains',
   IN = 'in'
 }
+
+export enum Alg {
+  ES256K = 'ES256K', // secp256k1, an Ethereum EOA
+  ES256 = 'ES256', // secp256r1, ecdsa but not ethereum
+  RS256 = 'RS256'
+}

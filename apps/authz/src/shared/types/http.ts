@@ -1,5 +1,4 @@
-import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Actions } from './enums'
+import { Actions, Alg } from './enums'
 
 // Types ripped from viem; combining a few though because they don't have chainId on txRequest
 export type Hex = `0x${string}`
@@ -23,19 +22,29 @@ export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionTyp
   type?: TTransactionType
 }
 
+/**
+ * The activity/data being authorized. This must include all the data being authorized, and nothing except the data being authorized.
+ * This is the data that will be hashed and signed.
+ */
 export type AuthZRequest = {
   activityType: Actions
-  transactionRequest: TransactionRequest
-  intent?: Intent
-  resourceId: string
+  resourceId?: string
+  transactionRequest?: TransactionRequest
+}
+
+/**
+ * A signed sha-256 hash of the `request` field
+ */
+export type RequestSignature = {
+  sig: string
+  alg: Alg
+  pubKey: string // Depending on the alg, this may be necessary (e.g., RSA cannot recover the public key from the signature)
 }
 
 export type AuthZRequestPayload = {
-  authn: {
-    signature: `0x${string}` // This is the signed hash of the `request` field
-  }
+  authn: RequestSignature // The signature of the initiator
   request: AuthZRequest
-  approvalSignatures?: `0x${string}`[] // this is an array of other signed hashes of the `request` field from approvers
+  approvals?: RequestSignature[] // Other approvals, incl. second factors of the initiator
 }
 
 export enum NarvalDecision {
@@ -59,15 +68,23 @@ export type ApprovalRequirement = {
 
 export type AuthZResponse = {
   decision: NarvalDecision
-  permitSignature?: `0x${string}`
-  transactionRequest?: TransactionRequest
+  permitSignature?: RequestSignature // The ENGINE's approval signature
+  request?: AuthZRequest // The actual authorized request
   totalApprovalsRequired?: ApprovalRequirement[]
   approvalsSatisfied?: ApprovalRequirement[]
   approvalsMissing?: ApprovalRequirement[]
 }
 
-export type ApprovalSignature = {
+export type VerifiedApproval = {
   signature: string
-  address: string
+  userId: string
+  credentialId: string // The credential used for this approval
+  address?: string // Address, if the Credential is a EOA private key TODO: Do we need this?
+}
+
+export type AuthCredential = {
+  id: string
+  pubKey: string
+  alg: Alg
   userId: string
 }

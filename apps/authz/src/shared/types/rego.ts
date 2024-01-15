@@ -1,24 +1,30 @@
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Actions } from './enums'
-import { TransactionRequest } from './http'
+import { ApprovalRequirement, TransactionRequest } from './http'
 
 export type RegoInput = {
   activityType: Actions
   intent?: Intent
-  request: TransactionRequest
+  transactionRequest?: TransactionRequest
   principal: {
     uid: string
   }
   resource: {
-    uid: string // walletId
+    uid?: string // eg. walletId; could be null for actions such "Create User"
   }
   signatures: { signer: string }[] // TODO: rename this to `approvals: ApprovalSignature[]`
-} // <--- this is the REGO structure
+}
+
+type EvaluationReason = {
+  policyId: string
+  approvalsSatisfied: ApprovalRequirement[]
+  approvalsMissing: ApprovalRequirement[]
+}
 
 export type OpaResult = {
   result: {
-    reasons: []
-    confirms?: []
+    reasons: EvaluationReason[]
+    confirms?: [] // TODO: ???
     permit: boolean
   }
 }
