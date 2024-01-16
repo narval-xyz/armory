@@ -1,4 +1,5 @@
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
@@ -6,6 +7,7 @@ import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
 import { Logger, Module, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_FILTER } from '@nestjs/core'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
 import { FacadeController } from './http/rest/controller/facade.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
@@ -34,7 +36,11 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     AuthorizationRequestService,
     AuthorizationRequestRepository,
     AuthorizationRequestProcessingConsumer,
-    AuthorizationRequestProcessingProducer
+    AuthorizationRequestProcessingProducer,
+    {
+      provide: APP_FILTER,
+      useClass: ApplicationExceptionFilter
+    }
   ]
 })
 export class PolicyEngineModule implements OnApplicationBootstrap {

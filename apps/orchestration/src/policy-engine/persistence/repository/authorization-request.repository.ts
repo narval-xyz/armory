@@ -3,13 +3,10 @@ import {
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import {
-  decodeAuthorizationRequest,
-  isDecodeError,
-  isDecodeSuccess
-} from '@app/orchestration/policy-engine/persistence/decode/decode-authorization-request.strategy'
+import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
+import { EvaluationLog } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
 
 @Injectable()
@@ -53,21 +50,20 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    const decode = decodeAuthorizationRequest(model)
-
-    if (decode.success) {
-      return decode.authorizationRequest
-    }
-
-    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
-    throw new BadRequestException('Invalid authorization request', {
-      description: decode.reason
-    })
+    return decodeAuthorizationRequest(model)
   }
 
-  async update(
-    input: Partial<AuthorizationRequest> & Pick<AuthorizationRequest, 'id' | 'orgId'>
-  ): Promise<AuthorizationRequest> {
+  async update(input: Partial<AuthorizationRequest> & Pick<AuthorizationRequest, 'id'>): Promise<AuthorizationRequest> {
+    const evaluations: EvaluationLog[] =
+      input.orgId && input.evaluations?.length
+        ? input.evaluations?.map((evaluation) => ({
+            ...evaluation,
+            signature: evaluation.signature,
+            requestId: input.id,
+            orgId: input.orgId as string
+          }))
+        : []
+
     const model = await this.prismaService.authorizationRequest.update({
       where: {
         id: input.id
@@ -75,24 +71,14 @@ export class AuthorizationRequestRepository {
       data: {
         ...omit('evaluations', input),
         evaluationLog: {
-          create: input.evaluations?.map((evaluation) => ({
-            ...evaluation,
-            orgId: input.orgId
-          }))
+          createMany: {
+            data: evaluations
+          }
         }
       }
     })
 
-    const decode = decodeAuthorizationRequest(model)
-
-    if (decode.success) {
-      return decode.authorizationRequest
-    }
-
-    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
-    throw new BadRequestException('Invalid authorization request', {
-      description: decode.reason
-    })
+    return decodeAuthorizationRequest(model)
   }
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
@@ -104,16 +90,7 @@ export class AuthorizationRequestRepository {
     })
 
     if (model) {
-      const decode = decodeAuthorizationRequest(model)
-
-      if (decode.success) {
-        return decode.authorizationRequest
-      }
-
-      // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
-      throw new InternalServerErrorException('Invalid stored authorization request', {
-        description: decode.reason
-      })
+      return decodeAuthorizationRequest(model)
     }
 
     return null
@@ -131,37 +108,9 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    const decodes = models.map(decodeAuthorizationRequest)
-    const errors = decodes.filter(isDecodeError)
-
-    if (errors.length) {
-      // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
-      throw new InternalServerErrorException('Invalid stored authorization request', {
-        description: errors.map(({ reason }) => reason).join(', ')
-      })
-    }
-
-    return decodes.filter(isDecodeSuccess).map(({ authorizationRequest }) => authorizationRequest)
-  }
-
-  async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
-    const model = await this.prismaService.authorizationRequest.update({
-      where: { id },
-      data: { status },
-      include: {
-        evaluationLog: true
-      }
-    })
-
-    const decode = decodeAuthorizationRequest(model)
-
-    if (decode.success) {
-      return decode.authorizationRequest
-    }
-
-    // TODO (@wcalderipe, 11/01/24): Get rid of implict error throwing.
-    throw new InternalServerErrorException('Invalid stored authorization request', {
-      description: decode.reason
-    })
+    // TODO (@wcalderipe, 16/01/24): The function `decodeAuthorizationRequest`
+    // throws an error on invalid requests. Consequently, it shorts circuit the
+    // decoding of all models.
+    return models.map(decodeAuthorizationRequest)
   }
 }

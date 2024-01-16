@@ -3,7 +3,7 @@ import { SetOptional } from 'type-fest'
 export type Evaluation = {
   id: string
   decision: string
-  signature?: string | null
+  signature: string | null
   createdAt: Date
 }
 

@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 export enum Env {
   DEVELOPMENT = 'development',
-  TEST = 'test'
+  TEST = 'test',
+  PRODUCTION = 'production'
 }
 
 const configSchema = z.object({
