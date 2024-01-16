@@ -13,7 +13,7 @@ See Alice's address below:
 ```
 
 > [!IMPORTANT]
-> This are testing accounts ment for signing transactions in local & test
+> These are testing accounts ment for signing transactions in local & test
 > environments. **DO NOT USE THEM IN PRODUCTION**.
 
 ## Test accounts
