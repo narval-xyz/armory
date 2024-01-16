@@ -22,7 +22,7 @@ describe(RequestHash.name, () => {
 
       const result = validator.validate(hash, args)
 
-      expect(result).toBe(true)
+      expect(result).toEqual(true)
     })
 
     it('returns false if the given hash does not match the hash of the request object', () => {
@@ -38,7 +38,7 @@ describe(RequestHash.name, () => {
 
       const result = validator.validate(hash, args)
 
-      expect(result).toBe(false)
+      expect(result).toEqual(false)
     })
 
     it('returns false if the request object is not present in the arguments', () => {
@@ -53,7 +53,7 @@ describe(RequestHash.name, () => {
 
       const result = validator.validate(hash, args)
 
-      expect(result).toBe(false)
+      expect(result).toEqual(false)
     })
   })
 
@@ -70,7 +70,7 @@ describe(RequestHash.name, () => {
 
       const message = validator.defaultMessage(args)
 
-      expect(message).toBe(`${property} is not a valid EIP-191 hash format`)
+      expect(message).toEqual(`${property} is not a valid EIP-191 hash format`)
     })
   })
 })

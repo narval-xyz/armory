@@ -5,8 +5,9 @@ import {
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger, UnprocessableEntityException } from '@nestjs/common'
+import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, delay, lastValueFrom, map, switchMap, tap } from 'rxjs'
 import { v4 as uuid } from 'uuid'
 
@@ -52,14 +53,21 @@ export class AuthorizationRequestService {
     const authzRequest = await this.authzRequestRepository.findById(id)
 
     if (authzRequest) {
-      await this.authzRequestRepository.changeStatus(id, AuthorizationRequestStatus.PROCESSING)
+      await this.authzRequestRepository.update({
+        id: authzRequest.id,
+        orgId: authzRequest.orgId,
+        status: AuthorizationRequestStatus.PROCESSING
+      })
 
       await this.evaluate(authzRequest)
     }
   }
 
   async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
-    return this.authzRequestRepository.changeStatus(id, status)
+    return this.authzRequestRepository.update({
+      id: id,
+      status
+    })
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -104,10 +112,12 @@ export class AuthorizationRequestService {
           })
         }),
         catchError((error) => {
-          this.logger.error('Authorization request evaluation failed')
-
-          throw new UnprocessableEntityException('Authorization request evaluation error', {
-            description: error.message
+          throw new ApplicationException({
+            message: 'Authorization request evaluation failed',
+            suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+            context: {
+              sourceError: error
+            }
           })
         })
       )

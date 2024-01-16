@@ -1,13 +1,14 @@
 import { OrchestrationModule } from '@app/orchestration/orchestration.module'
+import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { lastValueFrom, map, of, switchMap, tap } from 'rxjs'
+import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './orchestration.config'
 
 /**
- * Sets up Swagger documentation to the application.
+ * Adds Swagger documentation to the application.
  *
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
@@ -33,7 +34,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
 }
 
 /**
- * Sets up global pipes to the application.
+ * Adds global pipes to the application.
  *
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
@@ -45,7 +46,7 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 }
 
 /**
- * Sets up global interceptors to application.
+ * Adds global interceptors to application.
  *
  * @param app - The Nest application instance.
  * @returns The modified Nest application instance.
@@ -55,6 +56,21 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
 
   return app
 }
+
+/**
+ * Adds a global exception filter to the application.
+ *
+ * @param app - The Nest application instance.
+ * @param configService - The configuration service instance.
+ * @returns The modified Nest application instance.
+ */
+const withGlobalExceptionFilter =
+  (configService: ConfigService<Config, true>) =>
+  (app: INestApplication): INestApplication => {
+    app.useGlobalFilters(new ApplicationExceptionFilter(configService))
+
+    return app
+  }
 
 /**
  * Boots up the orchestration application.
@@ -71,11 +87,9 @@ async function bootstrap(): Promise<void> {
   await lastValueFrom(
     of(application).pipe(
       map(withSwagger),
-      tap(() => logger.log('Added Swagger')),
       map(withGlobalPipes),
-      tap(() => logger.log('Added global validation pipe')),
       map(withGlobalInterceptors),
-      tap(() => logger.log('Added global interceptors')),
+      map(withGlobalExceptionFilter(configService)),
       switchMap((app) => app.listen(port))
     )
   )
