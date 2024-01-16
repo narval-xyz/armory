@@ -47,6 +47,7 @@ authz/rego/test:
 	opa test \
 	--format="pretty" \
 	${AUTHZ_PROJECT_DIR}/src/app/opa/rego/lib \
+	${AUTHZ_PROJECT_DIR}/src/app/opa/rego/policies \
 	--verbose \
 	--watch
 
