@@ -4,7 +4,7 @@
   "resource": { "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e" },
   "request": {
     "type": "eip1559",
-    "chain_id": 137,
+    "chainId": 137,
     "max_fee_per_gas": "20000000000",
     "max_priority_fee_per_gas": "3000000000",
     "gas": "21000",
@@ -20,7 +20,7 @@
     },
     "to": {
       "uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-      "chain_id": 137,
+      "chainId": 137,
       "address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
     },
     "amount": "1000000000000000000",
@@ -58,7 +58,7 @@
       "uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       "address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       "symbol": "USDC",
-      "chain_id": 137,
+      "chainId": 137,
       "decimals": 6
     }
   },
@@ -69,38 +69,42 @@
       {
         "amount": "3000",
         "smallest_unit": "3000000000",
+        "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
         "rates": { "USD": "0.99" },
         "timestamp": 1705332968316,
-        "chain_id": 137,
-        "initiated_by": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
+        "chainId": 137,
+        "initiatedBy": "test-foo-uid"
       },
       {
         "amount": "3000",
         "smallest_unit": "3000000000",
+        "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
         "rates": { "USD": "0.99" },
         "timestamp": 1705332971916,
-        "chain_id": 137,
-        "initiated_by": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
+        "chainId": 137,
+        "initiatedBy": "test-foo-uid"
       },
       {
         "amount": "1500",
         "smallest_unit": "1500000000",
+        "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
         "rates": { "USD": "0.99" },
         "timestamp": 1705332975516,
-        "chain_id": 137,
-        "initiated_by": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
+        "chainId": 137,
+        "initiatedBy": "test-foo-uid"
       },
       {
         "amount": "1500",
         "smallest_unit": "1500000000",
+        "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
         "rates": { "USD": "0.99" },
         "timestamp": 1705332935916,
-        "chain_id": 137,
-        "initiated_by": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
+        "chainId": 137,
+        "initiatedBy": "test-foo-uid"
       }
     ]
   }
