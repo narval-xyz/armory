@@ -11,6 +11,10 @@ default evaluate := {
 	"default": true,
 }
 
+default permit[{}] := {}
+
+default forbid[{}] := {}
+
 evaluate := decision {
 	permit_set := {p | p = permit[_]}
 	forbid_set := {f | f = forbid[_]}
@@ -57,6 +61,9 @@ permit[{"policyId": "allow-root-user"}] := reason {
 	}
 }
 
-forbid[{"policyId": "default-forbid-policy"}] {
-	false
-}
+# forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
+# 	reason := {
+# 		"policyId": "test-accumulation-policy-1",
+# 		"message": "You have reached the your spending limit.",
+# 	}
+# }
