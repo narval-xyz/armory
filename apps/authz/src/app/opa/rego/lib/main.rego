@@ -48,22 +48,3 @@ evaluate := decision {
 		"reasons": set(),
 	}
 }
-
-# Root user is always allowed to perform any action.
-
-permit[{"policyId": "allow-root-user"}] := reason {
-	is_principal_root_user
-
-	reason := {
-		"policyId": "allow-root-user",
-		"approvalsSatisfied": [],
-		"approvalsMissing": [],
-	}
-}
-
-# forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
-# 	reason := {
-# 		"policyId": "test-accumulation-policy-1",
-# 		"message": "You have reached the your spending limit.",
-# 	}
-# }

@@ -6,17 +6,17 @@ transfer_token_type = input.intent.type
 
 transfer_token_amount = to_number(input.intent.amount)
 
-transfer_token_address = input.intent.native.address
+transfer_token_address = input.intent.native.uid
 
-transfer_token_address = input.intent.token.address
+transfer_token_address = input.intent.token.uid
 
 transfer_token_address = result {
-	not input.intent.native.address
+	not input.intent.native.uid
 	result := input.intent.native
 }
 
 transfer_token_address = result {
-	not input.intent.token.address
+	not input.intent.token.uid
 	result := input.intent.token
 }
 
