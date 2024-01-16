@@ -34,6 +34,8 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
     )
   }
 
+  // TODO (@wcalderipe, 16/01/24): Unit test the logging logic. For that, we
+  // must inject the logger in the constructor via dependency injection.
   private log(exception: ApplicationException) {
     const level: LogLevel = exception.getStatus() >= 500 ? 'error' : 'warn'
 
