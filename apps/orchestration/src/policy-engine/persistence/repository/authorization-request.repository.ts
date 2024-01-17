@@ -1,7 +1,8 @@
 import {
   AuthorizationRequest,
   AuthorizationRequestStatus,
-  CreateAuthorizationRequest
+  CreateAuthorizationRequest,
+  Evaluation
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
 import {
@@ -13,6 +14,19 @@ import { Injectable } from '@nestjs/common'
 import { EvaluationLog } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
 
+const toEvaluationLogs = (
+  requestId: string,
+  orgId?: string,
+  evaluations?: Omit<Evaluation, 'requestId'>[]
+): EvaluationLog[] =>
+  orgId && evaluations?.length
+    ? evaluations.map((evaluation) => ({
+        ...evaluation,
+        orgId,
+        requestId
+      }))
+    : []
+
 @Injectable()
 export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
@@ -20,6 +34,7 @@ export class AuthorizationRequestRepository {
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
     const { id, action, request, orgId, initiatorId, hash, status, idempotencyKey, createdAt, updatedAt, evaluations } =
       createAuthorizationRequestSchema.parse(input)
+    const evaluationLogs = toEvaluationLogs(id, orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
       data: {
@@ -35,10 +50,7 @@ export class AuthorizationRequestRepository {
         updatedAt,
         evaluationLog: {
           createMany: {
-            data: evaluations.map((evaluation) => ({
-              ...evaluation,
-              orgId
-            }))
+            data: evaluationLogs.map(omit('requestId'))
           }
         }
       },
@@ -63,32 +75,25 @@ export class AuthorizationRequestRepository {
     input: Partial<Pick<AuthorizationRequest, 'orgId' | 'status' | 'evaluations'>> & Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
     const { id } = input
-    const { orgId, status, evaluations } = updateAuthorizationRequestSchema.parse(omit('evaluations', input))
+    const { orgId, status, evaluations } = updateAuthorizationRequestSchema.parse(input)
+    const evaluationLogs = toEvaluationLogs(id, orgId, evaluations)
 
-    const evaluationLogs: EvaluationLog[] =
-      orgId && evaluations?.length
-        ? evaluations.map((evaluation) => ({
-            ...evaluation,
-            requestId: id,
-            orgId
-          }))
-        : []
-
-    await this.prismaService.authorizationRequest.update({
+    const model = await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
-        ...(evaluationLogs.length && {
-          evaluationLog: {
-            createMany: {
-              data: evaluationLogs
-            }
+        evaluationLog: {
+          createMany: {
+            data: evaluationLogs.map(omit('requestId'))
           }
-        })
+        }
+      },
+      include: {
+        evaluationLog: true
       }
     })
 
-    return Promise.resolve({} as AuthorizationRequest)
+    return decodeAuthorizationRequest(model)
   }
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
