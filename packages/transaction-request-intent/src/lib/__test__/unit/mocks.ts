@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { Caip19 } from '../../caip'
+import { Caip10, Caip19 } from '../../caip'
 import { Intents } from '../../domain'
 import { TransferNative } from '../../intent.types'
 import { TransactionRequest } from '../../transaction.type'
@@ -237,8 +237,10 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
   type: Intents.TRANSFER_NATIVE,
+  to: 'eip155:137/eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as Caip10,
+  from: 'eip155:137/eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as Caip10,
   amount: '0x8000',
-  native: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
+  token: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
 }
 
 export const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
