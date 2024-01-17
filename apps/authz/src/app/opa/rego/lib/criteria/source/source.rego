@@ -7,6 +7,7 @@ check_source_account_type(values) {
 }
 
 check_source_account_type(values) {
+	values != wildcard
 	source.accountType in values
 }
 
@@ -15,6 +16,7 @@ check_source_address(values) {
 }
 
 check_source_address(values) {
+	values != wildcard
 	source.address in values
 }
 
@@ -27,5 +29,6 @@ check_source_classification(values) {
 }
 
 check_source_classification(values) {
+	values != wildcard
 	source.classification in values
 }
