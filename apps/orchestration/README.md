@@ -28,10 +28,16 @@ Running the tests:
 ```bash
 # Run all tests
 make orchestration/test
+
 make orchestration/test/type
 make orchestration/test/unit
 make orchestration/test/integration
 make orchestration/test/e2e
+
+# Watch tests
+make orchestration/test/unit/watch
+make orchestration/test/integration/watch
+make orchestration/test/e2e/watch
 ```
 
 ## Database

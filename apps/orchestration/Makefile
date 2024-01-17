@@ -62,13 +62,22 @@ orchestration/test/type:
 	npx nx test:type ${ORCHESTRATION_PROJECT_NAME}
 
 orchestration/test/unit:
-	npx nx test:unit ${ORCHESTRATION_PROJECT_NAME}
+	npx nx test:unit ${ORCHESTRATION_PROJECT_NAME} -- ${ARGS}
 
 orchestration/test/integration:
-	npx nx test:integration ${ORCHESTRATION_PROJECT_NAME}
+	npx nx test:integration ${ORCHESTRATION_PROJECT_NAME} -- ${ARGS}
 
 orchestration/test/e2e:
-	npx nx test:e2e ${ORCHESTRATION_PROJECT_NAME}
+	npx nx test:e2e ${ORCHESTRATION_PROJECT_NAME} -- ${ARGS}
+
+orchestration/test/unit/watch:
+	make orchestration/test/unit ARGS=--watch
+
+orchestration/test/integration/watch:
+	make orchestration/test/integration ARGS=--watch
+
+orchestration/test/e2e/watch:
+	make orchestration/test/e2e ARGS=--watch
 
 orchestration/test:
 	make orchestration/test/unit
