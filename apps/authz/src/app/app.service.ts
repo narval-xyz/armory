@@ -69,7 +69,7 @@ export class AppService {
   }): RegoInput {
     // intent only exists in SignTransaction actions
     return {
-      activityType: request.activityType,
+      action: request.activityType,
       intent,
       transactionRequest: request.transactionRequest,
       principal: {
@@ -78,7 +78,7 @@ export class AppService {
       resource: {
         uid: request.resourceId
       },
-      signatures: approvals?.map((a) => ({ signer: a.userId })) || []
+      approvals: approvals?.map((a) => ({ signer: a.userId })) || []
     }
   }
 

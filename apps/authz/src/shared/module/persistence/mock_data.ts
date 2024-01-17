@@ -203,7 +203,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
 }
 
 export const REGO_REQUEST: RegoInput = {
-  activityType: BlockchainActions.SIGN_TRANSACTION,
+  action: BlockchainActions.SIGN_TRANSACTION,
   transactionRequest: NATIVE_TRANSFER_TX_REQUEST,
   intent: NATIVE_TRANSFER_INTENT,
   resource: {
@@ -212,7 +212,8 @@ export const REGO_REQUEST: RegoInput = {
   principal: {
     uid: MATT.uid
   },
-  signatures: []
+  approvals: [],
+  spendings: []
 }
 
 // Role Permissions
