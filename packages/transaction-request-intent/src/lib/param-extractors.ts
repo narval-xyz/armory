@@ -1,23 +1,23 @@
-import { AbiParameter, decodeAbiParameters } from 'viem'
+import { AbiParameter, Hex, decodeAbiParameters } from 'viem'
 import {
+  Erc20Methods,
   Erc20TransferAbi,
   Erc20TransferAbiParameters,
   Erc721SafeTransferFromAbiParameters,
   Erc721TransferAbi,
   TransferFromAbiParameters
-} from './abis'
-import { Erc20Methods } from './methodId'
+} from './methodId'
 
 export function decodeAbiParametersWrapper<TParams extends readonly AbiParameter[], TReturnType>(
   params: TParams,
-  data: `0x${string}`
+  data: Hex
 ): TReturnType {
   return decodeAbiParameters(params, data) as unknown as TReturnType
 }
 
-// To consider: if we want to typesafe the return value of decodeAbiParameters
-// we end up with re-doing a lot of the work that is already done in viem
-export const extractErc20TransferAmount = (data: `0x${string}`): string => {
+// Todo: How can we typesafe the return value of decodeAbiParameters, without
+// re-doing a lot of the work that is already done in viem
+export const extractErc20TransferAmount = (data: Hex): string => {
   const paramValues = decodeAbiParameters<AbiParameter[]>(Erc20TransferAbiParameters, data)
 
   const amount = paramValues[1]
@@ -25,7 +25,7 @@ export const extractErc20TransferAmount = (data: `0x${string}`): string => {
   return amount.toString()
 }
 
-export const extractErc20TransferFromAmount = (data: `0x${string}`): string => {
+export const extractErc20TransferFromAmount = (data: Hex): string => {
   const paramValues = decodeAbiParameters(TransferFromAbiParameters, data)
 
   const amount = paramValues[2]
@@ -33,7 +33,7 @@ export const extractErc20TransferFromAmount = (data: `0x${string}`): string => {
   return amount.toString()
 }
 
-export const extractErc20Amount = (data: `0x${string}`, methodId: string): string => {
+export const extractErc20Amount = (data: Hex, methodId: string): string => {
   if (!(methodId in Erc20TransferAbi)) {
     throw new Error('Invalid methodId')
   }
@@ -48,7 +48,7 @@ export const extractErc20Amount = (data: `0x${string}`, methodId: string): strin
   }
 }
 
-export const extractErc721AssetId = (data: `0x${string}`, methodId: string): string => {
+export const extractErc721AssetId = (data: Hex, methodId: string): string => {
   if (!(methodId in Erc721TransferAbi)) {
     throw new Error('Invalid methodId')
   }

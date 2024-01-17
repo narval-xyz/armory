@@ -16,5 +16,4 @@ export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionTyp
   chainId: string | null
   accessList?: AccessList
   type?: TTransactionType
-  hash?: Hex
 }
