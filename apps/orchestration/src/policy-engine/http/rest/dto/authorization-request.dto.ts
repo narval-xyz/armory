@@ -1,5 +1,5 @@
 import { Action, Address, Hex } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/validator/signature.dto'
+import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsString, Validate, ValidateNested } from 'class-validator'
