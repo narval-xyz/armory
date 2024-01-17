@@ -3,8 +3,7 @@ package main
 import future.keywords.in
 
 permit[{"policyId": "test-policy-3"}] := reason {
-	not is_principal_root_user
-	is_principal_assigned_to_wallet
+	check_principal
 
 	check_transfer_token_type({"transferToken"})
 	check_transfer_token_address({"0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})

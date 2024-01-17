@@ -62,3 +62,17 @@ check_transfer_resource_integrity {
 	contains(input.resource.uid, input.request.from)
 	input.resource.uid == input.intent.from.uid
 }
+
+get_user_groups(id) = result {
+	result := {group.uid |
+		group := data.entities.user_groups[_]
+		id in group.users
+	}
+}
+
+get_wallet_groups(id) = result {
+	result := {group.uid |
+		group := data.entities.wallet_groups[_]
+		id in group.wallets
+	}
+}

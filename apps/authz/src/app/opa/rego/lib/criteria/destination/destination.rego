@@ -7,6 +7,7 @@ check_destination_address(values) {
 }
 
 check_destination_address(values) {
+	values != wildcard
 	destination.address in values
 }
 
@@ -19,5 +20,6 @@ check_destination_classification(values) {
 }
 
 check_destination_classification(values) {
+	values != wildcard
 	destination.classification in values
 }

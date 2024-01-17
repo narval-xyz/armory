@@ -25,6 +25,7 @@ check_transfer_token_type(values) {
 }
 
 check_transfer_token_type(values) {
+	values != wildcard
 	transfer_token_type in values
 }
 
@@ -33,6 +34,7 @@ check_transfer_token_address(values) {
 }
 
 check_transfer_token_address(values) {
+	values != wildcard
 	transfer_token_address in values
 }
 
@@ -41,31 +43,37 @@ check_transfer_token_operation(operation) {
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "eq"
 	to_number(operation.value) == transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "neq"
 	to_number(operation.value) != transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "gt"
 	to_number(operation.value) < transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "lt"
 	to_number(operation.value) > transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "gte"
 	to_number(operation.value) <= transfer_token_amount
 }
 
 check_transfer_token_operation(operation) {
+	operation != wildcard
 	operation.operator == "lte"
 	to_number(operation.value) >= transfer_token_amount
 }
