@@ -26,6 +26,22 @@ describe(AuthorizationRequestRepository.name, () => {
     updatedAt: new Date()
   }
 
+  const signMessageRequest: SignMessageAuthorizationRequest = {
+    id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
+    orgId: org.id,
+    initiatorId: '5c6df361-8ec7-4cfa-bff6-53ffa7c985ff',
+    status: AuthorizationRequestStatus.PROCESSING,
+    action: Action.SIGN_MESSAGE,
+    request: {
+      message: 'Test request'
+    },
+    hash: 'test-hash',
+    idempotencyKey: null,
+    evaluations: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
@@ -50,22 +66,6 @@ describe(AuthorizationRequestRepository.name, () => {
   })
 
   describe('create', () => {
-    const signMessageRequest: SignMessageAuthorizationRequest = {
-      id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
-      orgId: org.id,
-      initiatorId: '5c6df361-8ec7-4cfa-bff6-53ffa7c985ff',
-      status: AuthorizationRequestStatus.PROCESSING,
-      action: Action.SIGN_MESSAGE,
-      request: {
-        message: 'Test request'
-      },
-      hash: 'test-hash',
-      idempotencyKey: null,
-      evaluations: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-
     it('creates a new authorization request', async () => {
       await repository.create(signMessageRequest)
 
@@ -141,6 +141,56 @@ describe(AuthorizationRequestRepository.name, () => {
           expect(authzRequest?.request.gas).toEqual(signTransactionRequest.request.gas)
         }
       })
+    })
+  })
+
+  describe('update', () => {
+    beforeEach(async () => {
+      await repository.create(signMessageRequest)
+    })
+
+    it('updates status', async () => {
+      const authzRequest = await repository.update({
+        ...signMessageRequest,
+        status: AuthorizationRequestStatus.PERMITTED
+      })
+
+      const actual = await repository.findById(signMessageRequest.id)
+
+      expect(authzRequest.status).toEqual(AuthorizationRequestStatus.PERMITTED)
+      expect(actual?.status).toEqual(AuthorizationRequestStatus.PERMITTED)
+    })
+
+    it('updates evaluations', async () => {
+      const authzRequestOne = await repository.update({
+        ...signMessageRequest,
+        evaluations: [
+          {
+            id: '404853b2-1338-47f5-be17-a1aa78da8010',
+            decision: 'Permit',
+            signature: 'test-signature',
+            createdAt: new Date()
+          }
+        ]
+      })
+
+      const authzRequestTwo = await repository.update({
+        ...signMessageRequest,
+        evaluations: [
+          {
+            id: 'cc329386-a2dd-4024-86fd-323a630ed703',
+            decision: 'Permit',
+            signature: 'test-signature',
+            createdAt: new Date()
+          }
+        ]
+      })
+
+      const actual = await repository.findById(signMessageRequest.id)
+
+      expect(authzRequestOne.evaluations.length).toEqual(1)
+      expect(authzRequestTwo.evaluations.length).toEqual(2)
+      expect(actual?.evaluations.length).toEqual(2)
     })
   })
 })
