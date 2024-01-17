@@ -1,3 +1,4 @@
+import { stringify } from '@app/orchestration/shared/lib/json'
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
 import { hashMessage } from 'viem'
 
@@ -18,6 +19,6 @@ export class RequestHash implements ValidatorConstraintInterface {
   }
 
   static hash(request: unknown): string {
-    return hashMessage(JSON.stringify(request))
+    return hashMessage(stringify(request))
   }
 }

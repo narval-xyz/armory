@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
-export const signMessageRequestSchema = z.object({
+export const readSignMessageRequestSchema = z.object({
   message: z.string()
 })
+
+export const createSignMessageRequestSchema = readSignMessageRequestSchema

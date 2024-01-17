@@ -1,5 +1,11 @@
 import { load } from '@app/orchestration/orchestration.config'
-import { Action, AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
+import {
+  Action,
+  Evaluation,
+  SignMessageAuthorizationRequest,
+  SignTransactionAuthorizationRequest,
+  isSignTransaction
+} from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
@@ -44,10 +50,10 @@ describe(AuthorizationRequestRepository.name, () => {
   })
 
   describe('create', () => {
-    const authzRequest: AuthorizationRequest = {
+    const signMessageRequest: SignMessageAuthorizationRequest = {
       id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
       orgId: org.id,
-      initiatorId: 'bob',
+      initiatorId: '5c6df361-8ec7-4cfa-bff6-53ffa7c985ff',
       status: AuthorizationRequestStatus.PROCESSING,
       action: Action.SIGN_MESSAGE,
       request: {
@@ -61,23 +67,23 @@ describe(AuthorizationRequestRepository.name, () => {
     }
 
     it('creates a new authorization request', async () => {
-      await repository.create(authzRequest)
+      await repository.create(signMessageRequest)
 
       const request = await testPrismaService.getClient().authorizationRequest.findFirst({
         where: {
-          id: authzRequest.id
+          id: signMessageRequest.id
         }
       })
 
-      expect(request).toMatchObject(omit('evaluations', authzRequest))
+      expect(request).toMatchObject(omit('evaluations', signMessageRequest))
     })
 
     it('defaults status to CREATED', async () => {
-      await repository.create(omit('status', authzRequest))
+      await repository.create(omit('status', signMessageRequest))
 
       const request = await testPrismaService.getClient().authorizationRequest.findFirst({
         where: {
-          id: authzRequest.id
+          id: signMessageRequest.id
         }
       })
 
@@ -93,23 +99,48 @@ describe(AuthorizationRequestRepository.name, () => {
       }
 
       await repository.create({
-        ...authzRequest,
+        ...signMessageRequest,
         evaluations: [permit]
       })
 
       const evaluations = await testPrismaService.getClient().evaluationLog.findMany({
         where: {
-          requestId: authzRequest.id
+          requestId: signMessageRequest.id
         }
       })
 
       expect(evaluations).toEqual([
         {
           ...permit,
-          requestId: authzRequest.id,
-          orgId: authzRequest.orgId
+          requestId: signMessageRequest.id,
+          orgId: signMessageRequest.orgId
         }
       ])
+    })
+
+    describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
+      const signTransactionRequest: SignTransactionAuthorizationRequest = {
+        ...signMessageRequest,
+        action: Action.SIGN_TRANSACTION,
+        request: {
+          from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+          to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+          data: '0x',
+          gas: BigInt(5_000)
+        }
+      }
+
+      it('encodes bigints as strings', async () => {
+        await repository.create(signTransactionRequest)
+
+        const authzRequest = await repository.findById(signTransactionRequest.id)
+
+        expect(authzRequest).not.toEqual(null)
+
+        if (authzRequest && isSignTransaction(authzRequest)) {
+          expect(authzRequest?.request.gas).toEqual(signTransactionRequest.request.gas)
+        }
+      })
     })
   })
 })

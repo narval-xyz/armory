@@ -1,44 +1,10 @@
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import { Action, CreateAuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
+import { toCreateAuthorizationRequest } from '@app/orchestration/policy-engine/http/rest/util'
 import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
 import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { plainToInstance } from 'class-transformer'
-
-// Not in love with the gymnastics required to bend a DTO to a domain object.
-// Most of the complexity came from the discriminated union type.
-// It's fine for now to keep it ugly here but I'll look at the problem later
-const toDomainType = (orgId: string, body: AuthorizationRequestDto): CreateAuthorizationRequest => {
-  const dto = plainToInstance(AuthorizationRequestDto, body)
-  const shared = {
-    orgId,
-    initiatorId: '97389cac-20f0-4d02-a3a9-b27c564ffd18',
-    hash: dto.hash,
-    evaluations: []
-  }
-
-  if (dto.isSignMessage(dto.request)) {
-    return {
-      ...shared,
-      action: Action.SIGN_MESSAGE,
-      request: {
-        message: dto.request.message
-      }
-    }
-  }
-
-  return {
-    ...shared,
-    action: Action.SIGN_TRANSACTION,
-    request: {
-      from: dto.request.from,
-      to: dto.request.to,
-      data: dto.request.data
-    }
-  }
-}
 
 @Controller('/policy-engine')
 @ApiTags('Policy Engine')
@@ -53,7 +19,7 @@ export class FacadeController {
     type: AuthorizationResponseDto
   })
   async evaluation(@OrgId() orgId: string, @Body() body: AuthorizationRequestDto): Promise<AuthorizationResponseDto> {
-    const authzRequest = await this.authorizationRequestService.create(toDomainType(orgId, body))
+    const authzRequest = await this.authorizationRequestService.create(toCreateAuthorizationRequest(orgId, body))
 
     return new AuthorizationResponseDto(authzRequest)
   }

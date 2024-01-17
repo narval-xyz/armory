@@ -1,13 +1,10 @@
-import { Action, AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
-import { signMessageRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-message-request.schema'
-import { signTransactionRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-transaction-request.schema'
+import { ACTION_REQUEST } from '@app/orchestration/policy-engine/policy-engine.constant'
 import { AuthorizationRequest as AuthorizationRequestModel, EvaluationLog } from '@prisma/client/orchestration'
 import { ZodIssueCode, ZodSchema } from 'zod'
 
 type Model = AuthorizationRequestModel & { evaluationLog?: EvaluationLog[] }
-
-type Decode = (model: Model) => AuthorizationRequest
 
 const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
   id,
@@ -34,16 +31,8 @@ const buildSharedAttributes = (model: Model) => ({
  * @throws {DecodeAuthorizationRequestException}
  * @returns {AuthorizationRequest}
  */
-const withErrorHandling = ({
-  model,
-  action,
-  schema
-}: {
-  model: Model
-  action: Action
-  schema: ZodSchema
-}): AuthorizationRequest => {
-  if (model.action === action) {
+const decode = ({ model, schema }: { model: Model; schema: ZodSchema }): AuthorizationRequest => {
+  try {
     const decode = schema.safeParse(model.request)
 
     if (decode.success) {
@@ -55,30 +44,19 @@ const withErrorHandling = ({
     }
 
     throw new DecodeAuthorizationRequestException(decode.error.issues)
+  } catch (error) {
+    // The try/catch statement is implemented here specifically to prevent the
+    // irony of "safeParse" throwing a TypeError due to bigint coercion on
+    // null and undefined values.
+    throw new DecodeAuthorizationRequestException([
+      {
+        code: ZodIssueCode.custom,
+        message: `Unknown decode exception ${error.message}`,
+        path: ['request']
+      }
+    ])
   }
-
-  throw new DecodeAuthorizationRequestException([
-    {
-      code: ZodIssueCode.custom,
-      message: 'Invalid decode strategy action',
-      path: ['action']
-    }
-  ])
 }
-
-const decodeSignMessage: Decode = (model: Model) =>
-  withErrorHandling({
-    model,
-    action: Action.SIGN_MESSAGE,
-    schema: signMessageRequestSchema
-  })
-
-const decodeSignTransaction: Decode = (model: Model) =>
-  withErrorHandling({
-    model,
-    action: Action.SIGN_TRANSACTION,
-    schema: signTransactionRequestSchema
-  })
 
 /**
  * Decodes an authorization request based on its action, throws on errors.
@@ -87,15 +65,13 @@ const decodeSignTransaction: Decode = (model: Model) =>
  * @returns {AuthorizationRequest}
  */
 export const decodeAuthorizationRequest = (model: Model): AuthorizationRequest => {
-  const decoders = new Map<`${Action}`, Decode>([
-    [Action.SIGN_MESSAGE, decodeSignMessage],
-    [Action.SIGN_TRANSACTION, decodeSignTransaction]
-  ])
+  const config = ACTION_REQUEST[model.action]
 
-  const decode = decoders.get(model.action)
-
-  if (decode) {
-    return decode(model)
+  if (config) {
+    return decode({
+      model,
+      schema: config.schema.read
+    })
   }
 
   throw new DecodeAuthorizationRequestException([
@@ -103,7 +79,7 @@ export const decodeAuthorizationRequest = (model: Model): AuthorizationRequest =
       code: ZodIssueCode.invalid_literal,
       message: 'Authorization request decoder not found for action type',
       path: ['action'],
-      expected: Array.from(decoders.keys()),
+      expected: Object.keys(ACTION_REQUEST),
       received: model.action
     }
   ])

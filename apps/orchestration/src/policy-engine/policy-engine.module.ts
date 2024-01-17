@@ -1,13 +1,14 @@
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
+import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
-import { Logger, Module, OnApplicationBootstrap } from '@nestjs/common'
+import { ClassSerializerInterceptor, Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_FILTER } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
 import { FacadeController } from './http/rest/controller/facade.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
@@ -40,6 +41,18 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ZodExceptionFilter
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe
     }
   ]
 })

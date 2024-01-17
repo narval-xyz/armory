@@ -1,23 +1,33 @@
 import { Action, AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import {
+  SignMessageRequestDto,
+  SignTransactionRequestDto
+} from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
+import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/validator/evaluation.dto'
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger'
+import { Transform, Type } from 'class-transformer'
 import { IsString } from 'class-validator'
 
-export class EvaluationDto {
-  @ApiProperty()
-  id: string
-
-  @ApiProperty()
-  decision: string
-
+/**
+ * The transformer function in the "@Transformer" decorator for bigint
+ * properties differs between the request and response. This variation is due to
+ * the limitations of JS' built-in functions, such as JSON, when handling
+ * bigints.
+ *
+ * - Request: The transformer converts from a string to bigint.
+ * - Response: The transformer converts from bigint to a string.
+ */
+class SignTransactionResponseDto extends SignTransactionRequestDto {
+  @IsString()
+  @Transform(({ value }) => value.toString())
   @ApiProperty({
-    type: String
+    type: 'string'
   })
-  signature?: string | null
-
-  @ApiProperty()
-  createdAt: Date
+  gas: bigint
 }
+
+// Just for keeping consistency on the naming.
+class SignMessageResponseDto extends SignMessageRequestDto {}
 
 export class AuthorizationResponseDto {
   @ApiProperty()
@@ -53,11 +63,13 @@ export class AuthorizationResponseDto {
   @Type(() => EvaluationDto)
   evaluations: EvaluationDto[]
 
-  // TODO: Figure out the request discrimination. It's been too painful.
-  // @ApiProperty({
-  //   oneOf: [{ $ref: getSchemaPath(SignTransactionRequestDto) }, { $ref: getSchemaPath(SignMessageRequestDto) }]
-  // })
-  // request: SignTransactionRequestDto | SignMessageRequestDto
+  @Type((opts) => {
+    return opts?.object.action === Action.SIGN_TRANSACTION ? SignTransactionResponseDto : SignMessageResponseDto
+  })
+  @ApiProperty({
+    oneOf: [{ $ref: getSchemaPath(SignMessageResponseDto) }, { $ref: getSchemaPath(SignTransactionResponseDto) }]
+  })
+  request: SignTransactionResponseDto | SignMessageResponseDto
 
   constructor(partial: Partial<AuthorizationResponseDto>) {
     Object.assign(this, partial)

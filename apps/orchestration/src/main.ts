@@ -1,5 +1,6 @@
 import { OrchestrationModule } from '@app/orchestration/orchestration.module'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
+import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
@@ -64,10 +65,10 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
  * @param configService - The configuration service instance.
  * @returns The modified Nest application instance.
  */
-const withGlobalExceptionFilter =
+const withGlobalFilters =
   (configService: ConfigService<Config, true>) =>
   (app: INestApplication): INestApplication => {
-    app.useGlobalFilters(new ApplicationExceptionFilter(configService))
+    app.useGlobalFilters(new ApplicationExceptionFilter(configService), new ZodExceptionFilter(configService))
 
     return app
   }
@@ -89,7 +90,7 @@ async function bootstrap(): Promise<void> {
       map(withSwagger),
       map(withGlobalPipes),
       map(withGlobalInterceptors),
-      map(withGlobalExceptionFilter(configService)),
+      map(withGlobalFilters(configService)),
       switchMap((app) => app.listen(port))
     )
   )
