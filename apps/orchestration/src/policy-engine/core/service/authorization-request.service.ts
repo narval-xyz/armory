@@ -38,7 +38,14 @@ export class AuthorizationRequestService {
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const authzRequest = await this.authzRequestRepository.create(input)
+    const now = new Date()
+
+    const authzRequest = await this.authzRequestRepository.create({
+      id: input.id || uuid(),
+      createdAt: input.createdAt || now,
+      updatedAt: input.updatedAt || now,
+      ...input
+    })
 
     await this.authzRequestProcessingProducer.add(authzRequest)
 

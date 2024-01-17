@@ -41,8 +41,13 @@ const hexSchema = z.custom<`0x${string}`>(
   }
 )
 
-export const signTransactionRequestSchema = z.object({
+export const readSignTransactionRequestSchema = z.object({
   from: addressSchema,
   to: addressSchema.optional(),
-  data: hexSchema.optional()
+  data: hexSchema.optional(),
+  gas: z.coerce.bigint()
+})
+
+export const createSignTransactionRequestSchema = readSignTransactionRequestSchema.extend({
+  gas: z.coerce.string()
 })

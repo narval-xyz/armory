@@ -42,7 +42,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   const authzRequest: AuthorizationRequest = {
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
-    initiatorId: 'bob',
+    initiatorId: 'a1d3d09d-1a0d-4c42-b580-f54c636a5155',
     status: AuthorizationRequestStatus.PROCESSING,
     action: Action.SIGN_MESSAGE,
     request: {

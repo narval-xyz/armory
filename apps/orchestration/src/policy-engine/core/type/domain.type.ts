@@ -63,6 +63,7 @@ export type TransactionRequest = {
   data?: Hex
   from: Address
   to?: Address | null
+  gas: bigint
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {

@@ -1,27 +1,16 @@
 import { Action, Address, Hex } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/validator/signature.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsString, Validate, ValidateNested } from 'class-validator'
 import { RequestHash } from './validator/request-hash.validator'
 
-export class SignatureDto {
-  @IsDefined()
-  @IsString()
-  @ApiProperty()
-  hash: string
-
-  @ApiProperty({
-    enum: ['ECDSA']
-  })
-  type?: string = 'ECDSA'
-}
-
-export class AuthenticationDto {
+class AuthenticationDto {
   @ApiProperty()
   signature: SignatureDto
 }
 
-export class ApprovalDto {
+class ApprovalDto {
   @ApiProperty({
     type: () => SignatureDto,
     isArray: true
@@ -30,26 +19,36 @@ export class ApprovalDto {
 }
 
 export class SignTransactionRequestDto {
+  @IsString()
   @IsDefined()
   @IsEthereumAddress()
+  @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     required: true,
     format: 'EthereumAddress'
   })
   from: Address
 
+  @IsString()
   @IsEthereumAddress()
+  @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     format: 'EthereumAddress'
   })
-  to: Address
+  to?: Address | null
 
   @IsString()
   @ApiProperty({
     type: 'string',
     format: 'Hexadecimal'
   })
-  data: Hex
+  data?: Hex
+
+  @Transform(({ value }) => BigInt(value))
+  @ApiProperty({
+    type: 'string'
+  })
+  gas: bigint
 }
 
 export class SignMessageRequestDto {

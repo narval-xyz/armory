@@ -118,7 +118,8 @@ describe('Policy Engine Cluster Facade', () => {
       const signTransactionRequest = {
         from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
         to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
-        data: '0x'
+        data: '0x',
+        gas: '5000'
       }
       const payload = {
         action: Action.SIGN_TRANSACTION,
@@ -143,7 +144,6 @@ describe('Policy Engine Cluster Facade', () => {
         .set(REQUEST_HEADER_ORG_ID, org.id)
         .send(payload)
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
         id: expect.any(String),
         status: AuthorizationRequestStatus.CREATED,
@@ -154,6 +154,7 @@ describe('Policy Engine Cluster Facade', () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String)
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 
