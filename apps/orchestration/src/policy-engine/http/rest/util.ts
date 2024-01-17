@@ -31,10 +31,15 @@ export const toCreateAuthorizationRequest = (
     ...shared,
     action: Action.SIGN_TRANSACTION,
     request: {
-      from: dto.request.from,
-      to: dto.request.to,
+      accessList: dto.request.accessList,
+      chainId: dto.request.chainId,
       data: dto.request.data,
-      gas: dto.request.gas
+      from: dto.request.from,
+      gas: dto.request.gas,
+      nonce: dto.request.nonce,
+      to: dto.request.to,
+      type: dto.request.type,
+      value: dto.request.value
     }
   }
 }

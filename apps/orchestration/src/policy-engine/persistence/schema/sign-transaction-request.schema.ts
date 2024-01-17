@@ -1,3 +1,4 @@
+import { TransactionType } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { isAddress, isHex } from 'viem'
 import { z } from 'zod'
 
@@ -41,11 +42,21 @@ const hexSchema = z.custom<`0x${string}`>(
   }
 )
 
+const accessListSchema = z.object({
+  address: addressSchema,
+  storageKeys: z.array(hexSchema)
+})
+
 export const readSignTransactionRequestSchema = z.object({
+  chainId: z.coerce.number(),
   from: addressSchema,
-  to: addressSchema.optional(),
+  nonce: z.coerce.number(),
+  accessList: z.array(accessListSchema).optional(),
   data: hexSchema.optional(),
-  gas: z.coerce.bigint().optional()
+  gas: z.coerce.bigint().optional(),
+  to: addressSchema.optional(),
+  type: z.nativeEnum(TransactionType).optional(),
+  value: hexSchema.optional()
 })
 
 export const createSignTransactionRequestSchema = readSignTransactionRequestSchema.extend({
