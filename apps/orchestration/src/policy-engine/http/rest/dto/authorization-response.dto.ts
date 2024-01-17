@@ -3,7 +3,7 @@ import {
   SignMessageRequestDto,
   SignTransactionRequestDto
 } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
-import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/validator/evaluation.dto'
+import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsString } from 'class-validator'
