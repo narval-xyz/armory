@@ -43,27 +43,30 @@ export type SharedAuthorizationRequest = {
 
 export type Hex = `0x${string}`
 export type Address = `0x${string}`
-export type AccessList = { address: Address; storageKeys: Hex[] }[]
+export type AccessList = {
+  address: Address
+  storageKeys: Hex[]
+}[]
 
-// Original transaction request
-//
-// export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionType = '2'> = {
-//   data?: Hex
-//   from: Address
-//   to?: Address | null
-//   gas?: TQuantity
-//   nonce: TIndex
-//   value?: TQuantity
-//   chainId: string | null
-//   accessList?: AccessList
-//   type?: TTransactionType
-// }
-// Temporary lite version
+/**
+ * @see https://viem.sh/docs/glossary/types#transactiontype
+ */
+export enum TransactionType {
+  LEGACY = 'legacy',
+  EIP2930 = 'eip2930',
+  EIP1559 = 'eip1559'
+}
+
 export type TransactionRequest = {
-  data?: Hex
+  chainId: number
   from: Address
+  nonce: number
+  accessList?: AccessList
+  data?: Hex
   gas?: bigint
   to?: Address | null
+  type?: `${TransactionType}`
+  value?: Hex
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {

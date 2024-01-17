@@ -3,7 +3,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   REQUEST_HEADER_ORG_ID
 } from '@app/orchestration/orchestration.constant'
-import { Action, AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { Action, AuthorizationRequest, TransactionType } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -16,7 +16,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
 import { Queue } from 'bull'
 import request from 'supertest'
-import { hashMessage } from 'viem'
+import { hashMessage, stringToHex } from 'viem'
 
 const EVALUATIONS_ENDPOINT = '/policy-engine/evaluations'
 
@@ -116,10 +116,62 @@ describe('Policy Engine Cluster Facade', () => {
 
     it('evaluates a sign transaction authorization request', async () => {
       const signTransactionRequest = {
-        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-        to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+        chainId: 1,
         data: '0x',
-        gas: '5000'
+        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+        gas: '5000',
+        nonce: 0,
+        to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+        type: TransactionType.EIP1559,
+        value: '0x',
+        accessList: [
+          {
+            address: '0xccc1472fce4ec74a1e3f9653776acfc790cd0743',
+            storageKeys: [stringToHex('storage-key-one'), stringToHex('storage-key-two')]
+          }
+        ]
+      }
+      const payload = {
+        action: Action.SIGN_TRANSACTION,
+        hash: hashMessage(JSON.stringify(signTransactionRequest)),
+        request: signTransactionRequest,
+        authentication: {
+          signature: {
+            hash: 'string'
+          }
+        },
+        approval: {
+          signatures: [
+            {
+              hash: 'string'
+            }
+          ]
+        }
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(EVALUATIONS_ENDPOINT)
+        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .send(payload)
+
+      expect(body).toMatchObject({
+        id: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        action: payload.action,
+        hash: payload.hash,
+        request: payload.request,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
+      expect(status).toEqual(HttpStatus.OK)
+    })
+
+    it('evaluates a partial sign transaction authorization request', async () => {
+      const signTransactionRequest = {
+        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+        nonce: 0,
+        chainId: 1
       }
       const payload = {
         action: Action.SIGN_TRANSACTION,

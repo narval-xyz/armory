@@ -1,12 +1,10 @@
 import { Action, AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
-import {
-  SignMessageRequestDto,
-  SignTransactionRequestDto
-} from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger'
+import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
+import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsString } from 'class-validator'
+import { IsOptional, IsString } from 'class-validator'
 
 /**
  * The transformer function in the "@Transformer" decorator for bigint
@@ -19,6 +17,7 @@ import { IsString } from 'class-validator'
  */
 class SignTransactionResponseDto extends SignTransactionRequestDto {
   @IsString()
+  @IsOptional()
   @Transform(({ value }) => value.toString())
   @ApiProperty({
     type: 'string'
@@ -29,6 +28,7 @@ class SignTransactionResponseDto extends SignTransactionRequestDto {
 // Just for keeping consistency on the naming.
 class SignMessageResponseDto extends SignMessageRequestDto {}
 
+@ApiExtraModels(SignTransactionResponseDto, SignMessageResponseDto)
 export class AuthorizationResponseDto {
   @ApiProperty()
   id: string
@@ -40,6 +40,11 @@ export class AuthorizationResponseDto {
   initiatorId: string
 
   @IsString()
+  @ApiProperty({
+    required: false,
+    type: 'string',
+    nullable: true
+  })
   idempotencyKey?: string | null
 
   @ApiProperty({
