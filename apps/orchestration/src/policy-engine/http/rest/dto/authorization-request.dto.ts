@@ -48,7 +48,7 @@ export class SignTransactionRequestDto {
   @ApiProperty({
     type: 'string'
   })
-  gas: bigint
+  gas?: bigint
 }
 
 export class SignMessageRequestDto {

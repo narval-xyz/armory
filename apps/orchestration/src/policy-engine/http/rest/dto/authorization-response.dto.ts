@@ -23,7 +23,7 @@ class SignTransactionResponseDto extends SignTransactionRequestDto {
   @ApiProperty({
     type: 'string'
   })
-  gas: bigint
+  gas?: bigint
 }
 
 // Just for keeping consistency on the naming.

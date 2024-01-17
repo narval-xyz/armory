@@ -45,9 +45,9 @@ export const readSignTransactionRequestSchema = z.object({
   from: addressSchema,
   to: addressSchema.optional(),
   data: hexSchema.optional(),
-  gas: z.coerce.bigint()
+  gas: z.coerce.bigint().optional()
 })
 
 export const createSignTransactionRequestSchema = readSignTransactionRequestSchema.extend({
-  gas: z.coerce.string()
+  gas: z.coerce.string().optional()
 })

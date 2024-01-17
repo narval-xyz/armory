@@ -62,8 +62,8 @@ export type AccessList = { address: Address; storageKeys: Hex[] }[]
 export type TransactionRequest = {
   data?: Hex
   from: Address
+  gas?: bigint
   to?: Address | null
-  gas: bigint
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {
