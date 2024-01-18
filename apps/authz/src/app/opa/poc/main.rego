@@ -269,7 +269,7 @@ permitWithApproval[{
 }] := reason {
 	# ## Primary Condition - the rule
 	# ANY transaction
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 
 	## Approval conditions
 	approvalsRequired := {
@@ -296,7 +296,7 @@ permit[{
 	"policy_id": "p:01hkb4974n9ft2ckfvjp7t1v0t",
 	"rule_id": "r:01hkb4bv51hb1xhz5nnxvmgh7f",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	"wg:treasury-group" in wallet_groups
 }
 
@@ -340,7 +340,7 @@ permit[{
 	"policy_id": "p:01hj8b6cxd3gaf27kjrkt1ncex",
 	"rule_id": "r:01hj8b89x2ksvv3bk0ct2dk2kb",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	"ug:dev-group" in principal_groups
 	"wg:dev-group" in wallet_groups
 }
@@ -371,7 +371,7 @@ permit[{
 	"policy_id": "p:01hj8bd3xm3tq9fzqj5835h5yy",
 	"rule_id": "r:01hj8bdem7mbvt2vkz1g8px5mr",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.principal.uid == "0xaf4250162fcfc81a6cdde2f2950e3975112f1787"
 	input.resource.uid == "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
 }
@@ -401,7 +401,7 @@ permit[{
 	"policy_id": "p:01hj8ety00gnrt9fyqmbw57mjv",
 	"rule_id": "r:1hj8eva9a4ymvr0925n6cjxs9",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	"admin" in principal_roles
 	input.principal.uid in wallet_assignees
 }
@@ -484,7 +484,7 @@ permit[{
 	"policy_id": "p:01hj8h604n1nfq2kwfpbt5tv73",
 	"rule_id": "r:01hj8h61wrxnh8b2b7k3b8zxrn",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.intent.type in ["transferNative", "transferToken"]
 
 	"admin" in principal_roles
@@ -520,7 +520,7 @@ permit[{
 	"policy_id": "p:01hj8kwdz84xm9g9sxwqy34536",
 	"rule_id": "r:01hj8kwhsg1gt7zet6b69vawjv",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.intent.type in ["transferNative", "transferToken"]
 
 	"member" in principal_roles
@@ -536,7 +536,7 @@ permit[{
 	"policy_id": "p:01hj8maq2qazv35jn9kt6zpe83",
 	"rule_id": "r:01hj8mas4fmza32588xpbfycdd",
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.intent.type in ["callContract"]
 
 	input.principal.uid in wallet_assignees
@@ -581,7 +581,7 @@ forbid[{
 	"policy_id": "p:01hjnbp78sshjpgdvkjn7pywky",
 	"rule_id": "r:01hjnbpgw3rw4ttdcze8e5jwgf"
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.intent.type in ["transferNative", "transferToken"]
 	"member" in principal_roles
 
@@ -608,7 +608,7 @@ forbid[{
 	"policy_id": "p:02hjnbp78sshjpgdvkjn7pywkz",
 	"rule_id": "r:02hjnbpgw3rw4ttdcze8e5jwgg"
 }] {
-	input.activityType == "signTransaction"
+	input.action == "signTransaction"
 	input.intent.type in ["transferNative", "transferToken"]
 	"member" in principal_roles
 

@@ -27,9 +27,10 @@ export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionTyp
  * This is the data that will be hashed and signed.
  */
 export type AuthZRequest = {
-  activityType: Actions
+  action: Actions
   resourceId?: string
-  transactionRequest?: TransactionRequest
+  transactionRequest?: TransactionRequest // for signTransaction
+  message?: string // for signMessage
 }
 
 /**
@@ -42,7 +43,7 @@ export type RequestSignature = {
 }
 
 export type AuthZRequestPayload = {
-  authn: RequestSignature // The signature of the initiator
+  authentication: RequestSignature // The signature of the initiator
   request: AuthZRequest
   approvals?: RequestSignature[] // Other approvals, incl. second factors of the initiator
 }

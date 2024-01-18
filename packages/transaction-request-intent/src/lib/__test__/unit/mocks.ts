@@ -76,21 +76,14 @@ export enum AccountType {
   AA = '4337'
 }
 
-export enum BlockchainActions {
-  SIGN_TRANSACTION = 'signTransaction',
-  SIGN_RAW = 'signRaw',
-  SIGN_MESSAGE = 'signMessage',
-  SIGN_TYPED_DATA = 'signTypedData'
-}
-
 export enum UserRoles {
   ROOT = 'root',
   ADMIN = 'admin',
   MEMBER = 'member',
   MANAGER = 'manager'
 }
-
-export enum ResourceActions {
+export enum Actions {
+  // Resource Actions
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',
   DELETE_USER = 'user:delete',
@@ -104,7 +97,16 @@ export enum ResourceActions {
   DELETE_USER_GROUP = 'user-group:delete',
   CREATE_WALLET_GROUP = 'wallet-group:create',
   EDIT_WALLET_GROUP = 'wallet-group:edit',
-  DELETE_WALLET_GROUP = 'wallet-group:delete'
+  DELETE_WALLET_GROUP = 'wallet-group:delete',
+
+  // Policy Management Actions
+  SET_POLICY_RULES = 'setPolicyRules',
+
+  // Wallet Actions
+  SIGN_TRANSACTION = 'signTransaction',
+  SIGN_RAW = 'signRaw',
+  SIGN_MESSAGE = 'signMessage',
+  SIGN_TYPED_DATA = 'signTypedData'
 }
 
 /**
@@ -263,7 +265,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
 }
 
 export const REGO_REQUEST = {
-  activityType: BlockchainActions.SIGN_TRANSACTION,
+  action: Actions.SIGN_TRANSACTION,
   request: NATIVE_TRANSFER_TX_REQUEST,
   intent: NATIVE_TRANSFER_INTENT,
   resource: {
@@ -322,30 +324,30 @@ export const mockEntityData: RegoData = {
     }
   },
   permissions: {
-    [ResourceActions.CREATE_USER]: {
+    [Actions.CREATE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.EDIT_USER]: {
+    [Actions.EDIT_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.DELETE_USER]: {
+    [Actions.DELETE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.CREATE_WALLET]: {
+    [Actions.CREATE_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS
     },
-    [ResourceActions.EDIT_WALLET]: {
+    [Actions.EDIT_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [ResourceActions.ASSIGN_WALLET]: {
+    [Actions.ASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [ResourceActions.UNASSIGN_WALLET]: {
+    [Actions.UNASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     }
