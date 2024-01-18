@@ -1,6 +1,6 @@
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Actions } from './enums'
+import { Action } from './enums'
 import { ApprovalRequirement, AuthCredential, TransactionRequest } from './http'
 
 export enum FiatSymbols {
@@ -20,7 +20,7 @@ export type HistoricalTransfer = {
 }
 
 export type RegoInput = {
-  action: Actions
+  action: Action
   intent?: Intent
   transactionRequest?: TransactionRequest
   principal: { uid: string }

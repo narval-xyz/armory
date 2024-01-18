@@ -82,7 +82,8 @@ export enum UserRoles {
   MEMBER = 'member',
   MANAGER = 'manager'
 }
-export enum Actions {
+// Note: Action is a shared enum w/ every other module
+export enum Action {
   // Resource Actions
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',
@@ -265,7 +266,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
 }
 
 export const REGO_REQUEST = {
-  action: Actions.SIGN_TRANSACTION,
+  action: Action.SIGN_TRANSACTION,
   request: NATIVE_TRANSFER_TX_REQUEST,
   intent: NATIVE_TRANSFER_INTENT,
   resource: {
@@ -324,30 +325,30 @@ export const mockEntityData: RegoData = {
     }
   },
   permissions: {
-    [Actions.CREATE_USER]: {
+    [Action.CREATE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [Actions.EDIT_USER]: {
+    [Action.EDIT_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [Actions.DELETE_USER]: {
+    [Action.DELETE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [Actions.CREATE_WALLET]: {
+    [Action.CREATE_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS
     },
-    [Actions.EDIT_WALLET]: {
+    [Action.EDIT_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [Actions.ASSIGN_WALLET]: {
+    [Action.ASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [Actions.UNASSIGN_WALLET]: {
+    [Action.UNASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     }
