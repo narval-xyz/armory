@@ -1,5 +1,6 @@
 import { load } from '@app/orchestration/orchestration.config'
 import {
+  Approval,
   Evaluation,
   SignMessageAuthorizationRequest,
   SignTransactionAuthorizationRequest,
@@ -29,7 +30,6 @@ describe(AuthorizationRequestRepository.name, () => {
   const signMessageRequest: SignMessageAuthorizationRequest = {
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
-    initiatorId: '5c6df361-8ec7-4cfa-bff6-53ffa7c985ff',
     status: AuthorizationRequestStatus.PROCESSING,
     action: SupportedAction.SIGN_MESSAGE,
     request: {
@@ -37,6 +37,7 @@ describe(AuthorizationRequestRepository.name, () => {
     },
     hash: 'test-hash',
     idempotencyKey: null,
+    approvals: [],
     evaluations: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -75,7 +76,7 @@ describe(AuthorizationRequestRepository.name, () => {
         }
       })
 
-      expect(request).toMatchObject(omit('evaluations', signMessageRequest))
+      expect(request).toMatchObject(omit(['evaluations', 'approvals'], signMessageRequest))
     })
 
     it('defaults status to CREATED', async () => {
@@ -114,6 +115,34 @@ describe(AuthorizationRequestRepository.name, () => {
           ...permit,
           requestId: signMessageRequest.id,
           orgId: signMessageRequest.orgId
+        }
+      ])
+    })
+
+    it('creates approvals', async () => {
+      const approval: Approval = {
+        id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
+        alg: 'ES256K',
+        sig: 'test-signature',
+        pubKey: 'test-public-key',
+        createdAt: new Date()
+      }
+
+      await repository.create({
+        ...signMessageRequest,
+        approvals: [approval]
+      })
+
+      const approvals = await testPrismaService.getClient().authorizationRequestApproval.findMany({
+        where: {
+          requestId: signMessageRequest.id
+        }
+      })
+
+      expect(approvals).toEqual([
+        {
+          ...approval,
+          requestId: signMessageRequest.id
         }
       ])
     })
@@ -161,7 +190,7 @@ describe(AuthorizationRequestRepository.name, () => {
       expect(actual?.status).toEqual(AuthorizationRequestStatus.PERMITTED)
     })
 
-    it('updates evaluations', async () => {
+    it('appends evaluations', async () => {
       const authzRequestOne = await repository.update({
         ...signMessageRequest,
         evaluations: [
@@ -191,6 +220,40 @@ describe(AuthorizationRequestRepository.name, () => {
       expect(authzRequestOne.evaluations.length).toEqual(1)
       expect(authzRequestTwo.evaluations.length).toEqual(2)
       expect(actual?.evaluations.length).toEqual(2)
+    })
+
+    it('appends approvals', async () => {
+      const authzRequestOne = await repository.update({
+        ...signMessageRequest,
+        approvals: [
+          {
+            id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
+            alg: 'ES256K',
+            sig: 'test-signature',
+            pubKey: 'test-public-key',
+            createdAt: new Date()
+          }
+        ]
+      })
+
+      const authzRequestTwo = await repository.update({
+        ...signMessageRequest,
+        approvals: [
+          {
+            id: '790e30b0-35d1-4e22-8be5-71e64afbee89',
+            alg: 'ES256K',
+            sig: 'test-signature',
+            pubKey: 'test-public-key',
+            createdAt: new Date()
+          }
+        ]
+      })
+
+      const actual = await repository.findById(signMessageRequest.id)
+
+      expect(authzRequestOne.approvals.length).toEqual(1)
+      expect(authzRequestTwo.approvals.length).toEqual(2)
+      expect(actual?.approvals.length).toEqual(2)
     })
   })
 })

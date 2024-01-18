@@ -39,7 +39,6 @@ enum AuthorizationRequestAction {
 model AuthorizationRequest {
   id             String                     @id @default(uuid()) @db.VarChar(255)
   orgId          String                     @map("org_id")
-  initiatorId    String                     @map("initiator_id")
   status         AuthorizationRequestStatus @default(CREATED)
   action         AuthorizationRequestAction
   hash           String
@@ -48,21 +47,21 @@ model AuthorizationRequest {
   createdAt      DateTime                   @default(now()) @map("created_at")
   updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
 
-  // TODO (@wcalderipe, 10/01/24): Add relationship with the User model via initiatorId.
   evaluationLog EvaluationLog[]
+  approvals     AuthorizationRequestApproval[]
 
   @@map("authorization_request")
 }
 
 model AuthorizationRequestApproval {
   id        String   @id @default(uuid()) @db.VarChar(255)
-  signerId  String   @map("signer_id")
-  signature String
-  alg       String   @default("ECDSA")
+  requestId String   @map("request_id")
+  sig       String
+  alg       String
+  pubKey    String   @map("pub_key")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // signer User @relation(fields: [signerId], references: [id])
+  request AuthorizationRequest @relation(fields: [requestId], references: [id])
 
   @@map("authorization_request_approval")
 }

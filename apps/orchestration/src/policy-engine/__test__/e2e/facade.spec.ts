@@ -208,15 +208,15 @@ describe('Policy Engine Cluster Facade', () => {
     const authzRequest: AuthorizationRequest = {
       id: '986ae19d-c30c-40c6-b873-1fb6c49011de',
       orgId: org.id,
-      initiatorId: 'ac792884-be18-4361-9323-8f711c3f070e',
       status: AuthorizationRequestStatus.PERMITTED,
       action: SupportedAction.SIGN_MESSAGE,
       request: signMessageRequest,
       hash: hashRequest(signMessageRequest),
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
+      evaluations: [],
+      approvals: [],
       createdAt: new Date(),
-      updatedAt: new Date(),
-      evaluations: []
+      updatedAt: new Date()
     }
 
     beforeEach(async () => {

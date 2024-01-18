@@ -14,6 +14,7 @@ export const toCreateAuthorizationRequest = (
     orgId,
     initiatorId: '97389cac-20f0-4d02-a3a9-b27c564ffd18',
     hash: dto.hash,
+    approvals: [],
     evaluations: []
   }
 
