@@ -18,7 +18,6 @@ CREATE TABLE "organization" (
 CREATE TABLE "authorization_request" (
     "id" VARCHAR(255) NOT NULL,
     "org_id" TEXT NOT NULL,
-    "initiator_id" TEXT NOT NULL,
     "status" "AuthorizationRequestStatus" NOT NULL DEFAULT 'CREATED',
     "action" "AuthorizationRequestAction" NOT NULL,
     "hash" TEXT NOT NULL,
@@ -33,11 +32,11 @@ CREATE TABLE "authorization_request" (
 -- CreateTable
 CREATE TABLE "authorization_request_approval" (
     "id" VARCHAR(255) NOT NULL,
-    "signer_id" TEXT NOT NULL,
-    "signature" TEXT NOT NULL,
-    "alg" TEXT NOT NULL DEFAULT 'ECDSA',
+    "request_id" TEXT NOT NULL,
+    "sig" TEXT NOT NULL,
+    "alg" TEXT NOT NULL,
+    "pub_key" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "authorization_request_approval_pkey" PRIMARY KEY ("id")
 );
@@ -56,6 +55,9 @@ CREATE TABLE "evaluation_log" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
+
+-- AddForeignKey
+ALTER TABLE "authorization_request_approval" ADD CONSTRAINT "authorization_request_approval_request_id_fkey" FOREIGN KEY ("request_id") REFERENCES "authorization_request"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "evaluation_log" ADD CONSTRAINT "evaluation_log_request_id_fkey" FOREIGN KEY ("request_id") REFERENCES "authorization_request"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

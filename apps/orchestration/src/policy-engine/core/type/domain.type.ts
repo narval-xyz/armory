@@ -1,13 +1,6 @@
 import { Action, TransactionRequest } from '@narval/authz-shared'
 import { SetOptional } from 'type-fest'
 
-export type Evaluation = {
-  id: string
-  decision: string
-  signature: string | null
-  createdAt: Date
-}
-
 /**
  * AuthZ actions currently supported by the Orchestration.
  */
@@ -26,10 +19,24 @@ export enum AuthorizationRequestStatus {
   FORBIDDEN = 'FORBIDDEN'
 }
 
+export type Approval = {
+  id: string
+  sig: string
+  alg: string
+  pubKey: string
+  createdAt: Date
+}
+
+export type Evaluation = {
+  id: string
+  decision: string
+  signature: string | null
+  createdAt: Date
+}
+
 export type SharedAuthorizationRequest = {
   id: string
   orgId: string
-  initiatorId: string
   status: `${AuthorizationRequestStatus}`
   /**
    * The hash of the request in EIP-191 format.
@@ -40,9 +47,10 @@ export type SharedAuthorizationRequest = {
    */
   hash: string
   idempotencyKey?: string | null
+  approvals: Approval[]
+  evaluations: Evaluation[]
   createdAt: Date
   updatedAt: Date
-  evaluations: Evaluation[]
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {

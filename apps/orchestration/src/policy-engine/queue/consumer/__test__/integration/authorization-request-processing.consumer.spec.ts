@@ -42,7 +42,6 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   const authzRequest: AuthorizationRequest = {
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
-    initiatorId: 'a1d3d09d-1a0d-4c42-b580-f54c636a5155',
     status: AuthorizationRequestStatus.PROCESSING,
     action: SupportedAction.SIGN_MESSAGE,
     request: {
@@ -51,6 +50,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     hash: 'test-hash',
     idempotencyKey: null,
     evaluations: [],
+    approvals: [],
     createdAt: new Date(),
     updatedAt: new Date()
   }

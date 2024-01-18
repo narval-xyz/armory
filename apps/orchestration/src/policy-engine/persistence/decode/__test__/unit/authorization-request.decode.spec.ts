@@ -7,11 +7,11 @@ describe('decodeAuthorizationRequest', () => {
   const sharedModel = {
     id: '3356d68c-bc63-4b08-9253-289eec475d1d',
     orgId: 'f6477ee7-7f5e-4e19-92f9-7864c7af5fd4',
-    initiatorId: 'alice',
     status: AuthorizationRequestStatus.CREATED,
     hash: 'test-request-hash',
     idempotencyKey: null,
     evaluationLog: [],
+    approvals: [],
     createdAt: new Date(),
     updatedAt: new Date()
   }

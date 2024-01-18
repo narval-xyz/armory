@@ -12,49 +12,49 @@ import {
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { EvaluationLog } from '@prisma/client/orchestration'
-import { omit } from 'lodash/fp'
 
-const toEvaluationLogs = (
-  requestId: string,
-  orgId?: string,
-  evaluations?: Omit<Evaluation, 'requestId'>[]
-): EvaluationLog[] =>
-  orgId && evaluations?.length
+const toEvaluationLogs = (orgId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] => {
+  return orgId && evaluations?.length
     ? evaluations.map((evaluation) => ({
         ...evaluation,
-        orgId,
-        requestId
+        orgId
       }))
     : []
+}
 
 @Injectable()
 export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const { id, action, request, orgId, initiatorId, hash, status, idempotencyKey, createdAt, updatedAt, evaluations } =
+    const { id, action, request, orgId, hash, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals } =
       createAuthorizationRequestSchema.parse(input)
-    const evaluationLogs = toEvaluationLogs(id, orgId, evaluations)
+    const evaluationLogs = toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
       data: {
         status: status || AuthorizationRequestStatus.CREATED,
         id,
         orgId,
-        initiatorId,
         action,
         request,
         hash,
         idempotencyKey,
         createdAt,
         updatedAt,
+        approvals: {
+          createMany: {
+            data: approvals
+          }
+        },
         evaluationLog: {
           createMany: {
-            data: evaluationLogs.map(omit('requestId'))
+            data: evaluationLogs
           }
         }
       },
       include: {
+        approvals: true,
         evaluationLog: true
       }
     })
@@ -72,23 +72,30 @@ export class AuthorizationRequestRepository {
    * @returns {AuthorizationRequest}
    */
   async update(
-    input: Partial<Pick<AuthorizationRequest, 'orgId' | 'status' | 'evaluations'>> & Pick<AuthorizationRequest, 'id'>
+    input: Partial<Pick<AuthorizationRequest, 'orgId' | 'status' | 'evaluations' | 'approvals'>> &
+      Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
     const { id } = input
-    const { orgId, status, evaluations } = updateAuthorizationRequestSchema.parse(input)
-    const evaluationLogs = toEvaluationLogs(id, orgId, evaluations)
+    const { orgId, status, evaluations, approvals } = updateAuthorizationRequestSchema.parse(input)
+    const evaluationLogs = toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
+        approvals: {
+          createMany: {
+            data: approvals?.length ? approvals : []
+          }
+        },
         evaluationLog: {
           createMany: {
-            data: evaluationLogs.map(omit('requestId'))
+            data: evaluationLogs
           }
         }
       },
       include: {
+        approvals: true,
         evaluationLog: true
       }
     })
@@ -100,6 +107,7 @@ export class AuthorizationRequestRepository {
     const model = await this.prismaService.authorizationRequest.findUnique({
       where: { id },
       include: {
+        approvals: true,
         evaluationLog: true
       }
     })
@@ -119,6 +127,7 @@ export class AuthorizationRequestRepository {
         status: Array.isArray(statusOrStatuses) ? { in: statusOrStatuses } : statusOrStatuses
       },
       include: {
+        approvals: true,
         evaluationLog: true
       }
     })

@@ -1,10 +1,15 @@
 import { AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
 import { ACTION_REQUEST } from '@app/orchestration/policy-engine/policy-engine.constant'
-import { AuthorizationRequest as AuthorizationRequestModel, EvaluationLog } from '@prisma/client/orchestration'
+import {
+  AuthorizationRequestApproval,
+  AuthorizationRequest as AuthorizationRequestModel,
+  EvaluationLog
+} from '@prisma/client/orchestration'
+import { omit } from 'lodash/fp'
 import { ZodIssueCode, ZodSchema } from 'zod'
 
-type Model = AuthorizationRequestModel & { evaluationLog?: EvaluationLog[] }
+type Model = AuthorizationRequestModel & { evaluationLog?: EvaluationLog[]; approvals: AuthorizationRequestApproval[] }
 
 const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
   id,
@@ -16,13 +21,13 @@ const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog):
 const buildSharedAttributes = (model: Model) => ({
   id: model.id,
   orgId: model.orgId,
-  initiatorId: model.initiatorId,
   status: model.status,
   hash: model.hash,
   idempotencyKey: model.idempotencyKey,
+  approvals: (model.approvals || []).map(omit('requestId')),
+  evaluations: (model.evaluationLog || []).map(buildEvaluation),
   createdAt: model.createdAt,
-  updatedAt: model.updatedAt,
-  evaluations: (model.evaluationLog || []).map(buildEvaluation)
+  updatedAt: model.updatedAt
 })
 
 /**

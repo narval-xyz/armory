@@ -10,6 +10,14 @@ import {
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
 import { z } from 'zod'
 
+const approvalSchema = z.object({
+  id: z.string().uuid(),
+  sig: z.string(),
+  alg: z.string(),
+  pubKey: z.string(),
+  createdAt: z.date()
+})
+
 const evaluationSchema = z.object({
   id: z.string().uuid(),
   decision: z.string(),
@@ -20,13 +28,13 @@ const evaluationSchema = z.object({
 const sharedAuthorizationRequestSchema = z.object({
   id: z.string().uuid(),
   orgId: z.string().uuid(),
-  initiatorId: z.string().uuid(),
   status: z.nativeEnum(AuthorizationRequestStatus),
   hash: z.string(),
   idempotencyKey: z.string().nullish(),
+  approvals: z.array(approvalSchema),
+  evaluations: z.array(evaluationSchema),
   createdAt: z.date(),
-  updatedAt: z.date(),
-  evaluations: z.array(evaluationSchema)
+  updatedAt: z.date()
 })
 
 export const readAuthorizationRequestSchema = z.discriminatedUnion('action', [
@@ -66,6 +74,9 @@ export const updateAuthorizationRequestSchema = sharedAuthorizationRequestSchema
     id: true,
     orgId: true,
     status: true,
-    evaluations: true
+    // The update operation creates evaluations and approvals in the
+    // authorization request.
+    evaluations: true,
+    approvals: true
   })
   .partial()
