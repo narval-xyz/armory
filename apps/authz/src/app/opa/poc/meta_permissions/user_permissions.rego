@@ -22,14 +22,14 @@ admin_quorum := 2
 principal_roles := data.entities.users[input.principal.uid].roles
 
 root_signer := {signature.signer |
-	signature := input.signatures[_]
-	user := data.entities.users[signature.signer]
+	approval := input.approvals[_]
+	user := data.entities.users[approval.userId]
 	"root" in user.roles
 }
 
 admin_signers := {signature.signer |
-	signature := input.signatures[_]
-	user := data.entities.users[signature.signer]
+	approval := input.approvals[_]
+	user := data.entities.users[approval.userId]
 	"admin" in user.roles
 }
 

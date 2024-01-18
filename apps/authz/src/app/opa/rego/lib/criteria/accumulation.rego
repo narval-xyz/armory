@@ -73,7 +73,7 @@ get_usd_spending_amount(filters) = result {
 	)
 
 	result := sum([usd_amount |
-		transfer := input.spendings.data[_]
+		transfer := input.transfers[_]
 
 		# filter by user groups
 		check_acc_user_groups(transfer.initiatedBy, conditions.userGroups)
@@ -98,7 +98,8 @@ get_usd_spending_amount(filters) = result {
 
 		# filter by end date
 		check_acc_end_date(transfer.timestamp, conditions.endDate)
-		usd_amount := parse_units(transfer.amount, data.entities.tokens[transfer.token].decimals) * to_number(transfer.rates.USD)
+
+		usd_amount := to_number(transfer.amount) * to_number(transfer.rates["fiat:usd"])
 	])
 }
 

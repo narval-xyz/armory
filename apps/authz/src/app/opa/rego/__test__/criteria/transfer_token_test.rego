@@ -3,7 +3,7 @@ package main
 import future.keywords.in
 
 test_check_transfer_token_type {
-	check_transfer_token_type({"transferToken"}) with input as request
+	check_transfer_token_type({"transferERC20"}) with input as request
 		with data.entities as entities
 }
 

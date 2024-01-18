@@ -13,19 +13,19 @@ resource = result {
 }
 
 source = result {
-	result := data.entities.wallets[input.intent.from.uid]
+	result := data.entities.wallets[input.intent.from]
 }
 
 source = result {
-	result := data.entities.address_book[input.intent.from.uid]
+	result := data.entities.address_book[input.intent.from]
 }
 
 destination = result {
-	result := data.entities.wallets[input.intent.to.uid]
+	result := data.entities.wallets[input.intent.to]
 }
 
 destination = result {
-	result := data.entities.address_book[input.intent.to.uid]
+	result := data.entities.address_book[input.intent.to]
 }
 
 principal_groups = result {
@@ -42,25 +42,24 @@ wallet_groups = result {
 	}
 }
 
-signers_roles = result {
+approvers_roles = result {
 	result := {user.role |
-		signature := input.signatures[_]
-		user := data.entities.users[signature.signer]
+		approval := input.approvals[_]
+		user := data.entities.users[approval.userId]
 	}
 }
 
-signers_groups = result {
+approvers_groups = result {
 	result := {group.uid |
-		signature := input.signatures[_]
-		user := data.entities.users[signature.signer]
+		approval := input.approvals[_]
 		group := data.entities.user_groups[_]
-		user.uid in group.users
+		approval.userId in group.users
 	}
 }
 
 check_transfer_resource_integrity {
 	contains(input.resource.uid, input.request.from)
-	input.resource.uid == input.intent.from.uid
+	input.resource.uid == input.intent.from
 }
 
 get_user_groups(id) = result {

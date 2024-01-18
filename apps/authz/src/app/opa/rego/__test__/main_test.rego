@@ -17,84 +17,53 @@ principal_req = {"uid": "test-bob-uid"}
 resource_req = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 
 intent_req = {
-	"type": "transferToken",
-	"from": {
-		"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-	},
-	"to": {
-		"uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"chain_id": 137,
-		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-	},
+	"type": "transferERC20",
+	"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+	"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+	"contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 	"amount": "1000000000000000000",
-	"token": {
-		"uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"chainId": 137,
-		"classification": "internal",
-	},
 }
 
-signatures_req = [
+approvals_req = [
+	{"userId": "test-bob-uid"},
+	{"userId": "test-alice-uid"},
+	{"userId": "test-foo-uid"},
+	{"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
+]
+
+transfers_req = [
 	{
-		"signer": "test-bob-uid",
-		"hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c",
+		"amount": "3051000000",
+		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+		"timestamp": eleven_hours_ago,
+		"chainId": 137,
+		"initiatedBy": "test-alice-uid",
 	},
 	{
-		"signer": "test-alice-uid",
-		"hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c",
+		"amount": "2000000000",
+		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+		"timestamp": ten_hours_ago,
+		"chainId": 137,
+		"initiatedBy": "test-alice-uid",
 	},
 	{
-		"signer": "test-foo-uid",
-		"hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c",
-	},
-	{
-		"signer": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
-		"hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c",
+		"amount": "1500000000",
+		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+		"timestamp": twenty_hours_ago,
+		"chainId": 137,
+		"initiatedBy": "test-alice-uid",
 	},
 ]
 
-spendings_req = {
-	"source": "narval-spendings-feed",
-	"signature": "some-random-signature",
-	"data": [
-		{
-			"amount": "3051",
-			"smallest_unit": "3051000000",
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-			"rates": {"USD": "0.99"},
-			"timestamp": eleven_hours_ago,
-			"chainId": 137,
-			"initiatedBy": "test-alice-uid",
-		},
-		{
-			"amount": "2000",
-			"smallest_unit": "2000000000",
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-			"rates": {"USD": "0.99"},
-			"timestamp": ten_hours_ago,
-			"chainId": 137,
-			"initiatedBy": "test-alice-uid",
-		},
-		{
-			"amount": "1500",
-			"smallest_unit": "1500000000",
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-			"rates": {"USD": "0.99"},
-			"timestamp": twenty_hours_ago,
-			"chainId": 137,
-			"initiatedBy": "test-alice-uid",
-		},
-	],
-}
-
 request_req = {
 	"type": "eip1559",
-	"chain_id": 137,
+	"chainId": 137,
 	"max_fee_per_gas": "20000000000",
 	"max_priority_fee_per_gas": "3000000000",
 	"gas": "21000",
@@ -108,8 +77,8 @@ request = {
 	"principal": principal_req,
 	"resource": resource_req,
 	"intent": intent_req,
-	"signatures": signatures_req,
-	"spendings": spendings_req,
+	"approvals": approvals_req,
+	"transfers": transfers_req,
 	"request": request_req,
 }
 

@@ -3,10 +3,7 @@ package main
 import future.keywords.in
 
 test_parse_units {
-	transfer = request.spendings.data[0]
-	decimals = entities.tokens[transfer.token].decimals
-	res = parse_units(transfer.amount, decimals)
-	res == 3051000000
+	parse_units("3000", 6) == 3000000000
 }
 
 test_check_acc_wildcard_condition {
