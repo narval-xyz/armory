@@ -73,9 +73,7 @@ export class AppService {
       action: request.action,
       intent,
       transactionRequest: request.transactionRequest,
-      principal: {
-        uid: principal.userId
-      },
+      principal,
       resource: request.resourceId
         ? {
             uid: request.resourceId
@@ -87,7 +85,7 @@ export class AppService {
 
   #finalizeDecision(response: OpaResult[]) {
     const firstResponse = response[0]
-    if (firstResponse.result.permit === false && !firstResponse.result.confirms?.length) {
+    if (firstResponse.decision === 'forbid' && !firstResponse.reasons?.every((r) => r.decision === 'forbid')) {
       return {
         originalResponse: firstResponse,
         decision: NarvalDecision.Forbid
@@ -95,7 +93,7 @@ export class AppService {
     }
     // TODO: also verify errors
 
-    if (firstResponse.result.confirms?.length) {
+    if (firstResponse.reasons.some((r) => r.approvalsMissing.length > 0)) {
       // TODO: find the approvalsSatisfied and approvalsMissing data & format/return here
       return {
         originalResponse: firstResponse,
