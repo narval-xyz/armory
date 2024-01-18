@@ -1,4 +1,4 @@
-name: Orchestration CI
+name: "@app/orchestration CI"
 
 on:
   push:

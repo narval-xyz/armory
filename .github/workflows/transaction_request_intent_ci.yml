@@ -1,4 +1,4 @@
-name: Transaction Request Intent CI
+name: "@narval/transaction-request-intent CI"
 
 on:
   push:
