@@ -1,6 +1,6 @@
 import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
 import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
-import { AuthZRequestPayload } from '@app/authz/shared/types/http'
+import { AuthZRequestPayload } from '@app/authz/shared/types/domain.type'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 

@@ -1,6 +1,5 @@
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Action } from './enums'
-import { ApprovalRequirement, AuthCredential, HistoricalTransfer, TransactionRequest } from './http'
+import { Action, ApprovalRequirement, AuthCredential, HistoricalTransfer, TransactionRequest } from './domain.type'
 
 export type RegoInput = {
   action: Action

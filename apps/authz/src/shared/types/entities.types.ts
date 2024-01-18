@@ -1,4 +1,4 @@
-import { AccountType, UserRoles } from './enums'
+import { AccountType, UserRoles } from './domain.type'
 
 type UUID = string
 
@@ -18,7 +18,7 @@ export type Wallet = {
   uid: string
   address: string
   accountType: AccountType
-  chainId?: string
+  chainId?: number
   assignees?: string[] // userIds
 }
 
@@ -31,7 +31,7 @@ export type WalletGroup = {
 export type AddressBookAccount = {
   uid: string
   address: string
-  chainId: string
+  chainId: number
   classification: string
 }
 

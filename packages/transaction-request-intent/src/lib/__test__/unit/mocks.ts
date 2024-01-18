@@ -32,7 +32,7 @@ export type Wallet = {
   uid: string
   address: string
   accountType: AccountType
-  chainId?: string
+  chainId?: number
   assignees?: string[] // userIds
 }
 
@@ -45,7 +45,7 @@ export type WalletGroup = {
 export type AddressBookAccount = {
   uid: string
   address: string
-  chainId: string
+  chainId: number
   classification: string
 }
 
@@ -213,28 +213,28 @@ export const TREASURY_WALLET_GROUP: WalletGroup = {
 export const SHY_ACCOUNT_137: AddressBookAccount = {
   uid: 'eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
   address: '0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
-  chainId: '137',
+  chainId: 137,
   classification: 'wallet'
 }
 
 export const SHY_ACCOUNT_1: AddressBookAccount = {
   uid: 'eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
   address: '0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
-  chainId: '1',
+  chainId: 1,
   classification: 'wallet'
 }
 
 export const ACCOUNT_Q_137: AddressBookAccount = {
   uid: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
   address: '0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-  chainId: '137',
+  chainId: 137,
   classification: 'wallet'
 }
 
 export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
   uid: 'eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3',
   address: '0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3',
-  chainId: '137',
+  chainId: 137,
   classification: 'internal'
 }
 

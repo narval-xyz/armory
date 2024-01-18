@@ -1,8 +1,7 @@
-import { Action, Alg } from '@app/authz/shared/types/enums'
-import { Address, FiatSymbols, Hex } from '@app/authz/shared/types/http'
+import { AccessList, Action, Address, Alg, FiatSymbols, Hex } from '@app/authz/shared/types/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsEthereumAddress, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export class RequestSignatureDto {
@@ -54,16 +53,39 @@ export class TransactionRequestDto {
   })
   data?: Hex
 
-  gas: Hex
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  @ApiProperty({
+    format: 'bigint',
+    required: false,
+    type: 'string'
+  })
+  gas?: bigint
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  @ApiProperty({
+    format: 'bigint',
+    required: false,
+    type: 'string'
+  })
+  maxFeePerGas?: bigint
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  @ApiProperty({
+    format: 'bigint',
+    required: false,
+    type: 'string'
+  })
+  maxPriorityFeePerGas?: bigint
 
   @ApiProperty()
   nonce?: number
 
   value?: Hex
 
-  chainId: string
+  chainId: number
 
-  accessList?: { address: Address; storageKeys: Hex[] }[]
+  accessList?: AccessList
 
   type?: '2'
 }

@@ -1,5 +1,47 @@
+import { Action, TransactionRequest } from '@narval/authz-shared'
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
-import { Action, Alg } from './enums'
+
+export * from '@narval/authz-shared'
+
+export enum AccountType {
+  EOA = 'eoa',
+  AA = '4337'
+}
+
+export enum UserRoles {
+  ROOT = 'root',
+  ADMIN = 'admin',
+  MEMBER = 'member',
+  MANAGER = 'manager'
+}
+
+export enum Decisions {
+  ALLOW = 'Allow',
+  DENY = 'Deny',
+  CONFIRM = 'Confirm'
+}
+
+export enum ValueOperators {
+  GREATER_THAN = 'gt',
+  LESS_THAN = 'lt',
+  GREATER_THAN_OR_EQUAL = 'gte',
+  LESS_THAN_OR_EQUAL = 'lte',
+  EQUAL = 'eq',
+  NOT_EQUAL = 'ne'
+}
+
+export enum IdentityOperators {
+  IS = 'is',
+  IS_NOT = 'is_not',
+  CONTAINS = 'contains',
+  IN = 'in'
+}
+
+export enum Alg {
+  ES256K = 'ES256K', // secp256k1, an Ethereum EOA
+  ES256 = 'ES256', // secp256r1, ecdsa but not ethereum
+  RS256 = 'RS256'
+}
 
 export enum FiatSymbols {
   USD = 'fiat:usd',
@@ -15,28 +57,6 @@ export type HistoricalTransfer = {
   rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
   initiatedBy: string // uid of the user who initiated the spending
   timestamp: number // unix timestamp
-}
-
-// Types ripped from viem; combining a few though because they don't have chainId on txRequest
-export type Hex = `0x${string}`
-export type Address = `0x${string}`
-export type AccessList = { address: Address; storageKeys: Hex[] }[]
-export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionType = '2'> = {
-  /** Contract code or a hashed method call with encoded args */
-  data?: Hex
-  /** Transaction sender */
-  from: Address
-  /** Gas provided for transaction execution */
-  gas?: TQuantity
-  /** Unique number identifying this transaction */
-  nonce?: TIndex
-  /** Transaction recipient */
-  to?: Address | null
-  /** Value in wei sent with this transaction */
-  value?: TQuantity
-  chainId: string | null
-  accessList?: AccessList
-  type?: TTransactionType
 }
 
 /**
