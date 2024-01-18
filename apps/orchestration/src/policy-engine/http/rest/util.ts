@@ -1,4 +1,4 @@
-import { Action, CreateAuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { CreateAuthorizationRequest, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { plainToInstance } from 'class-transformer'
 
@@ -20,7 +20,7 @@ export const toCreateAuthorizationRequest = (
   if (dto.isSignMessage(dto.request)) {
     return {
       ...shared,
-      action: Action.SIGN_MESSAGE,
+      action: SupportedAction.SIGN_MESSAGE,
       request: {
         message: dto.request.message
       }
@@ -29,7 +29,7 @@ export const toCreateAuthorizationRequest = (
 
   return {
     ...shared,
-    action: Action.SIGN_TRANSACTION,
+    action: SupportedAction.SIGN_TRANSACTION,
     request: {
       accessList: dto.request.accessList,
       chainId: dto.request.chainId,
