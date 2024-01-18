@@ -52,6 +52,7 @@ authz/rego/bundle:
 
 	opa build \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+		--ignore "__test__" \
 		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build/policies.tar.gz
 
 authz/rego/eval:
