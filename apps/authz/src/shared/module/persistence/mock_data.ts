@@ -1,4 +1,3 @@
-import { hashBody } from '@app/authz/shared/lib/utils'
 import {
   AddressBookAccount,
   RegoData,
@@ -11,6 +10,7 @@ import {
 import { AccountType, Action, Alg, UserRoles } from '@app/authz/shared/types/enums'
 import { AuthCredential, AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
 import { RegoInput } from '@app/authz/shared/types/rego'
+import { hashRequest } from '@narval/authz-shared'
 import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
@@ -310,15 +310,15 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
   }
 
   const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
-    message: hashBody(request)
+    message: hashRequest(request)
   })
   // 0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c
   const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
-    message: hashBody(request)
+    message: hashRequest(request)
   })
   // 0x48510e3b74799b8e8f4e01aba0d196e18f66d86a62ae91abf5b89be9391c15661c7d29ee4654a300ed6db977da512475ed5a39f70f677e23d1b2f53c1554d0dd1b
   const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
-    message: hashBody(request)
+    message: hashRequest(request)
   })
   // 0xcc645f43d8df80c4deeb2e60a8c0c15d58586d2c29ea7c85208cea81d1c47cbd787b1c8473dde70c3a7d49f573e491223107933257b2b99ecc4806b7cc16848d1c
 

@@ -12,8 +12,8 @@
   ],
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "strict": true
   }
 }

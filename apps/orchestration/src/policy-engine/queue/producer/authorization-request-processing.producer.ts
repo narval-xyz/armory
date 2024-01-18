@@ -8,7 +8,7 @@ import {
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
+import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/http/persistence/repository/authorization-request.repository'
 import { InjectQueue } from '@nestjs/bull'
 import { Injectable, Logger } from '@nestjs/common'
 import { BackoffOptions, Job, Queue } from 'bull'
