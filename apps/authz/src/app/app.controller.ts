@@ -1,6 +1,8 @@
 import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
-import { Controller, Get, Logger, Post } from '@nestjs/common'
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
+import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
+import { AuthZRequestPayload } from '@app/authz/shared/types/http'
 
 @Controller()
 export class AppController {
@@ -23,7 +25,25 @@ export class AppController {
   }
 
   @Post('/evaluation')
-  async evaluate() {
+  async evaluate(@Body() body: EvaluationRequestDto) {
+    this.logger.log({
+      message: 'Received evaluation'
+    })
+
+    // Map the DTO into the TS type because it's nicer to deal with.
+    const payload: AuthZRequestPayload = body;
+
+    const result = await this.appService.runEvaluation(payload)
+    this.logger.log({
+      message: 'Evaluation Result',
+      result
+    })
+
+    return result
+  }
+
+  @Post('/evaluation-demo')
+  async evaluateDemo() {
     this.logger.log({
       message: 'Received evaluation'
     })

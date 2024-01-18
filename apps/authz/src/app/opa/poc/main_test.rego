@@ -61,7 +61,7 @@ test_principal_groups {
 
 test_signers_roles_returns_roles_set_of_the_approvers {
 	test_input := {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-alice-uid"},
 		"signatures": [
 			{"signer": "test-bob-uid"},
@@ -240,7 +240,7 @@ test_permit_users_in_dev_group_can_sign_transaction_in_dev_wallets_group {
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 	}
@@ -256,7 +256,7 @@ test_permit_matt_to_sign_transactions_with_shy_account_wallet {
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "0xaf4250162fcfc81a6cdde2f2950e3975112f1787"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 	}
@@ -272,7 +272,7 @@ test_permit_admins_to_sign_transactions_with_any_assigned_wallet {
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 	}
@@ -287,7 +287,7 @@ test_confirm_admins_to_sign_transactions_with_any_assigned_wallet_signed_by_admi
 	}
 
 	actual := confirm[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [{"signer": "test-alice-uid"}],
@@ -308,7 +308,7 @@ test_confirm_admins_to_sign_transactions_with_any_assigned_wallet_signed_by_alic
 	}
 
 	actual := confirm[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [
@@ -334,7 +334,7 @@ test_permit_admins_to_sign_transactions_to_transfer_tokens_to_any_inernal_addres
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"request": {"from": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
@@ -370,7 +370,7 @@ test_permit_members_to_transfer_tokens_between_their_assigned_wallets_on_any_cha
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"request": {
@@ -411,7 +411,7 @@ test_permit_anyone_to_call_crypto_unicorn_functions_on_assigned_wallets {
 	}
 
 	actual := permit[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"request": {
@@ -452,7 +452,7 @@ test_forbid_members_to_transfer_10k_usdc_in_12_hours_rolling_basis {
 	actual := forbid[policy] with data.entities as build_test_entities
 		with now_s as mock_now_s
 		with input as {
-			"activityType": "signTransaction",
+			"action": "signTransaction",
 			"principal": {"uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
 			"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 			"request": {
@@ -553,7 +553,7 @@ test_forbid_members_to_transfer_10kusd_usdc_in_12_hours_rolling_basis {
 	actual := forbid[policy] with data.entities as build_test_entities
 		with now_s as mock_now_s
 		with input as {
-			"activityType": "signTransaction",
+			"action": "signTransaction",
 			"principal": {"uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
 			"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 			"request": {
@@ -637,7 +637,7 @@ test_group_approval_satisfied {
 
 	# In test data, Bob and Alice are both in Treasury Group, which is this approval requirement
 	actual := permitWithApproval[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [{"signer": "test-alice-uid"}],
@@ -666,7 +666,7 @@ test_group_approval_missing {
 
 	# In test data, Bob and Alice are both in Treasury Group, which is this approval requirement
 	actual := permitWithApproval[policy] with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [], # No signature, so this should return MISSING
@@ -694,7 +694,7 @@ test_evaluate_with_group_approval_satisfied {
 	}
 
 	actual := newEvaluate with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [{"signer": "test-alice-uid"}],
@@ -726,7 +726,7 @@ test_evaluate_forbid_overrides_permit {
 	}
 
 	actual := newEvaluate with data.entities as build_test_entities with input as {
-		"activityType": "signTransaction",
+		"action": "signTransaction",
 		"principal": {"uid": "test-bob-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"signatures": [{"signer": "test-alice-uid"}],

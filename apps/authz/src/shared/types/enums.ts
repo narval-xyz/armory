@@ -1,15 +1,5 @@
-export enum BlockchainActions {
-  SIGN_TRANSACTION = 'signTransaction',
-  SIGN_RAW = 'signRaw',
-  SIGN_MESSAGE = 'signMessage',
-  SIGN_TYPED_DATA = 'signTypedData'
-}
-
-export enum PolicyManagementActions {
-  SET_POLICY_RULES = 'setPolicyRules'
-}
-
-export enum ResourceActions {
+export enum Actions {
+  // Resource Actions
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',
   DELETE_USER = 'user:delete',
@@ -23,10 +13,17 @@ export enum ResourceActions {
   DELETE_USER_GROUP = 'user-group:delete',
   CREATE_WALLET_GROUP = 'wallet-group:create',
   EDIT_WALLET_GROUP = 'wallet-group:edit',
-  DELETE_WALLET_GROUP = 'wallet-group:delete'
-}
+  DELETE_WALLET_GROUP = 'wallet-group:delete',
 
-export type Actions = BlockchainActions | PolicyManagementActions | ResourceActions
+  // Policy Management Actions
+  SET_POLICY_RULES = 'setPolicyRules',
+
+  // Wallet Actions
+  SIGN_TRANSACTION = 'signTransaction',
+  SIGN_RAW = 'signRaw',
+  SIGN_MESSAGE = 'signMessage',
+  SIGN_TYPED_DATA = 'signTypedData'
+}
 
 export enum AccountType {
   EOA = 'eoa',

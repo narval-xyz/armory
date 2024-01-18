@@ -16,6 +16,7 @@ import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { OpaService } from './opa/opa.service'
+import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -69,16 +70,16 @@ export class AppService {
   }): RegoInput {
     // intent only exists in SignTransaction actions
     return {
-      action: request.activityType,
+      action: request.action,
       intent,
       transactionRequest: request.transactionRequest,
       principal: {
         uid: principal.userId
       },
-      resource: {
+      resource: request.resourceId ? {
         uid: request.resourceId
-      },
-      approvals: approvals?.map((a) => ({ signer: a.userId })) || []
+      } : undefined,
+      approvals: approvals || []
     }
   }
 
@@ -112,17 +113,18 @@ export class AppService {
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authn, approvals }: AuthZRequestPayload) {
+  async runEvaluation({ request, authentication, approvals }: AuthZRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const verificationMessage = hashBody(request)
-    const principalCredential = await this.#verifySignature(authn, verificationMessage)
+    const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)
     const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)
 
     // Decode the intent
     const intentResult = request.transactionRequest
       ? safeDecode({
+          type: InputType.TRANSACTION_REQUEST,
           txRequest: request.transactionRequest
         })
       : undefined
