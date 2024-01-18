@@ -1,8 +1,8 @@
+import { TransactionRequest } from '@narval/authz-shared'
 import { Address, Hex, TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Caip10 } from './caip'
 import { AssetTypeEnum, InputType, Intents, TransactionStatus } from './domain'
 import { Intent } from './intent.types'
-import { TransactionRequest } from '@narval/authz-shared'
 
 export type Message = {
   message: string
