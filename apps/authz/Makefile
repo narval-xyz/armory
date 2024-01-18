@@ -32,18 +32,15 @@ authz/test/e2e:
 # === Open Policy Agent & Rego ===
 
 authz/rego/compile:
-	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/build
-
-	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/build
-	
+	rm -rf ./rego-build
+	mkdir -p ./rego-build
 	opa build \
 		--target wasm \
 		--entrypoint main/evaluate \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
 		--ignore "__test__" \
-		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz
-
-	tar -xzf ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz -C ${AUTHZ_PROJECT_DIR}/src/app/opa/build
+		--output ./rego-build/policies.gz
+	tar -xzf ./rego-build/policies.gz -C ./rego-build/
 
 authz/rego/wasm:
 	npx ts-node \
@@ -63,6 +60,7 @@ authz/rego/bundle:
 authz/rego/eval:
 	opa eval \
 		--format="pretty" \
+		--target="wasm" \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz \
 		--input ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/input.json \
 		'data.main.evaluate'
