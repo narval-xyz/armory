@@ -1,4 +1,4 @@
-import { AbiParameter, Hex, decodeAbiParameters, toBytes } from 'viem'
+import { AbiParameter, Hex, decodeAbiParameters } from 'viem'
 import {
   Erc20Methods,
   Erc20TransferAbi,
@@ -19,7 +19,7 @@ export function decodeAbiParametersWrapper<TParams extends readonly AbiParameter
 // re-doing a lot of the work that is already done in viem
 export const extractErc20TransferAmount = (data: Hex): string => {
   try {
-    const paramValues = decodeAbiParameters(Erc20TransferAbiParameters, toBytes(data))
+    const paramValues = decodeAbiParameters(Erc20TransferAbiParameters, data)
 
     const amount = paramValues[1]
     if (!amount) throw new Error('Malformed transaction request')
