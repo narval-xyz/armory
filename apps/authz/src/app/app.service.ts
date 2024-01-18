@@ -12,11 +12,11 @@ import {
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
+import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { OpaService } from './opa/opa.service'
-import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -76,9 +76,11 @@ export class AppService {
       principal: {
         uid: principal.userId
       },
-      resource: request.resourceId ? {
-        uid: request.resourceId
-      } : undefined,
+      resource: request.resourceId
+        ? {
+            uid: request.resourceId
+          }
+        : undefined,
       approvals: approvals || []
     }
   }

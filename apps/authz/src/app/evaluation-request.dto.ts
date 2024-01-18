@@ -1,5 +1,5 @@
 import { Action, Alg } from '@app/authz/shared/types/enums'
-import { Address, Hex, FiatSymbols } from '@app/authz/shared/types/http'
+import { Address, FiatSymbols, Hex } from '@app/authz/shared/types/http'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsString, ValidateNested } from 'class-validator'
@@ -65,7 +65,7 @@ export class TransactionRequestDto {
 
   accessList?: { address: Address; storageKeys: Hex[] }[]
 
-  type?: "2"
+  type?: '2'
 }
 
 export class SignTransactionRequestDataDto extends BaseRequestDataDto {

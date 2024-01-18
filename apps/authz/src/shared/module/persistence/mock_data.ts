@@ -8,7 +8,7 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { AccountType, Alg, Action, UserRoles } from '@app/authz/shared/types/enums'
+import { AccountType, Action, Alg, UserRoles } from '@app/authz/shared/types/enums'
 import { AuthCredential, AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
 import { RegoInput } from '@app/authz/shared/types/rego'
 import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
