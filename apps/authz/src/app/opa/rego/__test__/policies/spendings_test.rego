@@ -103,3 +103,63 @@ test_forbid_user_group_to_transfer_more_than_five_thousand_usd {
 		},
 	}
 }
+
+test_forbid_wallet_group_to_transfer_more_than_five_thousand_usd {
+	req = object.union(request, {
+		"principal": {"uid": "test-bar-uid"},
+		"resource": {"uid": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"},
+		"request": {
+			"type": "eip1559",
+			"chainId": 137,
+			"max_fee_per_gas": "20000000000",
+			"max_priority_fee_per_gas": "3000000000",
+			"gas": "21000",
+			"nonce": 1,
+			"from": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+		},
+		"transfers": [
+			{
+				"amount": "3000000000",
+				"from": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99"},
+				"timestamp": eleven_hours_ago,
+				"chainId": 137,
+				"initiatedBy": "test-alice-uid",
+			},
+			{
+				"amount": "2000000000",
+				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99"},
+				"timestamp": ten_hours_ago,
+				"chainId": 137,
+				"initiatedBy": "test-bar-uid",
+			},
+			{
+				"amount": "1500000000",
+				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99"},
+				"timestamp": twenty_hours_ago,
+				"chainId": 137,
+				"initiatedBy": "test-alice-uid",
+			},
+		],
+	})
+
+	res = forbid[{"policyId": "test-accumulation-policy-5"}] with input as req with data.entities as entities
+
+	res == {
+		"policyId": "test-accumulation-policy-5",
+		"message": "Spending limit reached.",
+		"data": {
+			"transferTypes": {"transferERC20"},
+			"walletGroups": {"test-wallet-group-one-uid"},
+			"spendings": 6435000000,
+			"limit": 5000000000,
+			"period": "24h",
+		},
+	}
+}
