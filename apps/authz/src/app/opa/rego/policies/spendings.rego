@@ -129,3 +129,32 @@ forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
 		},
 	}
 }
+
+# Wallet group can't transfer > $5k usd value in 24 hours on a rolling basis
+
+forbid[{"policyId": "test-accumulation-policy-5"}] := reason {
+	check_principal
+	input.action == "signTransaction"
+
+	transfer_types = {"transferERC20"}
+	wallet_groups = {"test-wallet-group-one-uid"}
+	limit = to_number("5000000000")
+	start = nanoseconds_to_seconds(time.now_ns() - time.parse_duration_ns("24h"))
+
+	check_transfer_token_type(transfer_types)
+
+	spendings = get_usd_spending_amount({"walletGroups": wallet_groups, "start": start})
+	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+
+	reason := {
+		"policyId": "test-accumulation-policy-5",
+		"message": "Spending limit reached.",
+		"data": {
+			"transferTypes": transfer_types,
+			"walletGroups": wallet_groups,
+			"spendings": spendings,
+			"limit": limit,
+			"period": "24h",
+		},
+	}
+}

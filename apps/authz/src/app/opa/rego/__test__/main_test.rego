@@ -93,7 +93,7 @@ entities = {
 			"role": "member",
 		},
 		"test-bar-uid": {
-			"uid": "test-alice-uid",
+			"uid": "test-bar-uid",
 			"role": "member",
 		},
 		"test-foo-uid": {
@@ -105,12 +105,20 @@ entities = {
 			"role": "admin",
 		},
 	},
-	"wallets": {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-		"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"accountType": "eoa",
-		"assignees": ["test-bob-uid", "test-alice-uid", "test-bar-uid"],
-	}},
+	"wallets": {
+		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
+			"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"accountType": "eoa",
+			"assignees": ["test-bob-uid", "test-alice-uid", "test-bar-uid"],
+		},
+		"eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e": {
+			"uid": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"accountType": "eoa",
+			"assignees": ["test-bar-uid"],
+		},
+	},
 	"user_groups": {
 		"test-user-group-one-uid": {
 			"uid": "test-user-group-one-uid",
@@ -126,7 +134,7 @@ entities = {
 	"wallet_groups": {"test-wallet-group-one-uid": {
 		"uid": "test-wallet-group-one-uid",
 		"name": "dev",
-		"wallets": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
+		"wallets": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
 	}},
 	"address_book": {
 		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {

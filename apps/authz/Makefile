@@ -32,33 +32,33 @@ authz/test/e2e:
 # === Open Policy Agent & Rego ===
 
 authz/rego/compile:
-	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build
+	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
-	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build
+	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 	
 	opa build \
 		--target wasm \
 		--entrypoint main/evaluate \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
 		--ignore "__test__" \
-		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build/policies.tar.gz
+		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz
 
-	tar -xzf ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build/policies.tar.gz -C ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build
+	tar -xzf ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz -C ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
 authz/rego/bundle:
-	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build
+	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
-	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build
+	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
 	opa build \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
 		--ignore "__test__" \
-		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build/policies.tar.gz
+		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz
 
 authz/rego/eval:
 	opa eval \
 		--format="pretty" \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/build/policies.tar.gz \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz \
 		--input ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/input.json \
 		'data.main.evaluate'
 
