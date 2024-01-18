@@ -1,4 +1,4 @@
-import { AbiParameter, Hex, decodeAbiParameters } from 'viem'
+import { AbiParameter, Hex, decodeAbiParameters, toBytes } from 'viem'
 import {
   Erc20Methods,
   Erc20TransferAbi,
@@ -18,11 +18,16 @@ export function decodeAbiParametersWrapper<TParams extends readonly AbiParameter
 // Todo: How can we typesafe the return value of decodeAbiParameters, without
 // re-doing a lot of the work that is already done in viem
 export const extractErc20TransferAmount = (data: Hex): string => {
-  const paramValues = decodeAbiParameters<AbiParameter[]>(Erc20TransferAbiParameters, data)
+  try {
+    const paramValues = decodeAbiParameters(Erc20TransferAbiParameters, toBytes(data))
 
-  const amount = paramValues[1]
-  if (!amount) throw new Error('Malformed transaction request')
-  return amount.toString()
+    const amount = paramValues[1]
+    if (!amount) throw new Error('Malformed transaction request')
+    return amount.toString()
+  } catch (error) {
+    // TODO (@Pierre, 18/01/24): Revisit the error handling.
+    throw new Error('Malformed transaction request')
+  }
 }
 
 export const extractErc20TransferFromAmount = (data: Hex): string => {
