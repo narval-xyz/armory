@@ -1,0 +1,56 @@
+name: "@narval/authz-shared CI"
+
+on:
+  push:
+    paths:
+      - packages/authz-shared/**
+      - .github/workflows/authz_shared_ci.yml
+      - Makefile
+      - jest.config.ts
+      - jest.preset.js
+      - .eslintrc.json
+      - .prettierrc
+      - package.json
+      - package-lock.json
+
+jobs:
+  build-and-test:
+    name: Build and test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.4.0'
+
+      - name: Install dependencies
+        run: |
+          make install/ci
+
+      - name: Code format
+        shell: bash
+        run: |
+          make format/check
+          make lint/check
+
+      - name: Test unit
+        shell: bash
+        run: |
+           make authz-shared/test/unit
+
+      - name: Send Slack notification on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: "@narval/authz-shared CI failed"
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+

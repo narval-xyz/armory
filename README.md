@@ -28,6 +28,7 @@ At the end, you must have a working environment ready to run any application.
 
 - [@app/authz](./apps/authz/README.md)
 - [@app/orchestration](./apps/orchestration/README.md)
+- [@narval/authz-shared](./packages/authz-shared/README.md)
 - [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md)
 
 ## Docker

@@ -1,14 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsString } from 'class-validator'
+import { IsDefined, IsOptional, IsString } from 'class-validator'
 
 export class SignatureDto {
-  @IsDefined()
   @IsString()
+  @IsDefined()
   @ApiProperty()
-  hash: string
+  sig: string
 
+  @IsString()
+  @IsDefined()
+  @ApiProperty()
+  pubKey: string
+
+  @IsString()
+  @IsOptional()
   @ApiProperty({
-    enum: ['ECDSA']
+    default: 'ES256K',
+    enum: ['ES256K'],
+    required: false
   })
-  type?: string = 'ECDSA'
+  alg?: string = 'ES256K'
 }

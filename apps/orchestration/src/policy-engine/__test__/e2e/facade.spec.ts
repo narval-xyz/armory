@@ -8,6 +8,7 @@ import {
   SupportedAction,
   TransactionType
 } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -30,6 +31,25 @@ describe('Policy Engine Cluster Facade', () => {
   let testPrismaService: TestPrismaService
   let authzRequestRepository: AuthorizationRequestRepository
   let authzRequestProcessingQueue: Queue
+
+  const authentication: SignatureDto = {
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
+    alg: 'ES256K',
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+  }
+
+  const approvals: SignatureDto[] = [
+    {
+      sig: '0x48510e3b74799b8e8f4e01aba0d196e18f66d86a62ae91abf5b89be9391c15661c7d29ee4654a300ed6db977da512475ed5a39f70f677e23d1b2f53c1554d0dd1b',
+      alg: 'ES256K',
+      pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
+    },
+    {
+      sig: '0xcc645f43d8df80c4deeb2e60a8c0c15d58586d2c29ea7c85208cea81d1c47cbd787b1c8473dde70c3a7d49f573e491223107933257b2b99ecc4806b7cc16848d1c',
+      alg: 'ES256K',
+      pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
+    }
+  ]
 
   // TODO: Create domain type
   const org: Organization = {
@@ -86,18 +106,8 @@ describe('Policy Engine Cluster Facade', () => {
         action: SupportedAction.SIGN_MESSAGE,
         request: signMessageRequest,
         hash: hashMessage(JSON.stringify(signMessageRequest)),
-        authentication: {
-          signature: {
-            hash: 'string'
-          }
-        },
-        approval: {
-          signatures: [
-            {
-              hash: 'string'
-            }
-          ]
-        }
+        authentication,
+        approvals
       }
 
       const { status, body } = await request(app.getHttpServer())
@@ -139,18 +149,8 @@ describe('Policy Engine Cluster Facade', () => {
         action: SupportedAction.SIGN_TRANSACTION,
         hash: hashMessage(JSON.stringify(signTransactionRequest)),
         request: signTransactionRequest,
-        authentication: {
-          signature: {
-            hash: 'string'
-          }
-        },
-        approval: {
-          signatures: [
-            {
-              hash: 'string'
-            }
-          ]
-        }
+        authentication,
+        approvals
       }
 
       const { status, body } = await request(app.getHttpServer())
@@ -181,18 +181,8 @@ describe('Policy Engine Cluster Facade', () => {
         action: SupportedAction.SIGN_TRANSACTION,
         hash: hashMessage(JSON.stringify(signTransactionRequest)),
         request: signTransactionRequest,
-        authentication: {
-          signature: {
-            hash: 'string'
-          }
-        },
-        approval: {
-          signatures: [
-            {
-              hash: 'string'
-            }
-          ]
-        }
+        authentication,
+        approvals
       }
 
       const { status, body } = await request(app.getHttpServer())
