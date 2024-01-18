@@ -1,4 +1,5 @@
-export enum Actions {
+// Note: Action is a shared enum w/ every other module
+export enum Action {
   // Resource Actions
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',

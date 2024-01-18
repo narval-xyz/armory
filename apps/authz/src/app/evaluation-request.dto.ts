@@ -1,4 +1,4 @@
-import { Actions, Alg } from '@app/authz/shared/types/enums'
+import { Action, Alg } from '@app/authz/shared/types/enums'
 import { Address, Hex } from '@app/authz/shared/types/http'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
@@ -19,12 +19,12 @@ export class RequestSignatureDto {
 }
 
 export class BaseRequestDataDto {
-  @IsEnum(Actions)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: Actions
+    enum: Action
   })
-  action: Actions
+  action: Action
 }
 
 export class TransactionRequestDto {
@@ -107,7 +107,7 @@ export class EvaluationRequestDto {
 
   @ValidateNested()
   @Type((opts) => {
-    return opts?.object.action === Actions.SIGN_TRANSACTION ? TransactionRequestDto : SignMessageRequestDataDto
+    return opts?.object.action === Action.SIGN_TRANSACTION ? TransactionRequestDto : SignMessageRequestDataDto
   })
   @IsDefined()
   @ApiProperty({
@@ -118,12 +118,12 @@ export class EvaluationRequestDto {
   isSignTransaction(
     request: SignTransactionRequestDataDto | SignMessageRequestDataDto
   ): request is SignTransactionRequestDataDto {
-    return this.request.action === Actions.SIGN_TRANSACTION
+    return this.request.action === Action.SIGN_TRANSACTION
   }
 
   isSignMessage(
     request: SignTransactionRequestDataDto | SignMessageRequestDataDto
   ): request is SignMessageRequestDataDto {
-    return this.request.action === Actions.SIGN_MESSAGE
+    return this.request.action === Action.SIGN_MESSAGE
   }
 }
