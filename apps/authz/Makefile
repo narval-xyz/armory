@@ -60,7 +60,6 @@ authz/rego/bundle:
 authz/rego/eval:
 	opa eval \
 		--format="pretty" \
-		--target="wasm" \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz \
 		--input ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/input.json \
 		'data.main.evaluate'
