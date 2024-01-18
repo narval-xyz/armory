@@ -45,6 +45,11 @@ authz/rego/compile:
 
 	tar -xzf ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz -C ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
+authz/rego/wasm:
+	npx ts-node \
+		--compiler-options "{\"module\":\"CommonJS\"}" \
+		${AUTHZ_PROJECT_DIR}/src/app/opa/rego/script.ts
+
 authz/rego/bundle:
 	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/build
 
