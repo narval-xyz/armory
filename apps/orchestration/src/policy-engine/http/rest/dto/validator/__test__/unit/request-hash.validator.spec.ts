@@ -1,4 +1,5 @@
 import { RequestHash } from '@app/orchestration/policy-engine/http/rest/dto/validator/request-hash.validator'
+import { hashRequest } from '@narval/authz-shared'
 import { ValidationArguments } from 'class-validator'
 
 describe(RequestHash.name, () => {
@@ -11,7 +12,7 @@ describe(RequestHash.name, () => {
   describe('validate', () => {
     it('returns true if the given hash matches the hash of the request object', () => {
       const request = { foo: 'bar' }
-      const hash = RequestHash.hash(request)
+      const hash = hashRequest(request)
       const args: ValidationArguments = {
         targetName: 'AuthorizationRequestDto',
         object: { request },
@@ -70,7 +71,7 @@ describe(RequestHash.name, () => {
 
       const message = validator.defaultMessage(args)
 
-      expect(message).toEqual(`${property} is not a valid EIP-191 hash format`)
+      expect(message).toEqual(`${property} is not a valid hexadecimal SHA256 hash`)
     })
   })
 })

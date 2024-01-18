@@ -10,7 +10,7 @@ import {
   AuthorizationRequestStatus,
   SupportedAction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/http/persistence/repository/authorization-request.repository'
+import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'

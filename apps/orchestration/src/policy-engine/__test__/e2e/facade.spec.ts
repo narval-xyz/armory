@@ -4,13 +4,13 @@ import {
   REQUEST_HEADER_ORG_ID
 } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequest, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/http/persistence/repository/authorization-request.repository'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
+import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransactionType } from '@narval/authz-shared'
+import { TransactionType, hashRequest } from '@narval/authz-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -18,7 +18,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
 import { Queue } from 'bull'
 import request from 'supertest'
-import { hashMessage, stringToHex } from 'viem'
+import { stringToHex } from 'viem'
 
 const EVALUATIONS_ENDPOINT = '/policy-engine/evaluations'
 
@@ -102,7 +102,7 @@ describe('Policy Engine Cluster Facade', () => {
       const payload = {
         action: SupportedAction.SIGN_MESSAGE,
         request: signMessageRequest,
-        hash: hashMessage(JSON.stringify(signMessageRequest)),
+        hash: hashRequest(signMessageRequest),
         authentication,
         approvals
       }
@@ -144,7 +144,7 @@ describe('Policy Engine Cluster Facade', () => {
       }
       const payload = {
         action: SupportedAction.SIGN_TRANSACTION,
-        hash: hashMessage(JSON.stringify(signTransactionRequest)),
+        hash: hashRequest(signTransactionRequest),
         request: signTransactionRequest,
         authentication,
         approvals
@@ -176,7 +176,7 @@ describe('Policy Engine Cluster Facade', () => {
       }
       const payload = {
         action: SupportedAction.SIGN_TRANSACTION,
-        hash: hashMessage(JSON.stringify(signTransactionRequest)),
+        hash: hashRequest(signTransactionRequest),
         request: signTransactionRequest,
         authentication,
         approvals
@@ -212,7 +212,7 @@ describe('Policy Engine Cluster Facade', () => {
       status: AuthorizationRequestStatus.PERMITTED,
       action: SupportedAction.SIGN_MESSAGE,
       request: signMessageRequest,
-      hash: hashMessage(JSON.stringify(signMessageRequest)),
+      hash: hashRequest(signMessageRequest),
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       createdAt: new Date(),
       updatedAt: new Date(),
