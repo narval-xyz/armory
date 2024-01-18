@@ -5,7 +5,7 @@ import { TransactionRequestIntentError } from './error'
 import { Intent, TransferErc20 } from './intent.types'
 import { AMBIGUOUS_FUNCTION, HEX_SIG_TO_INTENT } from './methodId'
 import { extractErc20Amount } from './param-extractors'
-import { TransactionRequest } from './transaction.type'
+import { TransactionRequest } from '@narval/authz-shared'
 import { ContractRegistry, DecodeErc20Input, DecoderRegistry, TransactionInput, TransactionRegistry } from './types'
 
 export const getMethodId = (data?: string): string => (data ? data.slice(0, 10) : NULL_METHOD_ID)
@@ -33,7 +33,7 @@ export const validateContractCallIntent = (txRequest: TransactionRequest): Valid
       }
     })
   }
-  return { nonce, data, to, chainId: +chainId, from }
+  return { nonce, data, to, chainId, from }
 }
 
 export const validateNativeTransferIntent = (txRequest: TransactionRequest) => {
@@ -49,7 +49,7 @@ export const validateNativeTransferIntent = (txRequest: TransactionRequest) => {
       }
     })
   }
-  return { value, chainId: +chainId }
+  return { value, chainId }
 }
 
 // const decodeErc721 = ({
