@@ -1,4 +1,4 @@
-import { Actions, Alg } from './enums'
+import { Action, Alg } from './enums'
 
 // Types ripped from viem; combining a few though because they don't have chainId on txRequest
 export type Hex = `0x${string}`
@@ -27,7 +27,7 @@ export type TransactionRequest<TQuantity = Hex, TIndex = number, TTransactionTyp
  * This is the data that will be hashed and signed.
  */
 export type AuthZRequest = {
-  action: Actions
+  action: Action
   resourceId?: string
   transactionRequest?: TransactionRequest // for signTransaction
   message?: string // for signMessage

@@ -17,7 +17,11 @@ type ActionRequestConfig = {
   }
 }
 
-export const ACTION_REQUEST: Record<Action, ActionRequestConfig> = {
+enum MappedActions {
+  signMessage = Action.SIGN_MESSAGE,
+  signTransaction = Action.SIGN_TRANSACTION
+}
+export const ACTION_REQUEST: Record<MappedActions, ActionRequestConfig> = {
   [Action.SIGN_MESSAGE]: {
     action: Action.SIGN_MESSAGE,
     schema: {
