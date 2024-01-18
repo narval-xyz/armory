@@ -1,3 +1,4 @@
+import { Action, TransactionRequest } from '@narval/authz-shared'
 import { SetOptional } from 'type-fest'
 
 export type Evaluation = {
@@ -5,34 +6,6 @@ export type Evaluation = {
   decision: string
   signature: string | null
   createdAt: Date
-}
-
-// Note: Action is a shared enum w/ every other module
-export enum Action {
-  // Resource Actions
-  CREATE_USER = 'user:create',
-  EDIT_USER = 'user:edit',
-  DELETE_USER = 'user:delete',
-  CHANGE_USER_ROLE = 'user:change-role',
-  CREATE_WALLET = 'wallet:create',
-  EDIT_WALLET = 'wallet:edit',
-  ASSIGN_WALLET = 'wallet:assign',
-  UNASSIGN_WALLET = 'wallet:unassign',
-  CREATE_USER_GROUP = 'user-group:create',
-  EDIT_USER_GROUP = 'user-group:edit',
-  DELETE_USER_GROUP = 'user-group:delete',
-  CREATE_WALLET_GROUP = 'wallet-group:create',
-  EDIT_WALLET_GROUP = 'wallet-group:edit',
-  DELETE_WALLET_GROUP = 'wallet-group:delete',
-
-  // Policy Management Actions
-  SET_POLICY_RULES = 'setPolicyRules',
-
-  // Wallet Actions
-  SIGN_TRANSACTION = 'signTransaction',
-  SIGN_RAW = 'signRaw',
-  SIGN_MESSAGE = 'signMessage',
-  SIGN_TYPED_DATA = 'signTypedData'
 }
 
 /**
@@ -70,34 +43,6 @@ export type SharedAuthorizationRequest = {
   createdAt: Date
   updatedAt: Date
   evaluations: Evaluation[]
-}
-
-export type Hex = `0x${string}`
-export type Address = `0x${string}`
-export type AccessList = {
-  address: Address
-  storageKeys: Hex[]
-}[]
-
-/**
- * @see https://viem.sh/docs/glossary/types#transactiontype
- */
-export enum TransactionType {
-  LEGACY = 'legacy',
-  EIP2930 = 'eip2930',
-  EIP1559 = 'eip1559'
-}
-
-export type TransactionRequest = {
-  chainId: number
-  from: Address
-  nonce: number
-  accessList?: AccessList
-  data?: Hex
-  gas?: bigint
-  to?: Address | null
-  type?: `${TransactionType}`
-  value?: Hex
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {

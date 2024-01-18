@@ -1,4 +1,4 @@
-import { stringify } from '@app/orchestration/shared/lib/json'
+import { stringify } from '../../json.util'
 
 describe('json', () => {
   describe('stringify', () => {

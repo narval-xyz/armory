@@ -6,6 +6,7 @@
 <a href="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/orchestration_ci.yml/badge.svg?branch=main" alt="@app/orchestration" /></a>
 <a href="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/authz_ci.yml/badge.svg?branch=main" alt="@app/authz" /></a>
 <a href="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/authz_shared_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/authz_shared_ci.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
 </p>
 
 ## Description
@@ -28,6 +29,7 @@ At the end, you must have a working environment ready to run any application.
 
 - [@app/authz](./apps/authz/README.md)
 - [@app/orchestration](./apps/orchestration/README.md)
+- [@narval/authz-shared](./packages/authz-shared/README.md)
 - [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md)
 
 ## Docker

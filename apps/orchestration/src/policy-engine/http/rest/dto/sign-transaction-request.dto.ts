@@ -1,4 +1,4 @@
-import { Address, Hex, TransactionType } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { Address, Hex, TransactionType } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 import {

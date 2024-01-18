@@ -1,4 +1,4 @@
-import { TransactionType } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { TransactionType } from '@narval/authz-shared'
 import { isAddress, isHex } from 'viem'
 import { z } from 'zod'
 
