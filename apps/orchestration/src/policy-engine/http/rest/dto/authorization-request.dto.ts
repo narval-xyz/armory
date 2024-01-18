@@ -7,19 +7,6 @@ import { Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsString, Validate, ValidateNested } from 'class-validator'
 import { RequestHash } from './validator/request-hash.validator'
 
-class AuthenticationDto {
-  @ApiProperty()
-  signature: SignatureDto
-}
-
-class ApprovalDto {
-  @ApiProperty({
-    type: () => SignatureDto,
-    isArray: true
-  })
-  signatures: SignatureDto[]
-}
-
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
   @IsEnum(SupportedAction)
@@ -29,11 +16,18 @@ export class AuthorizationRequestDto {
   })
   action: `${SupportedAction}`
 
+  @IsDefined()
+  @ValidateNested()
   @ApiProperty()
-  authentication: AuthenticationDto
+  authentication: SignatureDto
 
-  @ApiProperty()
-  approval: ApprovalDto
+  @IsDefined()
+  @ValidateNested()
+  @ApiProperty({
+    type: () => SignatureDto,
+    isArray: true
+  })
+  approvals: SignatureDto[]
 
   @ValidateNested()
   @Type((opts) => {

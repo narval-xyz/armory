@@ -1,4 +1,4 @@
-name: AuthZ CI
+name: "@app/authz CI"
 
 on:
   push:

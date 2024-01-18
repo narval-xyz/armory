@@ -1,10 +1,10 @@
-name: "@narval/transaction-request-intent CI"
+name: "@narval/authz-shared CI"
 
 on:
   push:
     paths:
-      - packages/transaction-request-intent/**
-      - .github/workflows/transaction_request_intent_ci.yml
+      - packages/authz-shared/**
+      - .github/workflows/authz_shared_ci.yml
       - Makefile
       - jest.config.ts
       - jest.preset.js
@@ -41,14 +41,14 @@ jobs:
       - name: Test unit
         shell: bash
         run: |
-           make transaction-request-intent/test/unit
+           make authz-shared/test/unit
 
       - name: Send Slack notification on failure
         if: failure()
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: "@narval/transaction-request-intent CI failed"
+          author_name: "@narval/authz-shared CI failed"
           status: ${{ job.status }}
           fields: message,commit,author
         env:

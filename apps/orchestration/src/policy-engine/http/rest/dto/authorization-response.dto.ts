@@ -1,4 +1,4 @@
-import { Action, AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequestStatus, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
@@ -48,9 +48,9 @@ export class AuthorizationResponseDto {
   idempotencyKey?: string | null
 
   @ApiProperty({
-    enum: Action
+    enum: SupportedAction
   })
-  action: `${Action}`
+  action: `${SupportedAction}`
 
   @ApiProperty({
     enum: AuthorizationRequestStatus
@@ -69,7 +69,9 @@ export class AuthorizationResponseDto {
   evaluations: EvaluationDto[]
 
   @Type((opts) => {
-    return opts?.object.action === Action.SIGN_TRANSACTION ? SignTransactionResponseDto : SignMessageResponseDto
+    return opts?.object.action === SupportedAction.SIGN_TRANSACTION
+      ? SignTransactionResponseDto
+      : SignMessageResponseDto
   })
   @ApiProperty({
     oneOf: [{ $ref: getSchemaPath(SignMessageResponseDto) }, { $ref: getSchemaPath(SignTransactionResponseDto) }]

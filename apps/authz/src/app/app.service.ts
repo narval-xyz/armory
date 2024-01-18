@@ -1,4 +1,3 @@
-import { hashBody } from '@app/authz/shared/lib/utils'
 import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
 import { Alg } from '@app/authz/shared/types/enums'
 import {
@@ -10,6 +9,7 @@ import {
   RequestSignature
 } from '@app/authz/shared/types/http'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
+import { hashRequest } from '@narval/authz-shared'
 import { safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
@@ -116,7 +116,7 @@ export class AppService {
   async runEvaluation({ request, authentication, approvals }: AuthZRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
-    const verificationMessage = hashBody(request)
+    const verificationMessage = hashRequest(request)
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)
     const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)

@@ -1,5 +1,6 @@
 include ./apps/authz/Makefile
 include ./apps/orchestration/Makefile
+include ./packages/authz-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 
 # For more terminal color codes, head over to https://opensource.com/article/19/9/linux-terminal-colors
