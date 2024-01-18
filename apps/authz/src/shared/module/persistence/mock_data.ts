@@ -41,14 +41,35 @@ export const MATT: User = {
   role: UserRoles.ADMIN
 }
 
+export const MATT_CREDENTIAL_1: AuthCredential = {
+  id: 'credentialId1',
+  alg: Alg.ES256K,
+  userId: MATT.uid,
+  pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+}
+
 export const AAUser: User = {
   uid: 'aa@narval.xyz',
   role: UserRoles.ADMIN
 }
 
+export const AAUser_Credential_1: AuthCredential = {
+  userId: AAUser.uid,
+  id: 'credentialId2',
+  alg: Alg.ES256K,
+  pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
+}
+
 export const BBUser: User = {
   uid: 'bb@narval.xyz',
   role: UserRoles.ADMIN
+}
+
+export const BBUser_Credential_1: AuthCredential = {
+  userId: BBUser.uid,
+  id: 'credentialId3',
+  alg: Alg.ES256K,
+  pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
 }
 
 export const DEV_USER_GROUP: UserGroup = {
@@ -81,24 +102,9 @@ export const userAddressStore: { [key: string]: string } = {
 }
 
 export const userCredentialStore: { [key: string]: AuthCredential } = {
-  '0xd75D626a116D4a1959fE3bB938B2e7c116A05890': {
-    userId: MATT.uid,
-    id: 'credentialId1',
-    alg: Alg.ES256K,
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
-  },
-  '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06': {
-    userId: AAUser.uid,
-    id: 'credentialId2',
-    alg: Alg.ES256K,
-    pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
-  },
-  '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e': {
-    userId: BBUser.uid,
-    id: 'credentialId3',
-    alg: Alg.ES256K,
-    pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
-  }
+  '0xd75D626a116D4a1959fE3bB938B2e7c116A05890': MATT_CREDENTIAL_1,
+  '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06': AAUser_Credential_1,
+  '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e': BBUser_Credential_1
 }
 
 /**
@@ -211,9 +217,7 @@ export const REGO_REQUEST: RegoInput = {
   resource: {
     uid: TREASURY_WALLET_X.uid
   },
-  principal: {
-    uid: MATT.uid
-  },
+  principal: MATT_CREDENTIAL_1,
   approvals: [],
   transfers: []
 }

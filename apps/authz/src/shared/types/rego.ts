@@ -6,22 +6,21 @@ export type RegoInput = {
   action: Action
   intent?: Intent
   transactionRequest?: TransactionRequest
-  principal: { uid: string }
+  principal: AuthCredential
   resource?: { uid: string }
   approvals: AuthCredential[]
   transfers?: HistoricalTransfer[]
 }
 
-type EvaluationReason = {
+type MatchedRule = {
   policyId: string
+  type: 'permit' | 'forbid'
+  decision: 'permit' | 'forbid'
   approvalsSatisfied: ApprovalRequirement[]
   approvalsMissing: ApprovalRequirement[]
 }
 
 export type OpaResult = {
-  result: {
-    reasons: EvaluationReason[]
-    confirms?: [] // TODO: ???
-    permit: boolean
-  }
+  decision: 'permit' | 'forbid'
+  reasons: MatchedRule[]
 }
