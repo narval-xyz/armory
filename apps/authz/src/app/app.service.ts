@@ -85,7 +85,7 @@ export class AppService {
 
   #finalizeDecision(response: OpaResult[]) {
     const firstResponse = response[0]
-    if (firstResponse.decision === 'forbid' && !firstResponse.reasons?.every((r) => r.decision === 'forbid')) {
+    if (firstResponse.decision === 'forbid' && firstResponse.reasons?.every((r) => r.decision === 'forbid')) {
       return {
         originalResponse: firstResponse,
         decision: NarvalDecision.Forbid
