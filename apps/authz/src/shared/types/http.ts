@@ -17,7 +17,6 @@ export type HistoricalTransfer = {
   timestamp: number // unix timestamp
 }
 
-
 // Types ripped from viem; combining a few though because they don't have chainId on txRequest
 export type Hex = `0x${string}`
 export type Address = `0x${string}`
