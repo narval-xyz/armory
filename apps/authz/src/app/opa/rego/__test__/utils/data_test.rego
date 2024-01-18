@@ -59,15 +59,15 @@ test_wallet_groups {
 	groups == {"test-wallet-group-one-uid"}
 }
 
-test_signers_roles {
-	roles = signers_roles with input as request
+test_approvers_roles {
+	roles = approvers_roles with input as request
 		with data.entities as entities
 
 	roles == {"root", "member", "admin"}
 }
 
-test_signers_groups {
-	groups = signers_groups with input as request
+test_approvers_groups {
+	groups = approvers_groups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}

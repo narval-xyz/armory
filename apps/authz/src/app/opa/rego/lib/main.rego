@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-default evaluate := {
+evaluate := {
 	"permit": false,
 	"reasons": set(),
 	# The default flag indicates whether the rule was evaluated as expected or if
@@ -11,9 +11,9 @@ default evaluate := {
 	"default": true,
 }
 
-default permit[{}] := {}
+permit[{}] := {}
 
-default forbid[{}] := {}
+forbid[{}] := {}
 
 evaluate := decision {
 	permit_set := {p | p = permit[_]}

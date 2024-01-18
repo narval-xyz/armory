@@ -9,7 +9,7 @@ forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferToken"}
+	transfer_types = {"transferERC20"}
 	roles = {"member"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	limit = to_number("5000000000")
@@ -43,7 +43,7 @@ forbid[{"policyId": "test-accumulation-policy-2"}] := reason {
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferToken"}
+	transfer_types = {"transferERC20"}
 	users = {"test-alice-uid"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	limit = to_number("5000000000")
@@ -77,7 +77,7 @@ forbid[{"policyId": "test-accumulation-policy-3"}] := reason {
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferToken"}
+	transfer_types = {"transferERC20"}
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	limit = to_number("5000000000")
 	start = nanoseconds_to_seconds(time.now_ns() - time.parse_duration_ns("12h"))
@@ -107,7 +107,7 @@ forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
 	check_principal
 	input.action == "signTransaction"
 
-	transfer_types = {"transferToken"}
+	transfer_types = {"transferERC20"}
 	user_groups = {"test-user-group-one-uid"}
 	limit = to_number("5000000000")
 	start = nanoseconds_to_seconds(time.now_ns() - time.parse_duration_ns("24h"))

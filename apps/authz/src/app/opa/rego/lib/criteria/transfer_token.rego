@@ -6,19 +6,11 @@ transfer_token_type = input.intent.type
 
 transfer_token_amount = to_number(input.intent.amount)
 
-transfer_token_address = input.intent.native.uid
+# Transfer Native
+transfer_token_address = input.intent.token
 
-transfer_token_address = input.intent.token.uid
-
-transfer_token_address = result {
-	not input.intent.native.uid
-	result := input.intent.native
-}
-
-transfer_token_address = result {
-	not input.intent.token.uid
-	result := input.intent.token
-}
+# Transfer ERC20, ERC721, ERC1155
+transfer_token_address = input.intent.contract
 
 check_transfer_token_type(values) {
 	values == wildcard

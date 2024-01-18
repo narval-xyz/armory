@@ -10,8 +10,8 @@ approvals_satisfied = {
 		"entityIds": ["test-user-group-one-uid"],
 	},
 	"match": {
-		"matched_signers": {"test-bob-uid"},
-		"possible_signers": {"test-bar-uid"},
+		"matched_approvers": {"test-bob-uid"},
+		"possible_approvers": {"test-bar-uid"},
 		"threshold_passed": true,
 	},
 }
@@ -21,11 +21,11 @@ approvals_missing = {
 		"threshold": 2,
 		"countPrincipal": true,
 		"entityType": "Narval::User",
-		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
+		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	},
 	"match": {
-		"matched_signers": {"test-bob-uid"},
-		"possible_signers": {"test-bar-uid", "test-signer-uid"},
+		"matched_approvers": {"test-bob-uid"},
+		"possible_approvers": {"test-bar-uid", "test-approver-uid"},
 		"threshold_passed": false,
 	},
 }
@@ -35,15 +35,15 @@ test_check_approval {
 		"threshold": 2,
 		"countPrincipal": true,
 		"entityType": "Narval::User",
-		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
+		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 	res = check_approval(required_approval) with input as request with data.entities as entities
 
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": {"test-bob-uid"},
-			"possible_signers": {"test-bar-uid", "test-signer-uid"},
+			"matched_approvers": {"test-bob-uid"},
+			"possible_approvers": {"test-bar-uid", "test-approver-uid"},
 			"threshold_passed": false,
 		},
 	}
@@ -54,7 +54,7 @@ test_check_approval {
 		"threshold": 1,
 		"countPrincipal": false,
 		"entityType": "Narval::User",
-		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
+		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 
 	res = check_approval(required_approval) with input as request with data.entities as entities
@@ -62,8 +62,8 @@ test_check_approval {
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": set(),
-			"possible_signers": {"test-bar-uid", "test-signer-uid"},
+			"matched_approvers": set(),
+			"possible_approvers": {"test-bar-uid", "test-approver-uid"},
 			"threshold_passed": false,
 		},
 	}
@@ -82,8 +82,8 @@ test_check_approval {
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": {"test-bob-uid"},
-			"possible_signers": {"test-bar-uid"},
+			"matched_approvers": {"test-bob-uid"},
+			"possible_approvers": {"test-bar-uid"},
 			"threshold_passed": false,
 		},
 	}
@@ -102,8 +102,8 @@ test_check_approval {
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": set(),
-			"possible_signers": {"test-bar-uid"},
+			"matched_approvers": set(),
+			"possible_approvers": {"test-bar-uid"},
 			"threshold_passed": false,
 		},
 	}
@@ -122,8 +122,8 @@ test_check_approval {
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": {"test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
-			"possible_signers": set(),
+			"matched_approvers": {"test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
+			"possible_approvers": set(),
 			"threshold_passed": true,
 		},
 	}
@@ -142,8 +142,8 @@ test_check_approval {
 	res == {
 		"approval": required_approval,
 		"match": {
-			"matched_signers": {"test-bob-uid", "test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
-			"possible_signers": set(),
+			"matched_approvers": {"test-bob-uid", "test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
+			"possible_approvers": set(),
 			"threshold_passed": true,
 		},
 	}
