@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-evaluate := {
+default evaluate := {
 	"permit": false,
 	"reasons": set(),
 	# The default flag indicates whether the rule was evaluated as expected or if
@@ -11,9 +11,23 @@ evaluate := {
 	"default": true,
 }
 
-permit[{}] := {}
+permit[{"policyId": "permit-default-policy"}] := reason {
+	false
 
-forbid[{}] := {}
+	reason := {
+		"policyId": "permit-default-policy",
+		"reason": "This is the default policy, it always returns false.",
+	}
+}
+
+forbid[{"policyId": "frobid-default-policy"}] := reason {
+	false
+
+	reason := {
+		"policyId": "forbid-default-policy",
+		"reason": "This is the default policy, it always returns false.",
+	}
+}
 
 evaluate := decision {
 	permit_set := {p | p = permit[_]}
@@ -45,6 +59,6 @@ evaluate := decision {
 	# TODO: forbid rules need the same response structure as permit so we can have the policyId
 	decision := {
 		"permit": false,
-		"reasons": set(),
+		"reasons": forbid_set,
 	}
 }
