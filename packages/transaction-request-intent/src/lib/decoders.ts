@@ -1,3 +1,4 @@
+import { TransactionRequest } from '@narval/authz-shared'
 import { Hex } from 'viem'
 import { encodeEoaAccountId } from './caip'
 import { AssetTypeEnum, Intents, NULL_METHOD_ID, TransactionCategory, TransactionStatus } from './domain'
@@ -5,7 +6,6 @@ import { TransactionRequestIntentError } from './error'
 import { Intent, TransferErc20 } from './intent.types'
 import { AMBIGUOUS_FUNCTION, HEX_SIG_TO_INTENT } from './methodId'
 import { extractErc20Amount } from './param-extractors'
-import { TransactionRequest } from '@narval/authz-shared'
 import { ContractRegistry, DecodeErc20Input, DecoderRegistry, TransactionInput, TransactionRegistry } from './types'
 
 export const getMethodId = (data?: string): string => (data ? data.slice(0, 10) : NULL_METHOD_ID)
