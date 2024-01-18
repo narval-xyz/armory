@@ -12,7 +12,7 @@ ten_hours_ago = mock_now_s - ((10 * 60) * 60)
 
 nine_hours_ago = mock_now_s - ((9 * 60) * 60)
 
-principal_req = {"uid": "test-bob-uid"}
+principal_req = {"userId": "test-bob-uid"}
 
 resource_req = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 

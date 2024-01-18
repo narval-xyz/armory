@@ -3,14 +3,12 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import fs from 'fs'
 import policyInput from './input.json'
 
-const policyWasm = fs.readFileSync('/Users/samuel/Documents/narval/narval/apps/authz/src/app/opa/build/policy.wasm')
-const data = JSON.stringify(policyData)
-const input = JSON.stringify(policyInput)
+const policyWasm = fs.readFileSync('/Users/samuel/Documents/narval/narval/rego-build/policy.wasm')
 
 loadPolicy(policyWasm)
   .then((policy) => {
-    policy.setData({ data })
-    const resultSet = policy.evaluate(input, 'main/evaluate')
+    policy.setData(policyData)
+    const resultSet = policy.evaluate(policyInput, 'main/evaluate')
 
     if (resultSet == null) {
       console.error('evaluation error')

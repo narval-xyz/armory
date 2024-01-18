@@ -12,20 +12,16 @@ permit[{"policyId": "test-policy-3"}] := reason {
 	check_transfer_token_operation({"operator": "lte", "value": "1000000000000000000"})
 
 	approvalsRequired = [{
-		"threshold": 2,
+		"approvalCount": 2,
 		"countPrincipal": false,
-		"entityType": "Narval::UserRole",
+		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}]
 
-	approvalsResults = [res |
-		approval := approvalsRequired[_]
-		res := check_approval(approval)
-	]
-
-	approvals := get_approvals_result(approvalsResults)
+	approvals := getApprovalsResult(approvalsRequired)
 
 	reason := {
+		"type": "permit",
 		"policyId": "test-policy-3",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
 		"approvalsMissing": approvals.approvalsMissing,

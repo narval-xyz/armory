@@ -8,139 +8,103 @@ users_entities := data.entities.users
 
 user_groups_entities := data.entities.user_groups
 
-match_approvers(possible_approvers, threshold) = result {
+getApprovalsCount(possible_approvers) = result {
 	approval := approvals[_]
 	approval.userId == principal.uid
 
-	matched_approvers := {approver |
+	matched_approvers := {approval.userId |
 		approval := approvals[_]
-		approver := approval.userId
-		approver in possible_approvers
+		approval.userId in possible_approvers
 	}
 
-	missing_approvers := {approver |
-		approver := possible_approvers[_]
-		not approver in matched_approvers
-	}
-
-	result := {
-		"matched_approvers": matched_approvers,
-		"possible_approvers": missing_approvers,
-		"threshold_passed": count(matched_approvers) >= threshold,
-	}
+	result := count(matched_approvers)
 }
 
 # User approvals
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == true
-	approval.entityType == "Narval::User"
+	approval.approvalEntityType == "Narval::User"
+	possible_approvers := {entity | entity := approval.entityIds[_]} | {principal.uid}
 
-	possible_approvers := {approver | approver := approval.entityIds[_]} | {principal.uid}
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == false
-	approval.entityType == "Narval::User"
-
-	possible_approvers := {approver |
-		approver := approval.entityIds[_]
-		approver != principal.uid
+	approval.approvalEntityType == "Narval::User"
+	possible_approvers := {entity |
+		entity := approval.entityIds[_]
+		entity != principal.uid
 	}
 
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
 # User group approvals
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == true
-	approval.entityType == "Narval::UserGroup"
-
+	approval.approvalEntityType == "Narval::UserGroup"
 	possible_approvers := {user |
-		group := approval.entityIds[_]
-		approvers := user_groups_entities[group].users
-		user := approvers[_]
+		entity := approval.entityIds[_]
+		users := user_groups_entities[entity].users
+		user := users[_]
 	} | {principal.uid}
 
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == false
-	approval.entityType == "Narval::UserGroup"
-
+	approval.approvalEntityType == "Narval::UserGroup"
 	possible_approvers := {user |
-		group := approval.entityIds[_]
-		approvers := user_groups_entities[group].users
-		user := approvers[_]
+		entity := approval.entityIds[_]
+		users := user_groups_entities[entity].users
+		user := users[_]
 		user != principal.uid
 	}
 
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
 # User role approvals
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == true
-	approval.entityType == "Narval::UserRole"
-
+	approval.approvalEntityType == "Narval::UserRole"
 	possible_approvers := {user.uid |
 		user := users_entities[_]
 		user.role in approval.entityIds
 	} | {principal.uid}
 
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
-check_approval(approval) = result {
+checkApproval(approval) = result {
 	approval.countPrincipal == false
-	approval.entityType == "Narval::UserRole"
-
+	approval.approvalEntityType == "Narval::UserRole"
 	possible_approvers := {user.uid |
 		user := users_entities[_]
 		user.role in approval.entityIds
 		user.uid != principal.uid
 	}
 
-	match := match_approvers(possible_approvers, approval.threshold)
-
-	result := {
-		"approval": approval,
-		"match": match,
-	}
+	result := getApprovalsCount(possible_approvers)
 }
 
-get_approvals_result(approvals) := result {
-	approvalsSatisfied := [approval | approval = approvals[_]; approval.match.threshold_passed == true]
-	approvalsMissing := [approval | approval = approvals[_]; approval.match.threshold_passed == false]
+getApprovalsResult(approvals) := result {
+	approvalsMissing = [approval |
+		approval := approvals[_]
+		approvalCount := checkApproval(approval)
+		approvalCount < approval.approvalCount
+	]
+
+	approvalsSatisfied = [approval |
+		approval := approvals[_]
+		approvalCount := checkApproval(approval)
+		approvalCount >= approval.approvalCount
+	]
 
 	result := {
 		"approvalsSatisfied": approvalsSatisfied,

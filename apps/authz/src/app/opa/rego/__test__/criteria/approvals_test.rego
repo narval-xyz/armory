@@ -3,154 +3,98 @@ package main
 import future.keywords.in
 
 approvals_satisfied = {
-	"approval": {
-		"threshold": 1,
-		"countPrincipal": true,
-		"entityType": "Narval::UserGroup",
-		"entityIds": ["test-user-group-one-uid"],
-	},
-	"match": {
-		"matched_approvers": {"test-bob-uid"},
-		"possible_approvers": {"test-bar-uid"},
-		"threshold_passed": true,
-	},
+	"approvalCount": 1,
+	"countPrincipal": true,
+	"approvalEntityType": "Narval::UserGroup",
+	"entityIds": ["test-user-group-one-uid"],
 }
 
 approvals_missing = {
-	"approval": {
-		"threshold": 2,
-		"countPrincipal": true,
-		"entityType": "Narval::User",
-		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
-	},
-	"match": {
-		"matched_approvers": {"test-bob-uid"},
-		"possible_approvers": {"test-bar-uid", "test-approver-uid"},
-		"threshold_passed": false,
-	},
+	"approvalCount": 2,
+	"countPrincipal": true,
+	"approvalEntityType": "Narval::User",
+	"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 2,
+		"approvalCount": 2,
 		"countPrincipal": true,
-		"entityType": "Narval::User",
+		"approvalEntityType": "Narval::User",
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": {"test-bob-uid"},
-			"possible_approvers": {"test-bar-uid", "test-approver-uid"},
-			"threshold_passed": false,
-		},
-	}
+	res == 1
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 1,
+		"approvalCount": 1,
 		"countPrincipal": false,
-		"entityType": "Narval::User",
+		"approvalEntityType": "Narval::User",
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": set(),
-			"possible_approvers": {"test-bar-uid", "test-approver-uid"},
-			"threshold_passed": false,
-		},
-	}
+	res == 0
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 2,
+		"approvalCount": 2,
 		"countPrincipal": true,
-		"entityType": "Narval::UserGroup",
+		"approvalEntityType": "Narval::UserGroup",
 		"entityIds": ["test-user-group-one-uid"],
 	}
 
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": {"test-bob-uid"},
-			"possible_approvers": {"test-bar-uid"},
-			"threshold_passed": false,
-		},
-	}
+	res == 1
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 1,
+		"approvalCount": 1,
 		"countPrincipal": false,
-		"entityType": "Narval::UserGroup",
+		"approvalEntityType": "Narval::UserGroup",
 		"entityIds": ["test-user-group-one-uid"],
 	}
 
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": set(),
-			"possible_approvers": {"test-bar-uid"},
-			"threshold_passed": false,
-		},
-	}
+	res == 0
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 2,
+		"approvalCount": 2,
 		"countPrincipal": false,
-		"entityType": "Narval::UserRole",
+		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
 
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": {"test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
-			"possible_approvers": set(),
-			"threshold_passed": true,
-		},
-	}
+	res == 2
 }
 
-test_check_approval {
+test_checkApproval {
 	required_approval = {
-		"threshold": 2,
+		"approvalCount": 2,
 		"countPrincipal": true,
-		"entityType": "Narval::UserRole",
+		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
 
-	res = check_approval(required_approval) with input as request with data.entities as entities
+	res = checkApproval(required_approval) with input as request with data.entities as entities
 
-	res == {
-		"approval": required_approval,
-		"match": {
-			"matched_approvers": {"test-bob-uid", "test-foo-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
-			"possible_approvers": set(),
-			"threshold_passed": true,
-		},
-	}
+	res == 3
 }
 
-test_get_approvals_result {
-	res = get_approvals_result([approvals_satisfied, approvals_missing])
+test_getApprovalsResult {
+	res = getApprovalsResult([approvals_satisfied, approvals_missing]) with input as request with data.entities as entities
 
 	res == {
 		"approvalsSatisfied": [approvals_satisfied],
