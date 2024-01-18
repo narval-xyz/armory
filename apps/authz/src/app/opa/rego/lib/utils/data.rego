@@ -5,7 +5,7 @@ import future.keywords.in
 wildcard = "*"
 
 principal = result {
-	result := data.entities.users[input.principal.uid]
+	result := data.entities.users[input.principal.userId]
 }
 
 resource = result {
@@ -31,7 +31,7 @@ destination = result {
 principal_groups = result {
 	result := {group.uid |
 		group := data.entities.user_groups[_]
-		input.principal.uid in group.users
+		input.principal.userId in group.users
 	}
 }
 

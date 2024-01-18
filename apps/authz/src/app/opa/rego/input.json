@@ -1,6 +1,6 @@
 {
   "action": "signTransaction",
-  "principal": { "uid": "test-foo-uid" },
+  "principal": { "userId": "test-foo-uid" },
   "resource": { "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e" },
   "request": {
     "type": "eip1559",

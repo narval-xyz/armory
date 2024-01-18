@@ -23,16 +23,10 @@ forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
 	check_spending_limit_reached(spendings, transfer_token_amount, limit)
 
 	reason := {
+		"type": "forbid",
 		"policyId": "test-accumulation-policy-1",
-		"message": "Spending limit reached.",
-		"data": {
-			"transferTypes": transfer_types,
-			"roles": roles,
-			"tokens": tokens,
-			"spendings": spendings,
-			"limit": limit,
-			"period": "12h",
-		},
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
@@ -57,16 +51,10 @@ forbid[{"policyId": "test-accumulation-policy-2"}] := reason {
 	check_spending_limit_reached(spendings, transfer_token_amount, limit)
 
 	reason := {
+		"type": "forbid",
 		"policyId": "test-accumulation-policy-2",
-		"message": "Spending limit reached.",
-		"data": {
-			"transferTypes": transfer_types,
-			"users": users,
-			"tokens": tokens,
-			"spendings": spendings,
-			"limit": limit,
-			"period": "12h",
-		},
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
@@ -89,15 +77,10 @@ forbid[{"policyId": "test-accumulation-policy-3"}] := reason {
 	check_spending_limit_reached(spendings, transfer_token_amount, limit)
 
 	reason := {
+		"type": "forbid",
 		"policyId": "test-accumulation-policy-3",
-		"message": "Spending limit reached.",
-		"data": {
-			"transferTypes": transfer_types,
-			"resources": resources,
-			"spendings": spendings,
-			"limit": limit,
-			"period": "12h",
-		},
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
@@ -118,15 +101,10 @@ forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
 	check_spending_limit_reached(spendings, transfer_token_amount, limit)
 
 	reason := {
+		"type": "forbid",
 		"policyId": "test-accumulation-policy-4",
-		"message": "Spending limit reached.",
-		"data": {
-			"transferTypes": transfer_types,
-			"userGroups": user_groups,
-			"spendings": spendings,
-			"limit": limit,
-			"period": "24h",
-		},
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
@@ -147,14 +125,9 @@ forbid[{"policyId": "test-accumulation-policy-5"}] := reason {
 	check_spending_limit_reached(spendings, transfer_token_amount, limit)
 
 	reason := {
+		"type": "forbid",
 		"policyId": "test-accumulation-policy-5",
-		"message": "Spending limit reached.",
-		"data": {
-			"transferTypes": transfer_types,
-			"walletGroups": wallet_groups,
-			"spendings": spendings,
-			"limit": limit,
-			"period": "24h",
-		},
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
