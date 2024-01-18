@@ -8,10 +8,10 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { AccountType, Alg, BlockchainActions, ResourceActions, UserRoles } from '@app/authz/shared/types/enums'
+import { AccountType, Alg, Actions, UserRoles } from '@app/authz/shared/types/enums'
 import { AuthCredential, AuthZRequestPayload, TransactionRequest } from '@app/authz/shared/types/http'
 import { RegoInput } from '@app/authz/shared/types/rego'
-import { Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
+import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
@@ -89,13 +89,13 @@ export const userCredentialStore: { [key: string]: AuthCredential } = {
   },
   '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06': {
     userId: AAUser.uid,
-    id: 'credentialId1',
+    id: 'credentialId2',
     alg: Alg.ES256K,
     pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
   },
   '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e': {
     userId: BBUser.uid,
-    id: 'credentialId1',
+    id: 'credentialId3',
     alg: Alg.ES256K,
     pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
   }
@@ -178,9 +178,11 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 }
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
+  from: TREASURY_WALLET_X.uid as Caip10,
+  to: ACCOUNT_Q_137.uid as Caip10,
   type: Intents.TRANSFER_NATIVE,
   amount: toHex(ONE_ETH),
-  native: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
+  token: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
 }
 
 export const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
@@ -203,7 +205,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
 }
 
 export const REGO_REQUEST: RegoInput = {
-  action: BlockchainActions.SIGN_TRANSACTION,
+  action: Actions.SIGN_TRANSACTION,
   transactionRequest: NATIVE_TRANSFER_TX_REQUEST,
   intent: NATIVE_TRANSFER_INTENT,
   resource: {
@@ -213,7 +215,7 @@ export const REGO_REQUEST: RegoInput = {
     uid: MATT.uid
   },
   approvals: [],
-  spendings: []
+  transfers: []
 }
 
 // Role Permissions
@@ -263,30 +265,30 @@ export const mockEntityData: RegoData = {
     }
   },
   permissions: {
-    [ResourceActions.CREATE_USER]: {
+    [Actions.CREATE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.EDIT_USER]: {
+    [Actions.EDIT_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.DELETE_USER]: {
+    [Actions.DELETE_USER]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [ResourceActions.CREATE_WALLET]: {
+    [Actions.CREATE_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS
     },
-    [ResourceActions.EDIT_WALLET]: {
+    [Actions.EDIT_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [ResourceActions.ASSIGN_WALLET]: {
+    [Actions.ASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     },
-    [ResourceActions.UNASSIGN_WALLET]: {
+    [Actions.UNASSIGN_WALLET]: {
       [UserRoles.ROOT]: ROOT_PERMISSIONS,
       [UserRoles.MANAGER]: MANAGER_PERMISSIONS
     }
@@ -298,29 +300,32 @@ export const mockEntityData: RegoData = {
 export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
   const txRequest = ERC20_TRANSFER_TX_REQUEST
   const request = {
-    activityType: BlockchainActions.SIGN_TRANSACTION,
+    action: Actions.SIGN_TRANSACTION,
     transactionRequest: txRequest,
-    resourceId: NATIVE_TRANSFER_TX_REQUEST.from
+    resourceId: TREASURY_WALLET_X.uid
   }
 
   const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
     message: hashBody(request)
   })
+  // 0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c
   const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
     message: hashBody(request)
   })
+  // 0x48510e3b74799b8e8f4e01aba0d196e18f66d86a62ae91abf5b89be9391c15661c7d29ee4654a300ed6db977da512475ed5a39f70f677e23d1b2f53c1554d0dd1b
   const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
     message: hashBody(request)
   })
+  // 0xcc645f43d8df80c4deeb2e60a8c0c15d58586d2c29ea7c85208cea81d1c47cbd787b1c8473dde70c3a7d49f573e491223107933257b2b99ecc4806b7cc16848d1c
 
   return {
-    authn: {
+    authentication: {
       sig: signatureMatt,
       alg: Alg.ES256K,
       pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
     },
     request: {
-      activityType: BlockchainActions.SIGN_TRANSACTION,
+      action: Actions.SIGN_TRANSACTION,
       transactionRequest: txRequest,
       resourceId: NATIVE_TRANSFER_TX_REQUEST.from
     },
@@ -338,3 +343,38 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
     ]
   }
 }
+/**
+ * Sample API POST body for POST /evaluation that does the same thing as `generateInboundRequest
+ {
+  "authentication": {
+    "sig": "0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c",
+    "alg": "ES256K",
+    "pubKey": "0xd75D626a116D4a1959fE3bB938B2e7c116A05890"
+  },
+  "approvals": [
+    {
+      "sig": "0x48510e3b74799b8e8f4e01aba0d196e18f66d86a62ae91abf5b89be9391c15661c7d29ee4654a300ed6db977da512475ed5a39f70f677e23d1b2f53c1554d0dd1b",
+      "alg": "ES256K",
+      "pubKey": "0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06"
+    },
+    {
+      "sig": "0xcc645f43d8df80c4deeb2e60a8c0c15d58586d2c29ea7c85208cea81d1c47cbd787b1c8473dde70c3a7d49f573e491223107933257b2b99ecc4806b7cc16848d1c",
+      "alg": "ES256K",
+      "pubKey": "0xab88c8785D0C00082dE75D801Fcb1d5066a6311e"
+    }
+  ],
+  "request": {
+    "action": "signTransaction",
+    "transactionRequest": {
+      "from": "0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+      "to": "0x031d8C0cA142921c459bCB28104c0FF37928F9eD",
+      "chainId": "137",
+      "data": "0xa9059cbb000000000000000000000000031d8c0ca142921c459bcb28104c0ff37928f9ed000000000000000000000000000000000000000000005ab7f55035d1e7b4fe6d",
+      "nonce": 192,
+      "type": "2"
+    },
+    "resourceId": "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"
+  }
+}
+
+ */
