@@ -1,4 +1,4 @@
-import { AuthCredential } from '@app/authz/shared/types/http'
+import { AuthCredential } from '@app/authz/shared/types/domain.type'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 

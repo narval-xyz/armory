@@ -1,13 +1,13 @@
 import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
-import { Alg } from '@app/authz/shared/types/enums'
 import {
+  Alg,
   AuthCredential,
   AuthZRequest,
   AuthZRequestPayload,
   AuthZResponse,
   NarvalDecision,
   RequestSignature
-} from '@app/authz/shared/types/http'
+} from '@app/authz/shared/types/domain.type'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { hashRequest } from '@narval/authz-shared'
 import { safeDecode } from '@narval/transaction-request-intent'
