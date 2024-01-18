@@ -2,7 +2,7 @@ import { Address } from 'viem'
 import { Caip10, Caip19 } from '../../caip'
 import { Intents } from '../../domain'
 import { TransferNative } from '../../intent.types'
-import { TransactionRequest } from '../../transaction.type'
+import { TransactionRequest } from '@narval/authz-shared'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
