@@ -3,7 +3,11 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   REQUEST_HEADER_ORG_ID
 } from '@app/orchestration/orchestration.constant'
-import { Action, AuthorizationRequest, TransactionType } from '@app/orchestration/policy-engine/core/type/domain.type'
+import {
+  AuthorizationRequest,
+  SupportedAction,
+  TransactionType
+} from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -79,7 +83,7 @@ describe('Policy Engine Cluster Facade', () => {
         message: 'Sign me, please'
       }
       const payload = {
-        action: Action.SIGN_MESSAGE,
+        action: SupportedAction.SIGN_MESSAGE,
         request: signMessageRequest,
         hash: hashMessage(JSON.stringify(signMessageRequest)),
         authentication: {
@@ -132,7 +136,7 @@ describe('Policy Engine Cluster Facade', () => {
         ]
       }
       const payload = {
-        action: Action.SIGN_TRANSACTION,
+        action: SupportedAction.SIGN_TRANSACTION,
         hash: hashMessage(JSON.stringify(signTransactionRequest)),
         request: signTransactionRequest,
         authentication: {
@@ -174,7 +178,7 @@ describe('Policy Engine Cluster Facade', () => {
         chainId: 1
       }
       const payload = {
-        action: Action.SIGN_TRANSACTION,
+        action: SupportedAction.SIGN_TRANSACTION,
         hash: hashMessage(JSON.stringify(signTransactionRequest)),
         request: signTransactionRequest,
         authentication: {
@@ -219,7 +223,7 @@ describe('Policy Engine Cluster Facade', () => {
       orgId: org.id,
       initiatorId: 'ac792884-be18-4361-9323-8f711c3f070e',
       status: AuthorizationRequestStatus.PERMITTED,
-      action: Action.SIGN_MESSAGE,
+      action: SupportedAction.SIGN_MESSAGE,
       request: signMessageRequest,
       hash: hashMessage(JSON.stringify(signMessageRequest)),
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',

@@ -1,4 +1,4 @@
-import { Action } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
@@ -22,12 +22,12 @@ class ApprovalDto {
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
-  @IsEnum(Action)
+  @IsEnum(SupportedAction)
   @IsDefined()
   @ApiProperty({
-    enum: Action
+    enum: SupportedAction
   })
-  action: `${Action}`
+  action: `${SupportedAction}`
 
   @ApiProperty()
   authentication: AuthenticationDto
@@ -37,7 +37,7 @@ export class AuthorizationRequestDto {
 
   @ValidateNested()
   @Type((opts) => {
-    return opts?.object.action === Action.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
+    return opts?.object.action === SupportedAction.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
   })
   @IsDefined()
   @ApiProperty({
@@ -55,10 +55,10 @@ export class AuthorizationRequestDto {
   hash: string
 
   isSignTransaction(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignTransactionRequestDto {
-    return this.action === Action.SIGN_TRANSACTION
+    return this.action === SupportedAction.SIGN_TRANSACTION
   }
 
   isSignMessage(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignMessageRequestDto {
-    return this.action === Action.SIGN_MESSAGE
+    return this.action === SupportedAction.SIGN_MESSAGE
   }
 }

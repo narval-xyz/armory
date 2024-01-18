@@ -1,4 +1,4 @@
-import { Action } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import {
   createSignMessageRequestSchema,
   readSignMessageRequestSchema
@@ -31,11 +31,11 @@ const sharedAuthorizationRequestSchema = z.object({
 
 export const readAuthorizationRequestSchema = z.discriminatedUnion('action', [
   sharedAuthorizationRequestSchema.extend({
-    action: z.literal(Action.SIGN_MESSAGE),
+    action: z.literal(SupportedAction.SIGN_MESSAGE),
     request: readSignMessageRequestSchema
   }),
   sharedAuthorizationRequestSchema.extend({
-    action: z.literal(Action.SIGN_TRANSACTION),
+    action: z.literal(SupportedAction.SIGN_TRANSACTION),
     request: readSignTransactionRequestSchema
   })
 ])
@@ -46,11 +46,11 @@ const createSharedAuthorizationRequestSchema = sharedAuthorizationRequestSchema.
 
 export const createAuthorizationRequestSchema = z.discriminatedUnion('action', [
   createSharedAuthorizationRequestSchema.extend({
-    action: z.literal(Action.SIGN_MESSAGE),
+    action: z.literal(SupportedAction.SIGN_MESSAGE),
     request: createSignMessageRequestSchema
   }),
   createSharedAuthorizationRequestSchema.extend({
-    action: z.literal(Action.SIGN_TRANSACTION),
+    action: z.literal(SupportedAction.SIGN_TRANSACTION),
     request: createSignTransactionRequestSchema
   })
 ])

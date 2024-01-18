@@ -1,9 +1,9 @@
 import { load } from '@app/orchestration/orchestration.config'
 import {
-  Action,
   Evaluation,
   SignMessageAuthorizationRequest,
   SignTransactionAuthorizationRequest,
+  SupportedAction,
   isSignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
@@ -31,7 +31,7 @@ describe(AuthorizationRequestRepository.name, () => {
     orgId: org.id,
     initiatorId: '5c6df361-8ec7-4cfa-bff6-53ffa7c985ff',
     status: AuthorizationRequestStatus.PROCESSING,
-    action: Action.SIGN_MESSAGE,
+    action: SupportedAction.SIGN_MESSAGE,
     request: {
       message: 'Test request'
     },
@@ -118,10 +118,10 @@ describe(AuthorizationRequestRepository.name, () => {
       ])
     })
 
-    describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
+    describe(`when action is ${SupportedAction.SIGN_TRANSACTION}`, () => {
       const signTransactionRequest: SignTransactionAuthorizationRequest = {
         ...signMessageRequest,
-        action: Action.SIGN_TRANSACTION,
+        action: SupportedAction.SIGN_TRANSACTION,
         request: {
           from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
           gas: BigInt(5_000),

@@ -35,6 +35,14 @@ export enum Action {
   SIGN_TYPED_DATA = 'signTypedData'
 }
 
+/**
+ * AuthZ actions currently supported by the Orchestration.
+ */
+export enum SupportedAction {
+  SIGN_TRANSACTION = Action.SIGN_TRANSACTION,
+  SIGN_MESSAGE = Action.SIGN_MESSAGE
+}
+
 export enum AuthorizationRequestStatus {
   CREATED = 'CREATED',
   CANCELED = 'CANCELED',
@@ -93,7 +101,7 @@ export type TransactionRequest = {
 }
 
 export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {
-  action: `${Action.SIGN_TRANSACTION}`
+  action: `${SupportedAction.SIGN_TRANSACTION}`
   request: TransactionRequest
 }
 
@@ -102,7 +110,7 @@ export type MessageRequest = {
 }
 
 export type SignMessageAuthorizationRequest = SharedAuthorizationRequest & {
-  action: `${Action.SIGN_MESSAGE}`
+  action: `${SupportedAction.SIGN_MESSAGE}`
   request: MessageRequest
 }
 
@@ -111,11 +119,11 @@ export type AuthorizationRequest = SignTransactionAuthorizationRequest | SignMes
 export type CreateAuthorizationRequest = SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>
 
 export function isSignTransaction(request: AuthorizationRequest): request is SignTransactionAuthorizationRequest {
-  return (request as SignTransactionAuthorizationRequest).action === Action.SIGN_TRANSACTION
+  return (request as SignTransactionAuthorizationRequest).action === SupportedAction.SIGN_TRANSACTION
 }
 
 export function isSignMessage(request: AuthorizationRequest): request is SignMessageAuthorizationRequest {
-  return (request as SignMessageAuthorizationRequest).action === Action.SIGN_MESSAGE
+  return (request as SignMessageAuthorizationRequest).action === SupportedAction.SIGN_MESSAGE
 }
 
 export type AuthorizationRequestProcessingJob = {

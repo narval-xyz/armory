@@ -1,10 +1,10 @@
 import { load } from '@app/orchestration/orchestration.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
 import {
-  Action,
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
+  AuthorizationRequestStatus,
+  SupportedAction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import {
@@ -30,7 +30,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
     orgId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     initiatorId: 'bob',
     status: AuthorizationRequestStatus.CREATED,
-    action: Action.SIGN_MESSAGE,
+    action: SupportedAction.SIGN_MESSAGE,
     request: {
       message: 'Test request'
     },
