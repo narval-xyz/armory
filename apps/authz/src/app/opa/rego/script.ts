@@ -1,6 +1,6 @@
+import policyData from '@app/authz/app/opa/rego/data.json'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import fs from 'fs'
-import policyData from '../build/data.json'
 import policyInput from './input.json'
 
 const policyWasm = fs.readFileSync('/Users/samuel/Documents/narval/narval/apps/authz/src/app/opa/build/policy.wasm')
