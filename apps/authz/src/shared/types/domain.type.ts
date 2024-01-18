@@ -111,8 +111,8 @@ export type AuthZResponse = {
   permitSignature?: RequestSignature // The ENGINE's approval signature
   request?: AuthZRequest // The actual authorized request
   totalApprovalsRequired?: ApprovalRequirement[]
-  approvalsSatisfied?: ApprovalRequirement[]
   approvalsMissing?: ApprovalRequirement[]
+  approvalsSatisfied?: ApprovalRequirement[]
 }
 
 export type VerifiedApproval = {

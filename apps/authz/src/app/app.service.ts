@@ -20,6 +20,45 @@ import { OpaService } from './opa/opa.service'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
+export const finalizeDecision = (response: OpaResult[]) => {
+  // Explicit Forbid - a Forbid rule type that matches & decides Forbid
+  const anyExplicitForbid = response.some(
+    (r) => r.decision === 'forbid' && r.reasons?.some((rr) => rr.decision === 'forbid' && rr.type === 'forbid')
+  )
+
+  const allPermit = response.every(
+    (r) => r.decision === 'permit' && r.reasons?.every((rr) => rr.decision === 'permit' && rr.type === 'permit')
+  )
+
+  const anyPermitWithMissingApprovals = response.some((r) =>
+    r.reasons?.some((rr) => rr.decision === 'forbid' && rr.type === 'permit' && rr.approvalsMissing.length > 0)
+  )
+
+  if (anyExplicitForbid) {
+    return {
+      originalResponse: response,
+      decision: NarvalDecision.Forbid,
+      approvalsMissing: [],
+      approvalsSatisfied: []
+    }
+  }
+  // Collect all the approvalsMissing & approvalsSatisfied using functional map/flat operators
+  const approvalsSatisfied = response
+    .flatMap((r) => r.reasons?.flatMap((rr) => rr.approvalsSatisfied))
+    .filter((v) => !!v)
+  const approvalsMissing = response.flatMap((r) => r.reasons?.flatMap((rr) => rr.approvalsMissing)).filter((v) => !!v)
+  const totalApprovalsRequired = approvalsMissing.concat(approvalsSatisfied)
+
+  const decision = allPermit && !anyPermitWithMissingApprovals ? NarvalDecision.Permit : NarvalDecision.Confirm
+  return {
+    originalResponse: response,
+    decision,
+    totalApprovalsRequired,
+    approvalsMissing,
+    approvalsSatisfied
+  }
+}
+
 @Injectable()
 export class AppService {
   constructor(private persistenceRepository: PersistenceRepository, private opaService: OpaService) {}
@@ -83,33 +122,6 @@ export class AppService {
     }
   }
 
-  #finalizeDecision(response: OpaResult[]) {
-    const firstResponse = response[0]
-    if (firstResponse.decision === 'forbid' && firstResponse.reasons?.every((r) => r.decision === 'forbid')) {
-      return {
-        originalResponse: firstResponse,
-        decision: NarvalDecision.Forbid
-      }
-    }
-    // TODO: also verify errors
-
-    if (firstResponse.reasons.some((r) => r.approvalsMissing.length > 0)) {
-      // TODO: find the approvalsSatisfied and approvalsMissing data & format/return here
-      return {
-        originalResponse: firstResponse,
-        decision: NarvalDecision.Confirm
-      }
-    }
-
-    return {
-      originalResponse: firstResponse,
-      decision: NarvalDecision.Permit,
-      totalApprovalsRequired: [],
-      approvalsSatisfied: [],
-      approvalsMissing: []
-    }
-  }
-
   /**
    * Actual Eval Flow
    */
@@ -144,14 +156,14 @@ export class AppService {
     console.log('OPA Result Set', JSON.stringify(resultSet, null, 2))
 
     // Post-processing to evaluate multisigs
-    const finalDecision = this.#finalizeDecision(resultSet)
+    const finalDecision = finalizeDecision(resultSet)
 
     const authzResponse: AuthZResponse = {
       decision: finalDecision.decision,
       request,
       totalApprovalsRequired: finalDecision.totalApprovalsRequired,
-      approvalsSatisfied: finalDecision.approvalsSatisfied,
-      approvalsMissing: finalDecision.approvalsMissing
+      approvalsMissing: finalDecision.approvalsMissing,
+      approvalsSatisfied: finalDecision.approvalsSatisfied
     }
 
     // If we are allowing, then the ENGINE signs the verification too
