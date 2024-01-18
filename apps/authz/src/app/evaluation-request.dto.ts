@@ -1,8 +1,9 @@
 import { Action, Alg } from '@app/authz/shared/types/enums'
-import { Address, Hex } from '@app/authz/shared/types/http'
+import { Address, Hex, FiatSymbols } from '@app/authz/shared/types/http'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsString, ValidateNested } from 'class-validator'
+import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export class RequestSignatureDto {
   @ApiProperty()
@@ -94,8 +95,20 @@ export class SignMessageRequestDataDto extends BaseRequestDataDto {
   message: string // TODO: Is this string hex or raw?
 }
 
+export class HistoricalTransferDto {
+  amount: string // Amount in the smallest unit of the token (eg. wei for ETH)
+  from: Caip10
+  to: Caip10 // In case we want spending limit per destination address
+  chainId: number
+  token: Caip10
+  rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
+  initiatedBy: string // uid of the user who initiated the spending
+  timestamp: number // unix timestamp
+}
+
 @ApiExtraModels(SignTransactionRequestDataDto, SignMessageRequestDataDto)
 export class EvaluationRequestDto {
+  @IsDefined()
   @ApiProperty()
   authentication: RequestSignatureDto
 
@@ -103,7 +116,7 @@ export class EvaluationRequestDto {
     type: () => RequestSignatureDto,
     isArray: true
   })
-  approvals: RequestSignatureDto[]
+  approvals?: RequestSignatureDto[]
 
   @ValidateNested()
   @Type((opts) => {
@@ -114,6 +127,10 @@ export class EvaluationRequestDto {
     oneOf: [{ $ref: getSchemaPath(SignTransactionRequestDataDto) }, { $ref: getSchemaPath(SignMessageRequestDataDto) }]
   })
   request: SignTransactionRequestDataDto | SignMessageRequestDataDto
+
+  @ValidateNested()
+  @ApiProperty()
+  transfers?: HistoricalTransferDto[]
 
   isSignTransaction(
     request: SignTransactionRequestDataDto | SignMessageRequestDataDto

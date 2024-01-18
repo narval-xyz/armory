@@ -1,4 +1,22 @@
+import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Action, Alg } from './enums'
+
+export enum FiatSymbols {
+  USD = 'fiat:usd',
+  EUR = 'fiat:eur'
+}
+
+export type HistoricalTransfer = {
+  amount: string // Amount in the smallest unit of the token (eg. wei for ETH)
+  from: Caip10
+  to: Caip10 // In case we want spending limit per destination address
+  chainId: number
+  token: Caip10
+  rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
+  initiatedBy: string // uid of the user who initiated the spending
+  timestamp: number // unix timestamp
+}
+
 
 // Types ripped from viem; combining a few though because they don't have chainId on txRequest
 export type Hex = `0x${string}`
@@ -46,6 +64,7 @@ export type AuthZRequestPayload = {
   authentication: RequestSignature // The signature of the initiator
   request: AuthZRequest
   approvals?: RequestSignature[] // Other approvals, incl. second factors of the initiator
+  transfers?: HistoricalTransfer[]
 }
 
 export enum NarvalDecision {
