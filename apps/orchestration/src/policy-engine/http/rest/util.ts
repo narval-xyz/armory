@@ -1,4 +1,8 @@
-import { CreateAuthorizationRequest, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
+import {
+  CreateApproval,
+  CreateAuthorizationRequest,
+  SupportedAction
+} from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { plainToInstance } from 'class-transformer'
 
@@ -10,11 +14,13 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
+  const approvals: CreateApproval[] = dto.approvals
+
   const shared = {
     orgId,
     initiatorId: '97389cac-20f0-4d02-a3a9-b27c564ffd18',
     hash: dto.hash,
-    approvals: [],
+    approvals,
     evaluations: []
   }
 

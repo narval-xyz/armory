@@ -1,5 +1,5 @@
 import { Action, TransactionRequest } from '@narval/authz-shared'
-import { SetOptional } from 'type-fest'
+import { OverrideProperties, SetOptional } from 'type-fest'
 
 /**
  * AuthZ actions currently supported by the Orchestration.
@@ -69,7 +69,14 @@ export type SignMessageAuthorizationRequest = SharedAuthorizationRequest & {
 
 export type AuthorizationRequest = SignTransactionAuthorizationRequest | SignMessageAuthorizationRequest
 
-export type CreateAuthorizationRequest = SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>
+export type CreateApproval = SetOptional<Approval, 'id' | 'createdAt'>
+
+export type CreateAuthorizationRequest = OverrideProperties<
+  SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
+  {
+    approvals: CreateApproval[]
+  }
+>
 
 export function isSignTransaction(request: AuthorizationRequest): request is SignTransactionAuthorizationRequest {
   return (request as SignTransactionAuthorizationRequest).action === SupportedAction.SIGN_TRANSACTION
