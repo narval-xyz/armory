@@ -56,7 +56,7 @@ export class AppController {
 
     return {
       request: fakeRequest,
-      result,
+      result
     }
   }
 }
