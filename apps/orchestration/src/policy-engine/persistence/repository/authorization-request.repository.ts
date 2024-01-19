@@ -12,15 +12,7 @@ import {
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { EvaluationLog } from '@prisma/client/orchestration'
-
-const toEvaluationLogs = (orgId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] => {
-  return orgId && evaluations?.length
-    ? evaluations.map((evaluation) => ({
-        ...evaluation,
-        orgId
-      }))
-    : []
-}
+import { v4 as uuid } from 'uuid'
 
 @Injectable()
 export class AuthorizationRequestRepository {
@@ -28,13 +20,13 @@ export class AuthorizationRequestRepository {
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
     const { id, action, request, orgId, hash, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals } =
-      createAuthorizationRequestSchema.parse(input)
-    const evaluationLogs = toEvaluationLogs(orgId, evaluations)
+      createAuthorizationRequestSchema.parse(this.getDefaults(input))
+    const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
       data: {
-        status: status || AuthorizationRequestStatus.CREATED,
         id,
+        status,
         orgId,
         action,
         request,
@@ -77,7 +69,7 @@ export class AuthorizationRequestRepository {
   ): Promise<AuthorizationRequest> {
     const { id } = input
     const { orgId, status, evaluations, approvals } = updateAuthorizationRequestSchema.parse(input)
-    const evaluationLogs = toEvaluationLogs(orgId, evaluations)
+    const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.update({
       where: { id },
@@ -136,5 +128,31 @@ export class AuthorizationRequestRepository {
     // throws an error on invalid requests. Consequently, it shorts circuit the
     // decoding of all models.
     return models.map(decodeAuthorizationRequest)
+  }
+
+  private getDefaults(input: CreateAuthorizationRequest): AuthorizationRequest {
+    const now = new Date()
+
+    return {
+      ...input,
+      id: input.id || uuid(),
+      status: input.status || AuthorizationRequestStatus.CREATED,
+      createdAt: input.createdAt || now,
+      updatedAt: input.updatedAt || now,
+      approvals: input.approvals.map((approval) => ({
+        ...approval,
+        id: approval.id || uuid(),
+        createdAt: approval.createdAt || now
+      }))
+    }
+  }
+
+  private toEvaluationLogs(orgId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] {
+    return orgId && evaluations?.length
+      ? evaluations.map((evaluation) => ({
+          ...evaluation,
+          orgId
+        }))
+      : []
   }
 }
