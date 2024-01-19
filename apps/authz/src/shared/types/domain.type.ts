@@ -99,6 +99,7 @@ export enum NarvalEntities {
 }
 
 export type ApprovalRequirement = {
+  policyId: string
   approvalCount: number // Number approvals required
   approvalEntityType: NarvalEntities // The Type of Entity required to approve (Role, Group, User)
   entityIds: string[] // List of the ids of the entities that satisfy the requirement

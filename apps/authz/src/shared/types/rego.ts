@@ -14,11 +14,12 @@ export type RegoInput = {
 type MatchedRule = {
   policyId: string
   type: 'permit' | 'forbid'
+  decision: 'permit' | 'forbid'
   approvalsSatisfied: ApprovalRequirement[]
   approvalsMissing: ApprovalRequirement[]
 }
 
 export type OpaResult = {
-  permit: boolean
+  decision: 'permit' | 'forbid'
   reasons: MatchedRule[]
 }
