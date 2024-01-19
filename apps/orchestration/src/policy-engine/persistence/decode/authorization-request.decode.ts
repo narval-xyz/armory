@@ -18,12 +18,17 @@ const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog):
   createdAt
 })
 
-const buildSharedAttributes = (model: Model) => ({
+const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => ({
   id: model.id,
   orgId: model.orgId,
   status: model.status,
   hash: model.hash,
   idempotencyKey: model.idempotencyKey,
+  authentication: {
+    alg: model.authnAlg,
+    sig: model.authnSig,
+    pubKey: model.authnPubKey
+  },
   approvals: (model.approvals || []).map(omit('requestId')),
   evaluations: (model.evaluationLog || []).map(buildEvaluation),
   createdAt: model.createdAt,

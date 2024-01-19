@@ -23,6 +23,9 @@ CREATE TABLE "authorization_request" (
     "hash" TEXT NOT NULL,
     "request" JSONB NOT NULL,
     "idempotency_key" TEXT,
+    "authn_sig" TEXT NOT NULL,
+    "authn_alg" TEXT NOT NULL,
+    "authn_pub_key" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

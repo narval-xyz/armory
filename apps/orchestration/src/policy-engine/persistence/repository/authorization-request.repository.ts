@@ -19,8 +19,20 @@ export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const { id, action, request, orgId, hash, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals } =
-      createAuthorizationRequestSchema.parse(this.getDefaults(input))
+    const {
+      id,
+      action,
+      request,
+      orgId,
+      hash,
+      status,
+      idempotencyKey,
+      createdAt,
+      updatedAt,
+      evaluations,
+      approvals,
+      authentication
+    } = createAuthorizationRequestSchema.parse(this.getDefaults(input))
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
@@ -34,6 +46,9 @@ export class AuthorizationRequestRepository {
         idempotencyKey,
         createdAt,
         updatedAt,
+        authnAlg: authentication.alg,
+        authnSig: authentication.sig,
+        authnPubKey: authentication.pubKey,
         approvals: {
           createMany: {
             data: approvals
