@@ -1,11 +1,13 @@
-import policyData from '@app/authz/app/opa/rego/data.json'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import fs from 'fs'
+import policyData from './data.json'
 import policyInput from './input.json'
 
 const policyWasm = fs.readFileSync('/Users/samuel/Documents/narval/narval/rego-build/policy.wasm')
 
-loadPolicy(policyWasm)
+loadPolicy(policyWasm, undefined, {
+  'time.now_ns': () => new Date().getTime() * 1000000
+})
   .then((policy) => {
     policy.setData(policyData)
     const resultSet = policy.evaluate(policyInput, 'main/evaluate')
