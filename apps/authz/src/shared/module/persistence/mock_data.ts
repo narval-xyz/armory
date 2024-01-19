@@ -312,6 +312,7 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
   const txRequest = ERC20_TRANSFER_TX_REQUEST
   const request = {
     action: Action.SIGN_TRANSACTION,
+    nonce: 'random-nonce-111',
     transactionRequest: txRequest,
     resourceId: TREASURY_WALLET_X.uid
   }
