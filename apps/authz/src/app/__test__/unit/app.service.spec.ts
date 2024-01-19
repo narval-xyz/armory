@@ -6,19 +6,17 @@ describe('finalizeDecision', () => {
   it('should return Forbid if any of the reasons is Forbid', () => {
     const response: OpaResult[] = [
       {
-        decision: 'forbid',
+        permit: false,
         reasons: [
           {
             policyId: 'forbid-rule-id',
             type: 'forbid',
-            decision: 'forbid',
             approvalsMissing: [],
             approvalsSatisfied: []
           },
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
           }
@@ -32,19 +30,17 @@ describe('finalizeDecision', () => {
   it('should return Permit if all of the reasons are Permit', () => {
     const response: OpaResult[] = [
       {
-        decision: 'permit',
+        permit: true,
         reasons: [
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
           },
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
           }
@@ -58,15 +54,13 @@ describe('finalizeDecision', () => {
   it('should return Confirm if any of the reasons are Forbid for a Permit type rule where approvals are missing', () => {
     const response: OpaResult[] = [
       {
-        decision: 'forbid',
+        permit: false,
         reasons: [
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'forbid',
             approvalsMissing: [
               {
-                policyId: 'permit-rule-id',
                 approvalCount: 1,
                 approvalEntityType: NarvalEntities.User,
                 entityIds: ['user-id'],
@@ -113,24 +107,22 @@ describe('finalizeDecision', () => {
     }
     const response: OpaResult[] = [
       {
-        decision: 'forbid',
+        permit: false,
         reasons: [
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'forbid',
             approvalsMissing: [missingApproval],
             approvalsSatisfied: [satisfiedApproval]
           }
         ]
       },
       {
-        decision: 'forbid',
+        permit: false,
         reasons: [
           {
             policyId: 'permit-rule-id',
             type: 'permit',
-            decision: 'forbid',
             approvalsMissing: [missingApproval2],
             approvalsSatisfied: [satisfiedApproval2]
           }

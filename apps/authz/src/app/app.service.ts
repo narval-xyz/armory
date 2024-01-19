@@ -22,16 +22,12 @@ const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b084
 
 export const finalizeDecision = (response: OpaResult[]) => {
   // Explicit Forbid - a Forbid rule type that matches & decides Forbid
-  const anyExplicitForbid = response.some(
-    (r) => r.decision === 'forbid' && r.reasons?.some((rr) => rr.decision === 'forbid' && rr.type === 'forbid')
-  )
+  const anyExplicitForbid = response.some((r) => r.permit === false && r.reasons?.some((rr) => rr.type === 'forbid'))
 
-  const allPermit = response.every(
-    (r) => r.decision === 'permit' && r.reasons?.every((rr) => rr.decision === 'permit' && rr.type === 'permit')
-  )
+  const allPermit = response.every((r) => r.permit === true && r.reasons?.every((rr) => rr.type === 'permit'))
 
   const anyPermitWithMissingApprovals = response.some((r) =>
-    r.reasons?.some((rr) => rr.decision === 'forbid' && rr.type === 'permit' && rr.approvalsMissing.length > 0)
+    r.reasons?.some((rr) => rr.type === 'permit' && rr.approvalsMissing.length > 0)
   )
 
   if (anyExplicitForbid) {
