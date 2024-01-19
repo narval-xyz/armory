@@ -11,6 +11,15 @@ export type TransferNative = {
   amount: string
 }
 
+export type WrappedNativeTransfer = {
+  type: Intents.TRANSFER_WRAPPED_NATIVE
+  to: Caip10
+  from: Caip10
+  token: Caip19
+  wrapper: Caip10
+  amount: string
+}
+
 export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
   to: Caip10
@@ -27,13 +36,16 @@ export type TransferErc721 = {
   nftId: Caip19
 }
 
+export type ERC1155Transfer = {
+  tokenId: Caip19
+  amount: string
+}
 export type TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155
   to: Caip10
   from: Caip10
   contract: Caip10
-  assetId: Caip19
-  amount: string
+  transfers: ERC1155Transfer[]
 }
 
 export type CallContract = {
@@ -123,4 +135,4 @@ export type Permit2 = {
   deadline: string
 }
 
-export type Intent = TransferNative | TransferErc20 | TransferErc721 | CallContract
+export type Intent = TransferNative | TransferErc20 | TransferErc721 | TransferErc1155 | CallContract

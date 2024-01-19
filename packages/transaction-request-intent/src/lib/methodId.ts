@@ -1,30 +1,35 @@
 import { AbiParameter } from 'viem'
 import { Intents } from './domain'
+import { TransactionIntents } from './types'
 
 export type Erc20MethodId = keyof typeof Erc20TransferAbi
 export type Erc721MethodId = keyof typeof Erc721TransferAbi
 
 export const Erc20Methods = {
-  TRANSFER: '0xa9059cbb',
+  TRANSFER: '0xa9059cbb'
+}
+
+export const AmbiguousMethods = {
   TRANSFER_FROM: '0x23b872dd'
 }
 
 export const Erc721Methods = {
-  TRANSFER_FROM: '0x23b872dd',
   SAFE_TRANSFER_FROM: '0x42842e0e',
   SAFE_TRANSFER_FROM_WITH_BYTES: '0xb88d4fde'
 }
 
 export const Erc1155Methods = {
   SAFE_TRANSFER_FROM: '0xa22cb465',
-  SAFE_BATCH_TRANSFER_FROM: '0xf242432a'
+  SAFE_TRANSFER_FROM_WITH_BYTES: '0xf242432a',
+  SAFE_BATCH_TRANSFER_FROM: '0x2eb2c2d6'
 }
 
-export const HEX_SIG_TO_INTENT: { [methodId: string]: Intents } = {
+export const HEX_SIG_TO_INTENT: { [methodId: string]: TransactionIntents } = {
   [Erc20Methods.TRANSFER]: Intents.TRANSFER_ERC20,
   [Erc721Methods.SAFE_TRANSFER_FROM]: Intents.TRANSFER_ERC721,
   [Erc721Methods.SAFE_TRANSFER_FROM_WITH_BYTES]: Intents.TRANSFER_ERC721,
   [Erc1155Methods.SAFE_TRANSFER_FROM]: Intents.TRANSFER_ERC1155,
+  [Erc1155Methods.SAFE_TRANSFER_FROM_WITH_BYTES]: Intents.TRANSFER_ERC1155,
   [Erc1155Methods.SAFE_BATCH_TRANSFER_FROM]: Intents.TRANSFER_ERC1155
 }
 
@@ -113,5 +118,6 @@ export const Erc1155SafeBatchTransferFromAbiParameters: AbiParameter[] = [
 
 export const Erc1155TransferAbi = {
   '0xa22cb465': Erc1155SafeTransferFromAbiParameters,
-  '0xf242432a': Erc1155SafeBatchTransferFromAbiParameters
+  '0xf242432a': Erc1155SafeTransferFromAbiParameters,
+  '0x2eb2c2d6': Erc1155SafeBatchTransferFromAbiParameters
 }
