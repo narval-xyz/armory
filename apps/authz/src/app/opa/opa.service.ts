@@ -21,7 +21,9 @@ export class OpaService {
     this.logger.log('OPA Service boot')
     const policyWasmPath = OPA_WASM_PATH
     const policyWasm = readFileSync(policyWasmPath)
-    const opaEngine = await loadPolicy(policyWasm)
+    const opaEngine = await loadPolicy(policyWasm, undefined, {
+      'time.now_ns': () => new Date().getTime() * 1000000
+    })
     const data = await this.persistenceRepository.getEntityData()
     opaEngine.setData(data)
     this.opaEngine = opaEngine
