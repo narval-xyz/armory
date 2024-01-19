@@ -7,11 +7,15 @@ include ./packages/transaction-request-intent/Makefile
 TERM_NO_COLOR := \033[0m
 TERM_GREEN := \033[0;32m
 
+# == Install ==
+
 install:
 	npm install
 
 install/ci:
 	npm ci
+
+# == Setup ==
 
 setup:
 	make install
@@ -22,19 +26,21 @@ setup:
 	@echo "${TERM_GREEN}Orchestration & AuthZ applications are ready 🐋${TERM_NO_COLOR}"
 	@echo "${TERM_GREEN}Run 'make orchestration/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
 
+# == Docker ==
+
 docker/stop:
 	docker-compose stop
 
 docker/up:
 	docker-compose up --detach
 
+# == Code format ==
+
 format:
-	npx prettier \
-		--write "apps/**/*.ts" "packages/**/*.ts" "./*.{js,json}"
+	npx nx format:write --all
 
 format/check:
-	npx prettier \
-		--check "apps/**/*.ts" "packages/**/*.ts" "./*.{js,json}"
+	npx nx format:check --all
 
 lint:
 	npx nx run-many \
@@ -42,5 +48,4 @@ lint:
 		--fix
 
 lint/check:
-	npx nx run-many \
-		--target lint
+	npx nx run-many --target lint

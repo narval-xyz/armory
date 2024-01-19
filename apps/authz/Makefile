@@ -15,6 +15,20 @@ authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env
 	cp ${AUTHZ_PROJECT_DIR}/.env.test.default ${AUTHZ_PROJECT_DIR}/.env.test
 
+# == Code format ==
+
+authz/format:
+	 npx nx format:write --projects ${AUTHZ_PROJECT_NAME}
+
+authz/lint:
+	npx nx lint ${AUTHZ_PROJECT_NAME} -- --fix
+
+authz/format/check:
+	 npx nx format:check --projects ${AUTHZ_PROJECT_NAME}
+
+authz/lint/check:
+	npx nx lint ${AUTHZ_PROJECT_NAME}
+
 # === Testing ===
 
 authz/test/type:

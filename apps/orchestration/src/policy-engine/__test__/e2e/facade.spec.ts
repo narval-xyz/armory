@@ -171,7 +171,6 @@ describe('Policy Engine Cluster Facade', () => {
     it('evaluates a partial sign transaction authorization request', async () => {
       const signTransactionRequest = {
         from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-        nonce: 0,
         chainId: 1
       }
       const payload = {
