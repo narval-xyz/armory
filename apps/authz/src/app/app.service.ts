@@ -5,6 +5,7 @@ import {
   AuthZRequest,
   AuthZRequestPayload,
   AuthZResponse,
+  HistoricalTransfer,
   NarvalDecision,
   RequestSignature
 } from '@app/authz/shared/types/domain.type'
@@ -96,12 +97,14 @@ export class AppService {
     principal,
     request,
     approvals,
-    intent
+    intent,
+    transfers
   }: {
     principal: AuthCredential
     request: AuthZRequest
     approvals: AuthCredential[] | null
     intent?: Intent
+    transfers?: HistoricalTransfer[]
   }): RegoInput {
     // intent only exists in SignTransaction actions
     return {
@@ -114,14 +117,15 @@ export class AppService {
             uid: request.resourceId
           }
         : undefined,
-      approvals: approvals || []
+      approvals: approvals || [],
+      transfers: transfers || []
     }
   }
 
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authentication, approvals }: AuthZRequestPayload) {
+  async runEvaluation({ request, authentication, approvals, transfers }: AuthZRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const verificationMessage = hashRequest(request)
@@ -143,7 +147,8 @@ export class AppService {
       principal: principalCredential,
       request,
       approvals: populatedApprovals,
-      intent
+      intent,
+      transfers
     })
 
     // Actual Rego Evaluation
