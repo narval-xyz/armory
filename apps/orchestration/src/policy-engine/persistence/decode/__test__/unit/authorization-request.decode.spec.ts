@@ -10,6 +10,10 @@ describe('decodeAuthorizationRequest', () => {
     status: AuthorizationRequestStatus.CREATED,
     hash: 'test-request-hash',
     idempotencyKey: null,
+    authnSig:
+      '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
+    authnAlg: 'ES256K',
+    authnPubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
     evaluationLog: [],
     approvals: [],
     createdAt: new Date(),

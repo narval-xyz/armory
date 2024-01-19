@@ -205,6 +205,7 @@ describe('Policy Engine Cluster Facade', () => {
       message: 'Testing sign message request'
     }
     const authzRequest: AuthorizationRequest = {
+      authentication,
       id: '986ae19d-c30c-40c6-b873-1fb6c49011de',
       orgId: org.id,
       status: AuthorizationRequestStatus.PERMITTED,

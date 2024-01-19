@@ -4,6 +4,7 @@ import {
   Evaluation,
   SignMessageAuthorizationRequest,
   SignTransactionAuthorizationRequest,
+  Signature,
   SupportedAction,
   isSignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
@@ -27,7 +28,14 @@ describe(AuthorizationRequestRepository.name, () => {
     updatedAt: new Date()
   }
 
+  const authentication: Signature = {
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
+    alg: 'ES256K',
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+  }
+
   const signMessageRequest: SignMessageAuthorizationRequest = {
+    authentication,
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
@@ -76,7 +84,12 @@ describe(AuthorizationRequestRepository.name, () => {
         }
       })
 
-      expect(request).toMatchObject(omit(['evaluations', 'approvals'], signMessageRequest))
+      expect(request).toMatchObject(omit(['evaluations', 'approvals', 'authentication'], signMessageRequest))
+      expect({
+        sig: request?.authnSig,
+        alg: request?.authnAlg,
+        pubKey: request?.authnPubKey
+      }).toEqual(authentication)
     })
 
     it('defaults status to CREATED', async () => {

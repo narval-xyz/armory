@@ -10,11 +10,14 @@ import {
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
 import { z } from 'zod'
 
-const approvalSchema = z.object({
-  id: z.string().uuid(),
+const signatureSchema = z.object({
   sig: z.string(),
   alg: z.string(),
-  pubKey: z.string(),
+  pubKey: z.string()
+})
+
+const approvalSchema = signatureSchema.extend({
+  id: z.string().uuid(),
   createdAt: z.date()
 })
 
@@ -30,6 +33,7 @@ const sharedAuthorizationRequestSchema = z.object({
   orgId: z.string().uuid(),
   status: z.nativeEnum(AuthorizationRequestStatus),
   hash: z.string(),
+  authentication: signatureSchema,
   idempotencyKey: z.string().nullish(),
   approvals: z.array(approvalSchema),
   evaluations: z.array(evaluationSchema),

@@ -19,11 +19,14 @@ export enum AuthorizationRequestStatus {
   FORBIDDEN = 'FORBIDDEN'
 }
 
-export type Approval = {
-  id: string
+export type Signature = {
   sig: string
   alg: string
   pubKey: string
+}
+
+export type Approval = Signature & {
+  id: string
   createdAt: Date
 }
 
@@ -47,6 +50,7 @@ export type SharedAuthorizationRequest = {
    */
   hash: string
   idempotencyKey?: string | null
+  authentication: Signature
   approvals: Approval[]
   evaluations: Evaluation[]
   createdAt: Date

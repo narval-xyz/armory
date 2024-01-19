@@ -44,6 +44,9 @@ model AuthorizationRequest {
   hash           String
   request        Json
   idempotencyKey String?                    @unique @map("idempotency_key")
+  authnSig       String                     @map("authn_sig")
+  authnAlg       String                     @map("authn_alg")
+  authnPubKey    String                     @map("authn_pub_key")
   createdAt      DateTime                   @default(now()) @map("created_at")
   updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
 
