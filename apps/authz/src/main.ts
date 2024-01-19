@@ -1,8 +1,8 @@
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app/app.module'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { AppModule } from './app/app.module'
 
 /**
  * Adds global pipes to the application.
@@ -26,12 +26,12 @@ async function bootstrap() {
     throw new Error('Missing PORT environment variable')
   }
 
-    await lastValueFrom(
-      of(application).pipe(
-        map(withGlobalPipes),
-        switchMap((app) => app.listen(port))
-      )
+  await lastValueFrom(
+    of(application).pipe(
+      map(withGlobalPipes),
+      switchMap((app) => app.listen(port))
     )
+  )
 
   logger.log(`AuthZ is running on port ${port}`)
 }

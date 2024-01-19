@@ -1,11 +1,11 @@
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_PIPE } from '@nestjs/core'
 import { load } from './app.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { OpaService } from './opa/opa.service'
-import { APP_PIPE } from '@nestjs/core'
 
 @Module({
   imports: [
