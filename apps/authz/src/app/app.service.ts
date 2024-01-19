@@ -71,7 +71,14 @@ export class AppService {
         address,
         signature: signature as Hex
       })
-      if (!valid) throw new Error('Invalid Signature')
+      if (!valid) {
+        console.log('### invalid', {
+          pubKey,
+          sig
+        })
+
+        throw new Error('Invalid Signature')
+      }
     }
     // TODO: verify other alg types
 
@@ -122,9 +129,13 @@ export class AppService {
    * Actual Eval Flow
    */
   async runEvaluation({ request, authentication, approvals }: AuthZRequestPayload) {
+    console.log({ request, authentication, approvals })
+
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const verificationMessage = hashRequest(request)
+
+    console.log('### hash', verificationMessage)
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)
     const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)

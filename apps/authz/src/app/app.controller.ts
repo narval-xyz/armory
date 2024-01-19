@@ -1,6 +1,7 @@
 import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
 import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
 import { AuthZRequestPayload } from '@app/authz/shared/types/domain.type'
+import { hashRequest } from '@narval/authz-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 
@@ -27,7 +28,8 @@ export class AppController {
   @Post('/evaluation')
   async evaluate(@Body() body: EvaluationRequestDto) {
     this.logger.log({
-      message: 'Received evaluation'
+      message: 'Received evaluation',
+      body
     })
 
     // Map the DTO into the TS type because it's nicer to deal with.
@@ -44,10 +46,11 @@ export class AppController {
 
   @Post('/evaluation-demo')
   async evaluateDemo() {
-    this.logger.log({
-      message: 'Received evaluation'
-    })
     const fakeRequest = await generateInboundRequest()
+    this.logger.log({
+      message: 'Received evaluation',
+      body: fakeRequest
+    })
     const result = await this.appService.runEvaluation(fakeRequest)
     this.logger.log({
       message: 'Evaluation Result',
@@ -55,5 +58,17 @@ export class AppController {
     })
 
     return result
+  }
+
+  @Get('/generate-inbound-request')
+  generateInboundRequest() {
+    return generateInboundRequest()
+  }
+
+  @Post('/hash-request')
+  hashRequest(@Body() body: unknown) {
+    console.log('### BODY', body)
+
+    return { hash: hashRequest(body) }
   }
 }

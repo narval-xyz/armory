@@ -86,18 +86,21 @@ export class AuthorizationRequestRepository {
     const { orgId, status, evaluations, approvals } = updateAuthorizationRequestSchema.parse(input)
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
+    // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     const model = await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
         approvals: {
           createMany: {
-            data: approvals?.length ? approvals : []
+            data: approvals?.length ? approvals : [],
+            skipDuplicates: true
           }
         },
         evaluationLog: {
           createMany: {
-            data: evaluationLogs
+            data: evaluationLogs,
+            skipDuplicates: true
           }
         }
       },

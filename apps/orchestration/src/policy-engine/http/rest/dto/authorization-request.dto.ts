@@ -4,8 +4,7 @@ import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsString, Validate, ValidateNested } from 'class-validator'
-import { RequestHash } from './validator/request-hash.validator'
+import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator'
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
@@ -41,7 +40,7 @@ export class AuthorizationRequestDto {
 
   @IsString()
   @IsDefined()
-  @Validate(RequestHash)
+  // @Validate(RequestHash)
   @ApiProperty({
     description: 'The hash of the request in EIP-191 format.',
     required: true
