@@ -1,25 +1,25 @@
 {
-    "action": "user:create",
-    "principal": {
-      "uid": "0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23"
+  "action": "user:create",
+  "principal": {
+    "uid": "0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23"
+  },
+  "resource": {
+    "user": {
+      "uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
+    }
+  },
+  "signatures": [
+    {
+      "signer": "0x54d48e47e85e5dec57fa913c4c4f6e74fe3cc930",
+      "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
     },
-    "resource": {
-      "user": {
-        "uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"
-      }
+    {
+      "signer": "0xf0938535e0d64f1e148676adf6f0d82662d778a1",
+      "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
     },
-    "signatures": [
-        {
-            "signer": "0x54d48e47e85e5dec57fa913c4c4f6e74fe3cc930",
-            "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
-        },
-        {
-            "signer": "0xf0938535e0d64f1e148676adf6f0d82662d778a1",
-            "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
-        },
-        {
-            "signer": "0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23",
-            "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
-        }
-    ]
-  }
+    {
+      "signer": "0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23",
+      "hash": "0x894ee391f2fb86469042159c46084add956d1d1f997bb4c43d9c8d2a52970a615b790c416077ec5d199ede5ae0fc925859c80c52c5c74328e25d9e9d5195e3981c"
+    }
+  ]
+}

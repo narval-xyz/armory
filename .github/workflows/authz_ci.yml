@@ -1,11 +1,10 @@
-name: "@app/authz CI"
+name: '@app/authz CI'
 
 on:
   push:
     paths:
       - apps/authz/**
       - .github/workflows/authz_ci.yml
-      - Makefile
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -60,8 +59,8 @@ jobs:
       - name: Code format
         shell: bash
         run: |
-          make format/check
-          make lint/check
+          make authz/format/check
+          make authz/lint/check
 
       # TODO: Finish once the authz-node has a database.
       - name: Setup database and Prisma types
@@ -101,7 +100,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: "@app/authz CI failed"
+          author_name: '@app/authz CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
