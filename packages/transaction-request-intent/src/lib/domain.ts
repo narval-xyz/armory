@@ -6,7 +6,6 @@ export enum InputType {
 }
 
 export enum TransactionCategory {
-  TRANSACTION_MANAGEMENT = 'transactionManagement',
   NATIVE_TRANSFER = 'nativeTransfer',
   CONTRACT_CREATION = 'ContractCreation',
   CONTRACT_INTERACTION = 'ContractCall'
@@ -18,6 +17,7 @@ export enum TransactionStatus {
 }
 
 export enum Intents {
+  TRANSFER_WRAPPED_NATIVE = 'transferWrappedNative',
   TRANSFER_NATIVE = 'transferNative',
   TRANSFER_ERC20 = 'transferErc20',
   TRANSFER_ERC721 = 'transferErc721',
