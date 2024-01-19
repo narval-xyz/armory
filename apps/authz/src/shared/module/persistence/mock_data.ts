@@ -319,11 +319,11 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
   const signatureMatt = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_MATT).signMessage({
     message: hashRequest(request)
   })
-  // 0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c
+
   const approvalSigAAUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_AAUSER).signMessage({
     message: hashRequest(request)
   })
-  // 0x48510e3b74799b8e8f4e01aba0d196e18f66d86a62ae91abf5b89be9391c15661c7d29ee4654a300ed6db977da512475ed5a39f70f677e23d1b2f53c1554d0dd1b
+
   const approvalSigBBUser = await privateKeyToAccount(UNSAFE_PRIVATE_KEY_BBUSER).signMessage({
     message: hashRequest(request)
   })
@@ -335,11 +335,7 @@ export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => 
       alg: Alg.ES256K,
       pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
     },
-    request: {
-      action: Action.SIGN_TRANSACTION,
-      transactionRequest: txRequest,
-      resourceId: NATIVE_TRANSFER_TX_REQUEST.from
-    },
+    request,
     approvals: [
       {
         sig: approvalSigAAUser,
