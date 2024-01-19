@@ -18,6 +18,20 @@ orchestration/copy-default-env:
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test
 
+# == Code format ==
+
+orchestration/format:
+	 npx nx format:write --projects ${ORCHESTRATION_PROJECT_NAME}
+
+orchestration/lint:
+	npx nx lint ${ORCHESTRATION_PROJECT_NAME} -- --fix
+
+orchestration/format/check:
+	 npx nx format:check --projects ${ORCHESTRATION_PROJECT_NAME}
+
+orchestration/lint/check:
+	npx nx lint ${ORCHESTRATION_PROJECT_NAME}
+
 # === Database ===
 
 orchestration/db/generate-types:

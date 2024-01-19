@@ -1,11 +1,10 @@
-name: "@app/orchestration CI"
+name: '@app/orchestration CI'
 
 on:
   push:
     paths:
       - apps/orchestration/**
       - .github/workflows/orchestration_ci.yml
-      - Makefile
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -60,8 +59,8 @@ jobs:
       - name: Code format
         shell: bash
         run: |
-          make format/check
-          make lint/check
+          make orchestration/format/check
+          make orchestration/lint/check
 
       - name: Setup database and Prisma types
         shell: bash
@@ -97,7 +96,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: "@app/orchestration CI failed"
+          author_name: '@app/orchestration CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:

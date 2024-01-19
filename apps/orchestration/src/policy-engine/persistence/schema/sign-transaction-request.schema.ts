@@ -50,7 +50,7 @@ const accessListSchema = z.object({
 export const readSignTransactionRequestSchema = z.object({
   chainId: z.coerce.number(),
   from: addressSchema,
-  nonce: z.coerce.number(),
+  nonce: z.coerce.number().optional(),
   accessList: z.array(accessListSchema).optional(),
   data: hexSchema.optional(),
   gas: z.coerce.bigint().optional(),

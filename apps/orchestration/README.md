@@ -4,7 +4,7 @@
 
 ```bash
 # Boot PostgreSQL and Redis
-make docker/up 
+make docker/up
 make orchestration/setup
 ```
 
@@ -45,4 +45,14 @@ make orchestration/test/e2e/watch
 ```bash
 make orchestration/db/migrate
 make orchestration/db/create-migration NAME=your-migration-name
+```
+
+## Formatting
+
+```bash
+make orchestration/format
+make orchestration/lint
+
+make orchestration/format/check
+make orchestration/lint/check
 ```

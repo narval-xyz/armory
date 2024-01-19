@@ -41,30 +41,26 @@ To generate new prefixed accounts, you can use the snippet below. It depends on
 [viem](https://viem.sh/) API, so make sure you have it installed.
 
 ```typescript
-import {
-  PrivateKeyAccount,
-  generatePrivateKey,
-  privateKeyToAccount,
-} from "viem/accounts";
+import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
-const MAX_ATTEMPTS = 1_000_000;
-const DESIRED_PREFIX = "0xbbb";
+const MAX_ATTEMPTS = 1_000_000
+const DESIRED_PREFIX = '0xbbb'
 
-let account: PrivateKeyAccount;
-let attempts = 0;
+let account: PrivateKeyAccount
+let attempts = 0
 
 while (attempts <= MAX_ATTEMPTS) {
-  const privateKey = generatePrivateKey();
-  account = privateKeyToAccount(privateKey);
-  const prefix = account.address.toLowerCase().substring(0, 5);
-  attempts++;
+  const privateKey = generatePrivateKey()
+  account = privateKeyToAccount(privateKey)
+  const prefix = account.address.toLowerCase().substring(0, 5)
+  attempts++
 
   if (prefix === DESIRED_PREFIX) {
     console.log({
       address: account.address,
       publicKey: account.publicKey,
-      privateKey: privateKey,
-    });
+      privateKey: privateKey
+    })
   }
 }
 ```
