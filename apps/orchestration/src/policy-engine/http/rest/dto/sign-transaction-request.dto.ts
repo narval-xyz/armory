@@ -1,9 +1,8 @@
-import { Address, Hex, TransactionType } from '@narval/authz-shared'
+import { Address, Hex } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 import {
   IsDefined,
-  IsEnum,
   IsEthereumAddress,
   IsInt,
   IsNumber,
@@ -53,12 +52,16 @@ export class SignTransactionRequestDto {
   })
   from: Address
 
+  // @TODO (@wcalderipe, 19/01/24): Are we accepting the transaction without a
+  // nonce?
   @IsNumber()
+  @IsOptional()
   @Min(0)
   @ApiProperty({
-    minimum: 0
+    minimum: 0,
+    required: false
   })
-  nonce: number
+  nonce?: number
 
   @IsOptional()
   @ValidateNested()
@@ -98,13 +101,13 @@ export class SignTransactionRequestDto {
   })
   to?: Address | null
 
-  @IsEnum(TransactionType)
+  @IsString()
   @IsOptional()
   @ApiProperty({
-    enum: TransactionType,
+    default: '2',
     required: false
   })
-  type?: `${TransactionType}`
+  type?: '2'
 
   @IsString()
   @IsOptional()

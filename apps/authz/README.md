@@ -24,3 +24,13 @@ make authz/test/unit
 make authz/test/integration
 make authz/test/e2e
 ```
+
+## Formatting
+
+```bash
+make authz/format
+make authz/lint
+
+make authz/format/check
+make authz/lint/check
+```

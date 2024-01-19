@@ -19,5 +19,5 @@ export class SignatureDto {
     enum: ['ES256K'],
     required: false
   })
-  alg?: string = 'ES256K'
+  alg: string = 'ES256K'
 }

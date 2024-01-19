@@ -12,3 +12,13 @@ into an object with granular information.
  make transaction-request-intent/test/unit
  make transaction-request-intent/test/unit/watch
 ```
+
+## Formatting
+
+```bash
+make transaction-request-intent/format
+make transaction-request-intent/lint
+
+make transaction-request-intent/format/check
+make transaction-request-intent/lint/check
+```
