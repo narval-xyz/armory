@@ -1,5 +1,6 @@
 import { assertArray, assertBigInt, assertHexString } from '../typeguards'
 import {
+  ApproveAllowanceParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
   ExtractedParams,
@@ -39,6 +40,12 @@ export const TransferFromParamsTransform = (params: unknown[]): TransferFromPara
   const recipient = assertHexString(params[1])
   const amount = assertBigInt(params[2])
   return { sender, recipient, amount: amount.toString().toLowerCase() }
+}
+
+export const ApproveAllowanceParamsTransform = (params: unknown[]): ApproveAllowanceParams => {
+  const spender = assertHexString(params[0])
+  const amount = assertBigInt(params[1])
+  return { spender, amount: amount.toString().toLowerCase() }
 }
 
 export const Erc721SafeTransferFromParamsTransform = (params: unknown[]): Erc721SafeTransferFromParams => {

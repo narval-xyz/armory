@@ -1,4 +1,5 @@
 TRI_PROJECT_NAME := transaction-request-intent
+TRI_PROJECT_DIR := ./packages/transaction-request-intent
 
 # == Code format ==
 
@@ -15,6 +16,11 @@ transaction-request-intent/lint/check:
 	npx nx lint ${TRI_PROJECT_NAME}
 
 # == Testing ==
+
+transaction-request-intent/test/type:
+	npx tsc \
+		--project ${TRI_PROJECT_DIR}/tsconfig.lib.json \
+		--noEmit
 
 transaction-request-intent/test/unit:
 	npx nx test:unit ${TRI_PROJECT_NAME} -- ${ARGS}

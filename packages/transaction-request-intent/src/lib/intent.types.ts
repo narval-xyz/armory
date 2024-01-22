@@ -125,4 +125,10 @@ export type Permit2 = {
   deadline: string
 }
 
-export type Intent = TransferNative | TransferErc20 | TransferErc721 | TransferErc1155 | CallContract
+export type Intent =
+  | TransferNative
+  | TransferErc20
+  | TransferErc721
+  | TransferErc1155
+  | CallContract
+  | ApproveTokenAllowance

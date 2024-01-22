@@ -12,6 +12,7 @@ import { Intent } from '../intent.types'
 import { isSupportedMethodId } from '../typeguards'
 import { getCategory, getMethodId, getTransactionIntentType } from '../utils'
 import { validateContractInteractionInput, validateNativeTransferInput } from '../validators'
+import ApproveTokenAllowanceDecoder from './ApproveAllowanceDecoder'
 import CallContractDecoder from './CallContractDecoder'
 import DecoderStrategy from './DecoderStrategy'
 import ERC1155TransferDecoder from './Erc1155TransferDecoder'
@@ -31,6 +32,8 @@ export default class Decoder {
         return new Erc721TransferDecoder(input)
       case Intents.TRANSFER_ERC1155:
         return new ERC1155TransferDecoder(input)
+      case Intents.APPROVE_TOKEN_ALLOWANCE:
+        return new ApproveTokenAllowanceDecoder(input)
       case Intents.CALL_CONTRACT:
       default:
         return new CallContractDecoder(input)

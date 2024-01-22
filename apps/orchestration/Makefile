@@ -73,7 +73,9 @@ orchestration/test/db/setup:
 		--force
 
 orchestration/test/type:
-	npx nx test:type ${ORCHESTRATION_PROJECT_NAME}
+	npx tsc \
+		--project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json \
+		--noEmit
 
 orchestration/test/unit:
 	npx nx test:unit ${ORCHESTRATION_PROJECT_NAME} -- ${ARGS}

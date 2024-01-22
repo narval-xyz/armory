@@ -37,13 +37,18 @@ jobs:
           make authz-shared/format/check
           make authz-shared/lint/check
 
+      - name: Test types
+        shell: bash
+        run: |
+          make authz-shared/test/type
+
       - name: Test unit
         shell: bash
         run: |
           make authz-shared/test/unit
 
       - name: Send Slack notification on failure
-        if: failure()
+        if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
