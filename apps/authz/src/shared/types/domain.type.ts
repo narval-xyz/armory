@@ -79,6 +79,7 @@ export type SignTransaction = SharedAuthorizationRequest & {
 
 export type SignMessage = SharedAuthorizationRequest & {
   action: SupportedAction.SIGN_MESSAGE
+  resourceId: string
   message: string
 }
 
