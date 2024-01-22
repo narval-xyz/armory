@@ -19,6 +19,11 @@ export type TransferParams = {
   amount: string
 }
 
+export type ApproveAllowanceParams = {
+  spender: Hex
+  amount: string
+}
+
 export type TransferFromParams = {
   sender: Hex
   recipient: Hex
@@ -41,4 +46,5 @@ export type ExtractedParams =
   | TransferFromParams
   | Erc1155SafeTransferFromParams
   | SafeBatchTransferFromParams
+  | ApproveAllowanceParams
   | NullHexParams
