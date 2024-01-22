@@ -1,7 +1,6 @@
 import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
 import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
-import { AuthZRequestPayload } from '@app/authz/shared/types/domain.type'
-import { hashRequest } from '@narval/authz-shared'
+import { AuthorizationRequestPayload } from '@app/authz/shared/types/domain.type'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 
@@ -33,7 +32,7 @@ export class AppController {
     })
 
     // Map the DTO into the TS type because it's nicer to deal with.
-    const payload: AuthZRequestPayload = body
+    const payload: AuthorizationRequestPayload = body
 
     const result = await this.appService.runEvaluation(payload)
     this.logger.log({
@@ -66,12 +65,5 @@ export class AppController {
   @Get('/generate-inbound-request')
   generateInboundRequest() {
     return generateInboundRequest()
-  }
-
-  @Post('/hash-request')
-  hashRequest(@Body() body: unknown) {
-    console.log('### BODY', body)
-
-    return { hash: hashRequest(body) }
   }
 }

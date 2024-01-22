@@ -1,7 +1,24 @@
-import { AccessList, Action, Address, Alg, FiatSymbols, Hex } from '@app/authz/shared/types/domain.type'
+import {
+  AccessList,
+  Action,
+  Address,
+  Alg,
+  FiatSymbols,
+  Hex,
+  SupportedAction
+} from '@app/authz/shared/types/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
+import {
+  IsDefined,
+  IsEnum,
+  IsEthereumAddress,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested
+} from 'class-validator'
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export class RequestSignatureDto {
@@ -19,17 +36,18 @@ export class RequestSignatureDto {
 }
 
 export class BaseRequestDataDto {
-  @IsEnum(Action)
+  @IsEnum(SupportedAction)
   @IsDefined()
   @ApiProperty({
-    enum: Action
+    enum: SupportedAction
   })
-  action: Action
+  action: SupportedAction
 
-  @IsString()
+  @IsNumber()
+  @Min(0)
   @IsDefined()
   @ApiProperty()
-  nonce: string
+  nonce: number
 }
 
 export class TransactionRequestDto {
@@ -96,13 +114,20 @@ export class TransactionRequestDto {
 }
 
 export class SignTransactionRequestDataDto extends BaseRequestDataDto {
+  @IsEnum(SupportedAction)
+  @IsDefined()
+  @ApiProperty({
+    enum: SupportedAction,
+    default: SupportedAction.SIGN_TRANSACTION
+  })
+  action: SupportedAction.SIGN_TRANSACTION
+
   @IsString()
   @IsDefined()
   @ApiProperty()
   resourceId: string
 
   @ValidateNested()
-  @Type(() => TransactionRequestDto)
   @IsDefined()
   @ApiProperty({
     type: TransactionRequestDto
@@ -111,6 +136,14 @@ export class SignTransactionRequestDataDto extends BaseRequestDataDto {
 }
 
 export class SignMessageRequestDataDto extends BaseRequestDataDto {
+  @IsEnum(SupportedAction)
+  @IsDefined()
+  @ApiProperty({
+    enum: SupportedAction,
+    default: SupportedAction.SIGN_MESSAGE
+  })
+  action: SupportedAction.SIGN_MESSAGE
+
   @IsString()
   @IsDefined()
   @ApiProperty()
@@ -139,6 +172,8 @@ export class EvaluationRequestDto {
   @ApiProperty()
   authentication: RequestSignatureDto
 
+  @IsOptional()
+  @ValidateNested()
   @ApiProperty({
     type: () => RequestSignatureDto,
     isArray: true
@@ -157,19 +192,8 @@ export class EvaluationRequestDto {
   })
   request: SignTransactionRequestDataDto | SignMessageRequestDataDto
 
+  @IsOptional()
   @ValidateNested()
   @ApiProperty()
   transfers?: HistoricalTransferDto[]
-
-  isSignTransaction(
-    request: SignTransactionRequestDataDto | SignMessageRequestDataDto
-  ): request is SignTransactionRequestDataDto {
-    return this.request.action === Action.SIGN_TRANSACTION
-  }
-
-  isSignMessage(
-    request: SignTransactionRequestDataDto | SignMessageRequestDataDto
-  ): request is SignMessageRequestDataDto {
-    return this.request.action === Action.SIGN_MESSAGE
-  }
 }
