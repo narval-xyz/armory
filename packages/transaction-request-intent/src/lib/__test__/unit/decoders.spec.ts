@@ -1,5 +1,5 @@
+import Decoder from '../../decoders/Decoder'
 import { InputType, Intents } from '../../domain'
-import { decode } from '../../export'
 import {
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
@@ -8,68 +8,30 @@ import {
 } from './mocks'
 
 describe('decode', () => {
+  let decoder: Decoder
+  beforeEach(() => {
+    decoder = new Decoder()
+  })
   describe('transaction request input', () => {
     describe('transfers', () => {
       it('decodes erc20 transfer', () => {
-        const decoded = decode(mockErc20Transfer.input)
+        const decoded = decoder.decode(mockErc20Transfer.input)
         expect(decoded).toEqual(mockErc20Transfer.intent)
       })
       it('decodes erc721 safeTransferFrom', () => {
-        const decoded = decode(mockErc721SafeTransferFrom.input)
+        const decoded = decoder.decode(mockErc721SafeTransferFrom.input)
         expect(decoded).toEqual(mockErc721SafeTransferFrom.intent)
       })
-      // it('decodes erc721 safeTransferFromWithBytes', () => {
-      //   const expected = mockErc721SafeTransferFromWithBytes.input;
-      //   const decoded = mockErc721SafeTransferFromWithBytes.intent
-      //   expect(decoded).toEqual(expected)
-      // });
-      // it('decodes erc721 transferFrom with contract registry', () => {
-      // });
       it('decodes erc1155 safeTransferFrom', () => {
-        const decoded = decode(mockErc1155SafeTransferFrom.input)
+        const decoded = decoder.decode(mockErc1155SafeTransferFrom.input)
         expect(decoded).toEqual(mockErc1155SafeTransferFrom.intent)
       })
       it('decodes erc1155 safeBatchTransferFrom', () => {
-        const decoded = decode(mockErc1155BatchSafeTransferFrom.input)
+        const decoded = decoder.decode(mockErc1155BatchSafeTransferFrom.input)
         expect(decoded).toEqual(mockErc1155BatchSafeTransferFrom.intent)
       })
-      it('decodes erc20 and erc721 transferFrom with contract registry', () => {
-        // const erc20contractRegistry = {
-        //   'eip155:137:0x031d8C0cA142921c459bCB28104c0FF37928F9eD': AssetTypeEnum.ERC20
-        // } as ContractRegistry
-        // const decoded = decode({
-        //   ...mockTransferFrom.input,
-        //   contractRegistry: erc20contractRegistry
-        // })
-        // expect(decoded).toEqual({
-        //   ...mockTransferFrom.intent,
-        //   type: Intents.TRANSFER_ERC20,
-        // })
-        // const erc721contractRegistry = {
-        //   'eip155:137:0x031d8C0cA142921c459bCB28104c0FF37928F9eD': AssetTypeEnum.ERC721
-        // } as ContractRegistry
-        // const decoded2 = decode({
-        //   ...mockTransferFrom.input,
-        //   contractRegistry: erc721contractRegistry
-        // })
-        // expect(decoded2).toEqual({
-        //   ...mockTransferFrom.intent,
-        //   type: Intents.TRANSFER_ERC721,
-        // })
-        // const noMatchContractRegistry = {
-        //   'eip155:137:0x031d': AssetTypeEnum.ERC1155
-        // } as ContractRegistry
-        // const decoded3 = decode({
-        //   ...mockTransferFrom.input,
-        //   contractRegistry: noMatchContractRegistry
-        // })
-        // expect(decoded3).toEqual({
-        //   ...mockTransferFrom.intent,
-        //   type: Intents.CALL_CONTRACT,
-        // })
-      })
       it('decodes a Native Transfer', () => {
-        const decoded = decode({
+        const decoded = decoder.decode({
           type: InputType.TRANSACTION_REQUEST,
           txRequest: {
             to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
@@ -88,7 +50,7 @@ describe('decode', () => {
         })
       })
       it('defaults to contract call intent', () => {
-        const decoded = decode({
+        const decoded = decoder.decode({
           type: InputType.TRANSACTION_REQUEST,
           txRequest: {
             to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',

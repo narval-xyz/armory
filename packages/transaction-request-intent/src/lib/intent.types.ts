@@ -1,22 +1,12 @@
 import { Hex, TypedData } from 'viem'
 import { Caip10, Caip19 } from './caip'
-import { Intents } from './domain'
-import { SigningAlgorithm } from './types'
+import { Intents, SigningAlgorithm } from './domain'
 
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
   to: Caip10
   from: Caip10
   token: Caip19
-  amount: string
-}
-
-export type WrappedNativeTransfer = {
-  type: Intents.TRANSFER_WRAPPED_NATIVE
-  to: Caip10
-  from: Caip10
-  token: Caip19
-  wrapper: Caip10
   amount: string
 }
 
