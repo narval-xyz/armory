@@ -1,21 +1,17 @@
 {
   "entities": {
     "users": {
-      "test-bob-uid": {
-        "uid": "test-bob-uid",
-        "role": "root"
-      },
-      "test-alice-uid": {
-        "uid": "test-alice-uid",
-        "role": "member"
-      },
-      "test-foo-uid": {
-        "uid": "test-foo-uid",
-        "role": "admin"
-      },
-      "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43": {
-        "uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
-        "role": "admin"
+      "u:root_user": { "uid": "u:root_user", "role": "root" },
+      "matt@narval.xyz": { "uid": "matt@narval.xyz", "role": "admin" },
+      "aa@narval.xyz": { "uid": "aa@narval.xyz", "role": "admin" },
+      "bb@narval.xyz": { "uid": "bb@narval.xyz", "role": "admin" }
+    },
+    "userGroups": {
+      "ug:dev-group": { "uid": "ug:dev-group", "name": "Dev", "users": ["matt@narval.xyz"] },
+      "ug:treasury-group": {
+        "uid": "ug:treasury-group",
+        "name": "Treasury",
+        "users": ["bb@narval.xyz", "matt@narval.xyz"]
       }
     },
     "wallets": {
@@ -23,35 +19,39 @@
         "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "accountType": "eoa",
-        "assignees": ["test-bob-uid", "test-bar-uid", "test-foo-uid"]
-      }
-    },
-    "userGroups": {
-      "test-user-group-one-uid": {
-        "uid": "test-user-group-one-uid",
-        "name": "dev",
-        "users": ["test-bob-uid", "test-bar-uid"]
+        "assignees": ["matt@narval.xyz"]
       },
-      "test-user-group-two-uid": {
-        "uid": "test-user-group-two-uid",
-        "name": "finance",
-        "users": ["test-bob-uid", "test-bar-uid"]
+      "eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
+        "uid": "eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "address": "0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "accountType": "eoa"
+      },
+      "eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
+        "uid": "eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "address": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "accountType": "eoa",
+        "assignees": ["matt@narval.xyz"]
+      },
+      "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b": {
+        "uid": "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+        "address": "0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+        "accountType": "eoa",
+        "assignees": ["matt@narval.xyz"]
       }
     },
     "walletGroups": {
-      "test-wallet-group-one-uid": {
-        "uid": "test-wallet-group-one-uid",
-        "name": "dev",
+      "wg:dev-group": {
+        "uid": "wg:dev-group",
+        "name": "Dev",
         "wallets": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"]
+      },
+      "wg:treasury-group": {
+        "uid": "wg:treasury-group",
+        "name": "Treasury",
+        "wallets": ["eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"]
       }
     },
     "addressBook": {
-      "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
-        "uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-        "address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-        "chainId": 137,
-        "classification": "internal"
-      },
       "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
         "uid": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -63,16 +63,20 @@
         "address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
         "chainId": 1,
         "classification": "wallet"
+      },
+      "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
+        "uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+        "address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+        "chainId": 137,
+        "classification": "internal"
+      },
+      "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
+        "uid": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "address": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+        "chainId": 137,
+        "classification": "wallet"
       }
     },
-    "tokens": {
-      "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
-        "uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-        "address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-        "symbol": "USDC",
-        "chainId": 137,
-        "decimals": 6
-      }
-    }
+    "tokens": {}
   }
 }
