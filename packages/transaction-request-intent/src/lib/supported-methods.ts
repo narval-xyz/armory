@@ -95,7 +95,7 @@ export const ApproveAllowanceAbiParameters: AbiParameter[] = [
 export enum SupportedMethodId {
   TRANSFER = '0xa9059cbb',
   TRANSFER_FROM = '0x23b872dd',
-  APPROVE = '0xa613914d',
+  APPROVE = '0x095ea7b3',
   SAFE_TRANSFER_FROM = '0x42842e0e',
   SAFE_TRANSFER_FROM_WITH_BYTES = '0xb88d4fde',
   SAFE_BATCH_TRANSFER_FROM = '0x2eb2c2d6',
@@ -124,7 +124,7 @@ export type MethodsMapping = {
     abi: AbiParameter[]
     transformer: (params: unknown[]) => StandardMethodsParams[K]
     assetType: AssetTypeEnum
-    intent?: Intents
+    intent: Intents
   }
 }
 
@@ -140,7 +140,8 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'transferFrom',
     abi: TransferFromAbiParameters,
     transformer: TransferFromParamsTransform,
-    assetType: AssetTypeEnum.UNKNOWN
+    assetType: AssetTypeEnum.UNKNOWN,
+    intent: Intents.CALL_CONTRACT
   },
   [SupportedMethodId.SAFE_TRANSFER_FROM]: {
     name: 'safeTransferFrom',
@@ -181,12 +182,14 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'approve',
     abi: ApproveAllowanceAbiParameters,
     transformer: ApproveAllowanceParamsTransform,
-    assetType: AssetTypeEnum.UNKNOWN
+    assetType: AssetTypeEnum.ERC20,
+    intent: Intents.APPROVE_TOKEN_ALLOWANCE
   },
   [SupportedMethodId.NULL_METHOD_ID]: {
-    name: 'nativeTransfer',
+    name: 'empty data field',
     abi: [],
     transformer: () => ({}),
-    assetType: AssetTypeEnum.UNKNOWN
+    assetType: AssetTypeEnum.UNKNOWN,
+    intent: Intents.TRANSFER_NATIVE
   }
 }

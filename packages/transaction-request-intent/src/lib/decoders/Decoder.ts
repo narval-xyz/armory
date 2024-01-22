@@ -1,26 +1,44 @@
 import {
   ContractCallInput,
+  ContractRegistry,
   DecodeInput,
   InputType,
   Intents,
   SafeDecodeOutput,
   TransactionCategory,
-  TransactionInput
+  TransactionInput,
+  TransactionRegistry,
+  TransactionStatus
 } from '../domain'
 import { TransactionRequestIntentError } from '../error'
 import { Intent } from '../intent.types'
 import { isSupportedMethodId } from '../typeguards'
-import { getCategory, getMethodId, getTransactionIntentType } from '../utils'
+import { getCategory, getMethodId, getTransactionIntentType, transactionLookup } from '../utils'
 import { validateContractInteractionInput, validateNativeTransferInput } from '../validators'
-import ApproveTokenAllowanceDecoder from './ApproveAllowanceDecoder'
-import CallContractDecoder from './CallContractDecoder'
 import DecoderStrategy from './DecoderStrategy'
-import ERC1155TransferDecoder from './Erc1155TransferDecoder'
-import Erc20TransferDecoder from './Erc20TransferDecoder'
-import Erc721TransferDecoder from './Erc721TransferDecoder'
-import NativeTransferDecoder from './NativeTransferDecoder'
+import NativeTransferDecoder from './native/NativeTransferDecoder'
+import ApproveTokenAllowanceDecoder from './transaction/interaction/ApproveAllowanceDecoder'
+import CallContractDecoder from './transaction/interaction/CallContractDecoder'
+import ERC1155TransferDecoder from './transaction/interaction/Erc1155TransferDecoder'
+import Erc20TransferDecoder from './transaction/interaction/Erc20TransferDecoder'
+import Erc721TransferDecoder from './transaction/interaction/Erc721TransferDecoder'
 
 export default class Decoder {
+  contractRegistry?: ContractRegistry
+
+  transactionRegistry?: TransactionRegistry
+
+  constructor({
+    contractRegistry,
+    transactionRegistry
+  }: {
+    contractRegistry?: ContractRegistry
+    transactionRegistry?: TransactionRegistry
+  }) {
+    this.contractRegistry = contractRegistry
+    this.transactionRegistry = transactionRegistry
+  }
+
   #findContractCallStrategy(input: ContractCallInput, intent: Intents): DecoderStrategy {
     if (!isSupportedMethodId(input.methodId)) {
       return new CallContractDecoder(input)
@@ -41,7 +59,7 @@ export default class Decoder {
   }
 
   #findTransactionStrategy(input: TransactionInput): DecoderStrategy {
-    const { txRequest, contractRegistry, transactionRegistry } = input
+    const { txRequest, contractRegistry } = input
     const { data, to } = txRequest
     const methodId = getMethodId(data)
     const category = getCategory(methodId, to)
@@ -56,8 +74,7 @@ export default class Decoder {
         const intent = getTransactionIntentType({
           methodId,
           txRequest: validatedTxRequest,
-          contractRegistry,
-          transactionRegistry
+          contractRegistry
         })
         return this.#findContractCallStrategy(validatedTxRequest, intent)
       }
@@ -68,18 +85,37 @@ export default class Decoder {
     }
   }
 
-  #findStrategy(input: DecodeInput): DecoderStrategy {
-    switch (input.type) {
-      case InputType.TRANSACTION_REQUEST:
-        return this.#findTransactionStrategy(input)
+  #wrapTransactionManagementIntents(intent: Intent, input: TransactionInput): Intent {
+    const { txRequest, transactionRegistry } = input
+    const trxStatus = transactionLookup(txRequest, transactionRegistry)
+    switch (trxStatus) {
+      case TransactionStatus.FAILED:
+        return {
+          type: Intents.RETRY_TRANSACTION,
+          originalIntent: intent
+        }
+      case TransactionStatus.PENDING:
+        return {
+          type: Intents.CANCEL_TRANSACTION,
+          originalIntent: intent
+        }
+      case TransactionStatus.SUCCESS:
+        throw new Error('Transaction already mined')
       default:
-        throw new Error('Invalid input type')
+        return intent
     }
   }
 
   public decode(input: DecodeInput): Intent {
-    const strategy = this.#findStrategy(input)
-    return strategy.decode()
+    switch (input.type) {
+      case InputType.TRANSACTION_REQUEST: {
+        const strategy = this.#findTransactionStrategy(input)
+        const decoded = strategy.decode()
+        return this.#wrapTransactionManagementIntents(decoded, input)
+      }
+      default:
+        throw new Error('Invalid input type')
+    }
   }
 
   public safeDecode(input: DecodeInput): SafeDecodeOutput {
