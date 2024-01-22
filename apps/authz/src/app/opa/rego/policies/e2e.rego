@@ -2,47 +2,47 @@ package main
 
 import future.keywords.in
 
-permit[{"policyId": "test-permit-policy-1"}] := reason {
-	check_principal
+permit[{"policyId": "test-policy-1"}] := reason {
+	checkPrincipal
 
 	input.action == "signTransaction"
 
-	check_principal_id({"matt@narval.xyz"})
-	check_transfer_token_type({"transferNative"})
-	check_transfer_token_operation({"operator": "lte", "value": "10000000000"})
+	checkTransferTokenType({"transferERC20"})
+	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
+	checkTransferTokenOperation({"operator": "lte", "value": "1000000000000000000"})
 
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
-		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
+		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
 	}]
 
 	approvals := getApprovalsResult(approvalsRequired)
 
 	reason := {
 		"type": "permit",
-		"policyId": "test-permit-policy-1",
+		"policyId": "test-policy-1",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
 		"approvalsMissing": approvals.approvalsMissing,
 	}
 }
 
 forbid[{"policyId": "test-forbid-policy-1"}] := reason {
-	check_principal
+	checkPrincipal
 
 	input.action == "signTransaction"
 	tokens = {"eip155:137/slip44/966"}
 
-	check_principal_id({"matt@narval.xyz"})
-	check_transfer_token_type({"transferNative"})
-	check_transfer_token_address(tokens)
+	checkPrincipalId({"matt@narval.xyz"})
+	checkTransferTokenType({"transferNative"})
+	checkTransferTokenAddress(tokens)
 
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
 
-	spendings = get_usd_spending_amount({"tokens": tokens, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"tokens": tokens, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
