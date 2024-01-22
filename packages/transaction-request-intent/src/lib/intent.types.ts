@@ -91,13 +91,11 @@ export type DeploySafeWallet = {
 
 export type RetryTransaction = {
   type: Intents.RETRY_TRANSACTION
-  from: Caip10
   originalIntent: Intent
 }
 
 export type CancelTransaction = {
   type: Intents.CANCEL_TRANSACTION
-  from: Caip10
   originalIntent: Intent
 }
 
@@ -132,3 +130,5 @@ export type Intent =
   | TransferErc1155
   | CallContract
   | ApproveTokenAllowance
+  | RetryTransaction
+  | CancelTransaction
