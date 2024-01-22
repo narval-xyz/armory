@@ -1,7 +1,7 @@
 import { Hex } from 'viem'
 import { InputType } from './lib/domain'
 import { decode } from './lib/export'
-import { Erc20Methods } from './lib/methodId'
+import { Erc20Methods } from './lib/supported-methods'
 import { TransactionInput } from './lib/types'
 
 const input: TransactionInput = {
