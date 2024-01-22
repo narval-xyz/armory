@@ -1,10 +1,10 @@
-import { encodeEoaAccountId, encodeEoaAssetId } from '../caip'
-import { AssetTypeEnum, ContractCallInput, EipStandardEnum, Intents } from '../domain'
-import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../extraction/types'
-import { ERC1155Transfer, TransferErc1155 } from '../intent.types'
-import { SupportedMethodId } from '../supported-methods'
-import { isSupportedMethodId } from '../typeguards'
-import DecoderStrategy from './DecoderStrategy'
+import { encodeEoaAccountId, encodeEoaAssetId } from '../../../caip'
+import { AssetTypeEnum, ContractCallInput, EipStandardEnum, Intents } from '../../../domain'
+import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../../../extraction/types'
+import { ERC1155Transfer, TransferErc1155 } from '../../../intent.types'
+import { SupportedMethodId } from '../../../supported-methods'
+import { isSupportedMethodId } from '../../../typeguards'
+import DecoderStrategy from '../../DecoderStrategy'
 
 export default class ERC1155TransferDecoder extends DecoderStrategy {
   #input: ContractCallInput

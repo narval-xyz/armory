@@ -1,11 +1,11 @@
 import { AbiParameter } from 'viem'
-import { encodeEoaAccountId, encodeEoaAssetId } from '../caip'
-import { AssetTypeEnum, ContractCallInput, EipStandardEnum, Intents } from '../domain'
-import { Erc721SafeTransferFromParams } from '../extraction/types'
-import { TransferErc721 } from '../intent.types'
-import { Erc721SafeTransferFromAbiParameters } from '../supported-methods'
-import { isSupportedMethodId } from '../typeguards'
-import DecoderStrategy from './DecoderStrategy'
+import { encodeEoaAccountId, encodeEoaAssetId } from '../../../caip'
+import { AssetTypeEnum, ContractCallInput, EipStandardEnum, Intents } from '../../../domain'
+import { Erc721SafeTransferFromParams } from '../../../extraction/types'
+import { TransferErc721 } from '../../../intent.types'
+import { Erc721SafeTransferFromAbiParameters } from '../../../supported-methods'
+import { isSupportedMethodId } from '../../../typeguards'
+import DecoderStrategy from '../../DecoderStrategy'
 
 export default class Erc721TransferDecoder extends DecoderStrategy {
   abi: AbiParameter[] = Erc721SafeTransferFromAbiParameters
