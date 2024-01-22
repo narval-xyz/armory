@@ -47,6 +47,7 @@ export class AppController {
     this.logger.log({
       message: 'Received evaluation'
     })
+
     const fakeRequest = await generateInboundRequest()
     const result = await this.appService.runEvaluation(fakeRequest)
     this.logger.log({
