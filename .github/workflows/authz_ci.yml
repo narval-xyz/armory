@@ -73,12 +73,10 @@ jobs:
           # tests to fail.
           # make orchestration/db/generate-types
 
-      # Temporary disable while we don't figure out how to scope the check only
-      # to oen application.
-      # - name: Test types
-      #   shell: bash
-      #   run: |
-      #     make authz/test/type
+      - name: Test types
+        shell: bash
+        run: |
+          make authz/test/type
 
       - name: Test unit
         shell: bash
@@ -96,7 +94,7 @@ jobs:
       #     make orchestration/test/e2e
 
       - name: Send Slack notification on failure
-        if: failure()
+        if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
