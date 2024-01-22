@@ -2,15 +2,16 @@ import { PersistenceRepository } from '@app/authz/shared/module/persistence/pers
 import {
   Alg,
   AuthCredential,
-  AuthZRequest,
-  AuthZRequestPayload,
-  AuthZResponse,
+  AuthorizationRequest,
+  AuthorizationRequestPayload,
+  AuthorizationResponse,
   HistoricalTransfer,
   NarvalDecision,
-  RequestSignature
+  RequestSignature,
+  SupportedAction
 } from '@app/authz/shared/types/domain.type'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
-import { hashRequest } from '@narval/authz-shared'
+import { Action, hashRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { Decoder } from 'packages/transaction-request-intent/src'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
@@ -101,31 +102,34 @@ export class AppService {
     transfers
   }: {
     principal: AuthCredential
-    request: AuthZRequest
+    request: AuthorizationRequest
     approvals: AuthCredential[] | null
     intent?: Intent
     transfers?: HistoricalTransfer[]
   }): RegoInput {
-    // intent only exists in SignTransaction actions
-    return {
-      action: request.action,
-      intent,
-      transactionRequest: request.transactionRequest,
-      principal,
-      resource: request.resourceId
-        ? {
-            uid: request.resourceId
-          }
-        : undefined,
-      approvals: approvals || [],
-      transfers: transfers || []
+    if (request.action === SupportedAction.SIGN_TRANSACTION) {
+      return {
+        action: Action.SIGN_TRANSACTION,
+        intent,
+        transactionRequest: request.transactionRequest,
+        principal,
+        resource: request.resourceId
+          ? {
+              uid: request.resourceId
+            }
+          : undefined,
+        approvals: approvals || [],
+        transfers: transfers || []
+      }
     }
+
+    throw new Error(`Unsupported action ${request.action}`)
   }
 
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authentication, approvals, transfers }: AuthZRequestPayload) {
+  async runEvaluation({ request, authentication, approvals, transfers }: AuthorizationRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const decoder = new Decoder()
@@ -135,13 +139,18 @@ export class AppService {
     const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)
 
     // Decode the intent
-    const intentResult = request.transactionRequest
-      ? decoder.safeDecode({
-          type: InputType.TRANSACTION_REQUEST,
-          txRequest: request.transactionRequest
-        })
-      : undefined
-    if (intentResult?.success === false) throw new Error(`Could not decode intent: ${intentResult.error.message}`)
+    const intentResult =
+      request.action === SupportedAction.SIGN_TRANSACTION
+        ? decoder.safeDecode({
+            type: InputType.TRANSACTION_REQUEST,
+            txRequest: request.transactionRequest
+          })
+        : undefined
+
+    if (intentResult?.success === false) {
+      throw new Error(`Could not decode intent: ${intentResult.error.message}`)
+    }
+
     const intent = intentResult?.intent
 
     const input = this.#buildRegoInput({
@@ -160,7 +169,7 @@ export class AppService {
     // Post-processing to evaluate multisigs
     const finalDecision = finalizeDecision(resultSet)
 
-    const authzResponse: AuthZResponse = {
+    const authzResponse: AuthorizationResponse = {
       decision: finalDecision.decision,
       request,
       totalApprovalsRequired: finalDecision.totalApprovalsRequired,
