@@ -37,11 +37,11 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     status: AuthorizationRequestStatus.CREATED,
-    action: SupportedAction.SIGN_MESSAGE,
     request: {
+      action: SupportedAction.SIGN_MESSAGE,
+      nonce: 99,
       message: 'Test request'
     },
-    hash: 'test-hash',
     idempotencyKey: null,
     evaluations: [],
     approvals: [],

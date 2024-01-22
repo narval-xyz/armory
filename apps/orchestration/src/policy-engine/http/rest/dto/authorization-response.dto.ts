@@ -2,32 +2,29 @@ import { AuthorizationRequestStatus, SupportedAction } from '@app/orchestration/
 import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
+import { TransactionResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
-import { Transform, Type } from 'class-transformer'
-import { IsOptional, IsString } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsDefined, IsString, ValidateNested } from 'class-validator'
 
-/**
- * The transformer function in the "@Transformer" decorator for bigint
- * properties differs between the request and response. This variation is due to
- * the limitations of JS' built-in functions, such as JSON, when handling
- * bigints.
- *
- * - Request: The transformer converts from a string to bigint.
- * - Response: The transformer converts from bigint to a string.
- */
 class SignTransactionResponseDto extends SignTransactionRequestDto {
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.toString())
+  // Use a different DTO for the response to ensure the conversion of attributes
+  // using bigint back to string.
+  @IsDefined()
+  @ValidateNested()
+  // IMPORTANT: the redundant @Type decorator call with the same DTO from the
+  // type is to ensure nested serialization.
+  @Type(() => TransactionResponseDto)
   @ApiProperty({
-    type: 'string'
+    type: TransactionResponseDto
   })
-  gas?: bigint
+  transactionRequest: TransactionResponseDto
 }
 
-// Just for keeping consistency on the naming.
+// Nothing different, just keeping naming consistency.
 class SignMessageResponseDto extends SignMessageRequestDto {}
 
+// TODO (@wcalderipe, 22/01/24): Missing the authentication attribute.
 @ApiExtraModels(SignTransactionResponseDto, SignMessageResponseDto)
 export class AuthorizationResponseDto {
   @ApiProperty()
@@ -35,9 +32,6 @@ export class AuthorizationResponseDto {
 
   @ApiProperty()
   orgId: string
-
-  @ApiProperty()
-  initiatorId: string
 
   @IsString()
   @ApiProperty({
@@ -48,19 +42,9 @@ export class AuthorizationResponseDto {
   idempotencyKey?: string | null
 
   @ApiProperty({
-    enum: SupportedAction
-  })
-  action: `${SupportedAction}`
-
-  @ApiProperty({
     enum: AuthorizationRequestStatus
   })
   status: `${AuthorizationRequestStatus}`
-
-  @ApiProperty({
-    description: 'The hash of the request in EIP-191 format.'
-  })
-  hash: string
 
   @ApiProperty({
     type: [EvaluationDto]
@@ -68,8 +52,12 @@ export class AuthorizationResponseDto {
   @Type(() => EvaluationDto)
   evaluations: EvaluationDto[]
 
+  // TODO (@wcalderipe, 22/01/24): Test the discrimination type option from
+  // class-transformer instead of a custom function map.
+  //
+  // See https://github.com/typestack/class-transformer?tab=readme-ov-file#working-with-nested-objects
   @Type((opts) => {
-    return opts?.object.action === SupportedAction.SIGN_TRANSACTION
+    return opts?.object.request.action === SupportedAction.SIGN_TRANSACTION
       ? SignTransactionResponseDto
       : SignMessageResponseDto
   })

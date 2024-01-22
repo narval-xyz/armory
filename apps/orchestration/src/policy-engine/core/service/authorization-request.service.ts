@@ -88,7 +88,7 @@ export class AuthorizationRequestService {
       authentication: input.authentication,
       approvals: input.approvals,
       request: {
-        action: input.action,
+        action: input.request.action,
         transactionRequest: input.request,
         resourceId: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'
       }

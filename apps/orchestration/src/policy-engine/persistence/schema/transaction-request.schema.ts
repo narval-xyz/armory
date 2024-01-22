@@ -46,7 +46,7 @@ const accessListSchema = z.object({
   storageKeys: z.array(hexSchema)
 })
 
-export const readSignTransactionRequestSchema = z.object({
+export const readTransactionRequestSchema = z.object({
   chainId: z.coerce.number(),
   from: addressSchema,
   nonce: z.coerce.number().optional(),
@@ -58,6 +58,6 @@ export const readSignTransactionRequestSchema = z.object({
   value: hexSchema.optional()
 })
 
-export const createSignTransactionRequestSchema = readSignTransactionRequestSchema.extend({
+export const createTransactionRequestSchema = readTransactionRequestSchema.extend({
   gas: z.coerce.string().optional()
 })
