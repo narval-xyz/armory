@@ -20,7 +20,7 @@ test_checkAccCondition {
 }
 
 test_checkAccStartDate {
-	conditions = {"start": substractFromDate(mockNowS, (12 * 60) * 60)}
+	conditions = {"start": secondsToNanoSeconds(mockNowS - ((12 * 60) * 60))}
 	checkAccStartDate(elevenHoursAgo, conditions.start)
 }
 
@@ -31,7 +31,7 @@ test_getUsdSpendingAmount {
 			"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
 		},
 		"users": {"test-alice-uid"},
-		"startDate": substractFromDate(mockNowS, (12 * 60) * 60),
+		"startDate": secondsToNanoSeconds(mockNowS - ((12 * 60) * 60)),
 	}
 
 	res = getUsdSpendingAmount(conditions) with input as request with data.entities as entities

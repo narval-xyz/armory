@@ -2,27 +2,24 @@ package main
 
 import future.keywords.in
 
-permit[{"policyId": "test-policy-1"}] := reason {
+permit[{"policyId": "test-permit-policy-1"}] := reason {
 	checkPrincipal
-
 	input.action == "signTransaction"
-
-	checkTransferTokenType({"transferERC20"})
-	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
-	checkTransferTokenOperation({"operator": "lte", "value": "1000000000000000000"})
-
+	checkPrincipalId({"matt@narval.xyz"})
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
+	checkTransferTokenType({"transferNative"})
+	checkTransferTokenAddress({"eip155:137/slip44/966"})
+	checkTransferTokenOperation({"operator": "gte", "value": "1000000000000000000"})
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
-		"entityIds": ["test-bob-uid", "test-bar-uid", "test-signer-uid"],
+		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
 	}]
-
 	approvals := getApprovalsResult(approvalsRequired)
-
 	reason := {
 		"type": "permit",
-		"policyId": "test-policy-1",
+		"policyId": "test-permit-policy-1",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
 		"approvalsMissing": approvals.approvalsMissing,
 	}
@@ -30,20 +27,17 @@ permit[{"policyId": "test-policy-1"}] := reason {
 
 forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 	checkPrincipal
-
 	input.action == "signTransaction"
+	users = {"matt@narval.xyz"}
 	tokens = {"eip155:137/slip44/966"}
-
-	checkPrincipalId({"matt@narval.xyz"})
+	checkPrincipalId(users)
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
 	checkTransferTokenType({"transferNative"})
 	checkTransferTokenAddress(tokens)
-
-	limit = to_number("5000000000")
-	start = nanosecondsToSeconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
-
-	spendings = getUsdSpendingAmount({"tokens": tokens, "start": start})
+	limit = to_number("1000000000000000000")
+	startDate = secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))
+	spendings = getUsdSpendingAmount({"tokens": tokens, "users": users, "startDate": startDate})
 	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
-
 	reason := {
 		"type": "forbid",
 		"policyId": "test-forbid-policy-1",

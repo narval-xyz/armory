@@ -10,7 +10,6 @@ import {
 import {
   AddressBookAccount,
   RegoData,
-  RolePermission,
   User,
   UserGroup,
   Wallet,
@@ -143,7 +142,7 @@ export const TREASURY_WALLET_X: Wallet = {
   uid: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b', // Prod guild 58 - treasury wallet
   address: '0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
   accountType: AccountType.EOA,
-  assignees: []
+  assignees: ['matt@narval.xyz']
 }
 
 // Wallet Groups
@@ -212,7 +211,7 @@ export const NATIVE_TRANSFER_TX_REQUEST: TransactionRequest = {
   to: ACCOUNT_Q_137.address as Address,
   chainId: ACCOUNT_Q_137.chainId,
   value: toHex(ONE_ETH),
-  data: '0x',
+  data: '0x00000000',
   nonce: 192,
   type: '2'
 }
@@ -229,23 +228,6 @@ export const REGO_REQUEST: RegoInput = {
   transfers: []
 }
 
-// Role Permissions
-// Of course we can have different permissions per resource, but for now we'll just use the same permissions for all resources.
-
-export const ROOT_PERMISSIONS: RolePermission = {
-  permit: true
-}
-
-export const ADMIN_PERMISSIONS: RolePermission = {
-  permit: true,
-  admin_quorum_threshold: 1
-}
-
-export const MANAGER_PERMISSIONS: RolePermission = {
-  permit: true,
-  admin_quorum_threshold: 2
-}
-
 export const mockEntityData: RegoData = {
   entities: {
     users: {
@@ -254,7 +236,7 @@ export const mockEntityData: RegoData = {
       [AAUser.uid]: AAUser,
       [BBUser.uid]: BBUser
     },
-    user_groups: {
+    userGroups: {
       [DEV_USER_GROUP.uid]: DEV_USER_GROUP,
       [TREASURY_USER_GROUP.uid]: TREASURY_USER_GROUP
     },
@@ -264,52 +246,24 @@ export const mockEntityData: RegoData = {
       [WALLET_Q.uid]: WALLET_Q,
       [TREASURY_WALLET_X.uid]: TREASURY_WALLET_X
     },
-    wallet_groups: {
+    walletGroups: {
       [DEV_WALLET_GROUP.uid]: DEV_WALLET_GROUP,
       [TREASURY_WALLET_GROUP.uid]: TREASURY_WALLET_GROUP
     },
-    address_book: {
+    addressBook: {
       [SHY_ACCOUNT_137.uid]: SHY_ACCOUNT_137,
       [SHY_ACCOUNT_1.uid]: SHY_ACCOUNT_1,
       [ACCOUNT_INTERNAL_WXZ_137.uid]: ACCOUNT_INTERNAL_WXZ_137,
       [ACCOUNT_Q_137.uid]: ACCOUNT_Q_137
-    }
-  },
-  permissions: {
-    [Action.CREATE_USER]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.ADMIN]: ADMIN_PERMISSIONS
     },
-    [Action.EDIT_USER]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.ADMIN]: ADMIN_PERMISSIONS
-    },
-    [Action.DELETE_USER]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.ADMIN]: ADMIN_PERMISSIONS
-    },
-    [Action.CREATE_WALLET]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS
-    },
-    [Action.EDIT_WALLET]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.MANAGER]: MANAGER_PERMISSIONS
-    },
-    [Action.ASSIGN_WALLET]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.MANAGER]: MANAGER_PERMISSIONS
-    },
-    [Action.UNASSIGN_WALLET]: {
-      [UserRoles.ROOT]: ROOT_PERMISSIONS,
-      [UserRoles.MANAGER]: MANAGER_PERMISSIONS
-    }
+    tokens: {}
   }
 }
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
 export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
-  const txRequest = ERC20_TRANSFER_TX_REQUEST
+  const txRequest = NATIVE_TRANSFER_TX_REQUEST
   const request = {
     action: Action.SIGN_TRANSACTION,
     nonce: 'random-nonce-111',

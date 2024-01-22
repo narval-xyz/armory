@@ -10,7 +10,6 @@ userGroupsEntities := data.entities.userGroups
 
 getApprovalsCount(possibleApprovers) = result {
 	approval := approvals[_]
-	approval.userId == principal.uid
 
 	matchedApprovers := {approval.userId |
 		approval := approvals[_]

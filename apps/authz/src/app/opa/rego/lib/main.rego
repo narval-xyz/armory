@@ -11,21 +11,25 @@ default evaluate := {
 	"default": true,
 }
 
-permit[{"policyId": "permit-default-policy"}] := reason {
+permit[{"policyId": "default-permit-policy"}] := reason {
 	false
 
 	reason := {
-		"policyId": "permit-default-policy",
-		"reason": "This is the default policy, it always returns false.",
+		"type": "permit",
+		"policyId": "default-permit-policy",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
-forbid[{"policyId": "frobid-default-policy"}] := reason {
+forbid[{"policyId": "default-forbid-policy"}] := reason {
 	false
 
 	reason := {
-		"policyId": "forbid-default-policy",
-		"reason": "This is the default policy, it always returns false.",
+		"type": "forbid",
+		"policyId": "default-forbid-policy",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
@@ -56,7 +60,6 @@ evaluate := decision {
 	# If the forbid set is not empty, set "permit": false.
 	count(forbidSet) > 0
 
-	# TODO: forbid rules need the same response structure as permit so we can have the policyId
 	decision := {
 		"permit": false,
 		"reasons": forbidSet,

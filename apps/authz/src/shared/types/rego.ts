@@ -19,6 +19,7 @@ type MatchedRule = {
 }
 
 export type OpaResult = {
+  default?: boolean
   permit: boolean
   reasons: MatchedRule[]
 }
