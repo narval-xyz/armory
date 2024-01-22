@@ -17,7 +17,7 @@ source = result {
 }
 
 source = result {
-	result := data.entities.address_book[input.intent.from]
+	result := data.entities.addressBook[input.intent.from]
 }
 
 destination = result {
@@ -25,53 +25,53 @@ destination = result {
 }
 
 destination = result {
-	result := data.entities.address_book[input.intent.to]
+	result := data.entities.addressBook[input.intent.to]
 }
 
-principal_groups = result {
+principalGroups = result {
 	result := {group.uid |
-		group := data.entities.user_groups[_]
+		group := data.entities.userGroups[_]
 		input.principal.userId in group.users
 	}
 }
 
-wallet_groups = result {
+walletGroups = result {
 	result := {group.uid |
-		group := data.entities.wallet_groups[_]
+		group := data.entities.walletGroups[_]
 		input.resource.uid in group.wallets
 	}
 }
 
-approvers_roles = result {
+approversRoles = result {
 	result := {user.role |
 		approval := input.approvals[_]
 		user := data.entities.users[approval.userId]
 	}
 }
 
-approvers_groups = result {
+approversGroups = result {
 	result := {group.uid |
 		approval := input.approvals[_]
-		group := data.entities.user_groups[_]
+		group := data.entities.userGroups[_]
 		approval.userId in group.users
 	}
 }
 
-check_transfer_resource_integrity {
+checkTransferResourceIntegrity {
 	contains(input.resource.uid, input.request.from)
 	input.resource.uid == input.intent.from
 }
 
-get_user_groups(id) = result {
+getUserGroups(id) = result {
 	result := {group.uid |
-		group := data.entities.user_groups[_]
+		group := data.entities.userGroups[_]
 		id in group.users
 	}
 }
 
-get_wallet_groups(id) = result {
+getWalletGroups(id) = result {
 	result := {group.uid |
-		group := data.entities.wallet_groups[_]
+		group := data.entities.walletGroups[_]
 		id in group.wallets
 	}
 }

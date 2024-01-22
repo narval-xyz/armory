@@ -2,21 +2,21 @@ package main
 
 import future.keywords.in
 
-mock_now_s = 1630540800
+mockNowS = 1630540800
 
-twenty_hours_ago = mock_now_s - ((20 * 60) * 60)
+twentyHoursAgo = mockNowS - ((20 * 60) * 60)
 
-eleven_hours_ago = mock_now_s - ((11 * 60) * 60)
+elevenHoursAgo = mockNowS - ((11 * 60) * 60)
 
-ten_hours_ago = mock_now_s - ((10 * 60) * 60)
+tenHoursAgo = mockNowS - ((10 * 60) * 60)
 
-nine_hours_ago = mock_now_s - ((9 * 60) * 60)
+nineHoursAgo = mockNowS - ((9 * 60) * 60)
 
-principal_req = {"userId": "test-bob-uid"}
+principalReq = {"userId": "test-bob-uid"}
 
-resource_req = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
+resourceReq = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 
-intent_req = {
+intentReq = {
 	"type": "transferERC20",
 	"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -24,20 +24,20 @@ intent_req = {
 	"amount": "1000000000000000000",
 }
 
-approvals_req = [
+approvalsReq = [
 	{"userId": "test-bob-uid"},
 	{"userId": "test-alice-uid"},
 	{"userId": "test-foo-uid"},
 	{"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
 ]
 
-transfers_req = [
+transfersReq = [
 	{
 		"amount": "3051000000",
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": eleven_hours_ago,
+		"timestamp": elevenHoursAgo,
 		"chainId": 137,
 		"initiatedBy": "test-alice-uid",
 	},
@@ -46,7 +46,7 @@ transfers_req = [
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": ten_hours_ago,
+		"timestamp": tenHoursAgo,
 		"chainId": 137,
 		"initiatedBy": "test-alice-uid",
 	},
@@ -55,17 +55,17 @@ transfers_req = [
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": twenty_hours_ago,
+		"timestamp": twentyHoursAgo,
 		"chainId": 137,
 		"initiatedBy": "test-alice-uid",
 	},
 ]
 
-request_req = {
+requestReq = {
 	"type": "eip1559",
 	"chainId": 137,
-	"max_fee_per_gas": "20000000000",
-	"max_priority_fee_per_gas": "3000000000",
+	"maxFeePerGas": "20000000000",
+	"maxPriorityFeePerGas": "3000000000",
 	"gas": "21000",
 	"nonce": 1,
 	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -74,12 +74,12 @@ request_req = {
 
 request = {
 	"action": "signTransaction",
-	"principal": principal_req,
-	"resource": resource_req,
-	"intent": intent_req,
-	"approvals": approvals_req,
-	"transfers": transfers_req,
-	"request": request_req,
+	"principal": principalReq,
+	"resource": resourceReq,
+	"intent": intentReq,
+	"approvals": approvalsReq,
+	"transfers": transfersReq,
+	"request": requestReq,
 }
 
 entities = {
@@ -119,7 +119,7 @@ entities = {
 			"assignees": ["test-bar-uid"],
 		},
 	},
-	"user_groups": {
+	"userGroups": {
 		"test-user-group-one-uid": {
 			"uid": "test-user-group-one-uid",
 			"name": "dev",
@@ -131,28 +131,28 @@ entities = {
 			"users": ["test-bob-uid", "test-bar-uid"],
 		},
 	},
-	"wallet_groups": {"test-wallet-group-one-uid": {
+	"walletGroups": {"test-wallet-group-one-uid": {
 		"uid": "test-wallet-group-one-uid",
 		"name": "dev",
 		"wallets": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
 	}},
-	"address_book": {
+	"addressBook": {
 		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
 			"uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-			"chain_id": 137,
+			"chainId": 137,
 			"classification": "internal",
 		},
 		"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"uid": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"chain_id": 137,
+			"chainId": 137,
 			"classification": "wallet",
 		},
 		"eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"uid": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"chain_id": 1,
+			"chainId": 1,
 			"classification": "wallet",
 		},
 	},
@@ -160,7 +160,7 @@ entities = {
 		"uid": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"symbol": "USDC",
-		"chain_id": 137,
+		"chainId": 137,
 		"decimals": 6,
 	}},
 }

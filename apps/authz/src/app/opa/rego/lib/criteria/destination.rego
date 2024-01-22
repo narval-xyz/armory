@@ -2,24 +2,24 @@ package main
 
 import future.keywords.in
 
-check_destination_address(values) {
+checkDestinationAddress(values) {
 	values == wildcard
 }
 
-check_destination_address(values) {
+checkDestinationAddress(values) {
 	values != wildcard
 	destination.address in values
 }
 
-check_destination_classification(values) {
+checkDestinationClassification(values) {
 	values == wildcard
 }
 
-check_destination_classification(values) {
+checkDestinationClassification(values) {
 	not destination.classification
 }
 
-check_destination_classification(values) {
+checkDestinationClassification(values) {
 	values != wildcard
 	destination.classification in values
 }

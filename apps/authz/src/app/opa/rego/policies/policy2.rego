@@ -3,13 +3,13 @@ package main
 import future.keywords.in
 
 permit[{"policyId": "test-policy-2"}] := reason {
-	check_principal
+	checkPrincipal
 
 	input.action == "signTransaction"
 
-	check_transfer_token_type({"transferERC20"})
-	check_transfer_token_address({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
-	check_transfer_token_operation({"operator": "lte", "value": "1000000000000000000"})
+	checkTransferTokenType({"transferERC20"})
+	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"})
+	checkTransferTokenOperation({"operator": "lte", "value": "1000000000000000000"})
 
 	approvalsRequired = [{
 		"approvalCount": 2,

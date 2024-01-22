@@ -2,43 +2,43 @@ package main
 
 import future.keywords.in
 
-is_principal_root_user {
+isPrincipalRootUser {
 	principal.role == "root"
 }
 
-is_principal_assigned_to_wallet {
+isPrincipalAssignedToWallet {
 	principal.uid in resource.assignees
 }
 
-check_principal {
-	not is_principal_root_user
-	is_principal_assigned_to_wallet
+checkPrincipal {
+	not isPrincipalRootUser
+	isPrincipalAssignedToWallet
 }
 
-check_principal_id(values) {
+checkPrincipalId(values) {
 	values == wildcard
 }
 
-check_principal_id(values) {
+checkPrincipalId(values) {
 	values != wildcard
 	principal.uid in values
 }
 
-check_principal_role(values) {
+checkPrincipalRole(values) {
 	values == wildcard
 }
 
-check_principal_role(values) {
+checkPrincipalRole(values) {
 	values != wildcard
 	principal.role in values
 }
 
-check_principal_groups(values) {
+checkPrincipalGroups(values) {
 	values == wildcard
 }
 
-check_principal_groups(values) {
+checkPrincipalGroups(values) {
 	values != wildcard
-	group := principal_groups[_]
+	group := principalGroups[_]
 	group in values
 }
