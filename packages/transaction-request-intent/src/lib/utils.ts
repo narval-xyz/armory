@@ -86,7 +86,7 @@ export const contractTypeLookup = (
 }
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
-  if (!txRequest.nonce) throw new Error('Invalid transaction request');
+  if (!txRequest.nonce) throw new Error('Invalid transaction request')
   const account = encodeEoaAccountId({
     chainId: txRequest.chainId,
     evmAccountAddress: txRequest.from
