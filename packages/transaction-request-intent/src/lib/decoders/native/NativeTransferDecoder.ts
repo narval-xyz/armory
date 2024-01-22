@@ -1,8 +1,8 @@
-import { Caip19, encodeEoaAccountId } from '../caip'
-import { Intents, NativeTransferInput } from '../domain'
-import { TransactionRequestIntentError } from '../error'
-import { TransferNative } from '../intent.types'
-import DecoderStrategy from './DecoderStrategy'
+import { Caip19, encodeEoaAccountId } from '../../caip'
+import { Intents, NativeTransferInput } from '../../domain'
+import { TransactionRequestIntentError } from '../../error'
+import { TransferNative } from '../../intent.types'
+import DecoderStrategy from '../DecoderStrategy'
 
 export default class NativeTransferDecoder extends DecoderStrategy {
   #input: NativeTransferInput

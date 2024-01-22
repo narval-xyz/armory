@@ -1,9 +1,9 @@
-import { encodeEoaAccountId } from '../caip'
-import { ContractCallInput, Intents } from '../domain'
-import { ApproveAllowanceParams } from '../extraction/types'
-import { ApproveTokenAllowance } from '../intent.types'
-import { isSupportedMethodId } from '../typeguards'
-import DecoderStrategy from './DecoderStrategy'
+import { encodeEoaAccountId } from '../../../caip'
+import { ContractCallInput, Intents } from '../../../domain'
+import { ApproveAllowanceParams } from '../../../extraction/types'
+import { ApproveTokenAllowance } from '../../../intent.types'
+import { isSupportedMethodId } from '../../../typeguards'
+import DecoderStrategy from '../../DecoderStrategy'
 
 export default class ApproveTokenAllowanceDecoder extends DecoderStrategy {
   #input: ContractCallInput
