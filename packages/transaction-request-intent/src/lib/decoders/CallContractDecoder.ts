@@ -1,7 +1,6 @@
 import { encodeEoaAccountId } from '../caip'
-import { Intents } from '../domain'
+import { ContractCallInput, Intents } from '../domain'
 import { CallContract } from '../intent.types'
-import { ContractCallInput } from '../types'
 import DecoderStrategy from './DecoderStrategy'
 
 export default class CallContractDecoder extends DecoderStrategy {
