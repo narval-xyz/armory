@@ -59,16 +59,56 @@ export type HistoricalTransfer = {
   timestamp: number // unix timestamp
 }
 
+// Temporary enum to make TypeScript happy. In the future, the engine must
+// support every action on the Action enum.
+export enum SupportedAction {
+  SIGN_TRANSACTION = Action.SIGN_TRANSACTION,
+  SIGN_MESSAGE = Action.SIGN_MESSAGE
+}
+
+export type SharedAuthorizationRequest = {
+  action: SupportedAction
+  nonce: string
+}
+
+export type SignTransaction = SharedAuthorizationRequest & {
+  action: SupportedAction.SIGN_TRANSACTION
+  resourceId: string
+  transactionRequest: TransactionRequest
+}
+
+export type SignMessage = SharedAuthorizationRequest & {
+  action: SupportedAction.SIGN_MESSAGE
+  message: string
+}
+
+export type AuthorizationRequest = SignTransaction | SignMessage
+
 /**
- * The activity/data being authorized. This must include all the data being authorized, and nothing except the data being authorized.
- * This is the data that will be hashed and signed.
+ * The action being authorized.
+ *
+ * This must include all the data being authorized, and nothing except the data
+ * being authorized. This is the data that will be hashed and signed.
  */
-export type AuthZRequest = {
-  action: Action
-  nonce: string // A unique nonce for this request, to prevent replay attacks
-  resourceId?: string
-  transactionRequest?: TransactionRequest // for signTransaction
-  message?: string // for signMessage
+export type AuthorizationRequestPayload = {
+  /**
+   * The initiator signature of the request using `hashRequest` method to ensure
+   * SHA256 format.
+   */
+  authentication: RequestSignature
+  /**
+   * The authorization request of
+   */
+  request: AuthorizationRequest
+  /**
+   * List of approvals required by the policy.
+   */
+  approvals?: RequestSignature[]
+  /**
+   * List of known approved transfers (not mined). These are used by policies on
+   * the history like spending limits.
+   */
+  transfers?: HistoricalTransfer[]
 }
 
 /**
@@ -78,13 +118,6 @@ export type RequestSignature = {
   sig: string
   alg: Alg
   pubKey: string // Depending on the alg, this may be necessary (e.g., RSA cannot recover the public key from the signature)
-}
-
-export type AuthZRequestPayload = {
-  authentication: RequestSignature // The signature of the initiator
-  request: AuthZRequest
-  approvals?: RequestSignature[] // Other approvals, incl. second factors of the initiator
-  transfers?: HistoricalTransfer[]
 }
 
 export enum NarvalDecision {
@@ -106,10 +139,10 @@ export type ApprovalRequirement = {
   countPrincipal: boolean
 }
 
-export type AuthZResponse = {
+export type AuthorizationResponse = {
   decision: NarvalDecision
   permitSignature?: RequestSignature // The ENGINE's approval signature
-  request?: AuthZRequest // The actual authorized request
+  request?: AuthorizationRequest // The actual authorized request
   totalApprovalsRequired?: ApprovalRequirement[]
   approvalsMissing?: ApprovalRequirement[]
   approvalsSatisfied?: ApprovalRequirement[]

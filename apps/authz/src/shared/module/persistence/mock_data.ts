@@ -3,7 +3,8 @@ import {
   Action,
   Alg,
   AuthCredential,
-  AuthZRequestPayload,
+  AuthorizationRequestPayload,
+  SupportedAction,
   TransactionRequest,
   UserRoles
 } from '@app/authz/shared/types/domain.type'
@@ -262,10 +263,10 @@ export const mockEntityData: RegoData = {
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async (): Promise<AuthZRequestPayload> => {
+export const generateInboundRequest = async (): Promise<AuthorizationRequestPayload> => {
   const txRequest = NATIVE_TRANSFER_TX_REQUEST
   const request = {
-    action: Action.SIGN_TRANSACTION,
+    action: SupportedAction.SIGN_TRANSACTION,
     nonce: 'random-nonce-111',
     transactionRequest: txRequest,
     resourceId: TREASURY_WALLET_X.uid
