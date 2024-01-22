@@ -41,18 +41,21 @@ export type AddressBook = {
   accounts: AddressBookAccount[]
 }
 
-export type RolePermission = {
-  permit: boolean
-  admin_quorum_threshold?: number
+export type Token = {
+  uid: string
+  address: string
+  symbol: string
+  chainId: number
+  decimals: number
 }
 
 export type RegoData = {
   entities: {
     users: Record<string, User>
-    user_groups: Record<string, UserGroup>
     wallets: Record<string, Wallet>
-    wallet_groups: Record<string, WalletGroup>
-    address_book: Record<string, AddressBookAccount>
+    userGroups: Record<string, UserGroup>
+    walletGroups: Record<string, WalletGroup>
+    addressBook: Record<string, AddressBookAccount>
+    tokens: Record<string, Token>
   }
-  permissions: Record<string, Record<string, RolePermission>>
 }

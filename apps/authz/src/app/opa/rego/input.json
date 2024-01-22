@@ -1,78 +1,41 @@
 {
   "action": "signTransaction",
-  "principal": { "userId": "test-foo-uid" },
-  "resource": { "uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e" },
-  "request": {
-    "type": "eip1559",
-    "chainId": 137,
-    "maxFeePerGas": "20000000000",
-    "maxPriorityFeePerGas": "3000000000",
-    "gas": "21000",
-    "nonce": 1,
-    "from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-    "to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
-  },
   "intent": {
-    "type": "transferERC20",
-    "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-    "to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-    "contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    "amount": "1000000000000000000"
+    "to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+    "from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+    "type": "transferNative",
+    "amount": "1000000000000000000",
+    "token": "eip155:137/slip44/966"
   },
+  "transactionRequest": {
+    "from": "0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+    "to": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+    "chainId": 137,
+    "value": "0xde0b6b3a7640000",
+    "data": "0x00000000",
+    "nonce": 192,
+    "type": "2"
+  },
+  "principal": {
+    "id": "credentialId1",
+    "alg": "ES256K",
+    "userId": "matt@narval.xyz",
+    "pubKey": "0xd75D626a116D4a1959fE3bB938B2e7c116A05890"
+  },
+  "resource": { "uid": "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b" },
   "approvals": [
     {
-      "userId": "test-bob-uid"
+      "userId": "aa@narval.xyz",
+      "id": "credentialId2",
+      "alg": "ES256K",
+      "pubKey": "0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06"
     },
     {
-      "userId": "test-alice-uid"
-    },
-    {
-      "userId": "test-foo-uid"
-    },
-    {
-      "userId": "test-bar-uid"
+      "userId": "bb@narval.xyz",
+      "id": "credentialId3",
+      "alg": "ES256K",
+      "pubKey": "0xab88c8785D0C00082dE75D801Fcb1d5066a6311e"
     }
   ],
-  "transfers": [
-    {
-      "amount": "3000000000",
-      "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-      "to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-      "chainId": 137,
-      "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-      "rates": { "fiat:usd": "0.99", "fiat:eur": "1.10" },
-      "initiatedBy": "test-foo-uid",
-      "timestamp": 1705332968316
-    },
-    {
-      "amount": "2000000000",
-      "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-      "to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-      "chainId": 137,
-      "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-      "rates": { "fiat:usd": "0.99", "fiat:eur": "1.10" },
-      "initiatedBy": "test-foo-uid",
-      "timestamp": 1705332971916
-    },
-    {
-      "amount": "1500000000",
-      "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-      "to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-      "chainId": 137,
-      "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-      "rates": { "fiat:usd": "0.99", "fiat:eur": "1.10" },
-      "initiatedBy": "test-foo-uid",
-      "timestamp": 1705332975516
-    },
-    {
-      "amount": "1000000000",
-      "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-      "to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-      "chainId": 137,
-      "token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-      "rates": { "fiat:usd": "0.99", "fiat:eur": "1.10" },
-      "initiatedBy": "test-foo-uid",
-      "timestamp": 1705332935916
-    }
-  ]
+  "transfers": []
 }

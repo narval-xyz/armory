@@ -23,7 +23,9 @@ checkAccStartDate(timestamp, startDate) {
 
 checkAccStartDate(timestamp, startDate) {
 	startDate != wildcard
-	timestamp >= startDate
+
+	# convert ms to ns
+	timestamp * 1000000 >= startDate
 }
 
 checkAccEndDate(timestamp, endDate) {
@@ -32,7 +34,9 @@ checkAccEndDate(timestamp, endDate) {
 
 checkAccEndDate(timestamp, endDate) {
 	endDate != wildcard
-	timestamp <= endDate
+
+	# convert ms to ns
+	timestamp * 1000000 <= endDate
 }
 
 checkAccUserGroups(userId, values) {

@@ -31,7 +31,7 @@ export class OpaService {
 
   async evaluate(input: RegoInput): Promise<OpaResult[]> {
     if (!this.opaEngine) throw new Error('OPA Engine not initialized')
-    const result = await this.opaEngine.evaluate(input)
-    return result
+    const evalResult: { result: OpaResult }[] = await this.opaEngine.evaluate(input, 'main/evaluate')
+    return evalResult.map(({ result }) => result)
   }
 }

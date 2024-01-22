@@ -22,6 +22,9 @@ import { OpaService } from './opa/opa.service'
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 export const finalizeDecision = (response: OpaResult[]) => {
+  // Implicit Forbid - not root user and no rules matching
+  const implicitForbid = response.some((r) => r?.default === true && r.permit === false && r.reasons?.length === 0)
+
   // Explicit Forbid - a Forbid rule type that matches & decides Forbid
   const anyExplicitForbid = response.some((r) => r.permit === false && r.reasons?.some((rr) => rr.type === 'forbid'))
 
@@ -31,7 +34,7 @@ export const finalizeDecision = (response: OpaResult[]) => {
     r.reasons?.some((rr) => rr.type === 'permit' && rr.approvalsMissing.length > 0)
   )
 
-  if (anyExplicitForbid) {
+  if (implicitForbid || anyExplicitForbid) {
     return {
       originalResponse: response,
       decision: NarvalDecision.Forbid,
