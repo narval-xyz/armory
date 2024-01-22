@@ -43,7 +43,7 @@ jobs:
           make authz-shared/test/unit
 
       - name: Send Slack notification on failure
-        if: failure()
+        if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
