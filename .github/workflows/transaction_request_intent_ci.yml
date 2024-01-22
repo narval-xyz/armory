@@ -37,6 +37,11 @@ jobs:
           make transaction-request-intent/format/check
           make transaction-request-intent/lint/check
 
+      - name: Test types
+        shell: bash
+        run: |
+          make transaction-request-intent/test/type
+
       - name: Test unit
         shell: bash
         run: |

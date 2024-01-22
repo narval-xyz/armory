@@ -69,12 +69,10 @@ jobs:
           make orchestration/test/db/setup
           make orchestration/db/generate-types
 
-      # Temporary disable while we don't figure out how to scope the check only
-      # to oen application.
-      # - name: Test types
-      #   shell: bash
-      #   run: |
-      #     make orchestration/test/type
+      - name: Test types
+        shell: bash
+        run: |
+          make orchestration/test/type
 
       - name: Test unit
         shell: bash

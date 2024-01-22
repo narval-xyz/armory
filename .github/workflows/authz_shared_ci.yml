@@ -37,6 +37,11 @@ jobs:
           make authz-shared/format/check
           make authz-shared/lint/check
 
+      - name: Test types
+        shell: bash
+        run: |
+          make authz-shared/test/type
+
       - name: Test unit
         shell: bash
         run: |
