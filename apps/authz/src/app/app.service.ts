@@ -7,8 +7,7 @@ import {
   AuthorizationResponse,
   HistoricalTransfer,
   NarvalDecision,
-  RequestSignature,
-  SupportedAction
+  RequestSignature
 } from '@app/authz/shared/types/domain.type'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Action, hashRequest } from '@narval/authz-shared'
@@ -110,7 +109,7 @@ export class AppService {
     intent?: Intent
     transfers?: HistoricalTransfer[]
   }): RegoInput {
-    if (request.action === SupportedAction.SIGN_TRANSACTION) {
+    if (request.action === Action.SIGN_TRANSACTION) {
       return {
         action: Action.SIGN_TRANSACTION,
         intent,
@@ -143,7 +142,7 @@ export class AppService {
 
     // Decode the intent
     const intentResult =
-      request.action === SupportedAction.SIGN_TRANSACTION
+      request.action === Action.SIGN_TRANSACTION
         ? decoder.safeDecode({
             type: InputType.TRANSACTION_REQUEST,
             txRequest: request.transactionRequest

@@ -59,26 +59,19 @@ export type HistoricalTransfer = {
   timestamp: number // unix timestamp
 }
 
-// Temporary enum to make TypeScript happy. In the future, the engine must
-// support every action on the Action enum.
-export enum SupportedAction {
-  SIGN_TRANSACTION = Action.SIGN_TRANSACTION,
-  SIGN_MESSAGE = Action.SIGN_MESSAGE
-}
-
 export type SharedAuthorizationRequest = {
-  action: SupportedAction
+  action: Action
   nonce: string
 }
 
 export type SignTransaction = SharedAuthorizationRequest & {
-  action: SupportedAction.SIGN_TRANSACTION
+  action: Action.SIGN_TRANSACTION
   resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessage = SharedAuthorizationRequest & {
-  action: SupportedAction.SIGN_MESSAGE
+  action: Action.SIGN_MESSAGE
   resourceId: string
   message: string
 }
