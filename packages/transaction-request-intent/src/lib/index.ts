@@ -1,4 +1,4 @@
-export * from 'domain'
+export * from './domain'
 export { default as Decoder } from './decoders/Decoder'
 export * from './intent.types'
 export * from './supported-methods'
