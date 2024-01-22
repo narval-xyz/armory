@@ -2,62 +2,62 @@ package main
 
 import future.keywords.in
 
-parse_units(value, decimals) = result {
+parseUnits(value, decimals) = result {
 	range = numbers.range(1, decimals)
-	pow_ten = [n | i = range[_]; n := 10]
-	result := to_number(value) * product(pow_ten)
+	powTen = [n | i = range[_]; n := 10]
+	result := to_number(value) * product(powTen)
 }
 
-check_acc_condition(value, set) {
+checkAccCondition(value, set) {
 	set == wildcard
 }
 
-check_acc_condition(value, set) {
+checkAccCondition(value, set) {
 	set != wildcard
 	value in set
 }
 
-check_acc_start_date(timestamp, start_date) {
-	start_date == wildcard
+checkAccStartDate(timestamp, startDate) {
+	startDate == wildcard
 }
 
-check_acc_start_date(timestamp, start_date) {
-	start_date != wildcard
-	timestamp >= start_date
+checkAccStartDate(timestamp, startDate) {
+	startDate != wildcard
+	timestamp >= startDate
 }
 
-check_acc_end_date(timestamp, end_date) {
-	end_date == wildcard
+checkAccEndDate(timestamp, endDate) {
+	endDate == wildcard
 }
 
-check_acc_end_date(timestamp, end_date) {
-	end_date != wildcard
-	timestamp <= end_date
+checkAccEndDate(timestamp, endDate) {
+	endDate != wildcard
+	timestamp <= endDate
 }
 
-check_acc_user_groups(user_id, values) {
+checkAccUserGroups(userId, values) {
 	values == wildcard
 }
 
-check_acc_user_groups(user_id, values) {
+checkAccUserGroups(userId, values) {
 	values != wildcard
-	groups := get_user_groups(user_id)
+	groups := getUserGroups(userId)
 	group := groups[_]
 	group in values
 }
 
-check_acc_wallet_groups(wallet_id, values) {
+checkAccWalletGroups(walletId, values) {
 	values == wildcard
 }
 
-check_acc_wallet_groups(wallet_id, values) {
+checkAccWalletGroups(walletId, values) {
 	values != wildcard
-	groups := get_wallet_groups(wallet_id)
+	groups := getWalletGroups(walletId)
 	group := groups[_]
 	group in values
 }
 
-get_usd_spending_amount(filters) = result {
+getUsdSpendingAmount(filters) = result {
 	conditions = object.union(
 		{
 			"tokens": "*",
@@ -72,37 +72,37 @@ get_usd_spending_amount(filters) = result {
 		filters,
 	)
 
-	result := sum([usd_amount |
+	result := sum([usdAmount |
 		transfer := input.transfers[_]
 
 		# filter by user groups
-		check_acc_user_groups(transfer.initiatedBy, conditions.userGroups)
+		checkAccUserGroups(transfer.initiatedBy, conditions.userGroups)
 
 		# filter by wallet groups
-		check_acc_wallet_groups(transfer.from, conditions.walletGroups)
+		checkAccWalletGroups(transfer.from, conditions.walletGroups)
 
 		# filter by tokens
-		check_acc_condition(transfer.token, conditions.tokens)
+		checkAccCondition(transfer.token, conditions.tokens)
 
 		# filter by users
-		check_acc_condition(transfer.initiatedBy, conditions.users)
+		checkAccCondition(transfer.initiatedBy, conditions.users)
 
 		# filter by resource wallets
-		check_acc_condition(transfer.from, conditions.resources)
+		checkAccCondition(transfer.from, conditions.resources)
 
 		# filter by chains
-		check_acc_condition(transfer.chainId, conditions.chains)
+		checkAccCondition(transfer.chainId, conditions.chains)
 
 		# filter by start date
-		check_acc_start_date(transfer.timestamp, conditions.startDate)
+		checkAccStartDate(transfer.timestamp, conditions.startDate)
 
 		# filter by end date
-		check_acc_end_date(transfer.timestamp, conditions.endDate)
+		checkAccEndDate(transfer.timestamp, conditions.endDate)
 
-		usd_amount := to_number(transfer.amount) * to_number(transfer.rates["fiat:usd"])
+		usdAmount := to_number(transfer.amount) * to_number(transfer.rates["fiat:usd"])
 	])
 }
 
-check_spending_limit_reached(spendings, amount, limit) {
+checkSpendingLimitReached(spendings, amount, limit) {
 	spendings + amount > limit
 }

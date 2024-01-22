@@ -5,8 +5,8 @@
   "request": {
     "type": "eip1559",
     "chainId": 137,
-    "max_fee_per_gas": "20000000000",
-    "max_priority_fee_per_gas": "3000000000",
+    "maxFeePerGas": "20000000000",
+    "maxPriorityFeePerGas": "3000000000",
     "gas": "21000",
     "nonce": 1,
     "from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",

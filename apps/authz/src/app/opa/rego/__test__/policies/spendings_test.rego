@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-test_forbid_members_to_transfer_more_than_five_thousand_usd_in_twelve_hours {
+test_forbidMembersToTransferMoreThanFiveThousandUsdInTwelveHours {
 	req = object.union(request, {"principal": {"userId": "test-alice-uid"}})
 
 	res = forbid[{"policyId": "test-accumulation-policy-1"}] with input as req with data.entities as entities
@@ -15,7 +15,7 @@ test_forbid_members_to_transfer_more_than_five_thousand_usd_in_twelve_hours {
 	}
 }
 
-test_forbid_alice_to_transfer_more_than_five_thousand_usd_in_twelve_hours {
+test_forbidAliceToTransferMoreThanFiveThousandUsdInTwelveHours {
 	req = object.union(request, {"principal": {"userId": "test-alice-uid"}})
 
 	res = forbid[{"policyId": "test-accumulation-policy-2"}] with input as req with data.entities as entities
@@ -28,7 +28,7 @@ test_forbid_alice_to_transfer_more_than_five_thousand_usd_in_twelve_hours {
 	}
 }
 
-test_forbid_resource_wallet_to_transfer_more_than_five_thousand_usd {
+test_forbidResourceWalletToTransferMoreThanFiveThousandUsd {
 	req = object.union(request, {"principal": {"userId": "test-alice-uid"}})
 
 	res = forbid[{"policyId": "test-accumulation-policy-3"}] with input as req with data.entities as entities
@@ -41,14 +41,14 @@ test_forbid_resource_wallet_to_transfer_more_than_five_thousand_usd {
 	}
 }
 
-test_forbid_user_group_to_transfer_more_than_five_thousand_usd {
+test_forbidUserGroupToTransferMoreThanFiveThousandUsd {
 	req = object.union(request, {"principal": {"userId": "test-bar-uid"}, "transfers": [
 		{
 			"amount": "3051000000",
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"rates": {"fiat:usd": "0.99"},
-			"timestamp": eleven_hours_ago,
+			"timestamp": elevenHoursAgo,
 			"chainId": 137,
 			"initiatedBy": "test-alice-uid",
 		},
@@ -57,7 +57,7 @@ test_forbid_user_group_to_transfer_more_than_five_thousand_usd {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"rates": {"fiat:usd": "0.99"},
-			"timestamp": ten_hours_ago,
+			"timestamp": tenHoursAgo,
 			"chainId": 137,
 			"initiatedBy": "test-bar-uid",
 		},
@@ -66,7 +66,7 @@ test_forbid_user_group_to_transfer_more_than_five_thousand_usd {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"rates": {"fiat:usd": "0.99"},
-			"timestamp": twenty_hours_ago,
+			"timestamp": twentyHoursAgo,
 			"chainId": 137,
 			"initiatedBy": "test-alice-uid",
 		},
@@ -82,15 +82,15 @@ test_forbid_user_group_to_transfer_more_than_five_thousand_usd {
 	}
 }
 
-test_forbid_wallet_group_to_transfer_more_than_five_thousand_usd {
+test_forbidWalletGroupToTransferMoreThanFiveThousandUsd {
 	req = object.union(request, {
 		"principal": {"userId": "test-bar-uid"},
 		"resource": {"uid": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"request": {
 			"type": "eip1559",
 			"chainId": 137,
-			"max_fee_per_gas": "20000000000",
-			"max_priority_fee_per_gas": "3000000000",
+			"maxFeePerGas": "20000000000",
+			"maxPriorityFeePerGas": "3000000000",
 			"gas": "21000",
 			"nonce": 1,
 			"from": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -102,7 +102,7 @@ test_forbid_wallet_group_to_transfer_more_than_five_thousand_usd {
 				"from": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99"},
-				"timestamp": eleven_hours_ago,
+				"timestamp": elevenHoursAgo,
 				"chainId": 137,
 				"initiatedBy": "test-alice-uid",
 			},
@@ -111,7 +111,7 @@ test_forbid_wallet_group_to_transfer_more_than_five_thousand_usd {
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99"},
-				"timestamp": ten_hours_ago,
+				"timestamp": tenHoursAgo,
 				"chainId": 137,
 				"initiatedBy": "test-bar-uid",
 			},
@@ -120,7 +120,7 @@ test_forbid_wallet_group_to_transfer_more_than_five_thousand_usd {
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99"},
-				"timestamp": twenty_hours_ago,
+				"timestamp": twentyHoursAgo,
 				"chainId": 137,
 				"initiatedBy": "test-alice-uid",
 			},

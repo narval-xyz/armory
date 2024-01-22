@@ -5,22 +5,22 @@ import future.keywords.in
 # Members can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
 
 forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
-	check_principal
+	checkPrincipal
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferERC20"}
+	transferTypes = {"transferERC20"}
 	roles = {"member"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
 
-	check_principal_role(roles)
-	check_transfer_token_type(transfer_types)
-	check_transfer_token_address(tokens)
+	checkPrincipalRole(roles)
+	checkTransferTokenType(transferTypes)
+	checkTransferTokenAddress(tokens)
 
-	spendings = get_usd_spending_amount({"tokens": tokens, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"tokens": tokens, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
@@ -33,22 +33,22 @@ forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
 # Alice can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
 
 forbid[{"policyId": "test-accumulation-policy-2"}] := reason {
-	check_principal
+	checkPrincipal
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferERC20"}
+	transferTypes = {"transferERC20"}
 	users = {"test-alice-uid"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
 
-	check_transfer_token_type(transfer_types)
-	check_principal_id(users)
-	check_transfer_token_address(tokens)
+	checkPrincipalId(users)
+	checkTransferTokenType(transferTypes)
+	checkTransferTokenAddress(tokens)
 
-	spendings = get_usd_spending_amount({"tokens": tokens, "users": users, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"tokens": tokens, "users": users, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
@@ -61,20 +61,20 @@ forbid[{"policyId": "test-accumulation-policy-2"}] := reason {
 # Resource wallet can't transfer > $5k usd value in 12 hours on a rolling basis
 
 forbid[{"policyId": "test-accumulation-policy-3"}] := reason {
-	check_principal
+	checkPrincipal
 
 	input.action == "signTransaction"
 
-	transfer_types = {"transferERC20"}
+	transferTypes = {"transferERC20"}
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
 
-	check_transfer_token_type(transfer_types)
-	check_wallet_id(resources)
+	checkTransferTokenType(transferTypes)
+	checkWalletId(resources)
 
-	spendings = get_usd_spending_amount({"resources": resources, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"resources": resources, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
@@ -87,18 +87,18 @@ forbid[{"policyId": "test-accumulation-policy-3"}] := reason {
 # User group can't transfer > $5k usd value in 24 hours on a rolling basis
 
 forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
-	check_principal
+	checkPrincipal
 	input.action == "signTransaction"
 
-	transfer_types = {"transferERC20"}
-	user_groups = {"test-user-group-one-uid"}
+	transferTypes = {"transferERC20"}
+	userGroups = {"test-user-group-one-uid"}
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((24 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((24 * 60) * 60) * 1000000000))
 
-	check_transfer_token_type(transfer_types)
+	checkTransferTokenType(transferTypes)
 
-	spendings = get_usd_spending_amount({"userGroups": user_groups, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"userGroups": userGroups, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
@@ -111,18 +111,18 @@ forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
 # Wallet group can't transfer > $5k usd value in 24 hours on a rolling basis
 
 forbid[{"policyId": "test-accumulation-policy-5"}] := reason {
-	check_principal
+	checkPrincipal
 	input.action == "signTransaction"
 
-	transfer_types = {"transferERC20"}
-	wallet_groups = {"test-wallet-group-one-uid"}
+	transferTypes = {"transferERC20"}
+	walletGroups = {"test-wallet-group-one-uid"}
 	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((24 * 60) * 60) * 1000000000))
+	start = nanosecondsToSeconds(time.now_ns() - (((24 * 60) * 60) * 1000000000))
 
-	check_transfer_token_type(transfer_types)
+	checkTransferTokenType(transferTypes)
 
-	spendings = get_usd_spending_amount({"walletGroups": wallet_groups, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
+	spendings = getUsdSpendingAmount({"walletGroups": walletGroups, "start": start})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 
 	reason := {
 		"type": "forbid",
