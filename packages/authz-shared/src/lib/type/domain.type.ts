@@ -46,7 +46,7 @@ export enum TransactionType {
 export type TransactionRequest = {
   chainId: number
   from: Address
-  nonce: number
+  nonce?: number
   accessList?: AccessList
   data?: Hex
   gas?: bigint
