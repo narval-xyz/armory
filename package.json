@@ -38,7 +38,7 @@
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.18.0",
-    "@typescript-eslint/parser": "^6.9.1",
+    "@typescript-eslint/parser": "^6.19.1",
     "babel-jest": "^29.4.1",
     "dotenv-cli": "^7.3.0",
     "eslint": "~8.46.0",
