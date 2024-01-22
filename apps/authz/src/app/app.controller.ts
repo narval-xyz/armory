@@ -57,7 +57,10 @@ export class AppController {
       result
     })
 
-    return result
+    return {
+      request: fakeRequest,
+      result
+    }
   }
 
   @Get('/generate-inbound-request')

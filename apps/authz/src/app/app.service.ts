@@ -5,13 +5,14 @@ import {
   AuthZRequest,
   AuthZRequestPayload,
   AuthZResponse,
+  HistoricalTransfer,
   NarvalDecision,
   RequestSignature
 } from '@app/authz/shared/types/domain.type'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { hashRequest } from '@narval/authz-shared'
-import { safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
+import { Decoder } from 'packages/transaction-request-intent/src'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
@@ -103,12 +104,14 @@ export class AppService {
     principal,
     request,
     approvals,
-    intent
+    intent,
+    transfers
   }: {
     principal: AuthCredential
     request: AuthZRequest
     approvals: AuthCredential[] | null
     intent?: Intent
+    transfers?: HistoricalTransfer[]
   }): RegoInput {
     // intent only exists in SignTransaction actions
     return {
@@ -121,18 +124,18 @@ export class AppService {
             uid: request.resourceId
           }
         : undefined,
-      approvals: approvals || []
+      approvals: approvals || [],
+      transfers: transfers || []
     }
   }
 
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authentication, approvals }: AuthZRequestPayload) {
-    console.log({ request, authentication, approvals })
-
+  async runEvaluation({ request, authentication, approvals, transfers }: AuthZRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
+    const decoder = new Decoder()
     const verificationMessage = hashRequest(request)
 
     console.log('### hash', verificationMessage)
@@ -142,7 +145,7 @@ export class AppService {
 
     // Decode the intent
     const intentResult = request.transactionRequest
-      ? safeDecode({
+      ? decoder.safeDecode({
           type: InputType.TRANSACTION_REQUEST,
           txRequest: request.transactionRequest
         })
@@ -154,7 +157,8 @@ export class AppService {
       principal: principalCredential,
       request,
       approvals: populatedApprovals,
-      intent
+      intent,
+      transfers
     })
 
     // Actual Rego Evaluation

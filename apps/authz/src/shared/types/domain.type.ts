@@ -65,6 +65,7 @@ export type HistoricalTransfer = {
  */
 export type AuthZRequest = {
   action: Action
+  nonce: string // A unique nonce for this request, to prevent replay attacks
   resourceId?: string
   transactionRequest?: TransactionRequest // for signTransaction
   message?: string // for signMessage

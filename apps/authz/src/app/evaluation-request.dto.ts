@@ -25,6 +25,11 @@ export class BaseRequestDataDto {
     enum: Action
   })
   action: Action
+
+  @IsString()
+  @IsDefined()
+  @ApiProperty()
+  nonce: string
 }
 
 export class TransactionRequestDto {
@@ -142,7 +147,9 @@ export class EvaluationRequestDto {
 
   @ValidateNested()
   @Type((opts) => {
-    return opts?.object.action === Action.SIGN_TRANSACTION ? TransactionRequestDto : SignMessageRequestDataDto
+    return opts?.object.request.action === Action.SIGN_TRANSACTION
+      ? SignTransactionRequestDataDto
+      : SignMessageRequestDataDto
   })
   @IsDefined()
   @ApiProperty({
