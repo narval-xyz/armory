@@ -46,13 +46,14 @@ export type TypedDataInput = {
   typedData: TypedData
 }
 
-export type ContractRegistry = {
-  [key: Caip10]: AssetTypeEnum
-}
+export type ContractRegistryInput = {
+  contract: Caip10 | { address: Address; chainId: number }
+  assetType: AssetTypeEnum
+}[]
+export type ContractRegistry = Map<Caip10, AssetTypeEnum>
 
-export type TransactionRegistry = {
-  [key: string]: TransactionStatus // tbd
-}
+export type TransactionKey = `${Caip10}-${number}`
+export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 export type TransactionInput = {
   type: InputType.TRANSACTION_REQUEST
@@ -123,6 +124,7 @@ export enum TransactionCategory {
 }
 
 export enum TransactionStatus {
+  SUCCESS = 'success',
   PENDING = 'pending',
   FAILED = 'failed'
 }

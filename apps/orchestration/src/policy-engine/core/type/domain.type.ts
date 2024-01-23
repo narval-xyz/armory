@@ -37,41 +37,37 @@ export type Evaluation = {
   createdAt: Date
 }
 
-export type SharedAuthorizationRequest = {
-  id: string
-  orgId: string
-  status: `${AuthorizationRequestStatus}`
-  /**
-   * The hash of the request in EIP-191 format.
-   *
-   * @see https://eips.ethereum.org/EIPS/eip-191
-   * @see https://viem.sh/docs/utilities/hashMessage.html
-   * @see https://docs.ethers.org/v5/api/utils/hashing/
-   */
-  hash: string
-  idempotencyKey?: string | null
-  authentication: Signature
-  approvals: Approval[]
-  evaluations: Evaluation[]
-  createdAt: Date
-  updatedAt: Date
+export type SharedAuthorizationPayload = {
+  action: `${SupportedAction}`
+  nonce: string
 }
 
-export type SignTransactionAuthorizationRequest = SharedAuthorizationRequest & {
+export type SignTransaction = SharedAuthorizationPayload & {
   action: `${SupportedAction.SIGN_TRANSACTION}`
-  request: TransactionRequest
+  resourceId: string
+  transactionRequest: TransactionRequest
 }
 
-export type MessageRequest = {
+export type SignMessage = SharedAuthorizationPayload & {
+  action: `${SupportedAction.SIGN_MESSAGE}`
+  resourceId: string
   message: string
 }
 
-export type SignMessageAuthorizationRequest = SharedAuthorizationRequest & {
-  action: `${SupportedAction.SIGN_MESSAGE}`
-  request: MessageRequest
-}
+export type Request = SignTransaction | SignMessage
 
-export type AuthorizationRequest = SignTransactionAuthorizationRequest | SignMessageAuthorizationRequest
+export type AuthorizationRequest = {
+  id: string
+  orgId: string
+  status: `${AuthorizationRequestStatus}`
+  authentication: Signature
+  request: Request
+  approvals: Approval[]
+  evaluations: Evaluation[]
+  idempotencyKey?: string | null
+  createdAt: Date
+  updatedAt: Date
+}
 
 export type CreateApproval = SetOptional<Approval, 'id' | 'createdAt'>
 
@@ -81,14 +77,6 @@ export type CreateAuthorizationRequest = OverrideProperties<
     approvals: CreateApproval[]
   }
 >
-
-export function isSignTransaction(request: AuthorizationRequest): request is SignTransactionAuthorizationRequest {
-  return (request as SignTransactionAuthorizationRequest).action === SupportedAction.SIGN_TRANSACTION
-}
-
-export function isSignMessage(request: AuthorizationRequest): request is SignMessageAuthorizationRequest {
-  return (request as SignMessageAuthorizationRequest).action === SupportedAction.SIGN_MESSAGE
-}
 
 export type AuthorizationRequestProcessingJob = {
   id: string
