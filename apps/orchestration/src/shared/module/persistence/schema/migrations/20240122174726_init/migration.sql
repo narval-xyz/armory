@@ -20,7 +20,6 @@ CREATE TABLE "authorization_request" (
     "org_id" TEXT NOT NULL,
     "status" "AuthorizationRequestStatus" NOT NULL DEFAULT 'CREATED',
     "action" "AuthorizationRequestAction" NOT NULL,
-    "hash" TEXT NOT NULL,
     "request" JSONB NOT NULL,
     "idempotency_key" TEXT,
     "authn_sig" TEXT NOT NULL,

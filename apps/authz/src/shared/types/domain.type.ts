@@ -56,19 +56,53 @@ export type HistoricalTransfer = {
   token: Caip10
   rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
   initiatedBy: string // uid of the user who initiated the spending
-  timestamp: number // unix timestamp
+  timestamp: number // unix timestamp in ms
 }
 
-/**
- * The activity/data being authorized. This must include all the data being authorized, and nothing except the data being authorized.
- * This is the data that will be hashed and signed.
- */
-export type AuthZRequest = {
+export type SharedAuthorizationRequest = {
   action: Action
-  nonce: string // A unique nonce for this request, to prevent replay attacks
-  resourceId?: string
-  transactionRequest?: TransactionRequest // for signTransaction
-  message?: string // for signMessage
+  nonce: string
+}
+
+export type SignTransaction = SharedAuthorizationRequest & {
+  action: Action.SIGN_TRANSACTION
+  resourceId: string
+  transactionRequest: TransactionRequest
+}
+
+export type SignMessage = SharedAuthorizationRequest & {
+  action: Action.SIGN_MESSAGE
+  resourceId: string
+  message: string
+}
+
+export type AuthorizationRequest = SignTransaction | SignMessage
+
+/**
+ * The action being authorized.
+ *
+ * This must include all the data being authorized, and nothing except the data
+ * being authorized. This is the data that will be hashed and signed.
+ */
+export type AuthorizationRequestPayload = {
+  /**
+   * The initiator signature of the request using `hashRequest` method to ensure
+   * SHA256 format.
+   */
+  authentication: RequestSignature
+  /**
+   * The authorization request of
+   */
+  request: AuthorizationRequest
+  /**
+   * List of approvals required by the policy.
+   */
+  approvals?: RequestSignature[]
+  /**
+   * List of known approved transfers (not mined). These are used by policies on
+   * the history like spending limits.
+   */
+  transfers?: HistoricalTransfer[]
 }
 
 /**
@@ -78,13 +112,6 @@ export type RequestSignature = {
   sig: string
   alg: Alg
   pubKey: string // Depending on the alg, this may be necessary (e.g., RSA cannot recover the public key from the signature)
-}
-
-export type AuthZRequestPayload = {
-  authentication: RequestSignature // The signature of the initiator
-  request: AuthZRequest
-  approvals?: RequestSignature[] // Other approvals, incl. second factors of the initiator
-  transfers?: HistoricalTransfer[]
 }
 
 export enum NarvalDecision {
@@ -106,10 +133,10 @@ export type ApprovalRequirement = {
   countPrincipal: boolean
 }
 
-export type AuthZResponse = {
+export type AuthorizationResponse = {
   decision: NarvalDecision
   permitSignature?: RequestSignature // The ENGINE's approval signature
-  request?: AuthZRequest // The actual authorized request
+  request?: AuthorizationRequest // The actual authorized request
   totalApprovalsRequired?: ApprovalRequirement[]
   approvalsMissing?: ApprovalRequirement[]
   approvalsSatisfied?: ApprovalRequirement[]

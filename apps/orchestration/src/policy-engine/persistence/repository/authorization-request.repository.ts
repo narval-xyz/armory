@@ -5,10 +5,7 @@ import {
   Evaluation
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
-import {
-  createAuthorizationRequestSchema,
-  updateAuthorizationRequestSchema
-} from '@app/orchestration/policy-engine/persistence/schema/authorization-request.schema'
+import { createRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/request.schema'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { EvaluationLog } from '@prisma/client/orchestration'
@@ -19,20 +16,10 @@ export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const {
-      id,
-      action,
-      request,
-      orgId,
-      hash,
-      status,
-      idempotencyKey,
-      createdAt,
-      updatedAt,
-      evaluations,
-      approvals,
-      authentication
-    } = createAuthorizationRequestSchema.parse(this.getDefaults(input))
+    const { id, orgId, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals, authentication } =
+      this.getDefaults(input)
+    const request = createRequestSchema.parse(input.request)
+
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
@@ -40,12 +27,11 @@ export class AuthorizationRequestRepository {
         id,
         status,
         orgId,
-        action,
         request,
-        hash,
         idempotencyKey,
         createdAt,
         updatedAt,
+        action: request.action,
         authnAlg: authentication.alg,
         authnSig: authentication.sig,
         authnPubKey: authentication.pubKey,
@@ -82,22 +68,24 @@ export class AuthorizationRequestRepository {
     input: Partial<Pick<AuthorizationRequest, 'orgId' | 'status' | 'evaluations' | 'approvals'>> &
       Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
-    const { id } = input
-    const { orgId, status, evaluations, approvals } = updateAuthorizationRequestSchema.parse(input)
+    const { id, orgId, status, evaluations, approvals } = input
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
+    // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     const model = await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
         approvals: {
           createMany: {
-            data: approvals?.length ? approvals : []
+            data: approvals?.length ? approvals : [],
+            skipDuplicates: true
           }
         },
         evaluationLog: {
           createMany: {
-            data: evaluationLogs
+            data: evaluationLogs,
+            skipDuplicates: true
           }
         }
       },

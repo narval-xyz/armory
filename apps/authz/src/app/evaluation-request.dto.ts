@@ -96,13 +96,20 @@ export class TransactionRequestDto {
 }
 
 export class SignTransactionRequestDataDto extends BaseRequestDataDto {
+  @IsEnum(Action)
+  @IsDefined()
+  @ApiProperty({
+    enum: Action,
+    default: Action.SIGN_TRANSACTION
+  })
+  action: Action.SIGN_TRANSACTION
+
   @IsString()
   @IsDefined()
   @ApiProperty()
   resourceId: string
 
   @ValidateNested()
-  @Type(() => TransactionRequestDto)
   @IsDefined()
   @ApiProperty({
     type: TransactionRequestDto
@@ -111,6 +118,14 @@ export class SignTransactionRequestDataDto extends BaseRequestDataDto {
 }
 
 export class SignMessageRequestDataDto extends BaseRequestDataDto {
+  @IsEnum(Action)
+  @IsDefined()
+  @ApiProperty({
+    enum: Action,
+    default: Action.SIGN_MESSAGE
+  })
+  action: Action.SIGN_MESSAGE
+
   @IsString()
   @IsDefined()
   @ApiProperty()
@@ -139,6 +154,8 @@ export class EvaluationRequestDto {
   @ApiProperty()
   authentication: RequestSignatureDto
 
+  @IsOptional()
+  @ValidateNested()
   @ApiProperty({
     type: () => RequestSignatureDto,
     isArray: true
@@ -157,19 +174,8 @@ export class EvaluationRequestDto {
   })
   request: SignTransactionRequestDataDto | SignMessageRequestDataDto
 
+  @IsOptional()
   @ValidateNested()
   @ApiProperty()
   transfers?: HistoricalTransferDto[]
-
-  isSignTransaction(
-    request: SignTransactionRequestDataDto | SignMessageRequestDataDto
-  ): request is SignTransactionRequestDataDto {
-    return this.request.action === Action.SIGN_TRANSACTION
-  }
-
-  isSignMessage(
-    request: SignTransactionRequestDataDto | SignMessageRequestDataDto
-  ): request is SignMessageRequestDataDto {
-    return this.request.action === Action.SIGN_MESSAGE
-  }
 }

@@ -1,4 +1,5 @@
 import {
+  Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
@@ -8,8 +9,10 @@ import { AuthorizationRequestProcessingProducer } from '@app/orchestration/polic
 import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { catchError, delay, lastValueFrom, map, switchMap, tap } from 'rxjs'
+import { catchError, lastValueFrom, map, switchMap, tap } from 'rxjs'
+import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
+import { getOkTransfers } from './transfers.mock'
 
 const getStatus = (decision: string): AuthorizationRequestStatus => {
   const statuses: Map<string, AuthorizationRequestStatus> = new Map([
@@ -77,17 +80,43 @@ export class AuthorizationRequestService {
     })
   }
 
+  async approve(id: string, approval: SetOptional<Approval, 'id' | 'createdAt'>): Promise<AuthorizationRequest> {
+    const authzRequest = await this.authzRequestRepository.update({
+      id: id,
+      approvals: [
+        {
+          id: approval.id || uuid(),
+          createdAt: approval.createdAt || new Date(),
+          ...approval
+        }
+      ]
+    })
+
+    return this.evaluate(authzRequest)
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async complete(id: string) {}
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
+    // TODO (@wcalderipe, 19/01/24): Think how to error the evaluation but
+    // short-circuit the retry mechanism.
+
+    const payload = {
+      authentication: input.authentication,
+      approvals: input.approvals,
+      request: input.request,
+      // transfers: getNotOkTransfers()
+      transfers: getOkTransfers()
+    }
+
     this.logger.log('Sending authorization request to cluster evaluation', {
-      input
+      authzRequest: input,
+      payload
     })
 
     return lastValueFrom(
-      this.httpService.post('http://localhost:3010/evaluation', input).pipe(
-        delay(3000), // fake some delay
+      this.httpService.post('http://localhost:3010/evaluation', payload).pipe(
         tap((response) => {
           this.logger.log('Received evaluation response', {
             status: response.status,
@@ -104,7 +133,7 @@ export class AuthorizationRequestService {
               {
                 id: uuid(),
                 decision: evaluation.decision,
-                signature: evaluation.permitSignature,
+                signature: evaluation?.permitSignature?.sig || null,
                 createdAt: new Date()
               }
             ]

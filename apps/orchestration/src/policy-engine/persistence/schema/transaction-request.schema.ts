@@ -1,4 +1,3 @@
-import { TransactionType } from '@narval/authz-shared'
 import { isAddress, isHex } from 'viem'
 import { z } from 'zod'
 
@@ -47,7 +46,7 @@ const accessListSchema = z.object({
   storageKeys: z.array(hexSchema)
 })
 
-export const readSignTransactionRequestSchema = z.object({
+export const readTransactionRequestSchema = z.object({
   chainId: z.coerce.number(),
   from: addressSchema,
   nonce: z.coerce.number().optional(),
@@ -55,10 +54,10 @@ export const readSignTransactionRequestSchema = z.object({
   data: hexSchema.optional(),
   gas: z.coerce.bigint().optional(),
   to: addressSchema.optional(),
-  type: z.nativeEnum(TransactionType).optional(),
+  type: z.literal('2').optional(),
   value: hexSchema.optional()
 })
 
-export const createSignTransactionRequestSchema = readSignTransactionRequestSchema.extend({
+export const createTransactionRequestSchema = readTransactionRequestSchema.extend({
   gas: z.coerce.string().optional()
 })

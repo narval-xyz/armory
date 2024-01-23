@@ -1,12 +1,11 @@
 import { load } from '@app/orchestration/orchestration.config'
 import {
   Approval,
+  AuthorizationRequest,
   Evaluation,
-  SignMessageAuthorizationRequest,
-  SignTransactionAuthorizationRequest,
+  SignTransaction,
   Signature,
-  SupportedAction,
-  isSignTransaction
+  SupportedAction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -34,16 +33,17 @@ describe(AuthorizationRequestRepository.name, () => {
     pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
   }
 
-  const signMessageRequest: SignMessageAuthorizationRequest = {
+  const signMessageRequest: AuthorizationRequest = {
     authentication,
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
-    action: SupportedAction.SIGN_MESSAGE,
     request: {
+      action: SupportedAction.SIGN_MESSAGE,
+      nonce: '99',
+      resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
     },
-    hash: 'test-hash',
     idempotencyKey: null,
     approvals: [],
     evaluations: [],
@@ -161,15 +161,21 @@ describe(AuthorizationRequestRepository.name, () => {
     })
 
     describe(`when action is ${SupportedAction.SIGN_TRANSACTION}`, () => {
-      const signTransactionRequest: SignTransactionAuthorizationRequest = {
-        ...signMessageRequest,
+      const signTransaction: SignTransaction = {
         action: SupportedAction.SIGN_TRANSACTION,
-        request: {
+        nonce: '99',
+        resourceId: '3be0c61d-9b41-423f-80b8-ea6f7624d917',
+        transactionRequest: {
           from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
           gas: BigInt(5_000),
           chainId: 1,
           nonce: 1
         }
+      }
+
+      const signTransactionRequest: AuthorizationRequest = {
+        ...signMessageRequest,
+        request: signTransaction
       }
 
       it('encodes bigints as strings', async () => {
@@ -179,8 +185,8 @@ describe(AuthorizationRequestRepository.name, () => {
 
         expect(authzRequest).not.toEqual(null)
 
-        if (authzRequest && isSignTransaction(authzRequest)) {
-          expect(authzRequest?.request.gas).toEqual(signTransactionRequest.request.gas)
+        if (authzRequest && authzRequest.request.action === SupportedAction.SIGN_TRANSACTION) {
+          expect(authzRequest?.request.transactionRequest.gas).toEqual(signTransaction.transactionRequest.gas)
         }
       })
     })
