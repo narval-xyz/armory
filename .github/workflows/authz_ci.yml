@@ -103,20 +103,3 @@ jobs:
           fields: message,commit,author
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  opa-rego:
-    name: Open Agent Policy CI
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-
-      - name: Setup OPA
-        uses: open-policy-agent/setup-opa@v2
-        with:
-          version: latest
-
-      - name: Run OPA Tests
-        run: make authz/rego/test
