@@ -32,7 +32,9 @@ authz/lint/check:
 # === Testing ===
 
 authz/test/type:
-	npx nx test:type ${AUTHZ_PROJECT_NAME}
+	npx tsc \
+		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json \
+		--noEmit
 
 authz/test/unit:
 	npx nx test:unit ${AUTHZ_PROJECT_NAME}

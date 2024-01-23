@@ -2,39 +2,39 @@ package main
 
 import future.keywords.in
 
-test_parse_units {
-	parse_units("3000", 6) == 3000000000
+test_parseUnits {
+	parseUnits("3000", 6) == 3000000000
 }
 
-test_check_acc_wildcard_condition {
+test_checkAccWildcardCondition {
 	conditions = {"tokens": "*"}
-	check_acc_condition("eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", conditions.tokens)
+	checkAccCondition("eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", conditions.tokens)
 }
 
-test_check_acc_condition {
+test_checkAccCondition {
 	conditions = {"tokens": {
 		"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
 	}}
-	check_acc_condition("eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", conditions.tokens)
+	checkAccCondition("eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", conditions.tokens)
 }
 
-test_check_acc_start_date {
-	conditions = {"start": substract_from_date(mock_now_s, (12 * 60) * 60)}
-	check_acc_start_date(eleven_hours_ago, conditions.start)
+test_checkAccStartDate {
+	conditions = {"start": secondsToNanoSeconds(mockNowS - ((12 * 60) * 60))}
+	checkAccStartDate(elevenHoursAgo, conditions.start)
 }
 
-test_get_usd_spending_amount {
+test_getUsdSpendingAmount {
 	conditions = {
 		"tokens": {
 			"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
 		},
 		"users": {"test-alice-uid"},
-		"startDate": substract_from_date(mock_now_s, (12 * 60) * 60),
+		"startDate": secondsToNanoSeconds(mockNowS - ((12 * 60) * 60)),
 	}
 
-	res = get_usd_spending_amount(conditions) with input as request with data.entities as entities
+	res = getUsdSpendingAmount(conditions) with input as request with data.entities as entities
 
 	res == (3051000000 * 0.99) + (2000000000 * 0.99)
 }

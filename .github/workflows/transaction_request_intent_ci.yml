@@ -37,13 +37,18 @@ jobs:
           make transaction-request-intent/format/check
           make transaction-request-intent/lint/check
 
+      - name: Test types
+        shell: bash
+        run: |
+          make transaction-request-intent/test/type
+
       - name: Test unit
         shell: bash
         run: |
           make transaction-request-intent/test/unit
 
       - name: Send Slack notification on failure
-        if: failure()
+        if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub

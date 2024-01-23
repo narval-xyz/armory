@@ -3,23 +3,20 @@ package main
 import future.keywords.in
 
 permit[{"policyId": "test-permit-policy-1"}] := reason {
-	check_principal
-
+	checkPrincipal
 	input.action == "signTransaction"
-
-	check_principal_id({"matt@narval.xyz"})
-	check_transfer_token_type({"transferNative"})
-	check_transfer_token_operation({"operator": "lte", "value": "10000000000"})
-
+	checkPrincipalId({"matt@narval.xyz"})
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
+	checkTransferTokenType({"transferNative"})
+	checkTransferTokenAddress({"eip155:137/slip44/966"})
+	checkTransferTokenOperation({"operator": "gte", "value": "1000000000000000000"})
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
 	}]
-
 	approvals := getApprovalsResult(approvalsRequired)
-
 	reason := {
 		"type": "permit",
 		"policyId": "test-permit-policy-1",
@@ -29,21 +26,18 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 }
 
 forbid[{"policyId": "test-forbid-policy-1"}] := reason {
-	check_principal
-
+	checkPrincipal
 	input.action == "signTransaction"
+	users = {"matt@narval.xyz"}
 	tokens = {"eip155:137/slip44/966"}
-
-	check_principal_id({"matt@narval.xyz"})
-	check_transfer_token_type({"transferNative"})
-	check_transfer_token_address(tokens)
-
-	limit = to_number("5000000000")
-	start = nanoseconds_to_seconds(time.now_ns() - (((12 * 60) * 60) * 1000000000))
-
-	spendings = get_usd_spending_amount({"tokens": tokens, "start": start})
-	check_spending_limit_reached(spendings, transfer_token_amount, limit)
-
+	checkPrincipalId(users)
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
+	checkTransferTokenType({"transferNative"})
+	checkTransferTokenAddress(tokens)
+	limit = to_number("1000000000000000000")
+	startDate = secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))
+	spendings = getUsdSpendingAmount({"tokens": tokens, "users": users, "startDate": startDate})
+	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
 	reason := {
 		"type": "forbid",
 		"policyId": "test-forbid-policy-1",

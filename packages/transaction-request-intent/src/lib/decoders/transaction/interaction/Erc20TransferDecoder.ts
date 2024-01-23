@@ -1,9 +1,9 @@
-import { encodeEoaAccountId } from '../caip'
-import { ContractCallInput, Intents } from '../domain'
-import { TransferParams } from '../extraction/types'
-import { TransferErc20 } from '../intent.types'
-import { isSupportedMethodId } from '../typeguards'
-import DecoderStrategy from './DecoderStrategy'
+import { encodeEoaAccountId } from '../../../caip'
+import { ContractCallInput, Intents } from '../../../domain'
+import { TransferParams } from '../../../extraction/types'
+import { TransferErc20 } from '../../../intent.types'
+import { isSupportedMethodId } from '../../../typeguards'
+import DecoderStrategy from '../../DecoderStrategy'
 
 export default class Erc20TransferDecoder extends DecoderStrategy {
   #input: ContractCallInput

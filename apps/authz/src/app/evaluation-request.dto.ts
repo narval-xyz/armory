@@ -1,24 +1,7 @@
-import {
-  AccessList,
-  Action,
-  Address,
-  Alg,
-  FiatSymbols,
-  Hex,
-  SupportedAction
-} from '@app/authz/shared/types/domain.type'
+import { AccessList, Action, Address, Alg, FiatSymbols, Hex } from '@app/authz/shared/types/domain.type'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import {
-  IsDefined,
-  IsEnum,
-  IsEthereumAddress,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-  ValidateNested
-} from 'class-validator'
+import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export class RequestSignatureDto {
@@ -36,18 +19,17 @@ export class RequestSignatureDto {
 }
 
 export class BaseRequestDataDto {
-  @IsEnum(SupportedAction)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: SupportedAction
+    enum: Action
   })
-  action: SupportedAction
+  action: Action
 
-  @IsNumber()
-  @Min(0)
+  @IsString()
   @IsDefined()
   @ApiProperty()
-  nonce: number
+  nonce: string
 }
 
 export class TransactionRequestDto {
@@ -114,13 +96,13 @@ export class TransactionRequestDto {
 }
 
 export class SignTransactionRequestDataDto extends BaseRequestDataDto {
-  @IsEnum(SupportedAction)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: SupportedAction,
-    default: SupportedAction.SIGN_TRANSACTION
+    enum: Action,
+    default: Action.SIGN_TRANSACTION
   })
-  action: SupportedAction.SIGN_TRANSACTION
+  action: Action.SIGN_TRANSACTION
 
   @IsString()
   @IsDefined()
@@ -136,13 +118,13 @@ export class SignTransactionRequestDataDto extends BaseRequestDataDto {
 }
 
 export class SignMessageRequestDataDto extends BaseRequestDataDto {
-  @IsEnum(SupportedAction)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: SupportedAction,
-    default: SupportedAction.SIGN_MESSAGE
+    enum: Action,
+    default: Action.SIGN_MESSAGE
   })
-  action: SupportedAction.SIGN_MESSAGE
+  action: Action.SIGN_MESSAGE
 
   @IsString()
   @IsDefined()

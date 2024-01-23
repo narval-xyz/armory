@@ -40,40 +40,40 @@ test_destination {
 	res == {
 		"uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"chain_id": 137,
+		"chainId": 137,
 		"classification": "internal",
 	}
 }
 
-test_principal_groups {
-	groups = principal_groups with input as request
+test_principalGroups {
+	groups = principalGroups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
 }
 
-test_wallet_groups {
-	groups = wallet_groups with input as request
+test_walletGroups {
+	groups = walletGroups with input as request
 		with data.entities as entities
 
 	groups == {"test-wallet-group-one-uid"}
 }
 
-test_approvers_roles {
-	roles = approvers_roles with input as request
+test_approversRoles {
+	roles = approversRoles with input as request
 		with data.entities as entities
 
 	roles == {"root", "member", "admin"}
 }
 
-test_approvers_groups {
-	groups = approvers_groups with input as request
+test_approversGroups {
+	groups = approversGroups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
 }
 
-test_check_transfer_resource_integrity {
-	check_transfer_resource_integrity with input as request
+test_checkTransferResourceIntegrity {
+	checkTransferResourceIntegrity with input as request
 		with data.entities as entities
 }

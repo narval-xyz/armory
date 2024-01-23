@@ -2,43 +2,43 @@ package main
 
 import future.keywords.in
 
-check_wallet_id(values) {
+checkWalletId(values) {
 	values == wildcard
 }
 
-check_wallet_id(values) {
+checkWalletId(values) {
 	values != wildcard
 	resource.uid in values
 }
 
-check_wallet_groups(values) {
+checkWalletGroups(values) {
 	values == wildcard
 }
 
-check_wallet_groups(values) {
+checkWalletGroups(values) {
 	values != wildcard
-	group := wallet_groups[_]
+	group := walletGroups[_]
 	group in values
 }
 
-check_wallet_chain_id(values) {
+checkWalletChainId(values) {
 	values == wildcard
 }
 
-check_wallet_chain_id(values) {
+checkWalletChainId(values) {
 	not resource.chainId
 }
 
-check_wallet_chain_id(values) {
+checkWalletChainId(values) {
 	values != wildcard
 	resource.chainId in values
 }
 
-check_wallet_assignees(values) {
+checkWalletAssignees(values) {
 	values == wildcard
 }
 
-check_wallet_assignees(values) {
+checkWalletAssignees(values) {
 	values != wildcard
 	assignee := resource.assignees[_]
 	assignee in values

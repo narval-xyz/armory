@@ -1,4 +1,5 @@
 AUTHZ_SHARED_PROJECT_NAME := authz-shared
+AUTHZ_SHARED_PROJECT_DIR := ./packages/authz-shared
 
 # == Code format ==
 
@@ -15,6 +16,11 @@ authz-shared/lint/check:
 	npx nx lint ${AUTHZ_SHARED_PROJECT_NAME}
 
 # == Testing ==
+
+authz-shared/test/type:
+	npx tsc \
+		--project ${AUTHZ_SHARED_PROJECT_DIR}/tsconfig.lib.json \
+		--noEmit
 
 authz-shared/test/unit:
 	npx nx test:unit ${AUTHZ_SHARED_PROJECT_NAME} -- ${ARGS}

@@ -11,54 +11,57 @@ default evaluate := {
 	"default": true,
 }
 
-permit[{"policyId": "permit-default-policy"}] := reason {
+permit[{"policyId": "default-permit-policy"}] := reason {
 	false
 
 	reason := {
-		"policyId": "permit-default-policy",
-		"reason": "This is the default policy, it always returns false.",
+		"type": "permit",
+		"policyId": "default-permit-policy",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
-forbid[{"policyId": "frobid-default-policy"}] := reason {
+forbid[{"policyId": "default-forbid-policy"}] := reason {
 	false
 
 	reason := {
-		"policyId": "forbid-default-policy",
-		"reason": "This is the default policy, it always returns false.",
+		"type": "forbid",
+		"policyId": "default-forbid-policy",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
 	}
 }
 
 evaluate := decision {
-	permit_set := {p | p = permit[_]}
-	forbid_set := {f | f = forbid[_]}
+	permitSet := {p | p = permit[_]}
+	forbidSet := {f | f = forbid[_]}
 
-	count(forbid_set) == 0
-	count(permit_set) > 0
+	count(forbidSet) == 0
+	count(permitSet) > 0
 
-	# If ALL Approval in permit_set has count(approval.approvalsMissing) == 0, set "permit": true.
+	# If ALL Approval in permitSet has count(approval.approvalsMissing) == 0, set "permit": true.
 	# We "Stack" approvals, so multiple polices that match & each have different requirements, ALL must succeed.
 	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive, but that's done at the policy-builder time, not here.
 
-	# Filter permit_set to only include objects where approvalsMissing is empty
-	filtered_permit_set := {p | p = permit_set[_]; count(p.approvalsMissing) == 0}
+	# Filter permitSet to only include objects where approvalsMissing is empty
+	filteredPermitSet := {p | p = permitSet[_]; count(p.approvalsMissing) == 0}
 
 	decision := {
-		"permit": count(filtered_permit_set) == count(permit_set),
-		"reasons": permit_set,
+		"permit": count(filteredPermitSet) == count(permitSet),
+		"reasons": permitSet,
 	}
 }
 
 evaluate := decision {
-	permit_set := {p | p = permit[_]}
-	forbid_set := {f | f = forbid[_]}
+	permitSet := {p | p = permit[_]}
+	forbidSet := {f | f = forbid[_]}
 
 	# If the forbid set is not empty, set "permit": false.
-	count(forbid_set) > 0
+	count(forbidSet) > 0
 
-	# TODO: forbid rules need the same response structure as permit so we can have the policyId
 	decision := {
 		"permit": false,
-		"reasons": forbid_set,
+		"reasons": forbidSet,
 	}
 }

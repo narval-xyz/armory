@@ -1,5 +1,6 @@
 import Decoder from '../../decoders/Decoder'
-import { InputType, Intents } from '../../domain'
+import { InputType, Intents, TransactionStatus } from '../../domain'
+import { buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
@@ -9,8 +10,10 @@ import {
 
 describe('decode', () => {
   let decoder: Decoder
+
+  const transactionRegistry = buildTransactionRegistry([])
   beforeEach(() => {
-    decoder = new Decoder()
+    decoder = new Decoder({})
   })
   describe('transaction request input', () => {
     describe('transfers', () => {
@@ -49,6 +52,25 @@ describe('decode', () => {
           token: 'eip155:137/slip44/966'
         })
       })
+      it('decodes approve token allowance', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
+            data: '0x095ea7b30000000000000000000000001111111254eeb25477b68fb85ed929f73a9605821984862f285d9925ca94e9e52a28867736f1114e8b27b3300dbbaf71ed200b67',
+            from: '0xEd123cf8e3bA51c6C15DA1eAc74B2b5DEEA31448',
+            chainId: 137,
+            nonce: 10
+          }
+        })
+        expect(decoded).toEqual({
+          type: Intents.APPROVE_TOKEN_ALLOWANCE,
+          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          amount: '11541971132511365478906515907109950360107522067033065608472376982619868367719',
+          spender: 'eip155:137:0x1111111254eeb25477b68fb85ed929f73a960582'
+        })
+      })
       it('defaults to contract call intent', () => {
         const decoded = decoder.decode({
           type: InputType.TRANSACTION_REQUEST,
@@ -68,24 +90,34 @@ describe('decode', () => {
         })
       })
     })
-    //     describe('transaction management', () => {
-    //       it('decodes retry transaction', () => {
-    //       });
-    //       it('decodes cancel transaction', () => {
-    //       });
-    //     });
-    //     describe('contract creation', () => {
-    //       it('decodes safe wallet creation deployment', () => {
-    //       });
-    //       it('decodes erc4337 wallet deployment', () => {
-    //       });
-    //       it('defaults to contract deployment intent', () => {
-    //       });
-    //     })
-    //     it('decodes approve token allowance', () => {
-    //     });
-    //     it('defaults to contract call intent', () => {
-    //     });
+    describe('transaction management', () => {
+      // SET A FAILED TO TRANSACTION ON FIRST MOCK DATA
+      const key = buildTransactionKey(mockErc20Transfer.input.txRequest)
+      transactionRegistry.set(key, TransactionStatus.FAILED)
+      it('should find the transaction in the registry', () => {
+        const trxStatus = transactionRegistry.get(buildTransactionKey(mockErc20Transfer.input.txRequest))
+        expect(trxStatus).toEqual(TransactionStatus.FAILED)
+      })
+      // NOW ITS A PENDING
+      it('decodes retry transaction', () => {})
+      it('decodes cancel transaction', () => {
+        transactionRegistry.set(key, TransactionStatus.PENDING)
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: mockErc20Transfer.input.txRequest,
+          transactionRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.CANCEL_TRANSACTION,
+          originalIntent: mockErc20Transfer.intent
+        })
+      })
+    })
+    describe('contract creation', () => {
+      it('decodes safe wallet creation deployment', () => {})
+      it('decodes erc4337 wallet deployment', () => {})
+      it('defaults to contract deployment intent', () => {})
+    })
   })
   //   describe('message and typed data input', () => {
   //     it('decodes message', () => {
