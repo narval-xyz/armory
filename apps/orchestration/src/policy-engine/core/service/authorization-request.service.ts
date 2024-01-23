@@ -125,7 +125,7 @@ export class AuthorizationRequestService {
           })
         }),
         map((response) => response.data),
-        switchMap((evaluation) => {
+        switchMap((evaluation) => { // TODO: see updated AuthorizationResponse from authz
           return this.authzRequestRepository.update({
             ...input,
             status: getStatus(evaluation.decision),
@@ -133,7 +133,7 @@ export class AuthorizationRequestService {
               {
                 id: uuid(),
                 decision: evaluation.decision,
-                signature: evaluation?.permitSignature?.sig || null,
+                signature: evaluation?.attestation?.sig || null, // TODO: return the full attestation?
                 createdAt: new Date()
               }
             ]

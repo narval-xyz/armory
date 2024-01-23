@@ -7,9 +7,10 @@ import {
   AuthorizationResponse,
   HistoricalTransfer,
   NarvalDecision,
+  OpaResult,
+  RegoInput,
   RequestSignature
 } from '@app/authz/shared/types/domain.type'
-import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Action, hashRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { Decoder } from 'packages/transaction-request-intent/src'
@@ -181,10 +182,15 @@ export class AppService {
 
     const authzResponse: AuthorizationResponse = {
       decision: finalDecision.decision,
+      reasons: finalDecision.originalResponse,
       request,
-      totalApprovalsRequired: finalDecision.totalApprovalsRequired,
-      approvalsMissing: finalDecision.approvalsMissing,
-      approvalsSatisfied: finalDecision.approvalsSatisfied
+      approvals: finalDecision.totalApprovalsRequired?.length
+        ? {
+            required: finalDecision.totalApprovalsRequired,
+            satisfied: finalDecision.approvalsSatisfied,
+            missing: finalDecision.approvalsMissing
+          }
+        : undefined
     }
 
     // If we are allowing, then the ENGINE signs the verification too
@@ -194,7 +200,7 @@ export class AppService {
       const permitSignature = await engineAccount.signMessage({
         message: verificationMessage
       })
-      authzResponse.permitSignature = {
+      authzResponse.attestation = {
         sig: permitSignature,
         alg: Alg.ES256K,
         pubKey: engineAccount.address // TODO: should this be account.publicKey?
