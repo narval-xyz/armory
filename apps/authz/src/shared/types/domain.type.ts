@@ -56,7 +56,7 @@ export type HistoricalTransfer = {
   token: Caip10
   rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
   initiatedBy: string // uid of the user who initiated the spending
-  timestamp: number // unix timestamp
+  timestamp: number // unix timestamp in ms
 }
 
 export type SharedAuthorizationRequest = {
