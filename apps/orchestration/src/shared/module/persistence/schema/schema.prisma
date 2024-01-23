@@ -40,8 +40,8 @@ model AuthorizationRequest {
   id             String                     @id @default(uuid()) @db.VarChar(255)
   orgId          String                     @map("org_id")
   status         AuthorizationRequestStatus @default(CREATED)
+  // Duplicate the action to pick the `request` schema at the application-level.
   action         AuthorizationRequestAction
-  hash           String
   request        Json
   idempotencyKey String?                    @unique @map("idempotency_key")
   authnSig       String                     @map("authn_sig")

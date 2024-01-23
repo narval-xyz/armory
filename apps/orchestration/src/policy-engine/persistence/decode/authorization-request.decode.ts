@@ -1,15 +1,13 @@
 import { AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
+import { AuthorizationRequestModel } from '@app/orchestration/policy-engine/persistence/type/model.type'
 import { ACTION_REQUEST } from '@app/orchestration/policy-engine/policy-engine.constant'
-import {
-  AuthorizationRequestApproval,
-  AuthorizationRequest as AuthorizationRequestModel,
-  EvaluationLog
-} from '@prisma/client/orchestration'
+import { EvaluationLog } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
+import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema } from 'zod'
 
-type Model = AuthorizationRequestModel & { evaluationLog?: EvaluationLog[]; approvals: AuthorizationRequestApproval[] }
+type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 
 const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
   id,
@@ -22,7 +20,6 @@ const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action
   id: model.id,
   orgId: model.orgId,
   status: model.status,
-  hash: model.hash,
   idempotencyKey: model.idempotencyKey,
   authentication: {
     alg: model.authnAlg,
@@ -48,7 +45,6 @@ const decode = ({ model, schema }: { model: Model; schema: ZodSchema }): Authori
     if (decode.success) {
       return {
         ...buildSharedAttributes(model),
-        action: model.action,
         request: decode.data
       }
     }
