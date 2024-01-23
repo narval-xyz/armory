@@ -1,6 +1,7 @@
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
+import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { toCreateAuthorizationRequest } from '@app/orchestration/policy-engine/http/rest/util'
 import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
 import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
@@ -41,5 +42,12 @@ export class FacadeController {
     }
 
     throw new NotFoundException('Authorization request not found')
+  }
+
+  @Post('/approve/:id')
+  async approve(@Param('id') id: string, @Body() body: SignatureDto): Promise<AuthorizationResponseDto> {
+    const authzRequest = await this.authorizationRequestService.approve(id, body)
+
+    return new AuthorizationResponseDto(authzRequest)
   }
 }

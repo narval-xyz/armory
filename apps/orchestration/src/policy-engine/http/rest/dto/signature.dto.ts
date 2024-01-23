@@ -1,11 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Transform } from 'class-transformer'
 import { IsDefined, IsOptional, IsString } from 'class-validator'
 
 export class SignatureDto {
   @IsString()
   @IsDefined()
-  @Transform(({ value }) => value.toLowerCase())
+  // TODO (@wcalderipe, 23/01/24): Coerce to lowercase once the AuthZ accepts
+  // case-insensitive.
+  // See https://linear.app/narval/issue/NAR-1531
+  //
+  // @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     format: 'lowercase'
   })
@@ -13,7 +16,11 @@ export class SignatureDto {
 
   @IsString()
   @IsDefined()
-  @Transform(({ value }) => value.toLowerCase())
+  // TODO (@wcalderipe, 23/01/24): Coerce to lowercase once the AuthZ accepts
+  // case-insensitive.
+  // See https://linear.app/narval/issue/NAR-1531
+  //
+  // @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     format: 'lowercase'
   })

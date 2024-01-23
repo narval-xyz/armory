@@ -1,4 +1,5 @@
 import {
+  Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
@@ -9,7 +10,9 @@ import { ApplicationException } from '@app/orchestration/shared/exception/applic
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, switchMap, tap } from 'rxjs'
+import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
+import { getOkTransfers } from './transfers.mock'
 
 const getStatus = (decision: string): AuthorizationRequestStatus => {
   const statuses: Map<string, AuthorizationRequestStatus> = new Map([
@@ -77,6 +80,21 @@ export class AuthorizationRequestService {
     })
   }
 
+  async approve(id: string, approval: SetOptional<Approval, 'id' | 'createdAt'>): Promise<AuthorizationRequest> {
+    const authzRequest = await this.authzRequestRepository.update({
+      id: id,
+      approvals: [
+        {
+          id: approval.id || uuid(),
+          createdAt: approval.createdAt || new Date(),
+          ...approval
+        }
+      ]
+    })
+
+    return this.evaluate(authzRequest)
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async complete(id: string) {}
 
@@ -87,7 +105,9 @@ export class AuthorizationRequestService {
     const payload = {
       authentication: input.authentication,
       approvals: input.approvals,
-      request: input.request
+      request: input.request,
+      // transfers: getNotOkTransfers()
+      transfers: getOkTransfers()
     }
 
     this.logger.log('Sending authorization request to cluster evaluation', {
@@ -97,7 +117,6 @@ export class AuthorizationRequestService {
 
     return lastValueFrom(
       this.httpService.post('http://localhost:3010/evaluation', payload).pipe(
-        // delay(3000), // fake some delay
         tap((response) => {
           this.logger.log('Received evaluation response', {
             status: response.status,
@@ -114,7 +133,7 @@ export class AuthorizationRequestService {
               {
                 id: uuid(),
                 decision: evaluation.decision,
-                signature: null,
+                signature: evaluation?.permitSignature?.sig || null,
                 createdAt: new Date()
               }
             ]
