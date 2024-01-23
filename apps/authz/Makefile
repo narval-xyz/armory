@@ -85,4 +85,7 @@ authz/rego/test:
 	--format="pretty" \
 	${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
 	--verbose \
-	--watch
+	${ARGS}
+
+authz/rego/test/watch:
+	make authz/rego/test ARGS=--watch
