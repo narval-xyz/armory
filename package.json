@@ -66,7 +66,7 @@
   },
   "dependencies": {
     "@bull-board/api": "^5.13.0",
-    "@bull-board/express": "^5.11.0",
+    "@bull-board/express": "^5.13.0",
     "@bull-board/nestjs": "^5.11.0",
     "@docusaurus/core": "3.0.0",
     "@docusaurus/preset-classic": "3.1.0",
