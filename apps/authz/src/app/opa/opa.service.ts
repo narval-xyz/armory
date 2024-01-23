@@ -17,11 +17,18 @@ export class OpaService {
 
   constructor(private persistenceRepository: PersistenceRepository) {}
 
-  async onApplicationBootstrap() {
+  async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
+    this.opaEngine = await this.getOpaEngine()
   }
 
   async evaluate(input: RegoInput): Promise<OpaResult[]> {
+    this.opaEngine = await this.getOpaEngine()
+    const evalResult: { result: OpaResult }[] = await this.opaEngine.evaluate(input, 'main/evaluate')
+    return evalResult.map(({ result }) => result)
+  }
+
+  private async getOpaEngine(): Promise<OpaEngine> {
     const policyWasmPath = OPA_WASM_PATH
     const policyWasm = readFileSync(policyWasmPath)
     const opaEngine = await loadPolicy(policyWasm, undefined, {
@@ -29,9 +36,6 @@ export class OpaService {
     })
     const data = await this.persistenceRepository.getEntityData()
     opaEngine.setData(data)
-    this.opaEngine = opaEngine
-    if (!this.opaEngine) throw new Error('OPA Engine not initialized')
-    const evalResult: { result: OpaResult }[] = await this.opaEngine.evaluate(input, 'main/evaluate')
-    return evalResult.map(({ result }) => result)
+    return opaEngine
   }
 }
