@@ -51,11 +51,12 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
-    action: SupportedAction.SIGN_MESSAGE,
     request: {
+      action: SupportedAction.SIGN_MESSAGE,
+      nonce: '99',
+      resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
     },
-    hash: 'test-hash',
     idempotencyKey: null,
     evaluations: [],
     approvals: [],

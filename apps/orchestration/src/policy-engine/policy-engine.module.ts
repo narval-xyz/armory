@@ -20,7 +20,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     ConfigModule.forRoot(),
     HttpModule,
     PersistenceModule,
-    // TODO (@wcalderipe, 11/01/24): Figure out why can I have a wrapper to
+    // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to
     // register both queue and board at the same time.
     //
     // Desired DevX: QueueModule.registerQueue({ name: "my-queue" })

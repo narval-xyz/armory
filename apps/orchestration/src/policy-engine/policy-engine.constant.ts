@@ -1,12 +1,12 @@
 import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import {
-  createSignMessageRequestSchema,
-  readSignMessageRequestSchema
-} from '@app/orchestration/policy-engine/persistence/schema/sign-message-request.schema'
+  createSignMessageSchema,
+  readSignMessageSchema
+} from '@app/orchestration/policy-engine/persistence/schema/sign-message.schema'
 import {
-  createSignTransactionRequestSchema,
-  readSignTransactionRequestSchema
-} from '@app/orchestration/policy-engine/persistence/schema/sign-transaction-request.schema'
+  createSignTransactionSchema,
+  readSignTransactionSchema
+} from '@app/orchestration/policy-engine/persistence/schema/sign-transaction.schema'
 import { ZodType } from 'zod'
 
 type ActionRequestConfig = {
@@ -21,15 +21,15 @@ export const ACTION_REQUEST: Record<SupportedAction, ActionRequestConfig> = {
   [SupportedAction.SIGN_MESSAGE]: {
     action: SupportedAction.SIGN_MESSAGE,
     schema: {
-      read: readSignMessageRequestSchema,
-      create: createSignMessageRequestSchema
+      read: readSignMessageSchema,
+      create: createSignMessageSchema
     }
   },
   [SupportedAction.SIGN_TRANSACTION]: {
     action: SupportedAction.SIGN_TRANSACTION,
     schema: {
-      read: readSignTransactionRequestSchema,
-      create: createSignTransactionRequestSchema
+      read: readSignTransactionSchema,
+      create: createSignTransactionSchema
     }
   }
 }

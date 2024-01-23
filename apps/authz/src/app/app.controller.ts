@@ -27,7 +27,8 @@ export class AppController {
   @Post('/evaluation')
   async evaluate(@Body() body: EvaluationRequestDto) {
     this.logger.log({
-      message: 'Received evaluation'
+      message: 'Received evaluation',
+      body
     })
 
     // Map the DTO into the TS type because it's nicer to deal with.
@@ -44,11 +45,11 @@ export class AppController {
 
   @Post('/evaluation-demo')
   async evaluateDemo() {
-    this.logger.log({
-      message: 'Received evaluation'
-    })
-
     const fakeRequest = await generateInboundRequest()
+    this.logger.log({
+      message: 'Received evaluation',
+      body: fakeRequest
+    })
     const result = await this.appService.runEvaluation(fakeRequest)
     this.logger.log({
       message: 'Evaluation Result',

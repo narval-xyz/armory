@@ -18,8 +18,17 @@
         "webpackConfig": "apps/orchestration/webpack.config.js"
       },
       "configurations": {
+        "repl": {
+          "main": "apps/orchestration/src/repl.ts"
+        },
         "development": {},
         "production": {}
+      }
+    },
+    "repl": {
+      "executor": "@nx/node:node",
+      "options": {
+        "buildTarget": "orchestration:build:repl"
       }
     },
     "serve": {
