@@ -1,11 +1,12 @@
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
-import fs from 'fs'
+import { readFileSync } from 'fs'
+import path from 'path'
 import policyData from './data.json'
 import policyInput from './input.json'
 
-const policyWasm = fs.readFileSync('/Users/samuel/Documents/narval/narval/rego-build/policy.wasm')
+const OPA_WASM_PATH = readFileSync(path.join(process.cwd(), './rego-build/policy.wasm'))
 
-loadPolicy(policyWasm, undefined, {
+loadPolicy(OPA_WASM_PATH, undefined, {
   'time.now_ns': () => new Date().getTime() * 1000000
 })
   .then((policy) => {
