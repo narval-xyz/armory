@@ -134,7 +134,7 @@ export class AppService {
   async runEvaluation({ request, authentication, approvals, transfers }: AuthorizationRequestPayload) {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
-    const decoder = new Decoder()
+    const decoder = new Decoder({})
     const verificationMessage = hashRequest(request)
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)
