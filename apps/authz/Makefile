@@ -53,7 +53,7 @@ authz/rego/compile:
 	opa build \
 		--target wasm \
 		--entrypoint main/evaluate \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/rego \
 		--ignore "__test__" \
 		--output ./rego-build/policies.gz
 	tar -xzf ./rego-build/policies.gz -C ./rego-build/
@@ -61,29 +61,29 @@ authz/rego/compile:
 authz/rego/wasm:
 	npx ts-node \
 		--compiler-options "{\"module\":\"CommonJS\"}" \
-		${AUTHZ_PROJECT_DIR}/src/app/opa/rego/script.ts
+		${AUTHZ_PROJECT_DIR}/src/opa/rego/script.ts
 
 authz/rego/bundle:
-	rm -rf ${AUTHZ_PROJECT_DIR}/src/app/opa/build
+	rm -rf ${AUTHZ_PROJECT_DIR}/src/opa/build
 
-	mkdir -p ${AUTHZ_PROJECT_DIR}/src/app/opa/build
+	mkdir -p ${AUTHZ_PROJECT_DIR}/src/opa/build
 
 	opa build \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/rego \
 		--ignore "__test__" \
-		--output ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz
+		--output ${AUTHZ_PROJECT_DIR}/src/opa/build/policies.tar.gz
 
 authz/rego/eval:
 	opa eval \
 		--format="pretty" \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/app/opa/build/policies.tar.gz \
-		--input ${AUTHZ_PROJECT_DIR}/src/app/opa/rego/input.json \
+		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/build/policies.tar.gz \
+		--input ${AUTHZ_PROJECT_DIR}/src/opa/rego/input.json \
 		'data.main.evaluate'
 
 authz/rego/test:
 	opa test \
 	--format="pretty" \
-	${AUTHZ_PROJECT_DIR}/src/app/opa/rego \
+	${AUTHZ_PROJECT_DIR}/src/opa/rego \
 	--verbose \
 	${ARGS}
 

@@ -3,7 +3,7 @@ name: '@app/authz OPA CI'
 on:
   push:
     paths:
-      - apps/authz/src/app/opa/rego/**
+      - apps/authz/src/opa/rego/**
       - .github/workflows/authz_opa_ci.yml
 
 jobs:
