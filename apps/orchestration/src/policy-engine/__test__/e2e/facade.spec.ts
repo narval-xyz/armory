@@ -10,7 +10,6 @@ import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engi
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransactionType, hashRequest } from '@narval/authz-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -96,15 +95,15 @@ describe('Policy Engine Cluster Facade', () => {
 
   describe('POST /evaluations', () => {
     it('evaluates a sign message authorization request', async () => {
-      const signMessageRequest = {
-        message: 'Sign me, please'
-      }
       const payload = {
-        action: SupportedAction.SIGN_MESSAGE,
-        request: signMessageRequest,
-        hash: hashRequest(signMessageRequest),
         authentication,
-        approvals
+        approvals,
+        request: {
+          action: SupportedAction.SIGN_MESSAGE,
+          nonce: '99',
+          resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
+          message: 'Sign me, please'
+        }
       }
 
       const { status, body } = await request(app.getHttpServer())
@@ -112,42 +111,44 @@ describe('Policy Engine Cluster Facade', () => {
         .set(REQUEST_HEADER_ORG_ID, org.id)
         .send(payload)
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
+        approvals,
         id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         status: AuthorizationRequestStatus.CREATED,
         idempotencyKey: null,
-        action: payload.action,
-        hash: payload.hash,
         request: payload.request,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String)
+        evaluations: []
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('evaluates a sign transaction authorization request', async () => {
-      const signTransactionRequest = {
-        chainId: 1,
-        data: '0x',
-        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-        gas: '5000',
-        nonce: 0,
-        to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
-        type: TransactionType.EIP1559,
-        value: '0x',
-        accessList: [
-          {
-            address: '0xccc1472fce4ec74a1e3f9653776acfc790cd0743',
-            storageKeys: [stringToHex('storage-key-one'), stringToHex('storage-key-two')]
-          }
-        ]
-      }
       const payload = {
-        action: SupportedAction.SIGN_TRANSACTION,
-        hash: hashRequest(signTransactionRequest),
-        request: signTransactionRequest,
         authentication,
-        approvals
+        approvals,
+        request: {
+          action: SupportedAction.SIGN_TRANSACTION,
+          nonce: '99',
+          resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
+          transactionRequest: {
+            chainId: 1,
+            data: '0x',
+            from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+            gas: '5000',
+            nonce: 0,
+            to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+            type: '2',
+            value: '0x',
+            accessList: [
+              {
+                address: '0xccc1472fce4ec74a1e3f9653776acfc790cd0743',
+                storageKeys: [stringToHex('storage-key-one'), stringToHex('storage-key-two')]
+              }
+            ]
+          }
+        }
       }
 
       const { status, body } = await request(app.getHttpServer())
@@ -156,27 +157,29 @@ describe('Policy Engine Cluster Facade', () => {
         .send(payload)
 
       expect(body).toMatchObject({
+        approvals,
         id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         status: AuthorizationRequestStatus.CREATED,
         idempotencyKey: null,
-        action: payload.action,
-        hash: payload.hash,
         request: payload.request,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String)
+        evaluations: []
       })
       expect(status).toEqual(HttpStatus.OK)
     })
 
     it('evaluates a partial sign transaction authorization request', async () => {
-      const signTransactionRequest = {
-        from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-        chainId: 1
-      }
       const payload = {
-        action: SupportedAction.SIGN_TRANSACTION,
-        hash: hashRequest(signTransactionRequest),
-        request: signTransactionRequest,
+        request: {
+          action: SupportedAction.SIGN_TRANSACTION,
+          nonce: '99',
+          resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
+          transactionRequest: {
+            from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+            chainId: 1
+          }
+        },
         authentication,
         approvals
       }
@@ -187,31 +190,31 @@ describe('Policy Engine Cluster Facade', () => {
         .send(payload)
 
       expect(body).toMatchObject({
+        approvals,
         id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         status: AuthorizationRequestStatus.CREATED,
         idempotencyKey: null,
-        action: payload.action,
-        hash: payload.hash,
         request: payload.request,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String)
+        evaluations: []
       })
       expect(status).toEqual(HttpStatus.OK)
     })
   })
 
   describe('GET /evaluations/:id', () => {
-    const signMessageRequest = {
-      message: 'Testing sign message request'
-    }
     const authzRequest: AuthorizationRequest = {
       authentication,
       id: '986ae19d-c30c-40c6-b873-1fb6c49011de',
       orgId: org.id,
       status: AuthorizationRequestStatus.PERMITTED,
-      action: SupportedAction.SIGN_MESSAGE,
-      request: signMessageRequest,
-      hash: hashRequest(signMessageRequest),
+      request: {
+        action: SupportedAction.SIGN_MESSAGE,
+        nonce: '99',
+        resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
+        message: 'Testing sign message request'
+      },
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       evaluations: [],
       approvals: [],

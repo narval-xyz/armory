@@ -4,34 +4,34 @@ import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsString, Validate, ValidateNested } from 'class-validator'
-import { RequestHash } from './validator/request-hash.validator'
+import { IsDefined, ValidateNested } from 'class-validator'
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
-  @IsEnum(SupportedAction)
-  @IsDefined()
-  @ApiProperty({
-    enum: SupportedAction
-  })
-  action: `${SupportedAction}`
-
   @IsDefined()
   @ValidateNested()
   @ApiProperty()
+  @Type(() => SignatureDto)
   authentication: SignatureDto
 
   @IsDefined()
   @ValidateNested()
+  @Type(() => SignatureDto)
   @ApiProperty({
     type: () => SignatureDto,
     isArray: true
   })
   approvals: SignatureDto[]
 
+  // TODO (@wcalderipe, 22/01/24): Test the discrimination type option from
+  // class-transformer instead of a custom function map.
+  //
+  // See https://github.com/typestack/class-transformer?tab=readme-ov-file#working-with-nested-objects
   @ValidateNested()
   @Type((opts) => {
-    return opts?.object.action === SupportedAction.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
+    return opts?.object.request.action === SupportedAction.SIGN_TRANSACTION
+      ? SignTransactionRequestDto
+      : SignMessageRequestDto
   })
   @IsDefined()
   @ApiProperty({
@@ -39,20 +39,11 @@ export class AuthorizationRequestDto {
   })
   request: SignTransactionRequestDto | SignMessageRequestDto
 
-  @IsString()
-  @IsDefined()
-  @Validate(RequestHash)
-  @ApiProperty({
-    description: 'The hash of the request in EIP-191 format.',
-    required: true
-  })
-  hash: string
-
   isSignTransaction(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignTransactionRequestDto {
-    return this.action === SupportedAction.SIGN_TRANSACTION
+    return this.request.action === SupportedAction.SIGN_TRANSACTION
   }
 
   isSignMessage(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignMessageRequestDto {
-    return this.action === SupportedAction.SIGN_MESSAGE
+    return this.request.action === SupportedAction.SIGN_MESSAGE
   }
 }
