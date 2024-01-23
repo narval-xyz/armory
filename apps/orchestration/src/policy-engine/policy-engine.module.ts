@@ -11,7 +11,6 @@ import { ClassSerializerInterceptor, Logger, Module, OnApplicationBootstrap, Val
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
-import { FacadeController } from './http/rest/controller/facade.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
@@ -33,7 +32,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
       adapter: BullAdapter
     })
   ],
-  controllers: [FacadeController, AuthorizationRequestController],
+  controllers: [AuthorizationRequestController],
   providers: [
     AuthorizationRequestService,
     AuthorizationRequestRepository,
