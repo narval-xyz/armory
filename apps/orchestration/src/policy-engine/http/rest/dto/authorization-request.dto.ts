@@ -11,10 +11,12 @@ export class AuthorizationRequestDto {
   @IsDefined()
   @ValidateNested()
   @ApiProperty()
+  @Type(() => SignatureDto)
   authentication: SignatureDto
 
   @IsDefined()
   @ValidateNested()
+  @Type(() => SignatureDto)
   @ApiProperty({
     type: () => SignatureDto,
     isArray: true

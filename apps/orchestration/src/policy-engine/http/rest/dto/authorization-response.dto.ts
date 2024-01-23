@@ -2,6 +2,7 @@ import { AuthorizationRequestStatus, SupportedAction } from '@app/orchestration/
 import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
+import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { TransactionResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
@@ -41,15 +42,22 @@ export class AuthorizationResponseDto {
   })
   idempotencyKey?: string | null
 
+  @IsDefined()
+  @ValidateNested()
+  @ApiProperty()
+  @Type(() => SignatureDto)
+  authentication: SignatureDto
+
   @ApiProperty({
     enum: AuthorizationRequestStatus
   })
   status: `${AuthorizationRequestStatus}`
 
-  @ApiProperty({
-    type: [EvaluationDto]
-  })
   @Type(() => EvaluationDto)
+  @ApiProperty({
+    type: EvaluationDto,
+    isArray: true
+  })
   evaluations: EvaluationDto[]
 
   // TODO (@wcalderipe, 22/01/24): Test the discrimination type option from
