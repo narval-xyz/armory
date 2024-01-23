@@ -1,4 +1,5 @@
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestController } from '@app/orchestration/policy-engine/http/rest/controller/authorization-request.controller'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -10,7 +11,6 @@ import { ClassSerializerInterceptor, Logger, Module, OnApplicationBootstrap, Val
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
-import { FacadeController } from './http/rest/controller/facade.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
@@ -32,7 +32,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
       adapter: BullAdapter
     })
   ],
-  controllers: [FacadeController],
+  controllers: [AuthorizationRequestController],
   providers: [
     AuthorizationRequestService,
     AuthorizationRequestRepository,

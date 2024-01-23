@@ -19,9 +19,9 @@ import { Queue } from 'bull'
 import request from 'supertest'
 import { stringToHex } from 'viem'
 
-const EVALUATIONS_ENDPOINT = '/policy-engine/evaluations'
+const ENDPOINT_PREFIX = '/authorization-requests'
 
-describe('Policy Engine Cluster Facade', () => {
+describe('Authorization Request', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -107,7 +107,7 @@ describe('Policy Engine Cluster Facade', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(EVALUATIONS_ENDPOINT)
+        .post(ENDPOINT_PREFIX)
         .set(REQUEST_HEADER_ORG_ID, org.id)
         .send(payload)
 
@@ -121,7 +121,7 @@ describe('Policy Engine Cluster Facade', () => {
         request: payload.request,
         evaluations: []
       })
-      expect(status).toEqual(HttpStatus.OK)
+      expect(status).toEqual(HttpStatus.CREATED)
     })
 
     it('evaluates a sign transaction authorization request', async () => {
@@ -152,7 +152,7 @@ describe('Policy Engine Cluster Facade', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(EVALUATIONS_ENDPOINT)
+        .post(ENDPOINT_PREFIX)
         .set(REQUEST_HEADER_ORG_ID, org.id)
         .send(payload)
 
@@ -166,7 +166,7 @@ describe('Policy Engine Cluster Facade', () => {
         request: payload.request,
         evaluations: []
       })
-      expect(status).toEqual(HttpStatus.OK)
+      expect(status).toEqual(HttpStatus.CREATED)
     })
 
     it('evaluates a partial sign transaction authorization request', async () => {
@@ -185,7 +185,7 @@ describe('Policy Engine Cluster Facade', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(EVALUATIONS_ENDPOINT)
+        .post(ENDPOINT_PREFIX)
         .set(REQUEST_HEADER_ORG_ID, org.id)
         .send(payload)
 
@@ -199,7 +199,7 @@ describe('Policy Engine Cluster Facade', () => {
         request: payload.request,
         evaluations: []
       })
-      expect(status).toEqual(HttpStatus.OK)
+      expect(status).toEqual(HttpStatus.CREATED)
     })
   })
 
@@ -228,7 +228,7 @@ describe('Policy Engine Cluster Facade', () => {
 
     it('responds with authorization request', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .get(`${EVALUATIONS_ENDPOINT}/${authzRequest.id}`)
+        .get(`${ENDPOINT_PREFIX}/${authzRequest.id}`)
         .set(REQUEST_HEADER_ORG_ID, org.id)
 
       expect(status).toEqual(HttpStatus.OK)
