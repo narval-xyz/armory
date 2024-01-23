@@ -10,12 +10,14 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	checkTransferTokenType({"transferNative"})
 	checkTransferTokenAddress({"eip155:137/slip44/966"})
 	checkTransferTokenOperation({"operator": "gte", "value": "1000000000000000000"})
+
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
 	}]
+
 	approvals := getApprovalsResult(approvalsRequired)
 	reason := {
 		"type": "permit",
