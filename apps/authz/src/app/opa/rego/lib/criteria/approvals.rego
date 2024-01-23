@@ -2,20 +2,15 @@ package main
 
 import future.keywords.in
 
-approvals := input.approvals
-
 usersEntities := data.entities.users
 
 userGroupsEntities := data.entities.userGroups
 
 getApprovalsCount(possibleApprovers) = result {
-	approval := approvals[_]
-
 	matchedApprovers := {approval.userId |
-		approval := approvals[_]
+		approval := input.approvals[_]
 		approval.userId in possibleApprovers
 	}
-
 	result := count(matchedApprovers)
 }
 
