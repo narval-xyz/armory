@@ -23,20 +23,19 @@ import ERC1155TransferDecoder from './transaction/interaction/Erc1155TransferDec
 import Erc20TransferDecoder from './transaction/interaction/Erc20TransferDecoder'
 import Erc721TransferDecoder from './transaction/interaction/Erc721TransferDecoder'
 
+export type DecoderOption = {
+  contractRegistry?: ContractRegistry
+  transactionRegistry?: TransactionRegistry
+}
+
 export default class Decoder {
   contractRegistry?: ContractRegistry
 
   transactionRegistry?: TransactionRegistry
 
-  constructor({
-    contractRegistry,
-    transactionRegistry
-  }: {
-    contractRegistry?: ContractRegistry
-    transactionRegistry?: TransactionRegistry
-  }) {
-    this.contractRegistry = contractRegistry
-    this.transactionRegistry = transactionRegistry
+  constructor(option?: DecoderOption) {
+    this.contractRegistry = option?.contractRegistry
+    this.transactionRegistry = option?.transactionRegistry
   }
 
   #findContractCallStrategy(input: ContractCallInput, intent: Intents): DecoderStrategy {

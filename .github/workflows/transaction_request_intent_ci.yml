@@ -42,6 +42,11 @@ jobs:
         run: |
           make transaction-request-intent/test/type
 
+      - name: Test upstream application types
+        shell: bash
+        run: |
+          make authz/test/type
+
       - name: Test unit
         shell: bash
         run: |
