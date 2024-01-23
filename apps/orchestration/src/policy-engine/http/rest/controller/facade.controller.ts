@@ -21,6 +21,9 @@ export class FacadeController {
   async evaluation(@OrgId() orgId: string, @Body() body: AuthorizationRequestDto): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.create(toCreateAuthorizationRequest(orgId, body))
 
+    // TODO (@wcalderipe, 23/01/24): Validate if the signed hash is the same
+    // hash used internally.
+
     return new AuthorizationResponseDto(authzRequest)
   }
 

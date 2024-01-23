@@ -19,11 +19,19 @@ describe('hashRequest', () => {
     const a = {
       a: 'a',
       b: 1,
-      c: false
+      c: false,
+      d: {
+        a: 'a',
+        b: 1
+      }
     }
     const b = {
       c: false,
       b: 1,
+      d: {
+        b: 1,
+        a: 'a'
+      },
       a: 'a'
     }
 

@@ -144,7 +144,6 @@ export class AppService {
     const decoder = new Decoder({})
     const verificationMessage = hashRequest(request)
 
-    console.log('### hash', verificationMessage)
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)
     const populatedApprovals = await this.#populateApprovals(approvals, verificationMessage)

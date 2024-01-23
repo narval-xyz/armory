@@ -87,44 +87,8 @@ export class AuthorizationRequestService {
     const payload = {
       authentication: input.authentication,
       approvals: input.approvals,
-      request: {
-        action: input.request.action,
-        transactionRequest: input.request,
-        resourceId: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'
-      }
+      request: input.request
     }
-
-    // const payload = {
-    //   authentication: {
-    //     sig: '0x9577787fc3a6db9d5779d0ec49222a24df0231659690eab80f21ea98161a55265de1b37c1a2534b46050feb0630dba7916f88b8203aa0b452200c52516495e651b',
-    //     alg: 'ES256K',
-    //     pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
-    //   },
-    //   request: {
-    //     action: 'signTransaction',
-    //     transactionRequest: {
-    //       from: '0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
-    //       to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
-    //       chainId: 137,
-    //       data: '0xa9059cbb000000000000000000000000031d8c0ca142921c459bcb28104c0ff37928f9ed000000000000000000000000000000000000000000005ab7f55035d1e7b4fe6d',
-    //       nonce: 192,
-    //       type: '2'
-    //     },
-    //     resourceId: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'
-    //   },
-    //   approvals: [
-    //     {
-    //       sig: '0x3a07b4efd8f1af93ce046abf03bc50d107b67a2296ec36ae39bb52d49d9c43ee0ed62b406409995e4f659454180857353515526d21bf57881eaac4f05ff41ba61b',
-    //       alg: 'ES256K',
-    //       pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
-    //     },
-    //     {
-    //       sig: '0xdc9ccfa081fed5ca9878dfba4aa0b7e621b94d25b8de1f13469f925e17d55ea370a04477778f58edd8766dce024f05133c9a69e86a316f16d426a45b3d9a98531b',
-    //       alg: 'ES256K',
-    //       pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
-    //     }
-    //   ]
-    // }
 
     this.logger.log('Sending authorization request to cluster evaluation', {
       authzRequest: input,

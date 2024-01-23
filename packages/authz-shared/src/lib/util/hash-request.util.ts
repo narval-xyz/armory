@@ -15,7 +15,7 @@ const sort = (value: unknown): unknown => {
     .reduce((acc, key) => {
       return {
         ...acc,
-        [key]: (value as Record<string, unknown>)[key]
+        [key]: sort((value as Record<string, unknown>)[key])
       }
     }, {})
 }

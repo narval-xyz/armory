@@ -1,15 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import { IsDefined, IsOptional, IsString } from 'class-validator'
 
 export class SignatureDto {
   @IsString()
   @IsDefined()
-  @ApiProperty()
+  @Transform(({ value }) => value.toLowerCase())
+  @ApiProperty({
+    format: 'lowercase'
+  })
   sig: string
 
   @IsString()
   @IsDefined()
-  @ApiProperty()
+  @Transform(({ value }) => value.toLowerCase())
+  @ApiProperty({
+    format: 'lowercase'
+  })
   pubKey: string
 
   @IsString()
