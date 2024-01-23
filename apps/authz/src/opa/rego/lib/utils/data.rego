@@ -58,7 +58,7 @@ approversGroups = result {
 }
 
 checkTransferResourceIntegrity {
-	contains(input.resource.uid, input.request.from)
+	contains(input.resource.uid, input.transactionRequest.from)
 	input.resource.uid == input.intent.from
 }
 
