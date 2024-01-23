@@ -1,22 +1,29 @@
+import { REQUEST_HEADER_ORG_ID } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { toCreateAuthorizationRequest } from '@app/orchestration/policy-engine/http/rest/util'
 import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
-import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ErrorResponseDto } from '@app/orchestration/shared/dto/error-response.dto'
+import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 
-@Controller('/policy-engine')
-@ApiTags('Policy Engine')
-export class FacadeController {
+@Controller('/authorization-requests')
+@ApiTags('Authorization Request')
+export class AuthorizationRequestController {
   constructor(private authorizationRequestService: AuthorizationRequestService) {}
 
-  @Post('/evaluations')
-  @HttpCode(HttpStatus.OK)
+  @Post('/')
+  @ApiOperation({
+    summary: 'Submits a new authorization request for evaluation by the policy engine'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_ORG_ID
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'The authorization evaluation has been successfully submit',
+    description: 'The authorization request has been successfully submitted for evaluation',
+    status: HttpStatus.CREATED,
     type: AuthorizationResponseDto
   })
   async evaluation(@OrgId() orgId: string, @Body() body: AuthorizationRequestDto): Promise<AuthorizationResponseDto> {
@@ -28,11 +35,19 @@ export class FacadeController {
     return new AuthorizationResponseDto(authzRequest)
   }
 
-  @Get('/evaluations/:id')
+  @Get('/:id')
+  @ApiOperation({
+    summary: 'Gets an authorization request by its ID'
+  })
   @ApiResponse({
+    description: 'The authorization request',
     status: HttpStatus.OK,
-    description: 'The authorization evaluation request',
     type: AuthorizationResponseDto
+  })
+  @ApiResponse({
+    description: 'The authorization request was not found',
+    status: HttpStatus.NOT_FOUND,
+    type: ErrorResponseDto
   })
   async getBydId(@Param('id') id: string): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.findById(id)
@@ -44,7 +59,15 @@ export class FacadeController {
     throw new NotFoundException('Authorization request not found')
   }
 
-  @Post('/approve/:id')
+  @Post('/:id/approvals')
+  @ApiOperation({
+    summary: 'Approves an authorization request'
+  })
+  @ApiResponse({
+    description: 'The authorization request including the newly added approval',
+    status: HttpStatus.CREATED,
+    type: AuthorizationResponseDto
+  })
   async approve(@Param('id') id: string, @Body() body: SignatureDto): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.approve(id, body)
 
