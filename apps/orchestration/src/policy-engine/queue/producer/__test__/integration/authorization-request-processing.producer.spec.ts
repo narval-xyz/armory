@@ -39,7 +39,8 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
     status: AuthorizationRequestStatus.CREATED,
     request: {
       action: SupportedAction.SIGN_MESSAGE,
-      nonce: 99,
+      nonce: '99',
+      resourceId: '15d13f33-b7fb-4b96-b8c2-f35c6b2f64dd',
       message: 'Test request'
     },
     idempotencyKey: null,

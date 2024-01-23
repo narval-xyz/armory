@@ -53,7 +53,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
       action: SupportedAction.SIGN_MESSAGE,
-      nonce: 99,
+      nonce: '99',
+      resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
     },
     idempotencyKey: null,

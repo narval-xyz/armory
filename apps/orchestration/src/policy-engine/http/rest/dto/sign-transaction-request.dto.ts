@@ -1,7 +1,7 @@
 import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { TransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsNumber, IsString, Min, ValidateNested } from 'class-validator'
+import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator'
 
 export class SignTransactionRequestDto {
   @IsEnum(SupportedAction)
@@ -12,11 +12,10 @@ export class SignTransactionRequestDto {
   })
   action: `${SupportedAction.SIGN_TRANSACTION}`
 
-  @IsNumber()
-  @Min(0)
+  @IsString()
   @IsDefined()
   @ApiProperty()
-  nonce: number
+  nonce: string
 
   @IsString()
   @IsDefined()

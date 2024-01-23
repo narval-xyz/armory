@@ -3,7 +3,8 @@ import { z } from 'zod'
 
 export const readSignMessageSchema = z.object({
   action: z.literal(SupportedAction.SIGN_MESSAGE),
-  nonce: z.number().min(0),
+  nonce: z.string(),
+  resourceId: z.string(),
   message: z.string()
 })
 

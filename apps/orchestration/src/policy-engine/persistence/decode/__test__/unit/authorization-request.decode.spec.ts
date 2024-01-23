@@ -27,7 +27,7 @@ describe('decodeAuthorizationRequest', () => {
         action: SupportedAction.SIGN_TRANSACTION,
         request: {
           action: SupportedAction.SIGN_TRANSACTION,
-          nonce: 99,
+          nonce: '99',
           resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           transactionRequest: {
             from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
@@ -48,7 +48,7 @@ describe('decodeAuthorizationRequest', () => {
         action: SupportedAction.SIGN_TRANSACTION,
         request: {
           action: SupportedAction.SIGN_TRANSACTION,
-          nonce: 99,
+          nonce: '99',
           resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           transactionRequest: {
             from: 'not-an-ethereum-address',
@@ -70,7 +70,8 @@ describe('decodeAuthorizationRequest', () => {
         action: SupportedAction.SIGN_MESSAGE,
         request: {
           action: SupportedAction.SIGN_MESSAGE,
-          nonce: 99,
+          nonce: '99',
+          resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           message: 'Test messsage'
         }
       }

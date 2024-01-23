@@ -100,7 +100,8 @@ describe('Policy Engine Cluster Facade', () => {
         approvals,
         request: {
           action: SupportedAction.SIGN_MESSAGE,
-          nonce: 99,
+          nonce: '99',
+          resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
           message: 'Sign me, please'
         }
       }
@@ -129,7 +130,7 @@ describe('Policy Engine Cluster Facade', () => {
         approvals,
         request: {
           action: SupportedAction.SIGN_TRANSACTION,
-          nonce: 99,
+          nonce: '99',
           resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
           transactionRequest: {
             chainId: 1,
@@ -172,7 +173,7 @@ describe('Policy Engine Cluster Facade', () => {
       const payload = {
         request: {
           action: SupportedAction.SIGN_TRANSACTION,
-          nonce: 99,
+          nonce: '99',
           resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
           transactionRequest: {
             from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
@@ -210,7 +211,8 @@ describe('Policy Engine Cluster Facade', () => {
       status: AuthorizationRequestStatus.PERMITTED,
       request: {
         action: SupportedAction.SIGN_MESSAGE,
-        nonce: 99,
+        nonce: '99',
+        resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
         message: 'Testing sign message request'
       },
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',

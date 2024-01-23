@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 export const readSignTransactionSchema = z.object({
   action: z.literal(SupportedAction.SIGN_TRANSACTION),
-  nonce: z.number().min(0),
+  nonce: z.string(),
   resourceId: z.string(),
   transactionRequest: readTransactionRequestSchema
 })

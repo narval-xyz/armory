@@ -1,6 +1,6 @@
 import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsNumber, IsString, Min } from 'class-validator'
+import { IsDefined, IsEnum, IsString } from 'class-validator'
 
 export class SignMessageRequestDto {
   @IsEnum(SupportedAction)
@@ -11,11 +11,15 @@ export class SignMessageRequestDto {
   })
   action: `${SupportedAction.SIGN_MESSAGE}`
 
-  @IsNumber()
-  @Min(0)
+  @IsString()
   @IsDefined()
   @ApiProperty()
-  nonce: number
+  nonce: string
+
+  @IsString()
+  @IsDefined()
+  @ApiProperty()
+  resourceId: string
 
   @IsString()
   @IsDefined()

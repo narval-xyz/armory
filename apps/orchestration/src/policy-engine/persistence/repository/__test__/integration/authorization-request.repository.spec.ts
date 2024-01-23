@@ -40,7 +40,8 @@ describe(AuthorizationRequestRepository.name, () => {
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
       action: SupportedAction.SIGN_MESSAGE,
-      nonce: 99,
+      nonce: '99',
+      resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
     },
     idempotencyKey: null,
@@ -162,7 +163,7 @@ describe(AuthorizationRequestRepository.name, () => {
     describe(`when action is ${SupportedAction.SIGN_TRANSACTION}`, () => {
       const signTransaction: SignTransaction = {
         action: SupportedAction.SIGN_TRANSACTION,
-        nonce: 99,
+        nonce: '99',
         resourceId: '3be0c61d-9b41-423f-80b8-ea6f7624d917',
         transactionRequest: {
           from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
