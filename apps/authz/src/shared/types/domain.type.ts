@@ -1,4 +1,5 @@
 import { Action, TransactionRequest } from '@narval/authz-shared'
+import { Intent } from '@narval/transaction-request-intent'
 import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export * from '@narval/authz-shared'
@@ -133,13 +134,39 @@ export type ApprovalRequirement = {
   countPrincipal: boolean
 }
 
+export type RegoInput = {
+  action: Action
+  intent?: Intent
+  transactionRequest?: TransactionRequest
+  principal: AuthCredential
+  resource?: { uid: string }
+  approvals: AuthCredential[]
+  transfers?: HistoricalTransfer[]
+}
+
+export type MatchedRule = {
+  policyId: string
+  type: 'permit' | 'forbid'
+  approvalsSatisfied: ApprovalRequirement[]
+  approvalsMissing: ApprovalRequirement[]
+}
+
+export type OpaResult = {
+  default?: boolean
+  permit: boolean
+  reasons: MatchedRule[]
+}
+
 export type AuthorizationResponse = {
   decision: NarvalDecision
-  permitSignature?: RequestSignature // The ENGINE's approval signature
-  request?: AuthorizationRequest // The actual authorized request
-  totalApprovalsRequired?: ApprovalRequirement[]
-  approvalsMissing?: ApprovalRequirement[]
-  approvalsSatisfied?: ApprovalRequirement[]
+  reasons: OpaResult[]
+  request?: AuthorizationRequest
+  approvals?: {
+    required: ApprovalRequirement[]
+    missing: ApprovalRequirement[]
+    satisfied: ApprovalRequirement[]
+  }
+  attestation?: RequestSignature
 }
 
 export type VerifiedApproval = {

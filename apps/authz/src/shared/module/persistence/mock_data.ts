@@ -5,6 +5,7 @@ import {
   AuthCredential,
   AuthorizationRequest,
   AuthorizationRequestPayload,
+  RegoInput,
   TransactionRequest,
   UserRoles
 } from '@app/authz/shared/types/domain.type'
@@ -16,7 +17,6 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { RegoInput } from '@app/authz/shared/types/rego'
 import { hashRequest } from '@narval/authz-shared'
 import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
