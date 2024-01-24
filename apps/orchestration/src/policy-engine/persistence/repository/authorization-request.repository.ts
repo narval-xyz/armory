@@ -19,7 +19,6 @@ export class AuthorizationRequestRepository {
     const { id, orgId, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals, authentication } =
       this.getDefaults(input)
     const request = createRequestSchema.parse(input.request)
-
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({

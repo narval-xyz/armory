@@ -21,6 +21,10 @@ model Organization {
   @@map("organization")
 }
 
+//
+// Policy Engine Module
+//
+
 enum AuthorizationRequestStatus {
   CREATED
   FAILED
@@ -80,4 +84,23 @@ model EvaluationLog {
   request AuthorizationRequest @relation(fields: [requestId], references: [id])
 
   @@map("evaluation_log")
+}
+
+//
+// Transfer Feed Module
+//
+
+model TransferFeed {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  orgId       String   @map("org_id")
+  chainId     Int      @map("chain_id")
+  from        String
+  to          String
+  token       String
+  amount      String
+  rates       Json
+  initiatedBy String   @map("initiated_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("transfer_feed")
 }
