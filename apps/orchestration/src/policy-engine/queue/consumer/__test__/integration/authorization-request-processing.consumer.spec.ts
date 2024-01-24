@@ -17,13 +17,14 @@ import { AuthorizationRequestProcessingProducer } from '@app/orchestration/polic
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { createMock } from '@golevelup/ts-jest'
+import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Organization } from '@prisma/client/orchestration'
 import { Job, Queue } from 'bull'
+import { mock } from 'jest-mock-extended'
 
 describe(AuthorizationRequestProcessingConsumer.name, () => {
   let module: TestingModule
@@ -91,7 +92,11 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestProcessingConsumer,
         AuthorizationRequestProcessingProducer,
         AuthorizationRequestRepository,
-        AuthorizationRequestService
+        AuthorizationRequestService,
+        {
+          provide: TransferFeedService,
+          useValue: mock<TransferFeedService>()
+        }
       ]
     }).compile()
 
@@ -122,7 +127,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
       jest.spyOn(service, 'process')
 
-      const job = createMock<Job<AuthorizationRequestProcessingJob>>({
+      const job = mock<Job<AuthorizationRequestProcessingJob>>({
         id: authzRequest.id,
         opts: {
           jobId: authzRequest.id
@@ -138,7 +143,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   describe('onFailure', () => {
     describe('when exceed max attemps', () => {
       it('changes the request status to failed', async () => {
-        const job = createMock<Job<AuthorizationRequestProcessingJob>>({
+        const job = mock<Job<AuthorizationRequestProcessingJob>>({
           id: authzRequest.id,
           opts: {
             jobId: authzRequest.id

@@ -139,7 +139,12 @@ export class AppService {
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authentication, approvals, transfers }: AuthorizationRequestPayload) {
+  async runEvaluation({
+    request,
+    authentication,
+    approvals,
+    transfers
+  }: AuthorizationRequestPayload): Promise<AuthorizationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const decoder = new Decoder({})
@@ -184,6 +189,7 @@ export class AppService {
       decision: finalDecision.decision,
       reasons: finalDecision.originalResponse,
       request,
+      transactionRequestIntent: intent,
       approvals: finalDecision.totalApprovalsRequired?.length
         ? {
             required: finalDecision.totalApprovalsRequired,

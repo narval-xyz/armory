@@ -2,16 +2,18 @@ import { AuthorizationRequestService } from '@app/orchestration/policy-engine/co
 import { Approval, AuthorizationRequest, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { createMock } from '@golevelup/ts-jest'
+import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
 import { HttpService } from '@nestjs/axios'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
+import { mock } from 'jest-mock-extended'
 
 describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
   let authzRequestRepositoryMock: AuthorizationRequestRepository
   let authzRequestProcessingProducerMock: AuthorizationRequestProcessingProducer
   let httpServiceMock: HttpService
+  let transferFeedServiceMock: TransferFeedService
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = {
@@ -37,9 +39,10 @@ describe(AuthorizationRequestService.name, () => {
   }
 
   beforeEach(async () => {
-    authzRequestRepositoryMock = createMock<AuthorizationRequestRepository>()
-    authzRequestProcessingProducerMock = createMock<AuthorizationRequestProcessingProducer>()
-    httpServiceMock = createMock<HttpService>()
+    authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
+    authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
+    httpServiceMock = mock<HttpService>()
+    transferFeedServiceMock = mock<TransferFeedService>()
 
     module = await Test.createTestingModule({
       providers: [
@@ -55,6 +58,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: HttpService,
           useValue: httpServiceMock
+        },
+        {
+          provide: TransferFeedService,
+          useValue: transferFeedServiceMock
         }
       ]
     }).compile()

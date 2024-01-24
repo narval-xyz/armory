@@ -2,12 +2,18 @@
 
 TBD
 
+## Requirements
+
+- [Open Policy Agent (OPA)
+  binary](https://www.openpolicyagent.org/docs/latest/#1-download-opa) installed
+  and accessible in your `$PATH`.
+
 ## Getting started
 
 ```bash
 # Boot PostgreSQL and Redis
 make docker/up
-make authz/copy-default-env
+make authz/setup
 ```
 
 ## Running

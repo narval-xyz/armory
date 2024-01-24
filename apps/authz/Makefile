@@ -10,6 +10,7 @@ authz/start/dev:
 
 authz/setup:
 	make authz/copy-default-env
+	make authz/rego/compile
 
 authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env

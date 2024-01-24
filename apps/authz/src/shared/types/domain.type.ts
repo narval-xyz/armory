@@ -167,6 +167,7 @@ export type AuthorizationResponse = {
     satisfied: ApprovalRequirement[]
   }
   attestation?: RequestSignature
+  transactionRequestIntent?: Intent
 }
 
 export type VerifiedApproval = {
