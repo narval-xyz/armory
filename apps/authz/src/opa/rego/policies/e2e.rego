@@ -9,15 +9,13 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
 	checkTransferTokenType({"transferNative"})
 	checkTransferTokenAddress({"eip155:137/slip44/966"})
-	checkTransferTokenOperation({"operator": "gte", "value": "1000000000000000000"})
-
+	checkTransferTokenAmount({"operator": "gte", "value": "1000000000000000000"})
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
 	}]
-
 	approvals := getApprovalsResult(approvalsRequired)
 	reason := {
 		"type": "permit",

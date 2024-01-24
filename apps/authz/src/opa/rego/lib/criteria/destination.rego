@@ -2,6 +2,14 @@ package main
 
 import future.keywords.in
 
+destination = result {
+	result := data.entities.wallets[input.intent.to]
+}
+
+destination = result {
+	result := data.entities.addressBook[input.intent.to]
+}
+
 checkDestinationAddress(values) {
 	values == wildcard
 }

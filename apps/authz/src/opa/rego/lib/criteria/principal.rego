@@ -2,6 +2,17 @@ package main
 
 import future.keywords.in
 
+principal = result {
+	result := data.entities.users[input.principal.userId]
+}
+
+principalGroups = result {
+	result := {group.uid |
+		group := data.entities.userGroups[_]
+		input.principal.userId in group.users
+	}
+}
+
 isPrincipalRootUser {
 	principal.role == "root"
 }
