@@ -133,7 +133,8 @@ export class AuthorizationRequestService {
               {
                 id: uuid(),
                 decision: evaluation.decision,
-                signature: evaluation?.permitSignature?.sig || null,
+                // TODO (@mattschoch, 23/01/24): return the full attestation?
+                signature: evaluation?.attestation?.sig || null,
                 createdAt: new Date()
               }
             ]
