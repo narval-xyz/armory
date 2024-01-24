@@ -1,4 +1,4 @@
-import { AccessList, Action, Address, Alg, FiatSymbols, Hex } from '@app/authz/shared/types/domain.type'
+import { AccessList, Action, Address, Alg, FiatCurrency, Hex } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
@@ -138,14 +138,14 @@ export class SignMessageRequestDataDto extends BaseRequestDataDto {
 }
 
 export class HistoricalTransferDto {
-  amount: string // Amount in the smallest unit of the token (eg. wei for ETH)
+  amount: string
   from: Caip10
-  to: Caip10 // In case we want spending limit per destination address
+  to: string
   chainId: number
-  token: Caip10
-  rates: { [keyof in FiatSymbols]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
-  initiatedBy: string // uid of the user who initiated the spending
-  timestamp: number // unix timestamp
+  token: string
+  rates: { [keyof in FiatCurrency]: string }
+  initiatedBy: string
+  timestamp: number
 }
 
 @ApiExtraModels(SignTransactionRequestDataDto, SignMessageRequestDataDto)

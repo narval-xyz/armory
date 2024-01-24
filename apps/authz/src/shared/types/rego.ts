@@ -1,5 +1,6 @@
+import { Action, ApprovalRequirement, HistoricalTransfer, TransactionRequest } from '@narval/authz-shared'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Action, ApprovalRequirement, AuthCredential, HistoricalTransfer, TransactionRequest } from './domain.type'
+import { AuthCredential } from './domain.type'
 
 export type RegoInput = {
   action: Action
