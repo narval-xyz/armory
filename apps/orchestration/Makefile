@@ -56,12 +56,15 @@ orchestration/db/create-migration:
 			--schema ${ORCHESTRATION_DATABASE_SCHEMA} \
 			--name ${NAME}
 
-# Reference: https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding#seeding-your-database-with-typescript-or-javascript
+# To maintain seed data within their respective modules and then import them
+# into the main seed.ts file for execution, it's necessary to compile the
+# project and resolve its path aliases before running the vanilla JavaScript
+# seed entry point.
 orchestration/db/seed:
+	npx tsc --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
+	npx tsc-alias --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
 	npx dotenv -e ${ORCHESTRATION_PROJECT_DIR}/.env -- \
-		ts-node \
-		--compiler-options "{\"module\":\"CommonJS\"}" \
-		${ORCHESTRATION_PROJECT_DIR}/src/shared/module/persistence/seed.ts
+		node dist/out-tsc/${ORCHESTRATION_PROJECT_DIR}/src/shared/module/persistence/seed.js
 
 # === Testing ===
 

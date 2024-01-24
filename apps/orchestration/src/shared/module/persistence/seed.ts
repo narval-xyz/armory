@@ -1,9 +1,9 @@
+import { germinate as germinateTransferFeedModule } from '@app/orchestration/transfer-feed/persistence/transfer-feed.seed'
 import { Logger } from '@nestjs/common'
 import { Organization, PrismaClient } from '@prisma/client/orchestration'
 
-const logger = new Logger('OrchestrationSeed')
-const prisma = new PrismaClient()
 const now = new Date()
+const prisma = new PrismaClient()
 
 const orgs: Organization[] = [
   {
@@ -15,6 +15,8 @@ const orgs: Organization[] = [
 ]
 
 async function main() {
+  const logger = new Logger('OrchestrationSeed')
+
   logger.log('Seeding Orchestration database')
 
   for (const org of orgs) {
@@ -23,6 +25,8 @@ async function main() {
       data: org
     })
   }
+
+  await germinateTransferFeedModule(prisma)
 
   logger.log('Orchestration database germinated 🌱')
 }
