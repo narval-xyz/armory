@@ -98,9 +98,6 @@ test_checkTransferTokenAmount {
 	checkTransferTokenAmount({"operator": "gte", "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenAmount({"operator": "gte", "value": one_matic}) with input as request
-		with data.entities as entities
-
 	checkTransferTokenAmount({"operator": "lte", "value": one_matic}) with input as request
 		with data.entities as entities
 

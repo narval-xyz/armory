@@ -3,9 +3,9 @@ package main
 import future.keywords.in
 
 test_wildcardPrincipal {
-	checkPrincipalId("*")
-	checkPrincipalRole("*")
-	checkPrincipalGroups("*")
+	checkPrincipalId(wildcard)
+	checkPrincipalRole(wildcard)
+	checkPrincipalGroups(wildcard)
 }
 
 test_principalGroups {

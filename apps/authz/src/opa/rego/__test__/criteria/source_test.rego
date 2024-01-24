@@ -3,9 +3,9 @@ package main
 import future.keywords.in
 
 test_wildcardSource {
-	checkSourceAccountType("*")
-	checkSourceAddress("*")
-	checkSourceClassification("*")
+	checkSourceAccountType(wildcard)
+	checkSourceAddress(wildcard)
+	checkSourceClassification(wildcard)
 }
 
 test_source {
