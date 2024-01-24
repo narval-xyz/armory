@@ -2,8 +2,7 @@ package main
 
 import future.keywords.in
 
-# transferNative, transferERC20
-transferTokenType = input.intent.type
+transferTokenTypes = {"transferNative", "transferERC20"}
 
 transferTokenAmount = to_number(input.intent.amount)
 
@@ -19,7 +18,8 @@ checkTransferTokenType(values) {
 
 checkTransferTokenType(values) {
 	values != wildcard
-	transferTokenType in values
+	input.intent.type in transferTokenTypes
+	input.intent.type in values
 }
 
 checkTransferTokenAddress(values) {
