@@ -31,42 +31,42 @@ checkTransferTokenAddress(values) {
 	transferTokenAddress in values
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation == wildcard
 }
 
 # Ex: operation = {"operator": "eq", "value": "1000000000000000000"}
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "eq"
 	to_number(operation.value) == transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "neq"
 	to_number(operation.value) != transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "gt"
 	to_number(operation.value) < transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "lt"
 	to_number(operation.value) > transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "gte"
 	to_number(operation.value) <= transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
+checkTransferTokenAmount(operation) {
 	operation != wildcard
 	operation.operator == "lte"
 	to_number(operation.value) >= transferTokenAmount

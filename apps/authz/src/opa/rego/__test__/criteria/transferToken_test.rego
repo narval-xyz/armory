@@ -85,28 +85,28 @@ test_transferERC20 {
 		with data.entities as entities
 }
 
-test_transferTokenOperation {
-	checkTransferTokenOperation(wildcard) with input as request
+test_checkTransferTokenAmount {
+	checkTransferTokenAmount(wildcard) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "gt", "value": half_matic}) with input as request
+	checkTransferTokenAmount({"operator": "gt", "value": half_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "lt", "value": ten_matic}) with input as request
+	checkTransferTokenAmount({"operator": "lt", "value": ten_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "gte", "value": one_matic}) with input as request
+	checkTransferTokenAmount({"operator": "gte", "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "gte", "value": one_matic}) with input as request
+	checkTransferTokenAmount({"operator": "gte", "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "lte", "value": one_matic}) with input as request
+	checkTransferTokenAmount({"operator": "lte", "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "eq", "value": one_matic}) with input as request
+	checkTransferTokenAmount({"operator": "eq", "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenOperation({"operator": "neq", "value": ten_matic}) with input as request
+	checkTransferTokenAmount({"operator": "neq", "value": ten_matic}) with input as request
 		with data.entities as entities
 }
