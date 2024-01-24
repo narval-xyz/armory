@@ -31,43 +31,43 @@ checkTransferTokenAddress(values) {
 	transferTokenAddress in values
 }
 
-checkTransferTokenAmount(operation) {
-	operation == wildcard
+checkTransferTokenAmount(condition) {
+	condition == wildcard
 }
 
-# Ex: operation = {"operator": "eq", "value": "1000000000000000000"}
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "eq"
-	to_number(operation.value) == transferTokenAmount
+# Ex: condition = {"operator": "eq", "value": "1000000000000000000"}
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "eq"
+	to_number(condition.value) == transferTokenAmount
 }
 
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "neq"
-	to_number(operation.value) != transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "neq"
+	to_number(condition.value) != transferTokenAmount
 }
 
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "gt"
-	to_number(operation.value) < transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "gt"
+	to_number(condition.value) < transferTokenAmount
 }
 
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "lt"
-	to_number(operation.value) > transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "lt"
+	to_number(condition.value) > transferTokenAmount
 }
 
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "gte"
-	to_number(operation.value) <= transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "gte"
+	to_number(condition.value) <= transferTokenAmount
 }
 
-checkTransferTokenAmount(operation) {
-	operation != wildcard
-	operation.operator == "lte"
-	to_number(operation.value) >= transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "lte"
+	to_number(condition.value) >= transferTokenAmount
 }

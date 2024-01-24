@@ -3,8 +3,8 @@ package main
 import future.keywords.in
 
 test_wildcardDestination {
-	checkDestinationAddress("*")
-	checkDestinationClassification("*")
+	checkDestinationAddress(wildcard)
+	checkDestinationClassification(wildcard)
 }
 
 test_destination {
