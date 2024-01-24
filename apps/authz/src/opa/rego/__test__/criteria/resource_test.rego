@@ -20,10 +20,10 @@ test_getWalletGroups {
 }
 
 test_wildcardResource {
-	checkWalletId("*")
-	checkWalletGroups("*")
-	checkWalletChainId("*")
-	checkWalletAssignees("*")
+	checkWalletId(wildcard)
+	checkWalletGroups(wildcard)
+	checkWalletChainId(wildcard)
+	checkWalletAssignees(wildcard)
 }
 
 test_resource {
