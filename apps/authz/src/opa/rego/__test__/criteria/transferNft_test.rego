@@ -72,6 +72,10 @@ test_transferERC1155 {
 				"amount": "1",
 			},
 			{
+				"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/44444",
+				"amount": "2",
+			},
+			{
 				"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555",
 				"amount": "5",
 			},
@@ -99,8 +103,19 @@ test_transferERC1155 {
 
 	checkERC1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555"}) with input as erc1155Request
 		with data.entities as entities
+
+	checkERC1155Transfers([
+		{"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555", "operator": "lt", "value": "2"},
+		{"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/44444", "operator": "lt", "value": "2"},
+		{"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lt", "value": "2"},
+	]) with input as erc1155Request with data.entities as entities
 }
 
-test_transferERC1155TokenAmount = true
-
-test_transferERC1155Transfers = true
+test_checkERC1155TokenAmount {
+	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "neq", "value": "2"})
+	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "eq", "value": "1"})
+	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "gte", "value": "4"})
+	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lte", "value": "5"})
+	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "gt", "value": "3"})
+	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lt", "value": "5"})
+}

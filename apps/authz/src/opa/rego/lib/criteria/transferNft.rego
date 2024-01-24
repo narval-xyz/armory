@@ -51,9 +51,9 @@ checkERC1155TokenId(values) {
 
 # Ex: operations = [{ "tokenId": "1", "operator": "eq", "value": "1" }, {"tokenId": "2", operator": "lte", "value": "10"}]
 checkERC1155Transfers(operations) {
-	transfer := input.intent.transfers[_]
-	operation := operations[_]
-	transfer.tokenId == operation.tokenId
+	input.intent.transfers[t].tokenId == operations[o].tokenId
+	transfer = input.intent.transfers[t]
+	operation = operations[o]
 	checkERC1155TokenAmount(transfer.amount, operation)
 }
 
