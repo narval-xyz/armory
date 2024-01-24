@@ -2,14 +2,15 @@ package main
 
 import future.keywords.in
 
+# transferNative, transferERC20
 transferTokenType = input.intent.type
 
 transferTokenAmount = to_number(input.intent.amount)
 
-# Transfer Native
+# transferNative
 transferTokenAddress = input.intent.token
 
-# Transfer ERC20, ERC721, ERC1155
+# transferERC20
 transferTokenAddress = input.intent.contract
 
 checkTransferTokenType(values) {
@@ -34,6 +35,7 @@ checkTransferTokenOperation(operation) {
 	operation == wildcard
 }
 
+# Ex: operation = {"operator": "eq", "value": "1000000000000000000"}
 checkTransferTokenOperation(operation) {
 	operation != wildcard
 	operation.operator == "eq"
