@@ -9,7 +9,7 @@ one_matic = "1000000000000000000"
 ten_matic = "10000000000000000000"
 
 test_transferNative {
-	transferNativeTransactionRequest = {
+	nativeTransactionRequest = {
 		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"chainId": 137,
@@ -22,7 +22,7 @@ test_transferNative {
 		"type": "2",
 	}
 
-	transferNativeIntent = {
+	nativeIntent = {
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"type": "transferNative",
@@ -30,25 +30,25 @@ test_transferNative {
 		"token": "eip155:137/slip44/966",
 	}
 
-	transferNativeRequest = {
+	nativeRequest = {
 		"action": "signTransaction",
-		"transactionRequest": transferNativeTransactionRequest,
-		"intent": transferNativeIntent,
+		"transactionRequest": nativeTransactionRequest,
+		"intent": nativeIntent,
 		"principal": principalReq,
 		"resource": resourceReq,
 		"approvals": approvalsReq,
 		"transfers": transfersReq,
 	}
 
-	checkTransferTokenType({"transferNative"}) with input as transferNativeRequest
+	checkTransferTokenType({"transferNative"}) with input as nativeRequest
 		with data.entities as entities
 
-	checkTransferTokenAddress({"eip155:137/slip44/966"}) with input as transferNativeRequest
+	checkTransferTokenAddress({"eip155:137/slip44/966"}) with input as nativeRequest
 		with data.entities as entities
 }
 
 test_transferERC20 {
-	transferERC20TransactionRequest = {
+	erc20TransactionRequest = {
 		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"chainId": 137,
@@ -60,7 +60,7 @@ test_transferERC20 {
 		"type": "2",
 	}
 
-	transferERC20Intent = {
+	erc20Intent = {
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"type": "transferERC20",
@@ -68,20 +68,20 @@ test_transferERC20 {
 		"contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 	}
 
-	transferERC20Request = {
+	erc20Request = {
 		"action": "signTransaction",
-		"transactionRequest": transferERC20TransactionRequest,
-		"intent": transferERC20Intent,
+		"transactionRequest": erc20TransactionRequest,
+		"intent": erc20Intent,
 		"principal": principalReq,
 		"resource": resourceReq,
 		"approvals": approvalsReq,
 		"transfers": transfersReq,
 	}
 
-	checkTransferTokenType({"transferERC20"}) with input as transferERC20Request
+	checkTransferTokenType({"transferERC20"}) with input as erc20Request
 		with data.entities as entities
 
-	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as transferERC20Request
+	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as erc20Request
 		with data.entities as entities
 }
 

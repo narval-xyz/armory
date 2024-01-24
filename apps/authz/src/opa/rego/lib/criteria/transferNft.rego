@@ -7,6 +7,11 @@ transferNftType = input.intent.type
 
 transferNftAddress = input.intent.contract
 
+extractTokenIdFromCaip19(caip19) := result {
+	arr := split(caip19, "/")
+	result := arr[count(arr) - 1]
+}
+
 checkTransferNftType(values) {
 	values == wildcard
 }
