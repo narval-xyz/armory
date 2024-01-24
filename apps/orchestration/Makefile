@@ -76,6 +76,7 @@ orchestration/test/db/setup:
 		--force
 
 orchestration/test/type:
+	make orchestration/db/generate-types
 	npx tsc \
 		--project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json \
 		--noEmit
