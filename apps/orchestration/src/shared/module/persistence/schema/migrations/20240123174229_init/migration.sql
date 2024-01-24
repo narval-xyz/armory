@@ -55,6 +55,22 @@ CREATE TABLE "evaluation_log" (
     CONSTRAINT "evaluation_log_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "transfer_feed" (
+    "id" VARCHAR(255) NOT NULL,
+    "org_id" TEXT NOT NULL,
+    "chain_id" INTEGER NOT NULL,
+    "from" TEXT NOT NULL,
+    "to" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "amount" TEXT NOT NULL,
+    "rates" JSONB NOT NULL,
+    "initiated_by" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "transfer_feed_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
 
