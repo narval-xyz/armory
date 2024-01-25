@@ -2,7 +2,6 @@ import { TransactionRequest } from '@narval/authz-shared'
 import { Address, Hex, TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Caip10 } from './caip'
 import { Intent } from './intent.types'
-import { SupportedMethodId } from './supported-methods'
 
 export type Message = {
   message: string
@@ -46,11 +45,16 @@ export type TypedDataInput = {
   typedData: TypedData
 }
 
+export type ContractInformation = {
+  contractAddress: string
+  assetType: AssetTypeEnum
+}
 export type ContractRegistryInput = {
   contract: Caip10 | { address: Address; chainId: number }
-  assetType: AssetTypeEnum
+  assetType?: AssetTypeEnum
+  walletType?: WalletType
 }[]
-export type ContractRegistry = Map<Caip10, AssetTypeEnum>
+export type ContractRegistry = Map<Caip10, ContractInformation>
 
 export type TransactionKey = `${Caip10}-${number}`
 export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
@@ -67,7 +71,7 @@ export type ContractCallInput = {
   from: Hex
   data: Hex
   chainId: number
-  nonce: number
+  nonce?: number
   methodId: Hex
 }
 
@@ -75,16 +79,15 @@ export type NativeTransferInput = {
   to: Hex
   from: Hex
   value: Hex
+  nonce?: number
   chainId: number
-  nonce: number
 }
 
 export type ContractDeploymentInput = {
   from: Hex
+  nonce?: number
   data: Hex
   chainId: number
-  nonce: number
-  methodId: SupportedMethodId
 }
 
 export type ValidatedInput = ContractCallInput | NativeTransferInput | ContractDeploymentInput
@@ -129,6 +132,12 @@ export enum TransactionStatus {
   FAILED = 'failed'
 }
 
+export enum WalletType {
+  SAFE = 'safe',
+  ERC4337 = 'erc4337',
+  UNKNOWN = 'unknown'
+}
+
 export enum Intents {
   TRANSFER_NATIVE = 'transferNative',
   TRANSFER_ERC20 = 'transferErc20',
@@ -159,6 +168,12 @@ export enum AssetTypeEnum {
 
 export enum EipStandardEnum {
   EIP155 = 'eip155'
+}
+
+export enum SupportedChains {
+  MAINNET = 1,
+  POLYGON = 137,
+  OPTIMISM = 10
 }
 
 export const permit2Address = '0x000000000022d473030f116ddee9f6b43ac78ba3'

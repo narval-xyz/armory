@@ -6,6 +6,14 @@ import DecoderStrategy from '../DecoderStrategy'
 
 export default class NativeTransferDecoder extends DecoderStrategy {
   #input: NativeTransferInput
+  #checkCancelTransaction(): Intents {
+    const { from, to, value } = this.#input
+    if (from === to && (value === '0x0' || value === '0x')) {
+      return Intents.CANCEL_TRANSACTION
+    }
+    return Intents.TRANSFER_NATIVE
+  }
+
   #nativeCaip19(chainId: number): Caip19 {
     if (chainId === 1) {
       return 'eip155:1/slip44/60' as Caip19
@@ -27,6 +35,12 @@ export default class NativeTransferDecoder extends DecoderStrategy {
 
   decode() {
     const { to, from, value, chainId } = this.#input
+    const type = this.#checkCancelTransaction()
+    if (type === Intents.CANCEL_TRANSACTION) {
+      return {
+        type
+      }
+    }
     const intent: TransferNative = {
       to: encodeEoaAccountId({
         chainId,

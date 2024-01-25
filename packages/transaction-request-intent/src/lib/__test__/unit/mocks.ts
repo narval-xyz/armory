@@ -1,7 +1,7 @@
 import { TransactionRequest } from '@narval/authz-shared'
 import { Address } from 'viem'
 import { Caip10, Caip19 } from '../../caip'
-import { InputType, Intents, TransactionInput } from '../../domain'
+import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'
 
 export const ONE_ETH = BigInt('1000000000000000000')
@@ -374,4 +374,14 @@ export const mockErc20Transfer = {
     txRequest: ERC20_TRANSFER_TX_REQUEST
   } as TransactionInput,
   intent: ERC20_TRANSFER_INTENT
+}
+
+export const mockCancelTransaction: DecodeInput = {
+  type: InputType.TRANSACTION_REQUEST,
+  txRequest: {
+    chainId: 1,
+    value: '0x',
+    to: ACCOUNT_Q_137.address as Address,
+    from: ACCOUNT_Q_137.address as Address
+  }
 }

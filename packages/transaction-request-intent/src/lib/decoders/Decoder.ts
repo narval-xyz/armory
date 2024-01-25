@@ -86,23 +86,21 @@ export default class Decoder {
 
   #wrapTransactionManagementIntents(intent: Intent, input: TransactionInput): Intent {
     const { txRequest, transactionRegistry } = input
+    if (!transactionRegistry || !txRequest.nonce || intent.type === Intents.CANCEL_TRANSACTION) return intent
     const trxStatus = transactionLookup(txRequest, transactionRegistry)
-    switch (trxStatus) {
-      case TransactionStatus.FAILED:
-        return {
-          type: Intents.RETRY_TRANSACTION,
-          originalIntent: intent
-        }
-      case TransactionStatus.PENDING:
-        return {
-          type: Intents.CANCEL_TRANSACTION,
-          originalIntent: intent
-        }
-      case TransactionStatus.SUCCESS:
-        throw new Error('Transaction already mined')
-      default:
-        return intent
+    if (trxStatus === TransactionStatus.PENDING) {
+      return {
+        type: Intents.RETRY_TRANSACTION
+      }
     }
+    throw new TransactionRequestIntentError({
+      message: 'Transaction already executed',
+      status: 400,
+      context: {
+        txRequest,
+        originalTrxStatus: trxStatus
+      }
+    })
   }
 
   public decode(input: DecodeInput): Intent {

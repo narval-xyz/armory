@@ -3,6 +3,7 @@ import Decoder from '../../decoders/Decoder'
 import { InputType, Intents, TransactionStatus } from '../../domain'
 import { buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
+  mockCancelTransaction,
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
   mockErc20Transfer,
@@ -104,24 +105,82 @@ describe('decode', () => {
         expect(trxStatus).toEqual(TransactionStatus.FAILED)
       })
       // NOW ITS A PENDING
-      it('decodes retry transaction', () => {})
-      it('decodes cancel transaction', () => {
-        transactionRegistry.set(key, TransactionStatus.PENDING)
+      it('decodes retry transaction', () => {
+        const trxRegistry = buildTransactionRegistry([
+          {
+            txRequest: mockErc20Transfer.input.txRequest,
+            status: TransactionStatus.PENDING
+          }
+        ])
         const decoded = decoder.decode({
           type: InputType.TRANSACTION_REQUEST,
           txRequest: mockErc20Transfer.input.txRequest,
-          transactionRegistry
+          transactionRegistry: trxRegistry
         })
         expect(decoded).toEqual({
-          type: Intents.CANCEL_TRANSACTION,
-          originalIntent: mockErc20Transfer.intent
+          type: Intents.RETRY_TRANSACTION
+        })
+      })
+      it('decodes cancel transaction', () => {
+        transactionRegistry.set(key, TransactionStatus.PENDING)
+        const decoded = decoder.decode(mockCancelTransaction)
+        expect(decoded).toEqual({
+          type: Intents.CANCEL_TRANSACTION
         })
       })
     })
     describe('contract creation', () => {
-      it('decodes safe wallet creation deployment', () => {})
-      it('decodes erc4337 wallet deployment', () => {})
-      it('defaults to contract deployment intent', () => {})
+      // const knownSafeFactory = '0xaaad8C0cA142921c459bCB28104c0FF37928F9eD'
+      // const knownSafeMaster = '0xbbbd8C0cA142921c459bCB28104c0FF37928F9eD'
+      // const knownErc4337Factory = '0xcccd8C0cA142921c459bCB28104c0FF37928F9eD'
+      // const knownErc4337Master = '0xdddd8C0cA142921c459bCB28104c0FF37928F9eD'
+      // const contractRegistry = buildContractRegistry([
+      //   {
+      //     contract: {
+      //       address: knownSafeFactory,
+      //       chainId: 137
+      //     },
+      //     walletType: WalletType.SAFE
+      //   },
+      //   {
+      //     contract: {
+      //       address: knownSafeMaster,
+      //       chainId: 1
+      //     },
+      //     walletType: WalletType.SAFE
+      //   },
+      //   {
+      //     contract: {
+      //       address: knownErc4337Factory,
+      //       chainId: 137
+      //     },
+      //     walletType: WalletType.ERC4337
+      //   },
+      //   {
+      //     contract: {
+      //       address: knownErc4337Master,
+      //       chainId: 1
+      //     },
+      //     walletType: WalletType.ERC4337
+      //   }
+      // ])
+      it('decodes safe wallet creation deployment from a known factory', () => {
+        // expect({
+        //   const decoded = decoder.decode({
+        //     type: InputType.TRANSACTION_REQUEST,
+        //     txRequest: {
+        //       from: knownSafeFactory,
+        //       chainId: 137,
+        //       data: '0x',
+        //     }
+        // })
+      })
+      it('decodes safe wallet creation deployment from a known masterContract', () => {})
+      it('decodes erc4337 wallet deployment when deploying from a known factory', () => {
+        expect({})
+      })
+      it('decodes erc4337 wallet deployment when deploying a clone of a known masterContract', () => {})
+      it('defaults to deploy intent', () => {})
     })
   })
   //   describe('message and typed data input', () => {

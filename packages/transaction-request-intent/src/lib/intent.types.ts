@@ -75,29 +75,28 @@ export type SignTypedData = {
 export type DeployContract = {
   type: Intents.DEPLOY_CONTRACT
   from: Caip10
-  bytecode: string
+  chainId: number
 }
 
 export type DeployErc4337Wallet = {
   type: Intents.DEPLOY_ERC_4337_WALLET
   from: Caip10
-  bytecode: string
+  bytecode: Hex
+  chainId: number
 }
 
 export type DeploySafeWallet = {
   type: Intents.DEPLOY_SAFE_WALLET
   from: Caip10
-  bytecode: string
+  chainId: number
 }
 
 export type RetryTransaction = {
   type: Intents.RETRY_TRANSACTION
-  originalIntent: Intent
 }
 
 export type CancelTransaction = {
   type: Intents.CANCEL_TRANSACTION
-  originalIntent: Intent
 }
 
 export type ApproveTokenAllowance = {
@@ -133,3 +132,12 @@ export type Intent =
   | ApproveTokenAllowance
   | RetryTransaction
   | CancelTransaction
+  | DeployContract
+  | DeployErc4337Wallet
+  | DeploySafeWallet
+  | SignMessage
+  | SignRawMessage
+  | SignRawPayload
+  | SignTypedData
+  | Permit
+  | Permit2

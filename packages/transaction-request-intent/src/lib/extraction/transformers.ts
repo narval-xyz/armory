@@ -6,7 +6,8 @@ import {
   ExtractedParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
-  TransferParams
+  TransferParams,
+  UserOpsParams
 } from './types'
 
 export const TransferParamsTransform = (params: unknown[]): TransferParams => {
@@ -53,6 +54,33 @@ export const Erc721SafeTransferFromParamsTransform = (params: unknown[]): Erc721
   const to = assertHexString(params[1])
   const tokenId = assertBigInt(params[2])
   return { from, to, tokenId: tokenId.toString().toLowerCase() }
+}
+
+export const UserOpsParamsTransform = (params: unknown[]): UserOpsParams => {
+  const sender = assertHexString(params[0])
+  const nonce = assertBigInt(params[1])
+  const initCode = assertHexString(params[2])
+  const callData = assertHexString(params[3])
+  const callGasLimit = assertBigInt(params[4])
+  const verifyGasLimit = assertBigInt(params[5])
+  const preVerificationGas = assertBigInt(params[6])
+  const maxFeePerGas = assertBigInt(params[7])
+  const maxPriorityFeePerGas = assertBigInt(params[8])
+  const paymasterAndData = assertHexString(params[9])
+  const signature = assertHexString(params[10])
+  return {
+    sender,
+    nonce: nonce.toString().toLowerCase(),
+    initCode,
+    callData,
+    callGasLimit: callGasLimit.toString().toLowerCase(),
+    verifyGasLimit: verifyGasLimit.toString().toLowerCase(),
+    preVerificationGas: preVerificationGas.toString().toLowerCase(),
+    maxFeePerGas: maxFeePerGas.toString().toLowerCase(),
+    maxPriorityFeePerGas: maxPriorityFeePerGas.toString().toLowerCase(),
+    paymasterAndData,
+    signature
+  }
 }
 
 export type Transformer = (params: unknown[]) => ExtractedParams

@@ -1,4 +1,4 @@
-import { Hex } from 'viem'
+import { Address, Hex } from 'viem'
 
 export type Erc721SafeTransferFromParams = {
   from: Hex
@@ -38,6 +38,20 @@ export type SafeBatchTransferFromParams = {
   data: Hex
 }
 
+export type UserOpsParams = {
+  sender: Address
+  nonce: string
+  initCode: Hex
+  callData: Hex
+  callGasLimit: string
+  verifyGasLimit: string
+  preVerificationGas: string
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+  paymasterAndData: Hex
+  signature: Hex
+}
+
 export type NullHexParams = Record<string, never>
 
 export type ExtractedParams =
@@ -47,4 +61,5 @@ export type ExtractedParams =
   | Erc1155SafeTransferFromParams
   | SafeBatchTransferFromParams
   | ApproveAllowanceParams
+  | UserOpsParams
   | NullHexParams

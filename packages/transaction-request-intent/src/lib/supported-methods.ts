@@ -6,15 +6,18 @@ import {
   Erc721SafeTransferFromParamsTransform,
   TransferBatchTransferParamsTransform,
   TransferFromParamsTransform,
-  TransferParamsTransform
+  TransferParamsTransform,
+  UserOpsParamsTransform
 } from './extraction/transformers'
 import {
   ApproveAllowanceParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
+  NullHexParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
-  TransferParams
+  TransferParams,
+  UserOpsParams
 } from './extraction/types'
 
 export const TransferFromAbiParameters: AbiParameter[] = [
@@ -92,6 +95,43 @@ export const ApproveAllowanceAbiParameters: AbiParameter[] = [
   { type: 'uint256', name: 'amount' }
 ]
 
+export const DeployContractAbiParameters: AbiParameter[] = [
+  {
+    name: '_initCode',
+    type: 'bytes'
+  },
+  {
+    name: '_salt',
+    type: 'bytes32'
+  }
+]
+
+export const HandleOpsAbiParameters: AbiParameter[] = [
+  {
+    components: [
+      { internalType: 'address', name: '', type: 'address' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'bytes', name: '', type: 'bytes' },
+      { internalType: 'bytes', name: '', type: 'bytes' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'bytes', name: '', type: 'bytes' },
+      { internalType: 'bytes', name: '', type: 'bytes' }
+    ],
+    internalType: 'struct YourStructName[]',
+    name: '_tuples',
+    type: 'tuple[]'
+  },
+  {
+    internalType: 'address',
+    name: '_address',
+    type: 'address'
+  }
+]
+
 export enum SupportedMethodId {
   TRANSFER = '0xa9059cbb',
   TRANSFER_FROM = '0x23b872dd',
@@ -101,6 +141,7 @@ export enum SupportedMethodId {
   SAFE_BATCH_TRANSFER_FROM = '0x2eb2c2d6',
   SAFE_TRANSFER_FROM_WITH_BYTES_1155 = '0xf242432a',
   SAFE_TRANSFER_FROM_1155 = '0xa22cb465',
+  HANDLE_OPS = '0x1fad948c',
   NULL_METHOD_ID = '0x00000000'
 }
 
@@ -115,7 +156,8 @@ export type StandardMethodsParams = {
   [SupportedMethodId.SAFE_BATCH_TRANSFER_FROM]: SafeBatchTransferFromParams
   [SupportedMethodId.SAFE_TRANSFER_FROM_WITH_BYTES_1155]: Erc1155SafeTransferFromParams
   [SupportedMethodId.SAFE_TRANSFER_FROM_1155]: Erc1155SafeTransferFromParams
-  [SupportedMethodId.NULL_METHOD_ID]: Record<string, never>
+  [SupportedMethodId.HANDLE_OPS]: UserOpsParams
+  [SupportedMethodId.NULL_METHOD_ID]: NullHexParams
 }
 
 export type MethodsMapping = {
@@ -184,6 +226,13 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     transformer: ApproveAllowanceParamsTransform,
     assetType: AssetTypeEnum.ERC20,
     intent: Intents.APPROVE_TOKEN_ALLOWANCE
+  },
+  [SupportedMethodId.HANDLE_OPS]: {
+    name: 'handleOps',
+    abi: [],
+    transformer: UserOpsParamsTransform,
+    assetType: AssetTypeEnum.UNKNOWN,
+    intent: Intents.DEPLOY_ERC_4337_WALLET
   },
   [SupportedMethodId.NULL_METHOD_ID]: {
     name: 'empty data field',
