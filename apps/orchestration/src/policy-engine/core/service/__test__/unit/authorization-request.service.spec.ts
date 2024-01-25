@@ -20,12 +20,11 @@ import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action, Decision, Intents } from '@narval/authz-shared'
+import { Action, Caip10Id, Caip19Id, Decision, Intents } from '@narval/authz-shared'
 import { TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
-import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 
 describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
@@ -103,9 +102,9 @@ describe(AuthorizationRequestService.name, () => {
       transactionRequestIntent: {
         type: Intents.TRANSFER_NATIVE,
         amount: '1000000000000000000',
-        to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as Caip10,
-        from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as Caip10,
-        token: 'eip155:137/slip44/966' as Caip19
+        to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as Caip10Id,
+        from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as Caip10Id,
+        token: 'eip155:137/slip44/966' as Caip19Id
       }
     }
 
