@@ -1,8 +1,16 @@
-import { Address, AssetType, Caip19Id, Slip44SupportedAddresses, toCaip10Lower, toCaip19 } from '@narval/authz-shared'
-import { Intents, NativeTransferInput, SupportedChains } from '../../domain'
-import { TransactionRequestIntentError } from '../../error'
-import { TransferNative } from '../../intent.types'
-import DecoderStrategy from '../DecoderStrategy'
+import {
+  Address,
+  AssetType,
+  Caip19Id,
+  Intents,
+  Slip44SupportedAddresses,
+  toCaip10Lower,
+  toCaip19
+} from '@narval/authz-shared'
+import { NativeTransferInput, SupportedChains } from '../../../domain'
+import { TransactionRequestIntentError } from '../../../error'
+import { TransferNative } from '../../../intent.types'
+import DecoderStrategy from '../../DecoderStrategy'
 
 export default class NativeTransferDecoder extends DecoderStrategy {
   #input: NativeTransferInput

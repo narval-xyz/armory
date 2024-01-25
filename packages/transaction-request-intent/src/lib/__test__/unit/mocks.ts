@@ -225,7 +225,7 @@ export const SHY_ACCOUNT_1: AddressBookAccount = {
 
 export const ACCOUNT_Q_137: AddressBookAccount = {
   uid: 'eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-  address: '0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+  address: '0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as Address,
   chainId: 137,
   classification: 'wallet'
 }

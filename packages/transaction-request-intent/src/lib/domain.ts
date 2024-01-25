@@ -38,13 +38,13 @@ export type TypedDataInput = {
 }
 
 export type ContractInformation = {
-  contractAddress: string
+  factoryType: WalletType
   assetType: AssetType
 }
 export type ContractRegistryInput = {
   contract: Caip10Id | { address: Address; chainId: number }
   assetType?: AssetType
-  walletType?: WalletType
+  factoryType?: WalletType
 }[]
 export type ContractRegistry = Map<Caip10Id, ContractInformation>
 
@@ -147,14 +147,15 @@ export enum Intents {
   SIGN_MESSAGE = 'signMessage',
   SIGN_RAW_MESSAGE = 'signRawMessage',
   SIGN_RAW_PAYLOAD = 'signRawPayload',
-  SIGN_TYPED_DATA = 'signTypedData'
+  SIGN_TYPED_DATA = 'signTypedData',
+  USER_OPERATION = 'userOperation'
 }
 
 export enum Misc {
   UNKNOWN = 'unknown'
 }
 
-export type AssetTypeAndUnknown = AssetType | Misc
+export type AssetTypeAndUnknown = AssetType | Misc.UNKNOWN
 
 export enum SupportedChains {
   ETHEREUM = 1,

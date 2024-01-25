@@ -1,6 +1,7 @@
-import { AssetType, Hex } from '@narval/authz-shared'
-import { SupportedMethodId } from './supported-methods'
+import { Address, AssetType, Hex } from '@narval/authz-shared'
+import { isAddress } from 'viem'
 import { AssetTypeAndUnknown, Misc } from './domain'
+import { SupportedMethodId } from './supported-methods'
 
 export const isString = (value: unknown): value is string => {
   return typeof value === 'string'
@@ -72,13 +73,20 @@ export const isSupportedMethodId = (value: Hex): value is SupportedMethodId => {
   return Object.values(SupportedMethodId).includes(value as SupportedMethodId)
 }
 
+export const assertAddress = (value: unknown): Address => {
+  if (!isString(value) || !isAddress(value)) {
+    throw new Error('Value is not an address')
+  }
+  return value.toLowerCase() as Address
+}
+
 type AssertType = 'string' | 'bigint' | 'number' | 'boolean' | 'hex'
 
-export const isAssetType = (value: unknown): value is AssetType => {
+export const isAssetType = (value: unknown): value is AssetTypeAndUnknown => {
   const types: AssetTypeAndUnknown[] = Object.values(AssetType)
   types.push(Misc.UNKNOWN)
 
-  return types.includes(value as AssetType)
+  return types.includes(value as AssetTypeAndUnknown)
 }
 
 export const assertArray = <T>(value: unknown, type: AssertType): T[] => {

@@ -1,13 +1,16 @@
-import { assertArray, assertBigInt, assertLowerHexString } from '../typeguards'
+import { assertAddress, assertArray, assertBigInt, assertHexString, assertLowerHexString } from '../typeguards'
 import {
   ApproveAllowanceParams,
+  CreateAccountParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
+  ExecuteParams,
   ExtractedParams,
+  HandleOpsParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
   TransferParams,
-  UserOpsParams
+  UserOp
 } from './types'
 
 export const TransferParamsTransform = (params: unknown[]): TransferParams => {
@@ -56,30 +59,46 @@ export const Erc721SafeTransferFromParamsTransform = (params: unknown[]): Erc721
   return { from, to, tokenId: tokenId.toString().toLowerCase() }
 }
 
-export const UserOpsParamsTransform = (params: unknown[]): UserOpsParams => {
-  const sender = assertLowerHexString(params[0])
-  const nonce = assertBigInt(params[1])
-  const initCode = assertLowerHexString(params[2])
-  const callData = assertLowerHexString(params[3])
-  const callGasLimit = assertBigInt(params[4])
-  const verifyGasLimit = assertBigInt(params[5])
-  const preVerificationGas = assertBigInt(params[6])
-  const maxFeePerGas = assertBigInt(params[7])
-  const maxPriorityFeePerGas = assertBigInt(params[8])
-  const paymasterAndData = assertLowerHexString(params[9])
-  const signature = assertLowerHexString(params[10])
+export const CreateAccountParamsTransform = (params: unknown[]): CreateAccountParams => {
+  const salt = assertLowerHexString(params[0])
+  const pubKey = assertLowerHexString(params[1])
+  return { salt, pubKey }
+}
+
+export const ExecuteParamsTransform = (params: unknown[]): ExecuteParams => {
+  const to = assertLowerHexString(params[0])
+  const value = assertLowerHexString(params[1])
+  const data = assertLowerHexString(params[2])
+  return { to, value, data }
+}
+
+export const transformUserOperation = (op: unknown[]): UserOp => {
+  if (typeof op !== 'object' || op === null) {
+    throw new Error('UserOperation is not an object')
+  }
+
   return {
-    sender,
-    nonce: nonce.toString().toLowerCase(),
-    initCode,
-    callData,
-    callGasLimit: callGasLimit.toString().toLowerCase(),
-    verifyGasLimit: verifyGasLimit.toString().toLowerCase(),
-    preVerificationGas: preVerificationGas.toString().toLowerCase(),
-    maxFeePerGas: maxFeePerGas.toString().toLowerCase(),
-    maxPriorityFeePerGas: maxPriorityFeePerGas.toString().toLowerCase(),
-    paymasterAndData,
-    signature
+    sender: assertAddress(op[0]),
+    nonce: assertBigInt(op[1]).toString(),
+    initCode: assertHexString(op[2]),
+    callData: assertHexString(op[3]),
+    callGasLimit: assertBigInt(op[4]).toString(),
+    verifyGasLimit: assertBigInt(op[5]).toString(),
+    preVerificationGas: assertBigInt(op[6]).toString(),
+    maxFeePerGas: assertBigInt(op[7]).toString().toLowerCase(),
+    maxPriorityFeePerGas: assertBigInt(op[8]).toString(),
+    paymasterAndData: assertHexString(op[9]),
+    signature: assertHexString(op[10])
+  }
+}
+
+export const HandleOpsParamsTransform = (params: unknown[]): HandleOpsParams => {
+  if (!Array.isArray(params[0]) || typeof params[1] !== 'string') {
+    throw new Error('Invalid input format')
+  }
+  return {
+    userOps: params[0].map(transformUserOperation),
+    beneficiary: assertAddress(params[1])
   }
 }
 

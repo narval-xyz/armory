@@ -1,24 +1,28 @@
-import { AssetType as AssetTypeEnum } from '@narval/authz-shared'
+import { AssetType } from '@narval/authz-shared'
 import { AbiParameter } from 'viem'
 import { AssetTypeAndUnknown, Intents, Misc } from './domain'
 import {
   ApproveAllowanceParamsTransform,
+  CreateAccountParamsTransform,
   Erc1155SafeTransferFromParamsTransform,
   Erc721SafeTransferFromParamsTransform,
+  ExecuteParamsTransform,
+  HandleOpsParamsTransform,
   TransferBatchTransferParamsTransform,
   TransferFromParamsTransform,
-  TransferParamsTransform,
-  UserOpsParamsTransform
+  TransferParamsTransform
 } from './extraction/transformers'
 import {
   ApproveAllowanceParams,
+  CreateAccountParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
+  ExecuteParams,
+  HandleOpsParams,
   NullHexParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
-  TransferParams,
-  UserOpsParams
+  TransferParams
 } from './extraction/types'
 
 export const TransferFromAbiParameters: AbiParameter[] = [
@@ -122,13 +126,11 @@ export const HandleOpsAbiParameters: AbiParameter[] = [
       { internalType: 'bytes', name: '', type: 'bytes' },
       { internalType: 'bytes', name: '', type: 'bytes' }
     ],
-    internalType: 'struct YourStructName[]',
-    name: '_tuples',
+    name: '_userOp',
     type: 'tuple[]'
   },
   {
-    internalType: 'address',
-    name: '_address',
+    name: 'beneficiary',
     type: 'address'
   }
 ]
@@ -142,7 +144,9 @@ export enum SupportedMethodId {
   SAFE_BATCH_TRANSFER_FROM = '0x2eb2c2d6',
   SAFE_TRANSFER_FROM_WITH_BYTES_1155 = '0xf242432a',
   SAFE_TRANSFER_FROM_1155 = '0xa22cb465',
+  CREATE_ACCOUNT = '0x19c2a1b2',
   HANDLE_OPS = '0x1fad948c',
+  EXECUTE = '0xdade6037',
   NULL_METHOD_ID = '0x00000000'
 }
 
@@ -157,7 +161,9 @@ export type StandardMethodsParams = {
   [SupportedMethodId.SAFE_BATCH_TRANSFER_FROM]: SafeBatchTransferFromParams
   [SupportedMethodId.SAFE_TRANSFER_FROM_WITH_BYTES_1155]: Erc1155SafeTransferFromParams
   [SupportedMethodId.SAFE_TRANSFER_FROM_1155]: Erc1155SafeTransferFromParams
-  [SupportedMethodId.HANDLE_OPS]: UserOpsParams
+  [SupportedMethodId.CREATE_ACCOUNT]: CreateAccountParams
+  [SupportedMethodId.EXECUTE]: ExecuteParams
+  [SupportedMethodId.HANDLE_OPS]: HandleOpsParams
   [SupportedMethodId.NULL_METHOD_ID]: NullHexParams
 }
 
@@ -176,7 +182,7 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'transfer',
     abi: Erc20TransferAbiParameters,
     transformer: TransferParamsTransform,
-    assetType: AssetTypeEnum.ERC20,
+    assetType: AssetType.ERC20,
     intent: Intents.TRANSFER_ERC20
   },
   [SupportedMethodId.TRANSFER_FROM]: {
@@ -190,50 +196,64 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'safeTransferFrom',
     abi: Erc721SafeTransferFromAbiParameters,
     transformer: Erc721SafeTransferFromParamsTransform,
-    assetType: AssetTypeEnum.ERC721,
+    assetType: AssetType.ERC721,
     intent: Intents.TRANSFER_ERC721
   },
   [SupportedMethodId.SAFE_TRANSFER_FROM_WITH_BYTES]: {
     name: 'safeTransferOverloadBytes',
     abi: Erc721SafeTransferFromBytesAbiParameters,
     transformer: Erc721SafeTransferFromParamsTransform,
-    assetType: AssetTypeEnum.ERC721,
+    assetType: AssetType.ERC721,
     intent: Intents.TRANSFER_ERC721
   },
   [SupportedMethodId.SAFE_BATCH_TRANSFER_FROM]: {
     name: 'safeBatchTransferFrom',
     abi: Erc1155SafeBatchTransferFromAbiParameters,
     transformer: TransferBatchTransferParamsTransform,
-    assetType: AssetTypeEnum.ERC1155,
+    assetType: AssetType.ERC1155,
     intent: Intents.TRANSFER_ERC1155
   },
   [SupportedMethodId.SAFE_TRANSFER_FROM_WITH_BYTES_1155]: {
     name: 'safeTransferFrom',
     abi: Erc1155SafeTransferFromAbiParameters,
     transformer: Erc1155SafeTransferFromParamsTransform,
-    assetType: AssetTypeEnum.ERC1155,
+    assetType: AssetType.ERC1155,
     intent: Intents.TRANSFER_ERC1155
   },
   [SupportedMethodId.SAFE_TRANSFER_FROM_1155]: {
     name: 'safeTransferFrom',
     abi: Erc1155SafeTransferFromAbiParameters,
     transformer: Erc1155SafeTransferFromParamsTransform,
-    assetType: AssetTypeEnum.ERC1155,
+    assetType: AssetType.ERC1155,
     intent: Intents.TRANSFER_ERC1155
   },
   [SupportedMethodId.APPROVE]: {
     name: 'approve',
     abi: ApproveAllowanceAbiParameters,
     transformer: ApproveAllowanceParamsTransform,
-    assetType: AssetTypeEnum.ERC20,
+    assetType: AssetType.ERC20,
     intent: Intents.APPROVE_TOKEN_ALLOWANCE
   },
   [SupportedMethodId.HANDLE_OPS]: {
     name: 'handleOps',
-    abi: [],
-    transformer: UserOpsParamsTransform,
+    abi: HandleOpsAbiParameters,
+    transformer: HandleOpsParamsTransform,
     assetType: Misc.UNKNOWN,
-    intent: Intents.DEPLOY_ERC_4337_WALLET
+    intent: Intents.USER_OPERATION
+  },
+  [SupportedMethodId.CREATE_ACCOUNT]: {
+    name: 'createAccount',
+    abi: [],
+    transformer: CreateAccountParamsTransform,
+    assetType: Misc.UNKNOWN,
+    intent: Intents.DEPLOY_CONTRACT
+  },
+  [SupportedMethodId.EXECUTE]: {
+    name: 'execute',
+    abi: [],
+    transformer: ExecuteParamsTransform,
+    assetType: Misc.UNKNOWN,
+    intent: Intents.CALL_CONTRACT
   },
   [SupportedMethodId.NULL_METHOD_ID]: {
     name: 'empty data field',

@@ -1,7 +1,7 @@
 import { AssetType } from '@narval/authz-shared'
 import Decoder from '../../decoders/Decoder'
-import { InputType, Intents, TransactionStatus } from '../../domain'
-import { buildTransactionKey, buildTransactionRegistry } from '../../utils'
+import { ContractRegistry, InputType, Intents, TransactionStatus, WalletType } from '../../domain'
+import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
   mockCancelTransaction,
   mockErc1155BatchSafeTransferFrom,
@@ -9,17 +9,29 @@ import {
   mockErc20Transfer,
   mockErc721SafeTransferFrom
 } from './mocks'
+jest.mock('@narval/authz-shared', () => {
+  const originalModule = jest.requireActual('@narval/authz-shared')
+
+  return {
+    ...originalModule,
+    AssetType: {
+      ERC1155: 'erc1155',
+      ERC20: 'erc20',
+      ERC721: 'erc721',
+      SLIP44: 'slip44'
+    },
+    Namespace: {
+      EIP155: 'eip155'
+    }
+  }
+})
 
 describe('decode', () => {
   let decoder: Decoder
 
   const transactionRegistry = buildTransactionRegistry([])
   beforeEach(() => {
-    console.log('REMOVE THIS')
-    console.log('### Testing lib-to-lib import', AssetType.ERC1155)
-    console.log('REMOVE THIS')
-
-    decoder = new Decoder({})
+    decoder = new Decoder()
   })
   describe('transaction request input', () => {
     describe('transfers', () => {
@@ -130,57 +142,93 @@ describe('decode', () => {
       })
     })
     describe('contract creation', () => {
-      // const knownSafeFactory = '0xaaad8C0cA142921c459bCB28104c0FF37928F9eD'
-      // const knownSafeMaster = '0xbbbd8C0cA142921c459bCB28104c0FF37928F9eD'
-      // const knownErc4337Factory = '0xcccd8C0cA142921c459bCB28104c0FF37928F9eD'
-      // const knownErc4337Master = '0xdddd8C0cA142921c459bCB28104c0FF37928F9eD'
-      // const contractRegistry = buildContractRegistry([
-      //   {
-      //     contract: {
-      //       address: knownSafeFactory,
-      //       chainId: 137
-      //     },
-      //     walletType: WalletType.SAFE
-      //   },
-      //   {
-      //     contract: {
-      //       address: knownSafeMaster,
-      //       chainId: 1
-      //     },
-      //     walletType: WalletType.SAFE
-      //   },
-      //   {
-      //     contract: {
-      //       address: knownErc4337Factory,
-      //       chainId: 137
-      //     },
-      //     walletType: WalletType.ERC4337
-      //   },
-      //   {
-      //     contract: {
-      //       address: knownErc4337Master,
-      //       chainId: 1
-      //     },
-      //     walletType: WalletType.ERC4337
-      //   }
-      // ])
+      let contractRegistry: ContractRegistry
+
+      const knownSafeFactory = '0xaaad8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownSafeMaster = '0xbbbd8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownErc4337Factory = '0xcccd8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownErc4337Master = '0xdddd8C0cA142921c459bCB28104c0FF37928F9eD'
+      beforeEach(() => {
+        contractRegistry = buildContractRegistry([
+          {
+            contract: {
+              address: knownSafeFactory,
+              chainId: 137
+            },
+            factoryType: WalletType.SAFE
+          },
+          {
+            contract: {
+              address: knownSafeMaster,
+              chainId: 1
+            },
+            factoryType: WalletType.SAFE
+          },
+          {
+            contract: {
+              address: knownErc4337Factory,
+              chainId: 137
+            },
+            factoryType: WalletType.ERC4337
+          },
+          {
+            contract: {
+              address: knownErc4337Master,
+              chainId: 1
+            },
+            factoryType: WalletType.ERC4337
+          }
+        ])
+      })
       it('decodes safe wallet creation deployment from a known factory', () => {
-        // expect({
-        //   const decoded = decoder.decode({
-        //     type: InputType.TRANSACTION_REQUEST,
-        //     txRequest: {
-        //       from: knownSafeFactory,
-        //       chainId: 137,
-        //       data: '0x',
-        //     }
-        // })
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: knownSafeFactory,
+            chainId: 137,
+            data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_SAFE_WALLET,
+          from: 'eip155:137/0xaaad8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137
+        })
       })
-      it('decodes safe wallet creation deployment from a known masterContract', () => {})
       it('decodes erc4337 wallet deployment when deploying from a known factory', () => {
-        expect({})
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: knownErc4337Factory,
+            chainId: 137,
+            data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_ERC_4337_WALLET,
+          from: 'eip155:137/0xcccd8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137,
+          bytecode: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+        })
       })
-      it('decodes erc4337 wallet deployment when deploying a clone of a known masterContract', () => {})
-      it('defaults to deploy intent', () => {})
+      it('defaults to deploy intent', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
+            chainId: 137,
+            data: '0x'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_CONTRACT,
+          from: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137
+        })
+      })
     })
   })
   //   describe('message and typed data input', () => {

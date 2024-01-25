@@ -1,5 +1,5 @@
 import { Alg, Caip10Id, Caip19Id, Hex } from '@narval/authz-shared'
-import { TypedData } from 'viem'
+import { Address, TypedData } from 'viem'
 import { Intents } from './domain'
 
 export type TransferNative = {
@@ -123,6 +123,14 @@ export type Permit2 = {
   deadline: string
 }
 
+export type UserOperation = {
+  type: Intents.USER_OPERATION
+  from: Caip10Id
+  entrypoint: Caip10Id
+  operationIntents: Intent[]
+  beneficiary: Address
+}
+
 export type Intent =
   | TransferNative
   | TransferErc20
@@ -141,3 +149,4 @@ export type Intent =
   | SignTypedData
   | Permit
   | Permit2
+  | UserOperation

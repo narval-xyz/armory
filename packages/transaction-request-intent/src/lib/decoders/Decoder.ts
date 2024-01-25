@@ -14,14 +14,20 @@ import { TransactionRequestIntentError } from '../error'
 import { Intent } from '../intent.types'
 import { isSupportedMethodId } from '../typeguards'
 import { getCategory, getMethodId, getTransactionIntentType, transactionLookup } from '../utils'
-import { validateContractInteractionInput, validateNativeTransferInput } from '../validators'
+import {
+  validateContractDeploymentInput,
+  validateContractInteractionInput,
+  validateNativeTransferInput
+} from '../validators'
 import DecoderStrategy from './DecoderStrategy'
-import NativeTransferDecoder from './native/NativeTransferDecoder'
+import DeployContractDecoder from './transaction/deployment/DeployContract'
 import ApproveTokenAllowanceDecoder from './transaction/interaction/ApproveAllowanceDecoder'
 import CallContractDecoder from './transaction/interaction/CallContractDecoder'
 import ERC1155TransferDecoder from './transaction/interaction/Erc1155TransferDecoder'
 import Erc20TransferDecoder from './transaction/interaction/Erc20TransferDecoder'
 import Erc721TransferDecoder from './transaction/interaction/Erc721TransferDecoder'
+import UserOperationDecoder from './transaction/interaction/UserOperationDecoder'
+import NativeTransferDecoder from './transaction/native/NativeTransferDecoder'
 
 export type DecoderOption = {
   contractRegistry?: ContractRegistry
@@ -32,11 +38,6 @@ export default class Decoder {
   contractRegistry?: ContractRegistry
 
   transactionRegistry?: TransactionRegistry
-
-  constructor(option?: DecoderOption) {
-    this.contractRegistry = option?.contractRegistry
-    this.transactionRegistry = option?.transactionRegistry
-  }
 
   #findContractCallStrategy(input: ContractCallInput, intent: Intents): DecoderStrategy {
     if (!isSupportedMethodId(input.methodId)) {
@@ -51,6 +52,8 @@ export default class Decoder {
         return new ERC1155TransferDecoder(input)
       case Intents.APPROVE_TOKEN_ALLOWANCE:
         return new ApproveTokenAllowanceDecoder(input)
+      case Intents.USER_OPERATION:
+        return new UserOperationDecoder(input)
       case Intents.CALL_CONTRACT:
       default:
         return new CallContractDecoder(input)
@@ -78,8 +81,8 @@ export default class Decoder {
         return this.#findContractCallStrategy(validatedTxRequest, intent)
       }
       case TransactionCategory.CONTRACT_CREATION: {
-        const validatedTxRequest = validateContractInteractionInput(txRequest, methodId)
-        return new CallContractDecoder(validatedTxRequest)
+        const validatedTxRequest = validateContractDeploymentInput(txRequest)
+        return new DeployContractDecoder(validatedTxRequest, contractRegistry)
       }
     }
   }

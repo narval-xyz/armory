@@ -38,7 +38,18 @@ export type SafeBatchTransferFromParams = {
   data: Hex
 }
 
-export type UserOpsParams = {
+export type CreateAccountParams = {
+  salt: string
+  pubKey: Hex
+}
+
+export type ExecuteParams = {
+  to: Address
+  value: Hex
+  data: Hex
+}
+
+export type UserOp = {
   sender: Address
   nonce: string
   initCode: Hex
@@ -52,6 +63,11 @@ export type UserOpsParams = {
   signature: Hex
 }
 
+export type HandleOpsParams = {
+  userOps: UserOp[]
+  beneficiary: Address
+}
+
 export type NullHexParams = Record<string, never>
 
 export type ExtractedParams =
@@ -61,5 +77,7 @@ export type ExtractedParams =
   | Erc1155SafeTransferFromParams
   | SafeBatchTransferFromParams
   | ApproveAllowanceParams
-  | UserOpsParams
+  | HandleOpsParams
+  | CreateAccountParams
+  | ExecuteParams
   | NullHexParams

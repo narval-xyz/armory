@@ -1,13 +1,5 @@
-import {
-  AssetType,
-  Caip10Id,
-  Hex,
-  Namespace,
-  TransactionRequest,
-  isCaip10Id,
-  toCaip10
-} from '@narval/authz-shared'
-import { isAddress } from 'viem'
+import { AssetType, Caip10Id, Hex, Namespace, TransactionRequest, isCaip10Id, toCaip10 } from '@narval/authz-shared'
+import { Address, isAddress } from 'viem'
 import {
   AssetTypeAndUnknown,
   ContractCallInput,
@@ -22,7 +14,6 @@ import {
   TransactionKey,
   TransactionRegistry,
   TransactionStatus,
-  ValidatedInput,
   WalletType
 } from './domain'
 import { SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
@@ -31,10 +22,11 @@ import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from
 export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
 
 export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
+  console.log('### getCategory', methodId, to)
   if (methodId === SupportedMethodId.NULL_METHOD_ID) {
     return TransactionCategory.NATIVE_TRANSFER
   }
-  if (to === null) {
+  if (!to) {
     return TransactionCategory.CONTRACT_CREATION
   }
   return TransactionCategory.CONTRACT_INTERACTION
@@ -60,10 +52,10 @@ export const buildContractRegistryEntry = ({
 
 export const buildContractRegistry = (input: ContractRegistryInput): ContractRegistry => {
   const registry = new Map()
-  input.forEach(({ contract, assetType, walletType }) => {
+  input.forEach(({ contract, assetType, factoryType }) => {
     const information = {
       assetType: assetType || Misc.UNKNOWN,
-      walletType: walletType || WalletType.UNKNOWN
+      factoryType: factoryType || WalletType.UNKNOWN
     }
     if (isString(contract)) {
       if (!isCaip10Id(contract)) {
@@ -97,12 +89,17 @@ export const checkContractRegistry = (registry: Record<string, string>) => {
 }
 
 export const contractTypeLookup = (
-  txRequest: ValidatedInput,
+  chainId: number,
+  address?: Address,
   contractRegistry?: ContractRegistry
 ): ContractInformation | undefined => {
-  if ('to' in txRequest && txRequest.to && contractRegistry) {
-    const key = buildContractKey(txRequest.chainId, txRequest.to)
-    return contractRegistry.get(key)
+  console.log('### contractTypeLookup', chainId, address, contractRegistry)
+  if (address) {
+    const key = buildContractKey(chainId, address)
+    console.log('### key', key)
+    const value = contractRegistry?.get(key)
+    console.log('### value', value)
+    return value
   }
   return undefined
 }
@@ -151,8 +148,9 @@ export const getTransactionIntentType = ({
   txRequest: ContractCallInput | NativeTransferInput
   contractRegistry?: ContractRegistry
 }): Intents => {
-  const contractType = contractTypeLookup(txRequest, contractRegistry)
-  const { to, from } = txRequest
+  const { to, from, chainId } = txRequest
+  const toType = contractTypeLookup(chainId, to, contractRegistry)
+  const fromType = contractTypeLookup(chainId, from, contractRegistry)
   // !! ORDER MATTERS !!
   // Here we are checking for specific intents first.
   // Then we check for intents tight to specific methods
@@ -162,14 +160,27 @@ export const getTransactionIntentType = ({
     {
       condition: () =>
         methodId === SupportedMethodId.TRANSFER_FROM &&
-        ((contractType && contractType.assetType === AssetType.ERC20) ||
-          (contractType && contractType.assetType === AssetType.ERC721)),
-      intent: contractType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
+        ((toType && toType.assetType === AssetType.ERC20) || (toType && toType.assetType === AssetType.ERC721)),
+      intent: toType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
     },
     // Cancel condition
     {
       condition: () => methodId === SupportedMethodId.NULL_METHOD_ID && to === from,
       intent: Intents.CANCEL_TRANSACTION
+    },
+    // Contract deployment conditions for specific transactions
+    {
+      condition: () => {
+        console.log('condition 3', methodId, fromType, fromType?.factoryType !== WalletType.UNKNOWN)
+        console.log('### fromtype.factoryType: ', fromType?.factoryType)
+        console.log(methodId === SupportedMethodId.CREATE_ACCOUNT)
+        console.log('methodId', methodId, SupportedMethodId.CREATE_ACCOUNT)
+        return methodId === SupportedMethodId.CREATE_ACCOUNT && fromType && fromType.factoryType !== WalletType.UNKNOWN
+      },
+      intent:
+        fromType && fromType.factoryType === WalletType.ERC4337
+          ? Intents.DEPLOY_ERC_4337_WALLET
+          : Intents.DEPLOY_SAFE_WALLET
     },
     // Supported methods conditions
     {

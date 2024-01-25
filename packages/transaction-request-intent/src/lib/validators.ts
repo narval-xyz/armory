@@ -22,7 +22,7 @@ export const validateContractInteractionInput = (txRequest: TransactionRequest, 
   const { data, to, chainId, from, nonce } = txRequest
   if (!data || !to || !chainId) {
     throw new TransactionRequestIntentError({
-      message: 'Malformed transfer transaction request: missing data || chainId || to || nonce',
+      message: 'Malformed transfer transaction request: missing data || chainId || to',
       status: 400,
       context: {
         chainId,
@@ -39,15 +39,14 @@ export const validateContractInteractionInput = (txRequest: TransactionRequest, 
 }
 
 export const validateContractDeploymentInput = (txRequest: TransactionRequest): ContractDeploymentInput => {
-  const { data, chainId, from, nonce, to } = txRequest
-  if (!data || !chainId || !nonce || to) {
+  const { data, chainId, from, to } = txRequest
+  if (!data || !chainId || to) {
     throw new TransactionRequestIntentError({
-      message: 'Malformed contract deployment transaction request: missing data || chainId || nonce',
+      message: 'Malformed contract deployment transaction request: missing data || chainId',
       status: 400,
       context: {
         chainId,
         data,
-        nonce,
         txRequest
       }
     })
