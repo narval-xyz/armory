@@ -13,11 +13,6 @@ transferTokenAddress = input.intent.token
 transferTokenAddress = input.intent.contract
 
 checkTransferTokenType(values) {
-	values == wildcard
-}
-
-checkTransferTokenType(values) {
-	values != wildcard
 	input.intent.type in transferTokenTypes
 	input.intent.type in values
 }
