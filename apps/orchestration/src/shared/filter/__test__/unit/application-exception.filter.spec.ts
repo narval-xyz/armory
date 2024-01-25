@@ -1,11 +1,11 @@
 import { Config, Env } from '@app/orchestration/orchestration.config'
 import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
-import { createMock } from '@golevelup/ts-jest'
 import { ArgumentsHost, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
+import { mock } from 'jest-mock-extended'
 
 describe(ApplicationExceptionFilter.name, () => {
   const exception = new ApplicationException({
@@ -20,26 +20,28 @@ describe(ApplicationExceptionFilter.name, () => {
   const buildArgumentsHostMock = (): [ArgumentsHost, jest.Mock, jest.Mock] => {
     const jsonMock = jest.fn()
     const statusMock = jest.fn().mockReturnValue(
-      createMock<Response>({
+      mock<Response>({
         json: jsonMock
       })
     )
 
-    const host = createMock<ArgumentsHost>({
-      switchToHttp: () =>
-        createMock<HttpArgumentsHost>({
-          getResponse: () =>
-            createMock<Response>({
+    const host = mock<ArgumentsHost>({
+      switchToHttp: jest.fn().mockReturnValue(
+        mock<HttpArgumentsHost>({
+          getResponse: jest.fn().mockReturnValue(
+            mock<Response>({
               status: statusMock
             })
+          )
         })
+      )
     })
 
     return [host, statusMock, jsonMock]
   }
 
   const buildConfigServiceMock = (env: Env) =>
-    createMock<ConfigService<Config, true>>({
+    mock<ConfigService<Config, true>>({
       get: jest.fn().mockReturnValue(env)
     })
 

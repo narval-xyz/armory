@@ -3,9 +3,7 @@ import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orche
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus,
-  Signature,
-  SupportedAction
+  AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import {
@@ -15,6 +13,7 @@ import {
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -27,9 +26,9 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
   let testPrismaService: TestPrismaService
 
   const authentication: Signature = {
-    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
-    alg: 'ES256K',
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+    alg: Alg.ES256K,
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
   }
 
   const authzRequest: AuthorizationRequest = {
@@ -38,7 +37,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
     orgId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     status: AuthorizationRequestStatus.CREATED,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '15d13f33-b7fb-4b96-b8c2-f35c6b2f64dd',
       message: 'Test request'

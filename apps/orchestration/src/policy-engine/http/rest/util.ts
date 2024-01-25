@@ -1,9 +1,6 @@
-import {
-  CreateApproval,
-  CreateAuthorizationRequest,
-  Signature
-} from '@app/orchestration/policy-engine/core/type/domain.type'
+import { CreateApproval, CreateAuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
+import { Signature } from '@narval/authz-shared'
 import { plainToInstance } from 'class-transformer'
 
 // Not in love with the gymnastics required to bend a DTO to a domain object.

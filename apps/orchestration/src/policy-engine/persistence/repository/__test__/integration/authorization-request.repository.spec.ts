@@ -3,13 +3,12 @@ import {
   Approval,
   AuthorizationRequest,
   Evaluation,
-  SignTransaction,
-  Signature,
-  SupportedAction
+  SignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
@@ -28,9 +27,9 @@ describe(AuthorizationRequestRepository.name, () => {
   }
 
   const authentication: Signature = {
-    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
-    alg: 'ES256K',
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+    alg: Alg.ES256K,
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
   }
 
   const signMessageRequest: AuthorizationRequest = {
@@ -39,7 +38,7 @@ describe(AuthorizationRequestRepository.name, () => {
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
@@ -135,7 +134,7 @@ describe(AuthorizationRequestRepository.name, () => {
     it('creates approvals', async () => {
       const approval: Approval = {
         id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
-        alg: 'ES256K',
+        alg: Alg.ES256K,
         sig: 'test-signature',
         pubKey: 'test-public-key',
         createdAt: new Date()
@@ -160,9 +159,9 @@ describe(AuthorizationRequestRepository.name, () => {
       ])
     })
 
-    describe(`when action is ${SupportedAction.SIGN_TRANSACTION}`, () => {
+    describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
       const signTransaction: SignTransaction = {
-        action: SupportedAction.SIGN_TRANSACTION,
+        action: Action.SIGN_TRANSACTION,
         nonce: '99',
         resourceId: '3be0c61d-9b41-423f-80b8-ea6f7624d917',
         transactionRequest: {
@@ -185,7 +184,7 @@ describe(AuthorizationRequestRepository.name, () => {
 
         expect(authzRequest).not.toEqual(null)
 
-        if (authzRequest && authzRequest.request.action === SupportedAction.SIGN_TRANSACTION) {
+        if (authzRequest && authzRequest.request.action === Action.SIGN_TRANSACTION) {
           expect(authzRequest?.request.transactionRequest.gas).toEqual(signTransaction.transactionRequest.gas)
         }
       })
@@ -247,7 +246,7 @@ describe(AuthorizationRequestRepository.name, () => {
         approvals: [
           {
             id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
-            alg: 'ES256K',
+            alg: Alg.ES256K,
             sig: 'test-signature',
             pubKey: 'test-public-key',
             createdAt: new Date()
@@ -260,7 +259,7 @@ describe(AuthorizationRequestRepository.name, () => {
         approvals: [
           {
             id: '790e30b0-35d1-4e22-8be5-71e64afbee89',
-            alg: 'ES256K',
+            alg: Alg.ES256K,
             sig: 'test-signature',
             pubKey: 'test-public-key',
             createdAt: new Date()

@@ -1,12 +1,12 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import {
   createTransactionRequestSchema,
   readTransactionRequestSchema
 } from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
+import { Action } from '@narval/authz-shared'
 import { z } from 'zod'
 
 export const readSignTransactionSchema = z.object({
-  action: z.literal(SupportedAction.SIGN_TRANSACTION),
+  action: z.literal(Action.SIGN_TRANSACTION),
   nonce: z.string(),
   resourceId: z.string(),
   transactionRequest: readTransactionRequestSchema

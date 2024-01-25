@@ -1,15 +1,15 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsEnum, IsString } from 'class-validator'
 
 export class SignMessageRequestDto {
-  @IsEnum(SupportedAction)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: SupportedAction,
-    default: SupportedAction.SIGN_MESSAGE
+    enum: Action,
+    default: Action.SIGN_MESSAGE
   })
-  action: `${SupportedAction.SIGN_MESSAGE}`
+  action: Action.SIGN_MESSAGE
 
   @IsString()
   @IsDefined()

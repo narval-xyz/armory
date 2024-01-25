@@ -1,16 +1,16 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { TransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
+import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator'
 
 export class SignTransactionRequestDto {
-  @IsEnum(SupportedAction)
+  @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
-    enum: SupportedAction,
-    default: SupportedAction.SIGN_TRANSACTION
+    enum: Action,
+    default: Action.SIGN_TRANSACTION
   })
-  action: `${SupportedAction.SIGN_TRANSACTION}`
+  action: Action.SIGN_TRANSACTION
 
   @IsString()
   @IsDefined()
