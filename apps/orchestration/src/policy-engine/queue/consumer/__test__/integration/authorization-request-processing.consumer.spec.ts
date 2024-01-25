@@ -7,23 +7,24 @@ import { AuthorizationRequestService } from '@app/orchestration/policy-engine/co
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus,
-  Signature,
-  SupportedAction
+  AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { createMock } from '@golevelup/ts-jest'
+import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Organization } from '@prisma/client/orchestration'
 import { Job, Queue } from 'bull'
+import { mock } from 'jest-mock-extended'
 
 describe(AuthorizationRequestProcessingConsumer.name, () => {
   let module: TestingModule
@@ -41,9 +42,9 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   }
 
   const authentication: Signature = {
-    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
-    alg: 'ES256K',
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+    alg: Alg.ES256K,
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
   }
 
   const authzRequest: AuthorizationRequest = {
@@ -52,7 +53,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
@@ -91,7 +92,15 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestProcessingConsumer,
         AuthorizationRequestProcessingProducer,
         AuthorizationRequestRepository,
-        AuthorizationRequestService
+        AuthorizationRequestService,
+        {
+          provide: TransferFeedService,
+          useValue: mock<TransferFeedService>()
+        },
+        {
+          provide: AuthzApplicationClient,
+          useValue: mock<AuthzApplicationClient>()
+        }
       ]
     }).compile()
 
@@ -122,7 +131,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
       jest.spyOn(service, 'process')
 
-      const job = createMock<Job<AuthorizationRequestProcessingJob>>({
+      const job = mock<Job<AuthorizationRequestProcessingJob>>({
         id: authzRequest.id,
         opts: {
           jobId: authzRequest.id
@@ -138,7 +147,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   describe('onFailure', () => {
     describe('when exceed max attemps', () => {
       it('changes the request status to failed', async () => {
-        const job = createMock<Job<AuthorizationRequestProcessingJob>>({
+        const job = mock<Job<AuthorizationRequestProcessingJob>>({
           id: authzRequest.id,
           opts: {
             jobId: authzRequest.id

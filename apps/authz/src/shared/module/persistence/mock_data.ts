@@ -1,14 +1,4 @@
-import {
-  AccountType,
-  Action,
-  Alg,
-  AuthCredential,
-  AuthorizationRequest,
-  AuthorizationRequestPayload,
-  RegoInput,
-  TransactionRequest,
-  UserRoles
-} from '@app/authz/shared/types/domain.type'
+import { AccountType, AuthCredential, RegoInput, UserRoles } from '@app/authz/shared/types/domain.type'
 import {
   AddressBookAccount,
   RegoData,
@@ -17,7 +7,7 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { hashRequest } from '@narval/authz-shared'
+import { Action, Alg, AuthorizationRequest, Request, TransactionRequest, hashRequest } from '@narval/authz-shared'
 import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
@@ -263,9 +253,9 @@ export const mockEntityData: RegoData = {
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async (): Promise<AuthorizationRequestPayload> => {
+export const generateInboundRequest = async (): Promise<AuthorizationRequest> => {
   const txRequest = NATIVE_TRANSFER_TX_REQUEST
-  const request: AuthorizationRequest = {
+  const request: Request = {
     action: Action.SIGN_TRANSACTION,
     nonce: 'random-nonce-111',
     transactionRequest: txRequest,

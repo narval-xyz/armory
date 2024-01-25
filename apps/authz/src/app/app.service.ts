@@ -1,17 +1,16 @@
 import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
+import { AuthCredential, OpaResult, RegoInput } from '@app/authz/shared/types/domain.type'
 import {
+  Action,
   Alg,
-  AuthCredential,
   AuthorizationRequest,
-  AuthorizationRequestPayload,
   AuthorizationResponse,
+  Decision,
   HistoricalTransfer,
-  NarvalDecision,
-  OpaResult,
-  RegoInput,
-  RequestSignature
-} from '@app/authz/shared/types/domain.type'
-import { Action, hashRequest } from '@narval/authz-shared'
+  Request,
+  Signature,
+  hashRequest
+} from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { Decoder } from 'packages/transaction-request-intent/src'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
@@ -38,7 +37,7 @@ export const finalizeDecision = (response: OpaResult[]) => {
   if (implicitForbid || anyExplicitForbid) {
     return {
       originalResponse: response,
-      decision: NarvalDecision.Forbid,
+      decision: Decision.FORBID,
       approvalsMissing: [],
       approvalsSatisfied: []
     }
@@ -50,7 +49,7 @@ export const finalizeDecision = (response: OpaResult[]) => {
   const approvalsMissing = response.flatMap((r) => r.reasons?.flatMap((rr) => rr.approvalsMissing)).filter((v) => !!v)
   const totalApprovalsRequired = approvalsMissing.concat(approvalsSatisfied)
 
-  const decision = allPermit && !anyPermitWithMissingApprovals ? NarvalDecision.Permit : NarvalDecision.Confirm
+  const decision = allPermit && !anyPermitWithMissingApprovals ? Decision.PERMIT : Decision.CONFIRM
   return {
     originalResponse: response,
     decision,
@@ -64,7 +63,7 @@ export const finalizeDecision = (response: OpaResult[]) => {
 export class AppService {
   constructor(private persistenceRepository: PersistenceRepository, private opaService: OpaService) {}
 
-  async #verifySignature(requestSignature: RequestSignature, verificationMessage: string): Promise<AuthCredential> {
+  async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<AuthCredential> {
     const { pubKey, alg, sig } = requestSignature
     const credential = await this.persistenceRepository.getCredentialForPubKey(pubKey)
     if (alg === Alg.ES256K) {
@@ -91,7 +90,7 @@ export class AppService {
   }
 
   async #populateApprovals(
-    approvals: RequestSignature[] | undefined,
+    approvals: Signature[] | undefined,
     verificationMessage: string
   ): Promise<AuthCredential[] | null> {
     if (!approvals) return null
@@ -112,7 +111,7 @@ export class AppService {
     transfers
   }: {
     principal: AuthCredential
-    request: AuthorizationRequest
+    request: Request
     approvals: AuthCredential[] | null
     intent?: Intent
     transfers?: HistoricalTransfer[]
@@ -139,7 +138,12 @@ export class AppService {
   /**
    * Actual Eval Flow
    */
-  async runEvaluation({ request, authentication, approvals, transfers }: AuthorizationRequestPayload) {
+  async runEvaluation({
+    request,
+    authentication,
+    approvals,
+    transfers
+  }: AuthorizationRequest): Promise<AuthorizationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const decoder = new Decoder({})
@@ -182,8 +186,8 @@ export class AppService {
 
     const authzResponse: AuthorizationResponse = {
       decision: finalDecision.decision,
-      reasons: finalDecision.originalResponse,
       request,
+      transactionRequestIntent: intent,
       approvals: finalDecision.totalApprovalsRequired?.length
         ? {
             required: finalDecision.totalApprovalsRequired,
@@ -194,7 +198,7 @@ export class AppService {
     }
 
     // If we are allowing, then the ENGINE signs the verification too
-    if (finalDecision.decision === NarvalDecision.Permit) {
+    if (finalDecision.decision === Decision.PERMIT) {
       // TODO: store a global configuration on the response signature alg
       const engineAccount = privateKeyToAccount(ENGINE_PRIVATE_KEY)
       const permitSignature = await engineAccount.signMessage({
