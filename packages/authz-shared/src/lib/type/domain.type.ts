@@ -103,7 +103,7 @@ export type HistoricalTransfer = {
   to: string // In case we want spending limit per destination address
   chainId: number
   token: string
-  rates: { [keyof in FiatCurrency]: string } // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
+  rates: Record<string, string> // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
   initiatedBy: string // uid of the user who initiated the spending
   timestamp: number // unix timestamp in ms
 }

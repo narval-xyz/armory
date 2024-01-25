@@ -1,4 +1,4 @@
-import { CreateTransfer, Transfer } from '@app/orchestration/transfer-feed/core/type/domain.type'
+import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedRepository } from '@app/orchestration/transfer-feed/persistence/repository/transfer-feed.repository'
 import { Injectable, Logger } from '@nestjs/common'
 
