@@ -4,6 +4,7 @@ import {
   generateSignTransactionRequest,
   generateSignature
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
+import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
   Approval,
@@ -17,19 +18,19 @@ import {
 } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
 import { Action, Decision, Intents } from '@narval/authz-shared'
 import { TransferNative } from '@narval/transaction-request-intent'
-import { HttpService } from '@nestjs/axios'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
+import { times } from 'lodash/fp'
 import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
 
 describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
   let authzRequestRepositoryMock: AuthorizationRequestRepository
   let authzRequestProcessingProducerMock: AuthorizationRequestProcessingProducer
-  let httpServiceMock: HttpService
   let transferFeedServiceMock: TransferFeedService
   let authzApplicationClientMock: AuthzApplicationClient
   let service: AuthorizationRequestService
@@ -41,7 +42,6 @@ describe(AuthorizationRequestService.name, () => {
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
-    httpServiceMock = mock<HttpService>()
     transferFeedServiceMock = mock<TransferFeedService>()
     authzApplicationClientMock = mock<AuthzApplicationClient>()
 
@@ -55,10 +55,6 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: AuthorizationRequestProcessingProducer,
           useValue: authzRequestProcessingProducerMock
-        },
-        {
-          provide: HttpService,
-          useValue: httpServiceMock
         },
         {
           provide: TransferFeedService,
@@ -113,9 +109,12 @@ describe(AuthorizationRequestService.name, () => {
       }
     }
 
+    const transfers: Transfer[] = times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2)
+
     beforeEach(() => {
       jest.spyOn(authzApplicationClientMock, 'evaluation').mockResolvedValue(evaluationResponse)
       jest.spyOn(authzRequestRepositoryMock, 'update').mockResolvedValue(authzRequest)
+      jest.spyOn(transferFeedServiceMock, 'findByOrgId').mockResolvedValue(transfers)
     })
 
     it('calls authz application client', async () => {
