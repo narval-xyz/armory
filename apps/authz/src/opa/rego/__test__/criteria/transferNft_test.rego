@@ -2,11 +2,6 @@ package main
 
 import future.keywords.in
 
-test_extractTokenIdFromCaip19 {
-	res := extractTokenIdFromCaip19("eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555")
-	res == "55555"
-}
-
 test_transferERC721 {
 	erc721TransactionRequest = {
 		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -118,4 +113,9 @@ test_checkERC1155TokenAmount {
 	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lte", "value": "5"})
 	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "gt", "value": "3"})
 	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lt", "value": "5"})
+}
+
+test_extractTokenIdFromCaip19 {
+	res := extractTokenIdFromCaip19("eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555")
+	res == "55555"
 }

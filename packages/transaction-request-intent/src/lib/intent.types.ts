@@ -30,6 +30,7 @@ export type ERC1155Transfer = {
   tokenId: Caip19
   amount: string
 }
+
 export type TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155
   to: Caip10
