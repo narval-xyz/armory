@@ -73,6 +73,7 @@
     "@bull-board/nestjs": "^5.11.0",
     "@docusaurus/core": "3.0.0",
     "@docusaurus/preset-classic": "3.1.0",
+    "@ethereumjs/vm": "^7.1.0",
     "@mdx-js/react": "^3.0.0",
     "@nestjs/axios": "^3.0.1",
     "@nestjs/bull": "^10.0.1",
@@ -100,7 +101,6 @@
     "type-fest": "^4.10.0",
     "uuid": "^9.0.1",
     "viem": "^2.0.5",
-    "web3": "^4.4.0",
     "zod": "^3.22.4"
   }
 }
