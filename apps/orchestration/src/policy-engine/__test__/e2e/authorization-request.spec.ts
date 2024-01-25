@@ -3,14 +3,14 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   REQUEST_HEADER_ORG_ID
 } from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequest, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { Alg } from '@narval/authz-shared'
+import { Action, Alg } from '@narval/authz-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -100,7 +100,7 @@ describe('Authorization Request', () => {
         authentication,
         approvals,
         request: {
-          action: SupportedAction.SIGN_MESSAGE,
+          action: Action.SIGN_MESSAGE,
           nonce: '99',
           resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
           message: 'Sign me, please'
@@ -130,7 +130,7 @@ describe('Authorization Request', () => {
         authentication,
         approvals,
         request: {
-          action: SupportedAction.SIGN_TRANSACTION,
+          action: Action.SIGN_TRANSACTION,
           nonce: '99',
           resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
           transactionRequest: {
@@ -173,7 +173,7 @@ describe('Authorization Request', () => {
     it('evaluates a partial sign transaction authorization request', async () => {
       const payload = {
         request: {
-          action: SupportedAction.SIGN_TRANSACTION,
+          action: Action.SIGN_TRANSACTION,
           nonce: '99',
           resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
           transactionRequest: {
@@ -211,7 +211,7 @@ describe('Authorization Request', () => {
       orgId: org.id,
       status: AuthorizationRequestStatus.PERMITTED,
       request: {
-        action: SupportedAction.SIGN_MESSAGE,
+        action: Action.SIGN_MESSAGE,
         nonce: '99',
         resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
         message: 'Testing sign message request'

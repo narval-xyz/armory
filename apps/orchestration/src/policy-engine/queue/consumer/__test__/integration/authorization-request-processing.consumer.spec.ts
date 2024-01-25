@@ -7,8 +7,7 @@ import { AuthorizationRequestService } from '@app/orchestration/policy-engine/co
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus,
-  SupportedAction
+  AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
@@ -18,7 +17,7 @@ import { PersistenceModule } from '@app/orchestration/shared/module/persistence/
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Alg, Signature } from '@narval/authz-shared'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
@@ -54,7 +53,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'

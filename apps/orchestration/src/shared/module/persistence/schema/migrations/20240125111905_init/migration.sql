@@ -1,9 +1,6 @@
 -- CreateEnum
 CREATE TYPE "AuthorizationRequestStatus" AS ENUM ('CREATED', 'FAILED', 'CANCELED', 'PROCESSING', 'APPROVING', 'PERMITTED', 'FORBIDDEN');
 
--- CreateEnum
-CREATE TYPE "AuthorizationRequestAction" AS ENUM ('signTransaction', 'signMessage');
-
 -- CreateTable
 CREATE TABLE "organization" (
     "id" VARCHAR(255) NOT NULL,
@@ -19,7 +16,7 @@ CREATE TABLE "authorization_request" (
     "id" VARCHAR(255) NOT NULL,
     "org_id" TEXT NOT NULL,
     "status" "AuthorizationRequestStatus" NOT NULL DEFAULT 'CREATED',
-    "action" "AuthorizationRequestAction" NOT NULL,
+    "action" TEXT NOT NULL,
     "request" JSONB NOT NULL,
     "idempotency_key" TEXT,
     "authn_alg" TEXT NOT NULL,

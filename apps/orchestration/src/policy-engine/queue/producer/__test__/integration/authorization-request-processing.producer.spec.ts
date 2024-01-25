@@ -3,8 +3,7 @@ import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orche
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus,
-  SupportedAction
+  AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import {
@@ -14,7 +13,7 @@ import {
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { Alg, Signature } from '@narval/authz-shared'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -38,7 +37,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
     orgId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     status: AuthorizationRequestStatus.CREATED,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '15d13f33-b7fb-4b96-b8c2-f35c6b2f64dd',
       message: 'Test request'

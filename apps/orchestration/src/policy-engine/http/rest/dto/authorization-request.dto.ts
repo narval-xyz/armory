@@ -1,7 +1,7 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
+import { Action } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, ValidateNested } from 'class-validator'
@@ -29,9 +29,7 @@ export class AuthorizationRequestDto {
   // See https://github.com/typestack/class-transformer?tab=readme-ov-file#working-with-nested-objects
   @ValidateNested()
   @Type((opts) => {
-    return opts?.object.request.action === SupportedAction.SIGN_TRANSACTION
-      ? SignTransactionRequestDto
-      : SignMessageRequestDto
+    return opts?.object.request.action === Action.SIGN_TRANSACTION ? SignTransactionRequestDto : SignMessageRequestDto
   })
   @IsDefined()
   @ApiProperty({
@@ -40,10 +38,10 @@ export class AuthorizationRequestDto {
   request: SignTransactionRequestDto | SignMessageRequestDto
 
   isSignTransaction(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignTransactionRequestDto {
-    return this.request.action === SupportedAction.SIGN_TRANSACTION
+    return this.request.action === Action.SIGN_TRANSACTION
   }
 
   isSignMessage(request: SignTransactionRequestDto | SignMessageRequestDto): request is SignMessageRequestDto {
-    return this.request.action === SupportedAction.SIGN_MESSAGE
+    return this.request.action === Action.SIGN_MESSAGE
   }
 }

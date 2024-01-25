@@ -3,13 +3,12 @@ import {
   Approval,
   AuthorizationRequest,
   Evaluation,
-  SignTransaction,
-  SupportedAction
+  SignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
-import { Alg, Signature } from '@narval/authz-shared'
+import { Action, Alg, Signature } from '@narval/authz-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
@@ -39,7 +38,7 @@ describe(AuthorizationRequestRepository.name, () => {
     orgId: org.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
-      action: SupportedAction.SIGN_MESSAGE,
+      action: Action.SIGN_MESSAGE,
       nonce: '99',
       resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
       message: 'Test request'
@@ -160,9 +159,9 @@ describe(AuthorizationRequestRepository.name, () => {
       ])
     })
 
-    describe(`when action is ${SupportedAction.SIGN_TRANSACTION}`, () => {
+    describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
       const signTransaction: SignTransaction = {
-        action: SupportedAction.SIGN_TRANSACTION,
+        action: Action.SIGN_TRANSACTION,
         nonce: '99',
         resourceId: '3be0c61d-9b41-423f-80b8-ea6f7624d917',
         transactionRequest: {
@@ -185,7 +184,7 @@ describe(AuthorizationRequestRepository.name, () => {
 
         expect(authzRequest).not.toEqual(null)
 
-        if (authzRequest && authzRequest.request.action === SupportedAction.SIGN_TRANSACTION) {
+        if (authzRequest && authzRequest.request.action === Action.SIGN_TRANSACTION) {
           expect(authzRequest?.request.transactionRequest.gas).toEqual(signTransaction.transactionRequest.gas)
         }
       })

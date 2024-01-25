@@ -1,9 +1,10 @@
-import { AuthorizationRequestStatus, SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
 import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { TransactionResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
+import { Action } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsString, ValidateNested } from 'class-validator'
@@ -65,9 +66,7 @@ export class AuthorizationResponseDto {
   //
   // See https://github.com/typestack/class-transformer?tab=readme-ov-file#working-with-nested-objects
   @Type((opts) => {
-    return opts?.object.request.action === SupportedAction.SIGN_TRANSACTION
-      ? SignTransactionResponseDto
-      : SignMessageResponseDto
+    return opts?.object.request.action === Action.SIGN_TRANSACTION ? SignTransactionResponseDto : SignMessageResponseDto
   })
   @ApiProperty({
     oneOf: [{ $ref: getSchemaPath(SignMessageResponseDto) }, { $ref: getSchemaPath(SignTransactionResponseDto) }]

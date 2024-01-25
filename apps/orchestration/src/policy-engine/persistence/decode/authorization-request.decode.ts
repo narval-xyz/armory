@@ -3,22 +3,25 @@ import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-e
 import { signatureSchema } from '@app/orchestration/policy-engine/persistence/schema/signature.schema'
 import { AuthorizationRequestModel } from '@app/orchestration/policy-engine/persistence/type/model.type'
 import { ACTION_REQUEST } from '@app/orchestration/policy-engine/policy-engine.constant'
+import { Action } from '@narval/authz-shared'
 import { EvaluationLog } from '@prisma/client/orchestration'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
 
 type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 
+const actionSchema = z.nativeEnum(Action)
+
+const approvalSchema = signatureSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.date()
+})
+
 const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
   id,
   decision,
   signature,
   createdAt
-})
-
-const approvalSchema = signatureSchema.extend({
-  id: z.string().uuid(),
-  createdAt: z.date()
 })
 
 const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => ({
@@ -76,13 +79,17 @@ const decode = ({ model, schema }: { model: Model; schema: ZodSchema }): Authori
  * @returns {AuthorizationRequest}
  */
 export const decodeAuthorizationRequest = (model: Model): AuthorizationRequest => {
-  const config = ACTION_REQUEST[model.action]
+  const action = actionSchema.safeParse(model.action)
 
-  if (config) {
-    return decode({
-      model,
-      schema: config.schema.read
-    })
+  if (action.success) {
+    const config = ACTION_REQUEST.get(action.data)
+
+    if (config) {
+      return decode({
+        model,
+        schema: config.schema.read
+      })
+    }
   }
 
   throw new DecodeAuthorizationRequestException([

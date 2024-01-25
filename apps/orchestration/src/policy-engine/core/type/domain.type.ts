@@ -1,14 +1,6 @@
 import { Action, Signature, TransactionRequest } from '@narval/authz-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 
-/**
- * AuthZ actions currently supported by the Orchestration.
- */
-export enum SupportedAction {
-  SIGN_TRANSACTION = Action.SIGN_TRANSACTION,
-  SIGN_MESSAGE = Action.SIGN_MESSAGE
-}
-
 export enum AuthorizationRequestStatus {
   CREATED = 'CREATED',
   CANCELED = 'CANCELED',
@@ -31,19 +23,24 @@ export type Evaluation = {
   createdAt: Date
 }
 
+/**
+ * AuthZ actions currently supported by the Orchestration.
+ */
+export type SupportedAction = Action.SIGN_TRANSACTION | Action.SIGN_MESSAGE
+
 export type SharedAuthorizationPayload = {
   action: SupportedAction
   nonce: string
 }
 
 export type SignTransaction = SharedAuthorizationPayload & {
-  action: SupportedAction.SIGN_TRANSACTION
+  action: Action.SIGN_TRANSACTION
   resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessage = SharedAuthorizationPayload & {
-  action: SupportedAction.SIGN_MESSAGE
+  action: Action.SIGN_MESSAGE
   resourceId: string
   message: string
 }

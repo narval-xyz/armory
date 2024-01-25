@@ -1,7 +1,7 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
 import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
 import { AuthorizationRequestModel } from '@app/orchestration/policy-engine/persistence/type/model.type'
+import { Action } from '@narval/authz-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
 
 describe('decodeAuthorizationRequest', () => {
@@ -24,9 +24,9 @@ describe('decodeAuthorizationRequest', () => {
     it('decodes a sign transaction authorization request successfully', () => {
       const validModel = {
         ...sharedModel,
-        action: SupportedAction.SIGN_TRANSACTION,
+        action: Action.SIGN_TRANSACTION,
         request: {
-          action: SupportedAction.SIGN_TRANSACTION,
+          action: Action.SIGN_TRANSACTION,
           nonce: '99',
           resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           transactionRequest: {
@@ -45,9 +45,9 @@ describe('decodeAuthorizationRequest', () => {
     it('throws DecodeAuthorizationRequestException when decoder fails', () => {
       const invalidModel = {
         ...sharedModel,
-        action: SupportedAction.SIGN_TRANSACTION,
+        action: Action.SIGN_TRANSACTION,
         request: {
-          action: SupportedAction.SIGN_TRANSACTION,
+          action: Action.SIGN_TRANSACTION,
           nonce: '99',
           resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           transactionRequest: {
@@ -67,9 +67,9 @@ describe('decodeAuthorizationRequest', () => {
     it('decodes request successfully', () => {
       const validModel = {
         ...sharedModel,
-        action: SupportedAction.SIGN_MESSAGE,
+        action: Action.SIGN_MESSAGE,
         request: {
-          action: SupportedAction.SIGN_MESSAGE,
+          action: Action.SIGN_MESSAGE,
           nonce: '99',
           resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
           message: 'Test messsage'
@@ -84,7 +84,7 @@ describe('decodeAuthorizationRequest', () => {
     it('throws DecodeAuthorizationRequestException when decoder fails', () => {
       const invalidModel = {
         ...sharedModel,
-        action: SupportedAction.SIGN_MESSAGE,
+        action: Action.SIGN_MESSAGE,
         request: {}
       }
 
