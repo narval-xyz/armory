@@ -1,6 +1,6 @@
-import { AssetType as AssetTypeEnum, Hex } from '@narval/authz-shared'
-import { AssetType, Misc } from './domain'
+import { AssetType, Hex } from '@narval/authz-shared'
 import { SupportedMethodId } from './supported-methods'
+import { AssetTypeAndUnknown, Misc } from './domain'
 
 export const isString = (value: unknown): value is string => {
   return typeof value === 'string'
@@ -75,7 +75,7 @@ export const isSupportedMethodId = (value: Hex): value is SupportedMethodId => {
 type AssertType = 'string' | 'bigint' | 'number' | 'boolean' | 'hex'
 
 export const isAssetType = (value: unknown): value is AssetType => {
-  const types: AssetType[] = Object.values(AssetTypeEnum)
+  const types: AssetTypeAndUnknown[] = Object.values(AssetType)
   types.push(Misc.UNKNOWN)
 
   return types.includes(value as AssetType)

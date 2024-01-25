@@ -1,6 +1,6 @@
 import { AssetType as AssetTypeEnum } from '@narval/authz-shared'
 import { AbiParameter } from 'viem'
-import { AssetType, Intents, Misc } from './domain'
+import { AssetTypeAndUnknown, Intents, Misc } from './domain'
 import {
   ApproveAllowanceParamsTransform,
   Erc1155SafeTransferFromParamsTransform,
@@ -166,7 +166,7 @@ export type MethodsMapping = {
     name: string
     abi: AbiParameter[]
     transformer: (params: unknown[]) => StandardMethodsParams[K]
-    assetType: AssetType
+    assetType: AssetTypeAndUnknown
     intent: Intents
   }
 }

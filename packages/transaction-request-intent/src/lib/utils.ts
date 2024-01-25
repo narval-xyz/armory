@@ -1,5 +1,5 @@
 import {
-  AssetType as AssetTypeEnum,
+  AssetType,
   Caip10Id,
   Hex,
   Namespace,
@@ -9,7 +9,7 @@ import {
 } from '@narval/authz-shared'
 import { isAddress } from 'viem'
 import {
-  AssetType,
+  AssetTypeAndUnknown,
   ContractCallInput,
   ContractInformation,
   ContractRegistry,
@@ -48,8 +48,8 @@ export const buildContractRegistryEntry = ({
   chainId: number
   contractAddress: string
   assetType: string
-}): { [key: Caip10Id]: AssetType } => {
-  const registry: { [key: Caip10Id]: AssetType } = {}
+}): { [key: Caip10Id]: AssetTypeAndUnknown } => {
+  const registry: { [key: Caip10Id]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new Error('Invalid contract registry entry')
   }
@@ -162,9 +162,9 @@ export const getTransactionIntentType = ({
     {
       condition: () =>
         methodId === SupportedMethodId.TRANSFER_FROM &&
-        ((contractType && contractType.assetType === AssetTypeEnum.ERC20) ||
-          (contractType && contractType.assetType === AssetTypeEnum.ERC721)),
-      intent: contractType?.assetType === AssetTypeEnum.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
+        ((contractType && contractType.assetType === AssetType.ERC20) ||
+          (contractType && contractType.assetType === AssetType.ERC721)),
+      intent: contractType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
     },
     // Cancel condition
     {

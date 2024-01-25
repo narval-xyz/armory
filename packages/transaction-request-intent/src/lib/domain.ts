@@ -1,4 +1,4 @@
-import { Address, Alg, AssetType as AssetTypeEnum, Caip10Id, Hex, TransactionRequest } from '@narval/authz-shared'
+import { Address, Alg, AssetType, Caip10Id, Hex, TransactionRequest } from '@narval/authz-shared'
 import { TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 
@@ -39,11 +39,11 @@ export type TypedDataInput = {
 
 export type ContractInformation = {
   contractAddress: string
-  assetType: AssetTypeEnum
+  assetType: AssetType
 }
 export type ContractRegistryInput = {
   contract: Caip10Id | { address: Address; chainId: number }
-  assetType?: AssetTypeEnum
+  assetType?: AssetType
   walletType?: WalletType
 }[]
 export type ContractRegistry = Map<Caip10Id, ContractInformation>
@@ -154,7 +154,7 @@ export enum Misc {
   UNKNOWN = 'unknown'
 }
 
-export type AssetType = AssetTypeEnum | Misc
+export type AssetTypeAndUnknown = AssetType | Misc
 
 export enum SupportedChains {
   ETHEREUM = 1,
