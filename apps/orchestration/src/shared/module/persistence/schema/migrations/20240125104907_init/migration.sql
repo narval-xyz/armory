@@ -22,9 +22,9 @@ CREATE TABLE "authorization_request" (
     "action" "AuthorizationRequestAction" NOT NULL,
     "request" JSONB NOT NULL,
     "idempotency_key" TEXT,
-    "authn_sig" TEXT NOT NULL,
     "authn_alg" TEXT NOT NULL,
     "authn_pub_key" TEXT NOT NULL,
+    "authn_sig" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -35,9 +35,9 @@ CREATE TABLE "authorization_request" (
 CREATE TABLE "authorization_request_approval" (
     "id" VARCHAR(255) NOT NULL,
     "request_id" TEXT NOT NULL,
-    "sig" TEXT NOT NULL,
     "alg" TEXT NOT NULL,
     "pub_key" TEXT NOT NULL,
+    "sig" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "authorization_request_approval_pkey" PRIMARY KEY ("id")

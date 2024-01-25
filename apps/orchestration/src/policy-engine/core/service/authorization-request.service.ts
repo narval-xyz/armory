@@ -4,6 +4,7 @@ import {
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
 } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
@@ -40,6 +41,7 @@ export class AuthorizationRequestService {
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private httpService: HttpService,
+    private authzApplicationClient: AuthzApplicationClient,
     private transferFeedService: TransferFeedService
   ) {}
 
@@ -105,7 +107,7 @@ export class AuthorizationRequestService {
     // TODO (@wcalderipe, 19/01/24): Think how to error the evaluation but
     // short-circuit the retry mechanism.
 
-    const payload = {
+    const data = {
       authentication: input.authentication,
       approvals: input.approvals,
       request: input.request,
@@ -113,13 +115,18 @@ export class AuthorizationRequestService {
       transfers: getOkTransfers()
     }
 
+    // await this.authzApplicationClient.evaluation({
+    //   baseUrl: 'http://localhost:3010',
+    //   data
+    // })
+
     this.logger.log('Sending authorization request to cluster evaluation', {
       authzRequest: input,
-      payload
+      payload: data
     })
 
     const evaluation = await lastValueFrom(
-      this.httpService.post('http://localhost:3010/evaluation', payload).pipe(
+      this.httpService.post('http://localhost:3010/evaluation', data).pipe(
         tap((response) => {
           this.logger.log('Received evaluation response', {
             status: response.status,

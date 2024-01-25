@@ -2,6 +2,10 @@ ORCHESTRATION_PROJECT_NAME := orchestration
 ORCHESTRATION_PROJECT_DIR := ./apps/orchestration
 ORCHESTRATION_DATABASE_SCHEMA := ${ORCHESTRATION_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
 
+# For more terminal color codes, head over to https://opensource.com/article/19/9/linux-terminal-colors
+TERM_NO_COLOR := \033[0m
+TERM_GREEN := \033[0;32m
+
 # === Start ===
 
 orchestration/start/dev:
@@ -44,11 +48,19 @@ orchestration/db/migrate:
 			--schema ${ORCHESTRATION_DATABASE_SCHEMA}
 
 orchestration/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Orchestration development database${TERM_NO_COLOR}"
+	@echo ""
 	npx dotenv -e ${ORCHESTRATION_PROJECT_DIR}/.env -- \
 		prisma migrate reset \
 			--schema ${ORCHESTRATION_DATABASE_SCHEMA} \
 			--force
 	make orchestration/db/seed
+
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Orchestration test database${TERM_NO_COLOR}"
+	@echo ""
+	make orchestration/test/db/setup
 
 orchestration/db/create-migration:
 	npx dotenv -e ${ORCHESTRATION_PROJECT_DIR}/.env -- \

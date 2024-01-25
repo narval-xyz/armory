@@ -1,4 +1,4 @@
-import { Action, TransactionRequest } from '@narval/authz-shared'
+import { Action, Signature, TransactionRequest } from '@narval/authz-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 
 /**
@@ -17,12 +17,6 @@ export enum AuthorizationRequestStatus {
   APPROVING = 'APPROVING',
   PERMITTED = 'PERMITTED',
   FORBIDDEN = 'FORBIDDEN'
-}
-
-export type Signature = {
-  sig: string
-  alg: string
-  pubKey: string
 }
 
 export type Approval = Signature & {

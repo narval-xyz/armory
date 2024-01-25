@@ -23,7 +23,8 @@ setup:
 	make authz/setup
 	make orchestration/setup
 	@echo ""
-	@echo "${TERM_GREEN}Orchestration & AuthZ applications are ready 🐋${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🐋 Orchestration & AuthZ applications are ready!${TERM_NO_COLOR}"
+	@echo ""
 	@echo "${TERM_GREEN}Run 'make orchestration/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
 
 # == Docker ==

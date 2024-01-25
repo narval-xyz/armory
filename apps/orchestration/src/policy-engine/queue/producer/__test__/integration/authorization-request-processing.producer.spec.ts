@@ -4,7 +4,6 @@ import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus,
-  Signature,
   SupportedAction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
@@ -15,6 +14,7 @@ import {
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
+import { Alg, Signature } from '@narval/authz-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -27,9 +27,9 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
   let testPrismaService: TestPrismaService
 
   const authentication: Signature = {
-    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
-    alg: 'ES256K',
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
+    alg: Alg.ES256K,
+    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
+    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
   }
 
   const authzRequest: AuthorizationRequest = {

@@ -1,4 +1,5 @@
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestController } from '@app/orchestration/policy-engine/http/rest/controller/authorization-request.controller'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
@@ -40,6 +41,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     AuthorizationRequestRepository,
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer,
+    AuthzApplicationClient,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter
