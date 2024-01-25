@@ -7,13 +7,13 @@ import {
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action, Intents } from '@narval/authz-shared'
-import { HttpService } from '@nestjs/axios'
+import { Action, HistoricalTransfer, Intents } from '@narval/authz-shared'
 import { Injectable, Logger } from '@nestjs/common'
+import { mapValues, omit } from 'lodash/fp'
 import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
-import { getOkTransfers } from './transfers.mock'
 
 const getStatus = (decision: string): AuthorizationRequestStatus => {
   const statuses: Map<string, AuthorizationRequestStatus> = new Map([
@@ -38,7 +38,6 @@ export class AuthorizationRequestService {
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
-    private httpService: HttpService,
     private authzApplicationClient: AuthzApplicationClient,
     private transferFeedService: TransferFeedService
   ) {}
@@ -105,23 +104,22 @@ export class AuthorizationRequestService {
     // TODO (@wcalderipe, 19/01/24): Think how to error the evaluation but
     // short-circuit the retry mechanism.
 
-    const data = {
-      authentication: input.authentication,
-      approvals: input.approvals,
-      request: input.request,
-      // transfers: getNotOkTransfers()
-      transfers: getOkTransfers()
-    }
-
+    const transfers = await this.transferFeedService.findByOrgId(input.orgId)
     const evaluation = await this.authzApplicationClient.evaluation({
-      baseUrl: 'http://localhost:3010',
-      data
+      host: 'http://localhost:3010',
+      data: {
+        authentication: input.authentication,
+        approvals: input.approvals,
+        request: input.request,
+        transfers: this.toHistoricalTransfers(transfers)
+      }
     })
 
     const status = getStatus(evaluation.decision)
 
     const authzRequest = await this.authzRequestRepository.update({
-      ...input,
+      id: input.id,
+      orgId: input.orgId,
       status,
       evaluations: [
         {
@@ -163,5 +161,14 @@ export class AuthorizationRequestService {
     })
 
     return authzRequest
+  }
+
+  private toHistoricalTransfers(transfers: Transfer[]): HistoricalTransfer[] {
+    return transfers.map((transfer) => ({
+      ...omit('orgId', transfer),
+      amount: transfer.amount.toString(),
+      timestamp: transfer.createdAt.getTime(),
+      rates: mapValues((value) => value.toString(), transfer.rates)
+    }))
   }
 }
