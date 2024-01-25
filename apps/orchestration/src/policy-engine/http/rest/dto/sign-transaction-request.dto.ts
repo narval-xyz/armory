@@ -10,7 +10,7 @@ export class SignTransactionRequestDto {
     enum: SupportedAction,
     default: SupportedAction.SIGN_TRANSACTION
   })
-  action: `${SupportedAction.SIGN_TRANSACTION}`
+  action: SupportedAction.SIGN_TRANSACTION
 
   @IsString()
   @IsDefined()

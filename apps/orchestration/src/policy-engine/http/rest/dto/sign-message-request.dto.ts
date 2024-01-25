@@ -9,7 +9,7 @@ export class SignMessageRequestDto {
     enum: SupportedAction,
     default: SupportedAction.SIGN_MESSAGE
   })
-  action: `${SupportedAction.SIGN_MESSAGE}`
+  action: SupportedAction.SIGN_MESSAGE
 
   @IsString()
   @IsDefined()

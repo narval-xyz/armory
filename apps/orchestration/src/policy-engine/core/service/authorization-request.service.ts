@@ -2,14 +2,14 @@ import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
-  CreateAuthorizationRequest
+  CreateAuthorizationRequest,
+  SupportedAction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
@@ -163,7 +163,10 @@ export class AuthorizationRequestService {
       ]
     })
 
-    if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
+    if (
+      authzRequest.request.action === SupportedAction.SIGN_TRANSACTION &&
+      status === AuthorizationRequestStatus.PERMITTED
+    ) {
       const intent = evaluation.transactionRequestIntent
       if (intent.type === 'transferNative') {
         const transfer = {

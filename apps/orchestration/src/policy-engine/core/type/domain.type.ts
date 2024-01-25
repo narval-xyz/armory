@@ -32,18 +32,18 @@ export type Evaluation = {
 }
 
 export type SharedAuthorizationPayload = {
-  action: `${SupportedAction}`
+  action: SupportedAction
   nonce: string
 }
 
 export type SignTransaction = SharedAuthorizationPayload & {
-  action: `${SupportedAction.SIGN_TRANSACTION}`
+  action: SupportedAction.SIGN_TRANSACTION
   resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessage = SharedAuthorizationPayload & {
-  action: `${SupportedAction.SIGN_MESSAGE}`
+  action: SupportedAction.SIGN_MESSAGE
   resourceId: string
   message: string
 }
