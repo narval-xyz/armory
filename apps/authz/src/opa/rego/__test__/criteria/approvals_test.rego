@@ -2,6 +2,20 @@ package main
 
 import future.keywords.in
 
+test_approversRoles {
+	roles = approversRoles with input as request
+		with data.entities as entities
+
+	roles == {"root", "member", "admin"}
+}
+
+test_approversGroups {
+	groups = approversGroups with input as request
+		with data.entities as entities
+
+	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
+}
+
 test_checkApproval {
 	requiredApproval = {
 		"approvalCount": 2,

@@ -6,6 +6,21 @@ usersEntities := data.entities.users
 
 userGroupsEntities := data.entities.userGroups
 
+approversRoles = result {
+	result := {user.role |
+		approval := input.approvals[_]
+		user := usersEntities[approval.userId]
+	}
+}
+
+approversGroups = result {
+	result := {group.uid |
+		approval := input.approvals[_]
+		group := userGroupsEntities[_]
+		approval.userId in group.users
+	}
+}
+
 getApprovalsCount(possibleApprovers) = result {
 	matchedApprovers := {approval.userId |
 		approval := input.approvals[_]

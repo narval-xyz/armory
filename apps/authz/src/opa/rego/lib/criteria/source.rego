@@ -2,6 +2,14 @@ package main
 
 import future.keywords.in
 
+source = result {
+	result := data.entities.wallets[input.intent.from]
+}
+
+source = result {
+	result := data.entities.addressBook[input.intent.from]
+}
+
 checkSourceAccountType(values) {
 	values == wildcard
 }

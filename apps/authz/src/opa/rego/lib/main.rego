@@ -2,6 +2,14 @@ package main
 
 import future.keywords.in
 
+secondsToNanoSeconds(epochS) = epochS * 1000000000
+
+nanoSecondsToSeconds(epochNs) = epochNs / 1000000000
+
+nowSeconds = nanoSecondsToSeconds(time.now_ns())
+
+wildcard = "*"
+
 default evaluate := {
 	"permit": false,
 	"reasons": set(),
