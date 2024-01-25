@@ -2,14 +2,14 @@ package main
 
 import future.keywords.in
 
-transferTokenType = input.intent.type
+transferTokenTypes = {"transferNative", "transferERC20"}
 
 transferTokenAmount = to_number(input.intent.amount)
 
-# Transfer Native
+# transferNative
 transferTokenAddress = input.intent.token
 
-# Transfer ERC20, ERC721, ERC1155
+# transferERC20
 transferTokenAddress = input.intent.contract
 
 checkTransferTokenType(values) {
@@ -18,7 +18,8 @@ checkTransferTokenType(values) {
 
 checkTransferTokenType(values) {
 	values != wildcard
-	transferTokenType in values
+	input.intent.type in transferTokenTypes
+	input.intent.type in values
 }
 
 checkTransferTokenAddress(values) {
@@ -30,42 +31,43 @@ checkTransferTokenAddress(values) {
 	transferTokenAddress in values
 }
 
-checkTransferTokenOperation(operation) {
-	operation == wildcard
+checkTransferTokenAmount(condition) {
+	condition == wildcard
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "eq"
-	to_number(operation.value) == transferTokenAmount
+# Ex: condition = {"operator": "eq", "value": "1000000000000000000"}
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "eq"
+	to_number(condition.value) == transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "neq"
-	to_number(operation.value) != transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "neq"
+	to_number(condition.value) != transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "gt"
-	to_number(operation.value) < transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "gt"
+	to_number(condition.value) < transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "lt"
-	to_number(operation.value) > transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "lt"
+	to_number(condition.value) > transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "gte"
-	to_number(operation.value) <= transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "gte"
+	to_number(condition.value) <= transferTokenAmount
 }
 
-checkTransferTokenOperation(operation) {
-	operation != wildcard
-	operation.operator == "lte"
-	to_number(operation.value) >= transferTokenAmount
+checkTransferTokenAmount(condition) {
+	condition != wildcard
+	condition.operator == "lte"
+	to_number(condition.value) >= transferTokenAmount
 }

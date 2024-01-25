@@ -2,6 +2,29 @@ package main
 
 import future.keywords.in
 
+resource = result {
+	result := data.entities.wallets[input.resource.uid]
+}
+
+checkTransferResourceIntegrity {
+	contains(input.resource.uid, input.transactionRequest.from)
+	input.resource.uid == input.intent.from
+}
+
+walletGroups = result {
+	result := {group.uid |
+		group := data.entities.walletGroups[_]
+		input.resource.uid in group.wallets
+	}
+}
+
+getWalletGroups(id) = result {
+	result := {group.uid |
+		group := data.entities.walletGroups[_]
+		id in group.wallets
+	}
+}
+
 checkWalletId(values) {
 	values == wildcard
 }

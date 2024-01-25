@@ -7,7 +7,7 @@ test_parseUnits {
 }
 
 test_checkAccWildcardCondition {
-	conditions = {"tokens": "*"}
+	conditions = {"tokens": wildcard}
 	checkAccCondition("eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", conditions.tokens)
 }
 

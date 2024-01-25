@@ -8,6 +8,13 @@ parseUnits(value, decimals) = result {
 	result := to_number(value) * product(powTen)
 }
 
+getUserGroups(id) = result {
+	result := {group.uid |
+		group := data.entities.userGroups[_]
+		id in group.users
+	}
+}
+
 checkAccCondition(value, set) {
 	set == wildcard
 }
