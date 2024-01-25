@@ -1,5 +1,5 @@
-import { Caip19, encodeEoaAccountId } from '../../caip'
-import { Intents, NativeTransferInput } from '../../domain'
+import { Address, AssetType, Caip19Id, Slip44SupportedAddresses, toCaip10Lower, toCaip19 } from '@narval/authz-shared'
+import { Intents, NativeTransferInput, SupportedChains } from '../../domain'
 import { TransactionRequestIntentError } from '../../error'
 import { TransferNative } from '../../intent.types'
 import DecoderStrategy from '../DecoderStrategy'
@@ -14,18 +14,21 @@ export default class NativeTransferDecoder extends DecoderStrategy {
     return Intents.TRANSFER_NATIVE
   }
 
-  #nativeCaip19(chainId: number): Caip19 {
-    if (chainId === 1) {
-      return 'eip155:1/slip44/60' as Caip19
-    } else if (chainId === 137) {
-      return 'eip155:137/slip44/966' as Caip19
+  #nativeCaip19(chainId: number): Caip19Id {
+    if (chainId !== SupportedChains.ETHEREUM && chainId !== SupportedChains.POLYGON) {
+      throw new TransactionRequestIntentError({
+        message: 'Invalid chainId',
+        status: 400,
+        context: {
+          chainId
+        }
+      })
     }
-    throw new TransactionRequestIntentError({
-      message: 'Invalid chainId',
-      status: 400,
-      context: {
-        chainId
-      }
+    const address = chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
+    return toCaip19({
+      chainId,
+      assetType: AssetType.SLIP44,
+      address: address.toLowerCase() as unknown as Address
     })
   }
   constructor(input: NativeTransferInput) {
@@ -42,13 +45,13 @@ export default class NativeTransferDecoder extends DecoderStrategy {
       }
     }
     const intent: TransferNative = {
-      to: encodeEoaAccountId({
+      to: toCaip10Lower({
         chainId,
-        evmAccountAddress: to
+        address: to
       }),
-      from: encodeEoaAccountId({
+      from: toCaip10Lower({
         chainId,
-        evmAccountAddress: from
+        address: from
       }),
       type: Intents.TRANSFER_NATIVE,
       amount: Number(value).toString(),

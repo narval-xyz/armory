@@ -1,6 +1,5 @@
-import { TransactionRequest } from '@narval/authz-shared'
-import { Address, Hex, TypedDataDomain, TypedData as TypedDataParams } from 'viem'
-import { Caip10 } from './caip'
+import { Address, Alg, AssetType as AssetTypeEnum, Caip10Id, Hex, TransactionRequest } from '@narval/authz-shared'
+import { TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 
 export type Message = {
@@ -9,16 +8,9 @@ export type Message = {
   from: Address
 }
 
-export enum SigningAlgorithm {
-  ECDSA_SECP256K1, // Standard for transactions and messages
-  ECDSA_SECP256R1, // An alternative to secp256k1, less common
-  ECDSA_KOBLITZ, // Similar to secp256k1 but less used
-  ECDSA_BRAINPOOL // Not standard but included for completeness
-}
-
 export type Raw = {
   rawData: string
-  algorithm: SigningAlgorithm
+  algorithm: Alg
 }
 
 export type TypedData = {
@@ -50,13 +42,13 @@ export type ContractInformation = {
   assetType: AssetTypeEnum
 }
 export type ContractRegistryInput = {
-  contract: Caip10 | { address: Address; chainId: number }
+  contract: Caip10Id | { address: Address; chainId: number }
   assetType?: AssetTypeEnum
   walletType?: WalletType
 }[]
-export type ContractRegistry = Map<Caip10, ContractInformation>
+export type ContractRegistry = Map<Caip10Id, ContractInformation>
 
-export type TransactionKey = `${Caip10}-${number}`
+export type TransactionKey = `${Caip10Id}-${number}`
 export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 export type TransactionInput = {
@@ -158,20 +150,14 @@ export enum Intents {
   SIGN_TYPED_DATA = 'signTypedData'
 }
 
-export enum AssetTypeEnum {
-  ERC1155 = 'erc1155',
-  ERC20 = 'erc20',
-  ERC721 = 'erc721',
-  NATIVE = 'native',
+export enum Misc {
   UNKNOWN = 'unknown'
 }
 
-export enum EipStandardEnum {
-  EIP155 = 'eip155'
-}
+export type AssetType = AssetTypeEnum | Misc
 
 export enum SupportedChains {
-  MAINNET = 1,
+  ETHEREUM = 1,
   POLYGON = 137,
   OPTIMISM = 10
 }

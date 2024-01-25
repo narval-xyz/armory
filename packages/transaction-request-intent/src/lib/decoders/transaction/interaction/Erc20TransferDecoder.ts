@@ -1,4 +1,4 @@
-import { encodeEoaAccountId } from '../../../caip'
+import { toCaip10Lower } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { TransferParams } from '../../../extraction/types'
 import { TransferErc20 } from '../../../intent.types'
@@ -22,11 +22,11 @@ export default class Erc20TransferDecoder extends DecoderStrategy {
     try {
       const { amount, recipient } = params
       const intent: TransferErc20 = {
-        to: encodeEoaAccountId({ chainId, evmAccountAddress: recipient }),
-        from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
+        to: toCaip10Lower({ chainId, address: recipient }),
+        from: toCaip10Lower({ chainId, address: from }),
         type: Intents.TRANSFER_ERC20,
         amount,
-        contract: encodeEoaAccountId({ chainId, evmAccountAddress: to })
+        contract: toCaip10Lower({ chainId, address: to })
       }
 
       return intent

@@ -1,14 +1,10 @@
-import { TransactionRequest } from '@narval/authz-shared'
-import { Hex } from 'viem'
+import { Hex, TransactionRequest } from '@narval/authz-shared'
 import { ContractCallInput, ContractDeploymentInput, NativeTransferInput } from './domain'
 import { TransactionRequestIntentError } from './error'
 
 export const validateNativeTransferInput = (txRequest: TransactionRequest): NativeTransferInput => {
   const { value, chainId, to, from, nonce } = txRequest
   if (!value || !chainId || !to || !from) {
-    console.log('\n\nWhat triggers error?: ', txRequest, '\n\n')
-    console.log('\n\nWhat triggers error?: ', value, chainId, to, from, '\n\n')
-    console.log('\nvalue: ', !!value, '\nchainId: ', !!chainId, '\nto: ', !!to, '\nfrom: ', !!from, '\n\n')
     throw new TransactionRequestIntentError({
       message: 'Malformed native transfer transaction request: missing value or chainId',
       status: 400,

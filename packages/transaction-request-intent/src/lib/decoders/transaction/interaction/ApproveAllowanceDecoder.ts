@@ -1,4 +1,4 @@
-import { encodeEoaAccountId } from '../../../caip'
+import { toCaip10Lower } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { ApproveAllowanceParams } from '../../../extraction/types'
 import { ApproveTokenAllowance } from '../../../intent.types'
@@ -22,11 +22,11 @@ export default class ApproveTokenAllowanceDecoder extends DecoderStrategy {
     try {
       const { amount, spender } = params
       const intent: ApproveTokenAllowance = {
-        spender: encodeEoaAccountId({ chainId, evmAccountAddress: spender }),
-        from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
+        spender: toCaip10Lower({ chainId, address: spender }),
+        from: toCaip10Lower({ chainId, address: from }),
         type: Intents.APPROVE_TOKEN_ALLOWANCE,
         amount,
-        token: encodeEoaAccountId({ chainId, evmAccountAddress: to })
+        token: toCaip10Lower({ chainId, address: to })
       }
       return intent
     } catch {

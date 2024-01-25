@@ -1,4 +1,4 @@
-import { encodeEoaAccountId } from '../../../caip'
+import { toCaip10Lower } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { CallContract } from '../../../intent.types'
 import DecoderStrategy from '../../DecoderStrategy'
@@ -14,8 +14,8 @@ export default class CallContractDecoder extends DecoderStrategy {
   decode(): CallContract {
     const { to, from, chainId, methodId } = this.#input
     const intent: CallContract = {
-      from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
-      contract: encodeEoaAccountId({ chainId, evmAccountAddress: to }),
+      from: toCaip10Lower({ chainId, address: from }),
+      contract: toCaip10Lower({ chainId, address: to }),
       type: Intents.CALL_CONTRACT,
       hexSignature: methodId
     }

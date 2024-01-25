@@ -52,10 +52,10 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.TRANSFER_NATIVE,
-          to: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          to: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
           amount: '16676',
-          token: 'eip155:137/slip44/966'
+          token: 'eip155:137/slip44:966'
         })
       })
       it('decodes approve token allowance', () => {
@@ -71,10 +71,10 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.APPROVE_TOKEN_ALLOWANCE,
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          token: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           amount: '11541971132511365478906515907109950360107522067033065608472376982619868367719',
-          spender: 'eip155:137:0x1111111254eeb25477b68fb85ed929f73a960582'
+          spender: 'eip155:137/0x1111111254eeb25477b68fb85ed929f73a960582'
         })
       })
       it('defaults to contract call intent', () => {
@@ -90,8 +90,8 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.CALL_CONTRACT,
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          contract: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          contract: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           hexSignature: '0xf2d12b12'
         })
       })

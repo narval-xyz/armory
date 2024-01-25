@@ -1,5 +1,6 @@
+import { AssetType as AssetTypeEnum } from '@narval/authz-shared'
 import { AbiParameter } from 'viem'
-import { AssetTypeEnum, Intents } from './domain'
+import { AssetType, Intents, Misc } from './domain'
 import {
   ApproveAllowanceParamsTransform,
   Erc1155SafeTransferFromParamsTransform,
@@ -165,7 +166,7 @@ export type MethodsMapping = {
     name: string
     abi: AbiParameter[]
     transformer: (params: unknown[]) => StandardMethodsParams[K]
-    assetType: AssetTypeEnum
+    assetType: AssetType
     intent: Intents
   }
 }
@@ -182,7 +183,7 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'transferFrom',
     abi: TransferFromAbiParameters,
     transformer: TransferFromParamsTransform,
-    assetType: AssetTypeEnum.UNKNOWN,
+    assetType: Misc.UNKNOWN,
     intent: Intents.CALL_CONTRACT
   },
   [SupportedMethodId.SAFE_TRANSFER_FROM]: {
@@ -231,14 +232,14 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     name: 'handleOps',
     abi: [],
     transformer: UserOpsParamsTransform,
-    assetType: AssetTypeEnum.UNKNOWN,
+    assetType: Misc.UNKNOWN,
     intent: Intents.DEPLOY_ERC_4337_WALLET
   },
   [SupportedMethodId.NULL_METHOD_ID]: {
     name: 'empty data field',
     abi: [],
     transformer: () => ({}),
-    assetType: AssetTypeEnum.UNKNOWN,
+    assetType: Misc.UNKNOWN,
     intent: Intents.TRANSFER_NATIVE
   }
 }

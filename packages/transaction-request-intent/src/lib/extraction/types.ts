@@ -1,4 +1,4 @@
-import { Address, Hex } from 'viem'
+import { Address, Hex } from '@narval/authz-shared'
 
 export type Erc721SafeTransferFromParams = {
   from: Hex

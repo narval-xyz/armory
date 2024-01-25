@@ -7,8 +7,16 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { Action, Alg, AuthorizationRequest, Request, TransactionRequest, hashRequest } from '@narval/authz-shared'
-import { Caip10, Caip19 } from 'packages/transaction-request-intent/src/lib/caip'
+import {
+  Action,
+  Alg,
+  AuthorizationRequest,
+  Caip10Id,
+  Caip19Id,
+  Request,
+  TransactionRequest,
+  hashRequest
+} from '@narval/authz-shared'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
@@ -181,11 +189,11 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 }
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
-  from: TREASURY_WALLET_X.uid as Caip10,
-  to: ACCOUNT_Q_137.uid as Caip10,
+  from: TREASURY_WALLET_X.uid as Caip10Id,
+  to: ACCOUNT_Q_137.uid as Caip10Id,
   type: Intents.TRANSFER_NATIVE,
   amount: toHex(ONE_ETH),
-  token: 'eip155:1/slip44:60' as Caip19 // Caip19 for ETH
+  token: 'eip155:1/slip44:60' as Caip19Id // Caip19 for ETH
 }
 
 export const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {

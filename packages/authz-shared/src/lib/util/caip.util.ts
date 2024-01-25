@@ -44,6 +44,12 @@ export type Account = {
   namespace: Namespace
 }
 
+type Caip10Input = {
+  address: Address
+  chainId: number
+  namespace?: Namespace
+}
+
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-19.md
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-20.md
@@ -59,16 +65,20 @@ export type Token = Account & {
   assetId?: string
 }
 
-export type Coin = {
-  namespace: Namespace
-  chainId: number
-  assetType: AssetType.SLIP44
-  coinType: number
+export enum Slip44SupportedAddresses {
+  ETH = '60',
+  MATIC = '966'
 }
 
-export type Asset = Coin | Token
+type Caip19Input = Caip10Input & {
+  assetType: AssetType
+  assetId?: string
+  chainId: number
+  namespace?: Namespace
+  address: Address
+}
 
-type Result<Value> =
+type ParseResult<Value> =
   | {
       success: false
       error: ErrorCode
@@ -158,24 +168,16 @@ export const safeParseAccount = (value: string): Result<Account> => {
 }
 
 /**
- * Safely gets the account ID from a string value.
+ * Converts a Caip10Input object to a Caip10Id string.
+ * 'namespace' is optional and defaults to 'eip155'.
  *
  * @param value - The string value to parse.
  * @returns A Result object containing the account ID if successful, or an error if unsuccessful.
  */
-export const safeGetAccountId = (value: string): Result<AccountId> => {
-  const result = safeParseAccount(value)
-
-  if (result.success) {
-    return {
-      success: true,
-      value: toAccountId(result.value)
-    }
-  }
-
-  return result
-}
-
+export const toCaip10 = ({ namespace = Namespace.EIP155, chainId, address }: Caip10Input): Caip10Id =>
+  `${namespace}:${chainId}/${address}`
+export const toCaip10Lower = ({ namespace = Namespace.EIP155, chainId, address }: Caip10Input): Caip10Id =>
+  `${namespace}:${chainId}/${address.toLowerCase()}`
 /**
  * Parses the account value.
  *
@@ -292,152 +294,29 @@ export const safeParseAsset = (value: string): Result<Asset> => {
   }
 }
 
+export const isCaip10Id = (value: string): value is Caip10Id => {
+  const match = value.match(/^([^:]+):(\d+)\/(.+)$/)
+  return !!match
+}
+
+export const isCaip19Id = (value: string): value is Caip19Id => {
+  const match = value.match(/^([^:]+):(\d+)\/([^:]+):([^/]+)(?:\/([^/]+))?$/)
+  return !!match
+}
+
 /**
  * Checks if the given asset is a token.
  *
  * @param asset The asset to check.
  * @returns True if the asset is a token, false otherwise.
  */
-export const isToken = (asset: Asset): asset is Token => {
-  return asset.assetType !== AssetType.SLIP44
-}
-
-/**
- * Checks if the given asset is a Coin.
- *
- * @param asset The asset to check.
- * @returns True if the asset is a Coin, false otherwise.
- */
-export const isCoin = (asset: Asset): asset is Coin => {
-  return asset.assetType === AssetType.SLIP44
-}
-
-/**
- * Safely parses a token value.
- *
- * @param value - The token value to parse.
- * @returns The result of parsing the token value.
- */
-export const safeParseToken = (value: string): Result<Token> => {
-  const result = safeParseAsset(value)
-
-  if (result.success) {
-    const asset = result.value
-
-    if (isToken(asset)) {
-      return {
-        success: true,
-        value: asset
-      }
-    }
-  }
-
-  return {
-    success: false,
-    error: ErrorCode.ASSET_IS_NOT_A_TOKEN
-  }
-}
-
-/**
- * Safely parses a string value into a Coin object.
- *
- * @param value - The string value to parse.
- * @returns A Result object containing the parsed Coin if successful, or an error code if unsuccessful.
- */
-export const safeParseCoin = (value: string): Result<Coin> => {
-  const result = safeParseAsset(value)
-
-  if (result.success) {
-    const asset = result.value
-
-    if (isCoin(asset)) {
-      return {
-        success: true,
-        value: asset
-      }
-    }
-  }
-
-  return {
-    success: false,
-    error: ErrorCode.ASSET_IS_NOT_A_COIN
-  }
-}
-
-/**
- * Parses the asset from a string value.
- *
- * @param value - The string value to parse.
- * @throws {CaipError}
- * @returns The parsed asset.
- */
-export const parseAsset = (value: string): Asset => unsafeParse<Asset>(safeParseAsset, value)
-
-/**
- * Parses a string value into a Coin object.
- *
- * @param value The string value to parse.
- * @throws {CaipError}
- * @returns The parsed Coin object.
- */
-export const parseCoin = (value: string): Coin => unsafeParse<Coin>(safeParseCoin, value)
-
-/**
- * Parses a token value.
- *
- * @param value - The token value to parse.
- * @throws {CaipError}
- * @returns The parsed token.
- */
-export const parseToken = (value: string): Token => unsafeParse<Token>(safeParseToken, value)
-
-/**
- * Converts an asset object to an asset ID string.
- *
- * @param input The asset object to convert.
- * @returns The asset ID string.
- */
-export const toAssetId = (input: SetOptional<Asset, 'namespace'>): AssetId => {
-  const asset: Asset = {
-    ...input,
-    namespace: input.namespace || Namespace.EIP155
-  }
-
-  if (isCoin(asset)) {
-    return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.coinType}`
-  }
-
-  if (asset.assetId) {
-    return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.address}/${asset.assetId}`
-  }
-
-  return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.address}`
-}
-
-/**
- * Safely retrieves the asset ID from a given value.
- *
- * @param value The value to parse and retrieve the asset ID from.
- * @returns A Result object containing the success status and the asset ID value.
- */
-export const safeGetAssetId = (value: string): Result<AssetId> => {
-  const result = safeParseAsset(value)
-
-  if (result.success) {
-    return {
-      success: true,
-      value: toAssetId(result.value)
-    }
-  }
-
-  return result
-}
-
-/**
- * Parses the given value and returns the corresponding AssetId.
- *
- * @param value The value to parse.
- * @throws {CaipError}
- * @returns The parsed AssetId.
- */
-export const getAssetId = (value: string): AssetId => unsafeParse<AssetId>(safeGetAssetId, value)
+export const toCaip19 = ({
+  namespace = Namespace.EIP155,
+  chainId,
+  assetType,
+  address,
+  assetId
+}: Caip19Input): Caip19Id =>
+  assetId
+    ? `${namespace}:${chainId}/${assetType}:${address}/${assetId}`
+    : `${namespace}:${chainId}/${assetType}:${address}`

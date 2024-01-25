@@ -1,13 +1,21 @@
-import { TransactionRequest } from '@narval/authz-shared'
-import { Hex, isAddress } from 'viem'
-import { Caip10, encodeEoaAccountId } from './caip'
 import {
-  AssetTypeEnum,
+  AssetType as AssetTypeEnum,
+  Caip10Id,
+  Hex,
+  Namespace,
+  TransactionRequest,
+  isCaip10Id,
+  toCaip10
+} from '@narval/authz-shared'
+import { isAddress } from 'viem'
+import {
+  AssetType,
   ContractCallInput,
   ContractInformation,
   ContractRegistry,
   ContractRegistryInput,
   Intents,
+  Misc,
   NULL_METHOD_ID,
   NativeTransferInput,
   TransactionCategory,
@@ -18,9 +26,9 @@ import {
   WalletType
 } from './domain'
 import { SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
-import { assertHexString, isAssetType, isCaip10, isSupportedMethodId } from './typeguards'
+import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from './typeguards'
 
-export const getMethodId = (data?: string): Hex => (data ? assertHexString(data.slice(0, 10)) : NULL_METHOD_ID)
+export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
 
 export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
   if (methodId === SupportedMethodId.NULL_METHOD_ID) {
@@ -40,8 +48,8 @@ export const buildContractRegistryEntry = ({
   chainId: number
   contractAddress: string
   assetType: string
-}): { [key: Caip10]: AssetTypeEnum } => {
-  const registry: { [key: Caip10]: AssetTypeEnum } = {}
+}): { [key: Caip10Id]: AssetType } => {
+  const registry: { [key: Caip10Id]: AssetType } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new Error('Invalid contract registry entry')
   }
@@ -54,10 +62,13 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
   const registry = new Map()
   input.forEach(({ contract, assetType, walletType }) => {
     const information = {
-      assetType: assetType || AssetTypeEnum.UNKNOWN,
+      assetType: assetType || Misc.UNKNOWN,
       walletType: walletType || WalletType.UNKNOWN
     }
-    if (isCaip10(contract)) {
+    if (isString(contract)) {
+      if (!isCaip10Id(contract)) {
+        throw new Error(`Contract registry key is not a valid Caip10: ${contract}`)
+      }
       registry.set(contract.toLowerCase(), information)
     } else {
       const key = buildContractKey(contract.chainId, contract.address)
@@ -67,12 +78,15 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
   return registry
 }
 
-export const buildContractKey = (chainId: number, contractAddress: Hex): Caip10 =>
-  encodeEoaAccountId({ chainId, evmAccountAddress: contractAddress })
+export const buildContractKey = (
+  chainId: number,
+  contractAddress: Hex,
+  namespace: Namespace = Namespace.EIP155
+): Caip10Id => toCaip10({ namespace, chainId, address: contractAddress })
 
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
-    if (!isCaip10(key)) {
+    if (!isCaip10Id(key)) {
       throw new Error(`Invalid contract registry key: ${key}: ${registry[key]}`)
     }
     if (!isAssetType(registry[key])) {
@@ -95,9 +109,10 @@ export const contractTypeLookup = (
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
   if (!txRequest.nonce) throw new Error('nonce needed to build transaction key')
-  const account = encodeEoaAccountId({
+  const account = toCaip10({
     chainId: txRequest.chainId,
-    evmAccountAddress: txRequest.from
+    address: txRequest.from,
+    namespace: Namespace.EIP155
   })
   return `${account}-${txRequest.nonce}`
 }

@@ -1,4 +1,4 @@
-import { encodeEoaAccountId } from '../../../caip'
+import { toCaip10 } from '@narval/authz-shared'
 import { ContractDeploymentInput, Intents } from '../../../domain'
 import { DeployContract } from '../../../intent.types'
 import DecoderStrategy from '../../DecoderStrategy'
@@ -15,7 +15,7 @@ export default class DeployContractDecoder extends DecoderStrategy {
     const { from, chainId } = this.#input
     const intent: DeployContract = {
       type: Intents.DEPLOY_CONTRACT,
-      from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
+      from: toCaip10({ chainId, address: from }),
       chainId
     }
     return intent

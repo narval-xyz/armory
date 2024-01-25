@@ -1,6 +1,6 @@
+import { AssetType, toCaip10Lower, toCaip19 } from '@narval/authz-shared'
 import { AbiParameter } from 'viem'
-import { encodeEoaAccountId, encodeEoaAssetId } from '../../../caip'
-import { AssetTypeEnum, ContractCallInput, EipStandardEnum, Intents } from '../../../domain'
+import { ContractCallInput, Intents } from '../../../domain'
 import { Erc721SafeTransferFromParams } from '../../../extraction/types'
 import { TransferErc721 } from '../../../intent.types'
 import { Erc721SafeTransferFromAbiParameters } from '../../../supported-methods'
@@ -25,17 +25,16 @@ export default class Erc721TransferDecoder extends DecoderStrategy {
       const params = this.extract(data, methodId) as Erc721SafeTransferFromParams
       const { to, tokenId } = params
       const intent: TransferErc721 = {
-        to: encodeEoaAccountId({ chainId, evmAccountAddress: to }),
-        from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
+        to: toCaip10Lower({ chainId, address: to }),
+        from: toCaip10Lower({ chainId, address: from }),
         type: Intents.TRANSFER_ERC721,
-        nftId: encodeEoaAssetId({
-          eipStandard: EipStandardEnum.EIP155,
-          assetType: AssetTypeEnum.ERC721,
+        nftId: toCaip19({
+          assetType: AssetType.ERC721,
           chainId,
-          evmAccountAddress: contract,
-          tokenId: tokenId.toString()
+          address: contract,
+          assetId: tokenId.toString()
         }),
-        contract: encodeEoaAccountId({ chainId, evmAccountAddress: contract })
+        contract: toCaip10Lower({ chainId, address: contract })
       }
       return intent
     } catch (e) {
