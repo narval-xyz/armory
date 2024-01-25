@@ -12,6 +12,7 @@
     "@docusaurus/module-type-aliases": "3.0.0",
     "@docusaurus/tsconfig": "3.0.0",
     "@docusaurus/types": "3.1.0",
+    "@faker-js/faker": "^8.4.0",
     "@nestjs/schematics": "^10.0.1",
     "@nestjs/testing": "^10.0.2",
     "@nx-plus/docusaurus": "^15.0.0-rc.0",
@@ -63,7 +64,8 @@
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "zod-fixture": "^2.5.1"
   },
   "dependencies": {
     "@bull-board/api": "^5.13.0",

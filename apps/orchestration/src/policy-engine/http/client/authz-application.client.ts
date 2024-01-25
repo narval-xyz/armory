@@ -13,11 +13,11 @@ export class AuthzApplicationClient {
 
   constructor(private httpService: HttpService) {}
 
-  async evaluation(option: { baseUrl: string; data: EvaluationRequest }): Promise<EvaluationResponse> {
+  async evaluation(option: { host: string; data: EvaluationRequest }): Promise<EvaluationResponse> {
     this.logger.log('Sending evaluation request', option)
 
     return lastValueFrom(
-      this.httpService.post(`${option.baseUrl}/evaluation`, option.data).pipe(
+      this.httpService.post(`${option.host}/evaluation`, option.data).pipe(
         tap((response) => {
           this.logger.log('Received evaluation response', {
             status: response.status,

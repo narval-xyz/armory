@@ -114,14 +114,15 @@ export class AuthorizationRequestService {
     }
 
     const evaluation = await this.authzApplicationClient.evaluation({
-      baseUrl: 'http://localhost:3010',
+      host: 'http://localhost:3010',
       data
     })
 
     const status = getStatus(evaluation.decision)
 
     const authzRequest = await this.authzRequestRepository.update({
-      ...input,
+      id: input.id,
+      orgId: input.orgId,
       status,
       evaluations: [
         {
