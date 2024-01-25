@@ -7,12 +7,10 @@ import {
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action } from '@narval/authz-shared'
+import { Action, Intents } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { catchError, lastValueFrom, map, tap } from 'rxjs'
+import { Injectable, Logger } from '@nestjs/common'
 import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { getOkTransfers } from './transfers.mock'
@@ -115,37 +113,10 @@ export class AuthorizationRequestService {
       transfers: getOkTransfers()
     }
 
-    // await this.authzApplicationClient.evaluation({
-    //   baseUrl: 'http://localhost:3010',
-    //   data
-    // })
-
-    this.logger.log('Sending authorization request to cluster evaluation', {
-      authzRequest: input,
-      payload: data
+    const evaluation = await this.authzApplicationClient.evaluation({
+      baseUrl: 'http://localhost:3010',
+      data
     })
-
-    const evaluation = await lastValueFrom(
-      this.httpService.post('http://localhost:3010/evaluation', data).pipe(
-        tap((response) => {
-          this.logger.log('Received evaluation response', {
-            status: response.status,
-            headers: response.headers,
-            response: response.data
-          })
-        }),
-        map((response) => response.data),
-        catchError((error) => {
-          throw new ApplicationException({
-            message: 'Authorization request evaluation failed',
-            suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-            context: {
-              sourceError: error
-            }
-          })
-        })
-      )
-    )
 
     const status = getStatus(evaluation.decision)
 
@@ -165,7 +136,7 @@ export class AuthorizationRequestService {
 
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       const intent = evaluation.transactionRequestIntent
-      if (intent.type === 'transferNative') {
+      if (intent && intent.type === Intents.TRANSFER_NATIVE) {
         const transfer = {
           orgId: authzRequest.orgId,
           from: intent.from,
