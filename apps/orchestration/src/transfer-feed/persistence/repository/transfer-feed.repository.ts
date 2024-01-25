@@ -1,5 +1,5 @@
+import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { CreateTransfer, Transfer } from '@app/orchestration/transfer-feed/core/type/domain.type'
 import { Injectable } from '@nestjs/common'
 import { TransferFeed } from '@prisma/client/orchestration'
 import { v4 as uuid } from 'uuid'

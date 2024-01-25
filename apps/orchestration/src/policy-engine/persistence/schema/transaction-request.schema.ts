@@ -6,7 +6,7 @@ import { z } from 'zod'
  *
  * @see https://viem.sh/docs/glossary/types#address
  */
-const addressSchema = z.custom<`0x${string}`>(
+export const addressSchema = z.custom<`0x${string}`>(
   (value) => {
     const parse = z.string().safeParse(value)
 
@@ -26,7 +26,7 @@ const addressSchema = z.custom<`0x${string}`>(
  *
  * @see https://viem.sh/docs/glossary/types#hex
  */
-const hexSchema = z.custom<`0x${string}`>(
+export const hexSchema = z.custom<`0x${string}`>(
   (value) => {
     const parse = z.string().safeParse(value)
 
@@ -41,18 +41,18 @@ const hexSchema = z.custom<`0x${string}`>(
   }
 )
 
-const accessListSchema = z.object({
+export const accessListSchema = z.object({
   address: addressSchema,
   storageKeys: z.array(hexSchema)
 })
 
 export const readTransactionRequestSchema = z.object({
-  chainId: z.coerce.number(),
+  chainId: z.coerce.number().min(1),
   from: addressSchema,
   nonce: z.coerce.number().optional(),
   accessList: z.array(accessListSchema).optional(),
   data: hexSchema.optional(),
-  gas: z.coerce.bigint().optional(),
+  gas: z.coerce.bigint().min(BigInt(0)).optional(),
   to: addressSchema.optional(),
   type: z.literal('2').optional(),
   value: hexSchema.optional()
