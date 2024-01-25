@@ -6,17 +6,7 @@ transferNftTypes = {"transferERC721", "transferERC1155"}
 
 transferNftAddress = input.intent.contract
 
-extractTokenIdFromCaip19(caip19) := result {
-	arr := split(caip19, "/")
-	result := arr[count(arr) - 1]
-}
-
 checkTransferNftType(values) {
-	values == wildcard
-}
-
-checkTransferNftType(values) {
-	values != wildcard
 	input.intent.type in transferNftTypes
 	input.intent.type in values
 }
@@ -85,4 +75,9 @@ checkERC1155TokenAmount(amount, operation) {
 checkERC1155TokenAmount(amount, operation) {
 	operation.operator == "lte"
 	to_number(operation.value) >= to_number(amount)
+}
+
+extractTokenIdFromCaip19(caip19) := result {
+	arr := split(caip19, "/")
+	result := arr[count(arr) - 1]
 }
