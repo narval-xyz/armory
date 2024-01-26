@@ -8,6 +8,12 @@ one_matic = "1000000000000000000"
 
 ten_matic = "10000000000000000000"
 
+half_matic_value = "495000000000000000"
+
+one_matic_value = "990000000000000000"
+
+ten_matic_value = "9900000000000000000"
+
 test_transferNative {
 	nativeTransactionRequest = {
 		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -85,8 +91,18 @@ test_transferERC20 {
 		with data.entities as entities
 }
 
+test_transferTokenValue {
+	res = transferTokenValue("fiat:usd") with input as request
+		with data.entities as entities
+
+	res == 1000000000000000000 * 0.99
+}
+
 test_checkTransferTokenAmount {
-	checkTransferTokenAmount(wildcard) with input as request
+	checkTransferTokenAmount({"operator": "eq", "value": one_matic}) with input as request
+		with data.entities as entities
+
+	checkTransferTokenAmount({"operator": "neq", "value": ten_matic}) with input as request
 		with data.entities as entities
 
 	checkTransferTokenAmount({"operator": "gt", "value": half_matic}) with input as request
@@ -100,10 +116,24 @@ test_checkTransferTokenAmount {
 
 	checkTransferTokenAmount({"operator": "lte", "value": one_matic}) with input as request
 		with data.entities as entities
+}
 
-	checkTransferTokenAmount({"operator": "eq", "value": one_matic}) with input as request
+test_checkTransferTokenValue {
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "eq", "value": one_matic_value}) with input as request
 		with data.entities as entities
 
-	checkTransferTokenAmount({"operator": "neq", "value": ten_matic}) with input as request
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "neq", "value": ten_matic_value}) with input as request
+		with data.entities as entities
+
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "gt", "value": half_matic_value}) with input as request
+		with data.entities as entities
+
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "lt", "value": ten_matic_value}) with input as request
+		with data.entities as entities
+
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "gte", "value": one_matic_value}) with input as request
+		with data.entities as entities
+
+	checkTransferTokenValue({"currency": "fiat:usd", "operator": "lte", "value": one_matic_value}) with input as request
 		with data.entities as entities
 }

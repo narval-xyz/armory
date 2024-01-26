@@ -99,5 +99,9 @@
       "initiatedBy": "matt@narval.xyz",
       "timestamp": 1705934992613
     }
-  ]
+  ],
+  "prices": {
+    "fiat:usd": "0.99",
+    "fiat:eur": "1.10"
+  }
 }
