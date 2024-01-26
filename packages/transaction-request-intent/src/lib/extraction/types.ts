@@ -1,4 +1,4 @@
-import { Hex } from 'viem'
+import { Address, Hex } from '@narval/authz-shared'
 
 export type Erc721SafeTransferFromParams = {
   from: Hex
@@ -38,6 +38,43 @@ export type SafeBatchTransferFromParams = {
   data: Hex
 }
 
+export type CreateAccountParams = {
+  salt: string
+  pubKey: Hex
+}
+
+export type ExecuteParams = {
+  to: Address
+  value: bigint
+  data: Hex
+}
+
+export type ExecuteAndRevertParams = {
+  to: Address
+  value: bigint
+  data: Hex
+  operation: 'call' | 'delegatecall'
+}
+
+export type UserOp = {
+  sender: Address
+  nonce: string
+  initCode: Hex
+  callData: Hex
+  callGasLimit: string
+  verifyGasLimit: string
+  preVerificationGas: string
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+  paymasterAndData: Hex
+  signature: Hex
+}
+
+export type HandleOpsParams = {
+  userOps: UserOp[]
+  beneficiary: Address
+}
+
 export type NullHexParams = Record<string, never>
 
 export type ExtractedParams =
@@ -47,4 +84,8 @@ export type ExtractedParams =
   | Erc1155SafeTransferFromParams
   | SafeBatchTransferFromParams
   | ApproveAllowanceParams
+  | HandleOpsParams
+  | CreateAccountParams
+  | ExecuteParams
+  | ExecuteAndRevertParams
   | NullHexParams

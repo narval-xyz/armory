@@ -1,6 +1,6 @@
-import { Hex } from 'viem'
-import { Caip10, Caip19 } from './caip'
-import { AssetTypeEnum } from './domain'
+import { Address, AssetType, Hex } from '@narval/authz-shared'
+import { isAddress } from 'viem'
+import { AssetTypeAndUnknown, Misc } from './domain'
 import { SupportedMethodId } from './supported-methods'
 
 export const isString = (value: unknown): value is string => {
@@ -27,6 +27,10 @@ export const assertHexString = (value: unknown): Hex => {
     return value
   }
   throw new Error('Value is not a hex string')
+}
+
+export const assertLowerHexString = (value: unknown): Hex => {
+  return assertHexString(value).toLowerCase() as Hex
 }
 
 export function assertString(value: unknown): string {
@@ -69,16 +73,21 @@ export const isSupportedMethodId = (value: Hex): value is SupportedMethodId => {
   return Object.values(SupportedMethodId).includes(value as SupportedMethodId)
 }
 
+export const assertAddress = (value: unknown): Address => {
+  if (!isString(value) || !isAddress(value)) {
+    throw new Error('Value is not an address')
+  }
+  return value.toLowerCase() as Address
+}
+
 type AssertType = 'string' | 'bigint' | 'number' | 'boolean' | 'hex'
 
-export const isAssetType = (value: unknown): value is AssetTypeEnum =>
-  Object.values(AssetTypeEnum).includes(value as AssetTypeEnum)
+export const isAssetType = (value: unknown): value is AssetTypeAndUnknown => {
+  const types: AssetTypeAndUnknown[] = Object.values(AssetType)
+  types.push(Misc.UNKNOWN)
 
-// TODO: refine these typeguards to be accurate, using reghex and test them
-export const isCaip10 = (value: unknown): value is Caip10 =>
-  isString(value) && value.startsWith('eip155') && !value.includes('eoa')
-export const isCaip19 = (value: unknown): value is Caip19 =>
-  isString(value) && value.startsWith('eip155') && value.includes('/')
+  return types.includes(value as AssetTypeAndUnknown)
+}
 
 export const assertArray = <T>(value: unknown, type: AssertType): T[] => {
   if (!Array.isArray(value)) {
@@ -98,7 +107,7 @@ export const assertArray = <T>(value: unknown, type: AssertType): T[] => {
       return value.map(assertBoolean) as T[]
     }
     case 'hex': {
-      return value.map(assertHexString) as T[]
+      return value.map(assertLowerHexString) as T[]
     }
     default: {
       return value

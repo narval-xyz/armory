@@ -1,8 +1,6 @@
-import { TransactionRequest } from '@narval/authz-shared'
-import { Address, Hex, TypedDataDomain, TypedData as TypedDataParams } from 'viem'
-import { Caip10 } from './caip'
+import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/authz-shared'
+import { TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
-import { SupportedMethodId } from './supported-methods'
 
 export type Message = {
   message: string
@@ -10,16 +8,9 @@ export type Message = {
   from: Address
 }
 
-export enum SigningAlgorithm {
-  ECDSA_SECP256K1, // Standard for transactions and messages
-  ECDSA_SECP256R1, // An alternative to secp256k1, less common
-  ECDSA_KOBLITZ, // Similar to secp256k1 but less used
-  ECDSA_BRAINPOOL // Not standard but included for completeness
-}
-
 export type Raw = {
   rawData: string
-  algorithm: SigningAlgorithm
+  algorithm: Alg
 }
 
 export type TypedData = {
@@ -46,13 +37,18 @@ export type TypedDataInput = {
   typedData: TypedData
 }
 
+export type ContractInformation = {
+  factoryType: WalletType
+  assetType: AssetType
+}
 export type ContractRegistryInput = {
-  contract: Caip10 | { address: Address; chainId: number }
-  assetType: AssetTypeEnum
+  contract: AccountId | { address: Address; chainId: number }
+  assetType?: AssetType
+  factoryType?: WalletType
 }[]
-export type ContractRegistry = Map<Caip10, AssetTypeEnum>
+export type ContractRegistry = Map<AccountId, ContractInformation>
 
-export type TransactionKey = `${Caip10}-${number}`
+export type TransactionKey = `${AccountId}-${number}`
 export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 export type TransactionInput = {
@@ -67,7 +63,7 @@ export type ContractCallInput = {
   from: Hex
   data: Hex
   chainId: number
-  nonce: number
+  nonce?: number
   methodId: Hex
 }
 
@@ -75,16 +71,15 @@ export type NativeTransferInput = {
   to: Hex
   from: Hex
   value: Hex
+  nonce?: number
   chainId: number
-  nonce: number
 }
 
 export type ContractDeploymentInput = {
   from: Hex
+  nonce?: number
   data: Hex
   chainId: number
-  nonce: number
-  methodId: SupportedMethodId
 }
 
 export type ValidatedInput = ContractCallInput | NativeTransferInput | ContractDeploymentInput
@@ -129,6 +124,12 @@ export enum TransactionStatus {
   FAILED = 'failed'
 }
 
+export enum WalletType {
+  SAFE = 'safe',
+  ERC4337 = 'erc4337',
+  UNKNOWN = 'unknown'
+}
+
 export enum Intents {
   TRANSFER_NATIVE = 'transferNative',
   TRANSFER_ERC20 = 'transferErc20',
@@ -146,20 +147,25 @@ export enum Intents {
   SIGN_MESSAGE = 'signMessage',
   SIGN_RAW_MESSAGE = 'signRawMessage',
   SIGN_RAW_PAYLOAD = 'signRawPayload',
-  SIGN_TYPED_DATA = 'signTypedData'
+  SIGN_TYPED_DATA = 'signTypedData',
+  USER_OPERATION = 'userOperation'
 }
 
-export enum AssetTypeEnum {
-  ERC1155 = 'erc1155',
-  ERC20 = 'erc20',
-  ERC721 = 'erc721',
-  NATIVE = 'native',
+export enum Misc {
   UNKNOWN = 'unknown'
 }
 
-export enum EipStandardEnum {
-  EIP155 = 'eip155'
+export type AssetTypeAndUnknown = AssetType | Misc.UNKNOWN
+
+export enum SupportedChains {
+  ETHEREUM = 1,
+  POLYGON = 137,
+  OPTIMISM = 10
 }
 
+export enum Slip44SupportedAddresses {
+  ETH = 60,
+  MATIC = 966
+}
 export const permit2Address = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'
