@@ -3,20 +3,29 @@ package main
 import future.keywords.in
 
 permit[{"policyId": "test-permit-policy-1"}] := reason {
-	checkPrincipal
-	input.action == "signTransaction"
-	checkPrincipalId({"matt@narval.xyz"})
-	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
-	checkTransferTokenType({"transferNative"})
-	checkTransferTokenAddress({"eip155:137/slip44/966"})
-	checkTransferTokenAmount({"operator": "gte", "value": "1000000000000000000"})
+	users = {"matt@narval.xyz"}
+	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
+	transferTypes = {"transferNative"}
+	tokens = {"eip155:137/slip44/966"}
+	transferValueCondition = {"currency": "fiat:usd", "operator": "lte", "value": "1000000000000000000"}
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
 	}]
-	approvals := getApprovalsResult(approvalsRequired)
+
+	checkPrincipal
+	checkNonceExists
+	input.action == "signTransaction"
+	checkPrincipalId(users)
+	checkWalletId(resources)
+	checkTransferTokenType(transferTypes)
+	checkTransferTokenAddress(tokens)
+	checkTransferTokenAmount(transferValueCondition)
+
+	approvals = getApprovalsResult(approvalsRequired)
+
 	reason := {
 		"type": "permit",
 		"policyId": "test-permit-policy-1",
@@ -26,19 +35,30 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 }
 
 forbid[{"policyId": "test-forbid-policy-1"}] := reason {
-	checkPrincipal
-	input.action == "signTransaction"
 	users = {"matt@narval.xyz"}
+	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
+	transferTypes = {"transferNative"}
 	tokens = {"eip155:137/slip44/966"}
+	transferAmountCondition = {"operator": "lte", "value": "1000000000000000000"}
+	currency = "fiat:usd"
+	limit = "1000000000000000000"
+	rollingBasis = (12 * 60) * 60
+
+	checkPrincipal
+	checkNonceExists
+	input.action == "signTransaction"
 	checkPrincipalId(users)
-	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
-	checkTransferTokenType({"transferNative"})
+	checkWalletId(resources)
+	checkTransferTokenType(transferTypes)
 	checkTransferTokenAddress(tokens)
-	limit = to_number("1000000000000000000")
-	startDate = secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))
-	amount = transferTokenValue("fiat:usd")
-	spendings = calculateSpendings({"currency": "fiat:usd", "tokens": tokens, "users": users, "startDate": startDate})
-	checkSpendingLimitReached(spendings, amount, limit)
+	checkTransferTokenAmount(transferAmountCondition)
+	checkSpendings(limit, {
+		"currency": currency,
+		"tokens": tokens,
+		"users": users,
+		"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+	})
+
 	reason := {
 		"type": "forbid",
 		"policyId": "test-forbid-policy-1",
