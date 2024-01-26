@@ -15,8 +15,9 @@ forbid[{"policyId": "test-accumulation-policy-1"}] := reason {
 	checkPrincipalRole(roles)
 	checkTransferTokenType(transferTypes)
 	checkTransferTokenAddress(tokens)
-	spendings = getUsdSpendingAmount({"tokens": tokens, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "tokens": tokens, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
 	reason := {
 		"type": "forbid",
 		"policyId": "test-accumulation-policy-1",
@@ -38,8 +39,9 @@ forbid[{"policyId": "test-accumulation-policy-2"}] := reason {
 	checkPrincipalId(users)
 	checkTransferTokenType(transferTypes)
 	checkTransferTokenAddress(tokens)
-	spendings = getUsdSpendingAmount({"tokens": tokens, "users": users, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "tokens": tokens, "users": users, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
 
 	reason := {
 		"type": "forbid",
@@ -60,8 +62,10 @@ forbid[{"policyId": "test-accumulation-policy-3"}] := reason {
 	startDate = secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))
 	checkTransferTokenType(transferTypes)
 	checkWalletId(resources)
-	spendings = getUsdSpendingAmount({"resources": resources, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "resources": resources, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
+
 	reason := {
 		"type": "forbid",
 		"policyId": "test-accumulation-policy-3",
@@ -80,8 +84,10 @@ forbid[{"policyId": "test-accumulation-policy-4"}] := reason {
 	limit = to_number("5000000000")
 	startDate = secondsToNanoSeconds(nowSeconds - ((24 * 60) * 60))
 	checkTransferTokenType(transferTypes)
-	spendings = getUsdSpendingAmount({"userGroups": userGroups, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "userGroups": userGroups, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
+
 	reason := {
 		"type": "forbid",
 		"policyId": "test-accumulation-policy-4",
@@ -100,8 +106,9 @@ forbid[{"policyId": "test-accumulation-policy-5"}] := reason {
 	limit = to_number("5000000000")
 	startDate = secondsToNanoSeconds(nowSeconds - ((24 * 60) * 60))
 	checkTransferTokenType(transferTypes)
-	spendings = getUsdSpendingAmount({"walletGroups": walletGroups, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "walletGroups": walletGroups, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
 	reason := {
 		"type": "forbid",
 		"policyId": "test-accumulation-policy-5",

@@ -6,6 +6,8 @@ transferTokenTypes = {"transferNative", "transferERC20"}
 
 transferTokenAmount = to_number(input.intent.amount)
 
+transferTokenValue(currency) = to_number(input.intent.amount) * to_number(input.prices[currency])
+
 # transferNative
 transferTokenAddress = input.intent.token
 
@@ -26,43 +28,66 @@ checkTransferTokenAddress(values) {
 	transferTokenAddress in values
 }
 
-checkTransferTokenAmount(condition) {
-	condition == wildcard
-}
+# Transfer Token Amount
 
-# Ex: condition = {"operator": "eq", "value": "1000000000000000000"}
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "eq"
 	to_number(condition.value) == transferTokenAmount
 }
 
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "neq"
 	to_number(condition.value) != transferTokenAmount
 }
 
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "gt"
 	to_number(condition.value) < transferTokenAmount
 }
 
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "lt"
 	to_number(condition.value) > transferTokenAmount
 }
 
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "gte"
 	to_number(condition.value) <= transferTokenAmount
 }
 
 checkTransferTokenAmount(condition) {
-	condition != wildcard
 	condition.operator == "lte"
 	to_number(condition.value) >= transferTokenAmount
+}
+
+# Transfer Token Value
+
+checkTransferTokenValue(condition) {
+	condition.operator == "eq"
+	to_number(condition.value) == transferTokenValue(condition.currency)
+}
+
+checkTransferTokenValue(condition) {
+	condition.operator == "neq"
+	to_number(condition.value) != transferTokenValue(condition.currency)
+}
+
+checkTransferTokenValue(condition) {
+	condition.operator == "gt"
+	to_number(condition.value) < transferTokenValue(condition.currency)
+}
+
+checkTransferTokenValue(condition) {
+	condition.operator == "lt"
+	to_number(condition.value) > transferTokenValue(condition.currency)
+}
+
+checkTransferTokenValue(condition) {
+	condition.operator == "gte"
+	to_number(condition.value) <= transferTokenValue(condition.currency)
+}
+
+checkTransferTokenValue(condition) {
+	condition.operator == "lte"
+	to_number(condition.value) >= transferTokenValue(condition.currency)
 }
