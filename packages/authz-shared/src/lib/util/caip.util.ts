@@ -112,6 +112,12 @@ const matchAccountId = (value: string) => {
   }
 }
 
+/**
+ * Safely parses an account value and returns the result.
+ *
+ * @param value The account value to parse.
+ * @returns The result of parsing the account value.
+ */
 export const safeParseAccount = (value: string): Result<Account> => {
   const match = matchAccountId(value)
 
@@ -150,6 +156,12 @@ export const safeParseAccount = (value: string): Result<Account> => {
   }
 }
 
+/**
+ * Safely gets the account ID from a string value.
+ *
+ * @param value - The string value to parse.
+ * @returns A Result object containing the account ID if successful, or an error if unsuccessful.
+ */
 export const safeGetAccountId = (value: string): Result<AccountId> => {
   const result = safeParseAccount(value)
 
@@ -163,10 +175,30 @@ export const safeGetAccountId = (value: string): Result<AccountId> => {
   return result
 }
 
+/**
+ * Parses the account value.
+ *
+ * @param value - The value to parse.
+ * @throws {CaipError}
+ * @returns The parsed account.
+ */
 export const parseAccount = (value: string): Account => unsafeParse<Account>(safeParseAccount, value)
 
+/**
+ * Parses the value and returns the AccountId.
+ *
+ * @param value - The value to parse.
+ * @throws {CaipError}
+ * @returns The parsed AccountId.
+ */
 export const getAccountId = (value: string): AccountId => unsafeParse<AccountId>(safeGetAccountId, value)
 
+/**
+ * Converts an Account object to an AccountId string.
+ *
+ * @param {Account} account - The Account object to convert.
+ * @returns {AccountId} The converted AccountId string.
+ */
 export const toAccountId = ({ namespace = Namespace.EIP155, chainId, address }: Account): AccountId =>
   `${namespace}:${chainId}/${address}`
 
@@ -192,6 +224,12 @@ const matchAssetId = (value: string) => {
   }
 }
 
+/**
+ * Safely parses a CAIP asset string and returns the result.
+ *
+ * @param value The CAIP asset string to parse.
+ * @returns The result of parsing the CAIP asset string.
+ */
 export const safeParseAsset = (value: string): Result<Asset> => {
   const match = matchAssetId(value)
 
@@ -253,14 +291,32 @@ export const safeParseAsset = (value: string): Result<Asset> => {
   }
 }
 
+/**
+ * Checks if the given asset is a token.
+ *
+ * @param asset The asset to check.
+ * @returns True if the asset is a token, false otherwise.
+ */
 export const isToken = (asset: Asset): asset is Token => {
   return asset.assetType !== AssetType.SLIP44
 }
 
+/**
+ * Checks if the given asset is a Coin.
+ *
+ * @param asset The asset to check.
+ * @returns True if the asset is a Coin, false otherwise.
+ */
 export const isCoin = (asset: Asset): asset is Coin => {
   return asset.assetType === AssetType.SLIP44
 }
 
+/**
+ * Safely parses a token value.
+ *
+ * @param value - The token value to parse.
+ * @returns The result of parsing the token value.
+ */
 export const safeParseToken = (value: string): Result<Token> => {
   const result = safeParseAsset(value)
 
@@ -281,6 +337,12 @@ export const safeParseToken = (value: string): Result<Token> => {
   }
 }
 
+/**
+ * Safely parses a string value into a Coin object.
+ *
+ * @param value - The string value to parse.
+ * @returns A Result object containing the parsed Coin if successful, or an error code if unsuccessful.
+ */
 export const safeParseCoin = (value: string): Result<Coin> => {
   const result = safeParseAsset(value)
 
@@ -301,12 +363,39 @@ export const safeParseCoin = (value: string): Result<Coin> => {
   }
 }
 
+/**
+ * Parses the asset from a string value.
+ *
+ * @param value - The string value to parse.
+ * @throws {CaipError}
+ * @returns The parsed asset.
+ */
 export const parseAsset = (value: string): Asset => unsafeParse<Asset>(safeParseAsset, value)
 
+/**
+ * Parses a string value into a Coin object.
+ *
+ * @param value The string value to parse.
+ * @throws {CaipError}
+ * @returns The parsed Coin object.
+ */
 export const parseCoin = (value: string): Coin => unsafeParse<Coin>(safeParseCoin, value)
 
+/**
+ * Parses a token value.
+ *
+ * @param value - The token value to parse.
+ * @throws {CaipError}
+ * @returns The parsed token.
+ */
 export const parseToken = (value: string): Token => unsafeParse<Token>(safeParseToken, value)
 
+/**
+ * Converts an asset object to an asset ID string.
+ *
+ * @param asset The asset object to convert.
+ * @returns The asset ID string.
+ */
 export const toAssetId = (asset: Asset): AssetId => {
   if (isCoin(asset)) {
     return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.coinType}`
@@ -319,6 +408,12 @@ export const toAssetId = (asset: Asset): AssetId => {
   return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.address}`
 }
 
+/**
+ * Safely retrieves the asset ID from a given value.
+ *
+ * @param value The value to parse and retrieve the asset ID from.
+ * @returns A Result object containing the success status and the asset ID value.
+ */
 export const safeGetAssetId = (value: string): Result<AssetId> => {
   const result = safeParseAsset(value)
 
@@ -332,4 +427,11 @@ export const safeGetAssetId = (value: string): Result<AssetId> => {
   return result
 }
 
+/**
+ * Parses the given value and returns the corresponding AssetId.
+ *
+ * @param value The value to parse.
+ * @throws {CaipError}
+ * @returns The parsed AssetId.
+ */
 export const getAssetId = (value: string): AssetId => unsafeParse<AssetId>(safeGetAssetId, value)

@@ -64,3 +64,10 @@ safeParseAsset('eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f')
 safeParseToken('eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f')
 safeParseCoin('eip155:1/slip44:60')
 ```
+
+### Reference
+
+- https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
+- https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-19.md
+- https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-20.md
+- https://github.com/satoshilabs/slips/blob/master/slip-0044.md
