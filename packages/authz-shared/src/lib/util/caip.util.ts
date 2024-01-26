@@ -1,3 +1,4 @@
+import { SetOptional } from 'type-fest'
 import { Address, getAddress, isAddress } from 'viem'
 import { toEnum } from './enum.util'
 
@@ -393,10 +394,15 @@ export const parseToken = (value: string): Token => unsafeParse<Token>(safeParse
 /**
  * Converts an asset object to an asset ID string.
  *
- * @param asset The asset object to convert.
+ * @param input The asset object to convert.
  * @returns The asset ID string.
  */
-export const toAssetId = (asset: Asset): AssetId => {
+export const toAssetId = (input: SetOptional<Asset, 'namespace'>): AssetId => {
+  const asset: Asset = {
+    ...input,
+    namespace: input.namespace || Namespace.EIP155
+  }
+
   if (isCoin(asset)) {
     return `${asset.namespace}:${asset.chainId}/${asset.assetType}:${asset.coinType}`
   }
