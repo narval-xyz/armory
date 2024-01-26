@@ -1,3 +1,4 @@
+import { AssetType } from '@narval/authz-shared'
 import Decoder from '../../decoders/Decoder'
 import { InputType, Intents, TransactionStatus } from '../../domain'
 import { buildTransactionKey, buildTransactionRegistry } from '../../utils'
@@ -13,6 +14,10 @@ describe('decode', () => {
 
   const transactionRegistry = buildTransactionRegistry([])
   beforeEach(() => {
+    console.log('REMOVE THIS')
+    console.log('### Testing lib-to-lib import', AssetType.ERC1155)
+    console.log('REMOVE THIS')
+
     decoder = new Decoder({})
   })
   describe('transaction request input', () => {
