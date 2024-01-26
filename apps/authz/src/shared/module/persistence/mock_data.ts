@@ -8,11 +8,11 @@ import {
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
 import {
+  AccountId,
   Action,
   Alg,
+  AssetId,
   AuthorizationRequest,
-  Caip10Id,
-  Caip19Id,
   Request,
   TransactionRequest,
   hashRequest
@@ -189,11 +189,11 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 }
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
-  from: TREASURY_WALLET_X.uid as Caip10Id,
-  to: ACCOUNT_Q_137.uid as Caip10Id,
+  from: TREASURY_WALLET_X.uid as AccountId,
+  to: ACCOUNT_Q_137.uid as AccountId,
   type: Intents.TRANSFER_NATIVE,
   amount: toHex(ONE_ETH),
-  token: 'eip155:1/slip44:60' as Caip19Id // Caip19 for ETH
+  token: 'eip155:1/slip44:60' as AssetId // Caip19 for ETH
 }
 
 export const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
