@@ -68,33 +68,35 @@ checkAccWalletGroups(walletId, values) {
 	group in values
 }
 
-getSpendingAmount(transfer, currency) = result {
+calcSpending(transfer, currency) = result {
 	currency == wildcard
 	result := to_number(transfer.amount)
 }
 
-getSpendingAmount(transfer, currency) = result {
+calcSpending(transfer, currency) = result {
 	currency != wildcard
 	result := to_number(transfer.amount) * to_number(transfer.rates[currency])
 }
 
-calculateSpendings(filters) = result {
+checkSpendings(limit, filters) {
 	conditions = object.union(
 		{
-			"currency": "*",
-			"tokens": "*",
-			"users": "*",
-			"resources": "*",
-			"chains": "*",
-			"userGroups": "*",
-			"walletGroups": "*",
-			"startDate": "*",
-			"endDate": "*",
+			"currency": wildcard,
+			"tokens": wildcard,
+			"users": wildcard,
+			"resources": wildcard,
+			"chains": wildcard,
+			"userGroups": wildcard,
+			"walletGroups": wildcard,
+			"startDate": wildcard,
+			"endDate": wildcard,
 		},
 		filters,
 	)
 
-	result := sum([amount |
+	amount = transferTokenAmount(conditions.currency)
+
+	spendings := sum([spending |
 		transfer := input.transfers[_]
 
 		# filter by user groups
@@ -121,10 +123,8 @@ calculateSpendings(filters) = result {
 		# filter by end date
 		checkAccEndDate(transfer.timestamp, conditions.endDate)
 
-		amount := getSpendingAmount(transfer, conditions.currency)
+		spending := calcSpending(transfer, conditions.currency)
 	])
-}
 
-checkSpendingLimitReached(spendings, amount, limit) {
-	spendings + amount > limit
+	spendings + amount > to_number(limit)
 }
