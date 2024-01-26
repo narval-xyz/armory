@@ -1,11 +1,11 @@
-import { Address, Intent, Intents, toCaip10 } from '@narval/authz-shared'
+import { Address } from '@narval/authz-shared'
 import { Hex } from 'viem'
-import { ContractCallInput, InputType } from '../../../domain'
+import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { ExecuteParams, HandleOpsParams } from '../../../extraction/types'
-import { UserOperation } from '../../../intent.types'
+import { Intent, UserOperation } from '../../../intent.types'
 import { SupportedMethodId } from '../../../supported-methods'
 import { assertAddress, assertHexString, isSupportedMethodId } from '../../../typeguards'
-import { getMethodId } from '../../../utils'
+import { getMethodId, toAccountIdLowerCase } from '../../../utils'
 import Decoder from '../../Decoder'
 import DecoderStrategy from '../../DecoderStrategy'
 
@@ -53,8 +53,8 @@ export default class UserOperationDecoder extends DecoderStrategy {
     }
     const intent: UserOperation = {
       type: Intents.USER_OPERATION,
-      from: toCaip10({ chainId, address: from }),
-      entrypoint: toCaip10({ chainId, address: to }),
+      from: toAccountIdLowerCase({ chainId, address: from }),
+      entrypoint: toAccountIdLowerCase({ chainId, address: to }),
       operationIntents: intents,
       beneficiary
     }

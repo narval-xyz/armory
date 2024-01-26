@@ -1,4 +1,4 @@
-import { Caip10Id, Caip19Id, TransactionRequest } from '@narval/authz-shared'
+import { AccountId, AssetId, TransactionRequest, getAssetId } from '@narval/authz-shared'
 import { Address } from 'viem'
 import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'
@@ -239,10 +239,10 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
   type: Intents.TRANSFER_NATIVE,
-  to: 'eip155:137/eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as Caip10Id,
-  from: 'eip155:137/eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as Caip10Id,
+  to: 'eip155:137/eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as AccountId,
+  from: 'eip155:137/eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as AccountId,
   amount: '0x8000',
-  token: 'eip155:1/slip44/60' as Caip19Id // Caip19Id for ETH
+  token: getAssetId('eip155:1/slip44:60')
 }
 
 const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
@@ -256,9 +256,9 @@ const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
 
 const ERC20_TRANSFER_INTENT: TransferErc20 = {
   type: Intents.TRANSFER_ERC20,
-  to: `eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed` as Caip10Id,
-  from: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}` as Caip10Id,
-  contract: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as Caip10Id,
+  to: `eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed` as AccountId,
+  from: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}` as AccountId,
+  contract: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as AccountId,
   amount: '428406414311469998210669'
 }
 
@@ -273,10 +273,10 @@ const ERC721_SAFE_TRANSFER_FROM_TX_REQUEST: TransactionRequest = {
 
 const ERC721_SAFE_TRANSFER_FROM_INTENT: TransferErc721 = {
   type: Intents.TRANSFER_ERC721,
-  to: `eip155:137/0xb253f6156e64b12ba0dec3974062dbbaee139f0c` as Caip10Id,
-  from: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as Caip10Id,
-  contract: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as Caip10Id,
-  nftId: `eip155:137/erc721:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to}/41173` as Caip19Id
+  to: `eip155:137/0xb253f6156e64b12ba0dec3974062dbbaee139f0c` as AccountId,
+  from: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as AccountId,
+  contract: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as AccountId,
+  nftId: `eip155:137/erc721:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to}/41173` as AssetId
 }
 
 export const mockErc721SafeTransferFrom = {
@@ -303,9 +303,9 @@ export const mockTransferFrom = {
     }
   } as TransactionInput,
   intent: {
-    to: `eip155:137/0x59895c2cdaa07cc3ac20ef0918d2597a277b276c` as Caip10Id,
-    from: `eip155:137/${TREASURY_WALLET_X.address}` as Caip10Id,
-    contract: `eip155:137/${ACCOUNT_Q_137.address}` as Caip10Id,
+    to: `eip155:137/0x59895c2cdaa07cc3ac20ef0918d2597a277b276c` as AccountId,
+    from: `eip155:137/${TREASURY_WALLET_X.address}` as AccountId,
+    contract: `eip155:137/${ACCOUNT_Q_137.address}` as AccountId,
     amount: '5532'
   }
 }
@@ -321,12 +321,10 @@ const ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST: TransactionRequest = {
 
 const ERC1155_SAFE_TRANSFER_FROM_INTENT: TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155,
-  to: `eip155:137/0x00ca04c45da318d5b7e7b14d5381ca59f09c73f0` as Caip10Id,
-  from: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as Caip10Id,
-  contract: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as Caip10Id,
-  transfers: [
-    { tokenId: `eip155:137/erc1155:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to}/175` as Caip19Id, amount: '1' }
-  ]
+  to: `eip155:137/0x00ca04c45da318d5b7e7b14d5381ca59f09c73f0` as AccountId,
+  from: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as AccountId,
+  contract: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as AccountId,
+  transfers: [{ tokenId: `eip155:137/erc1155:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to}/175` as AssetId, amount: '1' }]
 }
 export const mockErc1155SafeTransferFrom = {
   input: {
@@ -346,16 +344,16 @@ const ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST = {
 
 const ERC1155_BATCH_SAFE_TRANSFER_FROM_INTENT = {
   type: Intents.TRANSFER_ERC1155,
-  from: `eip155:137/${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.from.toLowerCase()}` as Caip10Id,
-  to: `eip155:137/0x383370726a5bd619e0d2af8ef37a58013b823a8c` as Caip10Id,
-  contract: `eip155:137/${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to?.toLowerCase()}` as Caip10Id,
+  from: `eip155:137/${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.from.toLowerCase()}` as AccountId,
+  to: `eip155:137/0x383370726a5bd619e0d2af8ef37a58013b823a8c` as AccountId,
+  contract: `eip155:137/${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to?.toLowerCase()}` as AccountId,
   transfers: [
     {
-      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/2972` as Caip19Id,
+      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/2972` as AssetId,
       amount: '1'
     },
     {
-      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/162` as Caip19Id,
+      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/162` as AssetId,
       amount: '1'
     }
   ]

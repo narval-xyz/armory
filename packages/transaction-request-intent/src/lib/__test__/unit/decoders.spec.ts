@@ -9,22 +9,22 @@ import {
   mockErc20Transfer,
   mockErc721SafeTransferFrom
 } from './mocks'
-jest.mock('@narval/authz-shared', () => {
-  const originalModule = jest.requireActual('@narval/authz-shared')
+// jest.mock('@narval/authz-shared', () => {
+//   const originalModule = jest.requireActual('@narval/authz-shared')
 
-  return {
-    ...originalModule,
-    AssetType: {
-      ERC1155: 'erc1155',
-      ERC20: 'erc20',
-      ERC721: 'erc721',
-      SLIP44: 'slip44'
-    },
-    Namespace: {
-      EIP155: 'eip155'
-    }
-  }
-})
+//   return {
+//     ...originalModule,
+//     AssetType: {
+//       ERC1155: 'erc1155',
+//       ERC20: 'erc20',
+//       ERC721: 'erc721',
+//       SLIP44: 'slip44'
+//     },
+//     Namespace: {
+//       EIP155: 'eip155'
+//     }
+//   }
+// })
 
 describe('decode', () => {
   let decoder: Decoder

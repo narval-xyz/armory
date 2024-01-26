@@ -1,8 +1,8 @@
-import { toCaip10Lower } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { TransferParams } from '../../../extraction/types'
 import { TransferErc20 } from '../../../intent.types'
 import { isSupportedMethodId } from '../../../typeguards'
+import { toAccountIdLowerCase } from '../../../utils'
 import DecoderStrategy from '../../DecoderStrategy'
 
 export default class Erc20TransferDecoder extends DecoderStrategy {
@@ -22,11 +22,13 @@ export default class Erc20TransferDecoder extends DecoderStrategy {
     try {
       const { amount, recipient } = params
       const intent: TransferErc20 = {
-        to: toCaip10Lower({ chainId, address: recipient }),
-        from: toCaip10Lower({ chainId, address: from }),
+        // TODO: Please, please, please, lower case in a single place at the
+        // entry point of the system.
+        to: toAccountIdLowerCase({ chainId, address: recipient }),
+        from: toAccountIdLowerCase({ chainId, address: from }),
         type: Intents.TRANSFER_ERC20,
         amount,
-        contract: toCaip10Lower({ chainId, address: to })
+        contract: toAccountIdLowerCase({ chainId, address: to })
       }
 
       return intent

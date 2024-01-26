@@ -1,4 +1,4 @@
-import { AssetType, toCaip10, toCaip19 } from '@narval/authz-shared'
+import { AssetType, toAccountId, toAssetId } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../../../extraction/types'
 import { ERC1155Transfer, TransferErc1155 } from '../../../intent.types'
@@ -27,7 +27,7 @@ export default class ERC1155TransferDecoder extends DecoderStrategy {
     ) {
       const { to, tokenId, amount } = params as Erc1155SafeTransferFromParams
       transfers.push({
-        tokenId: toCaip19({
+        tokenId: toAssetId({
           assetType: AssetType.ERC1155,
           chainId,
           address: contract,
@@ -36,18 +36,18 @@ export default class ERC1155TransferDecoder extends DecoderStrategy {
         amount
       })
       const intent: TransferErc1155 = {
-        to: toCaip10({ chainId, address: to }),
-        from: toCaip10({ chainId, address: from }),
+        to: toAccountId({ chainId, address: to }),
+        from: toAccountId({ chainId, address: from }),
         type: Intents.TRANSFER_ERC1155,
         transfers,
-        contract: toCaip10({ chainId, address: contract })
+        contract: toAccountId({ chainId, address: contract })
       }
       return intent
     } else if (methodId === SupportedMethodId.SAFE_BATCH_TRANSFER_FROM) {
       const { to, tokenIds, amounts } = params as SafeBatchTransferFromParams
       tokenIds.forEach((tokenId, index) => {
         transfers.push({
-          tokenId: toCaip19({
+          tokenId: toAssetId({
             assetType: AssetType.ERC1155,
             chainId,
             address: contract,
@@ -57,11 +57,11 @@ export default class ERC1155TransferDecoder extends DecoderStrategy {
         })
       })
       const intent: TransferErc1155 = {
-        to: toCaip10({ chainId, address: to }),
-        from: toCaip10({ chainId, address: from }),
+        to: toAccountId({ chainId, address: to }),
+        from: toAccountId({ chainId, address: from }),
         type: Intents.TRANSFER_ERC1155,
         transfers,
-        contract: toCaip10({ chainId, address: contract })
+        contract: toAccountId({ chainId, address: contract })
       }
       return intent
     }

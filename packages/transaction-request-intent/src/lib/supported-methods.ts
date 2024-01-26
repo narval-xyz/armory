@@ -263,3 +263,6 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     intent: Intents.TRANSFER_NATIVE
   }
 }
+
+// TODO FIX ME
+console.log('### Testing lib-to-lib import', AssetType.ERC1155)

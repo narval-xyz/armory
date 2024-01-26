@@ -1,4 +1,17 @@
-import { AssetType, Caip10Id, Hex, Namespace, TransactionRequest, isCaip10Id, toCaip10 } from '@narval/authz-shared'
+import {
+  Account,
+  AccountId,
+  Asset,
+  AssetId,
+  AssetType,
+  Hex,
+  Namespace,
+  TransactionRequest,
+  isAccountId,
+  toAccountId,
+  toAssetId
+} from '@narval/authz-shared'
+import { SetOptional } from 'type-fest'
 import { Address, isAddress } from 'viem'
 import {
   AssetTypeAndUnknown,
@@ -40,8 +53,8 @@ export const buildContractRegistryEntry = ({
   chainId: number
   contractAddress: string
   assetType: string
-}): { [key: Caip10Id]: AssetTypeAndUnknown } => {
-  const registry: { [key: Caip10Id]: AssetTypeAndUnknown } = {}
+}): { [key: AccountId]: AssetTypeAndUnknown } => {
+  const registry: { [key: AccountId]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new Error('Invalid contract registry entry')
   }
@@ -58,7 +71,7 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
       factoryType: factoryType || WalletType.UNKNOWN
     }
     if (isString(contract)) {
-      if (!isCaip10Id(contract)) {
+      if (!isAccountId(contract)) {
         throw new Error(`Contract registry key is not a valid Caip10: ${contract}`)
       }
       registry.set(contract.toLowerCase(), information)
@@ -74,11 +87,11 @@ export const buildContractKey = (
   chainId: number,
   contractAddress: Hex,
   namespace: Namespace = Namespace.EIP155
-): Caip10Id => toCaip10({ namespace, chainId, address: contractAddress })
+): AccountId => toAccountId({ namespace, chainId, address: contractAddress })
 
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
-    if (!isCaip10Id(key)) {
+    if (!isAccountId(key)) {
       throw new Error(`Invalid contract registry key: ${key}: ${registry[key]}`)
     }
     if (!isAssetType(registry[key])) {
@@ -106,7 +119,7 @@ export const contractTypeLookup = (
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
   if (!txRequest.nonce) throw new Error('nonce needed to build transaction key')
-  const account = toCaip10({
+  const account = toAccountId({
     chainId: txRequest.chainId,
     address: txRequest.from,
     namespace: Namespace.EIP155
@@ -209,3 +222,9 @@ export const getMasterContractAddress = (bytecode: Hex): string | null => {
 
   return null // Return null if the bytecode doesn't match the expected pattern
 }
+
+export const toAccountIdLowerCase = (input: SetOptional<Account, 'namespace'>): AccountId =>
+  toAccountId(input).toLowerCase() as AccountId
+
+export const toAssetIdLowerCase = (input: SetOptional<Asset, 'namespace'>): AssetId =>
+  toAssetId(input).toLowerCase() as AssetId

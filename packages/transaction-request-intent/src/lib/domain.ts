@@ -1,4 +1,4 @@
-import { Address, Alg, AssetType, Caip10Id, Hex, TransactionRequest } from '@narval/authz-shared'
+import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/authz-shared'
 import { TypedDataDomain, TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 
@@ -42,13 +42,13 @@ export type ContractInformation = {
   assetType: AssetType
 }
 export type ContractRegistryInput = {
-  contract: Caip10Id | { address: Address; chainId: number }
+  contract: AccountId | { address: Address; chainId: number }
   assetType?: AssetType
   factoryType?: WalletType
 }[]
-export type ContractRegistry = Map<Caip10Id, ContractInformation>
+export type ContractRegistry = Map<AccountId, ContractInformation>
 
-export type TransactionKey = `${Caip10Id}-${number}`
+export type TransactionKey = `${AccountId}-${number}`
 export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 export type TransactionInput = {

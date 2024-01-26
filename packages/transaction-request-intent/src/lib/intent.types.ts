@@ -1,93 +1,93 @@
-import { Alg, Caip10Id, Caip19Id, Hex } from '@narval/authz-shared'
+import { AccountId, Alg, AssetId, Hex } from '@narval/authz-shared'
 import { Address, TypedData } from 'viem'
 import { Intents } from './domain'
 
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
-  to: Caip10Id
-  from: Caip10Id
-  token: Caip19Id
+  to: AccountId
+  from: AccountId
+  token: AssetId
   amount: string
 }
 
 export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
-  to: Caip10Id
-  from: Caip10Id
-  contract: Caip10Id
+  to: AccountId
+  from: AccountId
+  contract: AccountId
   amount: string
 }
 
 export type TransferErc721 = {
   type: Intents.TRANSFER_ERC721
-  to: Caip10Id
-  from: Caip10Id
-  contract: Caip10Id
-  nftId: Caip19Id
+  to: AccountId
+  from: AccountId
+  contract: AccountId
+  nftId: AssetId
 }
 
 export type ERC1155Transfer = {
-  tokenId: Caip19Id
+  tokenId: AssetId
   amount: string
 }
 
 export type TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155
-  to: Caip10Id
-  from: Caip10Id
-  contract: Caip10Id
+  to: AccountId
+  from: AccountId
+  contract: AccountId
   transfers: ERC1155Transfer[]
 }
 
 export type CallContract = {
   type: Intents.CALL_CONTRACT
-  to?: Caip10Id // in case we fall back to CallContract from a transfer function
-  from: Caip10Id
-  contract: Caip10Id
+  to?: AccountId // in case we fall back to CallContract from a transfer function
+  from: AccountId
+  contract: AccountId
   hexSignature: Hex
 }
 
 export type SignMessage = {
   type: Intents.SIGN_MESSAGE
-  from: Caip10Id
+  from: AccountId
   message: string
 }
 
 export type SignRawMessage = {
   type: Intents.SIGN_RAW_MESSAGE
-  from: Caip10Id
+  from: AccountId
   message: string
 }
 
 export type SignRawPayload = {
   type: Intents.SIGN_RAW_PAYLOAD
-  from: Caip10Id
+  from: AccountId
   algorithm: Alg
   payload: string
 }
 
 export type SignTypedData = {
   type: Intents.SIGN_TYPED_DATA
-  from: Caip10Id
+  from: AccountId
   typedData: TypedData
 }
 
 export type DeployContract = {
   type: Intents.DEPLOY_CONTRACT
-  from: Caip10Id
+  from: AccountId
   chainId: number
 }
 
 export type DeployErc4337Wallet = {
   type: Intents.DEPLOY_ERC_4337_WALLET
-  from: Caip10Id
+  from: AccountId
   bytecode: Hex
   chainId: number
 }
 
 export type DeploySafeWallet = {
   type: Intents.DEPLOY_SAFE_WALLET
-  from: Caip10Id
+  from: AccountId
   chainId: number
 }
 
@@ -101,32 +101,32 @@ export type CancelTransaction = {
 
 export type ApproveTokenAllowance = {
   type: Intents.APPROVE_TOKEN_ALLOWANCE
-  from: Caip10Id
-  token: Caip10Id
-  spender: Caip10Id
+  from: AccountId
+  token: AssetId
+  spender: AccountId
   amount: string
 }
 
 export type Permit = {
   type: Intents.PERMIT
-  from: Caip10Id
-  spender: Caip10Id
+  from: AccountId
+  spender: AccountId
   amount: string
   deadline: string
 }
 
 export type Permit2 = {
   type: Intents.PERMIT2
-  from: Caip10Id
-  spender: Caip10Id
+  from: AccountId
+  spender: AccountId
   amount: string
   deadline: string
 }
 
 export type UserOperation = {
   type: Intents.USER_OPERATION
-  from: Caip10Id
-  entrypoint: Caip10Id
+  from: AccountId
+  entrypoint: AccountId
   operationIntents: Intent[]
   beneficiary: Address
 }
