@@ -45,8 +45,15 @@ export type CreateAccountParams = {
 
 export type ExecuteParams = {
   to: Address
-  value: Hex
+  value: bigint
   data: Hex
+}
+
+export type ExecuteAndRevertParams = {
+  to: Address
+  value: bigint
+  data: Hex
+  operation: 'call' | 'delegatecall'
 }
 
 export type UserOp = {
@@ -80,4 +87,5 @@ export type ExtractedParams =
   | HandleOpsParams
   | CreateAccountParams
   | ExecuteParams
+  | ExecuteAndRevertParams
   | NullHexParams

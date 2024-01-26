@@ -4,6 +4,7 @@ import {
   CreateAccountParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
+  ExecuteAndRevertParams,
   ExecuteParams,
   ExtractedParams,
   HandleOpsParams,
@@ -67,9 +68,17 @@ export const CreateAccountParamsTransform = (params: unknown[]): CreateAccountPa
 
 export const ExecuteParamsTransform = (params: unknown[]): ExecuteParams => {
   const to = assertLowerHexString(params[0])
-  const value = assertLowerHexString(params[1])
+  const value = assertBigInt(params[1])
   const data = assertLowerHexString(params[2])
   return { to, value, data }
+}
+
+export const ExecuteAndRevertParamsTransform = (params: unknown[]): ExecuteAndRevertParams => {
+  const to = assertLowerHexString(params[0])
+  const value = assertBigInt(params[1])
+  const data = assertLowerHexString(params[2])
+  const operation = params[3] === 'call' || params[3] === 'delegatecall' ? params[3] : 'call'
+  return { to, value, data, operation }
 }
 
 export const transformUserOperation = (op: unknown[]): UserOp => {

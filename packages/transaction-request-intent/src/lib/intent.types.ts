@@ -102,7 +102,7 @@ export type CancelTransaction = {
 export type ApproveTokenAllowance = {
   type: Intents.APPROVE_TOKEN_ALLOWANCE
   from: AccountId
-  token: AssetId
+  token: AccountId
   spender: AccountId
   amount: string
 }

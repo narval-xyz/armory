@@ -1,8 +1,8 @@
 import { AssetId, AssetType, toAssetId } from '@narval/authz-shared'
-import { toAccountIdLowerCase } from 'packages/transaction-request-intent/src/lib/utils'
-import { Intents, NativeTransferInput, SupportedChains } from '../../../domain'
+import { Intents, NativeTransferInput, Slip44SupportedAddresses, SupportedChains } from '../../../domain'
 import { TransactionRequestIntentError } from '../../../error'
 import { TransferNative } from '../../../intent.types'
+import { toAccountIdLowerCase } from '../../../utils'
 import DecoderStrategy from '../../DecoderStrategy'
 
 export default class NativeTransferDecoder extends DecoderStrategy {
@@ -26,12 +26,12 @@ export default class NativeTransferDecoder extends DecoderStrategy {
       })
     }
 
-    // TODO: FIX ME
-    // const address = chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
+    const coinType =
+      chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
     return toAssetId({
       chainId,
       assetType: AssetType.SLIP44,
-      coinType: 60
+      coinType
     })
   }
   constructor(input: NativeTransferInput) {

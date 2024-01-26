@@ -26,9 +26,7 @@ export default class ApproveTokenAllowanceDecoder extends DecoderStrategy {
         from: toAccountIdLowerCase({ chainId, address: from }),
         type: Intents.APPROVE_TOKEN_ALLOWANCE,
         amount,
-        // TODO: FIX ME
-        token: 'eip155:1/erc20:0x5db3Bf14413d7e3c69FAA279EFa1D1B08637eC4c'
-        // token: toAssetIdLowerCase({ chainId, address: to })
+        token: toAccountIdLowerCase({ chainId, address: to })
       }
       return intent
     } catch {

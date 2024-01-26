@@ -163,5 +163,9 @@ export enum SupportedChains {
   OPTIMISM = 10
 }
 
+export enum Slip44SupportedAddresses {
+  ETH = 60,
+  MATIC = 966
+}
 export const permit2Address = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'

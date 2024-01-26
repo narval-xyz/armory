@@ -35,7 +35,6 @@ import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from
 export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
 
 export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
-  console.log('### getCategory', methodId, to)
   if (methodId === SupportedMethodId.NULL_METHOD_ID) {
     return TransactionCategory.NATIVE_TRANSFER
   }
@@ -106,12 +105,9 @@ export const contractTypeLookup = (
   address?: Address,
   contractRegistry?: ContractRegistry
 ): ContractInformation | undefined => {
-  console.log('### contractTypeLookup', chainId, address, contractRegistry)
   if (address) {
     const key = buildContractKey(chainId, address)
-    console.log('### key', key)
     const value = contractRegistry?.get(key)
-    console.log('### value', value)
     return value
   }
   return undefined
@@ -184,10 +180,6 @@ export const getTransactionIntentType = ({
     // Contract deployment conditions for specific transactions
     {
       condition: () => {
-        console.log('condition 3', methodId, fromType, fromType?.factoryType !== WalletType.UNKNOWN)
-        console.log('### fromtype.factoryType: ', fromType?.factoryType)
-        console.log(methodId === SupportedMethodId.CREATE_ACCOUNT)
-        console.log('methodId', methodId, SupportedMethodId.CREATE_ACCOUNT)
         return methodId === SupportedMethodId.CREATE_ACCOUNT && fromType && fromType.factoryType !== WalletType.UNKNOWN
       },
       intent:
