@@ -74,6 +74,11 @@ transfersReq = [
 	},
 ]
 
+pricesReq = {
+	"fiat:usd": "0.99",
+	"fiat:eur": "1.10",
+}
+
 request = {
 	"action": "signTransaction",
 	"transactionRequest": transactionRequestReq,
@@ -82,6 +87,7 @@ request = {
 	"intent": intentReq,
 	"approvals": approvalsReq,
 	"transfers": transfersReq,
+	"prices": pricesReq,
 }
 
 entities = {

@@ -68,9 +68,20 @@ checkAccWalletGroups(walletId, values) {
 	group in values
 }
 
-getUsdSpendingAmount(filters) = result {
+getSpendingAmount(transfer, currency) = result {
+	currency == wildcard
+	result := to_number(transfer.amount)
+}
+
+getSpendingAmount(transfer, currency) = result {
+	currency != wildcard
+	result := to_number(transfer.amount) * to_number(transfer.rates[currency])
+}
+
+calculateSpendings(filters) = result {
 	conditions = object.union(
 		{
+			"currency": "*",
 			"tokens": "*",
 			"users": "*",
 			"resources": "*",
@@ -83,7 +94,7 @@ getUsdSpendingAmount(filters) = result {
 		filters,
 	)
 
-	result := sum([usdAmount |
+	result := sum([amount |
 		transfer := input.transfers[_]
 
 		# filter by user groups
@@ -110,7 +121,7 @@ getUsdSpendingAmount(filters) = result {
 		# filter by end date
 		checkAccEndDate(transfer.timestamp, conditions.endDate)
 
-		usdAmount := to_number(transfer.amount) * to_number(transfer.rates["fiat:usd"])
+		amount := getSpendingAmount(transfer, conditions.currency)
 	])
 }
 

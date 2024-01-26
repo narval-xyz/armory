@@ -36,8 +36,9 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 	checkTransferTokenAddress(tokens)
 	limit = to_number("1000000000000000000")
 	startDate = secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))
-	spendings = getUsdSpendingAmount({"tokens": tokens, "users": users, "startDate": startDate})
-	checkSpendingLimitReached(spendings, transferTokenAmount, limit)
+	amount = transferTokenValue("fiat:usd")
+	spendings = calculateSpendings({"currency": "fiat:usd", "tokens": tokens, "users": users, "startDate": startDate})
+	checkSpendingLimitReached(spendings, amount, limit)
 	reason := {
 		"type": "forbid",
 		"policyId": "test-forbid-policy-1",
