@@ -1,4 +1,3 @@
-import { AssetType } from '@narval/authz-shared'
 import Decoder from '../../decoders/Decoder'
 import { ContractRegistry, InputType, Intents, TransactionStatus, WalletType } from '../../domain'
 import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
