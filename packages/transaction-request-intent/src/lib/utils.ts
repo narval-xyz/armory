@@ -1,28 +1,44 @@
-import { TransactionRequest } from '@narval/authz-shared'
-import { Hex, isAddress } from 'viem'
-import { Caip10, encodeEoaAccountId } from './caip'
 import {
-  AssetTypeEnum,
+  Account,
+  AccountId,
+  Asset,
+  AssetId,
+  AssetType,
+  Hex,
+  Namespace,
+  TransactionRequest,
+  isAccountId,
+  toAccountId,
+  toAssetId
+} from '@narval/authz-shared'
+import { SetOptional } from 'type-fest'
+import { Address, isAddress } from 'viem'
+import {
+  AssetTypeAndUnknown,
+  ContractCallInput,
+  ContractInformation,
   ContractRegistry,
   ContractRegistryInput,
   Intents,
+  Misc,
   NULL_METHOD_ID,
+  NativeTransferInput,
   TransactionCategory,
   TransactionKey,
   TransactionRegistry,
   TransactionStatus,
-  ValidatedInput
+  WalletType
 } from './domain'
 import { SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
-import { assertHexString, isAssetType, isCaip10, isSupportedMethodId } from './typeguards'
+import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from './typeguards'
 
-export const getMethodId = (data?: string): Hex => (data ? assertHexString(data.slice(0, 10)) : NULL_METHOD_ID)
+export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
 
 export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
   if (methodId === SupportedMethodId.NULL_METHOD_ID) {
     return TransactionCategory.NATIVE_TRANSFER
   }
-  if (to === null) {
+  if (!to) {
     return TransactionCategory.CONTRACT_CREATION
   }
   return TransactionCategory.CONTRACT_INTERACTION
@@ -36,8 +52,8 @@ export const buildContractRegistryEntry = ({
   chainId: number
   contractAddress: string
   assetType: string
-}): { [key: Caip10]: AssetTypeEnum } => {
-  const registry: { [key: Caip10]: AssetTypeEnum } = {}
+}): { [key: AccountId]: AssetTypeAndUnknown } => {
+  const registry: { [key: AccountId]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new Error('Invalid contract registry entry')
   }
@@ -48,23 +64,33 @@ export const buildContractRegistryEntry = ({
 
 export const buildContractRegistry = (input: ContractRegistryInput): ContractRegistry => {
   const registry = new Map()
-  input.forEach(({ contract, assetType }) => {
-    if (isCaip10(contract)) {
-      registry.set(contract, assetType)
+  input.forEach(({ contract, assetType, factoryType }) => {
+    const information = {
+      assetType: assetType || Misc.UNKNOWN,
+      factoryType: factoryType || WalletType.UNKNOWN
+    }
+    if (isString(contract)) {
+      if (!isAccountId(contract)) {
+        throw new Error(`Contract registry key is not a valid Caip10: ${contract}`)
+      }
+      registry.set(contract.toLowerCase(), information)
     } else {
       const key = buildContractKey(contract.chainId, contract.address)
-      registry.set(key, assetType)
+      registry.set(key, information)
     }
   })
   return registry
 }
 
-export const buildContractKey = (chainId: number, contractAddress: Hex): Caip10 =>
-  encodeEoaAccountId({ chainId, evmAccountAddress: contractAddress })
+export const buildContractKey = (
+  chainId: number,
+  contractAddress: Hex,
+  namespace: Namespace = Namespace.EIP155
+): AccountId => toAccountId({ namespace, chainId, address: contractAddress })
 
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
-    if (!isCaip10(key)) {
+    if (!isAccountId(key)) {
       throw new Error(`Invalid contract registry key: ${key}: ${registry[key]}`)
     }
     if (!isAssetType(registry[key])) {
@@ -75,21 +101,24 @@ export const checkContractRegistry = (registry: Record<string, string>) => {
 }
 
 export const contractTypeLookup = (
-  txRequest: ValidatedInput,
+  chainId: number,
+  address?: Address,
   contractRegistry?: ContractRegistry
-): AssetTypeEnum | undefined => {
-  if ('to' in txRequest && txRequest.to && contractRegistry) {
-    const key = buildContractKey(txRequest.chainId, txRequest.to)
-    return contractRegistry.get(key)
+): ContractInformation | undefined => {
+  if (address) {
+    const key = buildContractKey(chainId, address)
+    const value = contractRegistry?.get(key)
+    return value
   }
   return undefined
 }
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
-  if (!txRequest.nonce) throw new Error('Invalid transaction request')
-  const account = encodeEoaAccountId({
+  if (!txRequest.nonce) throw new Error('nonce needed to build transaction key')
+  const account = toAccountId({
     chainId: txRequest.chainId,
-    evmAccountAddress: txRequest.from
+    address: txRequest.from,
+    namespace: Namespace.EIP155
   })
   return `${account}-${txRequest.nonce}`
 }
@@ -113,7 +142,6 @@ export const transactionLookup = (
   transactionRegistry?: TransactionRegistry
 ): TransactionStatus | undefined => {
   const key: TransactionKey = buildTransactionKey(txRequest)
-  console.log('\n\n', key, '\n\n', transactionRegistry, '\n\n')
   if (transactionRegistry) {
     return transactionRegistry.get(key)
   }
@@ -126,11 +154,12 @@ export const getTransactionIntentType = ({
   contractRegistry
 }: {
   methodId: Hex
-  txRequest: ValidatedInput
+  txRequest: ContractCallInput | NativeTransferInput
   contractRegistry?: ContractRegistry
 }): Intents => {
-  const contractType = contractTypeLookup(txRequest, contractRegistry)
-
+  const { to, from, chainId } = txRequest
+  const toType = contractTypeLookup(chainId, to, contractRegistry)
+  const fromType = contractTypeLookup(chainId, from, contractRegistry)
   // !! ORDER MATTERS !!
   // Here we are checking for specific intents first.
   // Then we check for intents tight to specific methods
@@ -140,10 +169,23 @@ export const getTransactionIntentType = ({
     {
       condition: () =>
         methodId === SupportedMethodId.TRANSFER_FROM &&
-        contractType !== AssetTypeEnum.UNKNOWN &&
-        contractType !== AssetTypeEnum.ERC1155 &&
-        contractType !== AssetTypeEnum.NATIVE,
-      intent: contractType === AssetTypeEnum.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
+        ((toType && toType.assetType === AssetType.ERC20) || (toType && toType.assetType === AssetType.ERC721)),
+      intent: toType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
+    },
+    // Cancel condition
+    {
+      condition: () => methodId === SupportedMethodId.NULL_METHOD_ID && to === from,
+      intent: Intents.CANCEL_TRANSACTION
+    },
+    // Contract deployment conditions for specific transactions
+    {
+      condition: () => {
+        return methodId === SupportedMethodId.CREATE_ACCOUNT && fromType && fromType.factoryType !== WalletType.UNKNOWN
+      },
+      intent:
+        fromType && fromType.factoryType === WalletType.ERC4337
+          ? Intents.DEPLOY_ERC_4337_WALLET
+          : Intents.DEPLOY_SAFE_WALLET
     },
     // Supported methods conditions
     {
@@ -155,3 +197,26 @@ export const getTransactionIntentType = ({
   // default behavior: call contract
   return intent || Intents.CALL_CONTRACT
 }
+
+export const getMasterContractAddress = (bytecode: Hex): string | null => {
+  // Check for the common starting pattern of the minimal proxy contract
+  const commonStart = '0x363d3d373d3d3d363d73'
+  const commonEnd = '0x5af43d82803e903d91602b57fd5bf3'
+
+  if (bytecode.startsWith(commonStart) && bytecode.endsWith(commonEnd)) {
+    // Extract the address part
+    const addressPart = bytecode.slice(commonStart.length, bytecode.length - commonEnd.length)
+
+    // Pad the address part with zeros to the left if it's shorter than 40 characters
+    const fullAddress = '0x' + addressPart.padStart(40, '0')
+    return fullAddress
+  }
+
+  return null // Return null if the bytecode doesn't match the expected pattern
+}
+
+export const toAccountIdLowerCase = (input: SetOptional<Account, 'namespace'>): AccountId =>
+  toAccountId(input).toLowerCase() as AccountId
+
+export const toAssetIdLowerCase = (input: SetOptional<Asset, 'namespace'>): AssetId =>
+  toAssetId(input).toLowerCase() as AssetId

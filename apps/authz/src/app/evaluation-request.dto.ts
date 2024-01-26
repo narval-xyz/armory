@@ -1,8 +1,7 @@
-import { AccessList, Action, Address, Alg, FiatCurrency, Hex } from '@narval/authz-shared'
+import { AccessList, AccountId, Action, Address, Alg, FiatCurrency, Hex } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
-import { Caip10 } from 'packages/transaction-request-intent/src/lib/caip'
 
 export class RequestSignatureDto {
   @ApiProperty()
@@ -139,7 +138,7 @@ export class SignMessageRequestDataDto extends BaseRequestDataDto {
 
 export class HistoricalTransferDto {
   amount: string
-  from: Caip10
+  from: AccountId
   to: string
   chainId: number
   token: string

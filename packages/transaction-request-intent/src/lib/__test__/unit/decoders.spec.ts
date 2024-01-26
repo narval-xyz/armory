@@ -1,8 +1,8 @@
-import { AssetType } from '@narval/authz-shared'
 import Decoder from '../../decoders/Decoder'
-import { InputType, Intents, TransactionStatus } from '../../domain'
-import { buildTransactionKey, buildTransactionRegistry } from '../../utils'
+import { ContractRegistry, InputType, Intents, TransactionStatus, WalletType } from '../../domain'
+import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
+  mockCancelTransaction,
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
   mockErc20Transfer,
@@ -14,11 +14,7 @@ describe('decode', () => {
 
   const transactionRegistry = buildTransactionRegistry([])
   beforeEach(() => {
-    console.log('REMOVE THIS')
-    console.log('### Testing lib-to-lib import', AssetType.ERC1155)
-    console.log('REMOVE THIS')
-
-    decoder = new Decoder({})
+    decoder = new Decoder()
   })
   describe('transaction request input', () => {
     describe('transfers', () => {
@@ -51,10 +47,10 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.TRANSFER_NATIVE,
-          to: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          to: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
           amount: '16676',
-          token: 'eip155:137/slip44/966'
+          token: 'eip155:137/slip44:966'
         })
       })
       it('decodes approve token allowance', () => {
@@ -70,10 +66,35 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.APPROVE_TOKEN_ALLOWANCE,
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          token: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           amount: '11541971132511365478906515907109950360107522067033065608472376982619868367719',
-          spender: 'eip155:137:0x1111111254eeb25477b68fb85ed929f73a960582'
+          spender: 'eip155:137/0x1111111254eeb25477b68fb85ed929f73a960582'
+        })
+      })
+      it('decodes user operation', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            to: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+            data: '0x1fad948c0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000791b1689526b5560145f99cb9d3b7f24eca2591a00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000a8bcf6da0b47f5cc9ed34a63b0627df5ec50cf9700000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000858ae000000000000000000000000000000000000000000000000000000000001659f000000000000000000000000000000000000000000000000000000000000e939000000000000000000000000000000000000000000000000000000097c450a300000000000000000000000000000000000000000000000000000000000113e1000000000000000000000000000000000000000000000000000000000000004e000000000000000000000000000000000000000000000000000000000000005e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000324940d3c600000000000000000000000008ae01fcf7c655655ff2c6ef907b8b4718ab4e17c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000002648d80ff0a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000021200a1290d69c65a6fe4df752f95823fae25cb99e5a700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000cf5540fffcdc3d510b18bfca6d2b9987b07725590000000000000000000000000000000000000000000000000f262a45e5f7c19e00cf5540fffcdc3d510b18bfca6d2b9987b07725590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012483bd37f90001a1290d69c65a6fe4df752f95823fae25cb99e5a70000080f262a45e5f7c19e080f154c30c7f3ba8007ae1400017f137d1d8d20ba54004ba358e9c229da26fa3fa900000001a8bcf6da0b47f5cc9ed34a63b0627df5ec50cf970000000006010208000b01010203010002430000040305000b0106050701000201ff0000003772ba91b46f456ae487cb0974040c861c045810a1290d69c65a6fe4df752f95823fae25cb99e5a7ac3e018457b222d93114458476f3e3416abbe38f3161f40ea6c0c4cc8b2433d6d530ef255816e8545e8422345238f34275888049021821e8e08caa1fa1f8a6807c402e4a15ef4eba36528a3fed24e577000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d59d6ac51b972544251fcc0f2902e633e3f9bd3f290000000000000000000000000000000000000000000000000000000065b3ff88000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000adc63041418bea2f33c69fd1aad44f73aa70167c133b2a25ffbe1874151721dc54e86e88dd8f34d3265dfb041983cf98fdda02ff08351209e9e99d5d40e2084b1c000000000000000000000000000000000000000000000000000000000000000000000000000000000000411a41fcb02d4b6b2dc7a53c4242de771582b6c5abaa6fd74fc3d00bcd7555fbc143a0738860d93432f531dcdc49e51bba4991106c62f46b2c9be26e9596c91ab31c00000000000000000000000000000000000000000000000000000000000000',
+            from: '0x791b1689526B5560145F99cB9D3B7F24eca2591a',
+            chainId: 1
+          }
+        })
+        expect(decoded).toEqual({
+          type: Intents.USER_OPERATION,
+          from: 'eip155:1/0x791b1689526b5560145f99cb9d3b7f24eca2591a',
+          entrypoint: 'eip155:1/0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
+          beneficiary: '0x791b1689526b5560145f99cb9d3b7f24eca2591a',
+          operationIntents: [
+            {
+              contract: 'eip155:1/0x8ae01fcf7c655655ff2c6ef907b8b4718ab4e17c',
+              from: 'eip155:1/0x791b1689526b5560145f99cb9d3b7f24eca2591a',
+              hexSignature: '0x8d80ff0a',
+              type: Intents.CALL_CONTRACT
+            }
+          ]
         })
       })
       it('defaults to contract call intent', () => {
@@ -89,8 +110,8 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.CALL_CONTRACT,
-          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          contract: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          contract: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           hexSignature: '0xf2d12b12'
         })
       })
@@ -104,24 +125,118 @@ describe('decode', () => {
         expect(trxStatus).toEqual(TransactionStatus.FAILED)
       })
       // NOW ITS A PENDING
-      it('decodes retry transaction', () => {})
-      it('decodes cancel transaction', () => {
-        transactionRegistry.set(key, TransactionStatus.PENDING)
+      it('decodes retry transaction', () => {
+        const trxRegistry = buildTransactionRegistry([
+          {
+            txRequest: mockErc20Transfer.input.txRequest,
+            status: TransactionStatus.PENDING
+          }
+        ])
         const decoded = decoder.decode({
           type: InputType.TRANSACTION_REQUEST,
           txRequest: mockErc20Transfer.input.txRequest,
-          transactionRegistry
+          transactionRegistry: trxRegistry
         })
         expect(decoded).toEqual({
-          type: Intents.CANCEL_TRANSACTION,
-          originalIntent: mockErc20Transfer.intent
+          type: Intents.RETRY_TRANSACTION
+        })
+      })
+      it('decodes cancel transaction', () => {
+        transactionRegistry.set(key, TransactionStatus.PENDING)
+        const decoded = decoder.decode(mockCancelTransaction)
+        expect(decoded).toEqual({
+          type: Intents.CANCEL_TRANSACTION
         })
       })
     })
     describe('contract creation', () => {
-      it('decodes safe wallet creation deployment', () => {})
-      it('decodes erc4337 wallet deployment', () => {})
-      it('defaults to contract deployment intent', () => {})
+      let contractRegistry: ContractRegistry
+
+      const knownSafeFactory = '0xaaad8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownSafeMaster = '0xbbbd8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownErc4337Factory = '0xcccd8C0cA142921c459bCB28104c0FF37928F9eD'
+      const knownErc4337Master = '0xdddd8C0cA142921c459bCB28104c0FF37928F9eD'
+      beforeEach(() => {
+        contractRegistry = buildContractRegistry([
+          {
+            contract: {
+              address: knownSafeFactory,
+              chainId: 137
+            },
+            factoryType: WalletType.SAFE
+          },
+          {
+            contract: {
+              address: knownSafeMaster,
+              chainId: 1
+            },
+            factoryType: WalletType.SAFE
+          },
+          {
+            contract: {
+              address: knownErc4337Factory,
+              chainId: 137
+            },
+            factoryType: WalletType.ERC4337
+          },
+          {
+            contract: {
+              address: knownErc4337Master,
+              chainId: 1
+            },
+            factoryType: WalletType.ERC4337
+          }
+        ])
+      })
+      it('decodes safe wallet creation deployment from a known factory', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: knownSafeFactory,
+            chainId: 137,
+            data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_SAFE_WALLET,
+          from: 'eip155:137/0xaaad8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137
+        })
+      })
+      it('decodes erc4337 wallet deployment when deploying from a known factory', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: knownErc4337Factory,
+            chainId: 137,
+            data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_ERC_4337_WALLET,
+          from: 'eip155:137/0xcccd8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137,
+          bytecode: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
+        })
+      })
+      it('defaults to deploy intent', () => {
+        const decoded = decoder.decode({
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: {
+            from: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
+            chainId: 137,
+            data: '0x'
+          },
+          contractRegistry
+        })
+        expect(decoded).toEqual({
+          type: Intents.DEPLOY_CONTRACT,
+          from: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          chainId: 137
+        })
+      })
     })
   })
   //   describe('message and typed data input', () => {

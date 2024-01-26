@@ -21,6 +21,7 @@ export default abstract class DecoderStrategy {
     const method = this.getMethod(methodId)
     try {
       const params = decodeAbiParameters(method.abi, data)
+      console.log('params', params)
       return method.transformer(params)
     } catch (error) {
       throw new Error(`Failed to decode abi parameters: ${error}`)

@@ -1,10 +1,5 @@
 import { Intent } from '@narval/transaction-request-intent'
 
-/**
- * Proxy the Intent and types to upstream dependencies for convinience.
- */
-export { Intent, Intents } from '@narval/transaction-request-intent'
-
 export enum Action {
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',

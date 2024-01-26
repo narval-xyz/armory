@@ -197,11 +197,25 @@ export const getAccountId = (value: string): AccountId => unsafeParse<AccountId>
 /**
  * Converts an Account object to an AccountId string.
  *
- * @param {Account} account - The Account object to convert.
+ * @param {SetOptional<Account, 'namespace'>} account - The Account object to convert.
  * @returns {AccountId} The converted AccountId string.
  */
-export const toAccountId = ({ namespace = Namespace.EIP155, chainId, address }: Account): AccountId =>
-  `${namespace}:${chainId}/${address}`
+export const toAccountId = (input: SetOptional<Account, 'namespace'>): AccountId => {
+  const account: Account = {
+    ...input,
+    namespace: input.namespace || Namespace.EIP155
+  }
+
+  return `${account.namespace}:${account.chainId}/${account.address}`
+}
+
+/**
+ * Checks if the given value is a valid account ID.
+ *
+ * @param value The value to check.
+ * @returns True if the value is a valid account ID, false otherwise.
+ */
+export const isAccountId = (value: string): boolean => safeParseAccount(value).success
 
 //
 // Asset ID
@@ -291,6 +305,14 @@ export const safeParseAsset = (value: string): Result<Asset> => {
     }
   }
 }
+
+/**
+ * Checks if a given value is a valid asset ID.
+ *
+ * @param value The value to check.
+ * @returns A boolean indicating whether the value is a valid asset ID.
+ */
+export const isAssetId = (value: string): boolean => safeParseAsset(value).success
 
 /**
  * Checks if the given asset is a token.

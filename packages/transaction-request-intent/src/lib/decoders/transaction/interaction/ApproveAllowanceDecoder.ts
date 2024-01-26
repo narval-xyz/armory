@@ -1,8 +1,8 @@
-import { encodeEoaAccountId } from '../../../caip'
 import { ContractCallInput, Intents } from '../../../domain'
 import { ApproveAllowanceParams } from '../../../extraction/types'
 import { ApproveTokenAllowance } from '../../../intent.types'
 import { isSupportedMethodId } from '../../../typeguards'
+import { toAccountIdLowerCase } from '../../../utils'
 import DecoderStrategy from '../../DecoderStrategy'
 
 export default class ApproveTokenAllowanceDecoder extends DecoderStrategy {
@@ -22,11 +22,11 @@ export default class ApproveTokenAllowanceDecoder extends DecoderStrategy {
     try {
       const { amount, spender } = params
       const intent: ApproveTokenAllowance = {
-        spender: encodeEoaAccountId({ chainId, evmAccountAddress: spender }),
-        from: encodeEoaAccountId({ chainId, evmAccountAddress: from }),
+        spender: toAccountIdLowerCase({ chainId, address: spender }),
+        from: toAccountIdLowerCase({ chainId, address: from }),
         type: Intents.APPROVE_TOKEN_ALLOWANCE,
         amount,
-        token: encodeEoaAccountId({ chainId, evmAccountAddress: to })
+        token: toAccountIdLowerCase({ chainId, address: to })
       }
       return intent
     } catch {

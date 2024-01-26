@@ -146,7 +146,7 @@ export class AppService {
   }: AuthorizationRequest): Promise<AuthorizationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
-    const decoder = new Decoder({})
+    const decoder = new Decoder()
     const verificationMessage = hashRequest(request)
 
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
