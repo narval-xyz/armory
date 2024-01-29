@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 e2e_req = {
 	"action": "signTransaction",
 	"intent": {

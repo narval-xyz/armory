@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_wildcardPrincipal {
 	checkPrincipalId(wildcard)
 	checkPrincipalRole(wildcard)

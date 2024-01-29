@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 spendingLimitReq = {
 	"action": "signTransaction",
 	"transactionRequest": {

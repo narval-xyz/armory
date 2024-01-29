@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 half_matic = "500000000000000000"
 
 one_matic = "1000000000000000000"

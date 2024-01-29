@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 approvalReq = {
 	"action": "signTransaction",
 	"transactionRequest": {

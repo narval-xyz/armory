@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 gasFee = 483000000000000
 
 moreGasFee = gasFee + 1000000000

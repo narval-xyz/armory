@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_wildcardDestination {
 	checkDestinationAddress(wildcard)
 	checkDestinationClassification(wildcard)

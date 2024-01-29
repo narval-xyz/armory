@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_checkTransferResourceIntegrity {
 	checkTransferResourceIntegrity with input as request
 		with data.entities as entities

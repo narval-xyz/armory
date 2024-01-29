@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_wildcardSource {
 	checkSourceAccountType(wildcard)
 	checkSourceAddress(wildcard)
