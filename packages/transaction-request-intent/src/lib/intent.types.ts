@@ -1,6 +1,6 @@
 import { AccountId, Alg, AssetId, Hex } from '@narval/authz-shared'
 import { Address } from 'viem'
-import { Intents } from './domain'
+import { Eip712Domain, Intents } from './domain'
 
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
