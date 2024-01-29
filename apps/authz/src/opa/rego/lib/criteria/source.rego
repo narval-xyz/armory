@@ -25,7 +25,7 @@ checkSourceAddress(values) {
 
 checkSourceAddress(values) {
 	values != wildcard
-	source.address in values
+	source.uid in values
 }
 
 checkSourceClassification(values) {

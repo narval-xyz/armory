@@ -18,9 +18,9 @@ permit[{"policyId": "approvalByUsers"}] := reason {
 	checkNonceExists
 	input.action == "signTransaction"
 	checkWalletId(resources)
-	checkTransferTokenIntent(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferValueCondition)
+	checkIntentType(transferTypes)
+	checkContractAddress(tokens)
+	checkTokenAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 
@@ -48,9 +48,9 @@ permit[{"policyId": "approvalByUserGroups"}] := reason {
 	checkNonceExists
 	input.action == "signTransaction"
 	checkWalletId(resources)
-	checkTransferTokenIntent(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferValueCondition)
+	checkIntentType(transferTypes)
+	checkContractAddress(tokens)
+	checkTokenAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 
@@ -78,9 +78,9 @@ permit[{"policyId": "approvalByUserRoles"}] := reason {
 	checkNonceExists
 	input.action == "signTransaction"
 	checkWalletId(resources)
-	checkTransferTokenIntent(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferValueCondition)
+	checkIntentType(transferTypes)
+	checkContractAddress(tokens)
+	checkTokenAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 

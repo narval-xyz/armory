@@ -20,9 +20,9 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalId(users)
 	checkWalletId(resources)
-	checkTransferTokenIntent(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferValueCondition)
+	checkIntentType(transferTypes)
+	checkTokenAddress(tokens)
+	checkTokenAmount(transferValueCondition)
 
 	approvals = getApprovalsResult(approvalsRequired)
 
@@ -47,8 +47,8 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalId(users)
 	checkWalletId(resources)
-	checkTransferTokenIntent(transferTypes)
-	checkTransferTokenAddress(tokens)
+	checkIntentType(transferTypes)
+	checkTokenAddress(tokens)
 	checkSpendings(limit, {
 		"tokens": tokens,
 		"users": users,

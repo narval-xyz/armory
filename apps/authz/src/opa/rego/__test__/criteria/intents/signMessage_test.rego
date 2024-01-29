@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_checkSignMessage {
 	signMessageRequest = {
 		"action": "signTransaction",
@@ -12,7 +10,10 @@ test_checkSignMessage {
 		},
 	}
 
-	checkSignMessageIntent({"signMessage", "signRawMessage"}) with input as signMessageRequest
+	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest
+		with data.entities as entities
+
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
 		with data.entities as entities
 
 	signMessageEquals("Hello world!") with input as signMessageRequest
@@ -32,7 +33,10 @@ test_checkSignRawPayload {
 		},
 	}
 
-	checkSignRawPayloadIntent({"signRawPayload"}) with input as signRawPayloadRequest
+	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest
+		with data.entities as entities
+
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
 	signRawPayloadEquals("Hello world!") with input as signRawPayloadRequest
@@ -100,7 +104,10 @@ test_checkSignTypedData {
 		},
 	}
 
-	checkSignTypedDataIntent({"signTypedData"}) with input as signTypedDataRequest
+	checkIntentType({"signTypedData"}) with input as signTypedDataRequest
+		with data.entities as entities
+
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
 		with data.entities as entities
 
 	signTypedDataEquals(typedData) with input as signTypedDataRequest

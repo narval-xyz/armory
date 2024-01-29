@@ -18,7 +18,7 @@ test_destination {
 		"classification": "internal",
 	}
 
-	checkDestinationAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as request
+	checkDestinationAddress({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as request
 		with data.entities as entities
 
 	checkDestinationClassification({"internal"}) with input as request

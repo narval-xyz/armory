@@ -16,7 +16,7 @@ checkDestinationAddress(values) {
 
 checkDestinationAddress(values) {
 	values != wildcard
-	destination.address in values
+	destination.uid in values
 }
 
 checkDestinationClassification(values) {

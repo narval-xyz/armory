@@ -19,12 +19,12 @@ default evaluate := {
 	"default": true,
 }
 
-permit[{"policyId": "default-permit-policy"}] := reason {
-	false
+permit[{"policyId": "allow-root-user"}] := reason {
+	isPrincipalRootUser
 
 	reason := {
 		"type": "permit",
-		"policyId": "default-permit-policy",
+		"policyId": "allow-root-user",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}

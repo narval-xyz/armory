@@ -94,7 +94,7 @@ checkSpendings(limit, filters) {
 		filters,
 	)
 
-	amount = transferTokenAmount(conditions.currency)
+	amount = tokenAmount(conditions.currency)
 
 	spendings := sum([spending |
 		transfer := input.transfers[_]

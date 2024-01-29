@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_transferERC721 {
 	erc721Request = {
 		"action": "signTransaction",
@@ -14,15 +12,20 @@ test_transferERC721 {
 		},
 	}
 
-	checkTransferNftIntent({"transferERC721"}) with input as erc721Request with data.entities as entities
+	checkIntentType({"transferERC721"}) with input as erc721Request
+		with data.entities as entities
 
-	checkTransferNftAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request with data.entities as entities
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request
+		with data.entities as entities
 
-	checkERC721TokenId({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request with data.entities as entities
+	checkDestinationAddress({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc721Request
+		with data.entities as entities
 
-	checkTransferNftAddress(wildcard) with input as erc721Request with data.entities as entities
+	checkContractAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request
+		with data.entities as entities
 
-	checkERC721TokenId(wildcard) with input as erc721Request with data.entities as entities
+	checkERC721TokenId({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request
+		with data.entities as entities
 }
 
 test_transferERC1155 {
@@ -50,10 +53,16 @@ test_transferERC1155 {
 		},
 	}
 
-	checkTransferNftIntent({"transferERC1155"}) with input as erc1155Request
+	checkIntentType({"transferERC1155"}) with input as erc1155Request
 		with data.entities as entities
 
-	checkTransferNftAddress({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request
+		with data.entities as entities
+
+	checkDestinationAddress({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc1155Request
+		with data.entities as entities
+
+	checkContractAddress({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request
 		with data.entities as entities
 
 	checkERC1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc1155Request
@@ -61,10 +70,6 @@ test_transferERC1155 {
 
 	checkERC1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555"}) with input as erc1155Request
 		with data.entities as entities
-
-	checkTransferNftAddress(wildcard) with input as erc1155Request with data.entities as entities
-
-	checkERC1155TokenId(wildcard) with input as erc1155Request with data.entities as entities
 
 	checkERC1155Transfers([
 		{"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555", "operator": "lt", "value": "2"},
