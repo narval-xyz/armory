@@ -1,5 +1,5 @@
 import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/authz-shared'
-import { TypedDataDomain, TypedData as TypedDataParams } from 'viem'
+import { TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 
 export type Message = {
@@ -8,17 +8,24 @@ export type Message = {
   from: Address
 }
 
+export type Eip712Domain = {
+  version: string
+  chainId: number
+  name: string
+  verifyingContract: Address
+}
+
 export type Raw = {
   rawData: string
   algorithm: Alg
 }
 
 export type TypedData = {
-  chainId: string
   from: Address
+  chainId: number
   types: TypedDataParams
   primaryType: string
-  domain: TypedDataDomain
+  domain: Eip712Domain
   message: Record<string, unknown>
 }
 
@@ -167,5 +174,5 @@ export enum Slip44SupportedAddresses {
   ETH = 60,
   MATIC = 966
 }
-export const permit2Address = '0x000000000022d473030f116ddee9f6b43ac78ba3'
+export const PERMIT2_ADDRESS = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'

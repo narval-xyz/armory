@@ -239,18 +239,88 @@ describe('decode', () => {
       })
     })
   })
-  //   describe('message and typed data input', () => {
-  //     it('decodes message', () => {
-  //     });
-  //     it('decodes typed data', () => {
-  //     });
-  //     it('decodes raw message', () => {
-  //     });
-  //     it('decodes permit', () => {
-  //     });
-  //     it('decodes permit2', () => {
-  //     });
-  //     it('defaults to raw payload', () => {
-  //     });
-  //   });
+  describe('message and typed data input', () => {
+    it('decodes message', () => {})
+    it('decodes typed data', () => {
+      const decoded = decoder.decode({
+        type: InputType.TYPED_DATA,
+        typedData: {
+          chainId: 137,
+          from: '0xEd123cf8e3bA51c6C15DA1eAc74B2b5DEEA31448',
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' }
+            ],
+            DoStuff: [
+              { name: 'do', type: 'function' },
+              { name: 'stuff', type: 'address' }
+            ]
+          },
+          primaryType: 'DoStuff',
+          domain: {
+            name: 'Unicorn Milk Token',
+            version: '0.1.0',
+            chainId: 137,
+            verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
+          },
+          message: {
+            do: 'doingStuff(address stuff)',
+            stuff: '0x1234567890123456789012345678901234567890'
+          }
+        }
+      })
+      expect(decoded).toEqual({
+        from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+        type: Intents.SIGN_TYPED_DATA,
+        domain: {
+          version: '0.1.0',
+          name: 'Unicorn Milk Token',
+          chainId: 137,
+          verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
+        }
+      })
+    })
+    it('decodes raw message', () => {})
+    it('decodes permit', () => {
+      // const permit = {
+      // }
+    })
+    it('decodes permit2', () => {
+      // const permit2 = {
+      //   types: {
+      //     EIP712Domain: [
+      //       {name: 'name', 'type': 'string'},
+      //       {name: 'version', 'type': 'string'},
+      //       {name: 'chainId', 'type': 'uint256'},
+      //       {name: 'verifyingContract', 'type': 'address'}
+      //     ],
+      //     Permit2: [
+      //       {name: 'holder', 'type': 'address'},
+      //       {name: 'spender', 'type': 'address'},
+      //       {name: 'nonce', 'type': 'uint256'},
+      //       {name: 'expiry', 'type': 'uint256'},
+      //       {name: 'value', 'type': 'uint256'}
+      //     ]
+      //   },
+      //   primaryType: 'Permit2',
+      //   domain: {
+      //     name: 'UNI Token',
+      //     version: '1',
+      //     chainId: 1,
+      //     verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+      //   },
+      //   message: {
+      //     holder: '0xAliceAddress',
+      //     spender: '0xSpenderAddress',
+      //     nonce: 0,
+      //     expiry: 1714521600, // Example UNIX timestamp (e.g., 1st May 2022)
+      //     value: 10000000000000000000 // Example value in wei
+      //   }
+      // }
+    })
+    it('defaults to raw payload', () => {})
+  })
 })
