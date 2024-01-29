@@ -2,18 +2,6 @@ package main
 
 import future.keywords.in
 
-half_matic = "500000000000000000"
-
-one_matic = "1000000000000000000"
-
-ten_matic = "10000000000000000000"
-
-half_matic_value = "495000000000000000"
-
-one_matic_value = "990000000000000000"
-
-ten_matic_value = "9900000000000000000"
-
 test_transferNative {
 	nativeRequest = {
 		"action": "signTransaction",

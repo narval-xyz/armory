@@ -2,6 +2,18 @@ package main
 
 import future.keywords.in
 
+half_matic = "500000000000000000"
+
+one_matic = "1000000000000000000"
+
+ten_matic = "10000000000000000000"
+
+half_matic_value = "495000000000000000"
+
+one_matic_value = "990000000000000000"
+
+ten_matic_value = "9900000000000000000"
+
 twentyHoursAgo = (nowSeconds - ((20 * 60) * 60)) * 1000 # in ms
 
 elevenHoursAgo = (nowSeconds - ((11 * 60) * 60)) * 1000 # in ms

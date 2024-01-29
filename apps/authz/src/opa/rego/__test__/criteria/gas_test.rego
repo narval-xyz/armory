@@ -8,25 +8,22 @@ moreGasFee = gasFee + 1000000000
 
 lessGasFee = gasFee - 1000000000
 
-test_gas {
-	checkGasCondition(wildcard) with input as request
+test_checkGasFeeAmount {
+	checkGasFeeAmount({"currency": wildcard, "operator": "gt", "value": lessGasFee}) with input as request
 		with data.entities as entities
 
-	checkGasCondition({"operator": "gt", "value": lessGasFee}) with input as request
+	checkGasFeeAmount({"currency": wildcard, "operator": "lt", "value": moreGasFee}) with input as request
 		with data.entities as entities
 
-	checkGasCondition({"operator": "lt", "value": moreGasFee}) with input as request
+	checkGasFeeAmount({"currency": wildcard, "operator": "gte", "value": gasFee}) with input as request
 		with data.entities as entities
 
-	checkGasCondition({"operator": "gte", "value": gasFee}) with input as request
+	checkGasFeeAmount({"currency": wildcard, "operator": "lte", "value": gasFee}) with input as request
 		with data.entities as entities
 
-	checkGasCondition({"operator": "lte", "value": gasFee}) with input as request
+	checkGasFeeAmount({"currency": wildcard, "operator": "eq", "value": gasFee}) with input as request
 		with data.entities as entities
 
-	checkGasCondition({"operator": "eq", "value": gasFee}) with input as request
-		with data.entities as entities
-
-	checkGasCondition({"operator": "neq", "value": moreGasFee}) with input as request
+	checkGasFeeAmount({"currency": wildcard, "operator": "neq", "value": moreGasFee}) with input as request
 		with data.entities as entities
 }
