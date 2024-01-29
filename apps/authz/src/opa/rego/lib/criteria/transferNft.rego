@@ -2,12 +2,8 @@ package main
 
 import future.keywords.in
 
-transferNftTypes = {"transferERC721", "transferERC1155"}
-
-transferNftAddress = input.intent.contract
-
-checkTransferNftType(values) {
-	input.intent.type in transferNftTypes
+checkTransferNftIntent(values) {
+	input.intent.type in {"transferERC721", "transferERC1155"}
 	input.intent.type in values
 }
 
@@ -17,7 +13,7 @@ checkTransferNftAddress(values) {
 
 checkTransferNftAddress(values) {
 	values != wildcard
-	transferNftAddress in values
+	input.intent.contract in values
 }
 
 checkERC721TokenId(values) {

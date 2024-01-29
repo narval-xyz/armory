@@ -2,7 +2,11 @@ package main
 
 import future.keywords.in
 
-transferTokenTypes = {"transferNative", "transferERC20"}
+# transferNative
+transferTokenAddress = input.intent.token
+
+# transferERC20
+transferTokenAddress = input.intent.contract
 
 transferTokenAmount(currency) = result {
 	currency == wildcard
@@ -14,14 +18,8 @@ transferTokenAmount(currency) = result {
 	result = to_number(input.intent.amount) * to_number(input.prices[currency])
 }
 
-# transferNative
-transferTokenAddress = input.intent.token
-
-# transferERC20
-transferTokenAddress = input.intent.contract
-
-checkTransferTokenType(values) {
-	input.intent.type in transferTokenTypes
+checkTransferTokenIntent(values) {
+	input.intent.type in {"transferNative", "transferERC20"}
 	input.intent.type in values
 }
 

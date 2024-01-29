@@ -14,14 +14,15 @@ test_transferERC721 {
 		},
 	}
 
-	checkTransferNftType({"transferERC721"}) with input as erc721Request
-		with data.entities as entities
+	checkTransferNftIntent({"transferERC721"}) with input as erc721Request with data.entities as entities
 
-	checkTransferNftAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request
-		with data.entities as entities
+	checkTransferNftAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request with data.entities as entities
 
-	checkERC721TokenId({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request
-		with data.entities as entities
+	checkERC721TokenId({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request with data.entities as entities
+
+	checkTransferNftAddress(wildcard) with input as erc721Request with data.entities as entities
+
+	checkERC721TokenId(wildcard) with input as erc721Request with data.entities as entities
 }
 
 test_transferERC1155 {
@@ -49,7 +50,7 @@ test_transferERC1155 {
 		},
 	}
 
-	checkTransferNftType({"transferERC1155"}) with input as erc1155Request
+	checkTransferNftIntent({"transferERC1155"}) with input as erc1155Request
 		with data.entities as entities
 
 	checkTransferNftAddress({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request
@@ -60,6 +61,10 @@ test_transferERC1155 {
 
 	checkERC1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555"}) with input as erc1155Request
 		with data.entities as entities
+
+	checkTransferNftAddress(wildcard) with input as erc1155Request with data.entities as entities
+
+	checkERC1155TokenId(wildcard) with input as erc1155Request with data.entities as entities
 
 	checkERC1155Transfers([
 		{"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555", "operator": "lt", "value": "2"},

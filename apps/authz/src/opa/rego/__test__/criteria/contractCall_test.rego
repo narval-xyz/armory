@@ -14,7 +14,7 @@ test_contractCall {
 		},
 	}
 
-	checkContractCallType({"contractCall"}) with input as contractCallRequest
+	checkContractCallIntent({"contractCall"}) with input as contractCallRequest
 		with data.entities as entities
 
 	checkContractCallAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as contractCallRequest

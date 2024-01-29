@@ -26,10 +26,13 @@ test_transferNative {
 		},
 	}
 
-	checkTransferTokenType({"transferNative"}) with input as nativeRequest
+	checkTransferTokenIntent({"transferNative"}) with input as nativeRequest
 		with data.entities as entities
 
 	checkTransferTokenAddress({"eip155:137/slip44/966"}) with input as nativeRequest
+		with data.entities as entities
+
+	checkTransferTokenAddress(wildcard) with input as nativeRequest
 		with data.entities as entities
 }
 
@@ -45,10 +48,13 @@ test_transferERC20 {
 		},
 	}
 
-	checkTransferTokenType({"transferERC20"}) with input as erc20Request
+	checkTransferTokenIntent({"transferERC20"}) with input as erc20Request
 		with data.entities as entities
 
 	checkTransferTokenAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as erc20Request
+		with data.entities as entities
+
+	checkTransferTokenAddress(wildcard) with input as erc20Request
 		with data.entities as entities
 }
 

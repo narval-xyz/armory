@@ -2,12 +2,8 @@ package main
 
 import future.keywords.in
 
-contractCallTypes = {"contractCall"}
-
-contractCallAddress = input.intent.contract
-
-checkContractCallType(values) {
-	input.intent.type in contractCallTypes
+checkContractCallIntent(values) {
+	input.intent.type == "contractCall"
 	input.intent.type in values
 }
 
@@ -17,7 +13,7 @@ checkContractCallAddress(values) {
 
 checkContractCallAddress(values) {
 	values != wildcard
-	contractCallAddress in values
+	input.intent.contract in values
 }
 
 checkContractCallHexSignatures(values) {

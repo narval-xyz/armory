@@ -12,6 +12,6 @@ test_contractDeploy {
 		},
 	}
 
-	checkContractDeployType({"deployContract"}) with input as contractDeployRequest
+	checkContractDeployIntent({"deployContract"}) with input as contractDeployRequest
 		with data.entities as entities
 }
