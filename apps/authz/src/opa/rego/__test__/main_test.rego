@@ -2,15 +2,13 @@ package main
 
 import future.keywords.in
 
-mockNowS = 1630540800
+twentyHoursAgo = (nowSeconds - ((20 * 60) * 60)) * 1000 # in ms
 
-twentyHoursAgo = (mockNowS - ((20 * 60) * 60)) * 1000 # in ms
+elevenHoursAgo = (nowSeconds - ((11 * 60) * 60)) * 1000 # in ms
 
-elevenHoursAgo = (mockNowS - ((11 * 60) * 60)) * 1000 # in ms
+tenHoursAgo = (nowSeconds - ((10 * 60) * 60)) * 1000 # in ms
 
-tenHoursAgo = (mockNowS - ((10 * 60) * 60)) * 1000 # in ms
-
-nineHoursAgo = (mockNowS - ((9 * 60) * 60)) * 1000 # in ms
+nineHoursAgo = (nowSeconds - ((9 * 60) * 60)) * 1000 # in ms
 
 principalReq = {"userId": "test-bob-uid"}
 
