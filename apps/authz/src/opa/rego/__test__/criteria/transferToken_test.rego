@@ -15,35 +15,15 @@ one_matic_value = "990000000000000000"
 ten_matic_value = "9900000000000000000"
 
 test_transferNative {
-	nativeTransactionRequest = {
-		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"chainId": 137,
-		"maxFeePerGas": "20000000000",
-		"maxPriorityFeePerGas": "3000000000",
-		"gas": "21000",
-		"value": "0xde0b6b3a7640000",
-		"data": "0x00000000",
-		"nonce": 192,
-		"type": "2",
-	}
-
-	nativeIntent = {
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"type": "transferNative",
-		"amount": "1000000000000000000",
-		"token": "eip155:137/slip44/966",
-	}
-
 	nativeRequest = {
 		"action": "signTransaction",
-		"transactionRequest": nativeTransactionRequest,
-		"intent": nativeIntent,
-		"principal": principalReq,
-		"resource": resourceReq,
-		"approvals": approvalsReq,
-		"transfers": transfersReq,
+		"intent": {
+			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"type": "transferNative",
+			"amount": "1000000000000000000",
+			"token": "eip155:137/slip44/966",
+		},
 	}
 
 	checkTransferTokenType({"transferNative"}) with input as nativeRequest
@@ -54,34 +34,15 @@ test_transferNative {
 }
 
 test_transferERC20 {
-	erc20TransactionRequest = {
-		"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"chainId": 137,
-		"maxFeePerGas": "20000000000",
-		"maxPriorityFeePerGas": "3000000000",
-		"gas": "21000",
-		"data": "0xa9059cbb000000000000000000000000031d8c0ca142921c459bcb28104c0ff37928f9ed000000000000000000000000000000000000000000005ab7f55035d1e7b4fe6d",
-		"nonce": 192,
-		"type": "2",
-	}
-
-	erc20Intent = {
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"type": "transferERC20",
-		"amount": "1000000000000000000",
-		"contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-	}
-
 	erc20Request = {
 		"action": "signTransaction",
-		"transactionRequest": erc20TransactionRequest,
-		"intent": erc20Intent,
-		"principal": principalReq,
-		"resource": resourceReq,
-		"approvals": approvalsReq,
-		"transfers": transfersReq,
+		"intent": {
+			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"type": "transferERC20",
+			"amount": "1000000000000000000",
+			"contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		},
 	}
 
 	checkTransferTokenType({"transferERC20"}) with input as erc20Request
