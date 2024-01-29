@@ -1,5 +1,6 @@
 AUTHZ_PROJECT_NAME := authz
 AUTHZ_PROJECT_DIR := ./apps/authz
+AUTHZ_DATABASE_SCHEMA := ${AUTHZ_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
 
 # === Start ===
 
@@ -30,7 +31,46 @@ authz/format/check:
 authz/lint/check:
 	npx nx lint ${AUTHZ_PROJECT_NAME}
 
+# === Database ===
+
+authz/db/generate-types:
+	npx prisma generate \
+		--schema ${AUTHZ_DATABASE_SCHEMA}
+
+authz/db/migrate:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${AUTHZ_DATABASE_SCHEMA}
+
+authz/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Authz development database${TERM_NO_COLOR}"
+	@echo ""
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		prisma migrate reset \
+			--schema ${AUTHZ_DATABASE_SCHEMA} \
+			--force
+	make authz/db/seed
+
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Authz test database${TERM_NO_COLOR}"
+	@echo ""
+	make authz/test/db/setup
+
+authz/db/create-migration:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${AUTHZ_DATABASE_SCHEMA} \
+			--name ${NAME}
+
 # === Testing ===
+
+authz/test/db/setup:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env.test --override -- \
+		prisma migrate reset \
+		--schema ${AUTHZ_DATABASE_SCHEMA} \
+		--skip-seed \
+		--force
 
 authz/test/type:
 	npx tsc \
@@ -38,13 +78,13 @@ authz/test/type:
 		--noEmit
 
 authz/test/unit:
-	npx nx test:unit ${AUTHZ_PROJECT_NAME}
+	npx nx test:unit ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
 authz/test/integration:
-	npx nx test:integration ${AUTHZ_PROJECT_NAME}
+	npx nx test:integration ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
 authz/test/e2e:
-	npx nx test:e2e ${AUTHZ_PROJECT_NAME}
+	npx nx test:e2e ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
 # === Open Policy Agent & Rego ===
 
