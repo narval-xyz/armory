@@ -8,12 +8,13 @@ import {
   TransactionCategory,
   TransactionInput,
   TransactionRegistry,
-  TransactionStatus
+  TransactionStatus,
+  TypedDataInput
 } from '../domain'
 import { TransactionRequestIntentError } from '../error'
-import { Intent } from '../intent.types'
+import { Intent, TypedDataIntent } from '../intent.types'
 import { isSupportedMethodId } from '../typeguards'
-import { getCategory, getMethodId, getTransactionIntentType, transactionLookup } from '../utils'
+import { decodeTypedData, getCategory, getMethodId, getTransactionIntentType, transactionLookup } from '../utils'
 import {
   validateContractDeploymentInput,
   validateContractInteractionInput,
@@ -106,12 +107,24 @@ export default class Decoder {
     })
   }
 
+  decodeTypedData(input: TypedDataInput): TypedDataIntent {
+    const { typedData } = input
+    const { primaryType } = typedData
+    switch (primaryType) {
+      default:
+        return decodeTypedData(typedData)
+    }
+  }
+
   public decode(input: DecodeInput): Intent {
     switch (input.type) {
       case InputType.TRANSACTION_REQUEST: {
         const strategy = this.#findTransactionStrategy(input)
         const decoded = strategy.decode()
         return this.#wrapTransactionManagementIntents(decoded, input)
+      }
+      case InputType.TYPED_DATA: {
+        return this.decodeTypedData(input)
       }
       default:
         throw new Error('Invalid input type')

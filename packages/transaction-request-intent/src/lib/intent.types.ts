@@ -1,5 +1,5 @@
 import { AccountId, Alg, AssetId, Hex } from '@narval/authz-shared'
-import { Address, TypedData } from 'viem'
+import { Address } from 'viem'
 import { Intents } from './domain'
 
 export type TransferNative = {
@@ -69,7 +69,7 @@ export type SignRawPayload = {
 export type SignTypedData = {
   type: Intents.SIGN_TYPED_DATA
   from: AccountId
-  typedData: TypedData
+  domain: Eip712Domain
 }
 
 export type DeployContract = {
@@ -130,6 +130,8 @@ export type UserOperation = {
   operationIntents: Intent[]
   beneficiary: Address
 }
+
+export type TypedDataIntent = SignTypedData | Permit | Permit2
 
 export type Intent =
   | TransferNative
