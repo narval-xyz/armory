@@ -12,6 +12,7 @@ import {
   toAssetId
 } from '@narval/authz-shared'
 import { SetOptional } from 'type-fest'
+// eslint-disable-next-line no-restricted-imports
 import { Address, isAddress } from 'viem'
 import {
   AssetTypeAndUnknown,

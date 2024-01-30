@@ -3,9 +3,9 @@ import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko
 import { SimplePrice } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
 import CoinGeckoAssetIdIndex from '@app/orchestration/price/resource/coin-gecko-asset-id-index.json'
 import { CHAINS } from '@app/orchestration/shared/core/lib/chains.lib'
-import { FiatId, Price } from '@app/orchestration/shared/core/type/price.type'
+import { FiatId, Prices } from '@app/orchestration/shared/core/type/price.type'
 import { AssetId, getAssetId, isCoin, parseAsset } from '@narval/authz-shared'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 
 type GetPricesOption = {
@@ -15,9 +15,13 @@ type GetPricesOption = {
 
 @Injectable()
 export class PriceService {
+  private logger = new Logger(PriceService.name)
+
   constructor(private coinGeckoClient: CoinGeckoClient) {}
 
-  async getPrices(options: GetPricesOption): Promise<Price> {
+  async getPrices(options: GetPricesOption): Promise<Prices> {
+    this.logger.log('Get prices', options)
+
     const from = options.from.map(this.getCoinGeckoId)
 
     if (from.some((id) => id === null)) {
@@ -28,7 +32,7 @@ export class PriceService {
       })
     }
 
-    const prices = await this.coinGeckoClient.getSimplePrice({
+    const simplePrice = await this.coinGeckoClient.getSimplePrice({
       data: {
         ids: compact(from),
         vs_currencies: options.to.map(this.getCoinGeckoCurrencyId),
@@ -36,10 +40,17 @@ export class PriceService {
       }
     })
 
-    return this.buildPrice(prices)
+    const prices = this.buildPrices(simplePrice)
+
+    this.logger.log('Received prices', {
+      options,
+      prices
+    })
+
+    return prices
   }
 
-  private buildPrice(prices: SimplePrice): Price {
+  private buildPrices(prices: SimplePrice): Prices {
     return Object.keys(prices).reduce((acc, coinId) => {
       const assetId = this.getAssetId(coinId)
 

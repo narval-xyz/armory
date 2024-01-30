@@ -1,3 +1,4 @@
+import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
 import {
   Approval,
   AuthorizationRequest,
@@ -7,9 +8,10 @@ import {
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action, HistoricalTransfer } from '@narval/authz-shared'
+import { Action, Decision, HistoricalTransfer } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { Injectable, Logger } from '@nestjs/common'
 import { mapValues, omit } from 'lodash/fp'
@@ -18,9 +20,9 @@ import { v4 as uuid } from 'uuid'
 
 const getStatus = (decision: string): AuthorizationRequestStatus => {
   const statuses: Map<string, AuthorizationRequestStatus> = new Map([
-    ['Permit', AuthorizationRequestStatus.PERMITTED],
-    ['Forbid', AuthorizationRequestStatus.FORBIDDEN],
-    ['Confirm', AuthorizationRequestStatus.APPROVING]
+    [Decision.PERMIT, AuthorizationRequestStatus.PERMITTED],
+    [Decision.FORBID, AuthorizationRequestStatus.FORBIDDEN],
+    [Decision.CONFIRM, AuthorizationRequestStatus.APPROVING]
   ])
 
   const status = statuses.get(decision)
@@ -40,7 +42,8 @@ export class AuthorizationRequestService {
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private authzApplicationClient: AuthzApplicationClient,
-    private transferFeedService: TransferFeedService
+    private transferFeedService: TransferFeedService,
+    private priceService: PriceService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -136,6 +139,11 @@ export class AuthorizationRequestService {
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       const intent = evaluation.transactionRequestIntent
       if (intent && intent.type === Intents.TRANSFER_NATIVE) {
+        const prices = await this.priceService.getPrices({
+          from: [intent.token],
+          to: [FIAT_ID_USD]
+        })
+
         const transfer = {
           orgId: authzRequest.orgId,
           from: intent.from,
@@ -145,9 +153,7 @@ export class AuthorizationRequestService {
           initiatedBy: authzRequest.authentication.pubKey,
           createdAt: new Date(),
           amount: BigInt(intent.amount),
-          rates: {
-            'fiat:usd': 0.99
-          }
+          rates: prices[intent.token]
         }
 
         await this.transferFeedService.track(transfer)
