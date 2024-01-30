@@ -27,8 +27,10 @@ import {
   TransactionKey,
   TransactionRegistry,
   TransactionStatus,
+  TypedData,
   WalletType
 } from './domain'
+import { SignTypedData } from './intent.types'
 import { SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
 import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from './typeguards'
 
@@ -135,6 +137,28 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
     registry.set(key, status)
   })
   return registry
+}
+
+export const decodeTypedData = (typedData: TypedData): SignTypedData => ({
+  type: Intents.SIGN_TYPED_DATA,
+  domain: typedData.domain,
+  from: toAccountId({
+    chainId: typedData.domain.chainId,
+    address: typedData.from.toLowerCase() as Address
+  })
+})
+
+export const decodePermit = (typedData: TypedData): SignTypedData => {
+  const { domain } = typedData
+  // const { spender, value, nonce, deadline } = message
+  return {
+    type: Intents.SIGN_TYPED_DATA,
+    domain,
+    from: toAccountId({
+      chainId: domain.chainId,
+      address: typedData.from
+    })
+  }
 }
 
 export const transactionLookup = (
