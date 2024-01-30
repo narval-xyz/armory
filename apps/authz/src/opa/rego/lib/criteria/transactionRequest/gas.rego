@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 gasFee = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
 
 gasFeeAmount(currency) = result {

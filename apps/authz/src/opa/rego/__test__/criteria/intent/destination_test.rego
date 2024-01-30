@@ -1,10 +1,5 @@
 package main
 
-test_wildcardDestination {
-	checkDestinationAddress(wildcard)
-	checkDestinationClassification(wildcard)
-}
-
 test_destination {
 	res = destination with input as request
 		with data.entities as entities
@@ -21,4 +16,9 @@ test_destination {
 
 	checkDestinationClassification({"internal"}) with input as request
 		with data.entities as entities
+}
+
+test_wildcardDestination {
+	checkDestinationAddress(wildcard)
+	checkDestinationClassification(wildcard)
 }

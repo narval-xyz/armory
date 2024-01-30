@@ -19,8 +19,8 @@ permit[{"policyId": "approvalByUsers"}] := reason {
 	input.action == "signTransaction"
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkContractAddress(tokens)
-	checkTokenAmount(transferValueCondition)
+	checkIntentContractAddress(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 
@@ -49,8 +49,8 @@ permit[{"policyId": "approvalByUserGroups"}] := reason {
 	input.action == "signTransaction"
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkContractAddress(tokens)
-	checkTokenAmount(transferValueCondition)
+	checkIntentContractAddress(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 
@@ -79,8 +79,8 @@ permit[{"policyId": "approvalByUserRoles"}] := reason {
 	input.action == "signTransaction"
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkContractAddress(tokens)
-	checkTokenAmount(transferValueCondition)
+	checkIntentContractAddress(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals := getApprovalsResult(approvalsRequired)
 

@@ -94,7 +94,7 @@ checkSpendings(limit, filters) {
 		filters,
 	)
 
-	amount = tokenAmount(conditions.currency)
+	amount = intentAmount(conditions.currency)
 
 	spendings := sum([spending |
 		transfer := input.transfers[_]

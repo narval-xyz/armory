@@ -17,7 +17,7 @@ forbid[{"policyId": "spendingLimitByRole"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalRole(roles)
 	checkIntentType(transferTypes)
-	checkContractAddress(tokens)
+	checkIntentContractAddress(tokens)
 	checkSpendings(limit, {
 		"currency": currency,
 		"tokens": tokens,
@@ -48,7 +48,7 @@ forbid[{"policyId": "spendingLimitByUser"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalId(users)
 	checkIntentType(transferTypes)
-	checkContractAddress(tokens)
+	checkIntentContractAddress(tokens)
 	checkSpendings(limit, {
 		"currency": currency,
 		"tokens": tokens,

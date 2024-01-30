@@ -1,11 +1,5 @@
 package main
 
-test_wildcardSource {
-	checkSourceAccountType(wildcard)
-	checkSourceAddress(wildcard)
-	checkSourceClassification(wildcard)
-}
-
 test_source {
 	res = source with input as request
 		with data.entities as entities
@@ -25,4 +19,10 @@ test_source {
 
 	checkSourceClassification({"wallet"}) with input as request
 		with data.entities as entities
+}
+
+test_wildcardSource {
+	checkSourceAccountType(wildcard)
+	checkSourceAddress(wildcard)
+	checkSourceClassification(wildcard)
 }
