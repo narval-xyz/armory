@@ -14,30 +14,30 @@ intentAmount(currency) = result {
 
 checkIntentAmount(condition) {
 	condition.operator == "eq"
-	to_number(condition.value) == intentAmount(condition.currency)
+	intentAmount(condition.currency) == to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
 	condition.operator == "neq"
-	to_number(condition.value) != intentAmount(condition.currency)
+	intentAmount(condition.currency) != to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
 	condition.operator == "gt"
-	to_number(condition.value) < intentAmount(condition.currency)
+	intentAmount(condition.currency) > to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
 	condition.operator == "lt"
-	to_number(condition.value) > intentAmount(condition.currency)
+	intentAmount(condition.currency) < to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
 	condition.operator == "gte"
-	to_number(condition.value) <= intentAmount(condition.currency)
+	intentAmount(condition.currency) >= to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
 	condition.operator == "lte"
-	to_number(condition.value) >= intentAmount(condition.currency)
+	intentAmount(condition.currency) <= to_number(condition.value)
 }
