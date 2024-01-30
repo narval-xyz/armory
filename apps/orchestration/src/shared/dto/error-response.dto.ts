@@ -2,6 +2,25 @@ import { HttpStatus } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsEnum, IsOptional, IsString } from 'class-validator'
 
+class OriginErrorDto {
+  @IsString()
+  @IsDefined()
+  @ApiProperty()
+  message: string
+
+  @IsString()
+  @IsDefined()
+  @ApiProperty()
+  name: string
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The error stacktrace (not available in production)',
+    required: false
+  })
+  stack: string
+}
+
 export class ErrorResponseDto {
   @IsEnum(HttpStatus)
   @IsDefined()
@@ -28,5 +47,13 @@ export class ErrorResponseDto {
     description: 'The error stacktrace (not available in production)',
     required: false
   })
-  stacktrace: string
+  stack: string
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The origin error (not available in production)',
+    required: false,
+    type: OriginErrorDto
+  })
+  origin: OriginErrorDto
 }

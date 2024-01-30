@@ -29,7 +29,8 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
             statusCode: status,
             message: exception.message,
             context: exception.context,
-            stacktrace: exception.stack
+            stack: exception.stack,
+            ...(exception.originalError && { origin: exception.originalError })
           }
     )
   }
@@ -43,7 +44,8 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
       this.logger[level](exception.message, {
         status: exception.getStatus(),
         context: exception.context,
-        stacktrace: exception.stack
+        stacktrace: exception.stack,
+        origin: exception.originalError
       })
     }
   }
