@@ -62,16 +62,12 @@ jobs:
           make authz/format/check
           make authz/lint/check
 
-      # TODO: Finish once the authz-node has a database.
       - name: Setup database and Prisma types
         shell: bash
         run: |
           make authz/copy-default-env
-          # make orchestration/test/db/setup
-
-          # Generate the orchestration Prisma client types to prevent the type
-          # tests to fail.
-          # make orchestration/db/generate-types
+          make authz/test/db/setup
+          make authz/db/generate-types
 
       - name: Test types
         shell: bash

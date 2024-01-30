@@ -12,6 +12,8 @@ authz/start/dev:
 authz/setup:
 	make authz/copy-default-env
 	make authz/rego/compile
+	make authz/db/setup
+	make authz/test/db/setup
 
 authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env
@@ -50,7 +52,6 @@ authz/db/setup:
 		prisma migrate reset \
 			--schema ${AUTHZ_DATABASE_SCHEMA} \
 			--force
-	make authz/db/seed
 
 	@echo ""
 	@echo "${TERM_GREEN}🛠️  Setting up Authz test database${TERM_NO_COLOR}"
