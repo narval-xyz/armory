@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output into a separate subdirectory so multiple schemas can be used in a
+  // monorepo.
+  //
+  // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
+  output   = "../../../../../../../node_modules/@prisma/client/authz"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("ENGINE_DATABASE_URL")
+}
+
+model Organization {
+  uid       String   @id
+
+  @@map("organization")
+}
+
+model AuthCredential {
+  pubKey    String   @id @map("pub_key")
+  alg       String   @map("alg")
+  userId    String   @map("user_id")
+
+  @@map("auth_credential")
+}
+
+model User {
+  uid       String   @id
+  role      String
+
+  @@map("user")
+}
