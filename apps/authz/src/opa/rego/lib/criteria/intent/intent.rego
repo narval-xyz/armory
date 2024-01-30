@@ -63,26 +63,4 @@ checkIntentHexSignature(values) {
 	input.intent.hexSignature in values
 }
 
-# Intent message
 
-checkIntentMessage(operator, value) {
-	operator == "equals"
-	value == input.intent.message
-}
-
-checkIntentMessage(operator, value) {
-	operator == "contains"
-	contains(input.intent.message, value)
-}
-
-# Intent payload
-
-checkIntentPayload(operator, value) {
-	operator == "equals"
-	value == input.intent.payload
-}
-
-checkIntentPayload(operator, value) {
-	operator == "contains"
-	contains(input.intent.payload, value)
-}

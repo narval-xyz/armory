@@ -52,7 +52,12 @@ test_checkSignTypedData {
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signTypedData",
-			"typedData": {},
+			"domain": {
+				"version": "2",
+				"chainId": 137,
+				"name": "LINK",
+				"verifyingContract": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			},
 		},
 	}
 
@@ -61,4 +66,10 @@ test_checkSignTypedData {
 
 	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
 		with data.entities as entities
+
+	checkIntentDomain({
+		"chainId": {1, 137},
+		"name": {"UNI", "LINK"},
+		"verifyingContract": {"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"},
+	}) with input as signTypedDataRequest with data.entities as entities
 }
