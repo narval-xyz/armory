@@ -22,13 +22,13 @@ authz/copy-default-env:
 # == Code format ==
 
 authz/format:
-	 npx nx format:write --projects ${AUTHZ_PROJECT_NAME}
+	npx nx format:write --projects ${AUTHZ_PROJECT_NAME}
 
 authz/lint:
 	npx nx lint ${AUTHZ_PROJECT_NAME} -- --fix
 
 authz/format/check:
-	 npx nx format:check --projects ${AUTHZ_PROJECT_NAME}
+	npx nx format:check --projects ${AUTHZ_PROJECT_NAME}
 
 authz/lint/check:
 	npx nx lint ${AUTHZ_PROJECT_NAME}

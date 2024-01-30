@@ -3,7 +3,7 @@ import { OrganizationRepository } from '@app/authz/app/persistence/repository/or
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/authz/shared/module/persistence/service/test-prisma.service'
 import { Alg } from '@narval/authz-shared'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 
 describe(OrganizationRepository.name, () => {
@@ -33,6 +33,12 @@ describe(OrganizationRepository.name, () => {
   })
 
   describe('create', () => {
+    it('should have test db url', () => {
+      // Just leaving this to ensure the jest.setup.ts file is configured correctly to set the env variable.
+      const configService = module.get<ConfigService>(ConfigService)
+      expect(configService.get('database.url', { infer: true })).toBe('file:./engine-core-test.sqlite')
+    })
+
     it('creates a new organization', async () => {
       await repository.createOrganization('test-org-uid', 'test-user-uid', {
         alg: Alg.ES256K,

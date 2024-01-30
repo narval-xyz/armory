@@ -4,6 +4,7 @@ const config: Config = {
   displayName: 'authz',
   moduleFileExtensions: ['ts', 'js', 'html'],
   preset: '../../jest.preset.js',
+  setupFiles: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': [
