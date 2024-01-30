@@ -55,3 +55,6 @@ Thumbs.db
 .env.test
 
 /rego-build
+
+*.sqlite
+*.sqlite-journal
