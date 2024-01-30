@@ -10,7 +10,7 @@ export type User = {
 
 export type UserGroup = {
   uid: string
-  name: string
+  name?: string
   users: string[] // userIds
 }
 
@@ -33,12 +33,6 @@ export type AddressBookAccount = {
   address: string
   chainId: number
   classification: string
-}
-
-export type AddressBook = {
-  orgId: UUID
-  name: string
-  accounts: AddressBookAccount[]
 }
 
 export type Token = {

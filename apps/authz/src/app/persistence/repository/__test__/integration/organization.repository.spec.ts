@@ -41,6 +41,7 @@ describe(OrganizationRepository.name, () => {
 
     it('creates a new organization', async () => {
       await repository.createOrganization('test-org-uid', 'test-user-uid', {
+        kid: 'test-kid',
         alg: Alg.ES256K,
         pubKey: 'test-public-key'
       })

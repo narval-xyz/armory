@@ -48,12 +48,6 @@ export type AddressBookAccount = {
   classification: string
 }
 
-export type AddressBook = {
-  orgId: UUID
-  name: string
-  accounts: AddressBookAccount[]
-}
-
 export type RolePermission = {
   permit: boolean
   admin_quorum_threshold?: number
