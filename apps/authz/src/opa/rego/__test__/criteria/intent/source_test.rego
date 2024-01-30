@@ -1,13 +1,5 @@
 package main
 
-import future.keywords.in
-
-test_wildcardSource {
-	checkSourceAccountType(wildcard)
-	checkSourceAddress(wildcard)
-	checkSourceClassification(wildcard)
-}
-
 test_source {
 	res = source with input as request
 		with data.entities as entities
@@ -22,9 +14,15 @@ test_source {
 	checkSourceAccountType({"eoa"}) with input as request
 		with data.entities as entities
 
-	checkSourceAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
+	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
 		with data.entities as entities
 
 	checkSourceClassification({"wallet"}) with input as request
 		with data.entities as entities
+}
+
+test_wildcardSource {
+	checkSourceAccountType(wildcard)
+	checkSourceAddress(wildcard)
+	checkSourceClassification(wildcard)
 }

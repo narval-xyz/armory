@@ -1,7 +1,5 @@
 package main
 
-import future.keywords.in
-
 test_approversRoles {
 	roles = approversRoles with input as request
 		with data.entities as entities

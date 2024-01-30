@@ -1,41 +1,28 @@
 package main
 
-import future.keywords.in
-
-test_checkTransferResourceIntegrity {
+test_resource {
 	checkTransferResourceIntegrity with input as request
 		with data.entities as entities
-}
 
-test_walletGroups {
-	groups = walletGroups with input as request
+	wallet = resource with input as request
 		with data.entities as entities
 
-	groups == {"test-wallet-group-one-uid"}
-}
-
-test_getWalletGroups {
-	getWalletGroups({"test-wallet-group-one-uid"}) with input as request
-		with data.entities as entities
-}
-
-test_wildcardResource {
-	checkWalletId(wildcard)
-	checkWalletGroups(wildcard)
-	checkWalletChainId(wildcard)
-	checkWalletAssignees(wildcard)
-}
-
-test_resource {
-	res = resource with input as request
-		with data.entities as entities
-
-	res == {
+	wallet == {
 		"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"accountType": "eoa",
 		"assignees": ["test-bob-uid", "test-alice-uid", "test-bar-uid"],
 	}
+
+	groups = walletGroups with input as request
+		with data.entities as entities
+
+	groups == {"test-wallet-group-one-uid"}
+
+	walletGroupsById = getWalletGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with input as request
+		with data.entities as entities
+
+	walletGroupsById == {"test-wallet-group-one-uid"}
 
 	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
 		with data.entities as entities
@@ -48,4 +35,11 @@ test_resource {
 
 	checkWalletAssignees({"test-bob-uid"}) with input as request
 		with data.entities as entities
+}
+
+test_wildcardResource {
+	checkWalletId(wildcard)
+	checkWalletGroups(wildcard)
+	checkWalletChainId(wildcard)
+	checkWalletAssignees(wildcard)
 }

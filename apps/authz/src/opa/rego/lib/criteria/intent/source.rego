@@ -10,6 +10,8 @@ source = result {
 	result := data.entities.addressBook[input.intent.from]
 }
 
+# Intent Source Account Type
+
 checkSourceAccountType(values) {
 	values == wildcard
 }
@@ -19,14 +21,18 @@ checkSourceAccountType(values) {
 	source.accountType in values
 }
 
+# Intent Source Address
+
 checkSourceAddress(values) {
 	values == wildcard
 }
 
 checkSourceAddress(values) {
 	values != wildcard
-	source.address in values
+	source.uid in values
 }
+
+# Intent Source Classification
 
 checkSourceClassification(values) {
 	values == wildcard

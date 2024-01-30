@@ -10,14 +10,18 @@ destination = result {
 	result := data.entities.addressBook[input.intent.to]
 }
 
+# Intent Destination Address
+
 checkDestinationAddress(values) {
 	values == wildcard
 }
 
 checkDestinationAddress(values) {
 	values != wildcard
-	destination.address in values
+	destination.uid in values
 }
+
+# Intent Destination Classification
 
 checkDestinationClassification(values) {
 	values == wildcard
