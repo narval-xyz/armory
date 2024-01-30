@@ -82,6 +82,7 @@ jobs:
       - name: Test integration
         shell: bash
         run: |
+          make authz/test/db/setup
           make authz/test/integration
 
       # - name: Test E2E
