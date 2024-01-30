@@ -4,7 +4,7 @@
  */
 import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
 import { Coin } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
-import { CHAINS, Chain } from '@app/orchestration/shared/core/lib/chains.lib'
+import { CHAINS, Chain, findChain } from '@app/orchestration/shared/core/lib/chains.lib'
 import { AssetId, AssetType, getAddress, isAddress, toAssetId } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
 import { Logger } from '@nestjs/common'
@@ -15,14 +15,14 @@ import { Address } from 'viem'
 
 const logger = new Logger('CoinGeckoCoinDictionaryScript')
 
-const SUPPORTED_PLATFORMS = Object.values(CHAINS).map(({ coinGecko }) => coinGecko.platform)
+const SUPPORTED_PLATFORMS = Array.from(CHAINS.values()).map(({ coinGecko }) => coinGecko.platform)
 
-const CHAINS_BY_PLATFORM = Object.values(CHAINS).reduce((acc, chain) => {
+const CHAINS_BY_PLATFORM = Array.from(CHAINS.values()).reduce((acc, chain) => {
   return acc.set(chain.coinGecko.platform, chain)
 }, new Map<string, Chain>())
 
 const isSupported = (coin: Coin) =>
-  Boolean(Object.values(CHAINS).find((chain) => Object.keys(coin.platforms).includes(chain.coinGecko.platform)))
+  Boolean(findChain((chain) => Object.keys(coin.platforms).includes(chain.coinGecko.platform)))
 
 const selectPlatforms =
   (platforms: string[]) =>

@@ -1,4 +1,6 @@
+import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { AssetId } from '@narval/authz-shared'
+import { HttpStatus } from '@nestjs/common'
 
 export enum ChainId {
   ETHEREUM = 1,
@@ -61,7 +63,29 @@ export const POLYGON: Chain = {
   }
 }
 
-export const CHAINS: Record<number, Chain> = {
-  [ChainId.ETHEREUM]: ETHEREUM,
-  [ChainId.POLYGON]: POLYGON
+export const CHAINS = new Map<number, Chain>([
+  [ChainId.ETHEREUM, ETHEREUM],
+  [ChainId.POLYGON, POLYGON]
+])
+
+export const safeGetChain = (chainId: number): Chain | undefined => {
+  return CHAINS.get(chainId)
+}
+
+export const getChain = (chainId: number): Chain => {
+  const chain = safeGetChain(chainId)
+
+  if (chain) {
+    return chain
+  }
+
+  throw new ApplicationException({
+    message: 'Chain ID is unsupported',
+    suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+    context: { chainId }
+  })
+}
+
+export const findChain = (pred: (value: Chain) => boolean): Chain | undefined => {
+  return Array.from(CHAINS.values()).find(pred)
 }

@@ -1,10 +1,9 @@
 import { PriceException } from '@app/orchestration/price/core/exception/price.exception'
 import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
 import { SimplePrice } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
-import CoinGeckoAssetIdIndex from '@app/orchestration/price/resource/coin-gecko-asset-id-index.json'
-import { CHAINS } from '@app/orchestration/shared/core/lib/chains.lib'
+import { CoinGeckoAssetRepository } from '@app/orchestration/price/persistence/repository/coin-gecko-asset.repository'
 import { FiatId, Prices } from '@app/orchestration/shared/core/type/price.type'
-import { AssetId, getAssetId, isCoin, parseAsset } from '@narval/authz-shared'
+import { AssetId } from '@narval/authz-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 
@@ -17,12 +16,12 @@ type GetPricesOption = {
 export class PriceService {
   private logger = new Logger(PriceService.name)
 
-  constructor(private coinGeckoClient: CoinGeckoClient) {}
+  constructor(private coinGeckoClient: CoinGeckoClient, private coinGeckoAssetRepository: CoinGeckoAssetRepository) {}
 
   async getPrices(options: GetPricesOption): Promise<Prices> {
     this.logger.log('Get prices', options)
 
-    const from = options.from.map(this.getCoinGeckoId)
+    const from = options.from.map(this.coinGeckoAssetRepository.getSourceId)
 
     if (from.some((id) => id === null)) {
       throw new PriceException({
@@ -35,7 +34,7 @@ export class PriceService {
     const simplePrice = await this.coinGeckoClient.getSimplePrice({
       data: {
         ids: compact(from),
-        vs_currencies: options.to.map(this.getCoinGeckoCurrencyId),
+        vs_currencies: options.to.map(this.coinGeckoAssetRepository.getFiatId),
         precision: 18
       }
     })
@@ -52,7 +51,7 @@ export class PriceService {
 
   private buildPrices(prices: SimplePrice): Prices {
     return Object.keys(prices).reduce((acc, coinId) => {
-      const assetId = this.getAssetId(coinId)
+      const assetId = this.coinGeckoAssetRepository.getAssetId(coinId)
 
       if (assetId) {
         return {
@@ -68,40 +67,5 @@ export class PriceService {
 
       return acc
     }, {})
-  }
-
-  private getAssetId(coinId: string): AssetId | null {
-    const chain = Object.values(CHAINS).find((chain) => chain.coinGecko.coinId === coinId)
-
-    if (chain) {
-      return chain.coin.id
-    }
-
-    for (const key in CoinGeckoAssetIdIndex) {
-      if (CoinGeckoAssetIdIndex[key as keyof typeof CoinGeckoAssetIdIndex] === coinId) {
-        return getAssetId(key)
-      }
-    }
-
-    return null
-  }
-
-  private getCoinGeckoId(assetId: AssetId): string | null {
-    const asset = parseAsset(assetId)
-    const chain = CHAINS[asset.chainId]
-
-    if (!chain) {
-      return null
-    }
-
-    if (isCoin(asset)) {
-      return chain.coinGecko.coinId
-    }
-
-    return CoinGeckoAssetIdIndex[assetId as keyof typeof CoinGeckoAssetIdIndex] || null
-  }
-
-  private getCoinGeckoCurrencyId(fiat: FiatId): string {
-    return fiat.replace('fiat:', '')
   }
 }
