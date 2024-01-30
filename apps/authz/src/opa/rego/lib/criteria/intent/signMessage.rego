@@ -4,26 +4,26 @@ import future.keywords.in
 
 # Intent Sign Message
 
-checkIntentMessage(operator, value) {
-	operator == "equals"
-	value == input.intent.message
+checkIntentMessage(condition) {
+	condition.operator == "equals"
+	condition.value == input.intent.message
 }
 
-checkIntentMessage(operator, value) {
-	operator == "contains"
-	contains(input.intent.message, value)
+checkIntentMessage(condition) {
+	condition.operator == "contains"
+	contains(input.intent.message, condition.value)
 }
 
 # Intent Sign Raw Payload
 
-checkIntentPayload(operator, value) {
-	operator == "equals"
-	value == input.intent.payload
+checkIntentPayload(condition) {
+	condition.operator == "equals"
+	condition.value == input.intent.payload
 }
 
-checkIntentPayload(operator, value) {
-	operator == "contains"
-	contains(input.intent.payload, value)
+checkIntentPayload(condition) {
+	condition.operator == "contains"
+	contains(input.intent.payload, condition.value)
 }
 
 # Intent Sign Raw Payload Algorithm

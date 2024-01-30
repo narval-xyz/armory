@@ -21,14 +21,6 @@ checkERC1155TokenId(values) {
 	transfer.tokenId in values
 }
 
-# Ex: operations = [{ "tokenId": "1", "operator": "eq", "value": "1" }, {"tokenId": "2", operator": "lte", "value": "10"}]
-checkERC1155Transfers(operations) {
-	input.intent.transfers[t].tokenId == operations[o].tokenId
-	transfer = input.intent.transfers[t]
-	operation = operations[o]
-	checkERC1155TokenAmount(transfer.amount, operation)
-}
-
 checkERC1155TokenAmount(amount, operation) {
 	operation.operator == "eq"
 	to_number(operation.value) == to_number(amount)
@@ -57,6 +49,14 @@ checkERC1155TokenAmount(amount, operation) {
 checkERC1155TokenAmount(amount, operation) {
 	operation.operator == "lte"
 	to_number(operation.value) >= to_number(amount)
+}
+
+# Ex: operations = [{ "tokenId": "1", "operator": "eq", "value": "1" }, {"tokenId": "2", operator": "lte", "value": "10"}]
+checkERC1155Transfers(operations) {
+	input.intent.transfers[t].tokenId == operations[o].tokenId
+	transfer = input.intent.transfers[t]
+	operation = operations[o]
+	checkERC1155TokenAmount(transfer.amount, operation)
 }
 
 extractTokenIdFromCaip19(caip19) := result {

@@ -3,6 +3,7 @@ package main
 test_checkSignMessage {
 	signMessageRequest = {
 		"action": "signTransaction",
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signMessage",
@@ -13,19 +14,20 @@ test_checkSignMessage {
 	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkIntentMessage("equals", "Hello world!") with input as signMessageRequest
+	checkIntentMessage({"operator": "equals", "value": "Hello world!"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkIntentMessage("contains", "Hello") with input as signMessageRequest
+	checkIntentMessage({"operator": "contains", "value": "Hello"}) with input as signMessageRequest
 		with data.entities as entities
 }
 
 test_checkSignRawPayload {
 	signRawPayloadRequest = {
 		"action": "signTransaction",
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signRawPayload",
@@ -36,19 +38,20 @@ test_checkSignRawPayload {
 	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkIntentPayload("equals", "Hello world!") with input as signRawPayloadRequest
+	checkIntentPayload({"operator": "equals", "value": "Hello world!"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkIntentPayload("contains", "Hello") with input as signRawPayloadRequest
+	checkIntentPayload({"operator": "contains", "value": "Hello"}) with input as signRawPayloadRequest
 		with data.entities as entities
 }
 
 test_checkSignTypedData {
 	signTypedDataRequest = {
 		"action": "signTransaction",
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signTypedData",
@@ -64,7 +67,7 @@ test_checkSignTypedData {
 	checkIntentType({"signTypedData"}) with input as signTypedDataRequest
 		with data.entities as entities
 
-	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
 		with data.entities as entities
 
 	checkIntentDomain({
