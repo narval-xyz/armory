@@ -74,6 +74,7 @@ authz/test/db/setup:
 		--force
 
 authz/test/type:
+	make authz/db/generate-types
 	npx tsc \
 		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json \
 		--noEmit
