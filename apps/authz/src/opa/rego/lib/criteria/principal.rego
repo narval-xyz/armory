@@ -26,6 +26,8 @@ checkPrincipal {
 	isPrincipalAssignedToWallet
 }
 
+# Principal ID
+
 checkPrincipalId(values) {
 	values == wildcard
 }
@@ -35,6 +37,8 @@ checkPrincipalId(values) {
 	principal.uid in values
 }
 
+# Principal Role
+
 checkPrincipalRole(values) {
 	values == wildcard
 }
@@ -43,6 +47,8 @@ checkPrincipalRole(values) {
 	values != wildcard
 	principal.role in values
 }
+
+# Principal Group
 
 checkPrincipalGroups(values) {
 	values == wildcard

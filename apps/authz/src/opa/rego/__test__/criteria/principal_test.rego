@@ -1,25 +1,15 @@
 package main
 
-import future.keywords.in
+test_principal {
+	user = principal with input as request
+		with data.entities as entities
 
-test_wildcardPrincipal {
-	checkPrincipalId(wildcard)
-	checkPrincipalRole(wildcard)
-	checkPrincipalGroups(wildcard)
-}
+	user == {"uid": "test-bob-uid", "role": "root"}
 
-test_principalGroups {
 	groups = principalGroups with input as request
 		with data.entities as entities
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
-}
-
-test_principal {
-	res = principal with input as request
-		with data.entities as entities
-
-	res == {"uid": "test-bob-uid", "role": "root"}
 
 	isPrincipalRootUser with input as request
 		with data.entities as entities
@@ -35,4 +25,10 @@ test_principal {
 
 	checkPrincipalGroups({"test-user-group-one-uid"}) with input as request
 		with data.entities as entities
+}
+
+test_wildcardPrincipal {
+	checkPrincipalId(wildcard)
+	checkPrincipalRole(wildcard)
+	checkPrincipalGroups(wildcard)
 }
