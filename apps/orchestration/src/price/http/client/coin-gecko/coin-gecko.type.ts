@@ -1,9 +1,9 @@
 type CoinId = string
 
-type Currency = 'usd' | 'eur'
+type Currency = 'usd'
 
 type Option<Data> = {
-  url: string
+  url?: string
   apiKey?: string
   data: Data
 }
@@ -12,6 +12,7 @@ type Price = {
   [C in Currency]: number
 }
 
+// TODO: Change this before merge.
 type ChangeMetadata = {
   [C in Currency as `${C}_24h_change`]?: number
 }
@@ -41,3 +42,12 @@ type SimplePriceMetadata = ChangeMetadata &
   }
 
 export type SimplePrice = Record<CoinId, Price & SimplePriceMetadata>
+
+export type Coin = {
+  id: string
+  symbol: string
+  name: string
+  platforms: Record<string, string>
+}
+
+export type CoinList = Coin[]

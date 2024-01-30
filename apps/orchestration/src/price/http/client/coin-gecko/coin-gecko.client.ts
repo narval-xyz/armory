@@ -1,5 +1,9 @@
 import { CoinGeckoException } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.exception'
-import { SimplePrice, SimplePriceOption } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
+import {
+  CoinList,
+  SimplePrice,
+  SimplePriceOption
+} from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { AxiosError, AxiosRequestConfig } from 'axios'
@@ -14,10 +18,10 @@ export class CoinGeckoClient {
   static AUTH_HEADER = 'x-cg-pro-api-key'
   static V3_URL = 'https://api.coingecko.com/api/v3'
 
-  getSimplePrice(options: SimplePriceOption): Promise<SimplePrice> {
+  async getSimplePrice(options: SimplePriceOption): Promise<SimplePrice> {
     const request = {
       method: 'get',
-      url: `${options.url}/simple/price`,
+      url: this.getEndpoint('/simple/price', options.url),
       headers: {
         ...(options.apiKey && { [CoinGeckoClient.AUTH_HEADER]: options.apiKey })
       },
@@ -38,6 +42,29 @@ export class CoinGeckoClient {
         catchError((error) => this.throwError(request, error))
       )
     )
+  }
+
+  // IMPORTANT: used internally to build the static Asset ID to Coin ID index
+  // JSON.
+  async getCoinList(): Promise<CoinList> {
+    const request: AxiosRequestConfig = {
+      method: 'get',
+      url: `${CoinGeckoClient.V3_URL}/coins/list`,
+      params: {
+        include_platform: true
+      }
+    }
+
+    return lastValueFrom(
+      this.httpService.request<CoinList>(request).pipe(
+        map((response) => response.data),
+        catchError((error) => this.throwError(request, error))
+      )
+    )
+  }
+
+  private getEndpoint(path: string, url?: string): string {
+    return `${url || CoinGeckoClient.V3_URL}${path}`
   }
 
   private formatStringArray(value: string[]): string {

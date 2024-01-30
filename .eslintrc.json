@@ -24,7 +24,20 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
-      "rules": {}
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "viem",
+                "importNames": ["getAddress", "isAddress"],
+                "message": "Please note the `getAddress` and `isAddress` functions work exclusively with checksummed addresses. If your requirement is to verify or retrieve an address regardless of its format, you should use the corresponding functions in `evm.util.ts`, which are designed to handle various address formats."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

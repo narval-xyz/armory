@@ -1,4 +1,5 @@
-import { isAddress, isHex } from 'viem'
+import { isAddress } from '@narval/authz-shared'
+import { isHex } from 'viem'
 import { z } from 'zod'
 
 /**
