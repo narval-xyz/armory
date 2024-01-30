@@ -32,7 +32,7 @@
               {
                 "name": "viem",
                 "importNames": ["getAddress", "isAddress"],
-                "message": "Please note the `getAddress` and `isAddress` functions work exclusively with checksummed addresses. If your requirement is to verify or retrieve an address regardless of its format, you should use the corresponding functions in `evm.util.ts`, which are designed to handle various address formats."
+                "message": "Please note the `getAddress` and `isAddress` functions work exclusively with checksummed addresses. If your need to verify or retrieve an address regardless of its format, you should use the corresponding functions in `evm.util.ts`."
               }
             ]
           }
