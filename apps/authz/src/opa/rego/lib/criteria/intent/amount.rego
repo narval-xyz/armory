@@ -9,7 +9,18 @@ intentAmount(currency) = result {
 
 intentAmount(currency) = result {
 	currency != wildcard
-	result = to_number(input.intent.amount) * to_number(input.prices[currency])
+	amount = to_number(input.intent.amount)
+	token = input.intent.token
+	price = to_number(input.prices[token][currency])
+	result = amount * price
+}
+
+intentAmount(currency) = result {
+	currency != wildcard
+	amount = to_number(input.intent.amount)
+	contract = input.intent.contract
+	price = to_number(input.prices[contract][currency])
+	result = amount * price
 }
 
 checkIntentAmount(condition) {

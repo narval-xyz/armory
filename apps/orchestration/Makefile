@@ -22,6 +22,12 @@ orchestration/copy-default-env:
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.default ${ORCHESTRATION_PROJECT_DIR}/.env
 	cp ${ORCHESTRATION_PROJECT_DIR}/.env.test.default ${ORCHESTRATION_PROJECT_DIR}/.env.test
 
+# === Build ===
+
+orchestration/build/script:
+	npx tsc --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
+	npx tsc-alias --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
+
 # == Code format ==
 
 orchestration/format:
@@ -73,8 +79,7 @@ orchestration/db/create-migration:
 # project and resolve its path aliases before running the vanilla JavaScript
 # seed entry point.
 orchestration/db/seed:
-	npx tsc --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
-	npx tsc-alias --project ${ORCHESTRATION_PROJECT_DIR}/tsconfig.app.json
+	make orchestration/build/script
 	npx dotenv -e ${ORCHESTRATION_PROJECT_DIR}/.env -- \
 		node dist/out-tsc/${ORCHESTRATION_PROJECT_DIR}/src/shared/module/persistence/seed.js
 
@@ -115,3 +120,9 @@ orchestration/test:
 	make orchestration/test/unit
 	make orchestration/test/integration
 	make orchestration/test/e2e
+
+# === Price Module ===
+
+orchestration/price/generate-coin-gecko-asset-id-index:
+	make orchestration/build/script
+	node dist/out-tsc/${ORCHESTRATION_PROJECT_DIR}/src/price/script/generate-coin-gecko-asset-id-index.script.js

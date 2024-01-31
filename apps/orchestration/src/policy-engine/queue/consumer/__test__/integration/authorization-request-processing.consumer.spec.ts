@@ -13,6 +13,7 @@ import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/cl
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
@@ -100,6 +101,10 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         {
           provide: AuthzApplicationClient,
           useValue: mock<AuthzApplicationClient>()
+        },
+        {
+          provide: PriceService,
+          useValue: mock<PriceService>()
         }
       ]
     }).compile()

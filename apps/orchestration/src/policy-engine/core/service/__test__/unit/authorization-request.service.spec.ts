@@ -2,9 +2,11 @@ import {
   generateApproval,
   generateAuthorizationRequest,
   generateSignTransactionRequest,
-  generateSignature
+  generateSignature,
+  generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
 import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
+import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
   Approval,
@@ -12,30 +14,34 @@ import {
   AuthorizationRequestStatus,
   SignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import {
-  AuthzApplicationClient,
-  EvaluationResponse
-} from '@app/orchestration/policy-engine/http/client/authz-application.client'
+import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
+import { PriceService } from '@app/orchestration/price/core/service/price.service'
+import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { AccountId, Action, AssetId, Decision } from '@narval/authz-shared'
+import { Action, Decision, EvaluationResponse, getAccountId, getAssetId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
-import { mock } from 'jest-mock-extended'
+import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
 
 describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
-  let authzRequestRepositoryMock: AuthorizationRequestRepository
-  let authzRequestProcessingProducerMock: AuthorizationRequestProcessingProducer
-  let transferFeedServiceMock: TransferFeedService
-  let authzApplicationClientMock: AuthzApplicationClient
+  let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
+  let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
+  let transferFeedServiceMock: MockProxy<TransferFeedService>
+  let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
+  let priceServiceMock: MockProxy<PriceService>
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
-    request: generateSignTransactionRequest()
+    request: generateSignTransactionRequest({
+      transactionRequest: generateTransactionRequest({
+        chainId: ChainId.POLYGON
+      })
+    })
   })
 
   beforeEach(async () => {
@@ -43,6 +49,7 @@ describe(AuthorizationRequestService.name, () => {
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
     transferFeedServiceMock = mock<TransferFeedService>()
     authzApplicationClientMock = mock<AuthzApplicationClient>()
+    priceServiceMock = mock<PriceService>()
 
     module = await Test.createTestingModule({
       providers: [
@@ -62,6 +69,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: AuthzApplicationClient,
           useValue: authzApplicationClientMock
+        },
+        {
+          provide: PriceService,
+          useValue: priceServiceMock
         }
       ]
     }).compile()
@@ -77,9 +88,14 @@ describe(AuthorizationRequestService.name, () => {
       approvals: [approval]
     }
 
-    it('creates a new approval and evaluates the authorization request', async () => {
-      jest.spyOn(authzRequestRepositoryMock, 'update').mockResolvedValue(updatedAuthzRequest)
+    beforeEach(() => {
+      // To isolate the approve scenario, prevents the evaluation procedure to
+      // run by mocking it.
       jest.spyOn(service, 'evaluate').mockResolvedValue(updatedAuthzRequest)
+    })
+
+    it('creates a new approval and evaluates the authorization request', async () => {
+      authzRequestRepositoryMock.update.mockResolvedValue(updatedAuthzRequest)
 
       await service.approve(authzRequest.id, approval)
 
@@ -92,28 +108,41 @@ describe(AuthorizationRequestService.name, () => {
   })
 
   describe('evaluate', () => {
+    const matic = getAssetId('eip155:137/slip44:966')
+
     const evaluationResponse: EvaluationResponse = {
       decision: Decision.PERMIT,
       request: authzRequest.request,
       attestation: generateSignature(),
-      // TODO (@wcalderipe, 25/01/24): Revisit the types of
-      // @narval/transaction-request-intent with @pierre and start using a
-      // shared library.
       transactionRequestIntent: {
         type: Intents.TRANSFER_NATIVE,
         amount: '1000000000000000000',
-        to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as AccountId,
-        from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as AccountId,
-        token: 'eip155:137/slip44/966' as AssetId
+        to: getAccountId('eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
+        from: getAccountId('eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'),
+        token: matic
       }
     }
 
     const transfers: Transfer[] = times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2)
 
     beforeEach(() => {
-      jest.spyOn(authzApplicationClientMock, 'evaluation').mockResolvedValue(evaluationResponse)
-      jest.spyOn(authzRequestRepositoryMock, 'update').mockResolvedValue(authzRequest)
-      jest.spyOn(transferFeedServiceMock, 'findByOrgId').mockResolvedValue(transfers)
+      authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
+      authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
+      transferFeedServiceMock.findByOrgId.mockResolvedValue(transfers)
+      priceServiceMock.getPrices.mockResolvedValue({
+        [matic]: {
+          [FIAT_ID_USD]: 0.99
+        }
+      })
+    })
+
+    it('gets request assets prices', async () => {
+      await service.evaluate(authzRequest)
+
+      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(1, {
+        from: [matic],
+        to: [FIAT_ID_USD]
+      })
     })
 
     it('calls authz application client', async () => {
@@ -144,6 +173,15 @@ describe(AuthorizationRequestService.name, () => {
             createdAt: expect.any(Date)
           })
         ]
+      })
+    })
+
+    it('gets transfer asset prices', async () => {
+      await service.evaluate(authzRequest)
+
+      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(2, {
+        from: [matic],
+        to: [FIAT_ID_USD]
       })
     })
 

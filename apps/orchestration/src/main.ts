@@ -23,13 +23,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
       .setVersion('1.0')
       .build()
   )
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      // Temporary disable the "Try it out" button while the API is just a
-      // placeholder.
-      supportedSubmitMethods: []
-    }
-  })
+  SwaggerModule.setup('docs', app, document)
 
   return app
 }

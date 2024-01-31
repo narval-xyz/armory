@@ -26,4 +26,3 @@ test_principal {
 	checkPrincipalGroup({"test-user-group-one-uid"}) with input as request
 		with data.entities as entities
 }
-

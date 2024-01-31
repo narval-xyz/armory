@@ -60,6 +60,7 @@ export type VerifiedApproval = {
 }
 
 export type AuthCredential = {
+  kid: string // sha256 of the pubKey, used as the short identifier
   pubKey: string
   alg: Alg
   userId: string

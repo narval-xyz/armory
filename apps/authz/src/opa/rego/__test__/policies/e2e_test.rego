@@ -7,7 +7,7 @@ e2e_req = {
 		"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 		"type": "transferNative",
 		"amount": "1000000000000000000",
-		"token": "eip155:137/slip44/966",
+		"token": "eip155:137/slip44:966",
 	},
 	"transactionRequest": {
 		"from": "0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
@@ -54,7 +54,7 @@ e2e_req = {
 			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"token": "eip155:137/slip44/966",
+			"token": "eip155:137/slip44:966",
 			"rates": {
 				"fiat:usd": "0.99",
 				"fiat:eur": "1.10",
@@ -67,7 +67,7 @@ e2e_req = {
 			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"token": "eip155:137/slip44/966",
+			"token": "eip155:137/slip44:966",
 			"rates": {
 				"fiat:usd": "0.99",
 				"fiat:eur": "1.10",
@@ -80,7 +80,7 @@ e2e_req = {
 			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"token": "eip155:137/slip44/966",
+			"token": "eip155:137/slip44:966",
 			"rates": {
 				"fiat:usd": "0.99",
 				"fiat:eur": "1.10",
@@ -93,7 +93,7 @@ e2e_req = {
 			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"token": "eip155:137/slip44/966",
+			"token": "eip155:137/slip44:966",
 			"rates": {
 				"fiat:usd": "0.99",
 				"fiat:eur": "1.10",
@@ -102,10 +102,10 @@ e2e_req = {
 			"timestamp": tenHoursAgo,
 		},
 	],
-	"prices": {
+	"prices": {"eip155:137/slip44:966": {
 		"fiat:usd": "0.99",
 		"fiat:eur": "1.10",
-	},
+	}},
 }
 
 e2e_entities = {

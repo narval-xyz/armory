@@ -3,7 +3,8 @@ import { Approval, AuthorizationRequest, SignTransaction } from '@app/orchestrat
 import { readRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/request.schema'
 import { readSignTransactionSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-transaction.schema'
 import { signatureSchema } from '@app/orchestration/policy-engine/persistence/schema/signature.schema'
-import { Decision, Signature } from '@narval/authz-shared'
+import { readTransactionRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
+import { Decision, Signature, TransactionRequest } from '@narval/authz-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
@@ -32,6 +33,17 @@ const authorizationRequestSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date()
 })
+
+export const generateTransactionRequest = (partial?: Partial<TransactionRequest>): TransactionRequest => {
+  const fixture = new Fixture()
+    .extend([hexGenerator, addressGenerator, chainIdGenerator])
+    .fromSchema(readTransactionRequestSchema)
+
+  return {
+    ...fixture,
+    ...partial
+  }
+}
 
 export const generateSignTransactionRequest = (partial?: Partial<SignTransaction>): SignTransaction => {
   const fixture = new Fixture()
