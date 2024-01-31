@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { InvalidAddressError, getAddress as viemGetAddress, isAddress as viemIsAddress } from 'viem'
-import { Address } from '../type/domain.type'
+import { Address } from '../type/action.type'
 
 /**
  * Checks if a string is a valid Ethereum address without regard of its format.

@@ -1,35 +1,9 @@
-import { AccessList, AccountId, Action, Address, Alg, FiatCurrency, Hex } from '@narval/authz-shared'
+import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
+import { RequestSignatureDto } from '@app/authz/app/http/rest/dto/request-signature.dto'
+import { AccessList, AccountId, Action, Address, FiatCurrency, Hex } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
-
-export class RequestSignatureDto {
-  @ApiProperty()
-  @IsString()
-  sig: string
-
-  @IsEnum(Alg)
-  @ApiProperty({ enum: Alg })
-  alg: Alg
-
-  @ApiProperty()
-  @IsString()
-  pubKey: string
-}
-
-export class BaseRequestDataDto {
-  @IsEnum(Action)
-  @IsDefined()
-  @ApiProperty({
-    enum: Action
-  })
-  action: Action
-
-  @IsString()
-  @IsDefined()
-  @ApiProperty()
-  nonce: string
-}
 
 export class TransactionRequestDto {
   @IsString()
@@ -94,7 +68,7 @@ export class TransactionRequestDto {
   type?: '2'
 }
 
-export class SignTransactionRequestDataDto extends BaseRequestDataDto {
+export class SignTransactionRequestDataDto extends BaseActionDto {
   @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
@@ -116,7 +90,7 @@ export class SignTransactionRequestDataDto extends BaseRequestDataDto {
   transactionRequest: TransactionRequestDto
 }
 
-export class SignMessageRequestDataDto extends BaseRequestDataDto {
+export class SignMessageRequestDataDto extends BaseActionDto {
   @IsEnum(Action)
   @IsDefined()
   @ApiProperty({
@@ -150,6 +124,7 @@ export class HistoricalTransferDto {
 @ApiExtraModels(SignTransactionRequestDataDto, SignMessageRequestDataDto)
 export class EvaluationRequestDto {
   @IsDefined()
+  @ValidateNested()
   @ApiProperty()
   authentication: RequestSignatureDto
 
