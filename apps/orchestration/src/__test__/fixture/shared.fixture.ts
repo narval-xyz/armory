@@ -1,9 +1,7 @@
 import { CHAINS } from '@app/orchestration/orchestration.constant'
-import {
-  addressSchema,
-  hexSchema
-} from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
+import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
 import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
+import { hexSchema } from '@app/orchestration/shared/schema/hex.schema'
 import { faker } from '@faker-js/faker'
 import { sample } from 'lodash/fp'
 import { Generator } from 'zod-fixture'

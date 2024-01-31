@@ -1,6 +1,6 @@
 import { addressGenerator, chainIdGenerator } from '@app/orchestration/__test__/fixture/shared.fixture'
-import { addressSchema } from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
 
