@@ -1,5 +1,6 @@
 import { AdminService } from '@app/authz/app/core/admin.service'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
+import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
 import { Body, Controller, Logger, Post } from '@nestjs/common'
@@ -16,7 +17,8 @@ export class AdminController {
 
     const result = await this.adminService.createOrganization(payload)
 
-    return result
+    const response = new CreateOrganizationResponseDto(result.organization, result.rootCredential, result.rootUser)
+    return response
   }
 
   @Post('/user')

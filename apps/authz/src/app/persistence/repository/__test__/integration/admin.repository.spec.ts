@@ -32,13 +32,15 @@ describe(AdminRepository.name, () => {
     await module.close()
   })
 
-  describe('create', () => {
+  describe('setup', () => {
     it('should have test db url', () => {
       // Just leaving this to ensure the jest.setup.ts file is configured correctly to set the env variable.
       const configService = module.get<ConfigService>(ConfigService)
       expect(configService.get('database.url', { infer: true })).toBe('file:./engine-core-test.sqlite')
     })
+  })
 
+  describe('createOrganization', () => {
     it('creates a new organization', async () => {
       await repository.createOrganization('test-org-uid', {
         kid: 'test-kid',

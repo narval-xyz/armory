@@ -33,7 +33,13 @@ export class AdminRepository implements OnModuleInit {
 
   // CRUD
 
+  isUserRole(role: string): role is UserRole {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Object.values(UserRole).includes(role as any)
+  }
+
   async createOrganization(organizationId: string, rootCredential: AuthCredential) {
+    await this.prismaService.$transaction
     const organization = await this.prismaService.organization.create({
       data: {
         uid: organizationId
@@ -60,9 +66,18 @@ export class AdminRepository implements OnModuleInit {
     })
 
     this.logger.log(`Created Root User AuthCredential ${rootAuthCredential.pubKey}`)
+    if (!this.isUserRole(rootUser.role)) {
+      throw new Error(`Invalid user role: ${rootUser.role}`)
+    }
 
-    // TODO: Persist the API key -- is API Key tied to user, org, credential, or 1:n to user?
-    return 'api-key'
+    return {
+      organization,
+      rootUser: {
+        uid: rootUser.uid,
+        role: UserRole[rootUser.role as unknown as keyof typeof UserRole]
+      },
+      rootCredential: rootAuthCredential
+    }
   }
 
   async createUser(uid: string, role: UserRole, credential?: AuthCredential) {
