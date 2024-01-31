@@ -1,3 +1,4 @@
+import { POLYGON } from '@app/orchestration/orchestration.constant'
 import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/orchestration'
 import { getTime, subHours } from 'date-fns'
@@ -25,7 +26,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         chainId: 137,
-        token: 'eip155:137/slip44/966',
+        token: POLYGON.coin.id,
         initiatedBy: 'matt@narval.xyz',
         createdAt: twentyHoursAgo
       },
@@ -37,7 +38,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         chainId: 137,
-        token: 'eip155:137/slip44/966',
+        token: POLYGON.coin.id,
         initiatedBy: 'matt@narval.xyz',
         createdAt: twentyHoursAgo
       },
@@ -49,7 +50,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         chainId: 137,
-        token: 'eip155:137/slip44/966',
+        token: POLYGON.coin.id,
         initiatedBy: 'matt@narval.xyz',
         createdAt: twentyHoursAgo
       },
@@ -60,7 +61,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         chainId: 137,
-        token: 'eip155:137/slip44/966',
+        token: POLYGON.coin.id,
         initiatedBy: 'matt@narval.xyz',
         createdAt: twentyHoursAgo
       }

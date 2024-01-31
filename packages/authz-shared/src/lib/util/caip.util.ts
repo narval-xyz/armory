@@ -1,6 +1,7 @@
 import { SetOptional } from 'type-fest'
-import { Address, getAddress, isAddress } from 'viem'
+import { Address } from 'viem'
 import { toEnum } from './enum.util'
+import { getAddress, isAddress } from './evm.util'
 
 //
 // Type

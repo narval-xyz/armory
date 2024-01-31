@@ -11,6 +11,9 @@
     }
   ],
   "compilerOptions": {
-    "esModuleInterop": true
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   }
 }
