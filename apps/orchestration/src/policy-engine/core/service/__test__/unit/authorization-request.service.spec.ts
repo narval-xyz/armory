@@ -14,17 +14,14 @@ import {
   AuthorizationRequestStatus,
   SignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import {
-  AuthzApplicationClient,
-  EvaluationResponse
-} from '@app/orchestration/policy-engine/http/client/authz-application.client'
+import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action, Decision, getAccountId, getAssetId } from '@narval/authz-shared'
+import { Action, Decision, EvaluationResponse, getAccountId, getAssetId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'

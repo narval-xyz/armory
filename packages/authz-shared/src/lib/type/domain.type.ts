@@ -147,7 +147,7 @@ export type Prices = Record<AssetId, Record<string, number>>
  * This must include all the data being authorized, and nothing except the data
  * being authorized. This is the data that will be hashed and signed.
  */
-export type AuthorizationRequest = {
+export type EvaluationRequest = {
   /**
    * The initiator signature of the request using `hashRequest` method to ensure
    * SHA256 format.
@@ -188,7 +188,7 @@ export type ApprovalRequirement = {
   countPrincipal: boolean
 }
 
-export type AuthorizationResponse = {
+export type EvaluationResponse = {
   decision: Decision
   request?: Request
   approvals?: {

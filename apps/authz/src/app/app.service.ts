@@ -3,9 +3,9 @@ import { AuthCredential, OpaResult, RegoInput } from '@app/authz/shared/types/do
 import {
   Action,
   Alg,
-  AuthorizationRequest,
-  AuthorizationResponse,
   Decision,
+  EvaluationRequest,
+  EvaluationResponse,
   HistoricalTransfer,
   Request,
   Signature,
@@ -143,7 +143,7 @@ export class AppService {
     authentication,
     approvals,
     transfers
-  }: AuthorizationRequest): Promise<AuthorizationResponse> {
+  }: EvaluationRequest): Promise<EvaluationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
     const decoder = new Decoder()
@@ -184,7 +184,7 @@ export class AppService {
     // Post-processing to evaluate multisigs
     const finalDecision = finalizeDecision(resultSet)
 
-    const authzResponse: AuthorizationResponse = {
+    const authzResponse: EvaluationResponse = {
       decision: finalDecision.decision,
       request,
       transactionRequestIntent: intent,
