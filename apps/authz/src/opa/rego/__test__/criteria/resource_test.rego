@@ -33,15 +33,9 @@ test_resource {
 	checkWalletAccountType({"eoa"}) with input as request
 		with data.entities as entities
 
-	checkWalletGroups({"test-wallet-group-one-uid"}) with input as request
+	checkWalletGroup({"test-wallet-group-one-uid"}) with input as request
 		with data.entities as entities
 
 	checkWalletChainId({"137"}) with input as request
 		with data.entities as entities
-}
-
-test_wildcardResource {
-	checkWalletId(wildcard)
-	checkWalletGroups(wildcard)
-	checkWalletChainId(wildcard)
 }

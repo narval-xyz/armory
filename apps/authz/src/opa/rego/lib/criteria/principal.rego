@@ -50,11 +50,11 @@ checkPrincipalRole(values) {
 
 # Principal Group
 
-checkPrincipalGroups(values) {
+checkPrincipalGroup(values) {
 	values == wildcard
 }
 
-checkPrincipalGroups(values) {
+checkPrincipalGroup(values) {
 	values != wildcard
 	group := principalGroups[_]
 	group in values

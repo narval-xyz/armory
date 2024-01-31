@@ -75,11 +75,11 @@ checkWalletChainId(values) {
 
 # Wallet Groups
 
-checkWalletGroups(values) {
+checkWalletGroup(values) {
 	values == wildcard
 }
 
-checkWalletGroups(values) {
+checkWalletGroup(values) {
 	values != wildcard
 	group := walletGroups[_]
 	group in values
