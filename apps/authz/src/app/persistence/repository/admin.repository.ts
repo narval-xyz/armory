@@ -1,15 +1,12 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { AccountType, AuthCredential, UserRoles } from '@app/authz/shared/types/domain.type'
-import { Address } from '@narval/authz-shared'
+import { AccountType, UserRoles } from '@app/authz/shared/types/domain.type'
+import { Address, AuthCredential } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
-// Input types; should become DTOs
-type AuthCredentialDto = Omit<AuthCredential, 'userId'>
-
 @Injectable()
-export class OrganizationRepository implements OnModuleInit {
-  private logger = new Logger(OrganizationRepository.name)
+export class AdminRepository implements OnModuleInit {
+  private logger = new Logger(AdminRepository.name)
 
   constructor(private prismaService: PrismaService) {}
 
@@ -36,7 +33,7 @@ export class OrganizationRepository implements OnModuleInit {
 
   // CRUD
 
-  async createOrganization(organizationId: string, rootUserId: string, credential: AuthCredentialDto) {
+  async createOrganization(organizationId: string, rootCredential: AuthCredential) {
     const organization = await this.prismaService.organization.create({
       data: {
         uid: organizationId
@@ -46,7 +43,7 @@ export class OrganizationRepository implements OnModuleInit {
 
     const rootUser = await this.prismaService.user.create({
       data: {
-        uid: rootUserId,
+        uid: rootCredential.userId,
         role: UserRoles.ROOT
       }
     })
@@ -55,10 +52,10 @@ export class OrganizationRepository implements OnModuleInit {
 
     const rootAuthCredential = await this.prismaService.authCredential.create({
       data: {
-        uid: credential.kid,
-        pubKey: credential.pubKey,
-        alg: credential.alg,
-        userId: rootUserId
+        uid: rootCredential.kid,
+        pubKey: rootCredential.pubKey,
+        alg: rootCredential.alg,
+        userId: rootCredential.userId
       }
     })
 
@@ -68,7 +65,7 @@ export class OrganizationRepository implements OnModuleInit {
     return 'api-key'
   }
 
-  async createUser(uid: string, credential: AuthCredentialDto, role: UserRoles) {
+  async createUser(uid: string, credential: AuthCredential, role: UserRoles) {
     // Create the User with the Role
     // Create the user's Credential
     await this.prismaService.user.create({
@@ -116,13 +113,13 @@ export class OrganizationRepository implements OnModuleInit {
     })
   }
 
-  async createAuthCredential(credential: AuthCredentialDto, userId: string) {
+  async createAuthCredential(credential: AuthCredential) {
     await this.prismaService.authCredential.create({
       data: {
         uid: credential.kid,
         pubKey: credential.pubKey,
         alg: credential.alg,
-        userId
+        userId: credential.userId
       }
     })
   }

@@ -1,3 +1,4 @@
+export * from './lib/type/action.type'
 export * from './lib/type/domain.type'
 export * from './lib/util/caip.util'
 export * from './lib/util/enum.util'

@@ -1,52 +1,16 @@
-import { AssetId } from '@narval/authz-shared'
+import {
+  AssetId,
+  CreateOrganizationAction,
+  SignMessageAction,
+  SignTransactionAction,
+  Signature
+} from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
 
-/**
- * An action supported on the policy engine.
- */
-export enum Action {
-  CREATE_USER = 'user:create',
-  EDIT_USER = 'user:edit',
-  DELETE_USER = 'user:delete',
-  CHANGE_USER_ROLE = 'user:change-role',
-
-  CREATE_WALLET = 'wallet:create',
-  EDIT_WALLET = 'wallet:edit',
-  ASSIGN_WALLET = 'wallet:assign',
-  UNASSIGN_WALLET = 'wallet:unassign',
-
-  CREATE_USER_GROUP = 'user-group:create',
-  EDIT_USER_GROUP = 'user-group:edit',
-  DELETE_USER_GROUP = 'user-group:delete',
-
-  CREATE_WALLET_GROUP = 'wallet-group:create',
-  EDIT_WALLET_GROUP = 'wallet-group:edit',
-  DELETE_WALLET_GROUP = 'wallet-group:delete',
-
-  SET_POLICY_RULES = 'setPolicyRules',
-
-  SIGN_TRANSACTION = 'signTransaction',
-  SIGN_RAW = 'signRaw',
-  SIGN_MESSAGE = 'signMessage',
-  SIGN_TYPED_DATA = 'signTypedData'
-}
-
-/**
- * The decision of an evaluation request.
- */
 export enum Decision {
   PERMIT = 'Permit',
   FORBID = 'Forbid',
   CONFIRM = 'Confirm'
-}
-
-/**
- * Supported signature algorithms.
- */
-export enum Alg {
-  ES256K = 'ES256K', // secp256k1, an Ethereum EOA
-  ES256 = 'ES256', // secp256r1, ecdsa but not ethereum
-  RS256 = 'RS256'
 }
 
 export enum EntityType {
@@ -55,25 +19,6 @@ export enum EntityType {
   UserGroup = 'Narval::UserGroup'
 }
 
-export type Signature = {
-  sig: string
-  alg: Alg
-  /**
-   * Depending on the alg, this may be necessary (e.g., RSA cannot recover the
-   * public key from the signature)
-   */
-  pubKey: string
-}
-
-export type Hex = `0x${string}`
-
-export type Address = `0x${string}`
-
-export type AccessList = {
-  address: Address
-  storageKeys: Hex[]
-}[]
-
 /**
  * @see https://viem.sh/docs/glossary/types#transactiontype
  */
@@ -81,20 +26,6 @@ export enum TransactionType {
   LEGACY = 'legacy',
   EIP2930 = 'eip2930',
   EIP1559 = 'eip1559'
-}
-
-export type TransactionRequest = {
-  chainId: number
-  from: Address
-  nonce?: number
-  accessList?: AccessList
-  data?: Hex
-  gas?: bigint
-  maxFeePerGas?: bigint
-  maxPriorityFeePerGas?: bigint
-  to?: Address | null
-  type?: '2'
-  value?: Hex
 }
 
 export enum FiatCurrency {
@@ -113,25 +44,6 @@ export type HistoricalTransfer = {
   timestamp: number // unix timestamp in ms
 }
 
-type SharedAuthorizationRequest = {
-  action: Action
-  nonce: string
-}
-
-export type SignTransaction = SharedAuthorizationRequest & {
-  action: Action.SIGN_TRANSACTION
-  resourceId: string
-  transactionRequest: TransactionRequest
-}
-
-export type SignMessage = SharedAuthorizationRequest & {
-  action: Action.SIGN_MESSAGE
-  resourceId: string
-  message: string
-}
-
-export type Request = SignTransaction | SignMessage
-
 /**
  * Represents a collection of prices for different assets present in the
  * authorization request.
@@ -149,6 +61,8 @@ export type Request = SignTransaction | SignMessage
  * }
  */
 export type Prices = Record<AssetId, Record<string, number>>
+
+export type Request = SignTransactionAction | SignMessageAction | CreateOrganizationAction
 
 /**
  * The feeds represent arbitrary data collected by the Orchestration and

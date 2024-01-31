@@ -1,4 +1,10 @@
-import { Action, Alg, ApprovalRequirement, HistoricalTransfer, TransactionRequest } from '@narval/authz-shared'
+import {
+  Action,
+  ApprovalRequirement,
+  AuthCredential,
+  HistoricalTransfer,
+  TransactionRequest
+} from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
 
 export enum AccountType {
@@ -57,11 +63,4 @@ export type VerifiedApproval = {
   userId: string
   credentialId: string // The credential used for this approval
   address?: string // Address, if the Credential is a EOA private key TODO: Do we need this?
-}
-
-export type AuthCredential = {
-  kid: string // sha256 of the pubKey, used as the short identifier
-  pubKey: string
-  alg: Alg
-  userId: string
 }

@@ -1,8 +1,9 @@
-import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
-import { AuthCredential, OpaResult, RegoInput } from '@app/authz/shared/types/domain.type'
+import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
+import { OpaResult, RegoInput } from '@app/authz/shared/types/domain.type'
 import {
   Action,
   Alg,
+  AuthCredential,
   Decision,
   EvaluationRequest,
   EvaluationResponse,
@@ -61,11 +62,11 @@ export const finalizeDecision = (response: OpaResult[]) => {
 
 @Injectable()
 export class AppService {
-  constructor(private OrganizationRepository: OrganizationRepository, private opaService: OpaService) {}
+  constructor(private adminRepository: AdminRepository, private opaService: OpaService) {}
 
   async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<AuthCredential> {
     const { pubKey, alg, sig } = requestSignature
-    const credential = await this.OrganizationRepository.getCredentialForPubKey(pubKey)
+    const credential = await this.adminRepository.getCredentialForPubKey(pubKey)
     if (alg === Alg.ES256K) {
       // TODO: ensure sig & pubkey begins with 0x
       const signature = sig.startsWith('0x') ? sig : `0x${sig}`
