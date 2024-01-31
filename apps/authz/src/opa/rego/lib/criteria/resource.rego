@@ -25,6 +25,8 @@ getWalletGroups(id) = result {
 	}
 }
 
+# Wallet ID
+
 checkWalletId(values) {
 	values == wildcard
 }
@@ -33,6 +35,8 @@ checkWalletId(values) {
 	values != wildcard
 	resource.uid in values
 }
+
+# Wallet Groups
 
 checkWalletGroups(values) {
 	values == wildcard
@@ -43,6 +47,8 @@ checkWalletGroups(values) {
 	group := walletGroups[_]
 	group in values
 }
+
+# Wallet Chain ID
 
 checkWalletChainId(values) {
 	values == wildcard
@@ -56,6 +62,8 @@ checkWalletChainId(values) {
 	values != wildcard
 	resource.chainId in values
 }
+
+# Wallet Assignees
 
 checkWalletAssignees(values) {
 	values == wildcard

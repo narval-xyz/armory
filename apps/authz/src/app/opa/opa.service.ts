@@ -1,4 +1,4 @@
-import { PersistenceRepository } from '@app/authz/shared/module/persistence/persistence.repository'
+import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Injectable, Logger } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -15,7 +15,7 @@ export class OpaService {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
-  constructor(private persistenceRepository: PersistenceRepository) {}
+  constructor(private organizationRepository: OrganizationRepository) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
@@ -34,7 +34,7 @@ export class OpaService {
     const opaEngine = await loadPolicy(policyWasm, undefined, {
       'time.now_ns': () => new Date().getTime() * 1000000
     })
-    const data = await this.persistenceRepository.getEntityData()
+    const data = await this.organizationRepository.getEntityData()
     opaEngine.setData(data)
     return opaEngine
   }

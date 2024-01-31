@@ -60,7 +60,6 @@ export type VerifiedApproval = {
 }
 
 export type AuthCredential = {
-  id: string
   pubKey: string
   alg: Alg
   userId: string

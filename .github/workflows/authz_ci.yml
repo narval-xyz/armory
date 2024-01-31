@@ -17,32 +17,6 @@ jobs:
     name: Build and test
 
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:14
-        ports:
-          - '5432:5432'
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis
-        ports:
-          - '6379:6379'
-        env:
-          REDIS_PORT: 6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -62,16 +36,12 @@ jobs:
           make authz/format/check
           make authz/lint/check
 
-      # TODO: Finish once the authz-node has a database.
       - name: Setup database and Prisma types
         shell: bash
         run: |
           make authz/copy-default-env
-          # make orchestration/test/db/setup
-
-          # Generate the orchestration Prisma client types to prevent the type
-          # tests to fail.
-          # make orchestration/db/generate-types
+          make authz/test/db/setup
+          make authz/db/generate-types
 
       - name: Test types
         shell: bash
@@ -86,6 +56,7 @@ jobs:
       - name: Test integration
         shell: bash
         run: |
+          make authz/test/db/setup
           make authz/test/integration
 
       # - name: Test E2E

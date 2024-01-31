@@ -7,7 +7,7 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
 	transferTypes = {"transferNative"}
 	tokens = {"eip155:137/slip44/966"}
-	transferValueCondition = {"currency": "fiat:usd", "operator": "lte", "value": "1000000000000000000"}
+	transferValueCondition = {"currency": "*", "operator": "lte", "value": "1000000000000000000"}
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
@@ -20,9 +20,9 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalId(users)
 	checkWalletId(resources)
-	checkTransferTokenType(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferValueCondition)
+	checkIntentType(transferTypes)
+	checkIntentTokenAddress(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals = getApprovalsResult(approvalsRequired)
 
@@ -39,8 +39,6 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
 	transferTypes = {"transferNative"}
 	tokens = {"eip155:137/slip44/966"}
-	transferAmountCondition = {"operator": "lte", "value": "1000000000000000000"}
-	currency = "fiat:usd"
 	limit = "1000000000000000000"
 	rollingBasis = (12 * 60) * 60
 
@@ -49,11 +47,9 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 	input.action == "signTransaction"
 	checkPrincipalId(users)
 	checkWalletId(resources)
-	checkTransferTokenType(transferTypes)
-	checkTransferTokenAddress(tokens)
-	checkTransferTokenAmount(transferAmountCondition)
+	checkIntentType(transferTypes)
+	checkIntentTokenAddress(tokens)
 	checkSpendings(limit, {
-		"currency": currency,
 		"tokens": tokens,
 		"users": users,
 		"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),

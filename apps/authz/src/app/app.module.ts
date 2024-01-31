@@ -1,3 +1,4 @@
+import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -10,13 +11,15 @@ import { OpaService } from './opa/opa.service'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [load]
+      load: [load],
+      isGlobal: true
     }),
     PersistenceModule
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    OrganizationRepository,
     OpaService,
     {
       provide: APP_PIPE,

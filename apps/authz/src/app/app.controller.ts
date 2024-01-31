@@ -1,5 +1,5 @@
 import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
-import { generateInboundRequest } from '@app/authz/shared/module/persistence/mock_data'
+import { generateInboundRequest } from '@app/authz/app/persistence/repository/mock_data'
 import { AuthorizationRequest } from '@narval/authz-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'

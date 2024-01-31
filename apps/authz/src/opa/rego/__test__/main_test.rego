@@ -1,16 +1,24 @@
 package main
 
-import future.keywords.in
+half_matic = "500000000000000000"
 
-mockNowS = 1630540800
+one_matic = "1000000000000000000"
 
-twentyHoursAgo = (mockNowS - ((20 * 60) * 60)) * 1000 # in ms
+ten_matic = "10000000000000000000"
 
-elevenHoursAgo = (mockNowS - ((11 * 60) * 60)) * 1000 # in ms
+half_matic_value = "495000000000000000"
 
-tenHoursAgo = (mockNowS - ((10 * 60) * 60)) * 1000 # in ms
+one_matic_value = "990000000000000000"
 
-nineHoursAgo = (mockNowS - ((9 * 60) * 60)) * 1000 # in ms
+ten_matic_value = "9900000000000000000"
+
+twentyHoursAgo = (nowSeconds - ((20 * 60) * 60)) * 1000 # in ms
+
+elevenHoursAgo = (nowSeconds - ((11 * 60) * 60)) * 1000 # in ms
+
+tenHoursAgo = (nowSeconds - ((10 * 60) * 60)) * 1000 # in ms
+
+nineHoursAgo = (nowSeconds - ((9 * 60) * 60)) * 1000 # in ms
 
 principalReq = {"userId": "test-bob-uid"}
 
