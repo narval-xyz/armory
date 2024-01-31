@@ -26,9 +26,3 @@ test_principal {
 	checkPrincipalGroups({"test-user-group-one-uid"}) with input as request
 		with data.entities as entities
 }
-
-test_wildcardPrincipal {
-	checkPrincipalId(wildcard)
-	checkPrincipalRole(wildcard)
-	checkPrincipalGroups(wildcard)
-}

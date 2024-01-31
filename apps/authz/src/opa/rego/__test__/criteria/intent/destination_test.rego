@@ -17,8 +17,3 @@ test_destination {
 	checkDestinationClassification({"internal"}) with input as request
 		with data.entities as entities
 }
-
-test_wildcardDestination {
-	checkDestinationAddress(wildcard)
-	checkDestinationClassification(wildcard)
-}

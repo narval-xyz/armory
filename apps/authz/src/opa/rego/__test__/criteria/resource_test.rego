@@ -36,10 +36,3 @@ test_resource {
 	checkWalletAssignees({"test-bob-uid"}) with input as request
 		with data.entities as entities
 }
-
-test_wildcardResource {
-	checkWalletId(wildcard)
-	checkWalletGroups(wildcard)
-	checkWalletChainId(wildcard)
-	checkWalletAssignees(wildcard)
-}

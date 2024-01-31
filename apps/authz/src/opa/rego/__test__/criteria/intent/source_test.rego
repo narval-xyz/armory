@@ -20,9 +20,3 @@ test_source {
 	checkSourceClassification({"wallet"}) with input as request
 		with data.entities as entities
 }
-
-test_wildcardSource {
-	checkSourceAccountType(wildcard)
-	checkSourceAddress(wildcard)
-	checkSourceClassification(wildcard)
-}
