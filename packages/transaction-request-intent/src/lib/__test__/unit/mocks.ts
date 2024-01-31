@@ -13,8 +13,6 @@ export const USDC_TOKEN = {
   decimals: 6
 }
 
-type UUID = string
-
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type User = {
   uid: string // Pubkey
