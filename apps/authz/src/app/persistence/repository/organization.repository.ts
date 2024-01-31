@@ -55,6 +55,7 @@ export class OrganizationRepository implements OnModuleInit {
 
     const rootAuthCredential = await this.prismaService.authCredential.create({
       data: {
+        uid: credential.kid,
         pubKey: credential.pubKey,
         alg: credential.alg,
         userId: rootUserId
@@ -79,6 +80,7 @@ export class OrganizationRepository implements OnModuleInit {
 
     await this.prismaService.authCredential.create({
       data: {
+        uid: credential.kid,
         pubKey: credential.pubKey,
         alg: credential.alg,
         userId: uid
@@ -100,11 +102,151 @@ export class OrganizationRepository implements OnModuleInit {
         userId: uid
       }
     })
-    // TODO: remove user from any wallets/groups
+
+    await this.prismaService.userWalletAssignment.deleteMany({
+      where: {
+        userId: uid
+      }
+    })
+
+    await this.prismaService.userGroupMembership.deleteMany({
+      where: {
+        userId: uid
+      }
+    })
   }
 
-  // eslint-disable-next-line
-  async registerWallet(uid: string, address: Address, accountType: AccountType, chainId?: number) {}
+  async createAuthCredential(credential: AuthCredentialDto, userId: string) {
+    await this.prismaService.authCredential.create({
+      data: {
+        uid: credential.kid,
+        pubKey: credential.pubKey,
+        alg: credential.alg,
+        userId
+      }
+    })
+  }
+
+  async deleteAuthCredential(kid: string) {
+    await this.prismaService.authCredential.delete({
+      where: {
+        uid: kid
+      }
+    })
+  }
+
+  async assignUserRole(userId: string, role: UserRoles) {
+    await this.prismaService.user.update({
+      where: {
+        uid: userId
+      },
+      data: {
+        role
+      }
+    })
+  }
+
+  async assignUserGroup(userId: string, groupId: string) {
+    await this.prismaService.userGroupMembership.create({
+      data: {
+        userId,
+        userGroupId: groupId
+      }
+    })
+  }
+
+  async unassignUserGroup(userId: string, groupId: string) {
+    await this.prismaService.userGroupMembership.delete({
+      where: {
+        userId_userGroupId: {
+          userId,
+          userGroupId: groupId
+        }
+      }
+    })
+  }
+
+  async registerWallet(uid: string, address: Address, accountType: AccountType, chainId?: number) {
+    await this.prismaService.wallet.create({
+      data: {
+        uid,
+        address: address,
+        accountType,
+        chainId
+      }
+    })
+  }
+
+  async unregisterWallet(uid: string) {
+    // Remove the wallet from any groups
+    await this.prismaService.walletGroupMembership.deleteMany({
+      where: {
+        walletId: uid
+      }
+    })
+    // Remove the wallet from assignees
+    await this.prismaService.userWalletAssignment.deleteMany({
+      where: {
+        walletId: uid
+      }
+    })
+    // Delete the wallet
+    await this.prismaService.wallet.delete({
+      where: {
+        uid
+      }
+    })
+  }
+
+  async createWalletGroup(uid: string, walletIds?: string[]) {
+    await this.prismaService.walletGroup.create({
+      data: {
+        uid
+      }
+    })
+    if (walletIds) {
+      await Promise.all(
+        walletIds.map(async (walletId) => {
+          await this.assignWalletGroup(walletId, uid)
+        })
+      )
+    }
+  }
+
+  async deleteWalletGroup(uid: string) {
+    // unassign all wallets from the group
+    await this.prismaService.walletGroupMembership.deleteMany({
+      where: {
+        walletGroupId: uid
+      }
+    })
+    // delete the group
+    await this.prismaService.walletGroup.delete({
+      where: {
+        uid
+      }
+    })
+  }
+
+  async assignWalletGroup(walletGroupId: string, walletId: string) {
+    await this.prismaService.walletGroupMembership.create({
+      data: {
+        walletId,
+        walletGroupId
+      }
+    })
+  }
+
+  async unassignWalletGroup(walletGroupId: string, walletId: string) {
+    await this.prismaService.walletGroupMembership.delete({
+      where: {
+        walletId_walletGroupId: {
+          walletId,
+          walletGroupId
+        }
+      }
+    })
+  }
 
   async registerRootKey() {}
 }
