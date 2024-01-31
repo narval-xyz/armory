@@ -37,6 +37,8 @@ enum PolicyCriteriaType {
   INTENT_SIGN_RAW_PAYLOAD_ALGORITHM = 'intentSignRawPayloadAlgorithm',
   INTENT_SIGN_TYPED_DATA_DOMAIN = 'intentSignTypedDataDomain',
   INTENT_PERMIT_DEADLINE = 'intentPermitDeadline',
+  TRANSACTION_REQUEST_GAS_FEES = 'transactionRequestGasFees',
+  TRANSACTION_REQUEST_NONCE = 'transactionRequestNonce',
   APPROVAL = 'approval',
   ACCUMULATION = 'accumulation'
 }
@@ -239,6 +241,16 @@ type IntentPermitDeadlineCriteria = {
   args: PermitDeadlineCondition
 }
 
+type TransactionRequestGasFeesCriteria = {
+  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES
+  args: AmountCondition
+}
+
+type TransactionRequestNonceCriteria = {
+  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE
+  args: boolean
+}
+
 type ApprovalCriteria = {
   criteria: PolicyCriteriaType.APPROVAL
   args: ApprovalCondition[]
@@ -278,6 +290,8 @@ type PolicyCriteriaArgs =
   | IntentSignRawPayloadAlgorithmCriteria
   | IntentSignTypedDataDomainCriteria
   | IntentPermitDeadlineCriteria
+  | TransactionRequestGasFeesCriteria
+  | TransactionRequestNonceCriteria
   | ApprovalCriteria
   | AccumulationCriteria
 
@@ -296,6 +310,10 @@ const examplePermitPolicy: PolicyCriteriaBuilder = {
       args: [Action.SIGN_TRANSACTION]
     },
     {
+      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE,
+      args: true
+    },
+    {
       criteria: PolicyCriteriaType.PRINCIPAL_ID,
       args: ['matt@narval.xyz']
     },
@@ -309,7 +327,7 @@ const examplePermitPolicy: PolicyCriteriaBuilder = {
     },
     {
       criteria: PolicyCriteriaType.INTENT_TOKEN_ADDRESS,
-      args: ['eip155:137/slip44/966']
+      args: ['eip155:137/slip44:966']
     },
     {
       criteria: PolicyCriteriaType.INTENT_AMOUNT,
@@ -344,6 +362,10 @@ const exampleForbidPolicy: PolicyCriteriaBuilder = {
       args: [Action.SIGN_TRANSACTION]
     },
     {
+      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE,
+      args: true
+    },
+    {
       criteria: PolicyCriteriaType.PRINCIPAL_ID,
       args: ['matt@narval.xyz']
     },
@@ -357,7 +379,7 @@ const exampleForbidPolicy: PolicyCriteriaBuilder = {
     },
     {
       criteria: PolicyCriteriaType.INTENT_TOKEN_ADDRESS,
-      args: ['eip155:137/slip44/966']
+      args: ['eip155:137/slip44:966']
     },
     {
       criteria: PolicyCriteriaType.ACCUMULATION,
@@ -365,7 +387,7 @@ const exampleForbidPolicy: PolicyCriteriaBuilder = {
         rollingWindow: 12 * 60 * 60,
         limit: '1000000000000000000',
         filters: {
-          tokens: ['eip155:137/slip44/966'],
+          tokens: ['eip155:137/slip44:966'],
           users: ['matt@narval.xyz']
         }
       }

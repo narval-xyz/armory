@@ -13,7 +13,6 @@ gasFeeAmount(currency) = result {
 }
 
 checkGasFeeAmount(condition) {
-	condition != wildcard
 	condition.operator == "eq"
 	to_number(condition.value) == gasFeeAmount(condition.currency)
 }
