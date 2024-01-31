@@ -1,4 +1,4 @@
-import { POLYGON } from '@app/orchestration/shared/core/lib/chains.lib'
+import { POLYGON } from '@app/orchestration/orchestration.constant'
 import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/orchestration'
 import { getTime, subHours } from 'date-fns'

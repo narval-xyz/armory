@@ -2,9 +2,10 @@
  * Generates an CAIP Asset ID to coin ID index using CoinGecko API to make price
  * queries faster and easier.
  */
+import { CHAINS } from '@app/orchestration/orchestration.constant'
 import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
 import { Coin } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
-import { CHAINS, Chain, findChain } from '@app/orchestration/shared/core/lib/chains.lib'
+import { Chain, findChain } from '@app/orchestration/shared/core/lib/chains.lib'
 import { AssetId, AssetType, getAddress, isAddress, toAssetId } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
 import { Logger } from '@nestjs/common'
@@ -15,9 +16,9 @@ import { Address } from 'viem'
 
 const logger = new Logger('CoinGeckoCoinDictionaryScript')
 
-const SUPPORTED_PLATFORMS = Array.from(CHAINS.values()).map(({ coinGecko }) => coinGecko.platform)
+const supportedPlatforms = Array.from(CHAINS.values()).map(({ coinGecko }) => coinGecko.platform)
 
-const CHAINS_BY_PLATFORM = Array.from(CHAINS.values()).reduce((acc, chain) => {
+const chainsByPlatform = Array.from(CHAINS.values()).reduce((acc, chain) => {
   return acc.set(chain.coinGecko.platform, chain)
 }, new Map<string, Chain>())
 
@@ -66,7 +67,7 @@ const buildAssets = (coin: Coin) => {
   return flatten(
     compact(
       Object.keys(coin.platforms).map((platform) => {
-        const chain = CHAINS_BY_PLATFORM.get(platform)
+        const chain = chainsByPlatform.get(platform)
         const address = coin.platforms[platform]
 
         return buildAsset({
@@ -88,7 +89,7 @@ const run = async () => {
     from(client.getCoinList()).pipe(
       concatMap((coinList) => coinList),
       filter(isSupported),
-      map(selectPlatforms(SUPPORTED_PLATFORMS)),
+      map(selectPlatforms(supportedPlatforms)),
       mergeMap(buildAssets),
       tap((coin) => {
         if (!coin.success) {
