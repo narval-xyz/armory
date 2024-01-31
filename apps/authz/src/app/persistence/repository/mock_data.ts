@@ -1,4 +1,4 @@
-import { AccountType, RegoInput, UserRoles } from '@app/authz/shared/types/domain.type'
+import { AccountType, RegoInput } from '@app/authz/shared/types/domain.type'
 import {
   AddressBookAccount,
   RegoData,
@@ -16,6 +16,7 @@ import {
   EvaluationRequest,
   Request,
   TransactionRequest,
+  UserRole,
   hashRequest
 } from '@narval/authz-shared'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
@@ -39,12 +40,12 @@ export const USDC_TOKEN = {
 
 export const ROOT_USER: User = {
   uid: 'u:root_user',
-  role: UserRoles.ROOT
+  role: UserRole.ROOT
 }
 
 export const MATT: User = {
   uid: 'matt@narval.xyz',
-  role: UserRoles.ADMIN
+  role: UserRole.ADMIN
 }
 
 export const MATT_CREDENTIAL_1: AuthCredential = {
@@ -56,7 +57,7 @@ export const MATT_CREDENTIAL_1: AuthCredential = {
 
 export const AAUser: User = {
   uid: 'aa@narval.xyz',
-  role: UserRoles.ADMIN
+  role: UserRole.ADMIN
 }
 
 export const AAUser_Credential_1: AuthCredential = {
@@ -68,7 +69,7 @@ export const AAUser_Credential_1: AuthCredential = {
 
 export const BBUser: User = {
   uid: 'bb@narval.xyz',
-  role: UserRoles.ADMIN
+  role: UserRole.ADMIN
 }
 
 export const BBUser_Credential_1: AuthCredential = {
