@@ -138,7 +138,7 @@ export const TREASURY_WALLET_X: Wallet = {
   uid: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b', // Prod guild 58 - treasury wallet
   address: '0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
   accountType: AccountType.EOA,
-  assignees: ['matt@narval.xyz']
+  assignees: [MATT.uid]
 }
 
 // Wallet Groups
