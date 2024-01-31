@@ -1,6 +1,6 @@
 import { EvaluationRequestDto } from '@app/authz/app/evaluation-request.dto'
 import { generateInboundRequest } from '@app/authz/app/persistence/repository/mock_data'
-import { AuthorizationRequest } from '@narval/authz-shared'
+import { EvaluationRequest } from '@narval/authz-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 
@@ -32,7 +32,7 @@ export class AppController {
     })
 
     // Map the DTO into the TS type because it's nicer to deal with.
-    const payload: AuthorizationRequest = body
+    const payload: EvaluationRequest = body
 
     const result = await this.appService.runEvaluation(payload)
     this.logger.log({
