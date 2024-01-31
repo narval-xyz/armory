@@ -1,4 +1,5 @@
 import { Address, AssetType, Hex } from '@narval/authz-shared'
+// eslint-disable-next-line no-restricted-imports
 import { isAddress } from 'viem'
 import { AssetTypeAndUnknown, Misc } from './domain'
 import { SupportedMethodId } from './supported-methods'

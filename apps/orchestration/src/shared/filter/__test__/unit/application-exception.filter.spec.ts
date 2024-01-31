@@ -74,7 +74,7 @@ describe(ApplicationExceptionFilter.name, () => {
           statusCode: exception.getStatus(),
           message: exception.message,
           context: exception.context,
-          stacktrace: exception.stack
+          stack: exception.stack
         })
       })
     })

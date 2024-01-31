@@ -1,3 +1,4 @@
+import { AssetId } from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
 
 export enum Action {
@@ -123,6 +124,24 @@ export type SignMessage = SharedAuthorizationRequest & {
 export type Request = SignTransaction | SignMessage
 
 /**
+ * Represents a collection of prices for different assets present in the
+ * authorization request.
+ *
+ * @example The price of USDC and MATIC in USD and ETH.
+ * {
+ *   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': {
+ *     'fiat:usd': 1.000709110429112,
+ *     'eip155:1/slip44:60': 0.000427848385194444
+ *   },
+ *   'eip155:137/slip44:966': {
+ *     'fiat:usd': 0.8298557928655559,
+ *     'eip155:1/slip44:60': 0.000355103671369873
+ *   }
+ * }
+ */
+export type Prices = Record<AssetId, Record<string, number>>
+
+/**
  * The action being authorized.
  *
  * This must include all the data being authorized, and nothing except the data
@@ -147,6 +166,10 @@ export type AuthorizationRequest = {
    * the history like spending limits.
    */
   transfers?: HistoricalTransfer[]
+  /**
+   * The prices of different assets present in the request.
+   */
+  prices?: Prices
 }
 
 export type ApprovalRequirement = {

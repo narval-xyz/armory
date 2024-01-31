@@ -1,45 +1,7 @@
-import { isAddress, isHex } from 'viem'
+import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
+import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
+import { hexSchema } from '@app/orchestration/shared/schema/hex.schema'
 import { z } from 'zod'
-
-/**
- * Schema backward compatible with viem's Address type.
- *
- * @see https://viem.sh/docs/glossary/types#address
- */
-export const addressSchema = z.custom<`0x${string}`>(
-  (value) => {
-    const parse = z.string().safeParse(value)
-
-    if (parse.success) {
-      return isAddress(parse.data)
-    }
-
-    return false
-  },
-  {
-    message: 'value is an invalid Ethereum address'
-  }
-)
-
-/**
- * Schema backward compatible with viem's Hex type.
- *
- * @see https://viem.sh/docs/glossary/types#hex
- */
-export const hexSchema = z.custom<`0x${string}`>(
-  (value) => {
-    const parse = z.string().safeParse(value)
-
-    if (parse.success) {
-      return isHex(parse.data)
-    }
-
-    return false
-  },
-  {
-    message: 'value is an invalid hexadecimal'
-  }
-)
 
 export const accessListSchema = z.object({
   address: addressSchema,
@@ -47,7 +9,7 @@ export const accessListSchema = z.object({
 })
 
 export const readTransactionRequestSchema = z.object({
-  chainId: z.coerce.number().min(1),
+  chainId: chainIdSchema,
   from: addressSchema,
   nonce: z.coerce.number().optional(),
   accessList: z.array(accessListSchema).optional(),
