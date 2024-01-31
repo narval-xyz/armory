@@ -1,4 +1,4 @@
-import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
+import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -19,7 +19,7 @@ import { OpaService } from './opa/opa.service'
   controllers: [AppController],
   providers: [
     AppService,
-    OrganizationRepository,
+    AdminRepository,
     OpaService,
     {
       provide: APP_PIPE,

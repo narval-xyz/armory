@@ -1,4 +1,4 @@
-import { AccountType, AuthCredential, RegoInput, UserRoles } from '@app/authz/shared/types/domain.type'
+import { AccountType, RegoInput, UserRoles } from '@app/authz/shared/types/domain.type'
 import {
   AddressBookAccount,
   RegoData,
@@ -12,6 +12,7 @@ import {
   Action,
   Alg,
   AssetId,
+  AuthCredential,
   EvaluationRequest,
   Request,
   TransactionRequest,

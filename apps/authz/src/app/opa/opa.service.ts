@@ -1,4 +1,4 @@
-import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
+import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Injectable, Logger } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -15,7 +15,7 @@ export class OpaService {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
-  constructor(private organizationRepository: OrganizationRepository) {}
+  constructor(private organizationRepository: AdminRepository) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
