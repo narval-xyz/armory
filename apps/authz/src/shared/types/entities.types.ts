@@ -2,6 +2,10 @@ import { UserRole } from '@narval/authz-shared'
 import { AccountType } from './domain.type'
 
 // ENTITIES: user, user group, wallet, wallet group, and address book.
+export type Organization = {
+  uid: string
+}
+
 export type User = {
   uid: string // Pubkey
   role: UserRole
