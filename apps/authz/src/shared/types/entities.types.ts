@@ -1,7 +1,5 @@
 import { AccountType, UserRoles } from './domain.type'
 
-type UUID = string
-
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type User = {
   uid: string // Pubkey
