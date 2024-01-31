@@ -4,9 +4,6 @@ import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 
-export type EvaluationRequest = EvaluationRequest
-export type EvaluationResponse = EvaluationResponse
-
 @Injectable()
 export class AuthzApplicationClient {
   private logger = new Logger(AuthzApplicationClient.name)
