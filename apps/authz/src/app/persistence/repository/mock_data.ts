@@ -7,16 +7,7 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import {
-  AccountId,
-  Action,
-  Alg,
-  AssetId,
-  AuthorizationRequest,
-  Request,
-  TransactionRequest,
-  hashRequest
-} from '@narval/authz-shared'
+import { AccountId, Action, Alg, AssetId, Request, TransactionRequest, hashRequest } from '@narval/authz-shared'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
@@ -258,7 +249,7 @@ export const mockEntityData: RegoData = {
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async (): Promise<AuthorizationRequest> => {
+export const generateInboundRequest = async () => {
   const txRequest = NATIVE_TRANSFER_TX_REQUEST
   const request: Request = {
     action: Action.SIGN_TRANSACTION,
@@ -282,6 +273,7 @@ export const generateInboundRequest = async (): Promise<AuthorizationRequest> =>
 
   return {
     authentication: {
+      ...userCredentialStore['0xd75D626a116D4a1959fE3bB938B2e7c116A05890'],
       sig: signatureMatt,
       alg: Alg.ES256K,
       pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
@@ -289,11 +281,13 @@ export const generateInboundRequest = async (): Promise<AuthorizationRequest> =>
     request,
     approvals: [
       {
+        ...userCredentialStore['0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'],
         sig: approvalSigAAUser,
         alg: Alg.ES256K,
         pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
       },
       {
+        ...userCredentialStore['0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'],
         sig: approvalSigBBUser,
         alg: Alg.ES256K,
         pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
