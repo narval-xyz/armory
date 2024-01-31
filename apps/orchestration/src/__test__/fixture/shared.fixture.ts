@@ -1,10 +1,11 @@
+import { CHAINS } from '@app/orchestration/orchestration.constant'
 import {
   addressSchema,
   hexSchema
 } from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
+import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
 import { faker } from '@faker-js/faker'
 import { sample } from 'lodash/fp'
-import { z } from 'zod'
 import { Generator } from 'zod-fixture'
 
 export const hexGenerator = Generator({
@@ -18,7 +19,7 @@ export const addressGenerator = Generator({
 })
 
 export const chainIdGenerator = Generator({
-  schema: z.number().min(1),
-  filter: ({ transform, def }) => transform.utils.checks(def.checks).has('chainId'),
-  output: () => sample([1, 137])
+  schema: chainIdSchema,
+  filter: ({ context }) => context.path.at(-1) === 'chainId',
+  output: () => sample(Array.from(CHAINS.keys()))
 })

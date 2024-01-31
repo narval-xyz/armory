@@ -42,7 +42,7 @@ export const getChain = (chainId: number): Chain => {
   }
 
   throw new ApplicationException({
-    message: 'Chain ID is unsupported',
+    message: 'Chain ID unsupported',
     suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     context: { chainId }
   })

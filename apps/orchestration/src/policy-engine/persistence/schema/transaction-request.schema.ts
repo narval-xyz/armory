@@ -1,3 +1,4 @@
+import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
 import { isAddress } from '@narval/authz-shared'
 import { isHex } from 'viem'
 import { z } from 'zod'
@@ -48,7 +49,7 @@ export const accessListSchema = z.object({
 })
 
 export const readTransactionRequestSchema = z.object({
-  chainId: z.coerce.number().min(1),
+  chainId: chainIdSchema,
   from: addressSchema,
   nonce: z.coerce.number().optional(),
   accessList: z.array(accessListSchema).optional(),

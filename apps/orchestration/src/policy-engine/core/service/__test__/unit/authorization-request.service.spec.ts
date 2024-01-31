@@ -2,7 +2,8 @@ import {
   generateApproval,
   generateAuthorizationRequest,
   generateSignTransactionRequest,
-  generateSignature
+  generateSignature,
+  generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
 import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
 import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
@@ -20,6 +21,7 @@ import {
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
+import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
 import { Action, Decision, getAccountId, getAssetId } from '@narval/authz-shared'
@@ -38,7 +40,11 @@ describe(AuthorizationRequestService.name, () => {
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
-    request: generateSignTransactionRequest()
+    request: generateSignTransactionRequest({
+      transactionRequest: generateTransactionRequest({
+        chainId: ChainId.POLYGON
+      })
+    })
   })
 
   beforeEach(async () => {
@@ -133,6 +139,15 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
+    it('gets request assets prices', async () => {
+      await service.evaluate(authzRequest)
+
+      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(1, {
+        from: [matic],
+        to: [FIAT_ID_USD]
+      })
+    })
+
     it('calls authz application client', async () => {
       await service.evaluate(authzRequest)
 
@@ -164,10 +179,10 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    it('calls price service', async () => {
+    it('gets transfer asset prices', async () => {
       await service.evaluate(authzRequest)
 
-      expect(priceServiceMock.getPrices).toHaveBeenCalledWith({
+      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(2, {
         from: [matic],
         to: [FIAT_ID_USD]
       })

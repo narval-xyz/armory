@@ -10,11 +10,7 @@ export class CoinGeckoAssetRepository {
     const asset = parseAsset(assetId)
     const chain = safeGetChain(asset.chainId)
 
-    if (!chain) {
-      return null
-    }
-
-    if (isCoin(asset)) {
+    if (chain && isCoin(asset)) {
       return chain.coinGecko.coinId
     }
 

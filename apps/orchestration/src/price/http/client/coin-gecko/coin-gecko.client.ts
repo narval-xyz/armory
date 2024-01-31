@@ -5,14 +5,15 @@ import {
   SimplePriceOption
 } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { AxiosError, AxiosRequestConfig } from 'axios'
-import { lowerCase } from 'lodash'
 import { omit } from 'lodash/fp'
-import { catchError, lastValueFrom, map, throwError } from 'rxjs'
+import { catchError, lastValueFrom, map, tap, throwError } from 'rxjs'
 
 @Injectable()
 export class CoinGeckoClient {
+  private logger = new Logger(CoinGeckoClient.name)
+
   constructor(private httpService: HttpService) {}
 
   static AUTH_HEADER = 'x-cg-pro-api-key'
@@ -36,9 +37,12 @@ export class CoinGeckoClient {
       }
     }
 
+    this.logger.log('Request prices for CoinGecko', omit(['headers'], request))
+
     return lastValueFrom(
       this.httpService.request<SimplePrice>(request).pipe(
         map((response) => response.data),
+        tap((prices) => this.logger.log('Received prices from CoinGecko', prices)),
         catchError((error) => this.throwError(request, error))
       )
     )
@@ -68,7 +72,7 @@ export class CoinGeckoClient {
   }
 
   private formatStringArray(value: string[]): string {
-    return value.map(lowerCase).join(',')
+    return value.map((value) => value.toLowerCase()).join(',')
   }
 
   private throwError(request: AxiosRequestConfig, error: Error) {
