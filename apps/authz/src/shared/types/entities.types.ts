@@ -1,9 +1,10 @@
-import { AccountType, UserRoles } from './domain.type'
+import { UserRole } from '@narval/authz-shared'
+import { AccountType } from './domain.type'
 
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type User = {
   uid: string // Pubkey
-  role: UserRoles
+  role: UserRole
 }
 
 export type UserGroup = {

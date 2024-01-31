@@ -34,6 +34,14 @@ export type AuthCredential = {
   userId: string
 }
 
+export enum UserRole {
+  ROOT = 'root',
+  ADMIN = 'admin',
+  MEMBER = 'member',
+  MANAGER = 'manager'
+}
+
+
 export type Signature = {
   sig: string
   alg: Alg
@@ -116,4 +124,17 @@ export type CreateOrganizationAction = BaseAction & {
 
 export type CreateOrganizationRequest = BaseAdminRequest & {
   request: CreateOrganizationAction
+}
+
+export type CreateUserAction = BaseAction & {
+  action: Action.CREATE_USER
+  user: {
+    uid: string
+    role: UserRole
+    credential?: AuthCredential
+  }
+}
+
+export type CreateUserRequest = BaseAdminRequest & {
+  request: CreateUserAction
 }

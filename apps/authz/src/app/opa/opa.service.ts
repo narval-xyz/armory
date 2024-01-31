@@ -15,7 +15,7 @@ export class OpaService {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
-  constructor(private organizationRepository: AdminRepository) {}
+  constructor(private adminRepository: AdminRepository) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
@@ -34,7 +34,7 @@ export class OpaService {
     const opaEngine = await loadPolicy(policyWasm, undefined, {
       'time.now_ns': () => new Date().getTime() * 1000000
     })
-    const data = await this.organizationRepository.getEntityData()
+    const data = await this.adminRepository.getEntityData()
     opaEngine.setData(data)
     return opaEngine
   }
