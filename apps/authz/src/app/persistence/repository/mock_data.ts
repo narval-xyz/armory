@@ -12,7 +12,7 @@ import {
   Action,
   Alg,
   AssetId,
-  AuthorizationRequest,
+  EvaluationRequest,
   Request,
   TransactionRequest,
   hashRequest
@@ -258,7 +258,7 @@ export const mockEntityData: RegoData = {
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async (): Promise<AuthorizationRequest> => {
+export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
   const txRequest = NATIVE_TRANSFER_TX_REQUEST
   const request: Request = {
     action: Action.SIGN_TRANSACTION,
