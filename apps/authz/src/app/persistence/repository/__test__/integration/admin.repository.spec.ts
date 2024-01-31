@@ -1,14 +1,14 @@
 import { load } from '@app/authz/app/app.config'
-import { OrganizationRepository } from '@app/authz/app/persistence/repository/organization.repository'
+import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/authz/shared/module/persistence/service/test-prisma.service'
 import { Alg } from '@narval/authz-shared'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 
-describe(OrganizationRepository.name, () => {
+describe(AdminRepository.name, () => {
   let module: TestingModule
-  let repository: OrganizationRepository
+  let repository: AdminRepository
   let testPrismaService: TestPrismaService
 
   beforeEach(async () => {
@@ -20,11 +20,11 @@ describe(OrganizationRepository.name, () => {
         }),
         PersistenceModule
       ],
-      providers: [OrganizationRepository]
+      providers: [AdminRepository]
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    repository = module.get<OrganizationRepository>(OrganizationRepository)
+    repository = module.get<AdminRepository>(AdminRepository)
   })
 
   afterEach(async () => {
@@ -40,10 +40,11 @@ describe(OrganizationRepository.name, () => {
     })
 
     it('creates a new organization', async () => {
-      await repository.createOrganization('test-org-uid', 'test-user-uid', {
+      await repository.createOrganization('test-org-uid', {
         kid: 'test-kid',
         alg: Alg.ES256K,
-        pubKey: 'test-public-key'
+        pubKey: 'test-public-key',
+        userId: 'test-user-id'
       })
 
       const org = await testPrismaService.getClient().organization.findFirst({

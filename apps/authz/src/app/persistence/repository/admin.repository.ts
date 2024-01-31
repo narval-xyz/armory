@@ -1,6 +1,6 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { AccountType, UserRoles } from '@app/authz/shared/types/domain.type'
-import { Address, AuthCredential } from '@narval/authz-shared'
+import { AccountType } from '@app/authz/shared/types/domain.type'
+import { Address, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
@@ -11,7 +11,7 @@ export class AdminRepository implements OnModuleInit {
   constructor(private prismaService: PrismaService) {}
 
   async onModuleInit() {
-    this.logger.log('OrganizationRepository initialized')
+    this.logger.log('AdminRepository initialized')
   }
 
   async getEntityData() {
@@ -44,7 +44,7 @@ export class AdminRepository implements OnModuleInit {
     const rootUser = await this.prismaService.user.create({
       data: {
         uid: rootCredential.userId,
-        role: UserRoles.ROOT
+        role: UserRole.ROOT
       }
     })
 
@@ -65,24 +65,29 @@ export class AdminRepository implements OnModuleInit {
     return 'api-key'
   }
 
-  async createUser(uid: string, credential: AuthCredential, role: UserRoles) {
+  async createUser(uid: string, role: UserRole, credential?: AuthCredential) {
     // Create the User with the Role
     // Create the user's Credential
-    await this.prismaService.user.create({
+    const user = await this.prismaService.user.create({
       data: {
         uid,
         role
       }
     })
 
-    await this.prismaService.authCredential.create({
-      data: {
-        uid: credential.kid,
-        pubKey: credential.pubKey,
-        alg: credential.alg,
-        userId: uid
-      }
-    })
+    // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
+    if (credential) {
+      await this.prismaService.authCredential.create({
+        data: {
+          uid: credential.kid,
+          pubKey: credential.pubKey,
+          alg: credential.alg,
+          userId: uid
+        }
+      })
+    }
+
+    return user
   }
 
   async deleteUser(uid: string) {
@@ -132,7 +137,7 @@ export class AdminRepository implements OnModuleInit {
     })
   }
 
-  async assignUserRole(userId: string, role: UserRoles) {
+  async assignUserRole(userId: string, role: UserRole) {
     await this.prismaService.user.update({
       where: {
         uid: userId

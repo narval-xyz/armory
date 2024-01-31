@@ -1,3 +1,5 @@
+import { AdminService } from '@app/authz/app/core/admin.service'
+import { AdminController } from '@app/authz/app/http/rest/controller/admin.controller'
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
@@ -16,9 +18,10 @@ import { OpaService } from './opa/opa.service'
     }),
     PersistenceModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, AdminController],
   providers: [
     AppService,
+    AdminService,
     AdminRepository,
     OpaService,
     {
