@@ -1,7 +1,5 @@
 import { AccountType, UserRoles } from './domain.type'
 
-type UUID = string
-
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type User = {
   uid: string // Pubkey
@@ -10,7 +8,7 @@ export type User = {
 
 export type UserGroup = {
   uid: string
-  name: string
+  name?: string
   users: string[] // userIds
 }
 
@@ -33,12 +31,6 @@ export type AddressBookAccount = {
   address: string
   chainId: number
   classification: string
-}
-
-export type AddressBook = {
-  orgId: UUID
-  name: string
-  accounts: AddressBookAccount[]
 }
 
 export type Token = {
