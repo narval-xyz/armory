@@ -1,5 +1,5 @@
+import { AssetId } from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
-import { AssetId } from 'packages/authz-shared/src/lib/util/caip.util'
 
 export enum Action {
   CREATE_USER = 'user:create',
