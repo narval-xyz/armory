@@ -7,7 +7,16 @@ import {
   Wallet,
   WalletGroup
 } from '@app/authz/shared/types/entities.types'
-import { AccountId, Action, Alg, AssetId, Request, TransactionRequest, hashRequest } from '@narval/authz-shared'
+import {
+  AccountId,
+  Action,
+  Alg,
+  AssetId,
+  EvaluationRequest,
+  Request,
+  TransactionRequest,
+  hashRequest
+} from '@narval/authz-shared'
 import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, toHex } from 'viem'
@@ -249,7 +258,7 @@ export const mockEntityData: RegoData = {
 
 // stub out the actual tx request & signature
 // This is what would be the initial input from the external service
-export const generateInboundRequest = async () => {
+export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
   const txRequest = NATIVE_TRANSFER_TX_REQUEST
   const request: Request = {
     action: Action.SIGN_TRANSACTION,
