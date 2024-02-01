@@ -37,9 +37,46 @@ enum PolicyCriteriaType {
   INTENT_SIGN_TYPED_DATA_DOMAIN = 'intentSignTypedDataDomain',
   INTENT_PERMIT_DEADLINE = 'intentPermitDeadline',
   TRANSACTION_REQUEST_GAS_FEES = 'transactionRequestGasFees',
-  TRANSACTION_REQUEST_NONCE = 'transactionRequestNonce',
-  APPROVAL = 'approval',
-  ACCUMULATION = 'accumulation'
+  TRANSACTION_REQUEST_NONCE_REQUIRED = 'transactionRequestNonceRequired',
+  TRANSACTION_REQUEST_NONCE_NOT_REQUIRED = 'transactionRequestNonceNotRequired',
+  APPROVALS = 'approvals',
+  SPENDING_LIMIT = 'spendingLimit'
+}
+
+const regoCriteriaMapping = {
+  [PolicyCriteriaType.ACTION]: 'checkAction',
+  [PolicyCriteriaType.PRINCIPAL_ID]: 'checkPrincipalId',
+  [PolicyCriteriaType.PRINCIPAL_ROLE]: 'checkPrincipalRole',
+  [PolicyCriteriaType.PRINCIPAL_GROUP]: 'checkPrincipalGroup',
+  [PolicyCriteriaType.WALLET_ID]: 'checkWalletId',
+  [PolicyCriteriaType.WALLET_ADDRESS]: 'checkWalletAddress',
+  [PolicyCriteriaType.WALLET_ACCOUNT_TYPE]: 'checkWalletAccountType',
+  [PolicyCriteriaType.WALLET_CHAIN_ID]: 'checkWalletChainId',
+  [PolicyCriteriaType.WALLET_GROUP]: 'checkWalletGroup',
+  [PolicyCriteriaType.INTENT_TYPE]: 'checkIntentType',
+  [PolicyCriteriaType.INTENT_DESTINATION_ID]: 'checkIntentDestinationId',
+  [PolicyCriteriaType.INTENT_DESTINATION_ADDRESS]: 'checkIntentDestinationAddress',
+  [PolicyCriteriaType.INTENT_DESTINATION_ACCOUNT_TYPE]: 'checkIntentDestinationAccountType',
+  [PolicyCriteriaType.INTENT_DESTINATION_CLASSIFICATION]: 'checkIntentDestinationClassification',
+  [PolicyCriteriaType.INTENT_CONTRACT_ADDRESS]: 'checkIntentContractAddress',
+  [PolicyCriteriaType.INTENT_TOKEN_ADDRESS]: 'checkIntentTokenAddress',
+  [PolicyCriteriaType.INTENT_SPENDER_ADDRESS]: 'checkIntentSpenderAddress',
+  [PolicyCriteriaType.INTENT_CHAIN_ID]: 'checkIntentChainId',
+  [PolicyCriteriaType.INTENT_HEX_SIGNATURE]: 'checkIntentHexSignature',
+  [PolicyCriteriaType.INTENT_AMOUNT]: 'checkIntentAmount',
+  [PolicyCriteriaType.INTENT_ERC721_TOKEN_ID]: 'checkERC721TokenId',
+  [PolicyCriteriaType.INTENT_ERC1155_TOKEN_ID]: 'checkERC1155TokenId',
+  [PolicyCriteriaType.INTENT_ERC1155_TRANSFERS]: 'checkERC1155Transfers',
+  [PolicyCriteriaType.INTENT_SIGN_MESSAGE]: 'checkIntentMessage',
+  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD]: 'checkIntentPayload',
+  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM]: 'checkIntentAlgorithm',
+  [PolicyCriteriaType.INTENT_SIGN_TYPED_DATA_DOMAIN]: 'checkIntentDomain',
+  [PolicyCriteriaType.INTENT_PERMIT_DEADLINE]: 'checkPermitDeadline',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES]: 'checkGasFeeAmount',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED]: 'checkNonceExists',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED]: 'checkNonceNotExists',
+  [PolicyCriteriaType.APPROVALS]: 'getApprovalsResult',
+  [PolicyCriteriaType.SPENDING_LIMIT]: 'checkSpendings'
 }
 
 type Wildcard = '*'
@@ -87,9 +124,9 @@ type ApprovalCondition = {
 }
 
 type AccumulationCondition = {
-  rollingWindow: number // in seconds
   limit: string
   filters: {
+    rollingWindow?: number // in seconds
     currency?: Currency
     tokens?: AccountId[]
     users?: string[]
@@ -245,18 +282,21 @@ type TransactionRequestGasFeesCriteria = {
   args: AmountCondition
 }
 
-type TransactionRequestNonceCriteria = {
-  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE
-  args: boolean
+type TransactionRequestNonceRequiredCriteria = {
+  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+}
+
+type TransactionRequestNonceNotRequiredCriteria = {
+  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED
 }
 
 type ApprovalCriteria = {
-  criteria: PolicyCriteriaType.APPROVAL
+  criteria: PolicyCriteriaType.APPROVALS
   args: ApprovalCondition[]
 }
 
 type AccumulationCriteria = {
-  criteria: PolicyCriteriaType.ACCUMULATION
+  criteria: PolicyCriteriaType.SPENDING_LIMIT
   args: AccumulationCondition
 }
 
@@ -290,7 +330,8 @@ type PolicyCriteriaArgs =
   | IntentSignTypedDataDomainCriteria
   | IntentPermitDeadlineCriteria
   | TransactionRequestGasFeesCriteria
-  | TransactionRequestNonceCriteria
+  | TransactionRequestNonceRequiredCriteria
+  | TransactionRequestNonceNotRequiredCriteria
   | ApprovalCriteria
   | AccumulationCriteria
 
@@ -309,8 +350,7 @@ const examplePermitPolicy: PolicyCriteriaBuilder = {
       args: [Action.SIGN_TRANSACTION]
     },
     {
-      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE,
-      args: true
+      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
     },
     {
       criteria: PolicyCriteriaType.PRINCIPAL_ID,
@@ -333,7 +373,7 @@ const examplePermitPolicy: PolicyCriteriaBuilder = {
       args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
     },
     {
-      criteria: PolicyCriteriaType.APPROVAL,
+      criteria: PolicyCriteriaType.APPROVALS,
       args: [
         {
           approvalCount: 2,
@@ -361,8 +401,7 @@ const exampleForbidPolicy: PolicyCriteriaBuilder = {
       args: [Action.SIGN_TRANSACTION]
     },
     {
-      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE,
-      args: true
+      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
     },
     {
       criteria: PolicyCriteriaType.PRINCIPAL_ID,
@@ -381,11 +420,11 @@ const exampleForbidPolicy: PolicyCriteriaBuilder = {
       args: ['eip155:137/slip44:966']
     },
     {
-      criteria: PolicyCriteriaType.ACCUMULATION,
+      criteria: PolicyCriteriaType.SPENDING_LIMIT,
       args: {
-        rollingWindow: 12 * 60 * 60,
         limit: '1000000000000000000',
         filters: {
+          rollingWindow: 12 * 60 * 60,
           tokens: ['eip155:137/slip44:966'],
           users: ['matt@narval.xyz']
         }
