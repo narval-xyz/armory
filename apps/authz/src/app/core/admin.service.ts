@@ -22,16 +22,11 @@ export class AdminService {
     return {
       organization: data.organization,
       rootUser: data.rootUser,
-      rootCredential: {
-        uid: data.rootCredential.uid,
-        pubKey: data.rootCredential.pubKey,
-        alg: data.rootCredential.alg,
-        userId: data.rootCredential.userId
-      }
+      rootCredential: data.rootCredential
     }
   }
 
-  async createUser(payload: CreateUserRequest) {
+  async createUser(payload: CreateUserRequest): Promise<User> {
     const { uid, role, credential } = payload.request.user
     const user = await this.adminRepository.createUser(uid, role, credential)
 
