@@ -14,7 +14,7 @@ forbid[{"policyId": "spendingLimitByRole"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalRole(roles)
 	checkIntentType(transferTypes)
 	checkIntentContractAddress(tokens)
@@ -45,7 +45,7 @@ forbid[{"policyId": "spendingLimitByUser"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalId(users)
 	checkIntentType(transferTypes)
 	checkIntentContractAddress(tokens)
@@ -74,7 +74,7 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkIntentType(transferTypes)
 	checkWalletId(resources)
 	checkSpendings(limit, {
@@ -102,7 +102,7 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkIntentType(transferTypes)
 	checkSpendings(limit, {
 		"currency": currency,
@@ -129,7 +129,7 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkIntentType(transferTypes)
 	checkSpendings(limit, {
 		"currency": currency,

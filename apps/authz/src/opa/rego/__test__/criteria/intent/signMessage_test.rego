@@ -17,10 +17,10 @@ test_checkSignMessage {
 	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkIntentMessage({"operator": "equals", "value": "Hello world!"}) with input as signMessageRequest
+	checkIntentMessage({"operator": operators.equal, "value": "Hello world!"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkIntentMessage({"operator": "contains", "value": "Hello"}) with input as signMessageRequest
+	checkIntentMessage({"operator": operators.contains, "value": "Hello"}) with input as signMessageRequest
 		with data.entities as entities
 }
 
@@ -41,10 +41,10 @@ test_checkSignRawPayload {
 	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkIntentPayload({"operator": "equals", "value": "Hello world!"}) with input as signRawPayloadRequest
+	checkIntentPayload({"operator": operators.equal, "value": "Hello world!"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkIntentPayload({"operator": "contains", "value": "Hello"}) with input as signRawPayloadRequest
+	checkIntentPayload({"operator": operators.contains, "value": "Hello"}) with input as signRawPayloadRequest
 		with data.entities as entities
 }
 

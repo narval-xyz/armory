@@ -2,6 +2,8 @@ package main
 
 gasFee = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
 
+# Gas Fee Amount
+
 gasFeeAmount(currency) = result {
 	currency == wildcard
 	result = gasFee
@@ -9,35 +11,40 @@ gasFeeAmount(currency) = result {
 
 gasFeeAmount(currency) = result {
 	currency != wildcard
-	result = gasFee * to_number(input.prices[currency])
+	chainId = format_int(to_number(input.transactionRequest.chainId), 10)
+	token = chainAssetId[chainId]
+	price = to_number(input.prices[token][currency])
+	result = gasFee * price
 }
 
+# Check Gas Fee Amount
+
 checkGasFeeAmount(condition) {
-	condition.operator == "eq"
+	condition.operator == operators.equal
 	to_number(condition.value) == gasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(condition) {
-	condition.operator == "neq"
+	condition.operator == operators.notEqual
 	to_number(condition.value) != gasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(condition) {
-	condition.operator == "gt"
+	condition.operator == operators.greaterThan
 	to_number(condition.value) < gasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(condition) {
-	condition.operator == "lt"
+	condition.operator == operators.lessThan
 	to_number(condition.value) > gasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(condition) {
-	condition.operator == "gte"
+	condition.operator == operators.greaterThanOrEqual
 	to_number(condition.value) <= gasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(condition) {
-	condition.operator == "lte"
+	condition.operator == operators.lessThanOrEqual
 	to_number(condition.value) >= gasFeeAmount(condition.currency)
 }

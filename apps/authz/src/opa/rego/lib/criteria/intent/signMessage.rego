@@ -5,24 +5,24 @@ import future.keywords.in
 # Intent Sign Message
 
 checkIntentMessage(condition) {
-	condition.operator == "equals"
+	condition.operator == operators.equal
 	condition.value == input.intent.message
 }
 
 checkIntentMessage(condition) {
-	condition.operator == "contains"
+	condition.operator == operators.contains
 	contains(input.intent.message, condition.value)
 }
 
 # Intent Sign Raw Payload
 
 checkIntentPayload(condition) {
-	condition.operator == "equals"
+	condition.operator == operators.equal
 	condition.value == input.intent.payload
 }
 
 checkIntentPayload(condition) {
-	condition.operator == "contains"
+	condition.operator == operators.contains
 	contains(input.intent.payload, condition.value)
 }
 

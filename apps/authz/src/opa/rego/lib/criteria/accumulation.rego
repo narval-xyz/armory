@@ -15,6 +15,8 @@ getUserGroups(id) = result {
 	}
 }
 
+# Check Accumulation Condition
+
 checkAccCondition(value, set) {
 	set == wildcard
 }
@@ -23,6 +25,8 @@ checkAccCondition(value, set) {
 	set != wildcard
 	value in set
 }
+
+# Check Accumulation Start Date
 
 checkAccStartDate(timestamp, startDate) {
 	startDate == wildcard
@@ -35,6 +39,8 @@ checkAccStartDate(timestamp, startDate) {
 	timestamp * 1000000 >= startDate
 }
 
+# Check Accumulation End Date
+
 checkAccEndDate(timestamp, endDate) {
 	endDate == wildcard
 }
@@ -45,6 +51,8 @@ checkAccEndDate(timestamp, endDate) {
 	# convert ms to ns
 	timestamp * 1000000 <= endDate
 }
+
+# Check Accumulation User Groups
 
 checkAccUserGroups(userId, values) {
 	values == wildcard
@@ -57,6 +65,8 @@ checkAccUserGroups(userId, values) {
 	group in values
 }
 
+# Check Accumulation Wallet Groups
+
 checkAccWalletGroups(walletId, values) {
 	values == wildcard
 }
@@ -68,6 +78,8 @@ checkAccWalletGroups(walletId, values) {
 	group in values
 }
 
+# Calculate Spending
+
 calcSpending(transfer, currency) = result {
 	currency == wildcard
 	result := to_number(transfer.amount)
@@ -77,6 +89,8 @@ calcSpending(transfer, currency) = result {
 	currency != wildcard
 	result := to_number(transfer.amount) * to_number(transfer.rates[currency])
 }
+
+# Check Spendings
 
 checkSpendings(limit, filters) {
 	conditions = object.union(

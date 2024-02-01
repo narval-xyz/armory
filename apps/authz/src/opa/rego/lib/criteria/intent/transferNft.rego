@@ -22,32 +22,32 @@ checkERC1155TokenId(values) {
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "eq"
+	operation.operator == operators.equal
 	to_number(operation.value) == to_number(amount)
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "neq"
+	operation.operator == operators.notEqual
 	to_number(operation.value) != to_number(amount)
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "gt"
+	operation.operator == operators.greaterThan
 	to_number(operation.value) < to_number(amount)
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "lt"
+	operation.operator == operators.lessThan
 	to_number(operation.value) > to_number(amount)
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "gte"
+	operation.operator == operators.greaterThanOrEqual
 	to_number(operation.value) <= to_number(amount)
 }
 
 checkERC1155TokenAmount(amount, operation) {
-	operation.operator == "lte"
+	operation.operator == operators.lessThanOrEqual
 	to_number(operation.value) >= to_number(amount)
 }
 

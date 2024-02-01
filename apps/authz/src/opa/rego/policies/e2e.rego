@@ -17,7 +17,7 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalId(users)
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
@@ -44,7 +44,7 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalId(users)
 	checkWalletId(resources)
 	checkIntentType(transferTypes)

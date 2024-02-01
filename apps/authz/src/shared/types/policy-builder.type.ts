@@ -8,7 +8,6 @@ enum PolicyRuleType {
 }
 
 enum PolicyCriteriaType {
-  RULE_TYPE = 'ruleType',
   ACTION = 'action',
   PRINCIPAL_ID = 'principalId',
   PRINCIPAL_ROLE = 'principalRole',
@@ -64,7 +63,7 @@ type ERC1155AmountCondition = {
 }
 
 type SignMessageCondition = {
-  operator: 'equals' | 'contains'
+  operator: 'eq' | 'contains'
   value: string
 }
 
