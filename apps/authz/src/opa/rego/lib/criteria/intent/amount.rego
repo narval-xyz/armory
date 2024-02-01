@@ -24,31 +24,31 @@ intentAmount(currency) = result {
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "eq"
+	condition.operator == operators.equal
 	intentAmount(condition.currency) == to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "neq"
+	condition.operator == operators.notEqual
 	intentAmount(condition.currency) != to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "gt"
+	condition.operator == operators.greaterThan
 	intentAmount(condition.currency) > to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "lt"
+	condition.operator == operators.lessThan
 	intentAmount(condition.currency) < to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "gte"
+	condition.operator == operators.greaterThanOrEqual
 	intentAmount(condition.currency) >= to_number(condition.value)
 }
 
 checkIntentAmount(condition) {
-	condition.operator == "lte"
+	condition.operator == operators.lessThanOrEqual
 	intentAmount(condition.currency) <= to_number(condition.value)
 }

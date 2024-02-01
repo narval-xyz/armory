@@ -18,33 +18,39 @@ test_checkAccCondition {
 }
 
 test_checkAccStartDate {
-	conditions = {"start": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))}
-	checkAccStartDate(elevenHoursAgo, conditions.start)
+	conditions = {"startDate": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60))}
+	checkAccStartDate(elevenHoursAgo, conditions.startDate)
 }
 
-test_checkSpendingsByAmount {
+test_checkSpendingLimitByAmount {
 	conditions = {
-		"tokens": {
-			"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-			"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+		"limit": "1000000000000000000",
+		"filters": {
+			"tokens": {
+				"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+			},
+			"users": {"test-alice-uid"},
+			"startDate": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60)),
 		},
-		"users": {"test-alice-uid"},
-		"startDate": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60)),
 	}
 
-	checkSpendings("1000000000000000000", conditions) with input as request with data.entities as entities
+	checkSpendingLimit(conditions) with input as request with data.entities as entities
 }
 
-test_checkSpendingsByValue {
+test_checkSpendingLimitByValue {
 	conditions = {
+		"limit": "900000000000000000",
 		"currency": "fiat:usd",
-		"tokens": {
-			"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-			"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+		"filters": {
+			"tokens": {
+				"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+			},
+			"users": {"test-alice-uid"},
+			"startDate": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60)),
 		},
-		"users": {"test-alice-uid"},
-		"startDate": secondsToNanoSeconds(nowSeconds - ((12 * 60) * 60)),
 	}
 
-	checkSpendings("900000000000000000", conditions) with input as request with data.entities as entities
+	checkSpendingLimit(conditions) with input as request with data.entities as entities
 }

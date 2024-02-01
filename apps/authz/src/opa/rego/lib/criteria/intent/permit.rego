@@ -6,31 +6,31 @@ import future.keywords.in
 permitDeadlineMs = to_number(input.intent.deadline)
 
 checkPermitDeadline(condition) {
-	condition.operator == "eq"
+	condition.operator == operators.equal
 	permitDeadlineMs == to_number(condition.value)
 }
 
 checkPermitDeadline(condition) {
-	condition.operator == "neq"
+	condition.operator == operators.notEqual
 	permitDeadlineMs != to_number(condition.value)
 }
 
 checkPermitDeadline(condition) {
-	condition.operator == "lte"
+	condition.operator == operators.lessThanOrEqual
 	permitDeadlineMs <= to_number(condition.value)
 }
 
 checkPermitDeadline(condition) {
-	condition.operator == "gte"
+	condition.operator == operators.greaterThanOrEqual
 	permitDeadlineMs >= to_number(condition.value)
 }
 
 checkPermitDeadline(condition) {
-	condition.operator == "lt"
+	condition.operator == operators.lessThan
 	permitDeadlineMs < to_number(condition.value)
 }
 
 checkPermitDeadline(condition) {
-	condition.operator == "gt"
+	condition.operator == operators.greaterThan
 	permitDeadlineMs > to_number(condition.value)
 }

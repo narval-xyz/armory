@@ -2,36 +2,14 @@ package main
 
 import future.keywords.in
 
-destination = result {
-	result := data.entities.wallets[input.intent.to]
-}
+destination = data.entities.wallets[input.intent.to]
 
-destination = result {
-	result := data.entities.addressBook[input.intent.to]
-}
+destination = data.entities.addressBook[input.intent.to]
 
-# Intent Destination Address
+checkDestinationAccountType(values) = destination.accountType in values
 
-checkDestinationAddress(values) {
-	values == wildcard
-}
+checkDestinationId(values) = destination.uid in values
 
-checkDestinationAddress(values) {
-	values != wildcard
-	destination.uid in values
-}
+checkDestinationAddress(values) = destination.address in values
 
-# Intent Destination Classification
-
-checkDestinationClassification(values) {
-	values == wildcard
-}
-
-checkDestinationClassification(values) {
-	not destination.classification
-}
-
-checkDestinationClassification(values) {
-	values != wildcard
-	destination.classification in values
-}
+checkDestinationClassification(values) = destination.classification in values

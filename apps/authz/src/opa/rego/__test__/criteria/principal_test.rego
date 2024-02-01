@@ -23,6 +23,6 @@ test_principal {
 	checkPrincipalRole({"root", "admin"}) with input as request
 		with data.entities as entities
 
-	checkPrincipalGroups({"test-user-group-one-uid"}) with input as request
+	checkPrincipalGroup({"test-user-group-one-uid"}) with input as request
 		with data.entities as entities
 }

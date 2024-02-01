@@ -3,6 +3,7 @@ package main
 test_transferERC721 {
 	erc721Request = {
 		"action": "signTransaction",
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -15,13 +16,13 @@ test_transferERC721 {
 	checkIntentType({"transferERC721"}) with input as erc721Request
 		with data.entities as entities
 
-	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request
 		with data.entities as entities
 
-	checkDestinationAddress({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc721Request
+	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc721Request
 		with data.entities as entities
 
-	checkIntentContractAddress({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request
+	checkIntentContract({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request
 		with data.entities as entities
 
 	checkERC721TokenId({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request
@@ -31,6 +32,7 @@ test_transferERC721 {
 test_transferERC1155 {
 	erc1155Request = {
 		"action": "signTransaction",
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -56,13 +58,13 @@ test_transferERC1155 {
 	checkIntentType({"transferERC1155"}) with input as erc1155Request
 		with data.entities as entities
 
-	checkSourceAddress({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request
 		with data.entities as entities
 
-	checkDestinationAddress({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc1155Request
+	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc1155Request
 		with data.entities as entities
 
-	checkIntentContractAddress({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request
+	checkIntentContract({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request
 		with data.entities as entities
 
 	checkERC1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc1155Request
@@ -79,12 +81,12 @@ test_transferERC1155 {
 }
 
 test_checkERC1155TokenAmount {
-	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "neq", "value": "2"})
-	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "eq", "value": "1"})
-	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "gte", "value": "4"})
-	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lte", "value": "5"})
-	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "gt", "value": "3"})
-	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": "lt", "value": "5"})
+	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.notEqual, "value": "2"})
+	checkERC1155TokenAmount("1", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.equal, "value": "1"})
+	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.greaterThanOrEqual, "value": "4"})
+	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.lessThanOrEqual, "value": "5"})
+	checkERC1155TokenAmount("5", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.greaterThan, "value": "3"})
+	checkERC1155TokenAmount("3", {"tokenId": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.lessThan, "value": "5"})
 }
 
 test_extractTokenIdFromCaip19 {

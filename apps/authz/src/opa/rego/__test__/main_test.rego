@@ -82,10 +82,16 @@ transfersReq = [
 	},
 ]
 
-pricesReq = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
-	"fiat:usd": "0.99",
-	"fiat:eur": "1.10",
-}}
+pricesReq = {
+	"eip155:137/slip44:966": {
+		"fiat:usd": "0.99",
+		"fiat:eur": "1.10",
+	},
+	"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+		"fiat:usd": "0.99",
+		"fiat:eur": "1.10",
+	},
+}
 
 request = {
 	"action": "signTransaction",
