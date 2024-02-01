@@ -68,6 +68,21 @@ CREATE TABLE "transfer_feed" (
     CONSTRAINT "transfer_feed_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "feed" (
+    "id" VARCHAR(255) NOT NULL,
+    "org_id" TEXT NOT NULL,
+    "request_id" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "sig" TEXT,
+    "alg" TEXT,
+    "pubKey" TEXT,
+    "data" JSONB NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "feed_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
 

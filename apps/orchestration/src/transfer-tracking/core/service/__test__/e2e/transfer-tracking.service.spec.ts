@@ -3,18 +3,18 @@ import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { TransferFeedModule } from '@app/orchestration/transfer-feed/transfer-feed.module'
+import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
+import { TransferTrackingModule } from '@app/orchestration/transfer-tracking/transfer-tracking.module'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { first, map, omit, uniq } from 'lodash/fp'
 
-describe(TransferFeedService.name, () => {
+describe(TransferTrackingService.name, () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let service: TransferFeedService
+  let service: TransferTrackingService
 
   const transfer: Transfer = {
     id: '0e9a6d80-7d44-4baa-935f-977e3c71ee49',
@@ -41,12 +41,12 @@ describe(TransferFeedService.name, () => {
         }),
         QueueModule.forRoot(),
         PersistenceModule,
-        TransferFeedModule
+        TransferTrackingModule
       ]
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    service = module.get<TransferFeedService>(TransferFeedService)
+    service = module.get<TransferTrackingService>(TransferTrackingService)
 
     app = module.createNestApplication()
 

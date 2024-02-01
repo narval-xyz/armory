@@ -9,7 +9,7 @@ const decodeRatesSchema = z.record(z.string(), z.coerce.number())
 const encodeRatesSchema = z.record(z.string(), z.coerce.string())
 
 @Injectable()
-export class TransferFeedRepository {
+export class TransferRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateTransfer): Promise<Transfer> {

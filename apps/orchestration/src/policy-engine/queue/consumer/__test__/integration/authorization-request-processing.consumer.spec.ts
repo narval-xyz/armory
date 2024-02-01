@@ -17,7 +17,7 @@ import { PriceService } from '@app/orchestration/price/core/service/price.servic
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
+import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Action, Alg, Signature } from '@narval/authz-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
@@ -95,8 +95,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestRepository,
         AuthorizationRequestService,
         {
-          provide: TransferFeedService,
-          useValue: mock<TransferFeedService>()
+          provide: TransferTrackingService,
+          useValue: mock<TransferTrackingService>()
         },
         {
           provide: AuthzApplicationClient,

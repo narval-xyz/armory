@@ -1,4 +1,4 @@
-import { germinate as germinateTransferFeedModule } from '@app/orchestration/transfer-feed/persistence/transfer-feed.seed'
+import { germinate as germinateTransferTrackingModule } from '@app/orchestration/transfer-tracking/persistence/transfer.seed'
 import { Logger } from '@nestjs/common'
 import { Organization, PrismaClient } from '@prisma/client/orchestration'
 
@@ -26,7 +26,7 @@ async function main() {
     })
   }
 
-  await germinateTransferFeedModule(prisma)
+  await germinateTransferTrackingModule(prisma)
 
   logger.log('Orchestration database germinated 🌱')
 }

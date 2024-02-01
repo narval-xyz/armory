@@ -11,7 +11,7 @@ import { AuthorizationRequestProcessingProducer } from '@app/orchestration/polic
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { getChain } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
-import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
+import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Action, AssetId, Decision, HistoricalTransfer } from '@narval/authz-shared'
 import { Decoder, InputType, Intents } from '@narval/transaction-request-intent'
 import { Injectable, Logger } from '@nestjs/common'
@@ -43,7 +43,7 @@ export class AuthorizationRequestService {
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private authzApplicationClient: AuthzApplicationClient,
-    private transferFeedService: TransferFeedService,
+    private transferTrackingService: TransferTrackingService,
     private priceService: PriceService
   ) {}
 
@@ -110,7 +110,7 @@ export class AuthorizationRequestService {
     // short-circuit the retry mechanism.
 
     const [requestTransfers, requestPrices] = await Promise.all([
-      this.transferFeedService.findByOrgId(input.orgId),
+      this.transferTrackingService.findByOrgId(input.orgId),
       this.priceService.getPrices({
         from: this.getAssetIds(input),
         to: [FIAT_ID_USD]
@@ -165,7 +165,7 @@ export class AuthorizationRequestService {
           rates: transferPrices[intent.token]
         }
 
-        await this.transferFeedService.track(transfer)
+        await this.transferTrackingService.track(transfer)
       }
     }
 

@@ -20,7 +20,7 @@ import { AuthorizationRequestProcessingProducer } from '@app/orchestration/polic
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
-import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
+import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Action, Decision, EvaluationResponse, getAccountId, getAssetId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -31,7 +31,7 @@ describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
-  let transferFeedServiceMock: MockProxy<TransferFeedService>
+  let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
   let priceServiceMock: MockProxy<PriceService>
   let service: AuthorizationRequestService
@@ -47,7 +47,7 @@ describe(AuthorizationRequestService.name, () => {
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
-    transferFeedServiceMock = mock<TransferFeedService>()
+    transferFeedServiceMock = mock<TransferTrackingService>()
     authzApplicationClientMock = mock<AuthzApplicationClient>()
     priceServiceMock = mock<PriceService>()
 
@@ -63,7 +63,7 @@ describe(AuthorizationRequestService.name, () => {
           useValue: authzRequestProcessingProducerMock
         },
         {
-          provide: TransferFeedService,
+          provide: TransferTrackingService,
           useValue: transferFeedServiceMock
         },
         {

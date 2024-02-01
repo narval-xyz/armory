@@ -83,9 +83,10 @@ model EvaluationLog {
 }
 
 //
-// Transfer Feed Module
+// Transfer Tracking Module
 //
 
+// TODO: Rename to approved transfer
 model TransferFeed {
   id          String   @id @default(uuid()) @db.VarChar(255)
   orgId       String   @map("org_id")
@@ -99,4 +100,22 @@ model TransferFeed {
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("transfer_feed")
+}
+
+//
+//  Data Feed Module
+//
+
+model Feed {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  requestId String   @map("request_id")
+  source    String
+  sig       String?
+  alg       String?
+  pubKey    String?
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("feed")
 }

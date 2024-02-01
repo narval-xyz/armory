@@ -1,12 +1,12 @@
 import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
-import { TransferFeedRepository } from '@app/orchestration/transfer-feed/persistence/repository/transfer-feed.repository'
+import { TransferRepository } from '@app/orchestration/transfer-tracking/persistence/repository/transfer.repository'
 import { Injectable, Logger } from '@nestjs/common'
 
 @Injectable()
-export class TransferFeedService {
-  private logger = new Logger(TransferFeedService.name)
+export class TransferTrackingService {
+  private logger = new Logger(TransferTrackingService.name)
 
-  constructor(private transferFeedRepository: TransferFeedRepository) {}
+  constructor(private transferFeedRepository: TransferRepository) {}
 
   track(transfer: CreateTransfer): Promise<Transfer> {
     this.logger.log('Tracking approved transfer', transfer)
