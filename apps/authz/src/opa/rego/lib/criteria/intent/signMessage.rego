@@ -28,13 +28,7 @@ checkIntentPayload(condition) {
 
 # Intent Sign Raw Payload Algorithm
 
-checkIntentAlgorithm(values) {
-	values == wildcard
-}
-
-checkIntentAlgorithm(values) {
-	input.intent.algorithm in values
-}
+checkIntentAlgorithm(values) = input.intent.algorithm in values
 
 # Intent Sign Typed Data Domain
 
@@ -59,7 +53,7 @@ checkIntentDomain(filters) {
 	)
 
 	checkDomainCondition(input.intent.domain.version, conditions.version)
-	checkDomainCondition(input.intent.domain.chainId, conditions.chainId)
+	checkDomainCondition(numberToString(input.intent.domain.chainId), conditions.chainId)
 	checkDomainCondition(input.intent.domain.name, conditions.name)
 	checkDomainCondition(input.intent.domain.verifyingContract, conditions.verifyingContract)
 }

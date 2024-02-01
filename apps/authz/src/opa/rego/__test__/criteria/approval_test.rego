@@ -125,7 +125,7 @@ test_checkApprovalWithoutCountingDuplicates {
 	res == 1
 }
 
-test_getApprovalsResult {
+test_checkApprovals {
 	satisfied = {
 		"approvalCount": 1,
 		"countPrincipal": true,
@@ -140,7 +140,7 @@ test_getApprovalsResult {
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 
-	res = getApprovalsResult([satisfied, missing]) with input as request with data.entities as entities
+	res = checkApprovals([satisfied, missing]) with input as request with data.entities as entities
 
 	res == {
 		"approvalsSatisfied": [satisfied],

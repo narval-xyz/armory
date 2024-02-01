@@ -22,7 +22,7 @@ test_transferNative {
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as nativeRequest
 		with data.entities as entities
 
-	checkIntentTokenAddress({"eip155:137/slip44:966"}) with input as nativeRequest
+	checkIntentToken({"eip155:137/slip44:966"}) with input as nativeRequest
 		with data.entities as entities
 
 	checkIntentAmount({"currency": wildcard, "operator": operators.lessThanOrEqual, "value": "1000000000000000000"}) with input as nativeRequest
@@ -51,7 +51,7 @@ test_transferERC20 {
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc20Request
 		with data.entities as entities
 
-	checkIntentContractAddress({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as erc20Request
+	checkIntentContract({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as erc20Request
 		with data.entities as entities
 
 	checkIntentAmount({"currency": wildcard, "operator": operators.lessThanOrEqual, "value": "1000000000000000000"}) with input as erc20Request

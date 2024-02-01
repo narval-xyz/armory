@@ -11,7 +11,7 @@ gasFeeAmount(currency) = result {
 
 gasFeeAmount(currency) = result {
 	currency != wildcard
-	chainId = format_int(to_number(input.transactionRequest.chainId), 10)
+	chainId = numberToString(input.transactionRequest.chainId)
 	token = chainAssetId[chainId]
 	price = to_number(input.prices[token][currency])
 	result = gasFee * price

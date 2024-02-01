@@ -2,22 +2,10 @@ package main
 
 import future.keywords.in
 
-checkERC721TokenId(values) {
-	values == wildcard
-}
-
-checkERC721TokenId(values) {
-	values != wildcard
-	input.intent.nftId in values
-}
+checkERC721TokenId(values) = input.intent.nftId in values
 
 checkERC1155TokenId(values) {
-	values == wildcard
-}
-
-checkERC1155TokenId(values) {
-	values != wildcard
-	transfer := input.intent.transfers[_]
+	transfer = input.intent.transfers[_]
 	transfer.tokenId in values
 }
 
@@ -59,7 +47,7 @@ checkERC1155Transfers(operations) {
 	checkERC1155TokenAmount(transfer.amount, operation)
 }
 
-extractTokenIdFromCaip19(caip19) := result {
-	arr := split(caip19, "/")
-	result := arr[count(arr) - 1]
+extractTokenIdFromCaip19(caip19) = result {
+	arr = split(caip19, "/")
+	result = arr[count(arr) - 1]
 }

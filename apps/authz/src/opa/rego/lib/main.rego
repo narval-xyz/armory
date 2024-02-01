@@ -2,6 +2,8 @@ package main
 
 import future.keywords.in
 
+numberToString(n) = format_int(to_number(n), 10)
+
 secondsToNanoSeconds(epochS) = epochS * 1000000000
 
 nanoSecondsToSeconds(epochNs) = epochNs / 1000000000
@@ -31,7 +33,7 @@ chainAssetId = {
 	"43114": "eip155:43114/slip44:9000",
 }
 
-default evaluate := {
+default evaluate = {
 	"permit": false,
 	"reasons": set(),
 	# The default flag indicates whether the rule was evaluated as expected or if
@@ -40,10 +42,10 @@ default evaluate := {
 	"default": true,
 }
 
-permit[{"policyId": "allow-root-user"}] := reason {
+permit[{"policyId": "allow-root-user"}] = reason {
 	isPrincipalRootUser
 
-	reason := {
+	reason = {
 		"type": "permit",
 		"policyId": "allow-root-user",
 		"approvalsSatisfied": [],
@@ -51,10 +53,10 @@ permit[{"policyId": "allow-root-user"}] := reason {
 	}
 }
 
-forbid[{"policyId": "default-forbid-policy"}] := reason {
+forbid[{"policyId": "default-forbid-policy"}] = reason {
 	false
 
-	reason := {
+	reason = {
 		"type": "forbid",
 		"policyId": "default-forbid-policy",
 		"approvalsSatisfied": [],
@@ -62,9 +64,9 @@ forbid[{"policyId": "default-forbid-policy"}] := reason {
 	}
 }
 
-evaluate := decision {
-	permitSet := {p | p = permit[_]}
-	forbidSet := {f | f = forbid[_]}
+evaluate = decision {
+	permitSet = {p | p = permit[_]}
+	forbidSet = {f | f = forbid[_]}
 
 	count(forbidSet) == 0
 	count(permitSet) > 0
@@ -74,22 +76,22 @@ evaluate := decision {
 	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive, but that's done at the policy-builder time, not here.
 
 	# Filter permitSet to only include objects where approvalsMissing is empty
-	filteredPermitSet := {p | p = permitSet[_]; count(p.approvalsMissing) == 0}
+	filteredPermitSet = {p | p = permitSet[_]; count(p.approvalsMissing) == 0}
 
-	decision := {
+	decision = {
 		"permit": count(filteredPermitSet) == count(permitSet),
 		"reasons": permitSet,
 	}
 }
 
-evaluate := decision {
-	permitSet := {p | p = permit[_]}
-	forbidSet := {f | f = forbid[_]}
+evaluate = decision {
+	permitSet = {p | p = permit[_]}
+	forbidSet = {f | f = forbid[_]}
 
 	# If the forbid set is not empty, set "permit": false.
 	count(forbidSet) > 0
 
-	decision := {
+	decision = {
 		"permit": false,
 		"reasons": forbidSet,
 	}

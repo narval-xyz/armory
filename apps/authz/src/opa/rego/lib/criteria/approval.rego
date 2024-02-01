@@ -2,31 +2,27 @@ package main
 
 import future.keywords.in
 
-usersEntities := data.entities.users
+usersEntities = data.entities.users
 
-userGroupsEntities := data.entities.userGroups
+userGroupsEntities = data.entities.userGroups
 
-approversRoles = result {
-	result := {user.role |
-		approval := input.approvals[_]
-		user := usersEntities[approval.userId]
-	}
+approversRoles = {user.role |
+	approval = input.approvals[_]
+	user = usersEntities[approval.userId]
 }
 
-approversGroups = result {
-	result := {group.uid |
-		approval := input.approvals[_]
-		group := userGroupsEntities[_]
-		approval.userId in group.users
-	}
+approversGroups = {group.uid |
+	approval = input.approvals[_]
+	group = userGroupsEntities[_]
+	approval.userId in group.users
 }
 
 getApprovalsCount(possibleApprovers) = result {
-	matchedApprovers := {approval.userId |
-		approval := input.approvals[_]
+	matchedApprovers = {approval.userId |
+		approval = input.approvals[_]
 		approval.userId in possibleApprovers
 	}
-	result := count(matchedApprovers)
+	result = count(matchedApprovers)
 }
 
 # User approvals
@@ -34,20 +30,18 @@ getApprovalsCount(possibleApprovers) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::User"
-	possibleApprovers := {entity | entity := approval.entityIds[_]} | {principal.uid}
-
-	result := getApprovalsCount(possibleApprovers)
+	possibleApprovers = {entity | entity = approval.entityIds[_]} | {principal.uid}
+	result = getApprovalsCount(possibleApprovers)
 }
 
 checkApproval(approval) = result {
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::User"
-	possibleApprovers := {entity |
-		entity := approval.entityIds[_]
+	possibleApprovers = {entity |
+		entity = approval.entityIds[_]
 		entity != principal.uid
 	}
-
-	result := getApprovalsCount(possibleApprovers)
+	result = getApprovalsCount(possibleApprovers)
 }
 
 # User group approvals
@@ -55,26 +49,26 @@ checkApproval(approval) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserGroup"
-	possibleApprovers := {user |
-		entity := approval.entityIds[_]
-		users := userGroupsEntities[entity].users
-		user := users[_]
+	possibleApprovers = {user |
+		entity = approval.entityIds[_]
+		users = userGroupsEntities[entity].users
+		user = users[_]
 	} | {principal.uid}
 
-	result := getApprovalsCount(possibleApprovers)
+	result = getApprovalsCount(possibleApprovers)
 }
 
 checkApproval(approval) = result {
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserGroup"
-	possibleApprovers := {user |
-		entity := approval.entityIds[_]
-		users := userGroupsEntities[entity].users
-		user := users[_]
+	possibleApprovers = {user |
+		entity = approval.entityIds[_]
+		users = userGroupsEntities[entity].users
+		user = users[_]
 		user != principal.uid
 	}
 
-	result := getApprovalsCount(possibleApprovers)
+	result = getApprovalsCount(possibleApprovers)
 }
 
 # User role approvals
@@ -82,40 +76,40 @@ checkApproval(approval) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserRole"
-	possibleApprovers := {user.uid |
-		user := usersEntities[_]
+	possibleApprovers = {user.uid |
+		user = usersEntities[_]
 		user.role in approval.entityIds
 	} | {principal.uid}
 
-	result := getApprovalsCount(possibleApprovers)
+	result = getApprovalsCount(possibleApprovers)
 }
 
 checkApproval(approval) = result {
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserRole"
-	possibleApprovers := {user.uid |
-		user := usersEntities[_]
+	possibleApprovers = {user.uid |
+		user = usersEntities[_]
 		user.role in approval.entityIds
 		user.uid != principal.uid
 	}
 
-	result := getApprovalsCount(possibleApprovers)
+	result = getApprovalsCount(possibleApprovers)
 }
 
-getApprovalsResult(approvals) := result {
+checkApprovals(approvals) = result {
 	approvalsMissing = [approval |
-		approval := approvals[_]
-		approvalCount := checkApproval(approval)
+		approval = approvals[_]
+		approvalCount = checkApproval(approval)
 		approvalCount < approval.approvalCount
 	]
 
 	approvalsSatisfied = [approval |
-		approval := approvals[_]
-		approvalCount := checkApproval(approval)
+		approval = approvals[_]
+		approvalCount = checkApproval(approval)
 		approvalCount >= approval.approvalCount
 	]
 
-	result := {
+	result = {
 		"approvalsSatisfied": approvalsSatisfied,
 		"approvalsMissing": approvalsMissing,
 	}

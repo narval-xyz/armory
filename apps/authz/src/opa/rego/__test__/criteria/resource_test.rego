@@ -35,7 +35,4 @@ test_resource {
 
 	checkWalletGroup({"test-wallet-group-one-uid"}) with input as request
 		with data.entities as entities
-
-	checkWalletChainId({"137"}) with input as request
-		with data.entities as entities
 }

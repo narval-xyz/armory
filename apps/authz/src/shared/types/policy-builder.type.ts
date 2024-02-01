@@ -22,9 +22,9 @@ enum PolicyCriteriaType {
   INTENT_DESTINATION_ADDRESS = 'intentDestinationAddress',
   INTENT_DESTINATION_ACCOUNT_TYPE = 'intentDestinationAccountType',
   INTENT_DESTINATION_CLASSIFICATION = 'intentDestinationClassification',
-  INTENT_CONTRACT_ADDRESS = 'intentContractAddress',
-  INTENT_TOKEN_ADDRESS = 'intentTokenAddress',
-  INTENT_SPENDER_ADDRESS = 'intentSpenderAddress',
+  INTENT_CONTRACT = 'intentContract',
+  INTENT_TOKEN = 'intentToken',
+  INTENT_SPENDER = 'intentSpender',
   INTENT_CHAIN_ID = 'intentChainId',
   INTENT_HEX_SIGNATURE = 'intentHexSignature',
   INTENT_AMOUNT = 'intentAmount',
@@ -41,42 +41,6 @@ enum PolicyCriteriaType {
   TRANSACTION_REQUEST_NONCE_NOT_REQUIRED = 'transactionRequestNonceNotRequired',
   APPROVALS = 'approvals',
   SPENDING_LIMIT = 'spendingLimit'
-}
-
-const regoCriteriaMapping = {
-  [PolicyCriteriaType.ACTION]: 'checkAction',
-  [PolicyCriteriaType.PRINCIPAL_ID]: 'checkPrincipalId',
-  [PolicyCriteriaType.PRINCIPAL_ROLE]: 'checkPrincipalRole',
-  [PolicyCriteriaType.PRINCIPAL_GROUP]: 'checkPrincipalGroup',
-  [PolicyCriteriaType.WALLET_ID]: 'checkWalletId',
-  [PolicyCriteriaType.WALLET_ADDRESS]: 'checkWalletAddress',
-  [PolicyCriteriaType.WALLET_ACCOUNT_TYPE]: 'checkWalletAccountType',
-  [PolicyCriteriaType.WALLET_CHAIN_ID]: 'checkWalletChainId',
-  [PolicyCriteriaType.WALLET_GROUP]: 'checkWalletGroup',
-  [PolicyCriteriaType.INTENT_TYPE]: 'checkIntentType',
-  [PolicyCriteriaType.INTENT_DESTINATION_ID]: 'checkIntentDestinationId',
-  [PolicyCriteriaType.INTENT_DESTINATION_ADDRESS]: 'checkIntentDestinationAddress',
-  [PolicyCriteriaType.INTENT_DESTINATION_ACCOUNT_TYPE]: 'checkIntentDestinationAccountType',
-  [PolicyCriteriaType.INTENT_DESTINATION_CLASSIFICATION]: 'checkIntentDestinationClassification',
-  [PolicyCriteriaType.INTENT_CONTRACT_ADDRESS]: 'checkIntentContractAddress',
-  [PolicyCriteriaType.INTENT_TOKEN_ADDRESS]: 'checkIntentTokenAddress',
-  [PolicyCriteriaType.INTENT_SPENDER_ADDRESS]: 'checkIntentSpenderAddress',
-  [PolicyCriteriaType.INTENT_CHAIN_ID]: 'checkIntentChainId',
-  [PolicyCriteriaType.INTENT_HEX_SIGNATURE]: 'checkIntentHexSignature',
-  [PolicyCriteriaType.INTENT_AMOUNT]: 'checkIntentAmount',
-  [PolicyCriteriaType.INTENT_ERC721_TOKEN_ID]: 'checkERC721TokenId',
-  [PolicyCriteriaType.INTENT_ERC1155_TOKEN_ID]: 'checkERC1155TokenId',
-  [PolicyCriteriaType.INTENT_ERC1155_TRANSFERS]: 'checkERC1155Transfers',
-  [PolicyCriteriaType.INTENT_SIGN_MESSAGE]: 'checkIntentMessage',
-  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD]: 'checkIntentPayload',
-  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM]: 'checkIntentAlgorithm',
-  [PolicyCriteriaType.INTENT_SIGN_TYPED_DATA_DOMAIN]: 'checkIntentDomain',
-  [PolicyCriteriaType.INTENT_PERMIT_DEADLINE]: 'checkPermitDeadline',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES]: 'checkGasFeeAmount',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED]: 'checkNonceExists',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED]: 'checkNonceNotExists',
-  [PolicyCriteriaType.APPROVALS]: 'getApprovalsResult',
-  [PolicyCriteriaType.SPENDING_LIMIT]: 'checkSpendings'
 }
 
 type Wildcard = '*'
@@ -123,17 +87,18 @@ type ApprovalCondition = {
   entityIds: string[]
 }
 
-type AccumulationCondition = {
+type SpendingLimitCondition = {
   limit: string
-  filters: {
-    rollingWindow?: number // in seconds
-    currency?: Currency
+  currency?: Currency
+  filters?: {
     tokens?: AccountId[]
     users?: string[]
     resources?: AccountId[]
     chains?: number[]
     userGroups?: string[]
     walletGroups?: string[]
+    startDate?: number // in seconds
+    endDate?: number // in seconds
   }
 }
 
@@ -174,7 +139,7 @@ type WalletAccountTypeCriteria = {
 
 type WalletChainIdCriteria = {
   criteria: PolicyCriteriaType.WALLET_CHAIN_ID
-  args: number[]
+  args: string[]
 }
 
 type WalletGroupCriteria = {
@@ -207,24 +172,24 @@ type IntentDestinationClassificationCriteria = {
   args: string[]
 }
 
-type IntentContractAddressCriteria = {
-  criteria: PolicyCriteriaType.INTENT_CONTRACT_ADDRESS
+type IntentContractCriteria = {
+  criteria: PolicyCriteriaType.INTENT_CONTRACT
   args: AccountId[]
 }
 
-type IntentTokenAddressCriteria = {
-  criteria: PolicyCriteriaType.INTENT_TOKEN_ADDRESS
+type IntentTokenCriteria = {
+  criteria: PolicyCriteriaType.INTENT_TOKEN
   args: AccountId[]
 }
 
-type IntentSpenderAddressCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SPENDER_ADDRESS
+type IntentSpenderCriteria = {
+  criteria: PolicyCriteriaType.INTENT_SPENDER
   args: AccountId[]
 }
 
 type IntentChainIdCriteria = {
   criteria: PolicyCriteriaType.INTENT_CHAIN_ID
-  args: number[]
+  args: string[]
 }
 
 type IntentHexSignatureCriteria = {
@@ -297,7 +262,7 @@ type ApprovalCriteria = {
 
 type AccumulationCriteria = {
   criteria: PolicyCriteriaType.SPENDING_LIMIT
-  args: AccumulationCondition
+  args: SpendingLimitCondition
 }
 
 type PolicyCriteriaArgs =
@@ -315,9 +280,9 @@ type PolicyCriteriaArgs =
   | IntentDestinationAddressCriteria
   | IntentDestinationAccountTypeCriteria
   | IntentDestinationClassificationCriteria
-  | IntentContractAddressCriteria
-  | IntentTokenAddressCriteria
-  | IntentSpenderAddressCriteria
+  | IntentContractCriteria
+  | IntentTokenCriteria
+  | IntentSpenderCriteria
   | IntentChainIdCriteria
   | IntentHexSignatureCriteria
   | IntentAmountCriteria
@@ -335,100 +300,136 @@ type PolicyCriteriaArgs =
   | ApprovalCriteria
   | AccumulationCriteria
 
-type PolicyCriteriaBuilder = {
+export type PolicyCriteriaBuilder = {
   type: PolicyRuleType
   name: string
   criteria: PolicyCriteriaArgs[]
 }
 
-const examplePermitPolicy: PolicyCriteriaBuilder = {
-  type: PolicyRuleType.PERMIT,
-  name: 'examplePermitPolicy',
-  criteria: [
-    {
-      criteria: PolicyCriteriaType.ACTION,
-      args: [Action.SIGN_TRANSACTION]
-    },
-    {
-      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
-    },
-    {
-      criteria: PolicyCriteriaType.PRINCIPAL_ID,
-      args: ['matt@narval.xyz']
-    },
-    {
-      criteria: PolicyCriteriaType.WALLET_ID,
-      args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
-    },
-    {
-      criteria: PolicyCriteriaType.INTENT_TYPE,
-      args: [Intents.TRANSFER_NATIVE]
-    },
-    {
-      criteria: PolicyCriteriaType.INTENT_TOKEN_ADDRESS,
-      args: ['eip155:137/slip44:966']
-    },
-    {
-      criteria: PolicyCriteriaType.INTENT_AMOUNT,
-      args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
-    },
-    {
-      criteria: PolicyCriteriaType.APPROVALS,
-      args: [
-        {
-          approvalCount: 2,
-          countPrincipal: false,
-          approvalEntityType: 'Narval::User',
-          entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
-        },
-        {
-          approvalCount: 1,
-          countPrincipal: false,
-          approvalEntityType: 'Narval::UserRole',
-          entityIds: ['admin']
-        }
-      ]
-    }
-  ]
+export const regoCriteriaMapping = {
+  [PolicyCriteriaType.ACTION]: 'checkAction',
+  [PolicyCriteriaType.PRINCIPAL_ID]: 'checkPrincipalId',
+  [PolicyCriteriaType.PRINCIPAL_ROLE]: 'checkPrincipalRole',
+  [PolicyCriteriaType.PRINCIPAL_GROUP]: 'checkPrincipalGroup',
+  [PolicyCriteriaType.WALLET_ID]: 'checkWalletId',
+  [PolicyCriteriaType.WALLET_ADDRESS]: 'checkWalletAddress',
+  [PolicyCriteriaType.WALLET_ACCOUNT_TYPE]: 'checkWalletAccountType',
+  [PolicyCriteriaType.WALLET_CHAIN_ID]: 'checkWalletChainId',
+  [PolicyCriteriaType.WALLET_GROUP]: 'checkWalletGroup',
+  [PolicyCriteriaType.INTENT_TYPE]: 'checkIntentType',
+  [PolicyCriteriaType.INTENT_DESTINATION_ID]: 'checkDestinationId',
+  [PolicyCriteriaType.INTENT_DESTINATION_ADDRESS]: 'checkIntentDestinationAddress',
+  [PolicyCriteriaType.INTENT_DESTINATION_ACCOUNT_TYPE]: 'checkIntentDestinationAccountType',
+  [PolicyCriteriaType.INTENT_DESTINATION_CLASSIFICATION]: 'checkDestinationClassification',
+  [PolicyCriteriaType.INTENT_CONTRACT]: 'checkIntentContract',
+  [PolicyCriteriaType.INTENT_TOKEN]: 'checkIntentToken',
+  [PolicyCriteriaType.INTENT_SPENDER]: 'checkIntentSpender',
+  [PolicyCriteriaType.INTENT_CHAIN_ID]: 'checkIntentChainId',
+  [PolicyCriteriaType.INTENT_HEX_SIGNATURE]: 'checkIntentHexSignature',
+  [PolicyCriteriaType.INTENT_AMOUNT]: 'checkIntentAmount',
+  [PolicyCriteriaType.INTENT_ERC721_TOKEN_ID]: 'checkERC721TokenId',
+  [PolicyCriteriaType.INTENT_ERC1155_TOKEN_ID]: 'checkERC1155TokenId',
+  [PolicyCriteriaType.INTENT_ERC1155_TRANSFERS]: 'checkERC1155Transfers',
+  [PolicyCriteriaType.INTENT_SIGN_MESSAGE]: 'checkIntentMessage',
+  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD]: 'checkIntentPayload',
+  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM]: 'checkIntentAlgorithm',
+  [PolicyCriteriaType.INTENT_SIGN_TYPED_DATA_DOMAIN]: 'checkIntentDomain',
+  [PolicyCriteriaType.INTENT_PERMIT_DEADLINE]: 'checkPermitDeadline',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES]: 'checkGasFeeAmount',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED]: 'checkNonceExists',
+  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED]: 'checkNonceNotExists',
+  [PolicyCriteriaType.APPROVALS]: 'checkApprovals',
+  [PolicyCriteriaType.SPENDING_LIMIT]: 'checkSpendingLimit'
 }
 
-const exampleForbidPolicy: PolicyCriteriaBuilder = {
-  type: PolicyRuleType.FORBID,
-  name: 'exampleForbidPolicy',
-  criteria: [
-    {
-      criteria: PolicyCriteriaType.ACTION,
-      args: [Action.SIGN_TRANSACTION]
-    },
-    {
-      criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
-    },
-    {
-      criteria: PolicyCriteriaType.PRINCIPAL_ID,
-      args: ['matt@narval.xyz']
-    },
-    {
-      criteria: PolicyCriteriaType.WALLET_ID,
-      args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
-    },
-    {
-      criteria: PolicyCriteriaType.INTENT_TYPE,
-      args: [Intents.TRANSFER_NATIVE]
-    },
-    {
-      criteria: PolicyCriteriaType.INTENT_TOKEN_ADDRESS,
-      args: ['eip155:137/slip44:966']
-    },
-    {
-      criteria: PolicyCriteriaType.SPENDING_LIMIT,
-      args: {
-        limit: '1000000000000000000',
-        filters: {
-          rollingWindow: 12 * 60 * 60,
-          tokens: ['eip155:137/slip44:966'],
-          users: ['matt@narval.xyz']
-        }
-      }
-    }
-  ]
-}
+// const examplePermitPolicy: PolicyCriteriaBuilder = {
+//   type: PolicyRuleType.PERMIT,
+//   name: 'examplePermitPolicy',
+//   criteria: [
+//     {
+//       criteria: PolicyCriteriaType.ACTION,
+//       args: [Action.SIGN_TRANSACTION]
+//     },
+//     {
+//       criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+//     },
+//     {
+//       criteria: PolicyCriteriaType.PRINCIPAL_ID,
+//       args: ['matt@narval.xyz']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.WALLET_ID,
+//       args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.INTENT_TYPE,
+//       args: [Intents.TRANSFER_NATIVE]
+//     },
+//     {
+//       criteria: PolicyCriteriaType.INTENT_TOKEN,
+//       args: ['eip155:137/slip44:966']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.INTENT_AMOUNT,
+//       args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
+//     },
+//     {
+//       criteria: PolicyCriteriaType.APPROVALS,
+//       args: [
+//         {
+//           approvalCount: 2,
+//           countPrincipal: false,
+//           approvalEntityType: 'Narval::User',
+//           entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
+//         },
+//         {
+//           approvalCount: 1,
+//           countPrincipal: false,
+//           approvalEntityType: 'Narval::UserRole',
+//           entityIds: ['admin']
+//         }
+//       ]
+//     }
+//   ]
+// }
+
+// const exampleForbidPolicy: PolicyCriteriaBuilder = {
+//   type: PolicyRuleType.FORBID,
+//   name: 'exampleForbidPolicy',
+//   criteria: [
+//     {
+//       criteria: PolicyCriteriaType.ACTION,
+//       args: [Action.SIGN_TRANSACTION]
+//     },
+//     {
+//       criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+//     },
+//     {
+//       criteria: PolicyCriteriaType.PRINCIPAL_ID,
+//       args: ['matt@narval.xyz']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.WALLET_ID,
+//       args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.INTENT_TYPE,
+//       args: [Intents.TRANSFER_NATIVE]
+//     },
+//     {
+//       criteria: PolicyCriteriaType.INTENT_TOKEN,
+//       args: ['eip155:137/slip44:966']
+//     },
+//     {
+//       criteria: PolicyCriteriaType.SPENDING_LIMIT,
+//       args: {
+//         limit: '1000000000000000000',
+//         filters: {
+//           startDate: 12 * 60 * 60,
+//           tokens: ['eip155:137/slip44:966'],
+//           users: ['matt@narval.xyz']
+//         }
+//       }
+//     }
+//   ]
+// }
