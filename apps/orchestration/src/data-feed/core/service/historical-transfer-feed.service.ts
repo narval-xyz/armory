@@ -11,15 +11,17 @@ import { privateKeyToAccount } from 'viem/accounts'
 const UNSAFE_FEED_PRIVATE_KEY = '0xf5c8f17cc09215c5038f6b8d5e557c0d98d341236307fe831efdcdd7faeef134'
 
 @Injectable()
-export class TransferFeedService implements DataFeed<HistoricalTransfer[]> {
+export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfer[]> {
+  static SOURCE_ID = 'armory/historical-transfer-feed'
+
   constructor(private transferTrackingService: TransferTrackingService) {}
 
   getId(): string {
-    return 'ARMORY_TRANSFER_FEED'
+    return HistoricalTransferFeedService.SOURCE_ID
   }
 
   getPubKey(): string {
-    return privateKeyToAccount(UNSAFE_FEED_PRIVATE_KEY).address
+    return privateKeyToAccount(UNSAFE_FEED_PRIVATE_KEY).publicKey
   }
 
   async sign(data: HistoricalTransfer[]): Promise<Signature> {
@@ -37,7 +39,7 @@ export class TransferFeedService implements DataFeed<HistoricalTransfer[]> {
 
   async getFeed(input: AuthorizationRequest): Promise<Feed<HistoricalTransfer[]>> {
     const transfers = await this.transferTrackingService.findByOrgId(input.orgId)
-    const historicalTransfers = this.toHistoricalTransfers(transfers)
+    const historicalTransfers = HistoricalTransferFeedService.build(transfers)
     const sig = await this.sign(historicalTransfers)
 
     return {
@@ -47,7 +49,7 @@ export class TransferFeedService implements DataFeed<HistoricalTransfer[]> {
     }
   }
 
-  private toHistoricalTransfers(transfers: Transfer[]): HistoricalTransfer[] {
+  static build(transfers: Transfer[]): HistoricalTransfer[] {
     return transfers.map((transfer) => ({
       ...omit('orgId', transfer),
       amount: transfer.amount.toString(),

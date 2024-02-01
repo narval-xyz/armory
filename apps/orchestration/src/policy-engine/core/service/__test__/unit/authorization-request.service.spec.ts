@@ -6,7 +6,7 @@ import {
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
 import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
-import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
+import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
   Approval,
@@ -21,7 +21,7 @@ import { PriceService } from '@app/orchestration/price/core/service/price.servic
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { Action, Decision, EvaluationResponse, getAccountId, getAssetId } from '@narval/authz-shared'
+import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -108,8 +108,6 @@ describe(AuthorizationRequestService.name, () => {
   })
 
   describe('evaluate', () => {
-    const matic = getAssetId('eip155:137/slip44:966')
-
     const evaluationResponse: EvaluationResponse = {
       decision: Decision.PERMIT,
       request: authzRequest.request,
@@ -119,7 +117,7 @@ describe(AuthorizationRequestService.name, () => {
         amount: '1000000000000000000',
         to: getAccountId('eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
         from: getAccountId('eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'),
-        token: matic
+        token: POLYGON.coin.id
       }
     }
 
@@ -130,7 +128,7 @@ describe(AuthorizationRequestService.name, () => {
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
       transferFeedServiceMock.findByOrgId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
-        [matic]: {
+        [POLYGON.coin.id]: {
           [FIAT_ID_USD]: 0.99
         }
       })
@@ -140,7 +138,7 @@ describe(AuthorizationRequestService.name, () => {
       await service.evaluate(authzRequest)
 
       expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(1, {
-        from: [matic],
+        from: [POLYGON.coin.id],
         to: [FIAT_ID_USD]
       })
     })
@@ -180,7 +178,7 @@ describe(AuthorizationRequestService.name, () => {
       await service.evaluate(authzRequest)
 
       expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(2, {
-        from: [matic],
+        from: [POLYGON.coin.id],
         to: [FIAT_ID_USD]
       })
     })

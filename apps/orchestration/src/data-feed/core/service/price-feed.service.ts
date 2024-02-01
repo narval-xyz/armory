@@ -15,10 +15,12 @@ const UNSAFE_FEED_PRIVATE_KEY = '0xc7a1b8ba040a238e36058fc5693f801d129aca9f10ed3
 
 @Injectable()
 export class PriceFeedService implements DataFeed<Prices> {
+  static SOURCE_ID = 'armory/price-feed'
+
   constructor(private priceService: PriceService) {}
 
   getId(): string {
-    return 'ARMORY_PRICE_FEED'
+    return PriceFeedService.SOURCE_ID
   }
 
   async sign(data: Prices): Promise<Signature> {

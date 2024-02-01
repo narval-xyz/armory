@@ -18,12 +18,12 @@ export class FeedService {
     private historicalTransfer: HistoricalTransferFeedService
   ) {}
 
-  async gather(input: AuthorizationRequest): Promise<Feed<unknown>[]> {
+  async gather(authzRequest: AuthorizationRequest): Promise<Feed<unknown>[]> {
     try {
-      const feeds = await Promise.all([this.price.getFeed(input), this.historicalTransfer.getFeed(input)])
+      const feeds = await Promise.all([this.price.getFeed(authzRequest), this.historicalTransfer.getFeed(authzRequest)])
 
       // Exploring a low-hanging fruit idea of building an audit trail.
-      await this.save(input.orgId, input.id, feeds)
+      await this.save(authzRequest.orgId, authzRequest.id, feeds)
 
       return feeds
     } catch (error) {
@@ -32,8 +32,8 @@ export class FeedService {
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         originalError: error,
         context: {
-          orgId: input.orgId,
-          requestId: input.id
+          orgId: authzRequest.orgId,
+          requestId: authzRequest.id
         }
       })
     }

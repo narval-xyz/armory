@@ -145,6 +145,7 @@ export class AuthorizationRequestService {
       ]
     })
 
+    // TODO (@wcalderipe, 01/02/24): Move to the TransferTrackingService.
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       const intent = evaluation.transactionRequestIntent
       if (intent && intent.type === Intents.TRANSFER_NATIVE) {

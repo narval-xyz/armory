@@ -90,6 +90,8 @@ model EvaluationLog {
 model TransferFeed {
   id          String   @id @default(uuid()) @db.VarChar(255)
   orgId       String   @map("org_id")
+  // TODO: Add request_id
+  // requestId   String   @map("request_id")
   chainId     Int      @map("chain_id")
   from        String
   to          String
