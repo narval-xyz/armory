@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-permit[{"policyId": "test-permit-policy-1"}] := reason {
+permit[{"policyId": "test-permit-policy-1"}] = reason {
 	users = {"matt@narval.xyz"}
 	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
 	transferTypes = {"transferNative"}
@@ -17,16 +17,16 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalId(users)
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentTokenAddress(tokens)
+	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
 
-	approvals = getApprovalsResult(approvalsRequired)
+	approvals = checkApprovals(approvalsRequired)
 
-	reason := {
+	reason = {
 		"type": "permit",
 		"policyId": "test-permit-policy-1",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
@@ -34,7 +34,7 @@ permit[{"policyId": "test-permit-policy-1"}] := reason {
 	}
 }
 
-forbid[{"policyId": "test-forbid-policy-1"}] := reason {
+forbid[{"policyId": "test-forbid-policy-1"}] = reason {
 	users = {"matt@narval.xyz"}
 	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
 	transferTypes = {"transferNative"}
@@ -44,18 +44,21 @@ forbid[{"policyId": "test-forbid-policy-1"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkPrincipalId(users)
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentTokenAddress(tokens)
-	checkSpendings(limit, {
-		"tokens": tokens,
-		"users": users,
-		"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+	checkIntentToken(tokens)
+	checkSpendingLimit({
+		"limit": limit,
+		"filters": {
+			"tokens": tokens,
+			"users": users,
+			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+		},
 	})
 
-	reason := {
+	reason = {
 		"type": "forbid",
 		"policyId": "test-forbid-policy-1",
 		"approvalsSatisfied": [],

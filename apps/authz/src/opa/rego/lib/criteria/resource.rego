@@ -2,75 +2,32 @@ package main
 
 import future.keywords.in
 
-resource = result {
-	result := data.entities.wallets[input.resource.uid]
-}
+resource = data.entities.wallets[input.resource.uid]
 
 checkTransferResourceIntegrity {
 	contains(input.resource.uid, input.transactionRequest.from)
 	input.resource.uid == input.intent.from
 }
 
-walletGroups = result {
-	result := {group.uid |
-		group := data.entities.walletGroups[_]
-		input.resource.uid in group.wallets
-	}
+walletGroups = {group.uid |
+	group = data.entities.walletGroups[_]
+	input.resource.uid in group.wallets
 }
 
-getWalletGroups(id) = result {
-	result := {group.uid |
-		group := data.entities.walletGroups[_]
-		id in group.wallets
-	}
+getWalletGroups(id) = {group.uid |
+	group = data.entities.walletGroups[_]
+	id in group.wallets
 }
 
-# Wallet ID
+checkWalletId(values) = resource.uid in values
 
-checkWalletId(values) {
-	values == wildcard
-}
+checkWalletAddress(values) = resource.address in values
 
-checkWalletId(values) {
-	values != wildcard
-	resource.uid in values
-}
+checkWalletAccountType(values) = resource.accountType in values
 
-# Wallet Groups
+checkWalletChainId(values) = numberToString(resource.chainId) in values
 
-checkWalletGroups(values) {
-	values == wildcard
-}
-
-checkWalletGroups(values) {
-	values != wildcard
-	group := walletGroups[_]
+checkWalletGroup(values) {
+	group = walletGroups[_]
 	group in values
-}
-
-# Wallet Chain ID
-
-checkWalletChainId(values) {
-	values == wildcard
-}
-
-checkWalletChainId(values) {
-	not resource.chainId
-}
-
-checkWalletChainId(values) {
-	values != wildcard
-	resource.chainId in values
-}
-
-# Wallet Assignees
-
-checkWalletAssignees(values) {
-	values == wildcard
-}
-
-checkWalletAssignees(values) {
-	values != wildcard
-	assignee := resource.assignees[_]
-	assignee in values
 }

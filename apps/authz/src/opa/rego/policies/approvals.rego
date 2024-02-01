@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-permit[{"policyId": "approvalByUsers"}] := reason {
+permit[{"policyId": "approvalByUsers"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
@@ -16,15 +16,15 @@ permit[{"policyId": "approvalByUsers"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContractAddress(tokens)
+	checkIntentContract(tokens)
 	checkIntentAmount(transferValueCondition)
 
-	approvals := getApprovalsResult(approvalsRequired)
+	approvals = checkApprovals(approvalsRequired)
 
-	reason := {
+	reason = {
 		"type": "permit",
 		"policyId": "approvalByUsers",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
@@ -32,7 +32,7 @@ permit[{"policyId": "approvalByUsers"}] := reason {
 	}
 }
 
-permit[{"policyId": "approvalByUserGroups"}] := reason {
+permit[{"policyId": "approvalByUserGroups"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
@@ -46,15 +46,15 @@ permit[{"policyId": "approvalByUserGroups"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContractAddress(tokens)
+	checkIntentContract(tokens)
 	checkIntentAmount(transferValueCondition)
 
-	approvals := getApprovalsResult(approvalsRequired)
+	approvals = checkApprovals(approvalsRequired)
 
-	reason := {
+	reason = {
 		"type": "permit",
 		"policyId": "approvalByUserGroups",
 		"approvalsSatisfied": approvals.approvalsSatisfied,
@@ -62,7 +62,7 @@ permit[{"policyId": "approvalByUserGroups"}] := reason {
 	}
 }
 
-permit[{"policyId": "approvalByUserRoles"}] := reason {
+permit[{"policyId": "approvalByUserRoles"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
@@ -76,15 +76,15 @@ permit[{"policyId": "approvalByUserRoles"}] := reason {
 
 	checkPrincipal
 	checkNonceExists
-	input.action == "signTransaction"
+	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContractAddress(tokens)
+	checkIntentContract(tokens)
 	checkIntentAmount(transferValueCondition)
 
-	approvals := getApprovalsResult(approvalsRequired)
+	approvals = checkApprovals(approvalsRequired)
 
-	reason := {
+	reason = {
 		"type": "permit",
 		"policyId": "approvalByUserRoles",
 		"approvalsSatisfied": approvals.approvalsSatisfied,

@@ -13,41 +13,41 @@ test_intentAmount {
 }
 
 test_checkIntentAmount {
-	checkIntentAmount({"currency": wildcard, "operator": "eq", "value": one_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.equal, "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": "neq", "value": ten_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.notEqual, "value": ten_matic}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": "gt", "value": half_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.greaterThan, "value": half_matic}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": "lt", "value": ten_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.lessThan, "value": ten_matic}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": "gte", "value": one_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.greaterThanOrEqual, "value": one_matic}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": "lte", "value": one_matic}) with input as request
+	checkIntentAmount({"currency": wildcard, "operator": operators.lessThanOrEqual, "value": one_matic}) with input as request
 		with data.entities as entities
 }
 
 test_checkTokenValue {
-	checkIntentAmount({"currency": "fiat:usd", "operator": "eq", "value": one_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.equal, "value": one_matic_value}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": "fiat:usd", "operator": "neq", "value": ten_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.notEqual, "value": ten_matic_value}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": "fiat:usd", "operator": "gt", "value": half_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.greaterThan, "value": half_matic_value}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": "fiat:usd", "operator": "lt", "value": ten_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.lessThan, "value": ten_matic_value}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": "fiat:usd", "operator": "gte", "value": one_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.greaterThanOrEqual, "value": one_matic_value}) with input as request
 		with data.entities as entities
 
-	checkIntentAmount({"currency": "fiat:usd", "operator": "lte", "value": one_matic_value}) with input as request
+	checkIntentAmount({"currency": "fiat:usd", "operator": operators.lessThanOrEqual, "value": one_matic_value}) with input as request
 		with data.entities as entities
 }
