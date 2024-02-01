@@ -2,7 +2,7 @@ import { AuthCredentialDto } from '@app/authz/app/http/rest/dto/auth-credential.
 import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
 import { BaseAdminRequestPayloadDto } from '@app/authz/app/http/rest/dto/base-admin-request-payload.dto'
 import { Action } from '@narval/authz-shared'
-import { ApiExtraModels, ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator'
 
 class CreateOrganizationDataDto {
@@ -33,7 +33,6 @@ class CreateOrganizationActionDto extends BaseActionDto {
   organization: CreateOrganizationDataDto
 }
 
-@ApiExtraModels(CreateOrganizationActionDto, AuthCredentialDto)
 export class CreateOrganizationRequestDto extends BaseAdminRequestPayloadDto {
   @IsDefined()
   @ValidateNested()
