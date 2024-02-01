@@ -1,6 +1,11 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { Organization, User } from '@app/authz/shared/types/entities.types'
-import { AuthCredential, CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
+import { Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
+import {
+  AuthCredential,
+  CreateOrganizationRequest,
+  CreateUserRequest,
+  RegisterWalletRequest
+} from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()
@@ -31,5 +36,12 @@ export class AdminService {
     const user = await this.adminRepository.createUser(uid, role, credential)
 
     return user
+  }
+
+  async registerWallet(payload: RegisterWalletRequest): Promise<Wallet> {
+    const { uid, address, accountType, chainId } = payload.request.wallet
+    await this.adminRepository.registerWallet(uid, address, accountType, chainId)
+
+    return payload.request.wallet
   }
 }
