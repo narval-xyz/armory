@@ -43,7 +43,7 @@ describe(AdminRepository.name, () => {
   describe('createOrganization', () => {
     it('creates a new organization', async () => {
       await repository.createOrganization('test-org-uid', {
-        kid: 'test-kid',
+        uid: 'test-kid',
         alg: Alg.ES256K,
         pubKey: 'test-public-key',
         userId: 'test-user-id'

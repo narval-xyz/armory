@@ -49,7 +49,7 @@ export const MATT: User = {
 }
 
 export const MATT_CREDENTIAL_1: AuthCredential = {
-  kid: sha256('0xd75D626a116D4a1959fE3bB938B2e7c116A05890'),
+  uid: sha256('0xd75D626a116D4a1959fE3bB938B2e7c116A05890'),
   alg: Alg.ES256K,
   userId: MATT.uid,
   pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
@@ -61,7 +61,7 @@ export const AAUser: User = {
 }
 
 export const AAUser_Credential_1: AuthCredential = {
-  kid: sha256('0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'),
+  uid: sha256('0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'),
   userId: AAUser.uid,
   alg: Alg.ES256K,
   pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
@@ -73,7 +73,7 @@ export const BBUser: User = {
 }
 
 export const BBUser_Credential_1: AuthCredential = {
-  kid: sha256('0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'),
+  uid: sha256('0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'),
   userId: BBUser.uid,
   alg: Alg.ES256K,
   pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'

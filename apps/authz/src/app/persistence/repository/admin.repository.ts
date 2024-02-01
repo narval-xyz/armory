@@ -1,6 +1,7 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
 import { AccountType } from '@app/authz/shared/types/domain.type'
-import { Address, AuthCredential, UserRole } from '@narval/authz-shared'
+import { User } from '@app/authz/shared/types/entities.types'
+import { Address, Alg, AuthCredential, UserRole, convertEnums } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
@@ -33,11 +34,6 @@ export class AdminRepository implements OnModuleInit {
 
   // CRUD
 
-  isUserRole(role: string): role is UserRole {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Object.values(UserRole).includes(role as any)
-  }
-
   async createOrganization(organizationId: string, rootCredential: AuthCredential) {
     await this.prismaService.$transaction
     const organization = await this.prismaService.organization.create({
@@ -47,35 +43,33 @@ export class AdminRepository implements OnModuleInit {
     })
     this.logger.log(`Created organization ${organization.uid}`)
 
-    const rootUser = await this.prismaService.user.create({
-      data: {
-        uid: rootCredential.userId,
-        role: UserRole.ROOT
-      }
-    })
+    const rootUser: User = await this.prismaService.user
+      .create({
+        data: {
+          uid: rootCredential.userId,
+          role: UserRole.ROOT
+        }
+      })
+      .then((u) => convertEnums({ role: UserRole }, u))
 
     this.logger.log(`Created Root User ${rootUser.uid}`)
 
-    const rootAuthCredential = await this.prismaService.authCredential.create({
-      data: {
-        uid: rootCredential.kid,
-        pubKey: rootCredential.pubKey,
-        alg: rootCredential.alg,
-        userId: rootCredential.userId
-      }
-    })
+    const rootAuthCredential: AuthCredential = await this.prismaService.authCredential
+      .create({
+        data: {
+          uid: rootCredential.uid,
+          pubKey: rootCredential.pubKey,
+          alg: rootCredential.alg,
+          userId: rootCredential.userId
+        }
+      })
+      .then((c) => convertEnums({ alg: Alg }, c))
 
     this.logger.log(`Created Root User AuthCredential ${rootAuthCredential.pubKey}`)
-    if (!this.isUserRole(rootUser.role)) {
-      throw new Error(`Invalid user role: ${rootUser.role}`)
-    }
 
     return {
       organization,
-      rootUser: {
-        uid: rootUser.uid,
-        role: UserRole[rootUser.role as unknown as keyof typeof UserRole]
-      },
+      rootUser,
       rootCredential: rootAuthCredential
     }
   }
@@ -94,7 +88,7 @@ export class AdminRepository implements OnModuleInit {
     if (credential) {
       await this.prismaService.authCredential.create({
         data: {
-          uid: credential.kid,
+          uid: credential.uid,
           pubKey: credential.pubKey,
           alg: credential.alg,
           userId: uid
@@ -136,7 +130,7 @@ export class AdminRepository implements OnModuleInit {
   async createAuthCredential(credential: AuthCredential) {
     await this.prismaService.authCredential.create({
       data: {
-        uid: credential.kid,
+        uid: credential.uid,
         pubKey: credential.pubKey,
         alg: credential.alg,
         userId: credential.userId
@@ -144,10 +138,10 @@ export class AdminRepository implements OnModuleInit {
     })
   }
 
-  async deleteAuthCredential(kid: string) {
+  async deleteAuthCredential(uid: string) {
     await this.prismaService.authCredential.delete({
       where: {
-        uid: kid
+        uid: uid
       }
     })
   }

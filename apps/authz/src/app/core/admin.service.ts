@@ -1,6 +1,6 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { Organization, User } from '@app/authz/shared/types/entities.types'
-import { Alg, AuthCredential, CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
+import { AuthCredential, CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()
@@ -23,9 +23,9 @@ export class AdminService {
       organization: data.organization,
       rootUser: data.rootUser,
       rootCredential: {
-        kid: data.rootCredential.uid,
+        uid: data.rootCredential.uid,
         pubKey: data.rootCredential.pubKey,
-        alg: data.rootCredential.alg as Alg, // TODO: don't do this "as"
+        alg: data.rootCredential.alg,
         userId: data.rootCredential.userId
       }
     }

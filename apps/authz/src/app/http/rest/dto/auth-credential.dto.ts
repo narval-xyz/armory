@@ -6,7 +6,7 @@ export class AuthCredentialDto {
   @IsString()
   @IsDefined()
   @ApiProperty()
-  kid: string
+  uid: string
 
   @IsString()
   @IsDefined()
