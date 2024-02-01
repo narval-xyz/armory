@@ -1,9 +1,10 @@
 import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
 import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
+import { DataFeedException } from '@app/orchestration/shared/core/exception/data-feed.exception'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Feed } from '@narval/authz-shared'
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client/orchestration'
 import { v4 as uuid } from 'uuid'
 
@@ -18,12 +19,24 @@ export class FeedService {
   ) {}
 
   async gather(input: AuthorizationRequest): Promise<Feed<unknown>[]> {
-    const feeds = await Promise.all([this.price.getFeed(input), this.historicalTransfer.getFeed(input)])
+    try {
+      const feeds = await Promise.all([this.price.getFeed(input), this.historicalTransfer.getFeed(input)])
 
-    // Exploring a low-hanging fruit idea of building an audit trail.
-    await this.save(input.orgId, input.id, feeds)
+      // Exploring a low-hanging fruit idea of building an audit trail.
+      await this.save(input.orgId, input.id, feeds)
 
-    return feeds
+      return feeds
+    } catch (error) {
+      throw new DataFeedException({
+        message: 'Data feed gather failed',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        originalError: error,
+        context: {
+          orgId: input.orgId,
+          requestId: input.id
+        }
+      })
+    }
   }
 
   private async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
