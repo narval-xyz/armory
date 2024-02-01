@@ -28,7 +28,7 @@ export enum Action {
 }
 
 export type AuthCredential = {
-  kid: string // sha256 of the pubKey, used as the short identifier
+  uid: string // sha256 of the pubKey, used as the short identifier
   pubKey: string
   alg: Alg
   userId: string
@@ -40,7 +40,6 @@ export enum UserRole {
   MEMBER = 'member',
   MANAGER = 'manager'
 }
-
 
 export type Signature = {
   sig: string
