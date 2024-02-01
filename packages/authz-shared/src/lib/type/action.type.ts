@@ -1,12 +1,12 @@
 export enum Action {
   CREATE_ORGANIZATION = 'CREATE_ORGANIZATION',
 
-  CREATE_USER = 'user:create',
+  CREATE_USER = 'CREATE_USER',
   EDIT_USER = 'user:edit',
   DELETE_USER = 'user:delete',
   CHANGE_USER_ROLE = 'user:change-role',
 
-  CREATE_WALLET = 'wallet:create',
+  REGISTER_WALLET = 'REGISTER_WALLET',
   EDIT_WALLET = 'wallet:edit',
   ASSIGN_WALLET = 'wallet:assign',
   UNASSIGN_WALLET = 'wallet:unassign',
@@ -35,10 +35,15 @@ export type AuthCredential = {
 }
 
 export enum UserRole {
-  ROOT = 'root',
-  ADMIN = 'admin',
-  MEMBER = 'member',
-  MANAGER = 'manager'
+  ROOT = 'ROOT',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  MANAGER = 'MANAGER'
+}
+
+export enum AccountType {
+  EOA = 'eoa',
+  AA = '4337'
 }
 
 export type Signature = {
@@ -136,4 +141,18 @@ export type CreateUserAction = BaseAction & {
 
 export type CreateUserRequest = BaseAdminRequest & {
   request: CreateUserAction
+}
+
+export type RegisterWalletAction = BaseAction & {
+  action: Action.REGISTER_WALLET
+  wallet: {
+    uid: string
+    address: Address
+    accountType: AccountType
+    chainId?: number
+  }
+}
+
+export type RegisterWalletRequest = BaseAdminRequest & {
+  request: RegisterWalletAction
 }
