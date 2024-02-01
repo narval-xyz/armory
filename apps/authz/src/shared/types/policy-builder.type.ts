@@ -2,12 +2,12 @@ import { AccountId, Action, Address, Alg, AssetId, Hex } from '@narval/authz-sha
 import { Intents } from '@narval/transaction-request-intent'
 import { AccountType } from './domain.type'
 
-enum PolicyRuleType {
+enum Then {
   PERMIT = 'permit',
   FORBID = 'forbid'
 }
 
-enum PolicyCriteriaType {
+enum Criterion {
   ACTION = 'action',
   PRINCIPAL_ID = 'principalId',
   PRINCIPAL_ROLE = 'principalRole',
@@ -45,7 +45,7 @@ enum PolicyCriteriaType {
 
 type Wildcard = '*'
 
-type NarvalEntityTypes = 'Narval::User' | 'Narval::UserRole' | 'Narval::UserGroup'
+type EntityType = 'Narval::User' | 'Narval::UserRole' | 'Narval::UserGroup'
 
 type Operators = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
 
@@ -83,7 +83,7 @@ type PermitDeadlineCondition = {
 type ApprovalCondition = {
   approvalCount: number
   countPrincipal: boolean
-  approvalEntityType: NarvalEntityTypes
+  approvalEntityType: EntityType
   entityIds: string[]
 }
 
@@ -102,279 +102,279 @@ type SpendingLimitCondition = {
   }
 }
 
-type ActionCriteria = {
-  criteria: PolicyCriteriaType.ACTION
+type ActionCriterion = {
+  criterion: Criterion.ACTION
   args: Action[]
 }
 
-type PrincipalIdCriteria = {
-  criteria: PolicyCriteriaType.PRINCIPAL_ID
+type PrincipalIdCriterion = {
+  criterion: Criterion.PRINCIPAL_ID
   args: string[]
 }
 
-type PrincipalRoleCriteria = {
-  criteria: PolicyCriteriaType.PRINCIPAL_ROLE
+type PrincipalRoleCriterion = {
+  criterion: Criterion.PRINCIPAL_ROLE
   args: string[]
 }
 
-type PrincipalGroupCriteria = {
-  criteria: PolicyCriteriaType.PRINCIPAL_GROUP
+type PrincipalGroupCriterion = {
+  criterion: Criterion.PRINCIPAL_GROUP
   args: string[]
 }
 
-type WalletIdCriteria = {
-  criteria: PolicyCriteriaType.WALLET_ID
+type WalletIdCriterion = {
+  criterion: Criterion.WALLET_ID
   args: AccountId[]
 }
 
-type WalletAddressCriteria = {
-  criteria: PolicyCriteriaType.WALLET_ADDRESS
+type WalletAddressCriterion = {
+  criterion: Criterion.WALLET_ADDRESS
   args: string[]
 }
 
-type WalletAccountTypeCriteria = {
-  criteria: PolicyCriteriaType.WALLET_ACCOUNT_TYPE
+type WalletAccountTypeCriterion = {
+  criterion: Criterion.WALLET_ACCOUNT_TYPE
   args: AccountType[]
 }
 
-type WalletChainIdCriteria = {
-  criteria: PolicyCriteriaType.WALLET_CHAIN_ID
+type WalletChainIdCriterion = {
+  criterion: Criterion.WALLET_CHAIN_ID
   args: string[]
 }
 
-type WalletGroupCriteria = {
-  criteria: PolicyCriteriaType.WALLET_GROUP
+type WalletGroupCriterion = {
+  criterion: Criterion.WALLET_GROUP
   args: string[]
 }
 
-type IntentTypeCriteria = {
-  criteria: PolicyCriteriaType.INTENT_TYPE
+type IntentTypeCriterion = {
+  criterion: Criterion.INTENT_TYPE
   args: Intents[]
 }
 
-type IntentDestinationIdCriteria = {
-  criteria: PolicyCriteriaType.INTENT_DESTINATION_ID
+type IntentDestinationIdCriterion = {
+  criterion: Criterion.INTENT_DESTINATION_ID
   args: AccountId[]
 }
 
-type IntentDestinationAddressCriteria = {
-  criteria: PolicyCriteriaType.INTENT_DESTINATION_ADDRESS
+type IntentDestinationAddressCriterion = {
+  criterion: Criterion.INTENT_DESTINATION_ADDRESS
   args: string[]
 }
 
-type IntentDestinationAccountTypeCriteria = {
-  criteria: PolicyCriteriaType.INTENT_DESTINATION_ACCOUNT_TYPE
+type IntentDestinationAccountTypeCriterion = {
+  criterion: Criterion.INTENT_DESTINATION_ACCOUNT_TYPE
   args: AccountType[]
 }
 
-type IntentDestinationClassificationCriteria = {
-  criteria: PolicyCriteriaType.INTENT_DESTINATION_CLASSIFICATION
+type IntentDestinationClassificationCriterion = {
+  criterion: Criterion.INTENT_DESTINATION_CLASSIFICATION
   args: string[]
 }
 
-type IntentContractCriteria = {
-  criteria: PolicyCriteriaType.INTENT_CONTRACT
+type IntentContractCriterion = {
+  criterion: Criterion.INTENT_CONTRACT
   args: AccountId[]
 }
 
-type IntentTokenCriteria = {
-  criteria: PolicyCriteriaType.INTENT_TOKEN
+type IntentTokenCriterion = {
+  criterion: Criterion.INTENT_TOKEN
   args: AccountId[]
 }
 
-type IntentSpenderCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SPENDER
+type IntentSpenderCriterion = {
+  criterion: Criterion.INTENT_SPENDER
   args: AccountId[]
 }
 
-type IntentChainIdCriteria = {
-  criteria: PolicyCriteriaType.INTENT_CHAIN_ID
+type IntentChainIdCriterion = {
+  criterion: Criterion.INTENT_CHAIN_ID
   args: string[]
 }
 
-type IntentHexSignatureCriteria = {
-  criteria: PolicyCriteriaType.INTENT_HEX_SIGNATURE
+type IntentHexSignatureCriterion = {
+  criterion: Criterion.INTENT_HEX_SIGNATURE
   args: Hex[]
 }
 
-type IntentAmountCriteria = {
-  criteria: PolicyCriteriaType.INTENT_AMOUNT
+type IntentAmountCriterion = {
+  criterion: Criterion.INTENT_AMOUNT
   args: AmountCondition
 }
 
-type IntentERC721TokenIdCriteria = {
-  criteria: PolicyCriteriaType.INTENT_ERC721_TOKEN_ID
+type IntentERC721TokenIdCriterion = {
+  criterion: Criterion.INTENT_ERC721_TOKEN_ID
   args: AssetId[]
 }
 
-type IntentERC1155TokenIdCriteria = {
-  criteria: PolicyCriteriaType.INTENT_ERC1155_TOKEN_ID
+type IntentERC1155TokenIdCriterion = {
+  criterion: Criterion.INTENT_ERC1155_TOKEN_ID
   args: AssetId[]
 }
 
-type IntentERC1155TransfersCriteria = {
-  criteria: PolicyCriteriaType.INTENT_ERC1155_TRANSFERS
+type IntentERC1155TransfersCriterion = {
+  criterion: Criterion.INTENT_ERC1155_TRANSFERS
   args: ERC1155AmountCondition[]
 }
 
-type IntentSignMessageCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SIGN_MESSAGE
+type IntentSignMessageCriterion = {
+  criterion: Criterion.INTENT_SIGN_MESSAGE
   args: SignMessageCondition
 }
 
-type IntentSignRawPayloadCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD
+type IntentSignRawPayloadCriterion = {
+  criterion: Criterion.INTENT_SIGN_RAW_PAYLOAD
   args: string[]
 }
 
-type IntentSignRawPayloadAlgorithmCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM
+type IntentSignRawPayloadAlgorithmCriterion = {
+  criterion: Criterion.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM
   args: Alg[]
 }
 
-type IntentSignTypedDataDomainCriteria = {
-  criteria: PolicyCriteriaType.INTENT_SIGN_TYPED_DATA_DOMAIN
+type IntentSignTypedDataDomainCriterion = {
+  criterion: Criterion.INTENT_SIGN_TYPED_DATA_DOMAIN
   args: SignTypedDataDomainCondition
 }
 
-type IntentPermitDeadlineCriteria = {
-  criteria: PolicyCriteriaType.INTENT_PERMIT_DEADLINE
+type IntentPermitDeadlineCriterion = {
+  criterion: Criterion.INTENT_PERMIT_DEADLINE
   args: PermitDeadlineCondition
 }
 
-type TransactionRequestGasFeesCriteria = {
-  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES
+type TransactionRequestGasFeesCriterion = {
+  criterion: Criterion.TRANSACTION_REQUEST_GAS_FEES
   args: AmountCondition
 }
 
-type TransactionRequestNonceRequiredCriteria = {
-  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+type TransactionRequestNonceRequiredCriterion = {
+  criterion: Criterion.TRANSACTION_REQUEST_NONCE_REQUIRED
 }
 
-type TransactionRequestNonceNotRequiredCriteria = {
-  criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED
+type TransactionRequestNonceNotRequiredCriterion = {
+  criterion: Criterion.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED
 }
 
-type ApprovalCriteria = {
-  criteria: PolicyCriteriaType.APPROVALS
+type ApprovalCriterion = {
+  criterion: Criterion.APPROVALS
   args: ApprovalCondition[]
 }
 
-type AccumulationCriteria = {
-  criteria: PolicyCriteriaType.SPENDING_LIMIT
+type AccumulationCriterion = {
+  criterion: Criterion.SPENDING_LIMIT
   args: SpendingLimitCondition
 }
 
-type PolicyCriteriaArgs =
-  | ActionCriteria
-  | PrincipalIdCriteria
-  | PrincipalRoleCriteria
-  | PrincipalGroupCriteria
-  | WalletIdCriteria
-  | WalletAddressCriteria
-  | WalletAccountTypeCriteria
-  | WalletChainIdCriteria
-  | WalletGroupCriteria
-  | IntentTypeCriteria
-  | IntentDestinationIdCriteria
-  | IntentDestinationAddressCriteria
-  | IntentDestinationAccountTypeCriteria
-  | IntentDestinationClassificationCriteria
-  | IntentContractCriteria
-  | IntentTokenCriteria
-  | IntentSpenderCriteria
-  | IntentChainIdCriteria
-  | IntentHexSignatureCriteria
-  | IntentAmountCriteria
-  | IntentERC721TokenIdCriteria
-  | IntentERC1155TokenIdCriteria
-  | IntentERC1155TransfersCriteria
-  | IntentSignMessageCriteria
-  | IntentSignRawPayloadCriteria
-  | IntentSignRawPayloadAlgorithmCriteria
-  | IntentSignTypedDataDomainCriteria
-  | IntentPermitDeadlineCriteria
-  | TransactionRequestGasFeesCriteria
-  | TransactionRequestNonceRequiredCriteria
-  | TransactionRequestNonceNotRequiredCriteria
-  | ApprovalCriteria
-  | AccumulationCriteria
+type PolicyCriterion =
+  | ActionCriterion
+  | PrincipalIdCriterion
+  | PrincipalRoleCriterion
+  | PrincipalGroupCriterion
+  | WalletIdCriterion
+  | WalletAddressCriterion
+  | WalletAccountTypeCriterion
+  | WalletChainIdCriterion
+  | WalletGroupCriterion
+  | IntentTypeCriterion
+  | IntentDestinationIdCriterion
+  | IntentDestinationAddressCriterion
+  | IntentDestinationAccountTypeCriterion
+  | IntentDestinationClassificationCriterion
+  | IntentContractCriterion
+  | IntentTokenCriterion
+  | IntentSpenderCriterion
+  | IntentChainIdCriterion
+  | IntentHexSignatureCriterion
+  | IntentAmountCriterion
+  | IntentERC721TokenIdCriterion
+  | IntentERC1155TokenIdCriterion
+  | IntentERC1155TransfersCriterion
+  | IntentSignMessageCriterion
+  | IntentSignRawPayloadCriterion
+  | IntentSignRawPayloadAlgorithmCriterion
+  | IntentSignTypedDataDomainCriterion
+  | IntentPermitDeadlineCriterion
+  | TransactionRequestGasFeesCriterion
+  | TransactionRequestNonceRequiredCriterion
+  | TransactionRequestNonceNotRequiredCriterion
+  | ApprovalCriterion
+  | AccumulationCriterion
 
-export type PolicyCriteriaBuilder = {
-  type: PolicyRuleType
+export type PolicyCriterionBuilder = {
   name: string
-  criteria: PolicyCriteriaArgs[]
+  type: Then
+  when: PolicyCriterion[]
 }
 
-export const regoCriteriaMapping = {
-  [PolicyCriteriaType.ACTION]: 'checkAction',
-  [PolicyCriteriaType.PRINCIPAL_ID]: 'checkPrincipalId',
-  [PolicyCriteriaType.PRINCIPAL_ROLE]: 'checkPrincipalRole',
-  [PolicyCriteriaType.PRINCIPAL_GROUP]: 'checkPrincipalGroup',
-  [PolicyCriteriaType.WALLET_ID]: 'checkWalletId',
-  [PolicyCriteriaType.WALLET_ADDRESS]: 'checkWalletAddress',
-  [PolicyCriteriaType.WALLET_ACCOUNT_TYPE]: 'checkWalletAccountType',
-  [PolicyCriteriaType.WALLET_CHAIN_ID]: 'checkWalletChainId',
-  [PolicyCriteriaType.WALLET_GROUP]: 'checkWalletGroup',
-  [PolicyCriteriaType.INTENT_TYPE]: 'checkIntentType',
-  [PolicyCriteriaType.INTENT_DESTINATION_ID]: 'checkDestinationId',
-  [PolicyCriteriaType.INTENT_DESTINATION_ADDRESS]: 'checkIntentDestinationAddress',
-  [PolicyCriteriaType.INTENT_DESTINATION_ACCOUNT_TYPE]: 'checkIntentDestinationAccountType',
-  [PolicyCriteriaType.INTENT_DESTINATION_CLASSIFICATION]: 'checkDestinationClassification',
-  [PolicyCriteriaType.INTENT_CONTRACT]: 'checkIntentContract',
-  [PolicyCriteriaType.INTENT_TOKEN]: 'checkIntentToken',
-  [PolicyCriteriaType.INTENT_SPENDER]: 'checkIntentSpender',
-  [PolicyCriteriaType.INTENT_CHAIN_ID]: 'checkIntentChainId',
-  [PolicyCriteriaType.INTENT_HEX_SIGNATURE]: 'checkIntentHexSignature',
-  [PolicyCriteriaType.INTENT_AMOUNT]: 'checkIntentAmount',
-  [PolicyCriteriaType.INTENT_ERC721_TOKEN_ID]: 'checkERC721TokenId',
-  [PolicyCriteriaType.INTENT_ERC1155_TOKEN_ID]: 'checkERC1155TokenId',
-  [PolicyCriteriaType.INTENT_ERC1155_TRANSFERS]: 'checkERC1155Transfers',
-  [PolicyCriteriaType.INTENT_SIGN_MESSAGE]: 'checkIntentMessage',
-  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD]: 'checkIntentPayload',
-  [PolicyCriteriaType.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM]: 'checkIntentAlgorithm',
-  [PolicyCriteriaType.INTENT_SIGN_TYPED_DATA_DOMAIN]: 'checkIntentDomain',
-  [PolicyCriteriaType.INTENT_PERMIT_DEADLINE]: 'checkPermitDeadline',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_GAS_FEES]: 'checkGasFeeAmount',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED]: 'checkNonceExists',
-  [PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED]: 'checkNonceNotExists',
-  [PolicyCriteriaType.APPROVALS]: 'checkApprovals',
-  [PolicyCriteriaType.SPENDING_LIMIT]: 'checkSpendingLimit'
+export const regoCriterionMapping = {
+  [Criterion.ACTION]: 'checkAction',
+  [Criterion.PRINCIPAL_ID]: 'checkPrincipalId',
+  [Criterion.PRINCIPAL_ROLE]: 'checkPrincipalRole',
+  [Criterion.PRINCIPAL_GROUP]: 'checkPrincipalGroup',
+  [Criterion.WALLET_ID]: 'checkWalletId',
+  [Criterion.WALLET_ADDRESS]: 'checkWalletAddress',
+  [Criterion.WALLET_ACCOUNT_TYPE]: 'checkWalletAccountType',
+  [Criterion.WALLET_CHAIN_ID]: 'checkWalletChainId',
+  [Criterion.WALLET_GROUP]: 'checkWalletGroup',
+  [Criterion.INTENT_TYPE]: 'checkIntentType',
+  [Criterion.INTENT_DESTINATION_ID]: 'checkDestinationId',
+  [Criterion.INTENT_DESTINATION_ADDRESS]: 'checkIntentDestinationAddress',
+  [Criterion.INTENT_DESTINATION_ACCOUNT_TYPE]: 'checkIntentDestinationAccountType',
+  [Criterion.INTENT_DESTINATION_CLASSIFICATION]: 'checkDestinationClassification',
+  [Criterion.INTENT_CONTRACT]: 'checkIntentContract',
+  [Criterion.INTENT_TOKEN]: 'checkIntentToken',
+  [Criterion.INTENT_SPENDER]: 'checkIntentSpender',
+  [Criterion.INTENT_CHAIN_ID]: 'checkIntentChainId',
+  [Criterion.INTENT_HEX_SIGNATURE]: 'checkIntentHexSignature',
+  [Criterion.INTENT_AMOUNT]: 'checkIntentAmount',
+  [Criterion.INTENT_ERC721_TOKEN_ID]: 'checkERC721TokenId',
+  [Criterion.INTENT_ERC1155_TOKEN_ID]: 'checkERC1155TokenId',
+  [Criterion.INTENT_ERC1155_TRANSFERS]: 'checkERC1155Transfers',
+  [Criterion.INTENT_SIGN_MESSAGE]: 'checkIntentMessage',
+  [Criterion.INTENT_SIGN_RAW_PAYLOAD]: 'checkIntentPayload',
+  [Criterion.INTENT_SIGN_RAW_PAYLOAD_ALGORITHM]: 'checkIntentAlgorithm',
+  [Criterion.INTENT_SIGN_TYPED_DATA_DOMAIN]: 'checkIntentDomain',
+  [Criterion.INTENT_PERMIT_DEADLINE]: 'checkPermitDeadline',
+  [Criterion.TRANSACTION_REQUEST_GAS_FEES]: 'checkGasFeeAmount',
+  [Criterion.TRANSACTION_REQUEST_NONCE_REQUIRED]: 'checkNonceExists',
+  [Criterion.TRANSACTION_REQUEST_NONCE_NOT_REQUIRED]: 'checkNonceNotExists',
+  [Criterion.APPROVALS]: 'checkApprovals',
+  [Criterion.SPENDING_LIMIT]: 'checkSpendingLimit'
 }
 
-// const examplePermitPolicy: PolicyCriteriaBuilder = {
-//   type: PolicyRuleType.PERMIT,
+// const examplePermitPolicy: PolicyCriterionBuilder = {
+//   type: Then.PERMIT,
 //   name: 'examplePermitPolicy',
-//   criteria: [
+//   when: [
 //     {
-//       criteria: PolicyCriteriaType.ACTION,
+//       criterion: Criterion.ACTION,
 //       args: [Action.SIGN_TRANSACTION]
 //     },
 //     {
-//       criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+//       criterion: Criterion.TRANSACTION_REQUEST_NONCE_REQUIRED
 //     },
 //     {
-//       criteria: PolicyCriteriaType.PRINCIPAL_ID,
+//       criterion: Criterion.PRINCIPAL_ID,
 //       args: ['matt@narval.xyz']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.WALLET_ID,
+//       criterion: Criterion.WALLET_ID,
 //       args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.INTENT_TYPE,
+//       criterion: Criterion.INTENT_TYPE,
 //       args: [Intents.TRANSFER_NATIVE]
 //     },
 //     {
-//       criteria: PolicyCriteriaType.INTENT_TOKEN,
+//       criterion: Criterion.INTENT_TOKEN,
 //       args: ['eip155:137/slip44:966']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.INTENT_AMOUNT,
+//       criterion: Criterion.INTENT_AMOUNT,
 //       args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
 //     },
 //     {
-//       criteria: PolicyCriteriaType.APPROVALS,
+//       criterion: Criterion.APPROVALS,
 //       args: [
 //         {
 //           approvalCount: 2,
@@ -393,35 +393,35 @@ export const regoCriteriaMapping = {
 //   ]
 // }
 
-// const exampleForbidPolicy: PolicyCriteriaBuilder = {
-//   type: PolicyRuleType.FORBID,
+// const exampleForbidPolicy: PolicyCriterionBuilder = {
+//   type: Then.FORBID,
 //   name: 'exampleForbidPolicy',
-//   criteria: [
+//   when: [
 //     {
-//       criteria: PolicyCriteriaType.ACTION,
+//       criterion: Criterion.ACTION,
 //       args: [Action.SIGN_TRANSACTION]
 //     },
 //     {
-//       criteria: PolicyCriteriaType.TRANSACTION_REQUEST_NONCE_REQUIRED
+//       criterion: Criterion.TRANSACTION_REQUEST_NONCE_REQUIRED
 //     },
 //     {
-//       criteria: PolicyCriteriaType.PRINCIPAL_ID,
+//       criterion: Criterion.PRINCIPAL_ID,
 //       args: ['matt@narval.xyz']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.WALLET_ID,
+//       criterion: Criterion.WALLET_ID,
 //       args: ['eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.INTENT_TYPE,
+//       criterion: Criterion.INTENT_TYPE,
 //       args: [Intents.TRANSFER_NATIVE]
 //     },
 //     {
-//       criteria: PolicyCriteriaType.INTENT_TOKEN,
+//       criterion: Criterion.INTENT_TOKEN,
 //       args: ['eip155:137/slip44:966']
 //     },
 //     {
-//       criteria: PolicyCriteriaType.SPENDING_LIMIT,
+//       criterion: Criterion.SPENDING_LIMIT,
 //       args: {
 //         limit: '1000000000000000000',
 //         filters: {
