@@ -1,6 +1,6 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
 import { AccountType } from '@app/authz/shared/types/domain.type'
-import { User } from '@app/authz/shared/types/entities.types'
+import { Organization, User } from '@app/authz/shared/types/entities.types'
 import { Address, Alg, AuthCredential, UserRole, convertEnums } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
@@ -34,7 +34,14 @@ export class AdminRepository implements OnModuleInit {
 
   // CRUD
 
-  async createOrganization(organizationId: string, rootCredential: AuthCredential) {
+  async createOrganization(
+    organizationId: string,
+    rootCredential: AuthCredential
+  ): Promise<{
+    organization: Organization
+    rootUser: User
+    rootCredential: AuthCredential
+  }> {
     await this.prismaService.$transaction
     const organization = await this.prismaService.organization.create({
       data: {
@@ -74,16 +81,11 @@ export class AdminRepository implements OnModuleInit {
     }
   }
 
-  async createUser(uid: string, role: UserRole, credential?: AuthCredential) {
+  async createUser(uid: string, role: UserRole, credential?: AuthCredential): Promise<User> {
     // Create the User with the Role
     // Create the user's Credential
     const user = await this.prismaService.user
-      .create({
-        data: {
-          uid,
-          role
-        }
-      })
+      .create({ data: { uid, role } })
       .then((u) => convertEnums({ role: UserRole }, u))
 
     // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
@@ -101,7 +103,7 @@ export class AdminRepository implements OnModuleInit {
     return user
   }
 
-  async deleteUser(uid: string) {
+  async deleteUser(uid: string): Promise<boolean> {
     // Delete the User
     // Delete the user's Credentials
     // Remove the user as an assignee of any wallets/groups
@@ -127,9 +129,11 @@ export class AdminRepository implements OnModuleInit {
         userId: uid
       }
     })
+
+    return true
   }
 
-  async createAuthCredential(credential: AuthCredential) {
+  async createAuthCredential(credential: AuthCredential): Promise<boolean> {
     await this.prismaService.authCredential.create({
       data: {
         uid: credential.uid,
@@ -138,17 +142,20 @@ export class AdminRepository implements OnModuleInit {
         userId: credential.userId
       }
     })
+
+    return true
   }
 
-  async deleteAuthCredential(uid: string) {
+  async deleteAuthCredential(uid: string): Promise<boolean> {
     await this.prismaService.authCredential.delete({
       where: {
         uid: uid
       }
     })
+    return true
   }
 
-  async assignUserRole(userId: string, role: UserRole) {
+  async assignUserRole(userId: string, role: UserRole): Promise<boolean> {
     await this.prismaService.user.update({
       where: {
         uid: userId
@@ -157,18 +164,22 @@ export class AdminRepository implements OnModuleInit {
         role
       }
     })
+
+    return true
   }
 
-  async assignUserGroup(userId: string, groupId: string) {
+  async assignUserGroup(userId: string, groupId: string): Promise<boolean> {
     await this.prismaService.userGroupMembership.create({
       data: {
         userId,
         userGroupId: groupId
       }
     })
+
+    return true
   }
 
-  async unassignUserGroup(userId: string, groupId: string) {
+  async unassignUserGroup(userId: string, groupId: string): Promise<boolean> {
     await this.prismaService.userGroupMembership.delete({
       where: {
         userId_userGroupId: {
@@ -177,9 +188,11 @@ export class AdminRepository implements OnModuleInit {
         }
       }
     })
+
+    return true
   }
 
-  async registerWallet(uid: string, address: Address, accountType: AccountType, chainId?: number) {
+  async registerWallet(uid: string, address: Address, accountType: AccountType, chainId?: number): Promise<boolean> {
     await this.prismaService.wallet.create({
       data: {
         uid,
@@ -188,9 +201,11 @@ export class AdminRepository implements OnModuleInit {
         chainId
       }
     })
+
+    return true
   }
 
-  async unregisterWallet(uid: string) {
+  async unregisterWallet(uid: string): Promise<boolean> {
     // Remove the wallet from any groups
     await this.prismaService.walletGroupMembership.deleteMany({
       where: {
@@ -209,9 +224,11 @@ export class AdminRepository implements OnModuleInit {
         uid
       }
     })
+
+    return true
   }
 
-  async createWalletGroup(uid: string, walletIds?: string[]) {
+  async createWalletGroup(uid: string, walletIds?: string[]): Promise<boolean> {
     await this.prismaService.walletGroup.create({
       data: {
         uid
@@ -224,9 +241,11 @@ export class AdminRepository implements OnModuleInit {
         })
       )
     }
+
+    return true
   }
 
-  async deleteWalletGroup(uid: string) {
+  async deleteWalletGroup(uid: string): Promise<boolean> {
     // unassign all wallets from the group
     await this.prismaService.walletGroupMembership.deleteMany({
       where: {
@@ -239,18 +258,22 @@ export class AdminRepository implements OnModuleInit {
         uid
       }
     })
+
+    return true
   }
 
-  async assignWalletGroup(walletGroupId: string, walletId: string) {
+  async assignWalletGroup(walletGroupId: string, walletId: string): Promise<boolean> {
     await this.prismaService.walletGroupMembership.create({
       data: {
         walletId,
         walletGroupId
       }
     })
+
+    return true
   }
 
-  async unassignWalletGroup(walletGroupId: string, walletId: string) {
+  async unassignWalletGroup(walletGroupId: string, walletId: string): Promise<boolean> {
     await this.prismaService.walletGroupMembership.delete({
       where: {
         walletId_walletGroupId: {
@@ -259,6 +282,8 @@ export class AdminRepository implements OnModuleInit {
         }
       }
     })
+
+    return true
   }
 
   async registerRootKey() {}

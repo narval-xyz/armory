@@ -3,7 +3,9 @@ import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/creat
 import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
-import { CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
+import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
+import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
+import { CreateOrganizationRequest, CreateUserRequest, RegisterWalletRequest } from '@narval/authz-shared'
 import { Body, Controller, Logger, Post } from '@nestjs/common'
 
 @Controller('/admin')
@@ -27,7 +29,18 @@ export class AdminController {
     const payload: CreateUserRequest = body
 
     const user = await this.adminService.createUser(payload)
+
     const response = new CreateUserResponseDto(user)
+    return response
+  }
+
+  @Post('/wallets')
+  async registerWallet(@Body() body: RegisterWalletRequestDto) {
+    const payload: RegisterWalletRequest = body
+
+    const wallet = await this.adminService.registerWallet(payload)
+
+    const response = new RegisterWalletResponseDto(wallet)
     return response
   }
 }
