@@ -2,6 +2,7 @@ import { AdminService } from '@app/authz/app/core/admin.service'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
 import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
+import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
 import { CreateOrganizationRequest, CreateUserRequest } from '@narval/authz-shared'
 import { Body, Controller, Logger, Post } from '@nestjs/common'
 
@@ -11,7 +12,7 @@ export class AdminController {
 
   constructor(private readonly adminService: AdminService) {}
 
-  @Post('/organization')
+  @Post('/organizations')
   async createOrganization(@Body() body: CreateOrganizationRequestDto) {
     const payload: CreateOrganizationRequest = body
 
@@ -21,12 +22,12 @@ export class AdminController {
     return response
   }
 
-  @Post('/user')
+  @Post('/users')
   async createUser(@Body() body: CreateUserRequestDto) {
     const payload: CreateUserRequest = body
 
-    const result = await this.adminService.createUser(payload)
-
-    return result
+    const user = await this.adminService.createUser(payload)
+    const response = new CreateUserResponseDto(user)
+    return response
   }
 }

@@ -15,7 +15,7 @@ export class AuthCredentialDto {
 
   @IsEnum(Alg)
   @IsDefined()
-  @ApiProperty()
+  @ApiProperty({ enum: Alg })
   alg: Alg
 
   @IsString()

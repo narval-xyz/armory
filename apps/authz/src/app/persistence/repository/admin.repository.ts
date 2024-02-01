@@ -77,12 +77,14 @@ export class AdminRepository implements OnModuleInit {
   async createUser(uid: string, role: UserRole, credential?: AuthCredential) {
     // Create the User with the Role
     // Create the user's Credential
-    const user = await this.prismaService.user.create({
-      data: {
-        uid,
-        role
-      }
-    })
+    const user = await this.prismaService.user
+      .create({
+        data: {
+          uid,
+          role
+        }
+      })
+      .then((u) => convertEnums({ role: UserRole }, u))
 
     // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
     if (credential) {
