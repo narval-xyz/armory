@@ -1,5 +1,5 @@
 import { load } from '@app/orchestration/orchestration.config'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
 import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'

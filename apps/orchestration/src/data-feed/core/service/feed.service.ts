@@ -28,7 +28,7 @@ export class FeedService {
       return feeds
     } catch (error) {
       throw new DataFeedException({
-        message: 'Data feed gather failed',
+        message: 'Failed to gather authorization request feeds',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         originalError: error,
         context: {
@@ -39,7 +39,7 @@ export class FeedService {
     }
   }
 
-  private async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
+  async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
     return this.prismaService.feed.createMany({
       data: feeds.map((feed) => ({
         id: uuid(),

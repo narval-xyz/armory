@@ -5,7 +5,8 @@ import {
   generateSignature,
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
+import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
+import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
@@ -19,7 +20,7 @@ import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
@@ -34,6 +35,7 @@ describe(AuthorizationRequestService.name, () => {
   let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
   let priceServiceMock: MockProxy<PriceService>
+  let feedServiceMock: MockProxy<FeedService>
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
@@ -50,6 +52,7 @@ describe(AuthorizationRequestService.name, () => {
     transferFeedServiceMock = mock<TransferTrackingService>()
     authzApplicationClientMock = mock<AuthzApplicationClient>()
     priceServiceMock = mock<PriceService>()
+    feedServiceMock = mock<FeedService>()
 
     module = await Test.createTestingModule({
       providers: [
@@ -73,6 +76,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: PriceService,
           useValue: priceServiceMock
+        },
+        {
+          provide: FeedService,
+          useValue: feedServiceMock
         }
       ]
     }).compile()
@@ -121,7 +128,7 @@ describe(AuthorizationRequestService.name, () => {
       }
     }
 
-    const transfers: Transfer[] = times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2)
+    const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
 
     beforeEach(() => {
       authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
@@ -174,13 +181,10 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    it('gets transfer asset prices', async () => {
+    it('gathers data feed', async () => {
       await service.evaluate(authzRequest)
 
-      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(2, {
-        from: [POLYGON.coin.id],
-        to: [FIAT_ID_USD]
-      })
+      expect(feedServiceMock.gather).toHaveBeenCalledWith(authzRequest)
     })
 
     it('tracks approved transfer when signing a transaction', async () => {

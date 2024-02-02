@@ -1,20 +1,20 @@
 import {
   generateAuthorizationRequest,
   generateSignTransactionRequest,
+  generateSignature,
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
+import { generateHistoricalTransfers } from '@app/orchestration/__test__/fixture/feed.fixture'
+import { generatePrices } from '@app/orchestration/__test__/fixture/price.fixture'
 import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
 import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
-import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { Alg, Feed, HistoricalTransfer, Prices } from '@narval/authz-shared'
+import { Feed, HistoricalTransfer, Prices } from '@narval/authz-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock, mockDeep } from 'jest-mock-extended'
-import { times } from 'lodash/fp'
 
 describe(FeedService.name, () => {
   let module: TestingModule
@@ -33,26 +33,14 @@ describe(FeedService.name, () => {
 
   const historicalTransferFeed: Feed<HistoricalTransfer[]> = {
     source: HistoricalTransferFeedService.SOURCE_ID,
-    sig: {
-      alg: Alg.ES256K,
-      pubKey: 'test-pub-key',
-      sig: 'test-signature'
-    },
-    data: HistoricalTransferFeedService.build(times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2))
+    sig: generateSignature(),
+    data: generateHistoricalTransfers()
   }
 
   const priceFeed: Feed<Prices> = {
     source: PriceFeedService.SOURCE_ID,
-    sig: {
-      alg: Alg.ES256K,
-      pubKey: 'test-pub-key',
-      sig: 'test-signature'
-    },
-    data: {
-      [POLYGON.coin.id]: {
-        [FIAT_ID_USD]: 0.99999
-      }
-    }
+    sig: generateSignature(),
+    data: generatePrices()
   }
 
   beforeEach(async () => {

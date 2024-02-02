@@ -1,3 +1,4 @@
+import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { load } from '@app/orchestration/orchestration.config'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
@@ -105,6 +106,10 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         {
           provide: PriceService,
           useValue: mock<PriceService>()
+        },
+        {
+          provide: FeedService,
+          useValue: mock<FeedService>()
         }
       ]
     }).compile()

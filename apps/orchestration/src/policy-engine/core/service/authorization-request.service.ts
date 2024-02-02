@@ -1,3 +1,4 @@
+import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
 import {
   Approval,
@@ -9,13 +10,10 @@ import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/cl
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { getChain } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { Action, AssetId, Decision, HistoricalTransfer } from '@narval/authz-shared'
-import { Decoder, InputType, Intents } from '@narval/transaction-request-intent'
+import { Action, Decision } from '@narval/authz-shared'
+import { Intents } from '@narval/transaction-request-intent'
 import { Injectable, Logger } from '@nestjs/common'
-import { mapValues, omit, uniq } from 'lodash/fp'
 import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 
@@ -44,7 +42,8 @@ export class AuthorizationRequestService {
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private authzApplicationClient: AuthzApplicationClient,
     private transferTrackingService: TransferTrackingService,
-    private priceService: PriceService
+    private priceService: PriceService,
+    private feedService: FeedService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -109,22 +108,24 @@ export class AuthorizationRequestService {
     // TODO (@wcalderipe, 19/01/24): Think how to error the evaluation but
     // short-circuit the retry mechanism.
 
-    const [requestTransfers, requestPrices] = await Promise.all([
-      this.transferTrackingService.findByOrgId(input.orgId),
-      this.priceService.getPrices({
-        from: this.getAssetIds(input),
-        to: [FIAT_ID_USD]
-      })
-    ])
+    this.logger.log('Start authorization request evaluation', {
+      requestId: input.id,
+      orgId: input.orgId,
+      status: input.status
+    })
 
+    // TODO (@wcalderipe, 01/02/24): Add a semantic lock counter-measure on the
+    // status to prevent another process to evaluate a processing authorization
+    // request.
+
+    const feeds = await this.feedService.gather(input)
     const evaluation = await this.authzApplicationClient.evaluation({
       host: 'http://localhost:3010',
       data: {
         authentication: input.authentication,
         approvals: input.approvals,
         request: input.request,
-        transfers: this.toHistoricalTransfers(requestTransfers),
-        prices: requestPrices
+        feeds
       }
     })
 
@@ -178,37 +179,5 @@ export class AuthorizationRequestService {
     })
 
     return authzRequest
-  }
-
-  private toHistoricalTransfers(transfers: Transfer[]): HistoricalTransfer[] {
-    return transfers.map((transfer) => ({
-      ...omit('orgId', transfer),
-      amount: transfer.amount.toString(),
-      timestamp: transfer.createdAt.getTime(),
-      rates: mapValues((value) => value.toString(), transfer.rates)
-    }))
-  }
-
-  private getAssetIds(authzRequest: AuthorizationRequest): AssetId[] {
-    if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
-      const result = new Decoder().safeDecode({
-        type: InputType.TRANSACTION_REQUEST,
-        txRequest: authzRequest.request.transactionRequest
-      })
-
-      const chain = getChain(authzRequest.request.transactionRequest.chainId)
-
-      if (result.success) {
-        const { intent } = result
-
-        if (intent.type === Intents.TRANSFER_NATIVE) {
-          return uniq([chain.coin.id, intent.token])
-        }
-      }
-
-      return [chain.coin.id]
-    }
-
-    return []
   }
 }

@@ -1,4 +1,4 @@
-import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { TransferFeed } from '@prisma/client/orchestration'

@@ -1,3 +1,4 @@
+import { DataFeedModule } from '@app/orchestration/data-feed/data-feed.module'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestController } from '@app/orchestration/policy-engine/http/rest/controller/authorization-request.controller'
@@ -25,6 +26,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     PersistenceModule,
     TransferTrackingModule,
     PriceModule,
+    DataFeedModule,
     // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to
     // register both queue and board at the same time.
     //

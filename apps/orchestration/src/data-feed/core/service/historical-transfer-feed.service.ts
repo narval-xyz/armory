@@ -1,6 +1,6 @@
 import { DataFeed } from '@app/orchestration/data-feed/core/type/data-feed.type'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg, Feed, HistoricalTransfer, Signature, hashRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'

@@ -3,11 +3,11 @@ import {
   generateSignTransactionRequest,
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
+import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
 import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg } from '@narval/authz-shared'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -27,7 +27,7 @@ describe(HistoricalTransferFeedService.name, () => {
     })
   })
 
-  const transfers: Transfer[] = times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2)
+  const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
 
   beforeEach(async () => {
     transferTrackingServiceMock = mock<TransferTrackingService>()
