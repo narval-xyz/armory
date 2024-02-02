@@ -7,13 +7,16 @@ import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-r
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
+import { UpdateUserRequestDto } from '@app/authz/app/http/rest/dto/update-user-request.dto'
+import { UpdateUserResponseDto } from '@app/authz/app/http/rest/dto/update-user-response.dto'
 import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
-  RegisterWalletRequest
+  RegisterWalletRequest,
+  UpdateUserRequest
 } from '@narval/authz-shared'
-import { Body, Controller, Logger, Post } from '@nestjs/common'
+import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
 
 @Controller('/admin')
 export class AdminController {
@@ -38,6 +41,16 @@ export class AdminController {
     const user = await this.adminService.createUser(payload)
 
     const response = new CreateUserResponseDto(user)
+    return response
+  }
+
+  @Patch('/users/:uid')
+  async updateUser(@Body() body: UpdateUserRequestDto) {
+    const payload: UpdateUserRequest = body
+
+    const user = await this.adminService.updateUser(payload)
+
+    const response = new UpdateUserResponseDto(user)
     return response
   }
 

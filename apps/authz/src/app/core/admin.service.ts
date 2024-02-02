@@ -5,7 +5,8 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
-  RegisterWalletRequest
+  RegisterWalletRequest,
+  UpdateUserRequest
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 
@@ -37,6 +38,13 @@ export class AdminService {
     const user = await this.adminRepository.createUser(uid, role, credential)
 
     return user
+  }
+
+  async updateUser(payload: UpdateUserRequest): Promise<User> {
+    const { uid, role } = payload.request.user
+    await this.adminRepository.assignUserRole(uid, role)
+
+    return payload.request.user
   }
 
   async createCredential(payload: CreateCredentialRequest): Promise<AuthCredential> {
