@@ -2,6 +2,8 @@ import { PrismaService } from '@app/authz/shared/module/persistence/service/pris
 import { Organization, User } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Prisma, type PrismaClient } from '@prisma/client/authz'
+import { DefaultArgs } from '@prisma/client/authz/runtime/library'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
 function convertResponse<T, K extends keyof T, V extends T[K]>(
@@ -56,92 +58,100 @@ export class AdminRepository implements OnModuleInit {
     rootUser: User
     rootCredential: AuthCredential
   }> {
-    await this.prismaService.$transaction
-    const organization = await this.prismaService.organization.create({
-      data: {
-        uid: organizationId
+    const result = await this.prismaService.$transaction(async (txn) => {
+      const organization = await txn.organization.create({
+        data: {
+          uid: organizationId
+        }
+      })
+      this.logger.log(`Created organization ${organization.uid}`)
+
+      const rootUser: User = await txn.user
+        .create({
+          data: {
+            uid: rootCredential.userId,
+            role: UserRole.ROOT
+          }
+        })
+        .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
+
+      this.logger.log(`Created Root User ${rootUser.uid}`)
+
+      const rootAuthCredential: AuthCredential = await txn.authCredential
+        .create({
+          data: {
+            uid: rootCredential.uid,
+            pubKey: rootCredential.pubKey,
+            alg: rootCredential.alg,
+            userId: rootCredential.userId
+          }
+        })
+        .then((d) => convertResponse(d, 'alg', Object.values(Alg)))
+
+      this.logger.log(`Created Root User AuthCredential ${rootAuthCredential.pubKey}`)
+
+      return {
+        organization,
+        rootUser,
+        rootCredential: rootAuthCredential
       }
     })
-    this.logger.log(`Created organization ${organization.uid}`)
 
-    const rootUser: User = await this.prismaService.user
-      .create({
-        data: {
-          uid: rootCredential.userId,
-          role: UserRole.ROOT
-        }
-      })
-      .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
-
-    this.logger.log(`Created Root User ${rootUser.uid}`)
-
-    const rootAuthCredential: AuthCredential = await this.prismaService.authCredential
-      .create({
-        data: {
-          uid: rootCredential.uid,
-          pubKey: rootCredential.pubKey,
-          alg: rootCredential.alg,
-          userId: rootCredential.userId
-        }
-      })
-      .then((d) => convertResponse(d, 'alg', Object.values(Alg)))
-
-    this.logger.log(`Created Root User AuthCredential ${rootAuthCredential.pubKey}`)
-
-    return {
-      organization,
-      rootUser,
-      rootCredential: rootAuthCredential
-    }
+    return result
   }
 
   async createUser(uid: string, role: UserRole, credential?: AuthCredential): Promise<User> {
-    // Create the User with the Role
-    // Create the user's Credential
-    const user = await this.prismaService.user
-      .create({ data: { uid, role } })
-      .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
+    const result = await this.prismaService.$transaction(async (txn) => {
+      // Create the User with the Role
+      // Create the user's Credential
+      const user = await txn.user
+        .create({ data: { uid, role } })
+        .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
 
-    // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
-    if (credential) {
-      await this.prismaService.authCredential.create({
-        data: {
-          uid: credential.uid,
-          pubKey: credential.pubKey,
-          alg: credential.alg,
-          userId: uid
-        }
-      })
-    }
+      // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
+      if (credential) {
+        await txn.authCredential.create({
+          data: {
+            uid: credential.uid,
+            pubKey: credential.pubKey,
+            alg: credential.alg,
+            userId: uid
+          }
+        })
+      }
 
-    return user
+      return user
+    })
+    return result
   }
 
   async deleteUser(uid: string): Promise<boolean> {
-    // Delete the User
-    // Delete the user's Credentials
-    // Remove the user as an assignee of any wallets/groups
-    await this.prismaService.user.delete({
-      where: {
-        uid
-      }
-    })
-    await this.prismaService.authCredential.deleteMany({
-      where: {
-        userId: uid
-      }
-    })
+    await this.prismaService.$transaction(async (txn) => {
+      // Delete the User
+      // Delete the user's Credentials
+      // Remove the user as an assignee of any wallets/groups
+      await txn.user.delete({
+        where: {
+          uid
+        }
+      })
+      await txn.authCredential.deleteMany({
+        where: {
+          userId: uid
+        }
+      })
 
-    await this.prismaService.userWalletAssignment.deleteMany({
-      where: {
-        userId: uid
-      }
-    })
+      await txn.userWalletAssignment.deleteMany({
+        where: {
+          userId: uid
+        }
+      })
 
-    await this.prismaService.userGroupMembership.deleteMany({
-      where: {
-        userId: uid
-      }
+      await txn.userGroupMembership.deleteMany({
+        where: {
+          userId: uid
+        }
+      })
     })
 
     return true
@@ -220,70 +230,82 @@ export class AdminRepository implements OnModuleInit {
   }
 
   async unregisterWallet(uid: string): Promise<boolean> {
-    // Remove the wallet from any groups
-    await this.prismaService.walletGroupMembership.deleteMany({
-      where: {
-        walletId: uid
-      }
-    })
-    // Remove the wallet from assignees
-    await this.prismaService.userWalletAssignment.deleteMany({
-      where: {
-        walletId: uid
-      }
-    })
-    // Delete the wallet
-    await this.prismaService.wallet.delete({
-      where: {
-        uid
-      }
+    await this.prismaService.$transaction(async (txn) => {
+      // Remove the wallet from any groups
+      await txn.walletGroupMembership.deleteMany({
+        where: {
+          walletId: uid
+        }
+      })
+      // Remove the wallet from assignees
+      await txn.userWalletAssignment.deleteMany({
+        where: {
+          walletId: uid
+        }
+      })
+      // Delete the wallet
+      await txn.wallet.delete({
+        where: {
+          uid
+        }
+      })
     })
 
     return true
   }
 
   async createWalletGroup(uid: string, walletIds?: string[]): Promise<boolean> {
-    await this.prismaService.walletGroup.create({
-      data: {
-        uid
+    await this.prismaService.$transaction(async (txn) => {
+      await txn.walletGroup.create({
+        data: {
+          uid
+        }
+      })
+      if (walletIds) {
+        await Promise.all(
+          walletIds.map(async (walletId) => {
+            await this.assignWalletGroup(walletId, uid, txn)
+          })
+        )
       }
     })
-    if (walletIds) {
-      await Promise.all(
-        walletIds.map(async (walletId) => {
-          await this.assignWalletGroup(walletId, uid)
-        })
-      )
-    }
 
     return true
   }
 
   async deleteWalletGroup(uid: string): Promise<boolean> {
-    // unassign all wallets from the group
-    await this.prismaService.walletGroupMembership.deleteMany({
-      where: {
-        walletGroupId: uid
-      }
-    })
-    // delete the group
-    await this.prismaService.walletGroup.delete({
-      where: {
-        uid
-      }
+    await this.prismaService.$transaction(async (txn) => {
+      // unassign all wallets from the group
+      await txn.walletGroupMembership.deleteMany({
+        where: {
+          walletGroupId: uid
+        }
+      })
+      // delete the group
+      await txn.walletGroup.delete({
+        where: {
+          uid
+        }
+      })
     })
 
     return true
   }
 
-  async assignWalletGroup(walletGroupId: string, walletId: string): Promise<boolean> {
-    await this.prismaService.walletGroupMembership.create({
+  async assignWalletGroup(
+    walletGroupId: string,
+    walletId: string,
+    txn?: Omit<
+      PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >
+  ): Promise<boolean> {
+    await (txn || this.prismaService).walletGroupMembership.create({
       data: {
         walletId,
         walletGroupId
       }
     })
-
     return true
   }
 
