@@ -12,7 +12,6 @@ export type User = {
 
 export type UserGroup = {
   uid: string
-  name?: string
   users: string[] // userIds
 }
 
@@ -26,7 +25,6 @@ export type Wallet = {
 
 export type WalletGroup = {
   uid: string
-  name: string
   wallets: string[] // walletIds
 }
 

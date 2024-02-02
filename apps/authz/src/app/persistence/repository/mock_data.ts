@@ -82,13 +82,11 @@ export const BBUser_Credential_1: AuthCredential = {
 
 export const DEV_USER_GROUP: UserGroup = {
   uid: 'ug:dev-group',
-  name: 'Dev',
   users: [MATT.uid]
 }
 
 export const TREASURY_USER_GROUP: UserGroup = {
   uid: 'ug:treasury-group',
-  name: 'Treasury',
   users: [BBUser.uid, MATT.uid]
 }
 
@@ -151,13 +149,11 @@ export const TREASURY_WALLET_X: Wallet = {
 
 export const DEV_WALLET_GROUP: WalletGroup = {
   uid: 'wg:dev-group',
-  name: 'Dev',
   wallets: [SHY_ACCOUNT_WALLET.uid]
 }
 
 export const TREASURY_WALLET_GROUP: WalletGroup = {
   uid: 'wg:treasury-group',
-  name: 'Treasury',
   wallets: [TREASURY_WALLET_X.uid]
 }
 
