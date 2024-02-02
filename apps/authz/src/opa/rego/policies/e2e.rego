@@ -40,7 +40,6 @@ forbid[{"policyId": "test-forbid-policy-1"}] = reason {
 	transferTypes = {"transferNative"}
 	tokens = {"eip155:137/slip44:966"}
 	limit = "1000000000000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -51,10 +50,13 @@ forbid[{"policyId": "test-forbid-policy-1"}] = reason {
 	checkIntentToken(tokens)
 	checkSpendingLimit({
 		"limit": limit,
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
 		"filters": {
 			"tokens": tokens,
 			"users": users,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
 		},
 	})
 

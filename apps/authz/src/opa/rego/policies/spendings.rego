@@ -10,7 +10,6 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	currency = "fiat:usd"
 	limit = "5000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -21,10 +20,13 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 	checkSpendingLimit({
 		"limit": limit,
 		"currency": currency,
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
 		"filters": {
 			"tokens": tokens,
 			"roles": roles,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
 		},
 	})
 
@@ -44,7 +46,6 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 	currency = "fiat:usd"
 	limit = "5000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -55,10 +56,11 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	checkSpendingLimit({
 		"limit": limit,
 		"currency": currency,
-		"filters": {
-			"tokens": tokens,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
 		},
+		"filters": {"tokens": tokens},
 	})
 
 	reason = {
@@ -76,7 +78,6 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	currency = "fiat:usd"
 	limit = "5000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -86,10 +87,11 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	checkSpendingLimit({
 		"limit": limit,
 		"currency": currency,
-		"filters": {
-			"resources": resources,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
 		},
+		"filters": {"resources": resources},
 	})
 
 	reason = {
@@ -107,7 +109,6 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	userGroups = {"test-user-group-one-uid"}
 	currency = "fiat:usd"
 	limit = "5000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -116,10 +117,11 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	checkSpendingLimit({
 		"limit": limit,
 		"currency": currency,
-		"filters": {
-			"userGroups": userGroups,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
 		},
+		"filters": {"userGroups": userGroups},
 	})
 
 	reason = {
@@ -137,7 +139,6 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 	walletGroups = {"test-wallet-group-one-uid"}
 	currency = "fiat:usd"
 	limit = "5000000000"
-	rollingBasis = (12 * 60) * 60
 
 	checkPrincipal
 	checkNonceExists
@@ -146,10 +147,11 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 	checkSpendingLimit({
 		"limit": limit,
 		"currency": currency,
-		"filters": {
-			"walletGroups": walletGroups,
-			"startDate": secondsToNanoSeconds(nowSeconds - rollingBasis),
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
 		},
+		"filters": {"walletGroups": walletGroups},
 	})
 
 	reason = {
