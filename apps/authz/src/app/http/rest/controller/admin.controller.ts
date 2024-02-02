@@ -1,6 +1,8 @@
 import { AdminService } from '@app/authz/app/core/admin.service'
 import { AssignUserGroupRequestDto } from '@app/authz/app/http/rest/dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '@app/authz/app/http/rest/dto/assign-user-group-response.dto'
+import { AssignUserWalletRequestDto } from '@app/authz/app/http/rest/dto/assign-user-wallet-request.dto'
+import { AssignUserWalletResponseDto } from '@app/authz/app/http/rest/dto/assign-user-wallet-response.dto'
 import { AssignWalletGroupRequestDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-request.dto'
 import { AssignWalletGroupResponseDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-response.dto'
 import { CreateCredentialRequestDto } from '@app/authz/app/http/rest/dto/create-credential-request.dto'
@@ -15,6 +17,7 @@ import { UpdateUserRequestDto } from '@app/authz/app/http/rest/dto/update-user-r
 import { UpdateUserResponseDto } from '@app/authz/app/http/rest/dto/update-user-response.dto'
 import {
   AssignUserGroupRequest,
+  AssignUserWalletRequest,
   AssignWalletGroupRequest,
   CreateCredentialRequest,
   CreateOrganizationRequest,
@@ -97,6 +100,16 @@ export class AdminController {
     const wallet = await this.adminService.assignWalletGroup(payload)
 
     const response = new AssignWalletGroupResponseDto(wallet)
+    return response
+  }
+
+  @Post('/user-wallets')
+  async assignUserWallet(@Body() body: AssignUserWalletRequestDto) {
+    const payload: AssignUserWalletRequest = body
+
+    const userWallet = await this.adminService.assignUserWallet(payload)
+
+    const response = new AssignUserWalletResponseDto(userWallet)
     return response
   }
 }

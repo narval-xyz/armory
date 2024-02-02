@@ -2,8 +2,6 @@ import { PrismaService } from '@app/authz/shared/module/persistence/service/pris
 import { Organization, User } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
-import { Prisma, type PrismaClient } from '@prisma/client/authz'
-import { DefaultArgs } from '@prisma/client/authz/runtime/library'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
 function convertResponse<T, K extends keyof T, V extends T[K]>(
@@ -264,19 +262,10 @@ export class AdminRepository implements OnModuleInit {
     return true
   }
 
-  async createWalletGroup(uid: string, walletIds?: string[]): Promise<boolean> {
-    await this.prismaService.$transaction(async (txn) => {
-      await txn.walletGroup.create({
-        data: {
-          uid
-        }
-      })
-      if (walletIds) {
-        await Promise.all(
-          walletIds.map(async (walletId) => {
-            await this.assignWalletGroup(walletId, uid, txn)
-          })
-        )
+  async createWalletGroup(uid: string): Promise<boolean> {
+    await this.prismaService.walletGroup.create({
+      data: {
+        uid
       }
     })
 
@@ -302,19 +291,22 @@ export class AdminRepository implements OnModuleInit {
     return true
   }
 
-  async assignWalletGroup(
-    walletGroupId: string,
-    walletId: string,
-    txn?: Omit<
-      PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
-      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
-    >
-  ): Promise<boolean> {
-    await (txn || this.prismaService).walletGroupMembership.create({
-      data: {
-        walletId,
-        walletGroupId
+  async assignWalletGroup(walletId: string, groupId: string): Promise<boolean> {
+    await this.prismaService.$transaction(async (txn) => {
+      const group = await txn.walletGroup.findUnique({
+        where: { uid: groupId }
+      })
+      if (!group) {
+        await txn.walletGroup.create({
+          data: { uid: groupId }
+        })
       }
+      await txn.walletGroupMembership.create({
+        data: {
+          walletId,
+          walletGroupId: groupId
+        }
+      })
     })
     return true
   }
@@ -325,6 +317,30 @@ export class AdminRepository implements OnModuleInit {
         walletId_walletGroupId: {
           walletId,
           walletGroupId
+        }
+      }
+    })
+
+    return true
+  }
+
+  async assignUserWallet(userId: string, walletId: string): Promise<boolean> {
+    await this.prismaService.userWalletAssignment.create({
+      data: {
+        userId,
+        walletId
+      }
+    })
+
+    return true
+  }
+
+  async unassignUserWallet(userId: string, walletId: string): Promise<boolean> {
+    await this.prismaService.userWalletAssignment.delete({
+      where: {
+        userId_walletId: {
+          userId,
+          walletId
         }
       }
     })
