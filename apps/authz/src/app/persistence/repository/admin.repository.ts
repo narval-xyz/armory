@@ -193,11 +193,21 @@ export class AdminRepository implements OnModuleInit {
   }
 
   async assignUserGroup(userId: string, groupId: string): Promise<boolean> {
-    await this.prismaService.userGroupMembership.create({
-      data: {
-        userId,
-        userGroupId: groupId
+    await this.prismaService.$transaction(async (txn) => {
+      const group = await txn.userGroup.findUnique({
+        where: { uid: groupId }
+      })
+      if (!group) {
+        await txn.userGroup.create({
+          data: { uid: groupId }
+        })
       }
+      await txn.userGroupMembership.create({
+        data: {
+          userId,
+          userGroupId: groupId
+        }
+      })
     })
 
     return true

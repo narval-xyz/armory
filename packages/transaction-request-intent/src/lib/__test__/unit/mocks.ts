@@ -79,7 +79,6 @@ export enum Action {
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',
   DELETE_USER = 'user:delete',
-  CHANGE_USER_ROLE = 'user:change-role',
   CREATE_WALLET = 'wallet:create',
   EDIT_WALLET = 'wallet:edit',
   ASSIGN_WALLET = 'wallet:assign',

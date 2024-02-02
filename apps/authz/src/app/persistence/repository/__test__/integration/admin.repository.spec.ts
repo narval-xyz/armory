@@ -97,7 +97,6 @@ describe(AdminRepository.name, () => {
       const role = UserRole.ADMIN
       await repository.createUser(uid, role)
 
-      const spy = jest.spyOn(testPrismaService.getClient(), '$transaction')
       const user = await testPrismaService.getClient().user.findFirst({
         where: {
           uid
@@ -105,7 +104,7 @@ describe(AdminRepository.name, () => {
       })
 
       expect(user).toEqual({ uid, role })
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
     })
 
     it('creates a new user with credential', async () => {
@@ -120,7 +119,6 @@ describe(AdminRepository.name, () => {
 
       await repository.createUser(uid, role, credential)
 
-      const spy = jest.spyOn(testPrismaService.getClient(), '$transaction')
       const user = await testPrismaService.getClient().user.findFirst({
         where: {
           uid
@@ -135,7 +133,49 @@ describe(AdminRepository.name, () => {
 
       expect(user).toEqual({ uid, role })
       expect(savedCredential).toEqual(credential)
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('assignUserGroup', () => {
+    it('should assign user to group', async () => {
+      const userId = 'test-user-id'
+      const groupId = 'test-group-id'
+
+      await repository.assignUserGroup(userId, groupId)
+
+      const membership = await testPrismaService.getClient().userGroupMembership.findUnique({
+        where: {
+          userId_userGroupId: {
+            userId,
+            userGroupId: groupId
+          }
+        }
+      })
+
+      expect(membership).toEqual({
+        userId,
+        userGroupId: groupId
+      })
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should create a new userGroup if it does not exist', async () => {
+      const userId = 'test-user-id'
+      const groupId = 'test-group-id'
+
+      await repository.assignUserGroup(userId, groupId)
+
+      const group = await testPrismaService.getClient().userGroup.findUnique({
+        where: {
+          uid: groupId
+        }
+      })
+
+      expect(group).toEqual({
+        uid: groupId
+      })
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
     })
   })
 })
