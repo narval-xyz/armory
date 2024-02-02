@@ -4,6 +4,7 @@ export const Action = {
   CREATE_USER: 'CREATE_USER',
   EDIT_USER: 'user:edit',
   DELETE_USER: 'user:delete',
+  CREATE_CREDENTIAL: 'CREATE_CREDENTIAL',
   CHANGE_USER_ROLE: 'user:change-role',
 
   REGISTER_WALLET: 'REGISTER_WALLET',
@@ -146,6 +147,15 @@ export type CreateUserAction = BaseAction & {
 
 export type CreateUserRequest = BaseAdminRequest & {
   request: CreateUserAction
+}
+
+export type CreateCredentialAction = BaseAction & {
+  action: typeof Action.CREATE_CREDENTIAL
+  credential: AuthCredential
+}
+
+export type CreateCredentialRequest = BaseAdminRequest & {
+  request: CreateCredentialAction
 }
 
 export type RegisterWalletAction = BaseAction & {

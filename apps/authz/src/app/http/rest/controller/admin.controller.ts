@@ -1,11 +1,18 @@
 import { AdminService } from '@app/authz/app/core/admin.service'
+import { CreateCredentialRequestDto } from '@app/authz/app/http/rest/dto/create-credential-request.dto'
+import { CreateCredentialResponseDto } from '@app/authz/app/http/rest/dto/create-credential-response.dto'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
 import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
-import { CreateOrganizationRequest, CreateUserRequest, RegisterWalletRequest } from '@narval/authz-shared'
+import {
+  CreateCredentialRequest,
+  CreateOrganizationRequest,
+  CreateUserRequest,
+  RegisterWalletRequest
+} from '@narval/authz-shared'
 import { Body, Controller, Logger, Post } from '@nestjs/common'
 
 @Controller('/admin')
@@ -31,6 +38,16 @@ export class AdminController {
     const user = await this.adminService.createUser(payload)
 
     const response = new CreateUserResponseDto(user)
+    return response
+  }
+
+  @Post('/credentials')
+  async createCredential(@Body() body: CreateCredentialRequestDto) {
+    const payload: CreateCredentialRequest = body
+
+    const authCredential = await this.adminService.createCredential(payload)
+
+    const response = new CreateCredentialResponseDto(authCredential)
     return response
   }
 

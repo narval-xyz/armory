@@ -3,6 +3,13 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString } from 'class-validator'
 
 export class AuthCredentialDto {
+  constructor(data: AuthCredentialDto) {
+    this.uid = data.uid
+    this.pubKey = data.pubKey
+    this.alg = data.alg
+    this.userId = data.userId
+  }
+
   @IsString()
   @IsDefined()
   @ApiProperty()
