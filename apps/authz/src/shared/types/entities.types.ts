@@ -1,5 +1,4 @@
-import { Address, UserRole } from '@narval/authz-shared'
-import { AccountType } from './domain.type'
+import { AccountType, Address, UserRole } from '@narval/authz-shared'
 
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type Organization = {

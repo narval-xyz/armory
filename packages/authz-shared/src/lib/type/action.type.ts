@@ -1,31 +1,32 @@
-export enum Action {
-  CREATE_ORGANIZATION = 'CREATE_ORGANIZATION',
+export const Action = {
+  CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
-  CREATE_USER = 'CREATE_USER',
-  EDIT_USER = 'user:edit',
-  DELETE_USER = 'user:delete',
-  CHANGE_USER_ROLE = 'user:change-role',
+  CREATE_USER: 'CREATE_USER',
+  EDIT_USER: 'user:edit',
+  DELETE_USER: 'user:delete',
+  CHANGE_USER_ROLE: 'user:change-role',
 
-  REGISTER_WALLET = 'REGISTER_WALLET',
-  EDIT_WALLET = 'wallet:edit',
-  ASSIGN_WALLET = 'wallet:assign',
-  UNASSIGN_WALLET = 'wallet:unassign',
+  REGISTER_WALLET: 'REGISTER_WALLET',
+  EDIT_WALLET: 'wallet:edit',
+  ASSIGN_WALLET: 'wallet:assign',
+  UNASSIGN_WALLET: 'wallet:unassign',
 
-  CREATE_USER_GROUP = 'user-group:create',
-  EDIT_USER_GROUP = 'user-group:edit',
-  DELETE_USER_GROUP = 'user-group:delete',
+  CREATE_USER_GROUP: 'user-group:create',
+  EDIT_USER_GROUP: 'user-group:edit',
+  DELETE_USER_GROUP: 'user-group:delete',
 
-  CREATE_WALLET_GROUP = 'wallet-group:create',
-  EDIT_WALLET_GROUP = 'wallet-group:edit',
-  DELETE_WALLET_GROUP = 'wallet-group:delete',
+  CREATE_WALLET_GROUP: 'wallet-group:create',
+  EDIT_WALLET_GROUP: 'wallet-group:edit',
+  DELETE_WALLET_GROUP: 'wallet-group:delete',
 
-  SET_POLICY_RULES = 'setPolicyRules',
+  SET_POLICY_RULES: 'setPolicyRules',
 
-  SIGN_TRANSACTION = 'signTransaction',
-  SIGN_RAW = 'signRaw',
-  SIGN_MESSAGE = 'signMessage',
-  SIGN_TYPED_DATA = 'signTypedData'
-}
+  SIGN_TRANSACTION: 'signTransaction',
+  SIGN_RAW: 'signRaw',
+  SIGN_MESSAGE: 'signMessage',
+  SIGN_TYPED_DATA: 'signTypedData'
+} as const
+export type Action = (typeof Action)[keyof typeof Action]
 
 export type AuthCredential = {
   uid: string // sha256 of the pubKey, used as the short identifier
@@ -34,17 +35,19 @@ export type AuthCredential = {
   userId: string
 }
 
-export enum UserRole {
-  ROOT = 'ROOT',
-  ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER',
-  MANAGER = 'MANAGER'
-}
+export const UserRole = {
+  ROOT: 'root',
+  ADMIN: 'admin',
+  MEMBER: 'member',
+  MANAGER: 'manager'
+} as const
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
-export enum AccountType {
-  EOA = 'eoa',
-  AA = '4337'
-}
+export const AccountType = {
+  EOA: 'eoa',
+  AA: '4337'
+} as const
+export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 
 export type Signature = {
   sig: string
@@ -56,11 +59,13 @@ export type Signature = {
   pubKey: string
 }
 
-export enum Alg {
-  ES256K = 'ES256K', // secp256k1, an Ethereum EOA
-  ES256 = 'ES256', // secp256r1, ecdsa but not ethereum
-  RS256 = 'RS256'
-}
+export const Alg = {
+  ES256K: 'ES256K', // secp256k1, an Ethereum EOA
+  ES256: 'ES256', // secp256r1, ecdsa but not ethereum
+  RS256: 'RS256'
+} as const
+
+export type Alg = (typeof Alg)[keyof typeof Alg]
 
 export type Hex = `0x${string}`
 
@@ -107,19 +112,19 @@ type BaseAdminRequest = {
 }
 
 export type SignTransactionAction = BaseAction & {
-  action: Action.SIGN_TRANSACTION
+  action: typeof Action.SIGN_TRANSACTION
   resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessageAction = BaseAction & {
-  action: Action.SIGN_MESSAGE
+  action: typeof Action.SIGN_MESSAGE
   resourceId: string
   message: string
 }
 
 export type CreateOrganizationAction = BaseAction & {
-  action: Action.CREATE_ORGANIZATION
+  action: typeof Action.CREATE_ORGANIZATION
   organization: {
     uid: string
     credential: AuthCredential
@@ -131,7 +136,7 @@ export type CreateOrganizationRequest = BaseAdminRequest & {
 }
 
 export type CreateUserAction = BaseAction & {
-  action: Action.CREATE_USER
+  action: typeof Action.CREATE_USER
   user: {
     uid: string
     role: UserRole
@@ -144,7 +149,7 @@ export type CreateUserRequest = BaseAdminRequest & {
 }
 
 export type RegisterWalletAction = BaseAction & {
-  action: Action.REGISTER_WALLET
+  action: typeof Action.REGISTER_WALLET
   wallet: {
     uid: string
     address: Address

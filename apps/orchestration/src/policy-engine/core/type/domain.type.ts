@@ -26,7 +26,7 @@ export type Evaluation = {
 /**
  * AuthZ actions currently supported by the Orchestration.
  */
-export type SupportedAction = Action.SIGN_TRANSACTION | Action.SIGN_MESSAGE
+export type SupportedAction = typeof Action.SIGN_TRANSACTION | typeof Action.SIGN_MESSAGE
 
 export type SharedAuthorizationPayload = {
   action: SupportedAction
@@ -34,13 +34,13 @@ export type SharedAuthorizationPayload = {
 }
 
 export type SignTransaction = SharedAuthorizationPayload & {
-  action: Action.SIGN_TRANSACTION
+  action: typeof Action.SIGN_TRANSACTION
   resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessage = SharedAuthorizationPayload & {
-  action: Action.SIGN_MESSAGE
+  action: typeof Action.SIGN_MESSAGE
   resourceId: string
   message: string
 }

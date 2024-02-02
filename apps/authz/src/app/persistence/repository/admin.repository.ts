@@ -1,9 +1,23 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { AccountType } from '@app/authz/shared/types/domain.type'
 import { Organization, User } from '@app/authz/shared/types/entities.types'
-import { Address, Alg, AuthCredential, UserRole, convertEnums } from '@narval/authz-shared'
+import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
+
+function convertResponse<T, K extends keyof T, V extends T[K]>(
+  response: T,
+  key: K,
+  validValues: V[]
+): T & Record<K, V> {
+  if (!validValues.includes(response[key] as V)) {
+    throw new Error(`Invalid value for key ${key as string}: ${response[key]}`)
+  }
+
+  return {
+    ...response,
+    [key]: response[key] as V
+  } as T & Record<K, V>
+}
 
 @Injectable()
 export class AdminRepository implements OnModuleInit {
@@ -57,7 +71,7 @@ export class AdminRepository implements OnModuleInit {
           role: UserRole.ROOT
         }
       })
-      .then((u) => convertEnums({ role: UserRole }, u))
+      .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
 
     this.logger.log(`Created Root User ${rootUser.uid}`)
 
@@ -70,7 +84,7 @@ export class AdminRepository implements OnModuleInit {
           userId: rootCredential.userId
         }
       })
-      .then((c) => convertEnums({ alg: Alg }, c))
+      .then((d) => convertResponse(d, 'alg', Object.values(Alg)))
 
     this.logger.log(`Created Root User AuthCredential ${rootAuthCredential.pubKey}`)
 
@@ -86,7 +100,7 @@ export class AdminRepository implements OnModuleInit {
     // Create the user's Credential
     const user = await this.prismaService.user
       .create({ data: { uid, role } })
-      .then((u) => convertEnums({ role: UserRole }, u))
+      .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
 
     // If we're registering a credential at the same time, do that now; otherwise it can be assigned later.
     if (credential) {

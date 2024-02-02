@@ -1,6 +1,5 @@
-import { AccountId, Action, Address, Alg, AssetId, Hex } from '@narval/authz-shared'
+import { AccountId, AccountType, Action, Address, Alg, AssetId, Hex } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
-import { AccountType } from './domain.type'
 
 enum Then {
   PERMIT = 'permit',
