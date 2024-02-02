@@ -2,6 +2,7 @@ import { AdminRepository } from '@app/authz/app/persistence/repository/admin.rep
 import { Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
 import {
   AuthCredential,
+  CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
   RegisterWalletRequest
@@ -36,6 +37,13 @@ export class AdminService {
     const user = await this.adminRepository.createUser(uid, role, credential)
 
     return user
+  }
+
+  async createCredential(payload: CreateCredentialRequest): Promise<AuthCredential> {
+    // TODO: Should we generate the credential uid here to enforce that it's a hash of the pubKey?
+    await this.adminRepository.createAuthCredential(payload.request.credential)
+
+    return payload.request.credential
   }
 
   async registerWallet(payload: RegisterWalletRequest): Promise<Wallet> {
