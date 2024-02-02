@@ -2,7 +2,7 @@ export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
   CREATE_USER: 'CREATE_USER',
-  EDIT_USER: 'user:edit',
+  UPDATE_USER: 'user:edit',
   DELETE_USER: 'user:delete',
   CREATE_CREDENTIAL: 'CREATE_CREDENTIAL',
   CHANGE_USER_ROLE: 'user:change-role',
@@ -147,6 +147,18 @@ export type CreateUserAction = BaseAction & {
 
 export type CreateUserRequest = BaseAdminRequest & {
   request: CreateUserAction
+}
+
+export type UpdateUserAction = BaseAction & {
+  action: typeof Action.UPDATE_USER
+  user: {
+    uid: string
+    role: UserRole
+  }
+}
+
+export type UpdateUserRequest = BaseAdminRequest & {
+  request: UpdateUserAction
 }
 
 export type CreateCredentialAction = BaseAction & {
