@@ -16,12 +16,13 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
     'fiat:eur': '1.10'
   }
 
-  await prisma.transferFeed.createMany({
+  await prisma.approvedTransfer.createMany({
     data: [
       {
         orgId,
         rates,
         id: '107b07ec-3e8d-440f-9e4a-d145dcd53324',
+        requestId: '623121f4-439c-42ac-aee3-d38f94f6f886',
         amount: '3000000000',
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
@@ -34,6 +35,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         orgId,
         rates,
         id: '2b697c4b-4675-4762-b68d-89baaa1b5cb8',
+        requestId: 'e615f495-fa7b-4ee8-b4c6-927ce72a9107',
         amount: '2000000000',
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
@@ -46,6 +48,7 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
         orgId,
         rates,
         id: '4810c9de-ebc6-4788-ba5c-e9a899273c86',
+        requestId: '1d88e7e4-49ab-4f83-9e55-c3e089a4a252',
         amount: '1500000000',
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
@@ -57,6 +60,8 @@ export const germinate = async (prisma: PrismaClient): Promise<void> => {
       {
         orgId,
         rates,
+        id: 'a8116490-2c0e-4315-892f-f4795ff7eda9',
+        requestId: 'c91393e3-1cbb-49e6-888c-50f188f22f7e',
         amount: '1000000000',
         from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
         to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
