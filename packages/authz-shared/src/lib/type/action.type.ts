@@ -5,6 +5,7 @@ export const Action = {
   UPDATE_USER: 'UPDATE_USER',
   CREATE_CREDENTIAL: 'CREATE_CREDENTIAL',
   ASSIGN_USER_GROUP: 'ASSIGN_USER_GROUP',
+  ASSIGN_WALLET_GROUP: 'ASSIGN_WALLET_GROUP',
 
   DELETE_USER: 'user:delete',
 
@@ -17,7 +18,6 @@ export const Action = {
   DELETE_USER_GROUP: 'user-group:delete',
 
   CREATE_WALLET_GROUP: 'wallet-group:create',
-  EDIT_WALLET_GROUP: 'wallet-group:edit',
   DELETE_WALLET_GROUP: 'wallet-group:delete',
 
   SET_POLICY_RULES: 'setPolicyRules',
@@ -52,6 +52,11 @@ export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 
 export type UserGroupMembership = {
   userId: string
+  groupId: string
+}
+
+export type WalletGroupMembership = {
+  walletId: string
   groupId: string
 }
 
@@ -196,4 +201,13 @@ export type RegisterWalletAction = BaseAction & {
 
 export type RegisterWalletRequest = BaseAdminRequest & {
   request: RegisterWalletAction
+}
+
+export type AssignWalletGroupAction = BaseAction & {
+  action: typeof Action.ASSIGN_WALLET_GROUP
+  data: WalletGroupMembership
+}
+
+export type AssignWalletGroupRequest = BaseAdminRequest & {
+  request: AssignWalletGroupAction
 }
