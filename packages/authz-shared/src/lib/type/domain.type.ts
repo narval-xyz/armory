@@ -150,11 +150,6 @@ export type Request = SignTransaction | SignMessage
  */
 export type Prices = Record<AssetId, Record<string, number>>
 
-export enum FeedType {
-  PRICE = 'PRICE',
-  HISTORICAL_TRANSFER = 'HISTORICAL_TRANSFER'
-}
-
 /**
  * The feeds represent arbitrary data collected by the Orchestration and
  * supplied to the Policy Engine for each evaluation request.
