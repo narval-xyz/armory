@@ -1,5 +1,5 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { Organization, User } from '@app/authz/shared/types/entities.types'
+import { Organization, RegoData, User, Wallet } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
@@ -29,7 +29,7 @@ export class AdminRepository implements OnModuleInit {
     this.logger.log('AdminRepository initialized')
   }
 
-  async getEntityData() {
+  async getEntityData(): Promise<RegoData> {
     const data = mockEntityData
     return data
   }
@@ -47,6 +47,39 @@ export class AdminRepository implements OnModuleInit {
   }
 
   // CRUD
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.prismaService.user.findMany()
+    return users.map((d) => convertResponse(d, 'role', Object.values(UserRole)))
+  }
+
+  async getAllWallets(): Promise<Wallet[]> {
+    const wallets = await this.prismaService.wallet.findMany()
+    return wallets.map((d) => ({
+      ...convertResponse(d, 'accountType', Object.values(AccountType)),
+      address: d.address as Address,
+      chainId: d.chainId || undefined
+    }))
+  }
+
+  async getAllUserWallets(): Promise<
+    {
+      userId: string
+      walletId: string
+    }[]
+  > {
+    const userWallets = await this.prismaService.userWalletAssignment.findMany()
+    return userWallets
+  }
+
+  async getAllUserGroups(): Promise<{ userId: string; userGroupId: string }[]> {
+    const userGroups = await this.prismaService.userGroupMembership.findMany()
+    return userGroups
+  }
+
+  async getAllWalletGroups(): Promise<{ walletId: string; walletGroupId: string }[]> {
+    const walletGroups = await this.prismaService.walletGroupMembership.findMany()
+    return walletGroups
+  }
 
   async createOrganization(
     organizationId: string,
@@ -350,45 +383,3 @@ export class AdminRepository implements OnModuleInit {
 
   async registerRootKey() {}
 }
-
-/*
-CREATE_ORGANIZATION - only have 1 currently
-
-REGISTER_ROOT_KEY - an underlying Vault Service/root key that can derive wallets; necessary for CREATE_WALLET action
-
-REGISTER_WALLET - register an existing wallet with the system
-
-CREATE_USER
-
-DELETE_USER
-
-CREATE_USER_GROUP
-
-UPDATE_USER_GROUP
-
-DELETE_USER_GROUP
-
-CREATE_WALLET_GROUP
-
-UPDATE_WALLET_GROUP
-
-DELETE_WALLET_GROUP
-
-ASSIGN_USER_ROLE
-
-ASSIGN_USER_GROUP
-
-ASSIGN_WALLET_GROUP
-
-ADD_USER_AUTHN
-
-REMOVE_USER_AUTHN
-
-SET_POLICY_RULES
-
-UPDATE_ADDRESS_BOOK
-
-GENERATE_API_KEY ???
-
-REVOKE_API_KEY ???
-*/
