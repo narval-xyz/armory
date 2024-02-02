@@ -70,7 +70,7 @@ type SignMessageCondition = {
 
 type SignTypedDataDomainCondition = {
   version?: string[]
-  chainId?: number[]
+  chainId?: string[]
   name?: string[]
   verifyingContract?: Address[]
 }
@@ -90,15 +90,19 @@ type ApprovalCondition = {
 type SpendingLimitCondition = {
   limit: string
   currency?: Currency
+  timeWindow?: {
+    type?: 'rolling' | 'fixed'
+    value?: number // in seconds
+    startDate?: number // in seconds
+    endDate?: number // in seconds
+  }
   filters?: {
     tokens?: AccountId[]
     users?: string[]
     resources?: AccountId[]
-    chains?: number[]
+    chains?: string[]
     userGroups?: string[]
     walletGroups?: string[]
-    startDate?: number // in seconds
-    endDate?: number // in seconds
   }
 }
 
