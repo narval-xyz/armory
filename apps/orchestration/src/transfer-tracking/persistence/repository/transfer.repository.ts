@@ -1,7 +1,7 @@
 import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
-import { TransferFeed } from '@prisma/client/orchestration'
+import { ApprovedTransfer } from '@prisma/client/orchestration'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 
@@ -14,15 +14,15 @@ export class TransferRepository {
 
   async create(input: CreateTransfer): Promise<Transfer> {
     const transfer = this.getDefaults(input)
-    const feed = this.encode(transfer)
-    const model = await this.prismaService.transferFeed.create({
+    const approvedTransfer = this.encode(transfer)
+    const model = await this.prismaService.approvedTransfer.create({
       data: {
-        ...feed,
+        ...approvedTransfer,
         // TODO (@wcalderipe, 24/01/24): For some reason, I couldn't make it
         // work with a JSON type.
         //
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        rates: feed.rates as any
+        rates: approvedTransfer.rates as any
       }
     })
 
@@ -30,7 +30,7 @@ export class TransferRepository {
   }
 
   async findByOrgId(orgId: string): Promise<Transfer[]> {
-    const models = await this.prismaService.transferFeed.findMany({
+    const models = await this.prismaService.approvedTransfer.findMany({
       where: { orgId }
     })
 
@@ -45,7 +45,7 @@ export class TransferRepository {
     }
   }
 
-  private encode(transfer: Transfer): TransferFeed {
+  private encode(transfer: Transfer): ApprovedTransfer {
     const rates = encodeRatesSchema.parse(transfer.rates)
 
     return {
@@ -55,7 +55,7 @@ export class TransferRepository {
     }
   }
 
-  private decode(model: TransferFeed): Transfer {
+  private decode(model: ApprovedTransfer): Transfer {
     const rates = decodeRatesSchema.parse(model.rates)
 
     return {

@@ -1,3 +1,4 @@
+import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
 import { load } from '@app/orchestration/orchestration.config'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
@@ -8,7 +9,7 @@ import { TransferTrackingModule } from '@app/orchestration/transfer-tracking/tra
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { first, map, omit, uniq } from 'lodash/fp'
+import { first, map, mapValues, omit, uniq } from 'lodash/fp'
 
 describe(TransferTrackingService.name, () => {
   let app: INestApplication
@@ -16,21 +17,7 @@ describe(TransferTrackingService.name, () => {
   let testPrismaService: TestPrismaService
   let service: TransferTrackingService
 
-  const transfer: Transfer = {
-    id: '0e9a6d80-7d44-4baa-935f-977e3c71ee49',
-    orgId: 'a659321f-e304-406a-b020-cf97a2d01876',
-    rates: {
-      'fiat:usd': 0.99,
-      'fiat:eur': 1.1
-    },
-    amount: BigInt('3000000000'),
-    from: 'eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
-    to: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-    chainId: 137,
-    token: 'eip155:137/slip44/966',
-    initiatedBy: 'matt@narval.xyz',
-    createdAt: new Date()
-  }
+  const transfer: Transfer = generateTransfer()
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -64,19 +51,16 @@ describe(TransferTrackingService.name, () => {
   })
 
   describe('track', () => {
-    it('creates a new transfer feed', async () => {
+    it('creates a new approved transfer', async () => {
       await service.track(transfer)
 
-      const models = await testPrismaService.getClient().transferFeed.findMany()
+      const models = await testPrismaService.getClient().approvedTransfer.findMany()
 
       expect(models.length).toEqual(1)
       expect(first(models)).toEqual({
         ...transfer,
         amount: transfer.amount.toString(),
-        rates: {
-          'fiat:usd': '0.99',
-          'fiat:eur': '1.1'
-        }
+        rates: mapValues((value) => value.toString(), transfer.rates)
       })
     })
 

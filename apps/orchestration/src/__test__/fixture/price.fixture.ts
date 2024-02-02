@@ -1,5 +1,6 @@
 import { generateAddress, generateSupportedChainId } from '@app/orchestration/__test__/fixture/shared.fixture'
 import { CHAINS, FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
+import { Price } from '@app/orchestration/shared/core/type/price.type'
 import { assetIdSchema } from '@app/orchestration/shared/schema/caip.schema'
 import { AssetType, Namespace, Prices } from '@narval/authz-shared'
 import { sample } from 'lodash'
@@ -47,4 +48,6 @@ export const generatePrices = (partial?: Partial<Prices>): Prices => {
   } as Prices
 }
 
-export const generatePrice = () => new Fixture().extend([fiatIdGenerator]).fromSchema(priceSchema)
+// TODO (@wcalderipe, 02/02/24): Try to understand why priceSchema doesn't match
+// with Price type even when they should be exactly the same.
+export const generatePrice = (): Price => new Fixture().extend([fiatIdGenerator]).fromSchema(priceSchema) as Price

@@ -39,7 +39,7 @@ export class FeedService {
     }
   }
 
-  async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
+  private async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
     return this.prismaService.feed.createMany({
       data: feeds.map((feed) => ({
         id: uuid(),

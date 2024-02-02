@@ -204,6 +204,7 @@ describe(AuthorizationRequestService.name, () => {
         token: intent.token,
         chainId: request.transactionRequest.chainId,
         orgId: authzRequest.orgId,
+        requestId: authzRequest.id,
         initiatedBy: authzRequest.authentication.pubKey,
         rates: {
           'fiat:usd': 0.99

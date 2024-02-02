@@ -4,6 +4,7 @@ import { SetOptional } from 'type-fest'
 export type Transfer = {
   id: string
   orgId: string
+  requestId: string
   amount: bigint
   from: string
   to: string
