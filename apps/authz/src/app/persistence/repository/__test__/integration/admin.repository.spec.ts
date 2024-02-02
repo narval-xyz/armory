@@ -178,4 +178,46 @@ describe(AdminRepository.name, () => {
       expect(transactionSpy).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('assignWalletGroup', () => {
+    it('should assign wallet to group', async () => {
+      const walletId = 'test-wallet-id'
+      const groupId = 'test-group-id'
+
+      await repository.assignWalletGroup(walletId, groupId)
+
+      const membership = await testPrismaService.getClient().walletGroupMembership.findUnique({
+        where: {
+          walletId_walletGroupId: {
+            walletId,
+            walletGroupId: groupId
+          }
+        }
+      })
+
+      expect(membership).toEqual({
+        walletId,
+        walletGroupId: groupId
+      })
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should create a new walletGroup if it does not exist', async () => {
+      const walletId = 'test-wallet-id'
+      const groupId = 'test-group-id'
+
+      await repository.assignWalletGroup(walletId, groupId)
+
+      const group = await testPrismaService.getClient().walletGroup.findUnique({
+        where: {
+          uid: groupId
+        }
+      })
+
+      expect(group).toEqual({
+        uid: groupId
+      })
+      expect(transactionSpy).toHaveBeenCalledTimes(1)
+    })
+  })
 })

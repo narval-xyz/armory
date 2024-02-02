@@ -6,12 +6,12 @@ export const Action = {
   CREATE_CREDENTIAL: 'CREATE_CREDENTIAL',
   ASSIGN_USER_GROUP: 'ASSIGN_USER_GROUP',
   ASSIGN_WALLET_GROUP: 'ASSIGN_WALLET_GROUP',
+  ASSIGN_USER_WALLET: 'ASSIGN_USER_WALLET',
 
   DELETE_USER: 'user:delete',
 
   REGISTER_WALLET: 'REGISTER_WALLET',
   EDIT_WALLET: 'wallet:edit',
-  ASSIGN_WALLET: 'wallet:assign',
   UNASSIGN_WALLET: 'wallet:unassign',
 
   EDIT_USER_GROUP: 'user-group:edit',
@@ -58,6 +58,11 @@ export type UserGroupMembership = {
 export type WalletGroupMembership = {
   walletId: string
   groupId: string
+}
+
+export type UserWallet = {
+  userId: string
+  walletId: string
 }
 
 export type Signature = {
@@ -210,4 +215,13 @@ export type AssignWalletGroupAction = BaseAction & {
 
 export type AssignWalletGroupRequest = BaseAdminRequest & {
   request: AssignWalletGroupAction
+}
+
+export type AssignUserWalletAction = BaseAction & {
+  action: typeof Action.ASSIGN_USER_WALLET
+  data: UserWallet
+}
+
+export type AssignUserWalletRequest = BaseAdminRequest & {
+  request: AssignUserWalletAction
 }
