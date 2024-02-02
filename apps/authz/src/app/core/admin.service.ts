@@ -1,12 +1,14 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
 import {
+  AssignUserGroupRequest,
   AuthCredential,
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
   RegisterWalletRequest,
-  UpdateUserRequest
+  UpdateUserRequest,
+  UserGroupMembership
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 
@@ -52,6 +54,12 @@ export class AdminService {
     await this.adminRepository.createAuthCredential(payload.request.credential)
 
     return payload.request.credential
+  }
+
+  async assignUserGroup(payload: AssignUserGroupRequest): Promise<UserGroupMembership> {
+    await this.adminRepository.assignUserGroup(payload.request.data.userId, payload.request.data.groupId)
+
+    return payload.request.data
   }
 
   async registerWallet(payload: RegisterWalletRequest): Promise<Wallet> {
