@@ -3,7 +3,7 @@ import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
 import { BaseAdminRequestPayloadDto } from '@app/authz/app/http/rest/dto/base-admin-request-payload.dto'
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
 
 class CreateOrganizationDataDto {
   @IsString()
@@ -19,13 +19,13 @@ class CreateOrganizationDataDto {
 }
 
 class CreateOrganizationActionDto extends BaseActionDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action,
+    enum: Object.values(Action),
     default: Action.CREATE_ORGANIZATION
   })
-  action: Action.CREATE_ORGANIZATION
+  action: typeof Action.CREATE_ORGANIZATION
 
   @IsDefined()
   @ValidateNested()

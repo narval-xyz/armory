@@ -1,2 +1,6 @@
 .prettierignore
 .docusaurus/
+dist/
+node_modules/*
+dist/*
+.nx/cache/*

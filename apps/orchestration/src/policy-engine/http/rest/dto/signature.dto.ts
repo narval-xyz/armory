@@ -1,6 +1,6 @@
 import { Alg } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsOptional, IsString } from 'class-validator'
+import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator'
 
 export class SignatureDto {
   @IsString()
@@ -27,11 +27,11 @@ export class SignatureDto {
   })
   pubKey: string
 
-  @IsEnum(Alg)
+  @IsIn(Object.values(Alg))
   @IsOptional()
   @ApiProperty({
     default: Alg.ES256K,
-    enum: Alg,
+    enum: Object.values(Alg),
     required: false
   })
   alg: Alg = Alg.ES256K

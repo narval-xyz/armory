@@ -1,7 +1,7 @@
 import { User } from '@app/authz/shared/types/entities.types'
 import { UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsString } from 'class-validator'
+import { IsDefined, IsIn, IsString } from 'class-validator'
 
 export class UserDto {
   constructor(user: User) {
@@ -14,10 +14,10 @@ export class UserDto {
   @ApiProperty()
   uid: string
 
-  @IsEnum(UserRole)
+  @IsIn(Object.values(UserRole))
   @IsDefined()
   @ApiProperty({
-    enum: UserRole
+    enum: Object.values(UserRole)
   })
   role: UserRole
 }

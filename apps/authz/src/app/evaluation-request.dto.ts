@@ -3,7 +3,7 @@ import { RequestSignatureDto } from '@app/authz/app/http/rest/dto/request-signat
 import { AccessList, AccountId, Action, Address, FiatCurrency, Hex } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsEthereumAddress, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsEthereumAddress, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
 
 export class TransactionRequestDto {
   @IsString()
@@ -69,13 +69,13 @@ export class TransactionRequestDto {
 }
 
 export class SignTransactionRequestDataDto extends BaseActionDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action,
+    enum: Object.values(Action),
     default: Action.SIGN_TRANSACTION
   })
-  action: Action.SIGN_TRANSACTION
+  action: typeof Action.SIGN_TRANSACTION
 
   @IsString()
   @IsDefined()
@@ -91,13 +91,13 @@ export class SignTransactionRequestDataDto extends BaseActionDto {
 }
 
 export class SignMessageRequestDataDto extends BaseActionDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action,
+    enum: Object.values(Action),
     default: Action.SIGN_MESSAGE
   })
-  action: Action.SIGN_MESSAGE
+  action: typeof Action.SIGN_MESSAGE
 
   @IsString()
   @IsDefined()

@@ -1,12 +1,12 @@
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsString } from 'class-validator'
+import { IsDefined, IsIn, IsString } from 'class-validator'
 
 export class BaseActionDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action
+    enum: Object.values(Action)
   })
   action: Action
 

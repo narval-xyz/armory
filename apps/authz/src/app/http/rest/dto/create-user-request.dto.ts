@@ -3,7 +3,7 @@ import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
 import { BaseAdminRequestPayloadDto } from '@app/authz/app/http/rest/dto/base-admin-request-payload.dto'
 import { Action, UserRole } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
 
 class CreateUserDataDto {
   @IsString()
@@ -11,10 +11,10 @@ class CreateUserDataDto {
   @ApiProperty()
   uid: string
 
-  @IsEnum(UserRole)
+  @IsIn(Object.values(UserRole))
   @IsDefined()
   @ApiProperty({
-    enum: UserRole
+    enum: Object.values(UserRole)
   })
   role: UserRole
 
@@ -26,13 +26,13 @@ class CreateUserDataDto {
 }
 
 class CreateUserActionDto extends BaseActionDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action,
+    enum: Object.values(Action),
     default: Action.CREATE_USER
   })
-  action: Action.CREATE_USER
+  action: typeof Action.CREATE_USER
 
   @IsDefined()
   @ValidateNested()
