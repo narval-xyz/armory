@@ -1,4 +1,6 @@
 import { AdminService } from '@app/authz/app/core/admin.service'
+import { AssignUserGroupRequestDto } from '@app/authz/app/http/rest/dto/assign-user-group-request.dto'
+import { AssignUserGroupResponseDto } from '@app/authz/app/http/rest/dto/assign-user-group-response.dto'
 import { CreateCredentialRequestDto } from '@app/authz/app/http/rest/dto/create-credential-request.dto'
 import { CreateCredentialResponseDto } from '@app/authz/app/http/rest/dto/create-credential-response.dto'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
@@ -10,6 +12,7 @@ import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register
 import { UpdateUserRequestDto } from '@app/authz/app/http/rest/dto/update-user-request.dto'
 import { UpdateUserResponseDto } from '@app/authz/app/http/rest/dto/update-user-response.dto'
 import {
+  AssignUserGroupRequest,
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
@@ -61,6 +64,16 @@ export class AdminController {
     const authCredential = await this.adminService.createCredential(payload)
 
     const response = new CreateCredentialResponseDto(authCredential)
+    return response
+  }
+
+  @Post('/user-groups')
+  async assignUserGroup(@Body() body: AssignUserGroupRequestDto) {
+    const payload: AssignUserGroupRequest = body
+
+    const userGroup = await this.adminService.assignUserGroup(payload)
+
+    const response = new AssignUserGroupResponseDto(userGroup)
     return response
   }
 

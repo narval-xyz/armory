@@ -2,17 +2,17 @@ export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
   CREATE_USER: 'CREATE_USER',
-  UPDATE_USER: 'user:edit',
-  DELETE_USER: 'user:delete',
+  UPDATE_USER: 'UPDATE_USER',
   CREATE_CREDENTIAL: 'CREATE_CREDENTIAL',
-  CHANGE_USER_ROLE: 'user:change-role',
+  ASSIGN_USER_GROUP: 'ASSIGN_USER_GROUP',
+
+  DELETE_USER: 'user:delete',
 
   REGISTER_WALLET: 'REGISTER_WALLET',
   EDIT_WALLET: 'wallet:edit',
   ASSIGN_WALLET: 'wallet:assign',
   UNASSIGN_WALLET: 'wallet:unassign',
 
-  CREATE_USER_GROUP: 'user-group:create',
   EDIT_USER_GROUP: 'user-group:edit',
   DELETE_USER_GROUP: 'user-group:delete',
 
@@ -49,6 +49,11 @@ export const AccountType = {
   AA: '4337'
 } as const
 export type AccountType = (typeof AccountType)[keyof typeof AccountType]
+
+export type UserGroupMembership = {
+  userId: string
+  groupId: string
+}
 
 export type Signature = {
   sig: string
@@ -168,6 +173,15 @@ export type CreateCredentialAction = BaseAction & {
 
 export type CreateCredentialRequest = BaseAdminRequest & {
   request: CreateCredentialAction
+}
+
+export type AssignUserGroupAction = BaseAction & {
+  action: typeof Action.ASSIGN_USER_GROUP
+  data: UserGroupMembership
+}
+
+export type AssignUserGroupRequest = BaseAdminRequest & {
+  request: AssignUserGroupAction
 }
 
 export type RegisterWalletAction = BaseAction & {
