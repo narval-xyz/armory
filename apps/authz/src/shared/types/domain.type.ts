@@ -7,11 +7,6 @@ import {
 } from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
 
-export enum AccountType {
-  EOA = 'eoa',
-  AA = '4337'
-}
-
 export enum UserRoles {
   ROOT = 'root',
   ADMIN = 'admin',

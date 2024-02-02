@@ -1,8 +1,7 @@
-import { AccountType } from '@app/authz/shared/types/domain.type'
 import { Wallet } from '@app/authz/shared/types/entities.types'
-import { Address } from '@narval/authz-shared'
+import { AccountType, Address } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class WalletDataDto {
   constructor(wallet: Wallet) {
@@ -17,10 +16,10 @@ export class WalletDataDto {
   @ApiProperty()
   uid: string
 
-  @IsEnum(AccountType)
+  @IsIn(Object.values(AccountType))
   @IsDefined()
   @ApiProperty({
-    enum: AccountType
+    enum: Object.values(AccountType)
   })
   accountType: AccountType
 

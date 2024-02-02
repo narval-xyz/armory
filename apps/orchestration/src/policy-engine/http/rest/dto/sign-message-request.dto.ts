@@ -1,15 +1,15 @@
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsString } from 'class-validator'
+import { IsDefined, IsIn, IsString } from 'class-validator'
 
 export class SignMessageRequestDto {
-  @IsEnum(Action)
+  @IsIn(Object.values(Action))
   @IsDefined()
   @ApiProperty({
-    enum: Action,
+    enum: Object.values(Action),
     default: Action.SIGN_MESSAGE
   })
-  action: Action.SIGN_MESSAGE
+  action: typeof Action.SIGN_MESSAGE
 
   @IsString()
   @IsDefined()
