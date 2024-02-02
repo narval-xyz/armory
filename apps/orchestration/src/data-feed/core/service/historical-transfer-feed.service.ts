@@ -1,31 +1,33 @@
 import { DataFeed } from '@app/orchestration/data-feed/core/type/data-feed.type'
+import { Config } from '@app/orchestration/orchestration.config'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg, Feed, HistoricalTransfer, Signature, hashRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
-
-// IMPORTANT: Move to an encrypted data store.
-const UNSAFE_FEED_PRIVATE_KEY = '0xf5c8f17cc09215c5038f6b8d5e557c0d98d341236307fe831efdcdd7faeef134'
 
 @Injectable()
 export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfer[]> {
   static SOURCE_ID = 'armory/historical-transfer-feed'
 
-  constructor(private transferTrackingService: TransferTrackingService) {}
+  constructor(
+    private transferTrackingService: TransferTrackingService,
+    private configService: ConfigService<Config, true>
+  ) {}
 
   getId(): string {
     return HistoricalTransferFeedService.SOURCE_ID
   }
 
   getPubKey(): string {
-    return privateKeyToAccount(UNSAFE_FEED_PRIVATE_KEY).publicKey
+    return privateKeyToAccount(this.getPrivateKey()).publicKey
   }
 
   async sign(data: HistoricalTransfer[]): Promise<Signature> {
-    const account = privateKeyToAccount(UNSAFE_FEED_PRIVATE_KEY)
+    const account = privateKeyToAccount(this.getPrivateKey())
     const sig = await account.signMessage({
       message: hashRequest(data)
     })
@@ -35,6 +37,13 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
       pubKey: account.publicKey,
       sig
     }
+  }
+
+  private getPrivateKey(): `0x${string}` {
+    // TODO (@wcalderipe, 02/02/24): Storing the private key in environment
+    // variables is a suitable approach for initial project setup. However, for
+    // production environments, it's crucial to secure them in a vault.
+    return this.configService.get('dataFeed.historicalTransferFeedPrivateKey', { infer: true })
   }
 
   async getFeed(input: AuthorizationRequest): Promise<Feed<HistoricalTransfer[]>> {

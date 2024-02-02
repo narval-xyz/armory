@@ -5,11 +5,13 @@ import {
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
 import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
+import { load } from '@app/orchestration/orchestration.config'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg } from '@narval/authz-shared'
+import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
@@ -34,6 +36,7 @@ describe(HistoricalTransferFeedService.name, () => {
     transferTrackingServiceMock.findByOrgId.mockResolvedValue(transfers)
 
     module = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ load: [load] })],
       providers: [
         HistoricalTransferFeedService,
         {

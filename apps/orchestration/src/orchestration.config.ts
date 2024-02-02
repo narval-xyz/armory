@@ -15,6 +15,10 @@ const configSchema = z.object({
   redis: z.object({
     host: z.string().min(0),
     port: z.coerce.number()
+  }),
+  dataFeed: z.object({
+    priceFeedPrivateKey: z.string().startsWith('0x'),
+    historicalTransferFeedPrivateKey: z.string().startsWith('0x')
   })
 })
 
@@ -30,6 +34,10 @@ export const load = (): Config => {
     redis: {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT
+    },
+    dataFeed: {
+      priceFeedPrivateKey: process.env.PRICE_FEED_PRIVATE_KEY,
+      historicalTransferFeedPrivateKey: process.env.HISTORICAL_TRANSFER_FEED_PRIVATE_KEY
     }
   })
 

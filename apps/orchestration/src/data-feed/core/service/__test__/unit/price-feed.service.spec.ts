@@ -4,11 +4,13 @@ import {
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
 import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
+import { load } from '@app/orchestration/orchestration.config'
 import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Alg, Prices } from '@narval/authz-shared'
+import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 
@@ -28,6 +30,7 @@ describe(PriceFeedService.name, () => {
     priceServiceMock.getPrices.mockResolvedValue(prices)
 
     module = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ load: [load] })],
       providers: [
         PriceFeedService,
         {
