@@ -1,6 +1,9 @@
 import { AssetId } from '@narval/authz-shared'
 import { Intent } from '@narval/transaction-request-intent'
 
+/**
+ * An action supported on the policy engine.
+ */
 export enum Action {
   CREATE_USER = 'user:create',
   EDIT_USER = 'user:edit',
@@ -28,12 +31,18 @@ export enum Action {
   SIGN_TYPED_DATA = 'signTypedData'
 }
 
+/**
+ * The decision of an evaluation request.
+ */
 export enum Decision {
   PERMIT = 'Permit',
   FORBID = 'Forbid',
   CONFIRM = 'Confirm'
 }
 
+/**
+ * Supported signature algorithms.
+ */
 export enum Alg {
   ES256K = 'ES256K', // secp256k1, an Ethereum EOA
   ES256 = 'ES256', // secp256r1, ecdsa but not ethereum
@@ -142,6 +151,25 @@ export type Request = SignTransaction | SignMessage
 export type Prices = Record<AssetId, Record<string, number>>
 
 /**
+ * The feeds represent arbitrary data collected by the Orchestration and
+ * supplied to the Policy Engine for each evaluation request.
+ */
+export type Feed<Data> = {
+  /**
+   * The unique feed identifier.
+   */
+  source: string
+  /**
+   * The signature of the data acts as an attestation and prevents tampering.
+   *
+   * Null values are allowed because organizations have the option to not use
+   * any trusted data sources if they prefer.
+   */
+  sig: Signature | null
+  data: Data
+}
+
+/**
  * The action being authorized.
  *
  * This must include all the data being authorized, and nothing except the data
@@ -161,15 +189,13 @@ export type EvaluationRequest = {
    * List of approvals required by the policy.
    */
   approvals?: Signature[]
-  /**
-   * List of known approved transfers (not mined). These are used by policies on
-   * the history like spending limits.
-   */
   transfers?: HistoricalTransfer[]
-  /**
-   * The prices of different assets present in the request.
-   */
   prices?: Prices
+  /**
+   * Arbitrary data feeds that are necessary for some policies. These may
+   * include, for instance, prices and approved transfers.
+   */
+  feeds?: Feed<unknown>[]
 }
 
 export type ApprovalRequirement = {

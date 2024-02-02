@@ -83,12 +83,13 @@ model EvaluationLog {
 }
 
 //
-// Transfer Feed Module
+// Transfer Tracking Module
 //
 
-model TransferFeed {
+model ApprovedTransfer {
   id          String   @id @default(uuid()) @db.VarChar(255)
   orgId       String   @map("org_id")
+  requestId   String   @map("request_id")
   chainId     Int      @map("chain_id")
   from        String
   to          String
@@ -98,5 +99,23 @@ model TransferFeed {
   initiatedBy String   @map("initiated_by")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  @@map("transfer_feed")
+  @@map("approved_transfer")
+}
+
+//
+//  Data Feed Module
+//
+
+model Feed {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  requestId String   @map("request_id")
+  source    String
+  sig       String?
+  alg       String?
+  pubKey    String?
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("feed")
 }
