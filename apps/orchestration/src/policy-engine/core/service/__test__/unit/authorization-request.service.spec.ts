@@ -5,8 +5,9 @@ import {
   generateSignature,
   generateTransactionRequest
 } from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransferFeed } from '@app/orchestration/__test__/fixture/transfer-feed.fixture'
-import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
+import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
+import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
+import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
   Approval,
@@ -19,9 +20,9 @@ import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-feed.type'
-import { TransferFeedService } from '@app/orchestration/transfer-feed/core/service/transfer-feed.service'
-import { Action, Decision, EvaluationResponse, getAccountId, getAssetId } from '@narval/authz-shared'
+import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
+import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
+import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -31,9 +32,10 @@ describe(AuthorizationRequestService.name, () => {
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
-  let transferFeedServiceMock: MockProxy<TransferFeedService>
+  let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
   let priceServiceMock: MockProxy<PriceService>
+  let feedServiceMock: MockProxy<FeedService>
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
@@ -47,9 +49,10 @@ describe(AuthorizationRequestService.name, () => {
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
-    transferFeedServiceMock = mock<TransferFeedService>()
+    transferFeedServiceMock = mock<TransferTrackingService>()
     authzApplicationClientMock = mock<AuthzApplicationClient>()
     priceServiceMock = mock<PriceService>()
+    feedServiceMock = mock<FeedService>()
 
     module = await Test.createTestingModule({
       providers: [
@@ -63,7 +66,7 @@ describe(AuthorizationRequestService.name, () => {
           useValue: authzRequestProcessingProducerMock
         },
         {
-          provide: TransferFeedService,
+          provide: TransferTrackingService,
           useValue: transferFeedServiceMock
         },
         {
@@ -73,6 +76,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: PriceService,
           useValue: priceServiceMock
+        },
+        {
+          provide: FeedService,
+          useValue: feedServiceMock
         }
       ]
     }).compile()
@@ -108,8 +115,6 @@ describe(AuthorizationRequestService.name, () => {
   })
 
   describe('evaluate', () => {
-    const matic = getAssetId('eip155:137/slip44:966')
-
     const evaluationResponse: EvaluationResponse = {
       decision: Decision.PERMIT,
       request: authzRequest.request,
@@ -119,18 +124,18 @@ describe(AuthorizationRequestService.name, () => {
         amount: '1000000000000000000',
         to: getAccountId('eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
         from: getAccountId('eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'),
-        token: matic
+        token: POLYGON.coin.id
       }
     }
 
-    const transfers: Transfer[] = times(() => generateTransferFeed({ orgId: authzRequest.orgId }), 2)
+    const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
 
     beforeEach(() => {
       authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
       transferFeedServiceMock.findByOrgId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
-        [matic]: {
+        [POLYGON.coin.id]: {
           [FIAT_ID_USD]: 0.99
         }
       })
@@ -140,7 +145,7 @@ describe(AuthorizationRequestService.name, () => {
       await service.evaluate(authzRequest)
 
       expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(1, {
-        from: [matic],
+        from: [POLYGON.coin.id],
         to: [FIAT_ID_USD]
       })
     })
@@ -176,13 +181,10 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    it('gets transfer asset prices', async () => {
+    it('gathers data feed', async () => {
       await service.evaluate(authzRequest)
 
-      expect(priceServiceMock.getPrices).toHaveBeenNthCalledWith(2, {
-        from: [matic],
-        to: [FIAT_ID_USD]
-      })
+      expect(feedServiceMock.gather).toHaveBeenCalledWith(authzRequest)
     })
 
     it('tracks approved transfer when signing a transaction', async () => {
@@ -202,6 +204,7 @@ describe(AuthorizationRequestService.name, () => {
         token: intent.token,
         chainId: request.transactionRequest.chainId,
         orgId: authzRequest.orgId,
+        requestId: authzRequest.id,
         initiatedBy: authzRequest.authentication.pubKey,
         rates: {
           'fiat:usd': 0.99

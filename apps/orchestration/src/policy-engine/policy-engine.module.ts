@@ -1,3 +1,4 @@
+import { DataFeedModule } from '@app/orchestration/data-feed/data-feed.module'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestController } from '@app/orchestration/policy-engine/http/rest/controller/authorization-request.controller'
@@ -5,7 +6,7 @@ import { PriceModule } from '@app/orchestration/price/price.module'
 import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
 import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TransferFeedModule } from '@app/orchestration/transfer-feed/transfer-feed.module'
+import { TransferTrackingModule } from '@app/orchestration/transfer-tracking/transfer-tracking.module'
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
 import { HttpModule } from '@nestjs/axios'
@@ -23,8 +24,9 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     ConfigModule.forRoot(),
     HttpModule,
     PersistenceModule,
-    TransferFeedModule,
+    TransferTrackingModule,
     PriceModule,
+    DataFeedModule,
     // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to
     // register both queue and board at the same time.
     //

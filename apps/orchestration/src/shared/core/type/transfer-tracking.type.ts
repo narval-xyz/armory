@@ -1,16 +1,16 @@
+import { Price } from '@app/orchestration/shared/core/type/price.type'
 import { SetOptional } from 'type-fest'
-
-export type Rates = Record<string, number>
 
 export type Transfer = {
   id: string
   orgId: string
+  requestId: string
   amount: bigint
   from: string
   to: string
   chainId: number
   token: string
-  rates: Rates
+  rates: Price
   initiatedBy: string
   createdAt: Date
 }
