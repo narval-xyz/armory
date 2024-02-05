@@ -274,13 +274,13 @@ describe('decode', () => {
       const prefixedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`
       const input: MessageInput = {
         type: InputType.MESSAGE,
-        payload: prefixedMessage,
+        payload: prefixedMessage
       }
 
       const decoded = decode({ input })
       expect(decoded).toEqual({
         type: Intents.SIGN_MESSAGE,
-        message,
+        message
       })
     })
     it('decodes typed data', () => {
@@ -307,7 +307,7 @@ describe('decode', () => {
               chainId: 137,
               verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
             },
-            message:{
+            message: {
               do: 'doingStuff(address stuff)',
               stuff: '0x1234567890123456789012345678901234567890'
             }
@@ -337,7 +337,7 @@ describe('decode', () => {
       expect(decoded).toEqual({
         type: Intents.SIGN_RAW_PAYLOAD,
         algorithm: Alg.ES256K,
-        payload:'0xdeadbeef'
+        payload: '0xdeadbeef'
       })
     })
     it('decodes permit', () => {
@@ -364,7 +364,7 @@ describe('decode', () => {
           verifyingContract: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as Hex
         },
         primaryType: 'Permit',
-        message:{
+        message: {
           owner: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1',
           spender: '0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0',
           value: '1000000000000000000',
@@ -410,7 +410,7 @@ describe('decode', () => {
           chainId: 137,
           verifyingContract: PERMIT2_ADDRESS as Hex
         },
-        message:{
+        message: {
           details: {
             token: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691',
             amount: '0xffffffffffffffffffffffffffffffffffffffff',

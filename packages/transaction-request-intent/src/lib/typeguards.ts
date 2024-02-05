@@ -117,12 +117,13 @@ export const assertArray = <T>(value: unknown, type: AssertType): T[] => {
 }
 
 export const isPermit = (message: Record<string, unknown>): message is PermitMessage => {
-  if (typeof message === 'object' &&
-  'owner' in message &&
-  'value' in message &&
-  'nonce' in message &&
-  'deadline' in message &&
-  'spender' in message
+  if (
+    typeof message === 'object' &&
+    'owner' in message &&
+    'value' in message &&
+    'nonce' in message &&
+    'deadline' in message &&
+    'spender' in message
   ) {
     return true
   }
@@ -130,31 +131,36 @@ export const isPermit = (message: Record<string, unknown>): message is PermitMes
 }
 
 export const isPermit2 = (message: Record<string, unknown>): message is Permit2Message => {
-    if (typeof message !== 'object' || message === null || !('spender' in message) || !('details' in message)) {
-        return false;
+  if (typeof message !== 'object' || message === null || !('spender' in message) || !('details' in message)) {
+    return false
+  }
+  const { spender, details } = message as { spender: unknown; details: unknown }
+  if (
+    typeof details === 'object' &&
+    details !== null &&
+    'amount' in details &&
+    'nonce' in details &&
+    'expiration' in details &&
+    'token' in details
+  ) {
+    const { amount, nonce, expiration, token } = details as {
+      amount: unknown
+      nonce: unknown
+      expiration: unknown
+      token: unknown
     }
-    const { spender, details } = message as { spender: unknown, details: unknown };
     if (
-        typeof details === 'object' && 
-        details !== null &&
-        'amount' in details && 
-        'nonce' in details && 
-        'expiration' in details &&
-        'token' in details
+      typeof amount === 'string' &&
+      amount.startsWith('0x') &&
+      typeof nonce === 'number' &&
+      typeof expiration === 'number' &&
+      typeof spender === 'string' &&
+      typeof token === 'string' &&
+      isAddress(token) &&
+      isAddress(spender)
     ) {
-        const { amount, nonce, expiration, token } = details as { amount: unknown, nonce: unknown, expiration: unknown, token: unknown };
-        if (
-            typeof amount === 'string' &&
-            amount.startsWith('0x') &&
-            typeof nonce === 'number' &&
-            typeof expiration === 'number' &&
-            typeof spender === 'string' &&
-            typeof token === 'string' &&
-            isAddress(token) &&
-            isAddress(spender)
-        ) {
-            return true;
-        }
+      return true
     }
-  return false;
-};
+  }
+  return false
+}

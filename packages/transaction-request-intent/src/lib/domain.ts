@@ -175,7 +175,7 @@ export const NULL_METHOD_ID = '0x00000000'
 export const PERMIT2_DOMAIN = {
   name: 'Permit2',
   chainId: 137,
-  verifyingContract: PERMIT2_ADDRESS,
+  verifyingContract: PERMIT2_ADDRESS
 }
 
 type Permit2Details = {

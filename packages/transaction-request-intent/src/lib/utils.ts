@@ -8,11 +8,12 @@ import {
   Namespace,
   TransactionRequest,
   isAccountId,
+  isAddress,
   toAccountId,
   toAssetId
 } from '@narval/authz-shared'
 import { SetOptional } from 'type-fest'
-import { Address, fromHex, isAddress, presignMessagePrefix } from 'viem'
+import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
   AssetTypeAndUnknown,
   ContractCallInput,
@@ -64,7 +65,7 @@ export const buildContractRegistryEntry = ({
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new Error('Invalid contract registry entry')
   }
-  const key = buildContractKey(chainId, contractAddress)
+  const key = buildContractKey(chainId, contractAddress as Address)
   registry[key] = assetType
   return registry
 }
@@ -146,7 +147,7 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
 
 export const decodeTypedData = (typedData: TypedData): SignTypedData => ({
   type: Intents.SIGN_TYPED_DATA,
-  domain: typedData.domain,
+  domain: typedData.domain
 })
 
 export const decodeMessage = (message: MessageInput): SignMessage => {
@@ -160,7 +161,7 @@ export const decodeMessage = (message: MessageInput): SignMessage => {
 }
 
 export const decodePermit = (typedData: TypedData): Permit | null => {
-  const { version, chainId, name, verifyingContract } = typedData.domain
+  const { chainId, verifyingContract } = typedData.domain
   if (!isPermit(typedData.message)) {
     return null
   }
@@ -170,13 +171,13 @@ export const decodePermit = (typedData: TypedData): Permit | null => {
     amount: fromHex(value, 'bigint').toString(),
     spender: toAccountIdLowerCase({
       chainId,
-      address: spender,
+      address: spender
     }),
     token: toAccountIdLowerCase({
       chainId,
       address: verifyingContract
     }),
-    deadline: deadline,
+    deadline: deadline
   }
 }
 
@@ -192,14 +193,14 @@ export const decodePermit2 = (typedData: TypedData): Permit2 | null => {
     type: Intents.PERMIT2,
     spender: toAccountIdLowerCase({
       chainId: domain.chainId,
-      address: message.spender,
+      address: message.spender
     }),
     token: toAccountIdLowerCase({
       chainId: domain.chainId,
       address: message.details.token
     }),
     amount: fromHex(message.details.amount, 'bigint').toString(),
-    deadline: message.details.expiration,
+    deadline: message.details.expiration
   }
 }
 
@@ -226,24 +227,17 @@ export const getTransactionIntentType = ({
   const { to, from, chainId } = txRequest
   const toType = contractTypeLookup(chainId, to, contractRegistry)
   const fromType = contractTypeLookup(chainId, from, contractRegistry)
-  // !! ORDER MATTERS !!
-  // Here we are checking for specific intents first.
-  // Then we check for intents tight to specific methods
-  // If nothing matches, we return the default Call Contract intent
   const conditions = [
-    // Transfer From condition
     {
       condition: () =>
         methodId === SupportedMethodId.TRANSFER_FROM &&
         ((toType && toType.assetType === AssetType.ERC20) || (toType && toType.assetType === AssetType.ERC721)),
       intent: toType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
     },
-    // Cancel condition
     {
       condition: () => methodId === SupportedMethodId.NULL_METHOD_ID && to === from,
       intent: Intents.CANCEL_TRANSACTION
     },
-    // Contract deployment conditions for specific transactions
     {
       condition: () => {
         return methodId === SupportedMethodId.CREATE_ACCOUNT && fromType && fromType.factoryType !== WalletType.UNKNOWN
@@ -253,7 +247,6 @@ export const getTransactionIntentType = ({
           ? Intents.DEPLOY_ERC_4337_WALLET
           : Intents.DEPLOY_SAFE_WALLET
     },
-    // Supported methods conditions
     {
       condition: () => true,
       intent: isSupportedMethodId(methodId) && SUPPORTED_METHODS[methodId].intent

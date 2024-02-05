@@ -17,10 +17,10 @@ import { Intent, TypedDataIntent } from '../intent.types'
 import { MethodsMapping, SUPPORTED_METHODS } from '../supported-methods'
 import { isSupportedMethodId } from '../typeguards'
 import {
+  decodeMessage,
   decodePermit,
   decodePermit2,
   decodeTypedData,
-  decodeMessage,
   getCategory,
   getMethodId,
   getTransactionIntentType,
