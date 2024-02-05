@@ -3,7 +3,7 @@ import { PriceException } from '@app/orchestration/price/core/exception/price.ex
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
 import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
 import { CoinGeckoAssetRepository } from '@app/orchestration/price/persistence/repository/coin-gecko-asset.repository'
-import { getAssetId } from '@narval/authz-shared'
+import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/authz-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
 
@@ -85,6 +85,33 @@ describe(PriceService.name, () => {
           to: [FIAT_ID_USD]
         })
       ).rejects.toThrow(PriceException)
+    })
+
+    describe('when requesting for prices of the same address on differet chains', () => {
+      const xDao = getAddress('0x71eeba415a523f5c952cc2f06361d5443545ad28')
+      const xDaoMainnet = toAssetId({ chainId: 1, address: xDao, assetType: AssetType.ERC20 })
+      const xDaoPolygon = toAssetId({ chainId: 137, address: xDao, assetType: AssetType.ERC20 })
+      const xDaoDollarPrice = 0.6069648381377055
+
+      it('responds with prices for both asset ids', async () => {
+        jest.spyOn(coinGeckoClientMock, 'getSimplePrice').mockResolvedValue({
+          xdao: { usd: xDaoDollarPrice }
+        })
+
+        const prices = await service.getPrices({
+          from: [xDaoMainnet, xDaoPolygon],
+          to: [FIAT_ID_USD]
+        })
+
+        expect(prices).toEqual({
+          [xDaoMainnet]: {
+            [FIAT_ID_USD]: xDaoDollarPrice
+          },
+          [xDaoPolygon]: {
+            [FIAT_ID_USD]: xDaoDollarPrice
+          }
+        })
+      })
     })
   })
 })
