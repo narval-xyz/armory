@@ -104,7 +104,8 @@ export class OpaService implements OnApplicationBootstrap {
     const opaEngine = await loadPolicy(policyWasm, undefined, {
       'time.now_ns': () => new Date().getTime() * 1000000
     })
-    await this.reloadEntityData()
+    const mockData = await this.adminRepository.getEntityData()
+    opaEngine.setData(mockData)
     return opaEngine
   }
 }
