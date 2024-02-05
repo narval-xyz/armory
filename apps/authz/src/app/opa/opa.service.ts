@@ -5,7 +5,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
-import R from 'remeda'
+import * as R from 'remeda'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
@@ -21,7 +21,13 @@ export class OpaService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
-    this.opaEngine = await this.getOpaEngine()
+    const policyWasmPath = OPA_WASM_PATH
+    const policyWasm = readFileSync(policyWasmPath)
+    const opaEngine = await loadPolicy(policyWasm, undefined, {
+      'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
+    })
+    this.opaEngine = opaEngine
+    await this.reloadEntityData()
   }
 
   async evaluate(input: RegoInput): Promise<OpaResult[]> {
@@ -36,9 +42,14 @@ export class OpaService implements OnApplicationBootstrap {
     const walletGroups = await this.adminRepository.getAllWalletGroups()
     const userWallets = await this.adminRepository.getAllUserWallets()
     const userGroups = await this.adminRepository.getAllUserGroups()
+    const addressBook = await this.adminRepository.getAllAddressBook()
+    const tokens = await this.adminRepository.getAllTokens()
 
     const regoUsers: Record<string, User> = R.indexBy(users, (u) => u.uid)
     const regoWallets = R.indexBy(wallets, (w) => w.uid)
+    const regoAddressBook = R.indexBy(addressBook, (a) => a.uid)
+    const regoTokens = R.indexBy(tokens, (t) => t.uid)
+
     // Add the assignees into the regoWallets
     userWallets.forEach((uw) => {
       if (regoWallets[uw.walletId]) {
@@ -81,9 +92,8 @@ export class OpaService implements OnApplicationBootstrap {
         wallets: regoWallets,
         userGroups: regoUserGroups,
         walletGroups: regoWalletGroups,
-        // TODO: remove mocks here
-        addressBook: mockData.entities.addressBook,
-        tokens: {}
+        addressBook: regoAddressBook,
+        tokens: regoTokens
       }
     }
     this.logger.log('Fetched OPA Engine data', regoData)
@@ -99,13 +109,9 @@ export class OpaService implements OnApplicationBootstrap {
   }
 
   private async getOpaEngine(): Promise<OpaEngine> {
-    const policyWasmPath = OPA_WASM_PATH
-    const policyWasm = readFileSync(policyWasmPath)
-    const opaEngine = await loadPolicy(policyWasm, undefined, {
-      'time.now_ns': () => new Date().getTime() * 1000000
-    })
-    const mockData = await this.adminRepository.getEntityData()
-    opaEngine.setData(mockData)
-    return opaEngine
+    // Attempt to initialize it if it for some reason isn't.
+    if (!this.opaEngine) await this.onApplicationBootstrap()
+    if (!this.opaEngine) throw new Error('OPA Engine not initialized')
+    return this.opaEngine
   }
 }

@@ -1,6 +1,6 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
 import { AddressBookAccount, Organization, RegoData, Token, User, Wallet } from '@app/authz/shared/types/entities.types'
-import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
+import { AccountClassification, AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { castArray } from 'lodash/fp'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
@@ -80,6 +80,25 @@ export class AdminRepository implements OnModuleInit {
   async getAllWalletGroups(): Promise<{ walletId: string; walletGroupId: string }[]> {
     const walletGroups = await this.prismaService.walletGroupMembership.findMany()
     return walletGroups
+  }
+
+  async getAllAddressBook(): Promise<AddressBookAccount[]> {
+    const addressBook = await this.prismaService.addressBookAccount.findMany()
+    return addressBook.map((d) => ({
+      ...convertResponse(d, 'classification', Object.values(AccountClassification)),
+      address: d.address as Address
+    }))
+  }
+
+  async getAllTokens(): Promise<Token[]> {
+    const tokens = await this.prismaService.token.findMany()
+    return tokens.map((d) => ({
+      uid: d.uid,
+      address: d.address as Address,
+      symbol: d.symbol,
+      chainId: d.chainId,
+      decimals: d.decimals
+    }))
   }
 
   async createOrganization(
