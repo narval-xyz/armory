@@ -1,7 +1,7 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { RegoData, User, UserGroup, WalletGroup } from '@app/authz/shared/types/entities.types'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
@@ -13,7 +13,7 @@ type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
 const OPA_WASM_PATH = path.join(process.cwd(), './rego-build/policy.wasm')
 
 @Injectable()
-export class OpaService {
+export class OpaService implements OnApplicationBootstrap {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
