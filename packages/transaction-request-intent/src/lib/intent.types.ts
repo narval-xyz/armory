@@ -49,26 +49,22 @@ export type CallContract = {
 
 export type SignMessage = {
   type: Intents.SIGN_MESSAGE
-  from: AccountId
   message: string
 }
 
 export type SignRawMessage = {
   type: Intents.SIGN_RAW_MESSAGE
   from: AccountId
-  message: string
 }
 
 export type SignRawPayload = {
   type: Intents.SIGN_RAW_PAYLOAD
-  from: AccountId
   algorithm: Alg
   payload: string
 }
 
 export type SignTypedData = {
   type: Intents.SIGN_TYPED_DATA
-  from: AccountId
   domain: Eip712Domain
 }
 
@@ -109,18 +105,18 @@ export type ApproveTokenAllowance = {
 
 export type Permit = {
   type: Intents.PERMIT
-  from: AccountId
   spender: AccountId
   amount: string
-  deadline: string
+  token: AccountId
+  deadline: number
 }
 
 export type Permit2 = {
   type: Intents.PERMIT2
-  from: AccountId
   spender: AccountId
   amount: string
-  deadline: string
+  token: AccountId
+  deadline: number
 }
 
 export type UserOperation = {

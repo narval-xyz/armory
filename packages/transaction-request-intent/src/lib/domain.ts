@@ -1,12 +1,7 @@
 import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/authz-shared'
 import { TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
-
-export type Message = {
-  message: string
-  chainId: number
-  from: Address
-}
+import { MethodsMapping } from './supported-methods'
 
 export type Eip712Domain = {
   version: string
@@ -21,8 +16,6 @@ export type Raw = {
 }
 
 export type TypedData = {
-  from: Address
-  chainId: number
   types: TypedDataParams
   primaryType: string
   domain: Eip712Domain
@@ -31,7 +24,7 @@ export type TypedData = {
 
 export type MessageInput = {
   type: InputType.MESSAGE
-  message: Message
+  payload: string
 }
 
 export type RawInput = {
@@ -61,8 +54,6 @@ export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 export type TransactionInput = {
   type: InputType.TRANSACTION_REQUEST
   txRequest: TransactionRequest
-  contractRegistry?: ContractRegistry
-  transactionRegistry?: TransactionRegistry
 }
 
 export type ContractCallInput = {
@@ -94,6 +85,11 @@ export type ValidatedInput = ContractCallInput | NativeTransferInput | ContractD
 export type ContractInteractionDecoder = (input: ContractCallInput) => Intent
 export type NativeTransferDecoder = (input: NativeTransferInput) => Intent
 
+export type Config = {
+  contractRegistry?: ContractRegistry
+  transactionRegistry?: TransactionRegistry
+  supportedMethods?: MethodsMapping
+}
 export type DecodeInput = TransactionInput | MessageInput | RawInput | TypedDataInput
 
 type DecodeSuccess = {
@@ -176,3 +172,28 @@ export enum Slip44SupportedAddresses {
 }
 export const PERMIT2_ADDRESS = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'
+export const PERMIT2_DOMAIN = {
+  name: 'Permit2',
+  chainId: 137,
+  verifyingContract: PERMIT2_ADDRESS,
+}
+
+type Permit2Details = {
+  amount: Hex
+  nonce: number
+  expiration: number
+  token: Address
+}
+
+export type Permit2Message = {
+  spender: Address
+  details: Permit2Details
+}
+
+export type PermitMessage = {
+  owner: Address
+  spender: Address
+  value: Hex
+  nonce: number
+  deadline: number
+}
