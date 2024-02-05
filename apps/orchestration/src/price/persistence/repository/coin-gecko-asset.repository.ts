@@ -17,17 +17,21 @@ export class CoinGeckoAssetRepository {
     return CoinGeckoAssetIdIndex[assetId as keyof typeof CoinGeckoAssetIdIndex] || null
   }
 
-  getAssetId(sourceId: string): string | null {
+  getAssetIds(sourceId: string): AssetId[] | null {
     const chain = findChain(({ coinGecko }) => coinGecko.coinId === sourceId)
 
     if (chain) {
-      return chain.coin.id
+      return [chain.coin.id]
     }
 
-    for (const key in CoinGeckoAssetIdIndex) {
-      if (CoinGeckoAssetIdIndex[key as keyof typeof CoinGeckoAssetIdIndex] === sourceId) {
-        return getAssetId(key)
-      }
+    // Assets with the same address on different chains have the same source ID
+    // but different asset ID.
+    const assetIds = Object.keys(CoinGeckoAssetIdIndex).filter(
+      (assetId) => CoinGeckoAssetIdIndex[assetId as keyof typeof CoinGeckoAssetIdIndex] === sourceId
+    )
+
+    if (assetIds.length) {
+      return assetIds.map(getAssetId)
     }
 
     return null

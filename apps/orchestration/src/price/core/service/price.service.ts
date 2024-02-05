@@ -39,7 +39,7 @@ export class PriceService {
       }
     })
 
-    const prices = this.buildPrices(simplePrice)
+    const prices = this.buildPrices(options.from, simplePrice)
 
     this.logger.log('Received prices', {
       options,
@@ -49,23 +49,55 @@ export class PriceService {
     return prices
   }
 
-  private buildPrices(prices: SimplePrice): Prices {
-    return Object.keys(prices).reduce((acc, coinId) => {
-      const assetId = this.coinGeckoAssetRepository.getAssetId(coinId)
+  // TODO (@wcalderipe, 05/02/24): Move everything related to CoinGecko to a
+  // Price repository if one day we have another price source or cache.
 
-      if (assetId) {
-        return {
+  private buildPrices(assetIds: AssetId[], simplePrice: SimplePrice): Prices {
+    return (
+      this.getAssetsPriceInformation(simplePrice)
+        // Assets with the same address on different chains have the same source ID
+        // but different asset ID. This filter removes unrequested asset IDs.
+        .filter(({ sourceAssetId }) => assetIds.includes(sourceAssetId))
+        .reduce((acc, price) => {
+          return {
+            ...acc,
+            [price.sourceAssetId]: price.values
+          }
+        }, {})
+    )
+  }
+
+  private getAssetsPriceInformation(simplePrice: SimplePrice) {
+    return Object.keys(simplePrice).reduce((acc, coinId) => {
+      const sourceAssetIds = this.coinGeckoAssetRepository.getAssetIds(coinId)
+
+      if (sourceAssetIds) {
+        return [
           ...acc,
-          [assetId]: Object.keys(prices[coinId]).reduce((result, fiat) => {
-            return {
-              ...result,
-              [`fiat:${fiat}`]: prices[coinId].usd
-            }
-          }, {})
-        }
+          ...sourceAssetIds.map((sourceAssetId) => ({
+            sourceAssetId,
+            coinId,
+            values: this.getValues(simplePrice, coinId)
+          }))
+        ]
       }
 
       return acc
+    }, [] as { sourceAssetId: AssetId; coinId: string; values: unknown }[])
+  }
+
+  private getValues(simplePrice: SimplePrice, coinId: string) {
+    return Object.keys(simplePrice[coinId]).reduce((prices, price) => {
+      const value = simplePrice[coinId][price as keyof (typeof simplePrice)[string]]
+
+      if (price) {
+        return {
+          ...prices,
+          [`fiat:${price}`]: value
+        }
+      }
+
+      return prices
     }, {})
   }
 }
