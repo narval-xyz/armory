@@ -1,5 +1,5 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { Organization, RegoData, User, Wallet } from '@app/authz/shared/types/entities.types'
+import { AddressBookAccount, Organization, RegoData, User, Wallet } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
@@ -375,6 +375,29 @@ export class AdminRepository implements OnModuleInit {
           userId,
           walletId
         }
+      }
+    })
+
+    return true
+  }
+
+  async createAddressBookAccount(account: AddressBookAccount): Promise<boolean> {
+    await this.prismaService.addressBookAccount.create({
+      data: {
+        uid: account.uid,
+        address: account.address,
+        classification: account.classification,
+        chainId: account.chainId
+      }
+    })
+
+    return true
+  }
+
+  async deleteAddressBookAccount(uid: string): Promise<boolean> {
+    await this.prismaService.addressBookAccount.delete({
+      where: {
+        uid
       }
     })
 

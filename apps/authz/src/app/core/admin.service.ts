@@ -1,10 +1,11 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
+import { AddressBookAccount, Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
 import {
   AssignUserGroupRequest,
   AssignUserWalletRequest,
   AssignWalletGroupRequest,
   AuthCredential,
+  CreateAddressBookAccountRequest,
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
@@ -83,5 +84,11 @@ export class AdminService {
     await this.adminRepository.assignUserWallet(payload.request.data.userId, payload.request.data.walletId)
 
     return payload.request.data
+  }
+
+  async createAddressBookAccount(payload: CreateAddressBookAccountRequest): Promise<AddressBookAccount> {
+    await this.adminRepository.createAddressBookAccount(payload.request.account)
+
+    return payload.request.account
   }
 }
