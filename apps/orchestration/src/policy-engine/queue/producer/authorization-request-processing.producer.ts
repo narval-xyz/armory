@@ -10,7 +10,7 @@ import {
 } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { BackoffOptions, Job, Queue } from 'bull'
 
 type JobOption = {
@@ -24,7 +24,7 @@ export const DEFAULT_JOB_OPTIONS: JobOption = {
 }
 
 @Injectable()
-export class AuthorizationRequestProcessingProducer {
+export class AuthorizationRequestProcessingProducer implements OnApplicationBootstrap {
   private logger = new Logger(AuthorizationRequestProcessingProducer.name)
 
   constructor(
