@@ -13,6 +13,8 @@ import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/creat
 import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
+import { RegisterTokensRequestDto } from '@app/authz/app/http/rest/dto/register-tokens-request.dto'
+import { RegisterTokensResponseDto } from '@app/authz/app/http/rest/dto/register-tokens-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
 import { UpdateUserRequestDto } from '@app/authz/app/http/rest/dto/update-user-request.dto'
@@ -25,6 +27,7 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
+  RegisterTokensRequest,
   RegisterWalletRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
@@ -123,6 +126,15 @@ export class AdminController {
     const addressBookAccount = await this.adminService.createAddressBookAccount(payload)
 
     const response = new CreateAddressBookAccountResponseDto(addressBookAccount)
+    return response
+  }
+
+  @Post('/tokens')
+  async registerTokens(@Body() body: RegisterTokensRequestDto) {
+    const payload: RegisterTokensRequest = body
+    const tokens = await this.adminService.registerTokens(payload)
+
+    const response = new RegisterTokensResponseDto(tokens)
     return response
   }
 }

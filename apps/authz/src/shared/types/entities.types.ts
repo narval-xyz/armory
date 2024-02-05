@@ -37,7 +37,7 @@ export type AddressBookAccount = {
 
 export type Token = {
   uid: string
-  address: string
+  address: Address
   symbol: string
   chainId: number
   decimals: number
