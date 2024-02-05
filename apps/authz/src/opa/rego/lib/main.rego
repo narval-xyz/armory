@@ -33,6 +33,18 @@ chainAssetId = {
 	"43114": "eip155:43114/slip44:9000",
 }
 
+priceFeed = result {
+	feed = input.feeds[_]
+	feed.source == "armory/price-feed"
+	result = feed.data
+}
+
+transferFeed = result {
+	feed = input.feeds[_]
+	feed.source == "armory/historical-transfer-feed"
+	result = feed.data
+}
+
 default evaluate = {
 	"permit": false,
 	"reasons": set(),
