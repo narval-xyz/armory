@@ -5,6 +5,8 @@ import { AssignUserWalletRequestDto } from '@app/authz/app/http/rest/dto/assign-
 import { AssignUserWalletResponseDto } from '@app/authz/app/http/rest/dto/assign-user-wallet-response.dto'
 import { AssignWalletGroupRequestDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-request.dto'
 import { AssignWalletGroupResponseDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-response.dto'
+import { CreateAddressBookAccountRequestDto } from '@app/authz/app/http/rest/dto/create-address-book-request.dto'
+import { CreateAddressBookAccountResponseDto } from '@app/authz/app/http/rest/dto/create-address-book-response.dto'
 import { CreateCredentialRequestDto } from '@app/authz/app/http/rest/dto/create-credential-request.dto'
 import { CreateCredentialResponseDto } from '@app/authz/app/http/rest/dto/create-credential-response.dto'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
@@ -19,6 +21,7 @@ import {
   AssignUserGroupRequest,
   AssignUserWalletRequest,
   AssignWalletGroupRequest,
+  CreateAddressBookAccountRequest,
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
@@ -110,6 +113,16 @@ export class AdminController {
     const userWallet = await this.adminService.assignUserWallet(payload)
 
     const response = new AssignUserWalletResponseDto(userWallet)
+    return response
+  }
+
+  @Post('/address-book')
+  async createAddressBookEntry(@Body() body: CreateAddressBookAccountRequestDto) {
+    const payload: CreateAddressBookAccountRequest = body
+
+    const addressBookAccount = await this.adminService.createAddressBookAccount(payload)
+
+    const response = new CreateAddressBookAccountResponseDto(addressBookAccount)
     return response
   }
 }

@@ -81,7 +81,7 @@ model UserWalletAssignment {
 model AddressBookAccount {
   uid             String   @id
   address         String
-  chainId         String @map("chain_id")
+  chainId         Int @map("chain_id")
   classification  String
 
   @@map("address_book_account")
@@ -91,7 +91,7 @@ model Token {
   uid             String   @id
   address         String
   symbol          String
-  chainId         String @map("chain_id")
+  chainId         Int @map("chain_id")
   decimals        Int
 
   @@map("token")
