@@ -52,46 +52,55 @@ approvalsReq = [
 	{"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
 ]
 
-transfersReq = [
+feedsReq = [
 	{
-		"amount": "3051000000",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": elevenHoursAgo,
-		"chainId": 137,
-		"initiatedBy": "test-alice-uid",
+		"source": "armory/price-feed",
+		"sig": {},
+		"data": {
+			"eip155:137/slip44:966": {
+				"fiat:usd": "0.99",
+				"fiat:eur": "1.10",
+			},
+			"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+				"fiat:usd": "0.99",
+				"fiat:eur": "1.10",
+			},
+		},
 	},
 	{
-		"amount": "2000000000",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": tenHoursAgo,
-		"chainId": 137,
-		"initiatedBy": "test-alice-uid",
-	},
-	{
-		"amount": "1500000000",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-		"timestamp": twentyHoursAgo,
-		"chainId": 137,
-		"initiatedBy": "test-alice-uid",
+		"source": "armory/historical-transfer-feed",
+		"sig": {},
+		"data": [
+			{
+				"amount": "3051000000",
+				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+				"timestamp": elevenHoursAgo,
+				"chainId": 137,
+				"initiatedBy": "test-alice-uid",
+			},
+			{
+				"amount": "2000000000",
+				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+				"timestamp": tenHoursAgo,
+				"chainId": 137,
+				"initiatedBy": "test-alice-uid",
+			},
+			{
+				"amount": "1500000000",
+				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+				"timestamp": twentyHoursAgo,
+				"chainId": 137,
+				"initiatedBy": "test-alice-uid",
+			},
+		],
 	},
 ]
-
-pricesReq = {
-	"eip155:137/slip44:966": {
-		"fiat:usd": "0.99",
-		"fiat:eur": "1.10",
-	},
-	"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
-		"fiat:usd": "0.99",
-		"fiat:eur": "1.10",
-	},
-}
 
 request = {
 	"action": "signTransaction",
@@ -100,8 +109,7 @@ request = {
 	"resource": resourceReq,
 	"intent": intentReq,
 	"approvals": approvalsReq,
-	"transfers": transfersReq,
-	"prices": pricesReq,
+	"feeds": feedsReq,
 }
 
 entities = {

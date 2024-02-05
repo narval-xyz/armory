@@ -134,7 +134,7 @@ checkSpendingLimit(params) {
 	amount = intentAmount(currency)
 
 	spendings = sum([spending |
-		transfer = input.transfers[_]
+		transfer = transferFeed[_]
 
 		# filter by tokens
 		checkSpendingCondition(transfer.token, filters.tokens)
