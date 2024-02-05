@@ -88,6 +88,9 @@ authz/test/integration:
 authz/test/e2e:
 	npx nx test:e2e ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
+authz/test/e2e:
+	npx nx test:e2e ${AUTHZ_PROJECT_NAME} -- ${ARGS}
+
 # === Open Policy Agent & Rego ===
 
 authz/rego/compile:
