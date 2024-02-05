@@ -11,7 +11,7 @@ import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
-import { ClassSerializerInterceptor, Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
+import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
@@ -64,14 +64,4 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     }
   ]
 })
-export class PolicyEngineModule implements OnApplicationBootstrap {
-  private logger = new Logger(PolicyEngineModule.name)
-
-  constructor(private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer) {}
-
-  async onApplicationBootstrap() {
-    this.logger.log('Policy Engine module boot')
-
-    await this.authzRequestProcessingProducer.onApplicationBootstrap()
-  }
-}
+export class PolicyEngineModule {}
