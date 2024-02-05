@@ -48,64 +48,74 @@ e2e_req = {
 			"pubKey": "0xab88c8785D0C00082dE75D801Fcb1d5066a6311e",
 		},
 	],
-	"transfers": [
+	"feeds": [
 		{
-			"amount": "100000000000000000",
-			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
-			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
-			"chainId": 137,
-			"token": "eip155:137/slip44:966",
-			"rates": {
-				"fiat:usd": "0.99",
-				"fiat:eur": "1.10",
-			},
-			"initiatedBy": "matt@narval.xyz",
-			"timestamp": elevenHoursAgo,
+			"source": "armory/historical-transfer-feed",
+			"sig": {},
+			"data": [
+				{
+					"amount": "100000000000000000",
+					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+					"chainId": 137,
+					"token": "eip155:137/slip44:966",
+					"rates": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"initiatedBy": "matt@narval.xyz",
+					"timestamp": elevenHoursAgo,
+				},
+				{
+					"amount": "100000000000000000",
+					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+					"chainId": 137,
+					"token": "eip155:137/slip44:966",
+					"rates": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"initiatedBy": "matt@narval.xyz",
+					"timestamp": tenHoursAgo,
+				},
+				{
+					"amount": "100000000000000000",
+					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+					"chainId": 137,
+					"token": "eip155:137/slip44:966",
+					"rates": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"initiatedBy": "matt@narval.xyz",
+					"timestamp": elevenHoursAgo,
+				},
+				{
+					"amount": "100000000000000000",
+					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+					"chainId": 137,
+					"token": "eip155:137/slip44:966",
+					"rates": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"initiatedBy": "matt@narval.xyz",
+					"timestamp": tenHoursAgo,
+				},
+			],
 		},
 		{
-			"amount": "100000000000000000",
-			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
-			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
-			"chainId": 137,
-			"token": "eip155:137/slip44:966",
-			"rates": {
+			"source": "armory/price-feed",
+			"sig": {},
+			"data": {"eip155:137/slip44:966": {
 				"fiat:usd": "0.99",
 				"fiat:eur": "1.10",
-			},
-			"initiatedBy": "matt@narval.xyz",
-			"timestamp": tenHoursAgo,
-		},
-		{
-			"amount": "100000000000000000",
-			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
-			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
-			"chainId": 137,
-			"token": "eip155:137/slip44:966",
-			"rates": {
-				"fiat:usd": "0.99",
-				"fiat:eur": "1.10",
-			},
-			"initiatedBy": "matt@narval.xyz",
-			"timestamp": elevenHoursAgo,
-		},
-		{
-			"amount": "100000000000000000",
-			"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
-			"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
-			"chainId": 137,
-			"token": "eip155:137/slip44:966",
-			"rates": {
-				"fiat:usd": "0.99",
-				"fiat:eur": "1.10",
-			},
-			"initiatedBy": "matt@narval.xyz",
-			"timestamp": tenHoursAgo,
+			}},
 		},
 	],
-	"prices": {"eip155:137/slip44:966": {
-		"fiat:usd": "0.99",
-		"fiat:eur": "1.10",
-	}},
 }
 
 e2e_entities = {
