@@ -14,7 +14,7 @@ export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
   to: AccountId
   from: AccountId
-  contract: AccountId
+  token: AccountId
   amount: string
 }
 
@@ -23,11 +23,11 @@ export type TransferErc721 = {
   to: AccountId
   from: AccountId
   contract: AccountId
-  nftId: AssetId
+  token: AssetId
 }
 
 export type ERC1155Transfer = {
-  tokenId: AssetId
+  token: AssetId
   amount: string
 }
 

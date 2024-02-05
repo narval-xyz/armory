@@ -20,7 +20,7 @@ export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: 
     from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC20,
     amount,
-    contract: toAccountIdLowerCase({ chainId, address: to })
+    token: toAccountIdLowerCase({ chainId, address: to })
   }
 
   return intent

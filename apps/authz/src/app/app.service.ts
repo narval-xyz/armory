@@ -13,12 +13,12 @@ import {
   hashRequest
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { Decoder } from 'packages/transaction-request-intent/src'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { OpaService } from './opa/opa.service'
+import { safeDecode } from '@narval/transaction-request-intent'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -147,7 +147,6 @@ export class AppService {
   }: EvaluationRequest): Promise<EvaluationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
-    const decoder = new Decoder()
     const verificationMessage = hashRequest(request)
 
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
@@ -157,9 +156,11 @@ export class AppService {
     // Decode the intent
     const intentResult =
       request.action === Action.SIGN_TRANSACTION
-        ? decoder.safeDecode({
-            type: InputType.TRANSACTION_REQUEST,
-            txRequest: request.transactionRequest
+        ? safeDecode({
+            input: {
+              type: InputType.TRANSACTION_REQUEST,
+              txRequest: request.transactionRequest
+            }
           })
         : undefined
 

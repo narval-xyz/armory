@@ -47,7 +47,7 @@ function createERC1155Transfer({
   amount: string
 }): ERC1155Transfer {
   return {
-    tokenId: toAssetId({
+    token: toAssetId({
       assetType: AssetType.ERC1155,
       chainId,
       address: contract,

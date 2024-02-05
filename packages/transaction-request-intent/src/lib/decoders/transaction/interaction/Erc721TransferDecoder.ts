@@ -20,7 +20,7 @@ export const decodeErc721Transfer = (input: ContractCallInput, supportedMethods:
     to: toAccountIdLowerCase({ chainId, address: to }),
     from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC721,
-    nftId: toAssetIdLowerCase({
+    token: toAssetIdLowerCase({
       assetType: AssetType.ERC721,
       chainId,
       address: contract,
