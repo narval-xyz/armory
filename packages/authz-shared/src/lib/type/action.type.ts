@@ -14,6 +14,7 @@ export const Action = {
   CREATE_ADDRESS_BOOK_ACCOUNT: 'CREATE_ADDRESS_BOOK_ACCOUNT',
   EDIT_WALLET: 'wallet:edit',
   UNASSIGN_WALLET: 'wallet:unassign',
+  REGISTER_TOKENS: 'REGISTER_TOKENS',
 
   EDIT_USER_GROUP: 'user-group:edit',
   DELETE_USER_GROUP: 'user-group:delete',
@@ -247,4 +248,19 @@ export type CreateAddressBookAccountAction = BaseAction & {
 
 export type CreateAddressBookAccountRequest = BaseAdminRequest & {
   request: CreateAddressBookAccountAction
+}
+
+export type RegisterTokensAction = BaseAction & {
+  action: typeof Action.REGISTER_TOKENS
+  tokens: {
+    uid: string
+    address: Address
+    chainId: number
+    symbol: string
+    decimals: number
+  }[]
+}
+
+export type RegisterTokensRequest = BaseAdminRequest & {
+  request: RegisterTokensAction
 }

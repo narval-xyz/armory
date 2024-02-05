@@ -1,7 +1,8 @@
 import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { AddressBookAccount, Organization, RegoData, User, Wallet } from '@app/authz/shared/types/entities.types'
+import { AddressBookAccount, Organization, RegoData, Token, User, Wallet } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { castArray } from 'lodash/fp'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
 function convertResponse<T, K extends keyof T, V extends T[K]>(
@@ -396,6 +397,45 @@ export class AdminRepository implements OnModuleInit {
 
   async deleteAddressBookAccount(uid: string): Promise<boolean> {
     await this.prismaService.addressBookAccount.delete({
+      where: {
+        uid
+      }
+    })
+
+    return true
+  }
+
+  async registerTokens(tokens: Token | Token[]): Promise<boolean> {
+    await this.prismaService.$transaction(async (txn) => {
+      await Promise.all(
+        castArray(tokens).map(async (token) => {
+          await txn.token.upsert({
+            create: {
+              uid: token.uid,
+              symbol: token.symbol,
+              address: token.address,
+              chainId: token.chainId,
+              decimals: token.decimals
+            },
+            update: {
+              symbol: token.symbol,
+              address: token.address,
+              chainId: token.chainId,
+              decimals: token.decimals
+            },
+            where: {
+              uid: token.uid
+            }
+          })
+        })
+      )
+    })
+
+    return true
+  }
+
+  async unregisterToken(uid: string): Promise<boolean> {
+    await this.prismaService.token.delete({
       where: {
         uid
       }
