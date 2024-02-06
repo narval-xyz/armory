@@ -88,7 +88,7 @@ export class OpaService implements OnApplicationBootstrap {
 
     const regoContent = template({ policies })
 
-    writeFileSync(`./apps/authz/src/opa/rego/policies/${uuidv4()}.rego`, regoContent, 'utf-8')
+    writeFileSync(`./apps/authz/src/opa/rego/generated/${uuidv4()}.rego`, regoContent, 'utf-8')
 
     console.log('Policy .rego file generated successfully.')
   }
