@@ -4,7 +4,7 @@ import Handlebars from 'handlebars'
 import { isEmpty } from 'lodash'
 import { policies } from './mockData'
 
-Handlebars.registerHelper('criterion', function (item, options) {
+Handlebars.registerHelper('criterion', function (item) {
   const criterion: Criterion = item.criterion
   const args = item.args
 
@@ -29,7 +29,7 @@ Handlebars.registerHelper('criterion', function (item, options) {
   }
 })
 
-Handlebars.registerHelper('reason', function (item, options) {
+Handlebars.registerHelper('reason', function (item) {
   if (item.then === Then.PERMIT) {
     const reason = [
       `"type": "${item.then}"`,
