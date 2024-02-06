@@ -4,13 +4,19 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
+import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '@app/orchestration/policy-engine/core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
+import { Cluster } from '@app/orchestration/policy-engine/core/type/clustering.type'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
@@ -100,8 +106,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
           useValue: mock<TransferTrackingService>()
         },
         {
-          provide: AuthzApplicationClient,
-          useValue: mock<AuthzApplicationClient>()
+          provide: ClusterService,
+          useValue: mock<ClusterService>()
         },
         {
           provide: PriceService,
@@ -131,6 +137,13 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   })
 
   describe('process', () => {
+    const job = mock<Job<AuthorizationRequestProcessingJob>>({
+      id: authzRequest.id,
+      opts: {
+        jobId: authzRequest.id
+      }
+    })
+
     it('calls the service to process the authorization request job', async () => {
       // Prevent calling the node at the evaluation phase.
       jest.spyOn(service, 'evaluate').mockResolvedValue({
@@ -141,16 +154,40 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
       jest.spyOn(service, 'process')
 
-      const job = mock<Job<AuthorizationRequestProcessingJob>>({
-        id: authzRequest.id,
-        opts: {
-          jobId: authzRequest.id
-        }
-      })
-
       await consumer.process(job)
 
       expect(service.process).toHaveBeenCalledWith(authzRequest.id)
+    })
+
+    // Before you start with these tests, learn how Bull works. Jobs in Bull can
+    // retry, but we don't want retries for certain errors. To stop a job from
+    // retrying, the process method needs to return an error instance. In
+    // contrast, to let the retry happen, the process method must throw.
+    describe('when job fails', () => {
+      it('retries on unknown error', async () => {
+        const error = new Error('unknown error')
+        jest.spyOn(service, 'process').mockRejectedValue(error)
+
+        expect(consumer.process(job)).rejects.toThrow(error)
+      })
+
+      it('stops retrying on known unrecoverable errors', async () => {
+        const unrecoverableErrors = [
+          new ClusterNotFoundException(authzRequest.orgId),
+          new EvaluationConsensusException([], []),
+          new UnreachableClusterException(mock<Cluster>()),
+          new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey'),
+          new AuthorizationRequestAlreadyProcessingException(authzRequest)
+        ]
+
+        expect.assertions(unrecoverableErrors.length)
+
+        unrecoverableErrors.forEach(async (error) => {
+          jest.spyOn(service, 'process').mockRejectedValue(error)
+
+          expect(await consumer.process(job)).toEqual(error)
+        })
+      })
     })
   })
 
