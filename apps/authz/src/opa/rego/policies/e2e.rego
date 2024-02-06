@@ -1,69 +1,26 @@
 package main
 
-import future.keywords.in
-
-permit[{"policyId": "test-permit-policy-1"}] = reason {
-	users = {"matt@narval.xyz"}
-	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
-	transferTypes = {"transferNative"}
-	tokens = {"eip155:137/slip44:966"}
-	transferValueCondition = {"currency": "*", "operator": "lte", "value": "1000000000000000000"}
-	approvalsRequired = [{
-		"approvalCount": 2,
-		"countPrincipal": false,
-		"approvalEntityType": "Narval::User",
-		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
-	}]
-
-	checkPrincipal
+permit[{"policyId": "examplePermitPolicy"}] = reason {
+	checkTransferResourceIntegrity
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkPrincipalId(users)
-	checkWalletId(resources)
-	checkIntentType(transferTypes)
-	checkIntentToken(tokens)
-	checkIntentAmount(transferValueCondition)
-
-	approvals = checkApprovals(approvalsRequired)
-
-	reason = {
-		"type": "permit",
-		"policyId": "test-permit-policy-1",
-		"approvalsSatisfied": approvals.approvalsSatisfied,
-		"approvalsMissing": approvals.approvalsMissing,
-	}
+	checkPrincipalId({"matt@narval.xyz"})
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
+	checkIntentType({"transferNative"})
+	checkIntentToken({"eip155:137/slip44:966"})
+	checkIntentAmount({"currency": "*", "operator": "lte", "value": "1000000000000000000"})
+	approvals = checkApprovals([{"approvalCount": 2, "countPrincipal": false, "approvalEntityType": "Narval::User", "entityIds": ["aa@narval.xyz", "bb@narval.xyz"]}, {"approvalCount": 1, "countPrincipal": false, "approvalEntityType": "Narval::UserRole", "entityIds": ["admin"]}])
+	reason = {"type": "permit", "policyId": "examplePermitPolicy", "approvalsSatisfied": approvals.approvalsSatisfied, "approvalsMissing": approvals.approvalsMissing}
 }
 
-forbid[{"policyId": "test-forbid-policy-1"}] = reason {
-	users = {"matt@narval.xyz"}
-	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
-	transferTypes = {"transferNative"}
-	tokens = {"eip155:137/slip44:966"}
-	limit = "1000000000000000000"
-
-	checkPrincipal
+forbid[{"policyId": "exampleForbidPolicy"}] = reason {
+	checkTransferResourceIntegrity
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkPrincipalId(users)
-	checkWalletId(resources)
-	checkIntentType(transferTypes)
-	checkIntentToken(tokens)
-	checkSpendingLimit({
-		"limit": limit,
-		"timeWindow": {
-			"type": "rolling",
-			"value": (12 * 60) * 60,
-		},
-		"filters": {
-			"tokens": tokens,
-			"users": users,
-		},
-	})
-
-	reason = {
-		"type": "forbid",
-		"policyId": "test-forbid-policy-1",
-		"approvalsSatisfied": [],
-		"approvalsMissing": [],
-	}
+	checkPrincipalId({"matt@narval.xyz"})
+	checkWalletId({"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"})
+	checkIntentType({"transferNative"})
+	checkIntentToken({"eip155:137/slip44:966"})
+	checkSpendingLimit({"limit": "1000000000000000000", "timeWindow": {"type": "rolling", "value": 43200}, "filters": {"tokens": ["eip155:137/slip44:966"], "users": ["matt@narval.xyz"]}})
+	reason = {"type": "forbid", "policyId": "exampleForbidPolicy", "approvalsSatisfied": [], "approvalsMissing": []}
 }

@@ -1,0 +1,11 @@
+package main
+
+{{#each policies}}
+  {{then}}[{"policyId": "{{name}}" }] = reason {
+  {{#each when}}
+    {{#criterion this}}{{/criterion}}
+  {{/each}}
+  {{#reason this}}{{/reason}}
+  }
+
+{{/each}}

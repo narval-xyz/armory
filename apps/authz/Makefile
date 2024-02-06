@@ -106,6 +106,15 @@ authz/rego/wasm:
 		--compiler-options "{\"module\":\"CommonJS\"}" \
 		${AUTHZ_PROJECT_DIR}/src/opa/rego/script.ts
 
+authz/rego/template:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/template/script.ts
+
+	make authz/rego/compile
+
+	make authz/rego/wasm
+	
 authz/rego/bundle:
 	rm -rf ${AUTHZ_PROJECT_DIR}/src/opa/build
 
