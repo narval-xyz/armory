@@ -64,10 +64,6 @@ const template = Handlebars.compile(templateSource)
 const regoContent = template(policies)
 
 // Write the content to a Rego file
-writeFileSync(
-  '/Users/samuel/Documents/narval/narval/apps/authz/src/opa/rego/policies/generatedPolicies.rego',
-  regoContent,
-  'utf-8'
-)
+writeFileSync('/Users/samuel/Documents/narval/narval/apps/authz/src/opa/rego/policies/e2e.rego', regoContent, 'utf-8')
 
 console.log('Policy .rego file generated successfully.')
