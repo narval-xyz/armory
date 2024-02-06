@@ -1,3 +1,4 @@
+import { OpaService } from '@app/authz/app/opa/opa.service'
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { Organization, User, Wallet } from '@app/authz/shared/types/entities.types'
 import {
@@ -17,7 +18,6 @@ import {
   WalletGroupMembership
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { OpaService } from '../opa/opa.service'
 
 @Injectable()
 export class AdminService {

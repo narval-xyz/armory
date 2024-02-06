@@ -13,6 +13,8 @@ import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-r
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
+import { SetPolicyRulesRequestDto } from '@app/authz/app/http/rest/dto/set-policy-rules-request.dto'
+import { SetPolicyRulesResponseDto } from '@app/authz/app/http/rest/dto/set-policy-rules-response.dto'
 import { UpdateUserRequestDto } from '@app/authz/app/http/rest/dto/update-user-request.dto'
 import { UpdateUserResponseDto } from '@app/authz/app/http/rest/dto/update-user-response.dto'
 import {
@@ -27,8 +29,6 @@ import {
   UpdateUserRequest
 } from '@narval/authz-shared'
 import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
-import { SetPolicyRulesRequestDto } from '../dto/set-policy-rules-request.dto'
-import { SetPolicyRulesResponseDto } from '../dto/set-policy-rules-response.dto'
 
 @Controller('/admin')
 export class AdminController {
