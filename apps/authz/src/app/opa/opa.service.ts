@@ -9,6 +9,7 @@ import Handlebars from 'handlebars'
 import { isEmpty } from 'lodash'
 import path from 'path'
 import R from 'remeda'
+import { v4 as uuidv4 } from 'uuid'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
@@ -33,7 +34,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  async generateRegoFile(policyRules: PolicyCriterionBuilder[]): Promise<void> {
+  generateRegoFile(policies: PolicyCriterionBuilder[]): void {
     Handlebars.registerHelper('criterion', function (item) {
       const criterion: Criterion = item.criterion
       const args = item.args
@@ -81,20 +82,13 @@ export class OpaService implements OnApplicationBootstrap {
       }
     })
 
-    const templateSource = readFileSync(
-      '/Users/samuel/Documents/narval/narval/apps/authz/src/opa/template/template.hbs',
-      'utf-8'
-    )
+    const templateSource = readFileSync('./apps/authz/src/opa/template/template.hbs', 'utf-8')
 
     const template = Handlebars.compile(templateSource)
 
-    const regoContent = template(policyRules)
+    const regoContent = template({ policies })
 
-    writeFileSync(
-      '/Users/samuel/Documents/narval/narval/apps/authz/src/opa/rego/policies/e2e.rego',
-      regoContent,
-      'utf-8'
-    )
+    writeFileSync(`./apps/authz/src/opa/rego/policies/${uuidv4()}.rego`, regoContent, 'utf-8')
 
     console.log('Policy .rego file generated successfully.')
   }

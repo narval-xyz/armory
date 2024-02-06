@@ -101,7 +101,9 @@ authz/rego/compile:
 		--output ./rego-build/policies.gz
 	tar -xzf ./rego-build/policies.gz -C ./rego-build/
 
-authz/rego/wasm:
+authz/rego/eval:
+	make authz/rego/compile
+
 	npx ts-node \
 		--compiler-options "{\"module\":\"CommonJS\"}" \
 		${AUTHZ_PROJECT_DIR}/src/opa/rego/script.ts
@@ -111,26 +113,7 @@ authz/rego/template:
 		ts-node -r tsconfig-paths/register \
 		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/template/script.ts
 
-	make authz/rego/compile
-
-	make authz/rego/wasm
-	
-authz/rego/bundle:
-	rm -rf ${AUTHZ_PROJECT_DIR}/src/opa/build
-
-	mkdir -p ${AUTHZ_PROJECT_DIR}/src/opa/build
-
-	opa build \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/rego \
-		--ignore "__test__" \
-		--output ${AUTHZ_PROJECT_DIR}/src/opa/build/policies.tar.gz
-
-authz/rego/eval:
-	opa eval \
-		--format="pretty" \
-		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/build/policies.tar.gz \
-		--input ${AUTHZ_PROJECT_DIR}/src/opa/rego/input.json \
-		'data.main.evaluate'
+	make authz/rego/eval
 
 authz/rego/test:
 	opa test \
