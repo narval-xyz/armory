@@ -1,12 +1,13 @@
 import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
@@ -40,10 +41,10 @@ export class AuthorizationRequestService {
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
-    private authzApplicationClient: AuthzApplicationClient,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
-    private feedService: FeedService
+    private feedService: FeedService,
+    private clusterService: ClusterService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -105,8 +106,9 @@ export class AuthorizationRequestService {
   async complete(id: string) {}
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
-    // TODO (@wcalderipe, 19/01/24): Think how to error the evaluation but
-    // short-circuit the retry mechanism.
+    if (input.status === AuthorizationRequestStatus.PROCESSING) {
+      throw new AuthorizationRequestAlreadyProcessingException(input)
+    }
 
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
@@ -114,13 +116,9 @@ export class AuthorizationRequestService {
       status: input.status
     })
 
-    // TODO (@wcalderipe, 01/02/24): Add a semantic lock counter-measure on the
-    // status to prevent another process to evaluate a processing authorization
-    // request.
-
     const feeds = await this.feedService.gather(input)
-    const evaluation = await this.authzApplicationClient.evaluation({
-      host: 'http://localhost:3010',
+    const evaluation = await this.clusterService.evaluation({
+      orgId: input.orgId,
       data: {
         authentication: input.authentication,
         approvals: input.approvals,
