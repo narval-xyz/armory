@@ -1,5 +1,6 @@
 import { DataFeedModule } from '@app/orchestration/data-feed/data-feed.module'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestController } from '@app/orchestration/policy-engine/http/rest/controller/authorization-request.controller'
 import { PriceModule } from '@app/orchestration/price/price.module'
@@ -46,6 +47,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer,
     AuthzApplicationClient,
+    ClusterService,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter
