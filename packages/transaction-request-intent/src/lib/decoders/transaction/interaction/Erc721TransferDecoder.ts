@@ -1,5 +1,6 @@
 import { AssetType } from '@narval/authz-shared'
 import { ContractCallInput, Intents } from '../../../domain'
+import { DecoderError } from '../../../error'
 import { Erc721SafeTransferFromParams } from '../../../extraction/types'
 import { TransferErc721 } from '../../../intent.types'
 import { MethodsMapping } from '../../../supported-methods'
@@ -10,7 +11,7 @@ import { extract } from '../../utils'
 export const decodeErc721Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc721 => {
   const { to: contract, from, chainId, data, methodId } = input
   if (!isSupportedMethodId(methodId)) {
-    throw new Error('Unsupported methodId')
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
 
   const params = extract(supportedMethods, data, methodId) as Erc721SafeTransferFromParams

@@ -63,7 +63,7 @@ export const buildContractRegistryEntry = ({
 }): { [key: AccountId]: AssetTypeAndUnknown } => {
   const registry: { [key: AccountId]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
-    throw new Error('Invalid contract registry entry')
+    throw new DecoderError({ message: 'Invalid contract registry entry', status: 400 })
   }
   const key = buildContractKey(chainId, contractAddress as Address)
   registry[key] = assetType
@@ -79,7 +79,11 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
     }
     if (isString(contract)) {
       if (!isAccountId(contract)) {
-        throw new Error(`Contract registry key is not a valid Caip10: ${contract}`)
+        throw new DecoderError({
+          message: 'Contract registry key is not a valid Caip10',
+          status: 400,
+          context: { contract, input }
+        })
       }
       registry.set(contract.toLowerCase(), information)
     } else {
@@ -99,10 +103,18 @@ export const buildContractKey = (
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
     if (!isAccountId(key)) {
-      throw new Error(`Invalid contract registry key: ${key}: ${registry[key]}`)
+      throw new DecoderError({
+        message: 'Invalid contract registry key',
+        status: 400,
+        context: { key, value: registry[key] }
+      })
     }
     if (!isAssetType(registry[key])) {
-      throw new Error(`Invalid contract registry value: ${key}: ${registry[key]}`)
+      throw new DecoderError({
+        message: 'Invalid contract registry value',
+        status: 400,
+        context: { key, value: registry[key] }
+      })
     }
   })
   return true
@@ -122,7 +134,9 @@ export const contractTypeLookup = (
 }
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
-  if (!txRequest.nonce) throw new Error('nonce needed to build transaction key')
+  if (!txRequest.nonce) {
+    throw new DecoderError({ message: 'nonce needed to build transaction key', status: 400 })
+  }
   const account = toAccountId({
     chainId: txRequest.chainId,
     address: txRequest.from,
@@ -152,7 +166,7 @@ export const decodeTypedData = (typedData: TypedData): SignTypedData => ({
 
 export const decodeMessage = (message: MessageInput): SignMessage => {
   if (!message.payload.startsWith(presignMessagePrefix)) {
-    throw new Error('Invalid message prefix')
+    throw new DecoderError({ message: 'Invalid message prefix', status: 400 })
   }
   return {
     type: Intents.SIGN_MESSAGE,
@@ -316,6 +330,8 @@ export const nativeCaip19 = (chainId: number): AssetId => {
 
 export const getMethod = (methodId: SupportedMethodId, supportedMethods: MethodsMapping) => {
   const method = supportedMethods[methodId]
-  if (!method) throw new Error('Unsupported methodId')
+  if (!method) {
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
+  }
   return method
 }

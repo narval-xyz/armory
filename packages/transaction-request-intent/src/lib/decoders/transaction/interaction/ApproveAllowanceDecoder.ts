@@ -1,4 +1,5 @@
 import { ContractCallInput, Intents } from '../../../domain'
+import { DecoderError } from '../../../error'
 import { ApproveAllowanceParams } from '../../../extraction/types'
 import { ApproveTokenAllowance } from '../../../intent.types'
 import { MethodsMapping } from '../../../supported-methods'
@@ -13,12 +14,12 @@ export const decodeApproveTokenAllowance = (
   const { from, to, chainId, data, methodId } = input
 
   if (!isSupportedMethodId(methodId)) {
-    throw new Error('Unsupported methodId')
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
 
   const params = extract(supportedMethods, data, methodId) as ApproveAllowanceParams
   if (!params) {
-    throw new Error('Params do not match ERC20 transfer methodId')
+    throw new DecoderError({ message: 'Params do not match ERC20 transfer methodId', status: 400 })
   }
 
   const { amount, spender } = params

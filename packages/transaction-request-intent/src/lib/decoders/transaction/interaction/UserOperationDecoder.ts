@@ -1,6 +1,7 @@
 import { Address } from '@narval/authz-shared'
 import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
+import { DecoderError } from '../../../error'
 import { ExecuteAndRevertParams, ExecuteParams, HandleOpsParams } from '../../../extraction/types'
 import { Intent, UserOperation } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
@@ -69,7 +70,7 @@ const decodeExecuteAndRevert = (
 export const decodeUserOperation = (input: ContractCallInput, supportedMethods: MethodsMapping): UserOperation => {
   const { from, chainId, data, to, methodId } = input
   if (!isSupportedMethodId(methodId)) {
-    throw new Error('Unsupported methodId')
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
 
   const params = extract(supportedMethods, data, methodId) as HandleOpsParams

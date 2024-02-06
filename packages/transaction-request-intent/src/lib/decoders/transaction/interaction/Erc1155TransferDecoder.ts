@@ -1,6 +1,7 @@
 import { AssetType, Hex, toAccountId, toAssetId } from '@narval/authz-shared'
 import { Address } from 'viem'
 import { ContractCallInput, Intents } from '../../../domain'
+import { DecoderError } from '../../../error'
 import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../../../extraction/types'
 import { ERC1155Transfer, TransferErc1155 } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
@@ -10,7 +11,7 @@ import { extract } from '../../utils'
 export const decodeERC1155Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc1155 => {
   const { to: contract, from, data, chainId, methodId } = input
   if (!isSupportedMethodId(methodId)) {
-    throw new Error('Unsupported methodId')
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
 
   const params = extract(supportedMethods, data, methodId)
@@ -31,8 +32,7 @@ export const decodeERC1155Transfer = (input: ContractCallInput, supportedMethods
 
     return constructTransferErc1155Intent({ to, from, contract, transfers, chainId })
   }
-
-  throw new Error('Params do not match ERC1155 transfer methodId')
+  throw new DecoderError({ message: 'Params do not match ERC1155 transfer methodId', status: 400 })
 }
 
 function createERC1155Transfer({

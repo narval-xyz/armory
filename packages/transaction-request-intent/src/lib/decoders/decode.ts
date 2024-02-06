@@ -156,7 +156,7 @@ const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?
         payload: input.raw.rawData
       }
     default:
-      throw new Error('Invalid input type')
+      throw new DecoderError({ message: 'Invalid input type', status: 400 })
   }
 }
 
