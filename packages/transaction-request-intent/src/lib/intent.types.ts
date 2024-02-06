@@ -52,13 +52,8 @@ export type SignMessage = {
   message: string
 }
 
-export type SignRawMessage = {
-  type: Intents.SIGN_RAW_MESSAGE
-  from: AccountId
-}
-
-export type SignRawPayload = {
-  type: Intents.SIGN_RAW_PAYLOAD
+export type SignRaw = {
+  type: Intents.SIGN_RAW
   algorithm: Alg
   payload: string
 }
@@ -105,6 +100,7 @@ export type ApproveTokenAllowance = {
 
 export type Permit = {
   type: Intents.PERMIT
+  owner: AccountId
   spender: AccountId
   amount: string
   token: AccountId
@@ -113,6 +109,7 @@ export type Permit = {
 
 export type Permit2 = {
   type: Intents.PERMIT2
+  owner: AccountId
   spender: AccountId
   amount: string
   token: AccountId
@@ -142,8 +139,7 @@ export type Intent =
   | DeployErc4337Wallet
   | DeploySafeWallet
   | SignMessage
-  | SignRawMessage
-  | SignRawPayload
+  | SignRaw
   | SignTypedData
   | Permit
   | Permit2

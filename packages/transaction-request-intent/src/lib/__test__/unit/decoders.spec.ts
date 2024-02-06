@@ -335,7 +335,7 @@ describe('decode', () => {
         }
       })
       expect(decoded).toEqual({
-        type: Intents.SIGN_RAW_PAYLOAD,
+        type: Intents.SIGN_RAW,
         algorithm: Alg.ES256K,
         payload: '0xdeadbeef'
       })
@@ -383,7 +383,8 @@ describe('decode', () => {
         spender: 'eip155:137/0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
         token: 'eip155:137/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
         amount: '1000000000000000000',
-        deadline: '9999999999'
+        deadline: '9999999999',
+        owner: 'eip155:137/0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
       })
     })
     it('decodes permit2', () => {
@@ -412,6 +413,7 @@ describe('decode', () => {
         },
         message: {
           details: {
+            owner: '0xEd123cf8e3bA51c6C15DA1eAc74B2b5DEEA31448',
             token: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691',
             amount: '0xffffffffffffffffffffffffffffffffffffffff',
             expiration: 1709143217,
@@ -432,7 +434,8 @@ describe('decode', () => {
         token: 'eip155:137/0x64060ab139feaae7f06ca4e63189d86adeb51691',
         spender: 'eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         amount: '1461501637330902918203684832716283019655932542975',
-        deadline: 1709143217
+        deadline: 1709143217,
+        owner: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448'
       })
     })
     it('defaults to raw payload', () => {})

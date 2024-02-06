@@ -151,7 +151,7 @@ const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?
       return decodeMessage(input)
     case InputType.RAW:
       return {
-        type: Intents.SIGN_RAW_PAYLOAD,
+        type: Intents.SIGN_RAW,
         algorithm: input.raw.algorithm,
         payload: input.raw.rawData
       }

@@ -165,10 +165,14 @@ export const decodePermit = (typedData: TypedData): Permit | null => {
   if (!isPermit(typedData.message)) {
     return null
   }
-  const { spender, value, deadline } = typedData.message
+  const { spender, value, deadline, owner } = typedData.message
   return {
     type: Intents.PERMIT,
     amount: fromHex(value, 'bigint').toString(),
+    owner: toAccountIdLowerCase({
+      chainId,
+      address: owner
+    }),
     spender: toAccountIdLowerCase({
       chainId,
       address: spender
@@ -191,6 +195,10 @@ export const decodePermit2 = (typedData: TypedData): Permit2 | null => {
   }
   return {
     type: Intents.PERMIT2,
+    owner: toAccountIdLowerCase({
+      chainId: domain.chainId,
+      address: message.details.owner
+    }),
     spender: toAccountIdLowerCase({
       chainId: domain.chainId,
       address: message.spender

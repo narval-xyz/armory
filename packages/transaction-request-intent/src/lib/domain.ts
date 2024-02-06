@@ -148,8 +148,7 @@ export enum Intents {
   DEPLOY_ERC_4337_WALLET = 'deployErc4337Wallet',
   DEPLOY_SAFE_WALLET = 'deploySafeWallet',
   SIGN_MESSAGE = 'signMessage',
-  SIGN_RAW_MESSAGE = 'signRawMessage',
-  SIGN_RAW_PAYLOAD = 'signRawPayload',
+  SIGN_RAW = 'signRaw',
   SIGN_TYPED_DATA = 'signTypedData',
   USER_OPERATION = 'userOperation'
 }
@@ -179,6 +178,7 @@ export const PERMIT2_DOMAIN = {
 }
 
 type Permit2Details = {
+  owner: Address
   amount: Hex
   nonce: number
   expiration: number

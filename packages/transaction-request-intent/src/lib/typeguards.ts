@@ -141,13 +141,15 @@ export const isPermit2 = (message: Record<string, unknown>): message is Permit2M
     'amount' in details &&
     'nonce' in details &&
     'expiration' in details &&
-    'token' in details
+    'token' in details &&
+    'owner' in details
   ) {
-    const { amount, nonce, expiration, token } = details as {
+    const { amount, nonce, expiration, token, owner } = details as {
       amount: unknown
       nonce: unknown
       expiration: unknown
       token: unknown
+      owner: unknown
     }
     if (
       typeof amount === 'string' &&
@@ -156,8 +158,10 @@ export const isPermit2 = (message: Record<string, unknown>): message is Permit2M
       typeof expiration === 'number' &&
       typeof spender === 'string' &&
       typeof token === 'string' &&
+      typeof owner === 'string' &&
       isAddress(token) &&
-      isAddress(spender)
+      isAddress(spender) &&
+      isAddress(owner)
     ) {
       return true
     }
