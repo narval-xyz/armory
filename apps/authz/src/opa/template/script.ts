@@ -1,4 +1,4 @@
-import { Criterion, Then } from '@app/authz/shared/types/policy-builder.type'
+import { Criterion, Then } from '@narval/authz-shared'
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import { isEmpty } from 'lodash'

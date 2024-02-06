@@ -314,6 +314,6 @@ export type PolicyCriterion =
 
 export type PolicyCriterionBuilder = {
   name: string
-  then: Then
   when: PolicyCriterion[]
+  then: Then
 }

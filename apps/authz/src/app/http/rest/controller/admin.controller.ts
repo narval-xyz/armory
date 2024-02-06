@@ -23,9 +23,12 @@ import {
   CreateOrganizationRequest,
   CreateUserRequest,
   RegisterWalletRequest,
+  SetPolicyRulesRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
 import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
+import { SetPolicyRulesRequestDto } from '../dto/set-policy-rules-request.dto'
+import { SetPolicyRulesResponseDto } from '../dto/set-policy-rules-response.dto'
 
 @Controller('/admin')
 export class AdminController {
@@ -110,6 +113,16 @@ export class AdminController {
     const userWallet = await this.adminService.assignUserWallet(payload)
 
     const response = new AssignUserWalletResponseDto(userWallet)
+    return response
+  }
+
+  @Post('/policy-rules')
+  async setPolicyRules(@Body() body: SetPolicyRulesRequestDto) {
+    const payload: SetPolicyRulesRequest = body
+
+    const policyRules = await this.adminService.setPolicyRules(payload)
+
+    const response = new SetPolicyRulesResponseDto(policyRules)
     return response
   }
 }

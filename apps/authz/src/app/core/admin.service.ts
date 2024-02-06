@@ -8,17 +8,20 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
+  PolicyCriterionBuilder,
   RegisterWalletRequest,
+  SetPolicyRulesRequest,
   UpdateUserRequest,
   UserGroupMembership,
   UserWallet,
   WalletGroupMembership
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { OpaService } from '../opa/opa.service'
 
 @Injectable()
 export class AdminService {
-  constructor(private adminRepository: AdminRepository) {}
+  constructor(private adminRepository: AdminRepository, private opaService: OpaService) {}
 
   async createOrganization(payload: CreateOrganizationRequest): Promise<{
     organization: Organization
@@ -81,6 +84,12 @@ export class AdminService {
 
   async assignUserWallet(payload: AssignUserWalletRequest): Promise<UserWallet> {
     await this.adminRepository.assignUserWallet(payload.request.data.userId, payload.request.data.walletId)
+
+    return payload.request.data
+  }
+
+  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<PolicyCriterionBuilder[]> {
+    await this.opaService.generateRegoFile(payload.request.data)
 
     return payload.request.data
   }

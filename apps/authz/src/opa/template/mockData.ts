@@ -1,5 +1,4 @@
-import { Criterion, PolicyCriterionBuilder, Then } from '@app/authz/shared/types/policy-builder.type'
-import { Action } from '@narval/authz-shared'
+import { Action, Criterion, PolicyCriterionBuilder, Then } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 
 export const examplePermitPolicy: PolicyCriterionBuilder = {

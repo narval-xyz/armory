@@ -1,3 +1,5 @@
+import { PolicyCriterionBuilder } from './policy-builder.type'
+
 export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
@@ -224,4 +226,12 @@ export type AssignUserWalletAction = BaseAction & {
 
 export type AssignUserWalletRequest = BaseAdminRequest & {
   request: AssignUserWalletAction
+}
+export type SetPolicyRulesAction = BaseAction & {
+  action: typeof Action.SET_POLICY_RULES
+  data: PolicyCriterionBuilder[]
+}
+
+export type SetPolicyRulesRequest = BaseAdminRequest & {
+  request: SetPolicyRulesAction
 }
