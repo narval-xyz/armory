@@ -5,8 +5,13 @@ import future.keywords.in
 resource = data.entities.wallets[input.resource.uid]
 
 checkTransferResourceIntegrity {
-	contains(input.resource.uid, input.transactionRequest.from)
-	input.resource.uid == input.intent.from
+	checkAction({"signTransaction"})
+	transactionRequestFromAddress = input.transactionRequest.from
+	resourceAddress = extractAddressFromCaip10(input.resource.uid)
+	intentFromAddress = extractAddressFromCaip10(input.intent.from)
+	transactionRequestFromAddress == resourceAddress
+	transactionRequestFromAddress == intentFromAddress
+	resourceAddress == intentFromAddress
 }
 
 walletGroups = {group.uid |
@@ -30,4 +35,9 @@ checkWalletChainId(values) = numberToString(resource.chainId) in values
 checkWalletGroup(values) {
 	group = walletGroups[_]
 	group in values
+}
+
+extractAddressFromCaip10(caip10) = result {
+	arr = split(caip10, ":")
+	result = arr[count(arr) - 1]
 }

@@ -199,27 +199,35 @@ e2e_entities = {
 }
 
 test_mattCanTransferLessThanOneMaticWithTwoApprovals {
-	res = permit[{"policyId": "test-permit-policy-1"}] with input as e2e_req with data.entities as e2e_entities
+	res = permit[{"policyId": "examplePermitPolicy"}] with input as e2e_req with data.entities as e2e_entities
 
 	res == {
 		"type": "permit",
-		"policyId": "test-permit-policy-1",
+		"policyId": "examplePermitPolicy",
 		"approvalsMissing": [],
-		"approvalsSatisfied": [{
-			"approvalCount": 2,
-			"approvalEntityType": "Narval::User",
-			"countPrincipal": false,
-			"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
-		}],
+		"approvalsSatisfied": [
+			{
+				"approvalCount": 2,
+				"approvalEntityType": "Narval::User",
+				"countPrincipal": false,
+				"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
+			},
+			{
+				"approvalCount": 1,
+				"countPrincipal": false,
+				"approvalEntityType": "Narval::UserRole",
+				"entityIds": ["admin"],
+			},
+		],
 	}
 }
 
 test_mattCantTransferMoreThanOneMaticOnTwelveHoursRollingBasis {
-	res = forbid[{"policyId": "test-forbid-policy-1"}] with input as e2e_req with data.entities as e2e_entities
+	res = forbid[{"policyId": "exampleForbidPolicy"}] with input as e2e_req with data.entities as e2e_entities
 
 	res == {
 		"type": "forbid",
-		"policyId": "test-forbid-policy-1",
+		"policyId": "exampleForbidPolicy",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
