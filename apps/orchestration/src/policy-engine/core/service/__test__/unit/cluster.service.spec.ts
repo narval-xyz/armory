@@ -19,7 +19,7 @@ import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
-describe('', () => {
+describe(ClusterService.name, () => {
   let service: ClusterService
   let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
 
