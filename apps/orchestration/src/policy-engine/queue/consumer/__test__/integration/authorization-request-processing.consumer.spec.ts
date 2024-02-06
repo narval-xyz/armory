@@ -5,12 +5,12 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
@@ -100,8 +100,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
           useValue: mock<TransferTrackingService>()
         },
         {
-          provide: AuthzApplicationClient,
-          useValue: mock<AuthzApplicationClient>()
+          provide: ClusterService,
+          useValue: mock<ClusterService>()
         },
         {
           provide: PriceService,

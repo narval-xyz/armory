@@ -82,6 +82,32 @@ model EvaluationLog {
   @@map("evaluation_log")
 }
 
+model Cluster {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  size      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  nodes Node[]
+
+  @@map("cluster")
+}
+
+model Node {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  clusterId String   @map("cluster_id")
+  host      String
+  port      Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  cluster Cluster @relation(fields: [clusterId], references: [id])
+
+  @@map("node")
+}
+
 //
 // Transfer Tracking Module
 //

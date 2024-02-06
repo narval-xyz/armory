@@ -2,6 +2,10 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '@app/orchestration/orchestration.constant'
+import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '@app/orchestration/policy-engine/core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import {
   AuthorizationRequestProcessingJob,
@@ -24,9 +28,31 @@ export class AuthorizationRequestProcessingConsumer {
       data: job.data
     })
 
-    await this.authzService.process(job.id.toString())
+    try {
+      await this.authzService.process(job.id.toString())
+    } catch (error) {
+      // Short-circuits the retry mechanism on unrecoverable domain errors.
+      //
+      // IMPORTANT: To stop retrying a job in Bull, the process must return an
+      // error instance.
+      if (this.isUnrecoverableError(error)) {
+        return error
+      }
 
-    return true
+      throw error
+    }
+  }
+
+  private isUnrecoverableError(error: Error): boolean {
+    switch (error.constructor) {
+      case ClusterNotFoundException:
+      case EvaluationConsensusException:
+      case UnreachableClusterException:
+      case InvalidAttestationSignatureException:
+        return true
+      default:
+        return false
+    }
   }
 
   @OnQueueActive()
@@ -39,6 +65,11 @@ export class AuthorizationRequestProcessingConsumer {
 
   @OnQueueCompleted()
   onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
+    if (result instanceof Error) {
+      this.logger.error('Stop processing authorization request due to unrecoverable error', result)
+      return
+    }
+
     this.logger.log('Completed authorization request job', {
       id: job.id,
       data: job.data,
@@ -49,7 +80,7 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueFailed()
-  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: Error): Promise<void> {
+  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: Error) {
     const log = {
       id: job.id,
       attemptsMade: job.attemptsMade,

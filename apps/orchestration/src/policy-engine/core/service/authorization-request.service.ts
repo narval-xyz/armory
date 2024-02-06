@@ -1,12 +1,12 @@
 import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
@@ -40,10 +40,10 @@ export class AuthorizationRequestService {
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
-    private authzApplicationClient: AuthzApplicationClient,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
-    private feedService: FeedService
+    private feedService: FeedService,
+    private clusterService: ClusterService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -119,8 +119,8 @@ export class AuthorizationRequestService {
     // request.
 
     const feeds = await this.feedService.gather(input)
-    const evaluation = await this.authzApplicationClient.evaluation({
-      host: 'http://localhost:3010',
+    const evaluation = await this.clusterService.evaluation({
+      orgId: input.orgId,
       data: {
         authentication: input.authentication,
         approvals: input.approvals,

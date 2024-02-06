@@ -9,13 +9,13 @@ import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-t
 import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
+import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   SignTransaction
 } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
 import { PriceService } from '@app/orchestration/price/core/service/price.service'
@@ -33,7 +33,7 @@ describe(AuthorizationRequestService.name, () => {
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
   let transferFeedServiceMock: MockProxy<TransferTrackingService>
-  let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
+  let clusterServiceMock: MockProxy<ClusterService>
   let priceServiceMock: MockProxy<PriceService>
   let feedServiceMock: MockProxy<FeedService>
   let service: AuthorizationRequestService
@@ -50,7 +50,7 @@ describe(AuthorizationRequestService.name, () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
     transferFeedServiceMock = mock<TransferTrackingService>()
-    authzApplicationClientMock = mock<AuthzApplicationClient>()
+    clusterServiceMock = mock<ClusterService>()
     priceServiceMock = mock<PriceService>()
     feedServiceMock = mock<FeedService>()
 
@@ -70,8 +70,8 @@ describe(AuthorizationRequestService.name, () => {
           useValue: transferFeedServiceMock
         },
         {
-          provide: AuthzApplicationClient,
-          useValue: authzApplicationClientMock
+          provide: ClusterService,
+          useValue: clusterServiceMock
         },
         {
           provide: PriceService,
@@ -131,7 +131,7 @@ describe(AuthorizationRequestService.name, () => {
     const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
 
     beforeEach(() => {
-      authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
+      clusterServiceMock.evaluation.mockResolvedValue(evaluationResponse)
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
       transferFeedServiceMock.findByOrgId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
@@ -153,8 +153,8 @@ describe(AuthorizationRequestService.name, () => {
     it('calls authz application client', async () => {
       await service.evaluate(authzRequest)
 
-      expect(authzApplicationClientMock.evaluation).toHaveBeenCalledWith({
-        host: 'http://localhost:3010',
+      expect(clusterServiceMock.evaluation).toHaveBeenCalledWith({
+        orgId: authzRequest.orgId,
         data: expect.objectContaining({
           authentication: authzRequest.authentication,
           approvals: authzRequest.approvals,
