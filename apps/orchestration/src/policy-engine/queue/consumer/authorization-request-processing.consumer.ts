@@ -2,6 +2,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
 import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
 import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
 import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
@@ -49,6 +50,7 @@ export class AuthorizationRequestProcessingConsumer {
       case EvaluationConsensusException:
       case UnreachableClusterException:
       case InvalidAttestationSignatureException:
+      case AuthorizationRequestAlreadyProcessingException:
         return true
       default:
         return false

@@ -8,6 +8,7 @@ import {
 import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
 import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
 import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
 import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
 import {
@@ -39,6 +40,7 @@ describe(AuthorizationRequestService.name, () => {
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
+    status: AuthorizationRequestStatus.CREATED,
     request: generateSignTransactionRequest({
       transactionRequest: generateTransactionRequest({
         chainId: ChainId.POLYGON
@@ -211,6 +213,15 @@ describe(AuthorizationRequestService.name, () => {
         },
         createdAt: expect.any(Date)
       })
+    })
+
+    it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING', async () => {
+      expect(
+        service.evaluate({
+          ...authzRequest,
+          status: AuthorizationRequestStatus.PROCESSING
+        })
+      ).rejects.toThrow(AuthorizationRequestAlreadyProcessingException)
     })
   })
 })

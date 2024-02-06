@@ -4,6 +4,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '@app/orchestration/orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
 import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
 import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
 import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
@@ -175,7 +176,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
           new ClusterNotFoundException(authzRequest.orgId),
           new EvaluationConsensusException([], []),
           new UnreachableClusterException(mock<Cluster>()),
-          new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey')
+          new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey'),
+          new AuthorizationRequestAlreadyProcessingException(authzRequest)
         ]
 
         expect.assertions(unrecoverableErrors.length)
