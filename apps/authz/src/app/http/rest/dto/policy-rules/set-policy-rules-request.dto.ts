@@ -27,6 +27,7 @@ export class SetPolicyRulesDto extends BaseActionDto {
 export class SetPolicyRulesRequestDto extends BaseAdminRequestPayloadDto {
   @IsDefined()
   @ValidateNested()
+  @Type(() => SetPolicyRulesDto)
   @ApiProperty()
   request: SetPolicyRulesDto
 }

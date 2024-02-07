@@ -14,7 +14,7 @@ import {
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsEnum, IsIn, IsString } from 'class-validator'
+import { IsDefined, IsEnum, IsIn, IsString, ValidateNested } from 'class-validator'
 
 export const Then = {
   PERMIT: 'permit',
@@ -129,10 +129,8 @@ class ActionCriterion extends BaseCriterion {
   })
   criterion: typeof Criterion.CHECK_ACTION
 
-  // TODO (@sam, 07/02/24): Check how to validate an array of enums.
   @IsDefined()
-  // @IsIn(Object.values(Action))
-  @IsEnum(Object.values(Action), {
+  @IsEnum(Action, {
     each: true
   })
   @ApiProperty({
@@ -387,26 +385,12 @@ export class Policy {
   @ApiProperty()
   name: string
 
-  // @ValidateNested({ each: true })
+  @ValidateNested({ each: true })
   // @Type(() => BaseCriterion, {
   //   discriminator: {
   //     property: 'criterion',
   //     subTypes: [{ value: ActionCriterion, name: Criterion.CHECK_ACTION }]
   //   }
-  // })
-  // @Type((opts) => {
-  //   const foo = opts?.object.when.map((item: PolicyCriterion) => {
-  //     switch (item.criterion) {
-  //       case Criterion.CHECK_ACTION:
-  //         return ActionCriterion
-  //       default:
-  //         return BaseCriterion
-  //     }
-  //   })
-
-  //   console.log(foo)
-
-  //   return foo
   // })
   @Type(() => ActionCriterion)
   @ApiProperty({

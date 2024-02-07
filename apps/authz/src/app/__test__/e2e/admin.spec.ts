@@ -459,6 +459,7 @@ describe('Admin Endpoints', () => {
         ],
         request: {
           action: 'setPolicyRules',
+          nonce: 'random-nonce',
           data: [
             {
               then: 'permit',
@@ -466,7 +467,7 @@ describe('Admin Endpoints', () => {
               when: [
                 {
                   criterion: 'checkAction',
-                  args: ['fooo']
+                  args: ['signTransaction']
                 }
               ]
             }
