@@ -12,6 +12,9 @@ import {
   ValueOperators
 } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
+import { IsDefined, IsEnum, IsIn, IsString } from 'class-validator'
 
 export const Then = {
   PERMIT: 'permit',
@@ -59,43 +62,43 @@ export const Criterion = {
 
 export type Criterion = (typeof Criterion)[keyof typeof Criterion]
 
-type AmountCondition = {
+export type AmountCondition = {
   currency: `${FiatCurrency}` | '*'
   operator: `${ValueOperators}`
   value: string
 }
 
-type ERC1155AmountCondition = {
+export type ERC1155AmountCondition = {
   tokenId: AssetId
   operator: `${ValueOperators}`
   value: string
 }
 
-type SignMessageCondition = {
+export type SignMessageCondition = {
   operator: `${ValueOperators.EQUAL}` | `${typeof IdentityOperators.CONTAINS}`
   value: string
 }
 
-type SignTypedDataDomainCondition = {
+export type SignTypedDataDomainCondition = {
   version?: string[]
   chainId?: string[]
   name?: string[]
   verifyingContract?: Address[]
 }
 
-type PermitDeadlineCondition = {
+export type PermitDeadlineCondition = {
   operator: `${ValueOperators}`
   value: string // timestamp in ms
 }
 
-type ApprovalCondition = {
+export type ApprovalCondition = {
   approvalCount: number
   countPrincipal: boolean
   approvalEntityType: `${EntityType}`
   entityIds: string[]
 }
 
-type SpendingLimitCondition = {
+export type SpendingLimitCondition = {
   limit: string
   currency?: `${FiatCurrency}`
   timeWindow?: {
@@ -114,175 +117,232 @@ type SpendingLimitCondition = {
   }
 }
 
-type ActionCriterion = {
+class BaseCriterion {
+  criterion: Criterion
+}
+
+class ActionCriterion extends BaseCriterion {
+  @IsDefined()
+  @ApiProperty({
+    type: String,
+    default: Criterion.CHECK_ACTION
+  })
   criterion: typeof Criterion.CHECK_ACTION
+
+  // TODO (@sam, 07/02/24): Check how to validate an array of enums.
+  @IsDefined()
+  // @IsIn(Object.values(Action))
+  @IsEnum(Object.values(Action), {
+    each: true
+  })
+  @ApiProperty({
+    enum: Object.values(Action),
+    isArray: true
+  })
   args: Action[]
 }
 
-type ResourceIntegrityCriterion = {
+class ResourceIntegrityCriterion {
   criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
   args: null
 }
 
-type PrincipalIdCriterion = {
+class PrincipalIdCriterion {
   criterion: typeof Criterion.CHECK_PRINCIPAL_ID
   args: string[]
 }
 
-type PrincipalRoleCriterion = {
+class PrincipalRoleCriterion {
   criterion: typeof Criterion.CHECK_PRINCIPAL_ROLE
   args: string[]
 }
 
-type PrincipalGroupCriterion = {
+class PrincipalGroupCriterion {
   criterion: typeof Criterion.CHECK_PRINCIPAL_GROUP
   args: string[]
 }
 
-type WalletIdCriterion = {
+class WalletIdCriterion {
   criterion: typeof Criterion.CHECK_WALLET_ID
   args: string[]
 }
 
-type WalletAddressCriterion = {
+class WalletAddressCriterion {
   criterion: typeof Criterion.CHECK_WALLET_ADDRESS
   args: string[]
 }
 
-type WalletAccountTypeCriterion = {
+class WalletAccountTypeCriterion {
   criterion: typeof Criterion.CHECK_WALLET_ACCOUNT_TYPE
   args: AccountType[]
 }
 
-type WalletChainIdCriterion = {
+class WalletChainIdCriterion {
   criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
   args: string[]
 }
 
-type WalletGroupCriterion = {
+class WalletGroupCriterion {
   criterion: typeof Criterion.CHECK_WALLET_GROUP
   args: string[]
 }
 
-type IntentTypeCriterion = {
+class IntentTypeCriterion {
   criterion: typeof Criterion.CHECK_INTENT_TYPE
   args: Intents[]
 }
 
-type DestinationIdCriterion = {
+class DestinationIdCriterion {
   criterion: typeof Criterion.CHECK_DESTINATION_ID
   args: AccountId[]
 }
 
-type DestinationAddressCriterion = {
+class DestinationAddressCriterion {
   criterion: typeof Criterion.CHECK_DESTINATION_ADDRESS
   args: string[]
 }
 
-type DestinationAccountTypeCriterion = {
+class DestinationAccountTypeCriterion {
   criterion: typeof Criterion.CHECK_DESTINATION_ACCOUNT_TYPE
   args: AccountType[]
 }
 
-type DestinationClassificationCriterion = {
+class DestinationClassificationCriterion {
   criterion: typeof Criterion.CHECK_DESTINATION_CLASSIFICATION
   args: string[]
 }
 
-type IntentContractCriterion = {
+class IntentContractCriterion {
   criterion: typeof Criterion.CHECK_INTENT_CONTRACT
   args: AccountId[]
 }
 
-type IntentTokenCriterion = {
+class IntentTokenCriterion {
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
   args: AccountId[]
 }
 
-type IntentSpenderCriterion = {
+class IntentSpenderCriterion {
   criterion: typeof Criterion.CHECK_INTENT_SPENDER
   args: AccountId[]
 }
 
-type IntentChainIdCriterion = {
+class IntentChainIdCriterion {
   criterion: typeof Criterion.CHECK_INTENT_CHAIN_ID
   args: string[]
 }
 
-type IntentHexSignatureCriterion = {
+class IntentHexSignatureCriterion {
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
   args: Hex[]
 }
 
-type IntentAmountCriterion = {
+class IntentAmountCriterion {
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
   args: AmountCondition
 }
 
-type ERC721TokenIdCriterion = {
+class ERC721TokenIdCriterion {
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
   args: AssetId[]
 }
 
-type ERC1155TokenIdCriterion = {
+class ERC1155TokenIdCriterion {
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
   args: AssetId[]
 }
 
-type ERC1155TransfersCriterion = {
+class ERC1155TransfersCriterion {
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
   args: ERC1155AmountCondition[]
 }
 
-type IntentMessageCriterion = {
+class IntentMessageCriterion {
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
   args: SignMessageCondition
 }
 
-type IntentPayloadCriterion = {
+class IntentPayloadCriterion {
   criterion: typeof Criterion.CHECK_INTENT_PAYLOAD
   args: string[]
 }
 
-type IntentAlgorithmCriterion = {
+class IntentAlgorithmCriterion {
   criterion: typeof Criterion.CHECK_INTENT_ALGORITHM
   args: Alg[]
 }
 
-type IntentDomainCriterion = {
+class IntentDomainCriterion {
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
   args: SignTypedDataDomainCondition
 }
 
-type PermitDeadlineCriterion = {
+class PermitDeadlineCriterion {
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
   args: PermitDeadlineCondition
 }
 
-type GasFeeAmountCriterion = {
+class GasFeeAmountCriterion {
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
   args: AmountCondition
 }
 
-type NonceRequiredCriterion = {
+class NonceRequiredCriterion {
   criterion: typeof Criterion.CHECK_NONCE_EXISTS
   args: null
 }
 
-type NonceNotRequiredCriterion = {
+class NonceNotRequiredCriterion {
   criterion: typeof Criterion.CHECK_NONCE_NOT_EXISTS
   args: null
 }
 
-type ApprovalsCriterion = {
+class ApprovalsCriterion {
   criterion: typeof Criterion.CHECK_APPROVALS
   args: ApprovalCondition[]
 }
 
-type SpendingLimitCriterion = {
+class SpendingLimitCriterion {
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
   args: SpendingLimitCondition
 }
+
+const SUPPORTED_CRITERION = [
+  ActionCriterion,
+  ResourceIntegrityCriterion,
+  PrincipalIdCriterion,
+  PrincipalRoleCriterion,
+  PrincipalGroupCriterion,
+  WalletIdCriterion,
+  WalletAddressCriterion,
+  WalletAccountTypeCriterion,
+  WalletChainIdCriterion,
+  WalletGroupCriterion,
+  IntentTypeCriterion,
+  DestinationIdCriterion,
+  DestinationAddressCriterion,
+  DestinationAccountTypeCriterion,
+  DestinationClassificationCriterion,
+  IntentContractCriterion,
+  IntentTokenCriterion,
+  IntentSpenderCriterion,
+  IntentChainIdCriterion,
+  IntentHexSignatureCriterion,
+  IntentAmountCriterion,
+  ERC721TokenIdCriterion,
+  ERC1155TokenIdCriterion,
+  ERC1155TransfersCriterion,
+  IntentMessageCriterion,
+  IntentPayloadCriterion,
+  IntentAlgorithmCriterion,
+  IntentDomainCriterion,
+  PermitDeadlineCriterion,
+  GasFeeAmountCriterion,
+  NonceRequiredCriterion,
+  NonceNotRequiredCriterion,
+  ApprovalsCriterion,
+  SpendingLimitCriterion
+] as const
 
 export type PolicyCriterion =
   | ActionCriterion
@@ -320,8 +380,46 @@ export type PolicyCriterion =
   | ApprovalsCriterion
   | SpendingLimitCriterion
 
-export type PolicyCriterionBuilder = {
+@ApiExtraModels(...SUPPORTED_CRITERION)
+export class Policy {
+  @IsDefined()
+  @IsString()
+  @ApiProperty()
   name: string
+
+  // @ValidateNested({ each: true })
+  // @Type(() => BaseCriterion, {
+  //   discriminator: {
+  //     property: 'criterion',
+  //     subTypes: [{ value: ActionCriterion, name: Criterion.CHECK_ACTION }]
+  //   }
+  // })
+  // @Type((opts) => {
+  //   const foo = opts?.object.when.map((item: PolicyCriterion) => {
+  //     switch (item.criterion) {
+  //       case Criterion.CHECK_ACTION:
+  //         return ActionCriterion
+  //       default:
+  //         return BaseCriterion
+  //     }
+  //   })
+
+  //   console.log(foo)
+
+  //   return foo
+  // })
+  @Type(() => ActionCriterion)
+  @ApiProperty({
+    oneOf: SUPPORTED_CRITERION.map((entity) => ({
+      $ref: getSchemaPath(entity)
+    }))
+  })
   when: PolicyCriterion[]
+
+  @IsDefined()
+  @IsIn(Object.values(Then))
+  @ApiProperty({
+    enum: Object.values(Then)
+  })
   then: Then
 }

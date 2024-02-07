@@ -1,4 +1,4 @@
-import { PolicyCriterionBuilder } from './policy-builder.type'
+import { Policy } from '@narval/authz-shared'
 
 export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
@@ -266,9 +266,10 @@ export type RegisterTokensAction = BaseAction & {
 export type RegisterTokensRequest = BaseAdminRequest & {
   request: RegisterTokensAction
 }
+
 export type SetPolicyRulesAction = BaseAction & {
   action: typeof Action.SET_POLICY_RULES
-  data: PolicyCriterionBuilder[]
+  data: Policy[]
 }
 
 export type SetPolicyRulesRequest = BaseAdminRequest & {

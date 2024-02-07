@@ -1,16 +1,10 @@
-import { PolicyCriterionBuilder, Then } from '@narval/authz-shared'
+import { PolicyCriterionDto } from '@app/authz/app/http/rest/dto/policy-rules/policy-criterion.dto'
+import { Then } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
-import { PolicyCriterionDto } from './policy-criterion.dto'
 
-export class PolicyCriterionBuilderDto {
-  constructor(data: PolicyCriterionBuilder) {
-    this.name = data.name
-    this.when = data.when
-    this.then = data.then
-  }
-
+export class PolicyDto {
   @IsString()
   @IsDefined()
   @ApiProperty()
@@ -31,4 +25,8 @@ export class PolicyCriterionBuilderDto {
     default: Then.FORBID
   })
   then: Then
+
+  constructor(partial: Partial<PolicyDto>) {
+    Object.assign(this, partial)
+  }
 }

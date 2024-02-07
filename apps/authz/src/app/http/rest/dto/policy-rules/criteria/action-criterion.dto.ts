@@ -1,14 +1,12 @@
-import { Action, Criterion } from '@narval/authz-shared'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum } from 'class-validator'
+import { Action } from '@narval/authz-shared'
 
 export class ActionCriterionDto {
-  @IsDefined()
-  @ApiProperty()
-  criterion: typeof Criterion.CHECK_ACTION
+  // @IsDefined()
+  // @ApiProperty()
+  // criterion: typeof Criterion.CHECK_ACTION
 
-  @IsDefined()
-  @IsEnum(Action, { each: true })
-  @ApiProperty({ isArray: true, enum: Action })
+  // @IsDefined()
+  // @IsEnum(Action, { each: true })
+  // @ApiProperty({ isArray: true, enum: Action })
   args: Action[]
 }

@@ -14,7 +14,6 @@ import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/crea
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
 import { SetPolicyRulesRequestDto } from '@app/authz/app/http/rest/dto/policy-rules/set-policy-rules-request.dto'
-import { SetPolicyRulesResponseDto } from '@app/authz/app/http/rest/dto/policy-rules/set-policy-rules-response.dto'
 import { RegisterTokensRequestDto } from '@app/authz/app/http/rest/dto/register-tokens-request.dto'
 import { RegisterTokensResponseDto } from '@app/authz/app/http/rest/dto/register-tokens-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
@@ -34,7 +33,7 @@ import {
   SetPolicyRulesRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
-import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Logger, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common'
 
 @Controller('/admin')
 export class AdminController {
@@ -141,13 +140,18 @@ export class AdminController {
     return response
   }
 
-  @Post('/policy-rules')
+  @Post('/policies')
+  @UsePipes(ValidationPipe)
   async setPolicyRules(@Body() body: SetPolicyRulesRequestDto) {
     const payload: SetPolicyRulesRequest = body
 
     const policyRules = await this.adminService.setPolicyRules(payload)
 
-    const response = new SetPolicyRulesResponseDto(policyRules)
-    return response
+    // const response = new SetPolicyRulesResponseDto(policyRules)
+    // return response
+
+    console.log('## ctrl', policyRules)
+
+    return policyRules
   }
 }

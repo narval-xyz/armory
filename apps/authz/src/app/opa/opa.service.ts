@@ -1,7 +1,7 @@
 import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
 import { RegoData, User, UserGroup, WalletGroup } from '@app/authz/shared/types/entities.types'
 import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
-import { Criterion, PolicyCriterionBuilder, Then } from '@narval/authz-shared'
+import { Criterion, Policy, Then } from '@narval/authz-shared'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync, writeFileSync } from 'fs'
@@ -40,7 +40,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  generateRegoFile(policies: PolicyCriterionBuilder[]): void {
+  generateRegoFile(policies: Policy[]): void {
     Handlebars.registerHelper('criterion', function (item) {
       const criterion: Criterion = item.criterion
       const args = item.args

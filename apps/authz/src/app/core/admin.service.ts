@@ -10,7 +10,7 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
-  PolicyCriterionBuilder,
+  Policy,
   RegisterTokensRequest,
   RegisterWalletRequest,
   SetPolicyRulesRequest,
@@ -102,7 +102,7 @@ export class AdminService {
     return payload.request.tokens
   }
 
-  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<PolicyCriterionBuilder[]> {
+  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<Policy[]> {
     await this.opaService.generateRegoFile(payload.request.data)
 
     return payload.request.data

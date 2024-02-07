@@ -1,15 +1,19 @@
-import { PolicyCriterionBuilder } from '@narval/authz-shared'
+import { Policy } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import { IsDefined, ValidateNested } from 'class-validator'
-import { PolicyCriterionBuilderDto } from './policy-criterion-builder.dto'
 
 export class SetPolicyRulesResponseDto {
-  constructor(policyRules: PolicyCriterionBuilder[]) {
-    this.policyRules = policyRules.map((rule) => new PolicyCriterionBuilderDto(rule))
-  }
-
   @IsDefined()
+  @Type(() => Policy)
   @ValidateNested()
-  @ApiProperty()
-  policyRules: PolicyCriterionBuilderDto[]
+  @ApiProperty({
+    type: () => Policy,
+    isArray: true
+  })
+  policyRules: Policy[]
+
+  constructor(partial: Partial<SetPolicyRulesResponseDto>) {
+    Object.assign(this, partial)
+  }
 }

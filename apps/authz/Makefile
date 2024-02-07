@@ -91,11 +91,20 @@ authz/test/type:
 authz/test/unit:
 	npx nx test:unit ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
+authz/test/unit/watch:
+	make authz/test/unit ARGS=--watch
+
 authz/test/integration:
 	npx nx test:integration ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
+authz/test/integration/watch:
+	make authz/test/integration ARGS=--watch
+
 authz/test/e2e:
 	npx nx test:e2e ${AUTHZ_PROJECT_NAME} -- ${ARGS}
+
+authz/test/e2e/watch:
+	make authz/test/e2e ARGS=--watch
 
 # === Open Policy Agent & Rego ===
 

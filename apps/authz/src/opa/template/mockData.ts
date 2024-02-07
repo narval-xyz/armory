@@ -1,7 +1,7 @@
-import { Action, Criterion, PolicyCriterionBuilder, Then } from '@narval/authz-shared'
+import { Action, Criterion, Policy, Then } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 
-export const examplePermitPolicy: PolicyCriterionBuilder = {
+export const examplePermitPolicy: Policy = {
   then: Then.PERMIT,
   name: 'examplePermitPolicy',
   when: [
@@ -57,7 +57,7 @@ export const examplePermitPolicy: PolicyCriterionBuilder = {
   ]
 }
 
-export const exampleForbidPolicy: PolicyCriterionBuilder = {
+export const exampleForbidPolicy: Policy = {
   then: Then.FORBID,
   name: 'exampleForbidPolicy',
   when: [
