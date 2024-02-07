@@ -1,22 +1,7 @@
 package main
 
-import future.keywords.in
-
-permit[{"policyId": "test-permit-policy-1"}] = reason {
-	users = {"matt@narval.xyz"}
-	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
-	transferTypes = {"transferNative"}
-	tokens = {"eip155:137/slip44:966"}
-	transferValueCondition = {"currency": "*", "operator": "lte", "value": "1000000000000000000"}
-	approvalsRequired = [{
-		"approvalCount": 2,
-		"countPrincipal": false,
-		"approvalEntityType": "Narval::User",
-		"entityIds": ["aa@narval.xyz", "bb@narval.xyz"],
-	}]
-
+permit[{"policyId": "examplePermitPolicy"}] = reason {
 	checkTransferResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkPrincipalId({"matt@narval.xyz"})
@@ -28,15 +13,8 @@ permit[{"policyId": "test-permit-policy-1"}] = reason {
 	reason = {"type": "permit", "policyId": "examplePermitPolicy", "approvalsSatisfied": approvals.approvalsSatisfied, "approvalsMissing": approvals.approvalsMissing}
 }
 
-forbid[{"policyId": "test-forbid-policy-1"}] = reason {
-	users = {"matt@narval.xyz"}
-	resources = {"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"}
-	transferTypes = {"transferNative"}
-	tokens = {"eip155:137/slip44:966"}
-	limit = "1000000000000000000"
-
+forbid[{"policyId": "exampleForbidPolicy"}] = reason {
 	checkTransferResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkPrincipalId({"matt@narval.xyz"})
