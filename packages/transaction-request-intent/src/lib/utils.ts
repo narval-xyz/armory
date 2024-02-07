@@ -8,12 +8,12 @@ import {
   Namespace,
   TransactionRequest,
   isAccountId,
+  isAddress,
   toAccountId,
   toAssetId
 } from '@narval/authz-shared'
 import { SetOptional } from 'type-fest'
-// eslint-disable-next-line no-restricted-imports
-import { Address, isAddress } from 'viem'
+import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
   AssetTypeAndUnknown,
   ContractCallInput,
@@ -21,9 +21,13 @@ import {
   ContractRegistry,
   ContractRegistryInput,
   Intents,
+  MessageInput,
   Misc,
   NULL_METHOD_ID,
   NativeTransferInput,
+  PERMIT2_DOMAIN,
+  Slip44SupportedAddresses,
+  SupportedChains,
   TransactionCategory,
   TransactionKey,
   TransactionRegistry,
@@ -31,9 +35,10 @@ import {
   TypedData,
   WalletType
 } from './domain'
-import { SignTypedData } from './intent.types'
-import { SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
-import { assertLowerHexString, isAssetType, isString, isSupportedMethodId } from './typeguards'
+import { DecoderError } from './error'
+import { Permit, Permit2, SignMessage, SignTypedData } from './intent.types'
+import { MethodsMapping, SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
+import { assertLowerHexString, isAssetType, isPermit, isPermit2, isString, isSupportedMethodId } from './typeguards'
 
 export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
 
@@ -58,9 +63,9 @@ export const buildContractRegistryEntry = ({
 }): { [key: AccountId]: AssetTypeAndUnknown } => {
   const registry: { [key: AccountId]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
-    throw new Error('Invalid contract registry entry')
+    throw new DecoderError({ message: 'Invalid contract registry entry', status: 400 })
   }
-  const key = buildContractKey(chainId, contractAddress)
+  const key = buildContractKey(chainId, contractAddress as Address)
   registry[key] = assetType
   return registry
 }
@@ -74,7 +79,11 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
     }
     if (isString(contract)) {
       if (!isAccountId(contract)) {
-        throw new Error(`Contract registry key is not a valid Caip10: ${contract}`)
+        throw new DecoderError({
+          message: 'Contract registry key is not a valid Caip10',
+          status: 400,
+          context: { contract, input }
+        })
       }
       registry.set(contract.toLowerCase(), information)
     } else {
@@ -94,10 +103,18 @@ export const buildContractKey = (
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
     if (!isAccountId(key)) {
-      throw new Error(`Invalid contract registry key: ${key}: ${registry[key]}`)
+      throw new DecoderError({
+        message: 'Invalid contract registry key',
+        status: 400,
+        context: { key, value: registry[key] }
+      })
     }
     if (!isAssetType(registry[key])) {
-      throw new Error(`Invalid contract registry value: ${key}: ${registry[key]}`)
+      throw new DecoderError({
+        message: 'Invalid contract registry value',
+        status: 400,
+        context: { key, value: registry[key] }
+      })
     }
   })
   return true
@@ -117,7 +134,9 @@ export const contractTypeLookup = (
 }
 
 export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
-  if (!txRequest.nonce) throw new Error('nonce needed to build transaction key')
+  if (!txRequest.nonce) {
+    throw new DecoderError({ message: 'nonce needed to build transaction key', status: 400 })
+  }
   const account = toAccountId({
     chainId: txRequest.chainId,
     address: txRequest.from,
@@ -142,23 +161,68 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
 
 export const decodeTypedData = (typedData: TypedData): SignTypedData => ({
   type: Intents.SIGN_TYPED_DATA,
-  domain: typedData.domain,
-  from: toAccountId({
-    chainId: typedData.domain.chainId,
-    address: typedData.from.toLowerCase() as Address
-  })
+  domain: typedData.domain
 })
 
-export const decodePermit = (typedData: TypedData): SignTypedData => {
-  const { domain } = typedData
-  // const { spender, value, nonce, deadline } = message
+export const decodeMessage = (message: MessageInput): SignMessage => {
+  if (!message.payload.startsWith(presignMessagePrefix)) {
+    throw new DecoderError({ message: 'Invalid message prefix', status: 400 })
+  }
   return {
-    type: Intents.SIGN_TYPED_DATA,
-    domain,
-    from: toAccountId({
+    type: Intents.SIGN_MESSAGE,
+    message: message.payload.slice(presignMessagePrefix.length + 2)
+  }
+}
+
+export const decodePermit = (typedData: TypedData): Permit | null => {
+  const { chainId, verifyingContract } = typedData.domain
+  if (!isPermit(typedData.message)) {
+    return null
+  }
+  const { spender, value, deadline, owner } = typedData.message
+  return {
+    type: Intents.PERMIT,
+    amount: fromHex(value, 'bigint').toString(),
+    owner: toAccountIdLowerCase({
+      chainId,
+      address: owner
+    }),
+    spender: toAccountIdLowerCase({
+      chainId,
+      address: spender
+    }),
+    token: toAccountIdLowerCase({
+      chainId,
+      address: verifyingContract
+    }),
+    deadline: deadline
+  }
+}
+
+export const decodePermit2 = (typedData: TypedData): Permit2 | null => {
+  const { domain, message } = typedData
+  if (domain.name !== PERMIT2_DOMAIN.name || domain.verifyingContract !== PERMIT2_DOMAIN.verifyingContract) {
+    return null
+  }
+  if (!isPermit2(message)) {
+    return null
+  }
+  return {
+    type: Intents.PERMIT2,
+    owner: toAccountIdLowerCase({
       chainId: domain.chainId,
-      address: typedData.from
-    })
+      address: message.details.owner
+    }),
+    spender: toAccountIdLowerCase({
+      chainId: domain.chainId,
+      address: message.spender
+    }),
+    token: toAccountIdLowerCase({
+      chainId: domain.chainId,
+      address: message.details.token
+    }),
+    amount: fromHex(message.details.amount, 'bigint').toString(),
+    deadline: message.details.expiration
   }
 }
 
@@ -185,24 +249,17 @@ export const getTransactionIntentType = ({
   const { to, from, chainId } = txRequest
   const toType = contractTypeLookup(chainId, to, contractRegistry)
   const fromType = contractTypeLookup(chainId, from, contractRegistry)
-  // !! ORDER MATTERS !!
-  // Here we are checking for specific intents first.
-  // Then we check for intents tight to specific methods
-  // If nothing matches, we return the default Call Contract intent
   const conditions = [
-    // Transfer From condition
     {
       condition: () =>
         methodId === SupportedMethodId.TRANSFER_FROM &&
         ((toType && toType.assetType === AssetType.ERC20) || (toType && toType.assetType === AssetType.ERC721)),
       intent: toType?.assetType === AssetType.ERC721 ? Intents.TRANSFER_ERC721 : Intents.TRANSFER_ERC20
     },
-    // Cancel condition
     {
       condition: () => methodId === SupportedMethodId.NULL_METHOD_ID && to === from,
       intent: Intents.CANCEL_TRANSACTION
     },
-    // Contract deployment conditions for specific transactions
     {
       condition: () => {
         return methodId === SupportedMethodId.CREATE_ACCOUNT && fromType && fromType.factoryType !== WalletType.UNKNOWN
@@ -212,7 +269,6 @@ export const getTransactionIntentType = ({
           ? Intents.DEPLOY_ERC_4337_WALLET
           : Intents.DEPLOY_SAFE_WALLET
     },
-    // Supported methods conditions
     {
       condition: () => true,
       intent: isSupportedMethodId(methodId) && SUPPORTED_METHODS[methodId].intent
@@ -245,3 +301,37 @@ export const toAccountIdLowerCase = (input: SetOptional<Account, 'namespace'>): 
 
 export const toAssetIdLowerCase = (input: SetOptional<Asset, 'namespace'>): AssetId =>
   toAssetId(input).toLowerCase() as AssetId
+
+export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
+  const { from, to, value } = input
+  if (from === to && (value === '0x0' || value === '0x')) {
+    return Intents.CANCEL_TRANSACTION
+  }
+  return Intents.TRANSFER_NATIVE
+}
+
+export const nativeCaip19 = (chainId: number): AssetId => {
+  if (chainId !== SupportedChains.ETHEREUM && chainId !== SupportedChains.POLYGON) {
+    throw new DecoderError({
+      message: 'Invalid chainId',
+      status: 400,
+      context: {
+        chainId
+      }
+    })
+  }
+  const coinType = chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
+  return toAssetId({
+    chainId,
+    assetType: AssetType.SLIP44,
+    coinType
+  })
+}
+
+export const getMethod = (methodId: SupportedMethodId, supportedMethods: MethodsMapping) => {
+  const method = supportedMethods[methodId]
+  if (!method) {
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
+  }
+  return method
+}

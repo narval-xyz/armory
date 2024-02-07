@@ -1,39 +1,28 @@
 import { ContractCallInput, Intents } from '../../../domain'
+import { DecoderError } from '../../../error'
 import { TransferParams } from '../../../extraction/types'
 import { TransferErc20 } from '../../../intent.types'
+import { MethodsMapping } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
 import { toAccountIdLowerCase } from '../../../utils'
-import DecoderStrategy from '../../DecoderStrategy'
+import { extract } from '../../utils'
 
-export default class Erc20TransferDecoder extends DecoderStrategy {
-  #input: ContractCallInput
-
-  constructor(input: ContractCallInput) {
-    super(input)
-    this.#input = input
+export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc20 => {
+  const { from, to, chainId, data, methodId } = input
+  if (!isSupportedMethodId(methodId)) {
+    throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
 
-  decode(): TransferErc20 {
-    const { from, to, chainId, data, methodId } = this.#input
-    if (!isSupportedMethodId(methodId)) {
-      throw new Error('Unsupported methodId')
-    }
-    const params = this.extract(data, methodId) as TransferParams
-    try {
-      const { amount, recipient } = params
-      const intent: TransferErc20 = {
-        // TODO: Please, please, please, lower case in a single place at the
-        // entry point of the system.
-        to: toAccountIdLowerCase({ chainId, address: recipient }),
-        from: toAccountIdLowerCase({ chainId, address: from }),
-        type: Intents.TRANSFER_ERC20,
-        amount,
-        contract: toAccountIdLowerCase({ chainId, address: to })
-      }
+  const params = extract(supportedMethods, data, methodId) as TransferParams
+  const { amount, recipient } = params
 
-      return intent
-    } catch {
-      throw new Error('Params do not match ERC20 transfer methodId')
-    }
+  const intent: TransferErc20 = {
+    to: toAccountIdLowerCase({ chainId, address: recipient }),
+    from: toAccountIdLowerCase({ chainId, address: from }),
+    type: Intents.TRANSFER_ERC20,
+    amount,
+    token: toAccountIdLowerCase({ chainId, address: to })
   }
+
+  return intent
 }

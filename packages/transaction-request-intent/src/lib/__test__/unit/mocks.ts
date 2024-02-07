@@ -249,7 +249,7 @@ const ERC20_TRANSFER_INTENT: TransferErc20 = {
   type: Intents.TRANSFER_ERC20,
   to: `eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed` as AccountId,
   from: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}` as AccountId,
-  contract: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as AccountId,
+  token: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as AccountId,
   amount: '428406414311469998210669'
 }
 
@@ -267,7 +267,7 @@ const ERC721_SAFE_TRANSFER_FROM_INTENT: TransferErc721 = {
   to: `eip155:137/0xb253f6156e64b12ba0dec3974062dbbaee139f0c` as AccountId,
   from: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as AccountId,
   contract: `eip155:137/${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as AccountId,
-  nftId: `eip155:137/erc721:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to}/41173` as AssetId
+  token: `eip155:137/erc721:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to}/41173` as AssetId
 }
 
 export const mockErc721SafeTransferFrom = {
@@ -315,7 +315,7 @@ const ERC1155_SAFE_TRANSFER_FROM_INTENT: TransferErc1155 = {
   to: `eip155:137/0x00ca04c45da318d5b7e7b14d5381ca59f09c73f0` as AccountId,
   from: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}` as AccountId,
   contract: `eip155:137/${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}` as AccountId,
-  transfers: [{ tokenId: `eip155:137/erc1155:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to}/175` as AssetId, amount: '1' }]
+  transfers: [{ token: `eip155:137/erc1155:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to}/175` as AssetId, amount: '1' }]
 }
 export const mockErc1155SafeTransferFrom = {
   input: {
@@ -340,11 +340,11 @@ const ERC1155_BATCH_SAFE_TRANSFER_FROM_INTENT = {
   contract: `eip155:137/${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to?.toLowerCase()}` as AccountId,
   transfers: [
     {
-      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/2972` as AssetId,
+      token: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/2972` as AssetId,
       amount: '1'
     },
     {
-      tokenId: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/162` as AssetId,
+      token: `eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/162` as AssetId,
       amount: '1'
     }
   ]

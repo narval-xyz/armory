@@ -1,24 +1,16 @@
 import { ContractCallInput, Intents } from '../../../domain'
 import { CallContract } from '../../../intent.types'
 import { toAccountIdLowerCase } from '../../../utils'
-import DecoderStrategy from '../../DecoderStrategy'
 
-export default class CallContractDecoder extends DecoderStrategy {
-  #input: ContractCallInput
+export const decodeCallContract = (input: ContractCallInput): CallContract => {
+  const { to, from, chainId, methodId } = input
 
-  constructor(input: ContractCallInput) {
-    super(input)
-    this.#input = input
+  const intent: CallContract = {
+    from: toAccountIdLowerCase({ chainId, address: from }),
+    contract: toAccountIdLowerCase({ chainId, address: to }),
+    type: Intents.CALL_CONTRACT,
+    hexSignature: methodId
   }
 
-  decode(): CallContract {
-    const { to, from, chainId, methodId } = this.#input
-    const intent: CallContract = {
-      from: toAccountIdLowerCase({ chainId, address: from }),
-      contract: toAccountIdLowerCase({ chainId, address: to }),
-      type: Intents.CALL_CONTRACT,
-      hexSignature: methodId
-    }
-    return intent
-  }
+  return intent
 }

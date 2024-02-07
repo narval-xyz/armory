@@ -6,7 +6,7 @@ import { PriceService } from '@app/orchestration/price/core/service/price.servic
 import { getChain } from '@app/orchestration/shared/core/lib/chains.lib'
 import { Prices } from '@app/orchestration/shared/core/type/price.type'
 import { Action, Alg, AssetId, Feed, Signature, hashRequest } from '@narval/authz-shared'
-import { Decoder, InputType, Intents } from '@narval/transaction-request-intent'
+import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { uniq } from 'lodash/fp'
@@ -64,9 +64,11 @@ export class PriceFeedService implements DataFeed<Prices> {
 
   private getAssetIds(authzRequest: AuthorizationRequest): AssetId[] {
     if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
-      const result = new Decoder().safeDecode({
-        type: InputType.TRANSACTION_REQUEST,
-        txRequest: authzRequest.request.transactionRequest
+      const result = safeDecode({
+        input: {
+          type: InputType.TRANSACTION_REQUEST,
+          txRequest: authzRequest.request.transactionRequest
+        }
       })
 
       const chain = getChain(authzRequest.request.transactionRequest.chainId)

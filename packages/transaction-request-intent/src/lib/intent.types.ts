@@ -14,7 +14,7 @@ export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
   to: AccountId
   from: AccountId
-  contract: AccountId
+  token: AccountId
   amount: string
 }
 
@@ -23,11 +23,11 @@ export type TransferErc721 = {
   to: AccountId
   from: AccountId
   contract: AccountId
-  nftId: AssetId
+  token: AssetId
 }
 
 export type ERC1155Transfer = {
-  tokenId: AssetId
+  token: AssetId
   amount: string
 }
 
@@ -49,26 +49,17 @@ export type CallContract = {
 
 export type SignMessage = {
   type: Intents.SIGN_MESSAGE
-  from: AccountId
   message: string
 }
 
-export type SignRawMessage = {
-  type: Intents.SIGN_RAW_MESSAGE
-  from: AccountId
-  message: string
-}
-
-export type SignRawPayload = {
-  type: Intents.SIGN_RAW_PAYLOAD
-  from: AccountId
+export type SignRaw = {
+  type: Intents.SIGN_RAW
   algorithm: Alg
   payload: string
 }
 
 export type SignTypedData = {
   type: Intents.SIGN_TYPED_DATA
-  from: AccountId
   domain: Eip712Domain
 }
 
@@ -109,18 +100,20 @@ export type ApproveTokenAllowance = {
 
 export type Permit = {
   type: Intents.PERMIT
-  from: AccountId
+  owner: AccountId
   spender: AccountId
   amount: string
-  deadline: string
+  token: AccountId
+  deadline: number
 }
 
 export type Permit2 = {
   type: Intents.PERMIT2
-  from: AccountId
+  owner: AccountId
   spender: AccountId
   amount: string
-  deadline: string
+  token: AccountId
+  deadline: number
 }
 
 export type UserOperation = {
@@ -146,8 +139,7 @@ export type Intent =
   | DeployErc4337Wallet
   | DeploySafeWallet
   | SignMessage
-  | SignRawMessage
-  | SignRawPayload
+  | SignRaw
   | SignTypedData
   | Permit
   | Permit2
