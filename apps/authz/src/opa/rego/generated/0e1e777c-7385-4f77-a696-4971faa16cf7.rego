@@ -1,7 +1,7 @@
 package main
 
   permit[{"policyId": "examplePermitPolicy" }] = reason {
-    checkTransferResourceIntegrity
+    checkResourceIntegrity
     checkNonceExists
     checkAction({"signTransaction"})
     checkPrincipalId({"matt@narval.xyz"})
@@ -14,7 +14,7 @@ package main
   }
 
   forbid[{"policyId": "exampleForbidPolicy" }] = reason {
-    checkTransferResourceIntegrity
+    checkResourceIntegrity
     checkNonceExists
     checkAction({"signTransaction"})
     checkPrincipalId({"matt@narval.xyz"})

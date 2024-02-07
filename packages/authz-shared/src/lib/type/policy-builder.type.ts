@@ -22,7 +22,7 @@ export type Then = (typeof Then)[keyof typeof Then]
 
 export const Criterion = {
   CHECK_ACTION: 'checkAction',
-  CHECK_TRANSFER_RESOURCE_INTEGRITY: 'checkTransferResourceIntegrity',
+  CHECK_RESOURCE_INTEGRITY: 'checkResourceIntegrity',
   CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
   CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
@@ -119,8 +119,8 @@ type ActionCriterion = {
   args: Action[]
 }
 
-type TransferResourceIntegrityCriterion = {
-  criterion: typeof Criterion.CHECK_TRANSFER_RESOURCE_INTEGRITY
+type ResourceIntegrityCriterion = {
+  criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
   args: null
 }
 
@@ -286,7 +286,7 @@ type SpendingLimitCriterion = {
 
 export type PolicyCriterion =
   | ActionCriterion
-  | TransferResourceIntegrityCriterion
+  | ResourceIntegrityCriterion
   | PrincipalIdCriterion
   | PrincipalRoleCriterion
   | PrincipalGroupCriterion

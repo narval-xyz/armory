@@ -6,7 +6,7 @@ export const examplePermitPolicy: PolicyCriterionBuilder = {
   name: 'examplePermitPolicy',
   when: [
     {
-      criterion: Criterion.CHECK_TRANSFER_RESOURCE_INTEGRITY,
+      criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
       args: null
     },
     {
@@ -62,7 +62,7 @@ export const exampleForbidPolicy: PolicyCriterionBuilder = {
   name: 'exampleForbidPolicy',
   when: [
     {
-      criterion: Criterion.CHECK_TRANSFER_RESOURCE_INTEGRITY,
+      criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
       args: null
     },
     {
