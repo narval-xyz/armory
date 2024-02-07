@@ -96,7 +96,7 @@ export class OpaService implements OnApplicationBootstrap {
 
     writeFileSync(`./apps/authz/src/opa/rego/generated/${uuidv4()}.rego`, regoContent, 'utf-8')
 
-    console.log('Policy .rego file generated successfully.')
+    this.logger.log('Policy .rego file generated successfully.')
   }
 
   private async fetchEntityData(): Promise<RegoData> {

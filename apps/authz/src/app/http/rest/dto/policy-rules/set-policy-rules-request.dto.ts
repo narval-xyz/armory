@@ -1,8 +1,8 @@
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, ValidateNested } from 'class-validator'
-import { BaseActionDto } from './base-action.dto'
-import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
+import { BaseActionDto } from '../base-action.dto'
+import { BaseAdminRequestPayloadDto } from '../base-admin-request-payload.dto'
 import { PolicyCriterionBuilderDto } from './policy-criterion-builder.dto'
 
 export class SetPolicyRulesDto extends BaseActionDto {

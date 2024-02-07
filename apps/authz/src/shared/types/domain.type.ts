@@ -14,22 +14,6 @@ export enum UserRoles {
   MANAGER = 'manager'
 }
 
-export enum ValueOperators {
-  GREATER_THAN = 'gt',
-  LESS_THAN = 'lt',
-  GREATER_THAN_OR_EQUAL = 'gte',
-  LESS_THAN_OR_EQUAL = 'lte',
-  EQUAL = 'eq',
-  NOT_EQUAL = 'ne'
-}
-
-export enum IdentityOperators {
-  IS = 'is',
-  IS_NOT = 'is_not',
-  CONTAINS = 'contains',
-  IN = 'in'
-}
-
 export type RegoInput = {
   action: Action
   intent?: Intent
