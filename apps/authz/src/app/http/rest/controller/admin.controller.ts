@@ -5,12 +5,16 @@ import { AssignUserWalletRequestDto } from '@app/authz/app/http/rest/dto/assign-
 import { AssignUserWalletResponseDto } from '@app/authz/app/http/rest/dto/assign-user-wallet-response.dto'
 import { AssignWalletGroupRequestDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-request.dto'
 import { AssignWalletGroupResponseDto } from '@app/authz/app/http/rest/dto/assign-wallet-group-response.dto'
+import { CreateAddressBookAccountRequestDto } from '@app/authz/app/http/rest/dto/create-address-book-request.dto'
+import { CreateAddressBookAccountResponseDto } from '@app/authz/app/http/rest/dto/create-address-book-response.dto'
 import { CreateCredentialRequestDto } from '@app/authz/app/http/rest/dto/create-credential-request.dto'
 import { CreateCredentialResponseDto } from '@app/authz/app/http/rest/dto/create-credential-response.dto'
 import { CreateOrganizationRequestDto } from '@app/authz/app/http/rest/dto/create-organization-request.dto'
 import { CreateOrganizationResponseDto } from '@app/authz/app/http/rest/dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '@app/authz/app/http/rest/dto/create-user-request.dto'
 import { CreateUserResponseDto } from '@app/authz/app/http/rest/dto/create-user-response.dto'
+import { RegisterTokensRequestDto } from '@app/authz/app/http/rest/dto/register-tokens-request.dto'
+import { RegisterTokensResponseDto } from '@app/authz/app/http/rest/dto/register-tokens-response.dto'
 import { RegisterWalletRequestDto } from '@app/authz/app/http/rest/dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '@app/authz/app/http/rest/dto/register-wallet-response.dto'
 import { SetPolicyRulesRequestDto } from '@app/authz/app/http/rest/dto/set-policy-rules-request.dto'
@@ -21,9 +25,11 @@ import {
   AssignUserGroupRequest,
   AssignUserWalletRequest,
   AssignWalletGroupRequest,
+  CreateAddressBookAccountRequest,
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
+  RegisterTokensRequest,
   RegisterWalletRequest,
   SetPolicyRulesRequest,
   UpdateUserRequest
@@ -113,6 +119,25 @@ export class AdminController {
     const userWallet = await this.adminService.assignUserWallet(payload)
 
     const response = new AssignUserWalletResponseDto(userWallet)
+    return response
+  }
+
+  @Post('/address-book')
+  async createAddressBookEntry(@Body() body: CreateAddressBookAccountRequestDto) {
+    const payload: CreateAddressBookAccountRequest = body
+
+    const addressBookAccount = await this.adminService.createAddressBookAccount(payload)
+
+    const response = new CreateAddressBookAccountResponseDto(addressBookAccount)
+    return response
+  }
+
+  @Post('/tokens')
+  async registerTokens(@Body() body: RegisterTokensRequestDto) {
+    const payload: RegisterTokensRequest = body
+    const tokens = await this.adminService.registerTokens(payload)
+
+    const response = new RegisterTokensResponseDto(tokens)
     return response
   }
 

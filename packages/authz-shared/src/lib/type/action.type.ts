@@ -13,8 +13,10 @@ export const Action = {
   DELETE_USER: 'user:delete',
 
   REGISTER_WALLET: 'REGISTER_WALLET',
+  CREATE_ADDRESS_BOOK_ACCOUNT: 'CREATE_ADDRESS_BOOK_ACCOUNT',
   EDIT_WALLET: 'wallet:edit',
   UNASSIGN_WALLET: 'wallet:unassign',
+  REGISTER_TOKENS: 'REGISTER_TOKENS',
 
   EDIT_USER_GROUP: 'user-group:edit',
   DELETE_USER_GROUP: 'user-group:delete',
@@ -51,6 +53,14 @@ export const AccountType = {
   AA: '4337'
 } as const
 export type AccountType = (typeof AccountType)[keyof typeof AccountType]
+
+export const AccountClassification = {
+  EXTERNAL: 'external',
+  COUNTERPARTY: 'counterparty',
+  INTERNAL: 'internal',
+  WALLET: 'wallet'
+} as const
+export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
 
 export type UserGroupMembership = {
   userId: string
@@ -226,6 +236,35 @@ export type AssignUserWalletAction = BaseAction & {
 
 export type AssignUserWalletRequest = BaseAdminRequest & {
   request: AssignUserWalletAction
+}
+
+export type CreateAddressBookAccountAction = BaseAction & {
+  action: typeof Action.CREATE_ADDRESS_BOOK_ACCOUNT
+  account: {
+    uid: string
+    address: Address
+    chainId: number
+    classification: AccountClassification
+  }
+}
+
+export type CreateAddressBookAccountRequest = BaseAdminRequest & {
+  request: CreateAddressBookAccountAction
+}
+
+export type RegisterTokensAction = BaseAction & {
+  action: typeof Action.REGISTER_TOKENS
+  tokens: {
+    uid: string
+    address: Address
+    chainId: number
+    symbol: string
+    decimals: number
+  }[]
+}
+
+export type RegisterTokensRequest = BaseAdminRequest & {
+  request: RegisterTokensAction
 }
 export type SetPolicyRulesAction = BaseAction & {
   action: typeof Action.SET_POLICY_RULES

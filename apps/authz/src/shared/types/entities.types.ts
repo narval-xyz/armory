@@ -1,4 +1,4 @@
-import { AccountType, Address, UserRole } from '@narval/authz-shared'
+import { AccountClassification, AccountType, Address, UserRole } from '@narval/authz-shared'
 
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type Organization = {
@@ -30,14 +30,14 @@ export type WalletGroup = {
 
 export type AddressBookAccount = {
   uid: string
-  address: string
+  address: Address
   chainId: number
-  classification: string
+  classification: AccountClassification
 }
 
 export type Token = {
   uid: string
-  address: string
+  address: Address
   symbol: string
   chainId: number
   decimals: number
