@@ -14,12 +14,13 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 		"entityIds": ["test-bob-uid", "test-bar-uid"],
 	}]
 
+	checkTransferResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContract(tokens)
+	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
@@ -44,12 +45,13 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 		"entityIds": ["test-user-group-one-uid"],
 	}]
 
+	checkTransferResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContract(tokens)
+	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
@@ -74,12 +76,13 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 		"entityIds": ["root", "admin"],
 	}]
 
+	checkTransferResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkWalletId(resources)
 	checkIntentType(transferTypes)
-	checkIntentContract(tokens)
+	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)

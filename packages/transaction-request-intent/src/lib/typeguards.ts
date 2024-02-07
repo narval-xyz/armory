@@ -1,7 +1,8 @@
 import { Address, AssetType, Hex } from '@narval/authz-shared'
 // eslint-disable-next-line no-restricted-imports
 import { isAddress } from 'viem'
-import { AssetTypeAndUnknown, Misc } from './domain'
+import { AssetTypeAndUnknown, Misc, Permit2Message, PermitMessage } from './domain'
+import { DecoderError } from './error'
 import { SupportedMethodId } from './supported-methods'
 
 export const isString = (value: unknown): value is string => {
@@ -16,7 +17,7 @@ export const assertBigInt = (value: unknown): bigint => {
   if (isBigInt(value)) {
     return value
   }
-  throw new Error('Value is not a bigint')
+  throw new DecoderError({ message: 'Value is not a bigint', status: 400 })
 }
 
 export function isHexString(value: unknown): value is Hex {
@@ -27,7 +28,7 @@ export const assertHexString = (value: unknown): Hex => {
   if (isHexString(value)) {
     return value
   }
-  throw new Error('Value is not a hex string')
+  throw new DecoderError({ message: 'Value is not a hex string', status: 400 })
 }
 
 export const assertLowerHexString = (value: unknown): Hex => {
@@ -38,7 +39,7 @@ export function assertString(value: unknown): string {
   if (isString(value)) {
     return value
   }
-  throw new Error('Value is not a string')
+  throw new DecoderError({ message: 'Value is not a string', status: 400 })
 }
 
 // Checks if a value is a number
@@ -50,7 +51,7 @@ export const assertNumber = (value: unknown): number => {
   if (isNumber(value)) {
     return value
   }
-  throw new Error('Value is not a number')
+  throw new DecoderError({ message: 'Value is not a number', status: 400 })
 }
 
 // Checks if a value is a boolean
@@ -62,7 +63,7 @@ export const assertBoolean = (value: unknown): boolean => {
   if (isBoolean(value)) {
     return value
   }
-  throw new Error('Value is not a boolean')
+  throw new DecoderError({ message: 'Value is not a boolean', status: 400 })
 }
 
 // Checks if a value is an array
@@ -76,7 +77,7 @@ export const isSupportedMethodId = (value: Hex): value is SupportedMethodId => {
 
 export const assertAddress = (value: unknown): Address => {
   if (!isString(value) || !isAddress(value)) {
-    throw new Error('Value is not an address')
+    throw new DecoderError({ message: 'Value is not an address', status: 400 })
   }
   return value.toLowerCase() as Address
 }
@@ -92,7 +93,7 @@ export const isAssetType = (value: unknown): value is AssetTypeAndUnknown => {
 
 export const assertArray = <T>(value: unknown, type: AssertType): T[] => {
   if (!Array.isArray(value)) {
-    throw new Error('Value is not an array')
+    throw new DecoderError({ message: 'Value is not an array', status: 400 })
   }
   switch (type) {
     case 'string': {
@@ -114,4 +115,57 @@ export const assertArray = <T>(value: unknown, type: AssertType): T[] => {
       return value
     }
   }
+}
+
+export const isPermit = (message: Record<string, unknown>): message is PermitMessage => {
+  if (
+    typeof message === 'object' &&
+    'owner' in message &&
+    'value' in message &&
+    'nonce' in message &&
+    'deadline' in message &&
+    'spender' in message
+  ) {
+    return true
+  }
+  return false
+}
+
+export const isPermit2 = (message: Record<string, unknown>): message is Permit2Message => {
+  if (typeof message !== 'object' || message === null || !('spender' in message) || !('details' in message)) {
+    return false
+  }
+  const { spender, details } = message as { spender: unknown; details: unknown }
+  if (
+    typeof details === 'object' &&
+    details !== null &&
+    'amount' in details &&
+    'nonce' in details &&
+    'expiration' in details &&
+    'token' in details &&
+    'owner' in details
+  ) {
+    const { amount, nonce, expiration, token, owner } = details as {
+      amount: unknown
+      nonce: unknown
+      expiration: unknown
+      token: unknown
+      owner: unknown
+    }
+    if (
+      typeof amount === 'string' &&
+      amount.startsWith('0x') &&
+      typeof nonce === 'number' &&
+      typeof expiration === 'number' &&
+      typeof spender === 'string' &&
+      typeof token === 'string' &&
+      typeof owner === 'string' &&
+      isAddress(token) &&
+      isAddress(spender) &&
+      isAddress(owner)
+    ) {
+      return true
+    }
+  }
+  return false
 }

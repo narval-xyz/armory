@@ -1,4 +1,4 @@
-export class TransactionRequestIntentError extends Error {
+export class DecoderError extends Error {
   readonly context?: Record<string, unknown>
 
   readonly status: number

@@ -5,7 +5,6 @@ test_checkSignMessage {
 		"action": "signMessage",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signMessage",
 			"message": "Hello world!",
 		},
@@ -32,9 +31,9 @@ test_checkSignRawPayload {
 		"action": "signRaw",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signRawPayload",
 			"payload": "Hello world!",
+			"algorithm": "ES256K",
 		},
 	}
 
@@ -52,6 +51,8 @@ test_checkSignRawPayload {
 
 	checkIntentPayload({"operator": operators.contains, "value": "Hello"}) with input as signRawPayloadRequest
 		with data.entities as entities
+
+	checkIntentAlgorithm({"ES256K"}) with input as signRawPayloadRequest with data.entities as entities
 }
 
 test_checkSignTypedData {
@@ -59,7 +60,6 @@ test_checkSignTypedData {
 		"action": "signTypedData",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "signTypedData",
 			"domain": {
 				"version": "2",

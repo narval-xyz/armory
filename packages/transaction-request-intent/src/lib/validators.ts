@@ -1,11 +1,11 @@
 import { Hex, TransactionRequest } from '@narval/authz-shared'
 import { ContractCallInput, ContractDeploymentInput, NativeTransferInput } from './domain'
-import { TransactionRequestIntentError } from './error'
+import { DecoderError } from './error'
 
 export const validateNativeTransferInput = (txRequest: TransactionRequest): NativeTransferInput => {
   const { value, chainId, to, from, nonce } = txRequest
   if (!value || !chainId || !to || !from) {
-    throw new TransactionRequestIntentError({
+    throw new DecoderError({
       message: 'Malformed native transfer transaction request: missing value or chainId',
       status: 400,
       context: {
@@ -21,7 +21,7 @@ export const validateNativeTransferInput = (txRequest: TransactionRequest): Nati
 export const validateContractInteractionInput = (txRequest: TransactionRequest, methodId: Hex): ContractCallInput => {
   const { data, to, chainId, from, nonce } = txRequest
   if (!data || !to || !chainId) {
-    throw new TransactionRequestIntentError({
+    throw new DecoderError({
       message: 'Malformed transfer transaction request: missing data || chainId || to',
       status: 400,
       context: {
@@ -41,7 +41,7 @@ export const validateContractInteractionInput = (txRequest: TransactionRequest, 
 export const validateContractDeploymentInput = (txRequest: TransactionRequest): ContractDeploymentInput => {
   const { data, chainId, from, to } = txRequest
   if (!data || !chainId || to) {
-    throw new TransactionRequestIntentError({
+    throw new DecoderError({
       message: 'Malformed contract deployment transaction request: missing data || chainId',
       status: 400,
       context: {
