@@ -1,11 +1,11 @@
-import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { RegoData, User, UserGroup, WalletGroup } from '@app/authz/shared/types/entities.types'
-import { OpaResult, RegoInput } from '@app/authz/shared/types/rego'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
 import * as R from 'remeda'
+import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
+import { OpaResult, RegoInput } from '../../shared/types/rego'
+import { AdminRepository } from '../persistence/repository/admin.repository'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>

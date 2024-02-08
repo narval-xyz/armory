@@ -1,15 +1,3 @@
-import { load } from '@app/orchestration/orchestration.config'
-import {
-  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
-  REQUEST_HEADER_ORG_ID
-} from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
-import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
 import { Action, Alg } from '@narval/authz-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -19,6 +7,15 @@ import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchest
 import { Queue } from 'bull'
 import request from 'supertest'
 import { stringToHex } from 'viem'
+import { load } from '../../../orchestration.config'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, REQUEST_HEADER_ORG_ID } from '../../../orchestration.constant'
+import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
+import { SignatureDto } from '../../../policy-engine/http/rest/dto/signature.dto'
+import { AuthorizationRequestRepository } from '../../../policy-engine/persistence/repository/authorization-request.repository'
+import { PolicyEngineModule } from '../../../policy-engine/policy-engine.module'
+import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
+import { QueueModule } from '../../../shared/module/queue/queue.module'
 
 const ENDPOINT_PREFIX = '/authorization-requests'
 

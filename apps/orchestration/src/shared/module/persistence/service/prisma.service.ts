@@ -1,7 +1,7 @@
-import { Config } from '@app/orchestration/orchestration.config'
 import { Inject, Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClient } from '@prisma/client/orchestration'
+import { Config } from '../../../../orchestration.config'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {

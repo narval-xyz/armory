@@ -1,7 +1,7 @@
-import { mockEntityData } from '@app/authz/app/persistence/repository/mock_data'
-import { User } from '@app/authz/shared/types/entities.types'
 import { Logger } from '@nestjs/common'
 import { Organization, PrismaClient } from '@prisma/client/authz'
+import { mockEntityData } from '../../../app/persistence/repository/mock_data'
+import { User } from '../../../shared/types/entities.types'
 
 const prisma = new PrismaClient()
 

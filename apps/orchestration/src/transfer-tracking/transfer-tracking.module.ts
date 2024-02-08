@@ -1,7 +1,7 @@
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { TransferRepository } from '@app/orchestration/transfer-tracking/persistence/repository/transfer.repository'
 import { Module } from '@nestjs/common'
+import { PersistenceModule } from '../shared/module/persistence/persistence.module'
+import { TransferTrackingService } from './core/service/transfer-tracking.service'
+import { TransferRepository } from './persistence/repository/transfer.repository'
 
 @Module({
   imports: [PersistenceModule],

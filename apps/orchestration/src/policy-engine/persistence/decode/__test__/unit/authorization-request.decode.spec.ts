@@ -1,8 +1,8 @@
-import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
-import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
-import { AuthorizationRequestModel } from '@app/orchestration/policy-engine/persistence/type/model.type'
 import { Action } from '@narval/authz-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
+import { decodeAuthorizationRequest } from '../../../../persistence/decode/authorization-request.decode'
+import { DecodeAuthorizationRequestException } from '../../../../persistence/exception/decode-authorization-request.exception'
+import { AuthorizationRequestModel } from '../../../../persistence/type/model.type'
 
 describe('decodeAuthorizationRequest', () => {
   const sharedModel: Omit<AuthorizationRequestModel, 'action' | 'request'> = {

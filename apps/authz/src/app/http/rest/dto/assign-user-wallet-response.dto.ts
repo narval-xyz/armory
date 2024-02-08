@@ -1,7 +1,7 @@
-import { UserWalletDto } from '@app/authz/app/http/rest/dto/user-wallet.dto'
 import { UserWallet } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, ValidateNested } from 'class-validator'
+import { UserWalletDto } from './user-wallet.dto'
 
 export class AssignUserWalletResponseDto {
   constructor(userWallet: UserWallet) {

@@ -1,8 +1,8 @@
-import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
-import { AddressBookAccount, Organization, RegoData, Token, User, Wallet } from '@app/authz/shared/types/entities.types'
 import { AccountClassification, AccountType, Address, Alg, AuthCredential, UserRole } from '@narval/authz-shared'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { castArray } from 'lodash/fp'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
+import { AddressBookAccount, Organization, RegoData, Token, User, Wallet } from '../../../shared/types/entities.types'
 import { mockEntityData, userAddressStore, userCredentialStore } from './mock_data'
 
 function convertResponse<T, K extends keyof T, V extends T[K]>(

@@ -1,15 +1,15 @@
-import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
-import { load } from '@app/orchestration/orchestration.config'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
-import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { TransferTrackingModule } from '@app/orchestration/transfer-tracking/transfer-tracking.module'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { first, map, mapValues, omit, uniq } from 'lodash/fp'
+import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
+import { load } from '../../../../../orchestration.config'
+import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
+import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
+import { QueueModule } from '../../../../../shared/module/queue/queue.module'
+import { TransferTrackingService } from '../../../../core/service/transfer-tracking.service'
+import { TransferTrackingModule } from '../../../../transfer-tracking.module'
 
 describe(TransferTrackingService.name, () => {
   let app: INestApplication

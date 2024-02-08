@@ -1,14 +1,8 @@
-import { SupportedAction } from '@app/orchestration/policy-engine/core/type/domain.type'
-import {
-  createSignMessageSchema,
-  readSignMessageSchema
-} from '@app/orchestration/policy-engine/persistence/schema/sign-message.schema'
-import {
-  createSignTransactionSchema,
-  readSignTransactionSchema
-} from '@app/orchestration/policy-engine/persistence/schema/sign-transaction.schema'
 import { Action } from '@narval/authz-shared'
 import { ZodType } from 'zod'
+import { SupportedAction } from './core/type/domain.type'
+import { createSignMessageSchema, readSignMessageSchema } from './persistence/schema/sign-message.schema'
+import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'
 
 type ActionRequestConfig = {
   action: SupportedAction

@@ -1,7 +1,7 @@
-import { WalletDataDto } from '@app/authz/app/http/rest/dto/wallet-dto'
-import { Wallet } from '@app/authz/shared/types/entities.types'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, ValidateNested } from 'class-validator'
+import { Wallet } from '../../../../shared/types/entities.types'
+import { WalletDataDto } from './wallet-dto'
 
 export class RegisterWalletResponseDto {
   constructor(wallet: Wallet) {

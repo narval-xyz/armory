@@ -1,13 +1,13 @@
-import { DataFeed } from '@app/orchestration/data-feed/core/type/data-feed.type'
-import { Config } from '@app/orchestration/orchestration.config'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg, Feed, HistoricalTransfer, Signature, hashRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
+import { DataFeed } from '../../../data-feed/core/type/data-feed.type'
+import { Config } from '../../../orchestration.config'
+import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
+import { Transfer } from '../../../shared/core/type/transfer-tracking.type'
+import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 
 @Injectable()
 export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfer[]> {

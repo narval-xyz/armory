@@ -1,11 +1,5 @@
-import {
-  AssetId,
-  CreateOrganizationAction,
-  SignMessageAction,
-  SignTransactionAction,
-  Signature
-} from '@narval/authz-shared'
-import { Intent } from '@narval/transaction-request-intent'
+import { AssetId } from '../util/caip.util'
+import { CreateOrganizationAction, SignMessageAction, SignTransactionAction, Signature } from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -34,14 +28,30 @@ export enum FiatCurrency {
 }
 
 export type HistoricalTransfer = {
-  amount: string // Amount in the smallest unit of the token (eg. wei for ETH)
+  /**
+   * Amount in the smallest unit of the token (eg. wei for ETH).
+   */
+  amount: string
   from: string
-  to: string // In case we want spending limit per destination address
+  /**
+   * In case we want spending limit per destination address
+   */
+  to: string
   chainId: number
   token: string
-  rates: Record<string, string> // eg. { fiat:usd: '0.01', fiat:eur: '0.02' }
-  initiatedBy: string // uid of the user who initiated the spending
-  timestamp: number // unix timestamp in ms
+  /**
+   * @example
+   * { fiat:usd: '0.01', fiat:eur: '0.02' }
+   */
+  rates: Record<string, string>
+  /**
+   * UID of the user who initiated the transfer.
+   */
+  initiatedBy: string
+  /**
+   * Unix timestamp in milliseconds.
+   */
+  timestamp: number
 }
 
 /**
@@ -137,5 +147,5 @@ export type EvaluationResponse = {
     satisfied: ApprovalRequirement[]
   }
   attestation?: Signature
-  transactionRequestIntent?: Intent
+  transactionRequestIntent?: unknown
 }

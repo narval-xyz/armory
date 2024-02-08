@@ -1,11 +1,11 @@
-import { generateSimplePrice } from '@app/orchestration/price/http/client/coin-gecko/__test__/fixture/coin-gecko.fixture'
-import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
-import { CoinGeckoException } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.exception'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { lowerCase } from 'lodash/fp'
 import nock from 'nock'
+import { generateSimplePrice } from '../../__test__/fixture/coin-gecko.fixture'
+import { CoinGeckoClient } from '../../coin-gecko.client'
+import { CoinGeckoException } from '../../coin-gecko.exception'
 
 describe(CoinGeckoClient.name, () => {
   let module: TestingModule

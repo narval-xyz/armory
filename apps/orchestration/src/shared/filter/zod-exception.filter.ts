@@ -1,8 +1,8 @@
-import { Config, Env } from '@app/orchestration/orchestration.config'
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { ZodError } from 'zod'
+import { Config, Env } from '../../orchestration.config'
 
 @Catch(ZodError)
 export class ZodExceptionFilter implements ExceptionFilter {

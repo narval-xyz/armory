@@ -1,7 +1,7 @@
-import { POLYGON } from '@app/orchestration/orchestration.constant'
 import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/orchestration'
 import { getTime, subHours } from 'date-fns'
+import { POLYGON } from '../../orchestration.constant'
 
 export const germinate = async (prisma: PrismaClient): Promise<void> => {
   const logger = new Logger('TransferFeedSeed')

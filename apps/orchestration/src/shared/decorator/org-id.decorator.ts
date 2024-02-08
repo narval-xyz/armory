@@ -1,5 +1,5 @@
-import { REQUEST_HEADER_ORG_ID } from '@app/orchestration/orchestration.constant'
 import { BadRequestException, ExecutionContext, createParamDecorator } from '@nestjs/common'
+import { REQUEST_HEADER_ORG_ID } from '../../orchestration.constant'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const factory = (value: any, ctx: ExecutionContext) => {

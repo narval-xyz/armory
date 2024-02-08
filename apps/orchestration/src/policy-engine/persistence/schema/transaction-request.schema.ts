@@ -1,7 +1,7 @@
-import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
-import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
-import { hexSchema } from '@app/orchestration/shared/schema/hex.schema'
 import { z } from 'zod'
+import { addressSchema } from '../../../shared/schema/address.schema'
+import { chainIdSchema } from '../../../shared/schema/chain-id.schema'
+import { hexSchema } from '../../../shared/schema/hex.schema'
 
 export const accessListSchema = z.object({
   address: addressSchema,

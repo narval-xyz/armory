@@ -1,3 +1,3 @@
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 
 export class DataFeedException extends ApplicationException {}

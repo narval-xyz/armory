@@ -1,9 +1,9 @@
-import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { ApprovedTransfer } from '@prisma/client/orchestration'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
+import { CreateTransfer, Transfer } from '../../../shared/core/type/transfer-tracking.type'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 
 const decodeRatesSchema = z.record(z.string(), z.coerce.number())
 const encodeRatesSchema = z.record(z.string(), z.coerce.string())

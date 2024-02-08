@@ -1,10 +1,10 @@
-import { Config, Env } from '@app/orchestration/orchestration.config'
-import { QUEUE_PREFIX } from '@app/orchestration/orchestration.constant'
 import { ExpressAdapter } from '@bull-board/express'
 import { BullBoardModule } from '@bull-board/nestjs'
 import { BullModule } from '@nestjs/bull'
 import { DynamicModule } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Config, Env } from '../../../orchestration.config'
+import { QUEUE_PREFIX } from '../../../orchestration.constant'
 
 export type RegisterQueueOption = {
   name: string

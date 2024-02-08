@@ -1,14 +1,10 @@
-import { CoinGeckoException } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.exception'
-import {
-  CoinList,
-  SimplePrice,
-  SimplePriceOption
-} from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { AxiosError, AxiosRequestConfig } from 'axios'
 import { omit } from 'lodash/fp'
 import { catchError, lastValueFrom, map, tap, throwError } from 'rxjs'
+import { CoinGeckoException } from './coin-gecko.exception'
+import { CoinList, SimplePrice, SimplePriceOption } from './coin-gecko.type'
 
 @Injectable()
 export class CoinGeckoClient {
