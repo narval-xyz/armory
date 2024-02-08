@@ -13,7 +13,7 @@ import {
 } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, plainToInstance } from 'class-transformer'
 import { IsDefined, IsEnum, IsIn, IsString, ValidateNested } from 'class-validator'
 
 export const Then = {
@@ -386,13 +386,20 @@ export class Policy {
   name: string
 
   @ValidateNested({ each: true })
-  // @Type(() => BaseCriterion, {
-  //   discriminator: {
-  //     property: 'criterion',
-  //     subTypes: [{ value: ActionCriterion, name: Criterion.CHECK_ACTION }]
-  //   }
-  // })
-  @Type(() => ActionCriterion)
+  @Transform(({ value }) => {
+    return value.map((criterion: PolicyCriterion) => {
+      switch (criterion.criterion) {
+        case Criterion.CHECK_ACTION:
+          return plainToInstance(ActionCriterion, criterion)
+        case Criterion.CHECK_INTENT_TYPE:
+          return plainToInstance(IntentTypeCriterion, criterion)
+        // TODO: Sam, fill the rest. Maybe move these validation/transform logic elsewhere
+        // Don't forget delete the rego files on the e2e tests :)
+        default:
+          throw new Error('boom')
+      }
+    })
+  })
   @ApiProperty({
     oneOf: SUPPORTED_CRITERION.map((entity) => ({
       $ref: getSchemaPath(entity)

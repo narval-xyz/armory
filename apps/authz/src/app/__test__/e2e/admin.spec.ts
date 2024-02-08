@@ -468,6 +468,10 @@ describe('Admin Endpoints', () => {
                 {
                   criterion: 'checkAction',
                   args: ['signTransaction']
+                },
+                {
+                  criterion: 'checkIntentType',
+                  args: ['transferNative']
                 }
               ]
             }
