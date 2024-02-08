@@ -30,7 +30,7 @@ export class FeedService {
       throw new DataFeedException({
         message: 'Failed to gather authorization request feeds',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        originalError: error,
+        origin: error,
         context: {
           orgId: authzRequest.orgId,
           requestId: authzRequest.id

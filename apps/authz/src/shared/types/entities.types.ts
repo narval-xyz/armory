@@ -1,5 +1,7 @@
 import { AccountClassification, AccountType, Address, UserRole } from '@narval/authz-shared'
 
+// TODO: Move these to shared?
+
 // ENTITIES: user, user group, wallet, wallet group, and address book.
 export type Organization = {
   uid: string

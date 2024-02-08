@@ -6,11 +6,14 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
+  CreateUserRequestDto,
+  CreateUserResponseDto,
   RegisterTokensRequest,
   RegisterWalletRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
-import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
+import { Body, Controller, HttpStatus, Logger, Patch, Post } from '@nestjs/common'
+import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { AdminService } from '../../../core/admin.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '../dto/assign-user-group-response.dto'
@@ -24,8 +27,6 @@ import { CreateCredentialRequestDto } from '../dto/create-credential-request.dto
 import { CreateCredentialResponseDto } from '../dto/create-credential-response.dto'
 import { CreateOrganizationRequestDto } from '../dto/create-organization-request.dto'
 import { CreateOrganizationResponseDto } from '../dto/create-organization-response.dto'
-import { CreateUserRequestDto } from '../dto/create-user-request.dto'
-import { CreateUserResponseDto } from '../dto/create-user-response.dto'
 import { RegisterTokensRequestDto } from '../dto/register-tokens-request.dto'
 import { RegisterTokensResponseDto } from '../dto/register-tokens-response.dto'
 import { RegisterWalletRequestDto } from '../dto/register-wallet-request.dto'
@@ -50,12 +51,21 @@ export class AdminController {
   }
 
   @Post('/users')
-  async createUser(@Body() body: CreateUserRequestDto) {
+  @ApiOperation({
+    summary: 'Creates a new user entity'
+  })
+  @ApiResponse({
+    description: 'The user created',
+    status: HttpStatus.CREATED,
+    type: CreateUserResponseDto
+  })
+  async createUser(@Body() body: CreateUserRequestDto): Promise<CreateUserResponseDto> {
     const payload: CreateUserRequest = body
 
     const user = await this.adminService.createUser(payload)
 
-    const response = new CreateUserResponseDto(user)
+    const response = new CreateUserResponseDto({ user })
+
     return response
   }
 

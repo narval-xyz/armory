@@ -1,5 +1,7 @@
+export * from './lib/dto'
 export * from './lib/type/action.type'
 export * from './lib/type/domain.type'
+export * from './lib/type/entity.type'
 export * from './lib/util/caip.util'
 export * from './lib/util/enum.util'
 export * from './lib/util/evm.util'
