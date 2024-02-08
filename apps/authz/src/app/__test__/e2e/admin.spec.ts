@@ -567,7 +567,7 @@ describe('Admin Endpoints', () => {
       expect(status).toEqual(HttpStatus.CREATED)
 
       const path = `./apps/authz/src/opa/rego/generated/${body.fileId}.rego`
-      let rego = readFileSync(path, 'utf-8')
+      const rego = readFileSync(path, 'utf-8')
       expect(rego).toBeDefined()
 
       unlinkSync(path)
