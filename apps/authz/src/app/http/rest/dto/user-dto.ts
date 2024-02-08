@@ -1,7 +1,7 @@
-import { User } from '@app/authz/shared/types/entities.types'
 import { UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString } from 'class-validator'
+import { User } from '../../../../shared/types/entities.types'
 
 export class UserDto {
   constructor(user: User) {

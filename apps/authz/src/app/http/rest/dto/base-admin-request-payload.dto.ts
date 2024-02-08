@@ -1,6 +1,6 @@
-import { RequestSignatureDto } from '@app/authz/app/http/rest/dto/request-signature.dto'
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger'
 import { ArrayNotEmpty, IsDefined, ValidateNested } from 'class-validator'
+import { RequestSignatureDto } from './request-signature.dto'
 
 @ApiExtraModels(RequestSignatureDto)
 export class BaseAdminRequestPayloadDto {

@@ -1,7 +1,7 @@
-import { UserDto } from '@app/authz/app/http/rest/dto/user-dto'
-import { User } from '@app/authz/shared/types/entities.types'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, ValidateNested } from 'class-validator'
+import { User } from '../../../../shared/types/entities.types'
+import { UserDto } from './user-dto'
 
 export class UpdateUserResponseDto {
   constructor(user: User) {

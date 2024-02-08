@@ -1,7 +1,7 @@
-import { AddressBookAccount } from '@app/authz/shared/types/entities.types'
 import { AccountClassification, Address } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsNumber, IsString } from 'class-validator'
+import { AddressBookAccount } from '../../../../shared/types/entities.types'
 
 export class AddressBookAccountDataDto {
   constructor(addressBookAccount: AddressBookAccount) {

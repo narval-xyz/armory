@@ -1,5 +1,3 @@
-import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { AddressBookAccount, Organization, Token, User, Wallet } from '@app/authz/shared/types/entities.types'
 import {
   AssignUserGroupRequest,
   AssignUserWalletRequest,
@@ -17,6 +15,8 @@ import {
   WalletGroupMembership
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { AddressBookAccount, Organization, Token, User, Wallet } from '../../shared/types/entities.types'
+import { AdminRepository } from '../persistence/repository/admin.repository'
 
 @Injectable()
 export class AdminService {

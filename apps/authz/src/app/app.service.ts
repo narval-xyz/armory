@@ -1,5 +1,3 @@
-import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { OpaResult, RegoInput } from '@app/authz/shared/types/domain.type'
 import {
   Action,
   Alg,
@@ -18,6 +16,8 @@ import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { AdminRepository } from '../app/persistence/repository/admin.repository'
+import { OpaResult, RegoInput } from '../shared/types/domain.type'
 import { OpaService } from './opa/opa.service'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -189,7 +189,7 @@ export class AppService {
     const authzResponse: EvaluationResponse = {
       decision: finalDecision.decision,
       request,
-      transactionRequestIntent: intent,
+      // transactionRequestIntent: intent,
       approvals: finalDecision.totalApprovalsRequired?.length
         ? {
             required: finalDecision.totalApprovalsRequired,

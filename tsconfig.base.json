@@ -13,8 +13,7 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "paths": {
-      "@app/authz/*": ["apps/authz/src/*"],
-      "@app/orchestration/*": ["apps/orchestration/src/*"],
+      "@app/*": ["apps/*"],
       "@narval/authz-shared": ["packages/authz-shared/src/index.ts"],
       "@narval/signature-verifier": ["packages/signature-verifier/src/index.ts"],
       "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"],

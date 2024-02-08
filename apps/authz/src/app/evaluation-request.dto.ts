@@ -1,9 +1,9 @@
-import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
-import { RequestSignatureDto } from '@app/authz/app/http/rest/dto/request-signature.dto'
 import { AccessList, AccountId, Action, Address, FiatCurrency, Hex } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEthereumAddress, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { BaseActionDto } from './http/rest/dto/base-action.dto'
+import { RequestSignatureDto } from './http/rest/dto/request-signature.dto'
 
 export class TransactionRequestDto {
   @IsString()

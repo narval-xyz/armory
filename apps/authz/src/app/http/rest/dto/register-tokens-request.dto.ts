@@ -1,9 +1,9 @@
-import { BaseActionDto } from '@app/authz/app/http/rest/dto/base-action.dto'
-import { BaseAdminRequestPayloadDto } from '@app/authz/app/http/rest/dto/base-admin-request-payload.dto'
-import { TokenDataDto } from '@app/authz/app/http/rest/dto/register-token-dto'
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsDefined, IsIn, ValidateNested } from 'class-validator'
+import { BaseActionDto } from './base-action.dto'
+import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
+import { TokenDataDto } from './register-token-dto'
 
 class RegisterTokensActionDto extends BaseActionDto {
   @IsIn(Object.values(Action))

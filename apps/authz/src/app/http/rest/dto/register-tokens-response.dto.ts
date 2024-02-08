@@ -1,7 +1,7 @@
-import { TokenDataDto } from '@app/authz/app/http/rest/dto/register-token-dto'
-import { Token } from '@app/authz/shared/types/entities.types'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsDefined, ValidateNested } from 'class-validator'
+import { Token } from '../../../../shared/types/entities.types'
+import { TokenDataDto } from './register-token-dto'
 
 export class RegisterTokensResponseDto {
   constructor(tokens: Token[]) {

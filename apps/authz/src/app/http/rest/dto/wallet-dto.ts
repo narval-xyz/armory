@@ -1,7 +1,7 @@
-import { Wallet } from '@app/authz/shared/types/entities.types'
 import { AccountType, Address } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator'
+import { Wallet } from '../../../../shared/types/entities.types'
 
 export class WalletDataDto {
   constructor(wallet: Wallet) {
