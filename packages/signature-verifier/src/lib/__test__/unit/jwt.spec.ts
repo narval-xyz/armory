@@ -1,9 +1,8 @@
-import { Action, Request, hashRequest } from '@narval/authz-shared'
+import { Action, Alg, Request, hashRequest } from '@narval/authz-shared'
 import { exportPKCS8, exportSPKI, generateKeyPair } from 'jose'
-import { sign } from '../../signature/signRequest'
-import { verify } from '../../signature/verifySignature'
+import { sign } from '../../sign'
 import { SignatureInput, VerificationInput } from '../../types'
-import { AAUser, AAUser_Credential_1 } from '../mock'
+import { verify } from '../../verify'
 
 describe('JWT Signing and Verification', () => {
   it('should sign and verify a request successfully', async () => {
@@ -11,12 +10,17 @@ describe('JWT Signing and Verification', () => {
       action: Action.CREATE_ORGANIZATION,
       nonce: 'random-nonce-111',
       organization: {
-        uid: AAUser.uid,
-        credential: AAUser_Credential_1
+        uid: 'test-org-uid',
+        credential: {
+          uid: 'test-credential-uid',
+          pubKey: 'test-pub-key',
+          alg: Alg.ES256,
+          userId: 'test-user-id'
+        }
       }
     }
 
-    const algorithm = AAUser_Credential_1.alg
+    const algorithm = Alg.ES256
     const kid = 'test-kid'
 
     const { publicKey, privateKey } = await generateKeyPair(algorithm, { crv: 'P-256' })
@@ -35,8 +39,6 @@ describe('JWT Signing and Verification', () => {
 
     const jwt = await sign(signingInput)
 
-    console.log('Public Key PEM:', publicKeyPEM)
-
     const verificationInput: VerificationInput = {
       rawToken: jwt,
       publicKey: publicKeyPEM,
@@ -47,6 +49,17 @@ describe('JWT Signing and Verification', () => {
 
     const result = await verify(verificationInput)
 
-    expect(result).toEqual({ requestHash: hash, iat: expect.any(Number), exp: expect.any(Number) })
+    expect(result).toEqual({
+      header: {
+        alg: algorithm,
+        kid
+      },
+      payload: {
+        requestHash: hash,
+        exp: expect.any(Number),
+        iat: expect.any(Number)
+      },
+      signature: expect.any(String)
+    })
   })
 })

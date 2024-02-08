@@ -6,19 +6,19 @@ export type AlgorithmParameter = {
 }
 
 /**
- * Defines the header of our JWT.
+ * Defines the header of JWT.
  *
  * @param {Alg} alg - The algorithm used to sign the JWT. It contains ES256K which is not natively supported
  * by the jsonwebtoken package
  * @param {string} [kid] - The key ID to identify the signing key.
  */
-type Header = {
+export type Header = {
   alg: Alg // From the jsonwebtoken package, ensuring algorithm alignment
   kid: string // Key ID to identify the signing key
 }
 
 /**
- * Defines the payload of our JWT.
+ * Defines the payload of JWT.
  *
  * @param {string} requestHash - The hashed request.
  * @param {string} [iss] - The issuer of the JWT.
@@ -27,6 +27,7 @@ type Header = {
  */
 export type Payload = {
   requestHash: string
+  pubKey: string
   iat: number
 }
 

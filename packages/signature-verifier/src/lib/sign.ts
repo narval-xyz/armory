@@ -1,6 +1,6 @@
 import { hashRequest } from '@narval/authz-shared'
 import { SignJWT, importPKCS8 } from 'jose'
-import { SignatureInput } from '../types'
+import { SignatureInput } from './types'
 
 const DEF_EXP_TIME = '2h'
 
