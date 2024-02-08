@@ -37,7 +37,7 @@ export enum AssetType {
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
  */
-export type AccountId = `${Namespace}:${number}/${string}`
+export type AccountId = `${Namespace}:${number | 'eoa'}/${string}`
 
 export type Account = {
   chainId: number

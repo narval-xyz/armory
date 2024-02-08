@@ -179,9 +179,9 @@ export class SpendingLimitTimeWindow {
 
 export class SpendingLimitFilters {
   @IsNotEmptyArrayString()
-  @IsAccountId({ each: true })
+  @IsAssetId({ each: true })
   @IsOptional()
-  tokens?: AccountId[]
+  tokens?: AssetId[]
 
   @IsNotEmptyArrayString()
   @IsOptional()
@@ -364,8 +364,8 @@ class IntentTokenCriterion extends BaseCriterion {
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
 
   @IsNotEmptyArrayString()
-  @IsAccountId({ each: true })
-  args: AccountId[]
+  @IsAssetId({ each: true })
+  args: AssetId[]
 }
 
 class IntentSpenderCriterion extends BaseCriterion {
@@ -598,7 +598,7 @@ export class Policy {
   @IsArray()
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
-    return value.map(({ criterion }: PolicyCriterion) => {
+    return value.map((criterion: PolicyCriterion) => {
       return instantiateCriterion(criterion)
     })
   })
@@ -615,8 +615,8 @@ export class Policy {
   then: Then
 }
 
-const instantiateCriterion = (criterion: Criterion) => {
-  switch (criterion) {
+const instantiateCriterion = (criterion: PolicyCriterion) => {
+  switch (criterion.criterion) {
     case Criterion.CHECK_ACTION:
       return plainToInstance(ActionCriterion, criterion)
     case Criterion.CHECK_RESOURCE_INTEGRITY:
