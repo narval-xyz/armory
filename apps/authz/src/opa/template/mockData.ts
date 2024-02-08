@@ -1,4 +1,4 @@
-import { Action, Criterion, Policy, Then } from '@narval/authz-shared'
+import { Action, Criterion, EntityType, Policy, Then, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 
 export const examplePermitPolicy: Policy = {
@@ -35,7 +35,7 @@ export const examplePermitPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_INTENT_AMOUNT,
-      args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
+      args: { currency: '*', operator: ValueOperators.LESS_THAN_OR_EQUAL, value: '1000000000000000000' }
     },
     {
       criterion: Criterion.CHECK_APPROVALS,
@@ -43,13 +43,13 @@ export const examplePermitPolicy: Policy = {
         {
           approvalCount: 2,
           countPrincipal: false,
-          approvalEntityType: 'Narval::User',
+          approvalEntityType: EntityType.User,
           entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
         },
         {
           approvalCount: 1,
           countPrincipal: false,
-          approvalEntityType: 'Narval::UserRole',
+          approvalEntityType: EntityType.UserRole,
           entityIds: ['admin']
         }
       ]
