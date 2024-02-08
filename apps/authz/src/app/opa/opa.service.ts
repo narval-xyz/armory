@@ -40,7 +40,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  generateRegoFile(policies: Policy[]): void {
+  generateRegoFile(policies: Policy[]): string {
     Handlebars.registerHelper('criterion', function (item) {
       const criterion: Criterion = item.criterion
       const args = item.args
@@ -94,9 +94,13 @@ export class OpaService implements OnApplicationBootstrap {
 
     const regoContent = template({ policies })
 
-    writeFileSync(`./apps/authz/src/opa/rego/generated/${uuidv4()}.rego`, regoContent, 'utf-8')
+    const fileId = uuidv4()
+
+    writeFileSync(`./apps/authz/src/opa/rego/generated/${fileId}.rego`, regoContent, 'utf-8')
 
     this.logger.log('Policy .rego file generated successfully.')
+
+    return fileId
   }
 
   private async fetchEntityData(): Promise<RegoData> {

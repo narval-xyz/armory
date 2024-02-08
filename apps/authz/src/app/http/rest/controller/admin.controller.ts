@@ -146,9 +146,9 @@ export class AdminController {
   async setPolicyRules(@Body() body: SetPolicyRulesRequestDto) {
     const payload: SetPolicyRulesRequest = body
 
-    const policyRules = await this.adminService.setPolicyRules(payload)
+    const policies = await this.adminService.setPolicyRules(payload)
 
-    const response = new SetPolicyRulesResponseDto({ policyRules })
+    const response = new SetPolicyRulesResponseDto(policies)
     return response
   }
 }

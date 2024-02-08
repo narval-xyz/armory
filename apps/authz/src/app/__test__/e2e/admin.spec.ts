@@ -2,6 +2,7 @@ import { AccountClassification, AccountType, Action, Alg, Signature, UserRole } 
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { existsSync, readFileSync, unlinkSync } from 'fs'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
 import { AAUser, AAUser_Credential_1 } from '../../../app/persistence/repository/mock_data'
@@ -440,23 +441,8 @@ describe('Admin Endpoints', () => {
   describe('POST /policies', () => {
     it('sets the organization policies', async () => {
       const payload = {
-        authentication: {
-          sig: '0x746ed2e4bf7311da76bc157c7fe8c0520b6e4c27ab96abf5a8d16fecbaac98b669418b2db9da8e6d3cbd4e1eaff1a9d9e765f0470e9b86c6694145778a8d46f81c',
-          alg: 'ES256K',
-          pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890'
-        },
-        approvals: [
-          {
-            sig: '0xe86dffd265b7a76a9de0ee9078137271cbe32bb2bb8ee28a2935cc37f023193a51cd608701b9c40fc42be69eeb45c0bb375b5898828f1af4bf12e37ff1fe697f1c',
-            alg: 'ES256K',
-            pubKey: '0x501D5c2Ce1EF208aadf9131a98BAa593258CfA06'
-          },
-          {
-            sig: '0xaffbddca4f16079f86a56d58f9ebb151c353e73c11a09791eb97f01ea0046c545ea0bd765ab1dc844ee0369f9123476b6f84b00b42b7ac1a16676b9a11e1a4031c',
-            alg: 'ES256K',
-            pubKey: '0xab88c8785D0C00082dE75D801Fcb1d5066a6311e'
-          }
-        ],
+        authentication,
+        approvals,
         request: {
           action: 'setPolicyRules',
           nonce: 'random-nonce-111',
@@ -577,8 +563,15 @@ describe('Admin Endpoints', () => {
         .set(REQUEST_HEADER_ORG_ID, org.uid)
         .send(payload)
 
-      expect(body.policyRules).toMatchObject(payload.request.data)
+      expect(body.policies).toMatchObject(payload.request.data)
       expect(status).toEqual(HttpStatus.CREATED)
+
+      const path = `./apps/authz/src/opa/rego/generated/${body.fileId}.rego`
+      let rego = readFileSync(path, 'utf-8')
+      expect(rego).toBeDefined()
+
+      unlinkSync(path)
+      expect(existsSync(path)).toBeFalsy()
     })
   })
 })
