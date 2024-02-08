@@ -1,10 +1,10 @@
-import { load } from '@app/authz/app/app.config'
-import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/authz/shared/module/persistence/service/test-prisma.service'
 import { Alg, UserRole } from '@narval/authz-shared'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { load } from '../../../../../app/app.config'
+import { AdminRepository } from '../../../../../app/persistence/repository/admin.repository'
+import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 
 describe(AdminRepository.name, () => {
   let module: TestingModule

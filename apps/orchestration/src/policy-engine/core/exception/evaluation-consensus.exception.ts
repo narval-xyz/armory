@@ -1,7 +1,7 @@
-import { PolicyEngineException } from '@app/orchestration/policy-engine/core/exception/policy-engine.exception'
-import { Node } from '@app/orchestration/policy-engine/core/type/clustering.type'
 import { EvaluationResponse } from '@narval/authz-shared'
 import { HttpStatus } from '@nestjs/common'
+import { Node } from '../type/clustering.type'
+import { PolicyEngineException } from './policy-engine.exception'
 
 export class EvaluationConsensusException extends PolicyEngineException {
   constructor(responses: EvaluationResponse[], nodes: Node[]) {

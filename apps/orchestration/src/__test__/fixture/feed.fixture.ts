@@ -1,11 +1,11 @@
-import { hexGenerator } from '@app/orchestration/__test__/fixture/shared.fixture'
-import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
-import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
-import { signatureSchema } from '@app/orchestration/policy-engine/persistence/schema/signature.schema'
 import { Feed, HistoricalTransfer } from '@narval/authz-shared'
 import { times } from 'lodash/fp'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
+import { HistoricalTransferFeedService } from '../../data-feed/core/service/historical-transfer-feed.service'
+import { signatureSchema } from '../../policy-engine/persistence/schema/signature.schema'
+import { hexGenerator } from './shared.fixture'
+import { generateTransfer } from './transfer-tracking.fixture'
 
 const feedSchema = z.object({
   source: z.string().min(1).max(42),

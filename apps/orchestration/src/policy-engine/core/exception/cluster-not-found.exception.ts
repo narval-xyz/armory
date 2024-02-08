@@ -1,5 +1,5 @@
-import { PolicyEngineException } from '@app/orchestration/policy-engine/core/exception/policy-engine.exception'
 import { HttpStatus } from '@nestjs/common'
+import { PolicyEngineException } from './policy-engine.exception'
 
 export class ClusterNotFoundException extends PolicyEngineException {
   constructor(orgId: string) {

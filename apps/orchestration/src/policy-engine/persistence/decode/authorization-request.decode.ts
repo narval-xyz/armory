@@ -1,12 +1,12 @@
-import { AuthorizationRequest, Evaluation } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { DecodeAuthorizationRequestException } from '@app/orchestration/policy-engine/persistence/exception/decode-authorization-request.exception'
-import { signatureSchema } from '@app/orchestration/policy-engine/persistence/schema/signature.schema'
-import { AuthorizationRequestModel } from '@app/orchestration/policy-engine/persistence/type/model.type'
-import { ACTION_REQUEST } from '@app/orchestration/policy-engine/policy-engine.constant'
 import { Action } from '@narval/authz-shared'
 import { EvaluationLog } from '@prisma/client/orchestration'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
+import { AuthorizationRequest, Evaluation } from '../../core/type/domain.type'
+import { DecodeAuthorizationRequestException } from '../../persistence/exception/decode-authorization-request.exception'
+import { signatureSchema } from '../../persistence/schema/signature.schema'
+import { AuthorizationRequestModel } from '../../persistence/type/model.type'
+import { ACTION_REQUEST } from '../../policy-engine.constant'
 
 type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 

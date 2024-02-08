@@ -1,11 +1,11 @@
-import { Config, Env } from '@app/orchestration/orchestration.config'
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
-import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
 import { ArgumentsHost, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { mock } from 'jest-mock-extended'
+import { Config, Env } from '../../../../orchestration.config'
+import { ApplicationException } from '../../../../shared/exception/application.exception'
+import { ApplicationExceptionFilter } from '../../../../shared/filter/application-exception.filter'
 
 describe(ApplicationExceptionFilter.name, () => {
   const exception = new ApplicationException({

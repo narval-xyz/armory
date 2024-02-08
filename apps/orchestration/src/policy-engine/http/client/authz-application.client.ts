@@ -1,8 +1,8 @@
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { EvaluationRequest, EvaluationResponse } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 
 @Injectable()
 export class AuthzApplicationClient {

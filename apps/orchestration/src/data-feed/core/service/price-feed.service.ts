@@ -1,16 +1,16 @@
-import { DataFeed } from '@app/orchestration/data-feed/core/type/data-feed.type'
-import { Config } from '@app/orchestration/orchestration.config'
-import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { getChain } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Prices } from '@app/orchestration/shared/core/type/price.type'
 import { Action, Alg, AssetId, Feed, Signature, hashRequest } from '@narval/authz-shared'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { uniq } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
+import { Config } from '../../../orchestration.config'
+import { FIAT_ID_USD } from '../../../orchestration.constant'
+import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
+import { PriceService } from '../../../price/core/service/price.service'
+import { getChain } from '../../../shared/core/lib/chains.lib'
+import { Prices } from '../../../shared/core/type/price.type'
+import { DataFeed } from '../type/data-feed.type'
 
 @Injectable()
 export class PriceFeedService implements DataFeed<Prices> {

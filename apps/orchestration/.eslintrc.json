@@ -8,16 +8,7 @@
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "no-relative-import-paths/no-relative-import-paths": [
-          "error",
-          {
-            "allowSameFolder": true,
-            "rootDir": "apps",
-            "prefix": "@app"
-          }
-        ]
-      }
+      "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],

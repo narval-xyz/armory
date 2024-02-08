@@ -1,14 +1,14 @@
-import { AdminService } from '@app/authz/app/core/admin.service'
-import { AdminController } from '@app/authz/app/http/rest/controller/admin.controller'
-import { AdminRepository } from '@app/authz/app/persistence/repository/admin.repository'
-import { PersistenceModule } from '@app/authz/shared/module/persistence/persistence.module'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
+import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { load } from './app.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { AdminService } from './core/admin.service'
+import { AdminController } from './http/rest/controller/admin.controller'
 import { OpaService } from './opa/opa.service'
+import { AdminRepository } from './persistence/repository/admin.repository'
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
-import { PolicyEngineException } from '@app/orchestration/policy-engine/core/exception/policy-engine.exception'
-import { Cluster } from '@app/orchestration/policy-engine/core/type/clustering.type'
 import { HttpStatus } from '@nestjs/common'
+import { PolicyEngineException } from '../exception/policy-engine.exception'
+import { Cluster } from '../type/clustering.type'
 
 export class UnreachableClusterException extends PolicyEngineException {
   constructor(cluster: Cluster) {

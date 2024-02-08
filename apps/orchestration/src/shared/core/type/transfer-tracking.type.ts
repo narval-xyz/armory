@@ -1,5 +1,5 @@
-import { Price } from '@app/orchestration/shared/core/type/price.type'
 import { SetOptional } from 'type-fest'
+import { Price } from './price.type'
 
 export type Transfer = {
   id: string

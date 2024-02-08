@@ -1,6 +1,6 @@
-import { PolicyEngineException } from '@app/orchestration/policy-engine/core/exception/policy-engine.exception'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
 import { HttpStatus } from '@nestjs/common'
+import { AuthorizationRequest } from '../type/domain.type'
+import { PolicyEngineException } from './policy-engine.exception'
 
 export class AuthorizationRequestAlreadyProcessingException extends PolicyEngineException {
   constructor(authzRequest: AuthorizationRequest) {

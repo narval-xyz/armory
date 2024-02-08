@@ -1,23 +1,23 @@
-import { load } from '@app/orchestration/orchestration.config'
-import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '@app/orchestration/orchestration.constant'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import {
-  AuthorizationRequestProcessingProducer,
-  DEFAULT_JOB_OPTIONS
-} from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
-import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
 import { Action, Alg, Signature } from '@narval/authz-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Queue } from 'bull'
+import { load } from '../../../../../orchestration.config'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '../../../../../orchestration.constant'
+import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
+import { QueueModule } from '../../../../../shared/module/queue/queue.module'
+import {
+  AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '../../../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
+import {
+  AuthorizationRequestProcessingProducer,
+  DEFAULT_JOB_OPTIONS
+} from '../../../../queue/producer/authorization-request-processing.producer'
 
 describe(AuthorizationRequestProcessingProducer.name, () => {
   let module: TestingModule

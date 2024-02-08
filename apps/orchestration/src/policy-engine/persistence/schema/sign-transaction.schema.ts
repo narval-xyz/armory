@@ -1,9 +1,9 @@
+import { Action } from '@narval/authz-shared'
+import { z } from 'zod'
 import {
   createTransactionRequestSchema,
   readTransactionRequestSchema
-} from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
-import { Action } from '@narval/authz-shared'
-import { z } from 'zod'
+} from '../../persistence/schema/transaction-request.schema'
 
 export const readSignTransactionSchema = z.object({
   action: z.literal(Action.SIGN_TRANSACTION),

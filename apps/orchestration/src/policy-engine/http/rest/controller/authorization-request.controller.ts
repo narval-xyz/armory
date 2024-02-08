@@ -1,13 +1,13 @@
-import { REQUEST_HEADER_ORG_ID } from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import { AuthorizationRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-request.dto'
-import { AuthorizationResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/authorization-response.dto'
-import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
-import { toCreateAuthorizationRequest } from '@app/orchestration/policy-engine/http/rest/util'
-import { OrgId } from '@app/orchestration/shared/decorator/org-id.decorator'
-import { ErrorResponseDto } from '@app/orchestration/shared/dto/error-response.dto'
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
+import { OrgId } from '../../../../shared/decorator/org-id.decorator'
+import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
+import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
+import { AuthorizationRequestDto } from '../../../http/rest/dto/authorization-request.dto'
+import { AuthorizationResponseDto } from '../../../http/rest/dto/authorization-response.dto'
+import { SignatureDto } from '../../../http/rest/dto/signature.dto'
+import { toCreateAuthorizationRequest } from '../../../http/rest/util'
 
 @Controller('/authorization-requests')
 @ApiTags('Authorization Request')

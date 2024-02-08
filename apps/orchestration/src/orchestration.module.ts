@@ -1,10 +1,10 @@
-import { PolicyEngineModule } from '@app/orchestration/policy-engine/policy-engine.module'
-import { TransferTrackingModule } from '@app/orchestration/transfer-tracking/transfer-tracking.module'
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { load } from './orchestration.config'
+import { PolicyEngineModule } from './policy-engine/policy-engine.module'
 import { QueueModule } from './shared/module/queue/queue.module'
+import { TransferTrackingModule } from './transfer-tracking/transfer-tracking.module'
 
 @Module({
   imports: [
