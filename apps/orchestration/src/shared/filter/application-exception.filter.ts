@@ -1,8 +1,8 @@
-import { Config, Env } from '@app/orchestration/orchestration.config'
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { ArgumentsHost, Catch, ExceptionFilter, LogLevel, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
+import { Config, Env } from '../../orchestration.config'
+import { ApplicationException } from '../../shared/exception/application.exception'
 
 @Catch(ApplicationException)
 export class ApplicationExceptionFilter implements ExceptionFilter {

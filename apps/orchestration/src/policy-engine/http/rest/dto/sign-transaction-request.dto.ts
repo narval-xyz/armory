@@ -1,7 +1,7 @@
-import { TransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
+import { TransactionRequestDto } from '../../../http/rest/dto/transaction-request.dto'
 
 export class SignTransactionRequestDto {
   @IsIn(Object.values(Action))

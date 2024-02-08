@@ -1,15 +1,15 @@
+import { Injectable } from '@nestjs/common'
+import { EvaluationLog } from '@prisma/client/orchestration'
+import { v4 as uuid } from 'uuid'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import {
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest,
   Evaluation
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { decodeAuthorizationRequest } from '@app/orchestration/policy-engine/persistence/decode/authorization-request.decode'
-import { createRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/request.schema'
-import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { Injectable } from '@nestjs/common'
-import { EvaluationLog } from '@prisma/client/orchestration'
-import { v4 as uuid } from 'uuid'
+} from '../../core/type/domain.type'
+import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
+import { createRequestSchema } from '../schema/request.schema'
 
 @Injectable()
 export class AuthorizationRequestRepository {

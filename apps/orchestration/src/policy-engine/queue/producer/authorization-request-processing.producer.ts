@@ -1,17 +1,17 @@
+import { InjectQueue } from '@nestjs/bull'
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
+import { BackoffOptions, Job, Queue } from 'bull'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
-} from '@app/orchestration/orchestration.constant'
+} from '../../../orchestration.constant'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { InjectQueue } from '@nestjs/bull'
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
-import { BackoffOptions, Job, Queue } from 'bull'
+} from '../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 
 type JobOption = {
   attempts: number

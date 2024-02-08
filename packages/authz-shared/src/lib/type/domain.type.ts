@@ -147,4 +147,5 @@ export type EvaluationResponse = {
     satisfied: ApprovalRequirement[]
   }
   attestation?: Signature
+  transactionRequestIntent?: unknown
 }

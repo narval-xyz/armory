@@ -1,6 +1,6 @@
-import { REQUEST_HEADER_ORG_ID } from '@app/orchestration/orchestration.constant'
-import { factory } from '@app/orchestration/shared/decorator/org-id.decorator'
 import { ExecutionContext } from '@nestjs/common'
+import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
+import { factory } from '../../../decorator/org-id.decorator'
 
 describe('OrgId Decorator', () => {
   it(`returns ${REQUEST_HEADER_ORG_ID} if it exists in the headers`, () => {

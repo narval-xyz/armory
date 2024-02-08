@@ -1,6 +1,6 @@
-import { CreateTransfer, Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { TransferRepository } from '@app/orchestration/transfer-tracking/persistence/repository/transfer.repository'
 import { Injectable, Logger } from '@nestjs/common'
+import { CreateTransfer, Transfer } from '../../../shared/core/type/transfer-tracking.type'
+import { TransferRepository } from '../../../transfer-tracking/persistence/repository/transfer.repository'
 
 @Injectable()
 export class TransferTrackingService {

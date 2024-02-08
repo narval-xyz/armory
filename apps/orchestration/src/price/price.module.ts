@@ -1,8 +1,8 @@
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
-import { CoinGeckoAssetRepository } from '@app/orchestration/price/persistence/repository/coin-gecko-asset.repository'
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
+import { PriceService } from './core/service/price.service'
+import { CoinGeckoClient } from './http/client/coin-gecko/coin-gecko.client'
+import { CoinGeckoAssetRepository } from './persistence/repository/coin-gecko-asset.repository'
 
 @Module({
   imports: [HttpModule],

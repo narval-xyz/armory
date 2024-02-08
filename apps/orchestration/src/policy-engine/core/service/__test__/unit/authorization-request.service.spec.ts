@@ -1,33 +1,33 @@
+import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
+import { Intents, TransferNative } from '@narval/transaction-request-intent'
+import { Test, TestingModule } from '@nestjs/testing'
+import { MockProxy, mock } from 'jest-mock-extended'
+import { times } from 'lodash/fp'
 import {
   generateApproval,
   generateAuthorizationRequest,
   generateSignTransactionRequest,
   generateSignature,
   generateTransactionRequest
-} from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
-import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
-import { FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
-import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
+} from '../../../../../__test__/fixture/authorization-request.fixture'
+import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
+import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { FIAT_ID_USD, POLYGON } from '../../../../../orchestration.constant'
+import { PriceService } from '../../../../../price/core/service/price.service'
+import { ChainId } from '../../../../../shared/core/lib/chains.lib'
+import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
+import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
+import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
+import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
+import { ClusterService } from '../../../../core/service/cluster.service'
 import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   SignTransaction
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
-import { Intents, TransferNative } from '@narval/transaction-request-intent'
-import { Test, TestingModule } from '@nestjs/testing'
-import { MockProxy, mock } from 'jest-mock-extended'
-import { times } from 'lodash/fp'
+} from '../../../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
+import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
 
 describe(AuthorizationRequestService.name, () => {
   let module: TestingModule

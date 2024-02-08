@@ -1,6 +1,6 @@
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { HttpStatus } from '@nestjs/common'
 import { ZodIssue } from 'zod'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 
 export class DecodeAuthorizationRequestException extends ApplicationException {
   constructor(reasons: ZodIssue[]) {

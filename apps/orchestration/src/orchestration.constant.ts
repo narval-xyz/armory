@@ -1,7 +1,7 @@
-import { Chain, ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { FiatId } from '@app/orchestration/shared/core/type/price.type'
 import { AssetId } from '@narval/authz-shared'
 import { BackoffOptions } from 'bull'
+import { Chain, ChainId } from './shared/core/lib/chains.lib'
+import { FiatId } from './shared/core/type/price.type'
 
 export const REQUEST_HEADER_ORG_ID = 'x-org-id'
 

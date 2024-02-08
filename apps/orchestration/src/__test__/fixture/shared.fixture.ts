@@ -1,12 +1,12 @@
-import { CHAINS } from '@app/orchestration/orchestration.constant'
-import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
-import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
-import { hexSchema } from '@app/orchestration/shared/schema/hex.schema'
 import { faker } from '@faker-js/faker'
 import { Address, getAddress } from '@narval/authz-shared'
 import { sample } from 'lodash/fp'
 import { Generator } from 'zod-fixture'
+import { CHAINS } from '../../orchestration.constant'
+import { ChainId } from '../../shared/core/lib/chains.lib'
+import { addressSchema } from '../../shared/schema/address.schema'
+import { chainIdSchema } from '../../shared/schema/chain-id.schema'
+import { hexSchema } from '../../shared/schema/hex.schema'
 
 export const hexGenerator = Generator({
   schema: hexSchema,

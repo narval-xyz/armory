@@ -1,11 +1,11 @@
-import { ASSET_ID_MAINNET_USDC, ETHEREUM, FIAT_ID_USD, POLYGON } from '@app/orchestration/orchestration.constant'
-import { PriceException } from '@app/orchestration/price/core/exception/price.exception'
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
-import { CoinGeckoAssetRepository } from '@app/orchestration/price/persistence/repository/coin-gecko-asset.repository'
 import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/authz-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
+import { ASSET_ID_MAINNET_USDC, ETHEREUM, FIAT_ID_USD, POLYGON } from '../../../../../orchestration.constant'
+import { PriceException } from '../../../../core/exception/price.exception'
+import { PriceService } from '../../../../core/service/price.service'
+import { CoinGeckoClient } from '../../../../http/client/coin-gecko/coin-gecko.client'
+import { CoinGeckoAssetRepository } from '../../../../persistence/repository/coin-gecko-asset.repository'
 
 describe(PriceService.name, () => {
   let module: TestingModule

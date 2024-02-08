@@ -1,30 +1,3 @@
-import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
-import { load } from '@app/orchestration/orchestration.config'
-import {
-  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
-  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
-} from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
-import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
-import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
-import { UnreachableClusterException } from '@app/orchestration/policy-engine/core/exception/unreachable-cluster.exception'
-import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
-import { Cluster } from '@app/orchestration/policy-engine/core/type/clustering.type'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { AuthorizationRequestProcessingConsumer } from '@app/orchestration/policy-engine/queue/consumer/authorization-request-processing.consumer'
-import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
-import { QueueModule } from '@app/orchestration/shared/module/queue/queue.module'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Action, Alg, Signature } from '@narval/authz-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
@@ -33,6 +6,33 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Organization } from '@prisma/client/orchestration'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
+import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { load } from '../../../../../orchestration.config'
+import {
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
+} from '../../../../../orchestration.constant'
+import { PriceService } from '../../../../../price/core/service/price.service'
+import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
+import { QueueModule } from '../../../../../shared/module/queue/queue.module'
+import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
+import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
+import { ClusterNotFoundException } from '../../../../core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '../../../../core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '../../../../core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '../../../../core/exception/unreachable-cluster.exception'
+import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
+import { ClusterService } from '../../../../core/service/cluster.service'
+import { Cluster } from '../../../../core/type/clustering.type'
+import {
+  AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '../../../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
+import { AuthorizationRequestProcessingConsumer } from '../../../../queue/consumer/authorization-request-processing.consumer'
+import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
 
 describe(AuthorizationRequestProcessingConsumer.name, () => {
   let module: TestingModule

@@ -1,13 +1,13 @@
-import { AuthorizationRequestStatus } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { EvaluationDto } from '@app/orchestration/policy-engine/http/rest/dto/evaluation.dto'
-import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
-import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
-import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
-import { TransactionResponseDto } from '@app/orchestration/policy-engine/http/rest/dto/transaction-request.dto'
 import { Action } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsString, ValidateNested } from 'class-validator'
+import { AuthorizationRequestStatus } from '../../../core/type/domain.type'
+import { EvaluationDto } from '../../../http/rest/dto/evaluation.dto'
+import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
+import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
+import { SignatureDto } from '../../../http/rest/dto/signature.dto'
+import { TransactionResponseDto } from '../../../http/rest/dto/transaction-request.dto'
 
 class SignTransactionResponseDto extends SignTransactionRequestDto {
   // Use a different DTO for the response to ensure the conversion of attributes

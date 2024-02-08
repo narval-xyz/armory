@@ -1,20 +1,20 @@
-import {
-  generateAuthorizationRequest,
-  generateSignTransactionRequest,
-  generateTransactionRequest
-} from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateTransfer } from '@app/orchestration/__test__/fixture/transfer-tracking.fixture'
-import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
-import { load } from '@app/orchestration/orchestration.config'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
 import { Alg } from '@narval/authz-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
+import {
+  generateAuthorizationRequest,
+  generateSignTransactionRequest,
+  generateTransactionRequest
+} from '../../../../../__test__/fixture/authorization-request.fixture'
+import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
+import { load } from '../../../../../orchestration.config'
+import { AuthorizationRequest } from '../../../../../policy-engine/core/type/domain.type'
+import { ChainId } from '../../../../../shared/core/lib/chains.lib'
+import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
+import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
+import { HistoricalTransferFeedService } from '../../../../core/service/historical-transfer-feed.service'
 
 describe(HistoricalTransferFeedService.name, () => {
   let module: TestingModule

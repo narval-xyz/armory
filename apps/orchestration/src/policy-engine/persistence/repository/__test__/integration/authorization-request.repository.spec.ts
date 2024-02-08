@@ -1,18 +1,13 @@
-import { load } from '@app/orchestration/orchestration.config'
-import {
-  Approval,
-  AuthorizationRequest,
-  Evaluation,
-  SignTransaction
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { PersistenceModule } from '@app/orchestration/shared/module/persistence/persistence.module'
-import { TestPrismaService } from '@app/orchestration/shared/module/persistence/service/test-prisma.service'
 import { Action, Alg, Signature } from '@narval/authz-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
+import { load } from '../../../../../orchestration.config'
+import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
+import { Approval, AuthorizationRequest, Evaluation, SignTransaction } from '../../../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../../repository/authorization-request.repository'
 
 describe(AuthorizationRequestRepository.name, () => {
   let module: TestingModule

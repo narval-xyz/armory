@@ -1,12 +1,12 @@
-import { generateAddress, generateSupportedChainId } from '@app/orchestration/__test__/fixture/shared.fixture'
-import { CHAINS, FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
-import { Price } from '@app/orchestration/shared/core/type/price.type'
-import { assetIdSchema } from '@app/orchestration/shared/schema/caip.schema'
 import { AssetType, Namespace, Prices } from '@narval/authz-shared'
 import { sample } from 'lodash'
 import { times } from 'lodash/fp'
 import { z } from 'zod'
 import { Fixture, Generator } from 'zod-fixture'
+import { CHAINS, FIAT_ID_USD } from '../../orchestration.constant'
+import { Price } from '../../shared/core/type/price.type'
+import { assetIdSchema } from '../../shared/schema/caip.schema'
+import { generateAddress, generateSupportedChainId } from './shared.fixture'
 
 export const fiatIdSchema = z.custom<`fiat:${string}`>((value) => {
   const parse = z.string().safeParse(value)

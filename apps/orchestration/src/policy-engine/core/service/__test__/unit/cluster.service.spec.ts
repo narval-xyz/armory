@@ -1,23 +1,23 @@
+import { Alg, Decision, EvaluationResponse, Feed, Prices, hashRequest } from '@narval/authz-shared'
+import { Test } from '@nestjs/testing'
+import { MockProxy, mock } from 'jest-mock-extended'
+import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   generateAuthorizationRequest,
   generateSignTransactionRequest,
   generateSignature,
   generateTransactionRequest
-} from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generatePrices } from '@app/orchestration/__test__/fixture/price.fixture'
-import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
-import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
-import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
-import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
-import { Cluster, Node } from '@app/orchestration/policy-engine/core/type/clustering.type'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
-import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { Alg, Decision, EvaluationResponse, Feed, Prices, hashRequest } from '@narval/authz-shared'
-import { Test } from '@nestjs/testing'
-import { MockProxy, mock } from 'jest-mock-extended'
-import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+} from '../../../../../__test__/fixture/authorization-request.fixture'
+import { generatePrices } from '../../../../../__test__/fixture/price.fixture'
+import { PriceFeedService } from '../../../../../data-feed/core/service/price-feed.service'
+import { ChainId } from '../../../../../shared/core/lib/chains.lib'
+import { ClusterNotFoundException } from '../../../../core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '../../../../core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '../../../../core/exception/invalid-attestation-signature.exception'
+import { ClusterService } from '../../../../core/service/cluster.service'
+import { Cluster, Node } from '../../../../core/type/clustering.type'
+import { AuthorizationRequest } from '../../../../core/type/domain.type'
+import { AuthzApplicationClient } from '../../../../http/client/authz-application.client'
 
 describe(ClusterService.name, () => {
   let service: ClusterService
