@@ -1,3 +1,4 @@
+import { DecoderError } from '../error'
 import { assertAddress, assertArray, assertBigInt, assertHexString, assertLowerHexString } from '../typeguards'
 import {
   ApproveAllowanceParams,
@@ -83,7 +84,7 @@ export const ExecuteAndRevertParamsTransform = (params: unknown[]): ExecuteAndRe
 
 export const transformUserOperation = (op: unknown[]): UserOp => {
   if (typeof op !== 'object' || op === null) {
-    throw new Error('UserOperation is not an object')
+    throw new DecoderError({ message: 'UserOperation is not an object', status: 400 })
   }
 
   return {
@@ -103,7 +104,7 @@ export const transformUserOperation = (op: unknown[]): UserOp => {
 
 export const HandleOpsParamsTransform = (params: unknown[]): HandleOpsParams => {
   if (!Array.isArray(params[0]) || typeof params[1] !== 'string') {
-    throw new Error('Invalid input format')
+    throw new DecoderError({ message: 'Invalid input format', status: 400 })
   }
   return {
     userOps: params[0].map(transformUserOperation),
