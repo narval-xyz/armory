@@ -1,6 +1,6 @@
-import { PrismaService } from '@app/authz/shared/module/persistence/service/prisma.service'
 import { ConfigService } from '@nestjs/config'
 import { mock } from 'jest-mock-extended'
+import { PrismaService } from '../../prisma.service'
 
 describe(PrismaService.name, () => {
   describe('constructor', () => {

@@ -1,12 +1,12 @@
-import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
-import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
-import { UnreachableClusterException } from '@app/orchestration/policy-engine/core/exception/unreachable-cluster.exception'
-import { Cluster, Node } from '@app/orchestration/policy-engine/core/type/clustering.type'
-import { AuthzApplicationClient } from '@app/orchestration/policy-engine/http/client/authz-application.client'
 import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@narval/authz-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
+import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '../../core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '../../core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
+import { Cluster, Node } from '../../core/type/clustering.type'
+import { AuthzApplicationClient } from '../../http/client/authz-application.client'
 // eslint-disable-next-line no-restricted-imports
 import { getAddress, isAddressEqual, recoverMessageAddress } from 'viem'
 

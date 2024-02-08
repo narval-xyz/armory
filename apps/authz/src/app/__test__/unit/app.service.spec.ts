@@ -1,6 +1,6 @@
-import { finalizeDecision } from '@app/authz/app/app.service'
-import { OpaResult } from '@app/authz/shared/types/rego'
 import { Decision, EntityType } from '@narval/authz-shared'
+import { OpaResult } from '../../../shared/types/rego'
+import { finalizeDecision } from '../../app.service'
 
 describe('finalizeDecision', () => {
   it('returns Forbid if any of the reasons is Forbid', () => {

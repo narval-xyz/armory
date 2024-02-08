@@ -1,12 +1,3 @@
-import { RegoInput } from '@app/authz/shared/types/domain.type'
-import {
-  AddressBookAccount,
-  RegoData,
-  User,
-  UserGroup,
-  Wallet,
-  WalletGroup
-} from '@app/authz/shared/types/entities.types'
 import {
   AccountClassification,
   AccountId,
@@ -25,6 +16,15 @@ import { Intents } from 'packages/transaction-request-intent/src/lib/domain'
 import { TransferNative } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Address, sha256, toHex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { RegoInput } from '../../../shared/types/domain.type'
+import {
+  AddressBookAccount,
+  RegoData,
+  User,
+  UserGroup,
+  Wallet,
+  WalletGroup
+} from '../../../shared/types/entities.types'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 

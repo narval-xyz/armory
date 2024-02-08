@@ -1,20 +1,17 @@
-import {
-  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
-  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
-} from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
-import { ClusterNotFoundException } from '@app/orchestration/policy-engine/core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '@app/orchestration/policy-engine/core/exception/evaluation-consensus.exception'
-import { InvalidAttestationSignatureException } from '@app/orchestration/policy-engine/core/exception/invalid-attestation-signature.exception'
-import { UnreachableClusterException } from '@app/orchestration/policy-engine/core/exception/unreachable-cluster.exception'
-import { AuthorizationRequestService } from '@app/orchestration/policy-engine/core/service/authorization-request.service'
-import {
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '@app/orchestration/policy-engine/core/type/domain.type'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
+import {
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+  AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
+} from '../../../orchestration.constant'
+import { AuthorizationRequestAlreadyProcessingException } from '../../core/exception/authorization-request-already-processing.exception'
+import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
+import { EvaluationConsensusException } from '../../core/exception/evaluation-consensus.exception'
+import { InvalidAttestationSignatureException } from '../../core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
+import { AuthorizationRequestService } from '../../core/service/authorization-request.service'
+import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '../../core/type/domain.type'
 
 @Processor(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
 export class AuthorizationRequestProcessingConsumer {

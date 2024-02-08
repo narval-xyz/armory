@@ -1,10 +1,10 @@
-import { generatePrice } from '@app/orchestration/__test__/fixture/price.fixture'
-import { addressGenerator, chainIdGenerator } from '@app/orchestration/__test__/fixture/shared.fixture'
-import { Transfer } from '@app/orchestration/shared/core/type/transfer-tracking.type'
-import { addressSchema } from '@app/orchestration/shared/schema/address.schema'
-import { chainIdSchema } from '@app/orchestration/shared/schema/chain-id.schema'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
+import { generatePrice } from '../../__test__/fixture/price.fixture'
+import { Transfer } from '../../shared/core/type/transfer-tracking.type'
+import { addressSchema } from '../../shared/schema/address.schema'
+import { chainIdSchema } from '../../shared/schema/chain-id.schema'
+import { addressGenerator, chainIdGenerator } from './shared.fixture'
 
 const transferFeedSchema = z.object({
   id: z.string().uuid(),

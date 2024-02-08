@@ -1,12 +1,12 @@
-import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
-import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { DataFeedException } from '@app/orchestration/shared/core/exception/data-feed.exception'
-import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
 import { Feed } from '@narval/authz-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client/orchestration'
 import { v4 as uuid } from 'uuid'
+import { HistoricalTransferFeedService } from '../../../data-feed/core/service/historical-transfer-feed.service'
+import { PriceFeedService } from '../../../data-feed/core/service/price-feed.service'
+import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
+import { DataFeedException } from '../../../shared/core/exception/data-feed.exception'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 
 const isJsonObject = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value)
 

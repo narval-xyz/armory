@@ -1,10 +1,10 @@
-import { SignMessageRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-message-request.dto'
-import { SignTransactionRequestDto } from '@app/orchestration/policy-engine/http/rest/dto/sign-transaction-request.dto'
-import { SignatureDto } from '@app/orchestration/policy-engine/http/rest/dto/signature.dto'
 import { Action } from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, ValidateNested } from 'class-validator'
+import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
+import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
+import { SignatureDto } from '../../../http/rest/dto/signature.dto'
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {

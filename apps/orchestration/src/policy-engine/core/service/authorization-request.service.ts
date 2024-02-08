@@ -1,22 +1,22 @@
-import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
-import { FIAT_ID_USD } from '@app/orchestration/orchestration.constant'
-import { AuthorizationRequestAlreadyProcessingException } from '@app/orchestration/policy-engine/core/exception/authorization-request-already-processing.exception'
-import { ClusterService } from '@app/orchestration/policy-engine/core/service/cluster.service'
+import { Action, Decision } from '@narval/authz-shared'
+import { Intent, Intents } from '@narval/transaction-request-intent'
+import { Injectable, Logger } from '@nestjs/common'
+import { SetOptional } from 'type-fest'
+import { v4 as uuid } from 'uuid'
+import { FeedService } from '../../../data-feed/core/service/feed.service'
+import { FIAT_ID_USD } from '../../../orchestration.constant'
+import { PriceService } from '../../../price/core/service/price.service'
+import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 import {
   Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
-} from '@app/orchestration/policy-engine/core/type/domain.type'
-import { AuthorizationRequestRepository } from '@app/orchestration/policy-engine/persistence/repository/authorization-request.repository'
-import { AuthorizationRequestProcessingProducer } from '@app/orchestration/policy-engine/queue/producer/authorization-request-processing.producer'
-import { PriceService } from '@app/orchestration/price/core/service/price.service'
-import { TransferTrackingService } from '@app/orchestration/transfer-tracking/core/service/transfer-tracking.service'
-import { Action, Decision } from '@narval/authz-shared'
-import { Intents } from '@narval/transaction-request-intent'
-import { Injectable, Logger } from '@nestjs/common'
-import { SetOptional } from 'type-fest'
-import { v4 as uuid } from 'uuid'
+} from '../../core/type/domain.type'
+import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
+import { AuthorizationRequestProcessingProducer } from '../../queue/producer/authorization-request-processing.producer'
+import { AuthorizationRequestAlreadyProcessingException } from '../exception/authorization-request-already-processing.exception'
+import { ClusterService } from './cluster.service'
 
 const getStatus = (decision: string): AuthorizationRequestStatus => {
   const statuses: Map<string, AuthorizationRequestStatus> = new Map([
@@ -146,7 +146,8 @@ export class AuthorizationRequestService {
 
     // TODO (@wcalderipe, 01/02/24): Move to the TransferTrackingService.
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
-      const intent = evaluation.transactionRequestIntent
+      // TODO (@wcalderipe, 08/02/24): Remove the cast `as Intent`.
+      const intent = evaluation.transactionRequestIntent as Intent
       if (intent && intent.type === Intents.TRANSFER_NATIVE) {
         const transferPrices = await this.priceService.getPrices({
           from: [intent.token],

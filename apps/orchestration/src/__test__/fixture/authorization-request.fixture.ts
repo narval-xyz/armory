@@ -1,13 +1,13 @@
-import { addressGenerator, chainIdGenerator, hexGenerator } from '@app/orchestration/__test__/fixture/shared.fixture'
-import { Approval, AuthorizationRequest, SignTransaction } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { readRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/request.schema'
-import { readSignTransactionSchema } from '@app/orchestration/policy-engine/persistence/schema/sign-transaction.schema'
-import { signatureSchema } from '@app/orchestration/policy-engine/persistence/schema/signature.schema'
-import { readTransactionRequestSchema } from '@app/orchestration/policy-engine/persistence/schema/transaction-request.schema'
 import { Decision, Signature, TransactionRequest } from '@narval/authz-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
+import { Approval, AuthorizationRequest, SignTransaction } from '../../policy-engine/core/type/domain.type'
+import { readRequestSchema } from '../../policy-engine/persistence/schema/request.schema'
+import { readSignTransactionSchema } from '../../policy-engine/persistence/schema/sign-transaction.schema'
+import { signatureSchema } from '../../policy-engine/persistence/schema/signature.schema'
+import { readTransactionRequestSchema } from '../../policy-engine/persistence/schema/transaction-request.schema'
+import { addressGenerator, chainIdGenerator, hexGenerator } from './shared.fixture'
 
 const approvalSchema = signatureSchema.extend({
   id: z.string().uuid(),

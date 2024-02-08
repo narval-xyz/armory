@@ -1,11 +1,11 @@
-import { PriceException } from '@app/orchestration/price/core/exception/price.exception'
-import { CoinGeckoClient } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.client'
-import { SimplePrice } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
-import { CoinGeckoAssetRepository } from '@app/orchestration/price/persistence/repository/coin-gecko-asset.repository'
-import { FiatId, Prices } from '@app/orchestration/shared/core/type/price.type'
 import { AssetId } from '@narval/authz-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { compact } from 'lodash/fp'
+import { FiatId, Prices } from '../../../shared/core/type/price.type'
+import { CoinGeckoClient } from '../../http/client/coin-gecko/coin-gecko.client'
+import { SimplePrice } from '../../http/client/coin-gecko/coin-gecko.type'
+import { CoinGeckoAssetRepository } from '../../persistence/repository/coin-gecko-asset.repository'
+import { PriceException } from '../exception/price.exception'
 
 type GetPricesOption = {
   from: AssetId[]

@@ -1,6 +1,6 @@
-import { germinate as germinateTransferTrackingModule } from '@app/orchestration/transfer-tracking/persistence/transfer.seed'
 import { Logger } from '@nestjs/common'
 import { Organization, PrismaClient } from '@prisma/client/orchestration'
+import { germinate as germinateTransferTrackingModule } from '../../../transfer-tracking/persistence/transfer.seed'
 
 const now = new Date()
 const prisma = new PrismaClient()

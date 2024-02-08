@@ -1,8 +1,8 @@
-import CoinGeckoAssetIdIndex from '@app/orchestration/price/resource/coin-gecko-asset-id-index.json'
-import { findChain, safeGetChain } from '@app/orchestration/shared/core/lib/chains.lib'
-import { FiatId } from '@app/orchestration/shared/core/type/price.type'
 import { AssetId, getAssetId, isCoin, parseAsset } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { findChain, safeGetChain } from '../../../shared/core/lib/chains.lib'
+import { FiatId } from '../../../shared/core/type/price.type'
+import CoinGeckoAssetIdIndex from '../../resource/coin-gecko-asset-id-index.json'
 
 @Injectable()
 export class CoinGeckoAssetRepository {

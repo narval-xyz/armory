@@ -1,12 +1,12 @@
-import { OrchestrationModule } from '@app/orchestration/orchestration.module'
-import { ApplicationExceptionFilter } from '@app/orchestration/shared/filter/application-exception.filter'
-import { ZodExceptionFilter } from '@app/orchestration/shared/filter/zod-exception.filter'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './orchestration.config'
+import { OrchestrationModule } from './orchestration.module'
+import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
+import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
 /**
  * Adds Swagger documentation to the application.

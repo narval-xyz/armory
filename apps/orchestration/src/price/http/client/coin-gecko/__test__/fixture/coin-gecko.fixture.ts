@@ -1,4 +1,4 @@
-import { SimplePrice } from '@app/orchestration/price/http/client/coin-gecko/coin-gecko.type'
+import { SimplePrice } from '../../coin-gecko.type'
 
 export const generateSimplePrice = (): SimplePrice => {
   return {

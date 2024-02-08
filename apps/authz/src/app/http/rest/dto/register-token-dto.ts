@@ -1,7 +1,7 @@
-import { Token } from '@app/authz/shared/types/entities.types'
 import { Address } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsNumber, IsString } from 'class-validator'
+import { Token } from '../../../../shared/types/entities.types'
 
 export class TokenDataDto {
   constructor(token: Token) {

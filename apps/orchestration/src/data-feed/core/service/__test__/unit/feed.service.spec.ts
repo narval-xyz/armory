@@ -1,20 +1,20 @@
+import { Feed, HistoricalTransfer, Prices } from '@narval/authz-shared'
+import { Test, TestingModule } from '@nestjs/testing'
+import { MockProxy, mock, mockDeep } from 'jest-mock-extended'
 import {
   generateAuthorizationRequest,
   generateSignTransactionRequest,
   generateSignature,
   generateTransactionRequest
-} from '@app/orchestration/__test__/fixture/authorization-request.fixture'
-import { generateHistoricalTransfers } from '@app/orchestration/__test__/fixture/feed.fixture'
-import { generatePrices } from '@app/orchestration/__test__/fixture/price.fixture'
-import { FeedService } from '@app/orchestration/data-feed/core/service/feed.service'
-import { HistoricalTransferFeedService } from '@app/orchestration/data-feed/core/service/historical-transfer-feed.service'
-import { PriceFeedService } from '@app/orchestration/data-feed/core/service/price-feed.service'
-import { AuthorizationRequest } from '@app/orchestration/policy-engine/core/type/domain.type'
-import { ChainId } from '@app/orchestration/shared/core/lib/chains.lib'
-import { PrismaService } from '@app/orchestration/shared/module/persistence/service/prisma.service'
-import { Feed, HistoricalTransfer, Prices } from '@narval/authz-shared'
-import { Test, TestingModule } from '@nestjs/testing'
-import { MockProxy, mock, mockDeep } from 'jest-mock-extended'
+} from '../../../../../__test__/fixture/authorization-request.fixture'
+import { generateHistoricalTransfers } from '../../../../../__test__/fixture/feed.fixture'
+import { generatePrices } from '../../../../../__test__/fixture/price.fixture'
+import { AuthorizationRequest } from '../../../../../policy-engine/core/type/domain.type'
+import { ChainId } from '../../../../../shared/core/lib/chains.lib'
+import { PrismaService } from '../../../../../shared/module/persistence/service/prisma.service'
+import { FeedService } from '../../feed.service'
+import { HistoricalTransferFeedService } from '../../historical-transfer-feed.service'
+import { PriceFeedService } from '../../price-feed.service'
 
 describe(FeedService.name, () => {
   let module: TestingModule

@@ -1,7 +1,7 @@
-import { CHAINS } from '@app/orchestration/orchestration.constant'
-import { ApplicationException } from '@app/orchestration/shared/exception/application.exception'
 import { AssetId } from '@narval/authz-shared'
 import { HttpStatus } from '@nestjs/common'
+import { CHAINS } from '../../../orchestration.constant'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 
 export enum ChainId {
   ETHEREUM = 1,
