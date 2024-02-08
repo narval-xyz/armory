@@ -9,12 +9,18 @@ import {
   FiatCurrency,
   Hex,
   IdentityOperators,
+  UserRole,
   ValueOperators
 } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, plainToInstance } from 'class-transformer'
-import { IsDefined, IsEnum, IsIn, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsIn, IsString, Matches, ValidateNested } from 'class-validator'
+import { IsAccountId } from '../decorators/is-account-id.decorator'
+import { IsAssetId } from '../decorators/is-asset-id.decorator'
+import { IsNotEmptyArrayEnum } from '../decorators/is-not-empty-array-enum.decorator'
+import { IsNotEmptyArrayString } from '../decorators/is-not-empty-array-string.decorator'
+import { ValidateCriterion } from '../decorators/validate-criterion.decorator'
 
 export const Then = {
   PERMIT: 'permit',
@@ -122,186 +128,270 @@ class BaseCriterion {
 }
 
 class ActionCriterion extends BaseCriterion {
-  @IsDefined()
-  @ApiProperty({
-    type: String,
-    default: Criterion.CHECK_ACTION
-  })
+  @ValidateCriterion(Criterion.CHECK_ACTION)
   criterion: typeof Criterion.CHECK_ACTION
 
-  @IsDefined()
-  @IsEnum(Action, {
-    each: true
-  })
-  @ApiProperty({
-    enum: Object.values(Action),
-    isArray: true
-  })
+  @IsNotEmptyArrayEnum(Action)
   args: Action[]
 }
 
-class ResourceIntegrityCriterion {
+class ResourceIntegrityCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_RESOURCE_INTEGRITY)
   criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
+
   args: null
 }
 
-class PrincipalIdCriterion {
+class PrincipalIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ID)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ID
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class PrincipalRoleCriterion {
+class PrincipalRoleCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ROLE)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ROLE
-  args: string[]
+
+  @IsNotEmptyArrayEnum(UserRole)
+  args: UserRole[]
 }
 
-class PrincipalGroupCriterion {
+class PrincipalGroupCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_GROUP)
   criterion: typeof Criterion.CHECK_PRINCIPAL_GROUP
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletIdCriterion {
+class WalletIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_WALLET_ID)
   criterion: typeof Criterion.CHECK_WALLET_ID
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletAddressCriterion {
+class WalletAddressCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_WALLET_ADDRESS)
   criterion: typeof Criterion.CHECK_WALLET_ADDRESS
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletAccountTypeCriterion {
+class WalletAccountTypeCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_WALLET_ACCOUNT_TYPE
+
+  @IsNotEmptyArrayEnum(AccountType)
   args: AccountType[]
 }
 
-class WalletChainIdCriterion {
+class WalletChainIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_WALLET_CHAIN_ID)
   criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletGroupCriterion {
+class WalletGroupCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_WALLET_GROUP)
   criterion: typeof Criterion.CHECK_WALLET_GROUP
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentTypeCriterion {
+class IntentTypeCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
+
+  @IsNotEmptyArrayEnum(Intents)
   args: Intents[]
 }
 
-class DestinationIdCriterion {
+class DestinationIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_DESTINATION_ID)
   criterion: typeof Criterion.CHECK_DESTINATION_ID
+
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
   args: AccountId[]
 }
 
-class DestinationAddressCriterion {
+class DestinationAddressCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_DESTINATION_ADDRESS)
   criterion: typeof Criterion.CHECK_DESTINATION_ADDRESS
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class DestinationAccountTypeCriterion {
+class DestinationAccountTypeCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_DESTINATION_ACCOUNT_TYPE
+
+  @IsNotEmptyArrayEnum(AccountType)
   args: AccountType[]
 }
 
-class DestinationClassificationCriterion {
+class DestinationClassificationCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_DESTINATION_CLASSIFICATION)
   criterion: typeof Criterion.CHECK_DESTINATION_CLASSIFICATION
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentContractCriterion {
+class IntentContractCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_CONTRACT)
   criterion: typeof Criterion.CHECK_INTENT_CONTRACT
+
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
   args: AccountId[]
 }
 
-class IntentTokenCriterion {
+class IntentTokenCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_TOKEN)
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
+
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
   args: AccountId[]
 }
 
-class IntentSpenderCriterion {
+class IntentSpenderCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_SPENDER)
   criterion: typeof Criterion.CHECK_INTENT_SPENDER
+
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
   args: AccountId[]
 }
 
-class IntentChainIdCriterion {
+class IntentChainIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_CHAIN_ID)
   criterion: typeof Criterion.CHECK_INTENT_CHAIN_ID
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentHexSignatureCriterion {
+class IntentHexSignatureCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_HEX_SIGNATURE)
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
+
+  @IsNotEmptyArrayString()
+  @Matches(/^0x[a-fA-F0-9]+$/, { each: true })
   args: Hex[]
 }
 
-class IntentAmountCriterion {
+class IntentAmountCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_AMOUNT)
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
+
   args: AmountCondition
 }
 
-class ERC721TokenIdCriterion {
+class ERC721TokenIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_ERC721_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
+
+  @IsNotEmptyArrayString()
+  @IsAssetId({ each: true })
   args: AssetId[]
 }
 
-class ERC1155TokenIdCriterion {
+class ERC1155TokenIdCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_ERC1155_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
+
+  @IsNotEmptyArrayString()
+  @IsAssetId({ each: true })
   args: AssetId[]
 }
 
-class ERC1155TransfersCriterion {
+class ERC1155TransfersCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_ERC1155_TRANSFERS)
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
+
   args: ERC1155AmountCondition[]
 }
 
-class IntentMessageCriterion {
+class IntentMessageCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_MESSAGE)
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
+
   args: SignMessageCondition
 }
 
-class IntentPayloadCriterion {
+class IntentPayloadCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_PAYLOAD)
   criterion: typeof Criterion.CHECK_INTENT_PAYLOAD
+
+  @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentAlgorithmCriterion {
+class IntentAlgorithmCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_ALGORITHM)
   criterion: typeof Criterion.CHECK_INTENT_ALGORITHM
+
+  @IsNotEmptyArrayEnum(Alg)
   args: Alg[]
 }
 
-class IntentDomainCriterion {
+class IntentDomainCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_INTENT_DOMAIN)
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
+
   args: SignTypedDataDomainCondition
 }
 
-class PermitDeadlineCriterion {
+class PermitDeadlineCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_PERMIT_DEADLINE)
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
+
   args: PermitDeadlineCondition
 }
 
-class GasFeeAmountCriterion {
+class GasFeeAmountCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_GAS_FEE_AMOUNT)
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
+
   args: AmountCondition
 }
 
-class NonceRequiredCriterion {
+class NonceRequiredCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_NONCE_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_EXISTS
+
   args: null
 }
 
-class NonceNotRequiredCriterion {
+class NonceNotRequiredCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_NONCE_NOT_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_NOT_EXISTS
+
   args: null
 }
 
-class ApprovalsCriterion {
+class ApprovalsCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_APPROVALS)
   criterion: typeof Criterion.CHECK_APPROVALS
+
   args: ApprovalCondition[]
 }
 
-class SpendingLimitCriterion {
+class SpendingLimitCriterion extends BaseCriterion {
+  @ValidateCriterion(Criterion.CHECK_SPENDING_LIMIT)
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
+
   args: SpendingLimitCondition
 }
 
@@ -382,23 +472,12 @@ export type PolicyCriterion =
 export class Policy {
   @IsDefined()
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ type: String })
   name: string
 
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
-    return value.map((criterion: PolicyCriterion) => {
-      switch (criterion.criterion) {
-        case Criterion.CHECK_ACTION:
-          return plainToInstance(ActionCriterion, criterion)
-        case Criterion.CHECK_INTENT_TYPE:
-          return plainToInstance(IntentTypeCriterion, criterion)
-        // TODO: Sam, fill the rest. Maybe move these validation/transform logic elsewhere
-        // Don't forget delete the rego files on the e2e tests :)
-        default:
-          throw new Error('boom')
-      }
-    })
+    return value.map(({ criterion }: PolicyCriterion) => instantiateCriterion(criterion))
   })
   @ApiProperty({
     oneOf: SUPPORTED_CRITERION.map((entity) => ({
@@ -409,8 +488,81 @@ export class Policy {
 
   @IsDefined()
   @IsIn(Object.values(Then))
-  @ApiProperty({
-    enum: Object.values(Then)
-  })
+  @ApiProperty({ enum: Object.values(Then) })
   then: Then
+}
+
+const instantiateCriterion = (criterion: Criterion) => {
+  switch (criterion) {
+    case Criterion.CHECK_ACTION:
+      return plainToInstance(ActionCriterion, criterion)
+    case Criterion.CHECK_RESOURCE_INTEGRITY:
+      return plainToInstance(ResourceIntegrityCriterion, criterion)
+    case Criterion.CHECK_PRINCIPAL_ID:
+      return plainToInstance(PrincipalIdCriterion, criterion)
+    case Criterion.CHECK_PRINCIPAL_ROLE:
+      return plainToInstance(PrincipalRoleCriterion, criterion)
+    case Criterion.CHECK_PRINCIPAL_GROUP:
+      return plainToInstance(PrincipalGroupCriterion, criterion)
+    case Criterion.CHECK_WALLET_ID:
+      return plainToInstance(WalletIdCriterion, criterion)
+    case Criterion.CHECK_WALLET_ADDRESS:
+      return plainToInstance(WalletAddressCriterion, criterion)
+    case Criterion.CHECK_WALLET_ACCOUNT_TYPE:
+      return plainToInstance(WalletAccountTypeCriterion, criterion)
+    case Criterion.CHECK_WALLET_CHAIN_ID:
+      return plainToInstance(WalletChainIdCriterion, criterion)
+    case Criterion.CHECK_WALLET_GROUP:
+      return plainToInstance(WalletGroupCriterion, criterion)
+    case Criterion.CHECK_INTENT_TYPE:
+      return plainToInstance(IntentTypeCriterion, criterion)
+    case Criterion.CHECK_DESTINATION_ID:
+      return plainToInstance(DestinationIdCriterion, criterion)
+    case Criterion.CHECK_DESTINATION_ADDRESS:
+      return plainToInstance(DestinationAddressCriterion, criterion)
+    case Criterion.CHECK_DESTINATION_ACCOUNT_TYPE:
+      return plainToInstance(DestinationAccountTypeCriterion, criterion)
+    case Criterion.CHECK_DESTINATION_CLASSIFICATION:
+      return plainToInstance(DestinationClassificationCriterion, criterion)
+    case Criterion.CHECK_INTENT_CONTRACT:
+      return plainToInstance(IntentContractCriterion, criterion)
+    case Criterion.CHECK_INTENT_TOKEN:
+      return plainToInstance(IntentTokenCriterion, criterion)
+    case Criterion.CHECK_INTENT_SPENDER:
+      return plainToInstance(IntentSpenderCriterion, criterion)
+    case Criterion.CHECK_INTENT_CHAIN_ID:
+      return plainToInstance(IntentChainIdCriterion, criterion)
+    case Criterion.CHECK_INTENT_HEX_SIGNATURE:
+      return plainToInstance(IntentHexSignatureCriterion, criterion)
+    case Criterion.CHECK_INTENT_AMOUNT:
+      return plainToInstance(IntentAmountCriterion, criterion)
+    case Criterion.CHECK_ERC721_TOKEN_ID:
+      return plainToInstance(ERC721TokenIdCriterion, criterion)
+    case Criterion.CHECK_ERC1155_TOKEN_ID:
+      return plainToInstance(ERC1155TokenIdCriterion, criterion)
+    case Criterion.CHECK_ERC1155_TRANSFERS:
+      return plainToInstance(ERC1155TransfersCriterion, criterion)
+    case Criterion.CHECK_INTENT_MESSAGE:
+      return plainToInstance(IntentMessageCriterion, criterion)
+    case Criterion.CHECK_INTENT_PAYLOAD:
+      return plainToInstance(IntentPayloadCriterion, criterion)
+    case Criterion.CHECK_INTENT_ALGORITHM:
+      return plainToInstance(IntentAlgorithmCriterion, criterion)
+    case Criterion.CHECK_INTENT_DOMAIN:
+      return plainToInstance(IntentDomainCriterion, criterion)
+    case Criterion.CHECK_PERMIT_DEADLINE:
+      return plainToInstance(PermitDeadlineCriterion, criterion)
+    case Criterion.CHECK_GAS_FEE_AMOUNT:
+      return plainToInstance(GasFeeAmountCriterion, criterion)
+    case Criterion.CHECK_NONCE_EXISTS:
+      return plainToInstance(NonceRequiredCriterion, criterion)
+    case Criterion.CHECK_NONCE_NOT_EXISTS:
+      return plainToInstance(NonceNotRequiredCriterion, criterion)
+    case Criterion.CHECK_APPROVALS:
+      return plainToInstance(ApprovalsCriterion, criterion)
+    case Criterion.CHECK_SPENDING_LIMIT:
+      return plainToInstance(SpendingLimitCriterion, criterion)
+    default:
+      throw new Error('Unknown criterion: ' + criterion)
+  }
 }
