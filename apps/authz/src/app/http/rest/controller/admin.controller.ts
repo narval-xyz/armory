@@ -34,6 +34,7 @@ import {
   UpdateUserRequest
 } from '@narval/authz-shared'
 import { Body, Controller, Logger, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common'
+import { SetPolicyRulesResponseDto } from '../dto/policy-rules/set-policy-rules-response.dto'
 
 @Controller('/admin')
 export class AdminController {
@@ -147,11 +148,7 @@ export class AdminController {
 
     const policyRules = await this.adminService.setPolicyRules(payload)
 
-    // const response = new SetPolicyRulesResponseDto(policyRules)
-    // return response
-
-    console.log('## ctrl', policyRules)
-
-    return policyRules
+    const response = new SetPolicyRulesResponseDto({ policyRules })
+    return response
   }
 }

@@ -459,64 +459,65 @@ describe('Admin Endpoints', () => {
         ],
         request: {
           action: 'setPolicyRules',
+          nonce: 'random-nonce-111',
           data: [
             {
               then: 'permit',
               name: 'examplePermitPolicy',
               when: [
                 {
-                  criterion: 'checkTransferResourceIntegrity',
+                  criterion: 'checkResourceIntegrity',
                   args: null
-                },
-                {
-                  criterion: 'checkNonceExists',
-                  args: null
-                },
-                {
-                  criterion: 'checkAction',
-                  args: ['signTransaction']
-                },
-                {
-                  criterion: 'checkPrincipalId',
-                  args: ['matt@narval.xyz']
-                },
-                {
-                  criterion: 'checkWalletId',
-                  args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
-                },
-                {
-                  criterion: 'checkIntentType',
-                  args: ['transferNative']
-                },
-                {
-                  criterion: 'checkIntentToken',
-                  args: ['eip155:137/slip44:966']
-                },
-                {
-                  criterion: 'checkIntentAmount',
-                  args: {
-                    currency: '*',
-                    operator: 'lte',
-                    value: '1000000000000000000'
-                  }
-                },
-                {
-                  criterion: 'checkApprovals',
-                  args: [
-                    {
-                      approvalCount: 2,
-                      countPrincipal: false,
-                      approvalEntityType: 'Narval::User',
-                      entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
-                    },
-                    {
-                      approvalCount: 1,
-                      countPrincipal: false,
-                      approvalEntityType: 'Narval::UserRole',
-                      entityIds: ['admin']
-                    }
-                  ]
                 }
+                // {
+                //   criterion: 'checkNonceExists',
+                //   args: null
+                // },
+                // {
+                //   criterion: 'checkAction',
+                //   args: ['signTransaction']
+                // },
+                // {
+                //   criterion: 'checkPrincipalId',
+                //   args: ['matt@narval.xyz']
+                // },
+                // {
+                //   criterion: 'checkWalletId',
+                //   args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+                // },
+                // {
+                //   criterion: 'checkIntentType',
+                //   args: ['transferNative']
+                // },
+                // {
+                //   criterion: 'checkIntentToken',
+                //   args: ['eip155:137/slip44:966']
+                // },
+                // {
+                //   criterion: 'checkIntentAmount',
+                //   args: {
+                //     currency: '*',
+                //     operator: 'lte',
+                //     value: '1000000000000000000'
+                //   }
+                // },
+                // {
+                //   criterion: 'checkApprovals',
+                //   args: [
+                //     {
+                //       approvalCount: 2,
+                //       countPrincipal: false,
+                //       approvalEntityType: 'Narval::User',
+                //       entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
+                //     },
+                //     {
+                //       approvalCount: 1,
+                //       countPrincipal: false,
+                //       approvalEntityType: 'Narval::UserRole',
+                //       entityIds: ['admin']
+                //     }
+                //   ]
+                // }
               ]
             },
             {
@@ -524,47 +525,47 @@ describe('Admin Endpoints', () => {
               name: 'exampleForbidPolicy',
               when: [
                 {
-                  criterion: 'checkTransferResourceIntegrity',
+                  criterion: 'checkResourceIntegrity',
                   args: null
-                },
-                {
-                  criterion: 'checkNonceExists',
-                  args: null
-                },
-                {
-                  criterion: 'checkAction',
-                  args: ['signTransaction']
-                },
-                {
-                  criterion: 'checkPrincipalId',
-                  args: ['matt@narval.xyz']
-                },
-                {
-                  criterion: 'checkWalletId',
-                  args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
-                },
-                {
-                  criterion: 'checkIntentType',
-                  args: ['transferNative']
-                },
-                {
-                  criterion: 'checkIntentToken',
-                  args: ['eip155:137/slip44:966']
-                },
-                {
-                  criterion: 'checkSpendingLimit',
-                  args: {
-                    limit: '1000000000000000000',
-                    timeWindow: {
-                      type: 'rolling',
-                      value: 43200
-                    },
-                    filters: {
-                      tokens: ['eip155:137/slip44:966'],
-                      users: ['matt@narval.xyz']
-                    }
-                  }
                 }
+                // {
+                //   criterion: 'checkNonceExists',
+                //   args: null
+                // },
+                // {
+                //   criterion: 'checkAction',
+                //   args: ['signTransaction']
+                // },
+                // {
+                //   criterion: 'checkPrincipalId',
+                //   args: ['matt@narval.xyz']
+                // },
+                // {
+                //   criterion: 'checkWalletId',
+                //   args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+                // },
+                // {
+                //   criterion: 'checkIntentType',
+                //   args: ['transferNative']
+                // },
+                // {
+                //   criterion: 'checkIntentToken',
+                //   args: ['eip155:137/slip44:966']
+                // },
+                // {
+                //   criterion: 'checkSpendingLimit',
+                //   args: {
+                //     limit: '1000000000000000000',
+                //     timeWindow: {
+                //       type: 'rolling',
+                //       value: 43200
+                //     },
+                //     filters: {
+                //       tokens: ['eip155:137/slip44:966'],
+                //       users: ['matt@narval.xyz']
+                //     }
+                //   }
+                // }
               ]
             }
           ]

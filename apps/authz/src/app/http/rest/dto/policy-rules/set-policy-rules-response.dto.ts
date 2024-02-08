@@ -7,10 +7,7 @@ export class SetPolicyRulesResponseDto {
   @IsDefined()
   @Type(() => Policy)
   @ValidateNested()
-  @ApiProperty({
-    type: () => Policy,
-    isArray: true
-  })
+  @ApiProperty({ type: () => Policy, isArray: true })
   policyRules: Policy[]
 
   constructor(partial: Partial<SetPolicyRulesResponseDto>) {

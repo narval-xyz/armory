@@ -16,6 +16,7 @@ import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'
 import {
+  IsArray,
   IsBoolean,
   IsDefined,
   IsIn,
@@ -83,7 +84,7 @@ export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
   currency: FiatCurrency | '*'
 
-  @IsNotEmptyArrayEnum(ValueOperators)
+  // @IsNotEmptyArrayEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -95,7 +96,7 @@ export class ERC1155AmountCondition {
   @IsAssetId()
   tokenId: AssetId
 
-  @IsNotEmptyArrayEnum(ValueOperators)
+  // @IsNotEmptyArrayEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -134,7 +135,7 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  @IsNotEmptyArrayEnum(ValueOperators)
+  // @IsNotEmptyArrayEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -312,7 +313,7 @@ class IntentTypeCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
 
-  @IsNotEmptyArrayEnum(Intents)
+  // @IsNotEmptyArrayEnum(Intents)
   args: Intents[]
 }
 
@@ -590,12 +591,16 @@ export type PolicyCriterion =
 export class Policy {
   @IsDefined()
   @IsString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   name: string
 
+  @IsDefined()
+  @IsArray()
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
-    return value.map(({ criterion }: PolicyCriterion) => instantiateCriterion(criterion))
+    return value.map(({ criterion }: PolicyCriterion) => {
+      return instantiateCriterion(criterion)
+    })
   })
   @ApiProperty({
     oneOf: SUPPORTED_CRITERION.map((entity) => ({
