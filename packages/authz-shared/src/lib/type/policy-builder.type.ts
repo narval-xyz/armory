@@ -14,10 +14,21 @@ import {
 } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
-import { Transform, plainToInstance } from 'class-transformer'
-import { IsDefined, IsIn, IsString, Matches, ValidateNested } from 'class-validator'
+import { Transform, Type, plainToInstance } from 'class-transformer'
+import {
+  IsBoolean,
+  IsDefined,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  ValidateNested
+} from 'class-validator'
 import { IsAccountId } from '../decorators/is-account-id.decorator'
 import { IsAssetId } from '../decorators/is-asset-id.decorator'
+import { IsHexString } from '../decorators/is-hex-string.decorator'
 import { IsNotEmptyArrayEnum } from '../decorators/is-not-empty-array-enum.decorator'
 import { IsNotEmptyArrayString } from '../decorators/is-not-empty-array-string.decorator'
 import { ValidateCriterion } from '../decorators/validate-criterion.decorator'
@@ -68,59 +79,150 @@ export const Criterion = {
 
 export type Criterion = (typeof Criterion)[keyof typeof Criterion]
 
-export type AmountCondition = {
-  currency: `${FiatCurrency}` | '*'
-  operator: `${ValueOperators}`
+export class AmountCondition {
+  @IsIn([...Object.values(FiatCurrency), '*'])
+  currency: FiatCurrency | '*'
+
+  @IsNotEmptyArrayEnum(ValueOperators)
+  operator: ValueOperators
+
+  @IsNotEmpty()
+  @IsNumberString()
   value: string
 }
 
-export type ERC1155AmountCondition = {
+export class ERC1155AmountCondition {
+  @IsAssetId()
   tokenId: AssetId
-  operator: `${ValueOperators}`
+
+  @IsNotEmptyArrayEnum(ValueOperators)
+  operator: ValueOperators
+
+  @IsNotEmpty()
+  @IsNumberString()
   value: string
 }
 
-export type SignMessageCondition = {
-  operator: `${ValueOperators.EQUAL}` | `${typeof IdentityOperators.CONTAINS}`
+export class SignMessageCondition {
+  @IsIn([ValueOperators.EQUAL, IdentityOperators.CONTAINS])
+  operator: ValueOperators.EQUAL | IdentityOperators.CONTAINS
+
+  @IsNotEmpty()
+  @IsString()
   value: string
 }
 
-export type SignTypedDataDomainCondition = {
+export class SignTypedDataDomainCondition {
+  @IsOptional()
+  @IsNotEmptyArrayString()
+  @IsNumberString({}, { each: true })
   version?: string[]
+
+  @IsOptional()
+  @IsNotEmptyArrayString()
+  @IsNumberString({}, { each: true })
   chainId?: string[]
+
+  @IsOptional()
+  @IsNotEmptyArrayString()
   name?: string[]
+
+  @IsOptional()
+  @IsNotEmptyArrayString()
+  @IsHexString({ each: true })
   verifyingContract?: Address[]
 }
 
-export type PermitDeadlineCondition = {
-  operator: `${ValueOperators}`
+export class PermitDeadlineCondition {
+  @IsNotEmptyArrayEnum(ValueOperators)
+  operator: ValueOperators
+
+  @IsNotEmpty()
+  @IsNumberString()
   value: string // timestamp in ms
 }
 
-export type ApprovalCondition = {
+export class ApprovalCondition {
+  @IsDefined()
+  @IsNumber()
   approvalCount: number
+
+  @IsDefined()
+  @IsBoolean()
   countPrincipal: boolean
-  approvalEntityType: `${EntityType}`
+
+  @IsDefined()
+  @IsIn(Object.values(EntityType))
+  approvalEntityType: EntityType
+
+  @IsNotEmptyArrayString()
   entityIds: string[]
 }
 
-export type SpendingLimitCondition = {
+export class SpendingLimitTimeWindow {
+  @IsIn(['rolling', 'fixed'])
+  type?: 'rolling' | 'fixed'
+
+  @IsNumber()
+  @IsOptional()
+  value?: number // in seconds
+
+  @IsNumber()
+  @IsOptional()
+  startDate?: number // in seconds
+
+  @IsNumber()
+  @IsOptional()
+  endDate?: number // in seconds
+}
+
+export class SpendingLimitFilters {
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
+  @IsOptional()
+  tokens?: AccountId[]
+
+  @IsNotEmptyArrayString()
+  @IsOptional()
+  users?: string[]
+
+  @IsNotEmptyArrayString()
+  @IsAccountId({ each: true })
+  @IsOptional()
+  resources?: AccountId[]
+
+  @IsNotEmptyArrayString()
+  @IsNumberString({}, { each: true })
+  @IsOptional()
+  chains?: string[]
+
+  @IsNotEmptyArrayString()
+  @IsOptional()
+  userGroups?: string[]
+
+  @IsNotEmptyArrayString()
+  @IsOptional()
+  walletGroups?: string[]
+}
+
+export class SpendingLimitCondition {
+  @IsString()
+  @IsNotEmpty()
   limit: string
-  currency?: `${FiatCurrency}`
-  timeWindow?: {
-    type?: 'rolling' | 'fixed'
-    value?: number // in seconds
-    startDate?: number // in seconds
-    endDate?: number // in seconds
-  }
-  filters?: {
-    tokens?: AccountId[]
-    users?: string[]
-    resources?: AccountId[]
-    chains?: string[]
-    userGroups?: string[]
-    walletGroups?: string[]
-  }
+
+  @IsIn(Object.values(FiatCurrency))
+  @IsOptional()
+  currency?: FiatCurrency
+
+  @ValidateNested()
+  @Type(() => SpendingLimitTimeWindow)
+  @IsOptional()
+  timeWindow?: SpendingLimitTimeWindow
+
+  @ValidateNested()
+  @Type(() => SpendingLimitFilters)
+  @IsOptional()
+  filters?: SpendingLimitFilters
 }
 
 class BaseCriterion {
@@ -287,7 +389,7 @@ class IntentHexSignatureCriterion extends BaseCriterion {
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
 
   @IsNotEmptyArrayString()
-  @Matches(/^0x[a-fA-F0-9]+$/, { each: true })
+  @IsHexString({ each: true })
   args: Hex[]
 }
 
@@ -295,6 +397,8 @@ class IntentAmountCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_AMOUNT)
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
 
+  @ValidateNested()
+  @Type(() => AmountCondition)
   args: AmountCondition
 }
 
@@ -320,6 +424,8 @@ class ERC1155TransfersCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_ERC1155_TRANSFERS)
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
 
+  @ValidateNested()
+  @Type(() => ERC1155AmountCondition)
   args: ERC1155AmountCondition[]
 }
 
@@ -327,6 +433,8 @@ class IntentMessageCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_MESSAGE)
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
 
+  @ValidateNested()
+  @Type(() => SignMessageCondition)
   args: SignMessageCondition
 }
 
@@ -350,6 +458,8 @@ class IntentDomainCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_DOMAIN)
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
 
+  @ValidateNested()
+  @Type(() => SignTypedDataDomainCondition)
   args: SignTypedDataDomainCondition
 }
 
@@ -357,6 +467,8 @@ class PermitDeadlineCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_PERMIT_DEADLINE)
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
 
+  @ValidateNested()
+  @Type(() => PermitDeadlineCondition)
   args: PermitDeadlineCondition
 }
 
@@ -364,6 +476,8 @@ class GasFeeAmountCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_GAS_FEE_AMOUNT)
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
 
+  @ValidateNested()
+  @Type(() => AmountCondition)
   args: AmountCondition
 }
 
@@ -385,6 +499,8 @@ class ApprovalsCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_APPROVALS)
   criterion: typeof Criterion.CHECK_APPROVALS
 
+  @ValidateNested()
+  @Type(() => ApprovalCondition)
   args: ApprovalCondition[]
 }
 
@@ -392,6 +508,8 @@ class SpendingLimitCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_SPENDING_LIMIT)
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
 
+  @ValidateNested()
+  @Type(() => SpendingLimitCondition)
   args: SpendingLimitCondition
 }
 
