@@ -1,4 +1,4 @@
-import { Address, Hex } from '../type/action.type';
+import { Address, Hex } from '../type/action.type'
 
 // eslint-disable-next-line no-restricted-imports
 import { isAddress } from 'viem'

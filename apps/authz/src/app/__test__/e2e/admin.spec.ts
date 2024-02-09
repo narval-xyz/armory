@@ -1,4 +1,3 @@
-import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type';
 import {
   AccountClassification,
   AccountType,
@@ -20,6 +19,7 @@ import { AAUser, AAUser_Credential_1 } from '../../../app/persistence/repository
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { Organization } from '../../../shared/types/entities.types'
+import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type'
 import { load } from '../../app.config'
 
 const REQUEST_HEADER_ORG_ID = 'x-org-id'

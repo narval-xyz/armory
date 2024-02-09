@@ -1,8 +1,8 @@
-import { Policy } from '../../../../../shared/types/policy.type';
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsArray, IsDefined, IsString, Matches, ValidateNested } from 'class-validator'
+import { Policy } from '../../../../../shared/types/policy.type'
 import { BaseActionDto } from '../base-action.dto'
 import { BaseAdminRequestPayloadDto } from '../base-admin-request-payload.dto'
 

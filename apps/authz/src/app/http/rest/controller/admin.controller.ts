@@ -1,4 +1,3 @@
-import { SetPolicyRulesRequest } from '../../../../shared/types/policy.type';
 import {
   AssignUserGroupRequest,
   AssignUserWalletRequest,
@@ -12,6 +11,7 @@ import {
   UpdateUserRequest
 } from '@narval/authz-shared'
 import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
+import { SetPolicyRulesRequest } from '../../../../shared/types/policy.type'
 import { AdminService } from '../../../core/admin.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '../dto/assign-user-group-response.dto'
