@@ -7,10 +7,8 @@ import {
   CreateCredentialRequest,
   CreateOrganizationRequest,
   CreateUserRequest,
-  Policy,
   RegisterTokensRequest,
   RegisterWalletRequest,
-  SetPolicyRulesRequest,
   UpdateUserRequest,
   UserGroupMembership,
   UserWallet,
@@ -18,6 +16,7 @@ import {
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookAccount, Organization, Token, User, Wallet } from '../../shared/types/entities.types'
+import { Policy, SetPolicyRulesRequest } from '../../shared/types/policy.type'
 import { OpaService } from '../opa/opa.service'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 

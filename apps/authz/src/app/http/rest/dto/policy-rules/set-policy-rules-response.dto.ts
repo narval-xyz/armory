@@ -1,4 +1,4 @@
-import { Policy } from '@narval/authz-shared'
+import { Policy } from '../../../../../shared/types/policy.type';
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsString, ValidateNested } from 'class-validator'

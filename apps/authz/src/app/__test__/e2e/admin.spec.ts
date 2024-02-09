@@ -1,13 +1,11 @@
+import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type';
 import {
   AccountClassification,
   AccountType,
   Action,
   Alg,
-  Criterion,
   EntityType,
   Signature,
-  Then,
-  TimeWindow,
   UserRole,
   ValueOperators
 } from '@narval/authz-shared'

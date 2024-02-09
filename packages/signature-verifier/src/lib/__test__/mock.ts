@@ -1,12 +1,3 @@
-import { RegoInput } from '@app/authz/shared/types/domain.type'
-import {
-  AddressBookAccount,
-  RegoData,
-  User,
-  UserGroup,
-  Wallet,
-  WalletGroup
-} from '@app/authz/shared/types/entities.types'
 import {
   AccountClassification,
   AccountId,

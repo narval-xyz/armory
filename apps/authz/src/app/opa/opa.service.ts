@@ -1,4 +1,3 @@
-import { Criterion, Policy, Then } from '@narval/authz-shared'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync, writeFileSync } from 'fs'
@@ -8,6 +7,7 @@ import path from 'path'
 import * as R from 'remeda'
 import { v4 as uuidv4 } from 'uuid'
 import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
+import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 

@@ -1,5 +1,3 @@
-import { Policy } from '@narval/authz-shared'
-
 export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
@@ -121,12 +119,12 @@ export type TransactionRequest = {
 /**
  * Action Types; these correspond to each Action
  */
-type BaseAction = {
+export type BaseAction = {
   action: Action
   nonce: string
 }
 
-type BaseAdminRequest = {
+export type BaseAdminRequest = {
   /**
    * The initiator signature of the request using `hashRequest` method to ensure
    * SHA256 format.
@@ -265,13 +263,4 @@ export type RegisterTokensAction = BaseAction & {
 
 export type RegisterTokensRequest = BaseAdminRequest & {
   request: RegisterTokensAction
-}
-
-export type SetPolicyRulesAction = BaseAction & {
-  action: typeof Action.SET_POLICY_RULES
-  data: Policy[]
-}
-
-export type SetPolicyRulesRequest = BaseAdminRequest & {
-  request: SetPolicyRulesAction
 }

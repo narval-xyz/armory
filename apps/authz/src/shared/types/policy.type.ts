@@ -2,13 +2,18 @@ import {
   AccountId,
   AccountType,
   Action,
-  Address,
   Alg,
   AssetId,
+  BaseAction,
+  BaseAdminRequest,
   EntityType,
   FiatCurrency,
-  Hex,
   IdentityOperators,
+  IsAccountId,
+  IsAssetId,
+  IsHexString,
+  IsNotEmptyArrayEnum,
+  IsNotEmptyArrayString,
   UserRole,
   ValueOperators
 } from '@narval/authz-shared'
@@ -28,11 +33,7 @@ import {
   IsString,
   ValidateNested
 } from 'class-validator'
-import { IsAccountId } from '../decorators/is-account-id.decorator'
-import { IsAssetId } from '../decorators/is-asset-id.decorator'
-import { IsHexString } from '../decorators/is-hex-string.decorator'
-import { IsNotEmptyArrayEnum } from '../decorators/is-not-empty-array-enum.decorator'
-import { IsNotEmptyArrayString } from '../decorators/is-not-empty-array-string.decorator'
+import { Address, Hex } from 'viem'
 import { ValidateCriterion } from '../decorators/validate-criterion.decorator'
 
 export const Then = {
@@ -701,4 +702,13 @@ const instantiateCriterion = (criterion: PolicyCriterion) => {
     default:
       throw new Error('Unknown criterion: ' + criterion)
   }
+}
+
+export type SetPolicyRulesAction = BaseAction & {
+  action: typeof Action.SET_POLICY_RULES
+  data: Policy[]
+}
+
+export type SetPolicyRulesRequest = BaseAdminRequest & {
+  request: SetPolicyRulesAction
 }
