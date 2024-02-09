@@ -1,8 +1,6 @@
-import { Action, WalletGroupMembership } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseAdminRequestPayloadDto, WalletGroupMembership } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, ValidateNested } from 'class-validator'
-import { BaseActionDto } from './base-action.dto'
-import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
 
 class AssignWalletGroupActionDto extends BaseActionDto {
   @IsIn(Object.values(Action))

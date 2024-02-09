@@ -29,6 +29,7 @@ export const Action = {
   SIGN_MESSAGE: 'signMessage',
   SIGN_TYPED_DATA: 'signTypedData'
 } as const
+
 export type Action = (typeof Action)[keyof typeof Action]
 
 export type AuthCredential = {
@@ -44,12 +45,14 @@ export const UserRole = {
   MEMBER: 'member',
   MANAGER: 'manager'
 } as const
+
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 export const AccountType = {
   EOA: 'eoa',
   AA: '4337'
 } as const
+
 export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 
 export const AccountClassification = {
@@ -58,6 +61,7 @@ export const AccountClassification = {
   INTERNAL: 'internal',
   WALLET: 'wallet'
 } as const
+
 export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
 
 export type UserGroupMembership = {

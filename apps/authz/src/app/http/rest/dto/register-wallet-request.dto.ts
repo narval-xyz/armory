@@ -1,8 +1,6 @@
-import { Action } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseAdminRequestPayloadDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, ValidateNested } from 'class-validator'
-import { BaseActionDto } from './base-action.dto'
-import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
 import { WalletDataDto } from './wallet-dto'
 
 class RegisterWalletActionDto extends BaseActionDto {

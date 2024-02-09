@@ -97,6 +97,11 @@ authz/test/integration:
 authz/test/e2e:
 	npx nx test:e2e ${AUTHZ_PROJECT_NAME} -- ${ARGS}
 
+authz/test:
+	make authz/test/unit
+	make authz/test/integration
+	make authz/test/e2e
+
 # === Open Policy Agent & Rego ===
 
 authz/rego/compile:
@@ -123,7 +128,7 @@ authz/rego/template:
 	make authz/rego/compile
 
 	make authz/rego/wasm
-	
+
 authz/rego/bundle:
 	rm -rf ${AUTHZ_PROJECT_DIR}/src/opa/build
 

@@ -12,7 +12,7 @@ import {
   RegisterWalletRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
-import { Body, Controller, HttpStatus, Logger, Patch, Post } from '@nestjs/common'
+import { Body, Controller, HttpStatus, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { AdminService } from '../../../core/admin.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
@@ -36,8 +36,6 @@ import { UpdateUserResponseDto } from '../dto/update-user-response.dto'
 
 @Controller('/admin')
 export class AdminController {
-  private logger = new Logger(AdminController.name)
-
   constructor(private readonly adminService: AdminService) {}
 
   @Post('/organizations')
@@ -83,10 +81,9 @@ export class AdminController {
   async createCredential(@Body() body: CreateCredentialRequestDto) {
     const payload: CreateCredentialRequest = body
 
-    const authCredential = await this.adminService.createCredential(payload)
+    const credential = await this.adminService.createCredential(payload)
 
-    const response = new CreateCredentialResponseDto(authCredential)
-    return response
+    return new CreateCredentialResponseDto({ credential })
   }
 
   @Post('/user-groups')
