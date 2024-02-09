@@ -16,6 +16,7 @@ import { AuthorizationRequestService } from './core/service/authorization-reques
 import { ClusterService } from './core/service/cluster.service'
 import { AuthzApplicationClient } from './http/client/authz-application.client'
 import { AuthorizationRequestController } from './http/rest/controller/authorization-request.controller'
+import { PolicyEngineManagementController } from './http/rest/controller/policy-engine-management.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
@@ -40,7 +41,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
       adapter: BullAdapter
     })
   ],
-  controllers: [AuthorizationRequestController],
+  controllers: [AuthorizationRequestController, PolicyEngineManagementController],
   providers: [
     AuthorizationRequestService,
     AuthorizationRequestRepository,
