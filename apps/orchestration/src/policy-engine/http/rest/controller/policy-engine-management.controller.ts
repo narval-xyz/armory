@@ -1,7 +1,7 @@
-import { REQUEST_HEADER_ORG_ID } from '@app/orchestration/src/orchestration.constant'
 import { CreateUserRequestDto, CreateUserResponseDto } from '@narval/authz-shared'
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
 import { OrgId } from '../../../../shared/decorator/org-id.decorator'
 import { ClusterService } from '../../../core/service/cluster.service'
 
