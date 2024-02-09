@@ -3,10 +3,14 @@ import { HttpStatus } from '@nestjs/common'
 import { CHAINS } from '../../../orchestration.constant'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
-export enum ChainId {
-  ETHEREUM = 1,
-  POLYGON = 137
-}
+// TODO (@wcalderipe, 09/02/24): After the commit bddb7b3 [1], this constant
+// stop working and the application doesn't boot anymore.
+//
+// [1] https://github.com/narval-xyz/armory/commit/bddb7b303c0549d2a0015da485e9ac37f72dfefc
+export const ChainId = {
+  ETHEREUM: 1,
+  POLYGON: 137
+} as const
 
 /**
  * @see https://chainid.network/chains.json
