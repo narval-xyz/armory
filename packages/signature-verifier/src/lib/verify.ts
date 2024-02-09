@@ -1,11 +1,11 @@
-import { hashRequest } from '@narval/authz-shared'
 import { importSPKI, jwtVerify } from 'jose'
+import { hashRequest } from 'packages/authz-shared/src'
 import { JwtError } from './error'
 import { isHeader, isPayload } from './typeguards'
 import { Jwt, Payload, VerificationInput } from './types'
 
 /**
- * Verifies a JWT and returns its payload.
+ * Verifies a JWT encoded and returns its payload.
  *
  * @param {VerificationInput} input - The input required to verify a JWT.
  * @returns {Promise<Jwt>} A promise that resolves with the JWT.

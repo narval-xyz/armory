@@ -1,7 +1,7 @@
 import { decodeJwt } from 'jose'
 import { JwtError } from './error'
-import { isHeader, isPayload } from './typeguards'
-import { Jwt, Payload } from './types'
+import { isPayload } from './typeguards'
+import { Payload } from './types'
 
 /**
  * Decodes a JWT without verifying its signature.
@@ -11,26 +11,16 @@ import { Jwt, Payload } from './types'
  * @throws {Error} If the payload does not match the expected structure.
  * @throws {Error} If the header does not match the expected structure.
  */
-export function decode(rawToken: string): Jwt {
+export function decode(rawToken: string): Payload {
   try {
-    const { payload, protectedHeader } = decodeJwt<Payload>(rawToken)
+    const payload = decodeJwt<Payload>(rawToken)
 
     if (!isPayload(payload)) {
-      throw new JwtError({ message: 'Invalid payload', context: { rawToken, payload, protectedHeader } })
+      throw new JwtError({ message: 'Invalid payload', context: { rawToken, payload } })
     }
-    if (!isHeader(protectedHeader)) {
-      throw new JwtError({ message: 'Invalid header', context: { rawToken, payload, protectedHeader } })
-    }
-    const jwt: Jwt = {
-      header: {
-        alg: protectedHeader.alg,
-        kid: protectedHeader.kid
-      },
-      payload,
-      signature: rawToken.split('.')[2]
-    }
-    return jwt
+    return payload
   } catch (error) {
+    console.log('error', error)
     throw new JwtError({ message: 'Malformed token', context: { rawToken, error } })
   }
 }

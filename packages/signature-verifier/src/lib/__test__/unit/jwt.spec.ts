@@ -1,5 +1,6 @@
 import { Action, Alg, Request, hashRequest } from '@narval/authz-shared'
 import { exportPKCS8, exportSPKI, generateKeyPair } from 'jose'
+import { decode } from '../../decode'
 import { sign } from '../../sign'
 import { SignatureInput, VerificationInput } from '../../types'
 import { verify } from '../../verify'
@@ -43,8 +44,7 @@ describe('JWT Signing and Verification', () => {
       rawToken: jwt,
       publicKey: publicKeyPEM,
       request,
-      algorithm,
-      kid
+      algorithm
     }
 
     const result = await verify(verificationInput)
@@ -60,6 +60,76 @@ describe('JWT Signing and Verification', () => {
         iat: expect.any(Number)
       },
       signature: expect.any(String)
+    })
+  })
+})
+
+describe('Multisignature example', () => {
+  it('handles multisig scenario with sign, verify, and decode', async () => {
+    // Simulate a request that requires multisignature
+    const request: Request = {
+      action: Action.CREATE_ORGANIZATION,
+      nonce: 'multisig-nonce-123',
+      organization: {
+        uid: 'multisig-org-uid',
+        credential: {
+          uid: 'multisig-credential-uid',
+          pubKey: 'multisig-pub-key',
+          alg: Alg.ES256,
+          userId: 'multisig-user-id'
+        }
+      }
+    }
+
+    const algorithm = Alg.ES256
+    const clientIds = ['client1-kid', 'client2-kid']
+
+    // Generate key pairs for each client
+    const keyPairs = await Promise.all(
+      clientIds.map(async (kid) => {
+        const { publicKey, privateKey } = await generateKeyPair('ES256')
+        return {
+          kid,
+          publicKey: await exportSPKI(publicKey),
+          privateKey: await exportPKCS8(privateKey)
+        }
+      })
+    )
+
+    // Each client signs the request
+    const signedJwts = await Promise.all(
+      keyPairs.map(({ kid, privateKey }) => {
+        const signingInput: SignatureInput = {
+          request,
+          privateKey,
+          algorithm,
+          kid
+        }
+        return sign(signingInput)
+      })
+    )
+
+    console.log('signedJwts', signedJwts)
+    // Decode and verify each JWT
+    const decodedVerifiedJwts = await Promise.all(
+      signedJwts.map(async (jwt, index) => {
+        const { publicKey } = keyPairs[index]
+        const decodedJwt = decode(jwt)
+        const verificationInput: VerificationInput = {
+          rawToken: jwt,
+          publicKey,
+          request,
+          algorithm
+        }
+        await verify(verificationInput) // Assuming verification throws if invalid
+        return decodedJwt
+      })
+    )
+
+    // Check that each decoded JWT contains the expected request hash
+    const requestHash = hashRequest(request)
+    decodedVerifiedJwts.forEach((decodedJwt) => {
+      expect(decodedJwt.requestHash).toBe(requestHash)
     })
   })
 })

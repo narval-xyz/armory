@@ -14,5 +14,13 @@ export function isHeader(header: unknown): header is Header {
 }
 
 export function isPayload(payload: unknown): payload is Payload {
-  return typeof payload === 'object' && payload !== null && 'requestHash' in payload && 'iat' in payload
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'requestHash' in payload &&
+    'iat' in payload &&
+    typeof payload.iat === 'number' &&
+    typeof payload.requestHash === 'string' &&
+    payload.requestHash.length > 0
+  )
 }

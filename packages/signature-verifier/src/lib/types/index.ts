@@ -1,4 +1,4 @@
-import { Alg, Request } from '@narval/authz-shared'
+import { Alg } from 'packages/authz-shared/src'
 
 export type AlgorithmParameter = {
   kty: 'EC' | 'RSA'
@@ -27,7 +27,6 @@ export type Header = {
  */
 export type Payload = {
   requestHash: string
-  pubKey: string
   iat: number
 }
 
@@ -43,13 +42,13 @@ export type Jwt = {
  * @param {string} privateKey - The private key to sign the JWT with. Private key will be identified by the kid in the header if this is not provided.
  * @param {string} kid - The key ID to identify the signing key.
  * @param {Alg} algorithm - The algorithm to use for signing.
- * @param {Request} request - The content of the request to be signed.
+ * @param {unknown} request - The content of the request to be signed.
  */
 export type SignatureInput = {
   privateKey: string
   kid: string
   algorithm: Alg
-  request: Request
+  request: unknown
 }
 
 /**
@@ -61,8 +60,7 @@ export type SignatureInput = {
  */
 export type VerificationInput = {
   rawToken: string
-  request: Request
+  request: unknown
   publicKey: string
   algorithm: Alg
-  kid: string
 }
