@@ -1,13 +1,18 @@
-import { applyDecorators } from '@nestjs/common'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, Matches, ValidationOptions } from 'class-validator'
+import { ValidationOptions, registerDecorator } from 'class-validator'
+import { isAccountId } from '../util/caip.util'
 
 export function IsAccountId(validationOptions?: ValidationOptions) {
-  const regex = /^(eip155:(\d+|eoa):\w+)$/
-
-  return applyDecorators(
-    IsDefined(),
-    Matches(regex, validationOptions),
-    ApiProperty({ type: String, description: 'EIP-155 Account ID' })
-  )
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isAccountId',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any) {
+          return typeof value === 'string' && isAccountId(value)
+        }
+      }
+    })
+  }
 }

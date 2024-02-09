@@ -11,7 +11,7 @@ import {
   SetPolicyRulesRequest,
   UpdateUserRequest
 } from '@narval/authz-shared'
-import { Body, Controller, Logger, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common'
+import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
 import { AdminService } from '../../../core/admin.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '../dto/assign-user-group-response.dto'
@@ -142,7 +142,6 @@ export class AdminController {
   }
 
   @Post('/policies')
-  @UsePipes(ValidationPipe)
   async setPolicyRules(@Body() body: SetPolicyRulesRequestDto) {
     const payload: SetPolicyRulesRequest = body
 

@@ -1,12 +1,18 @@
-import { applyDecorators } from '@nestjs/common'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, Matches, ValidationOptions } from 'class-validator'
+import { isHexString } from '@narval/transaction-request-intent'
+import { ValidationOptions, registerDecorator } from 'class-validator'
 
 export function IsHexString(validationOptions?: ValidationOptions) {
-  const regex = new RegExp('^0x[a-fA-F0-9]+$')
-  return applyDecorators(
-    IsDefined(),
-    Matches(regex, validationOptions),
-    ApiProperty({ type: String, description: 'Hexadecimal string' })
-  )
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isHexString',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any) {
+          return typeof value === 'string' && isHexString(value)
+        }
+      }
+    })
+  }
 }

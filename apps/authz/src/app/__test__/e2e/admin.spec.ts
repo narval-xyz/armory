@@ -1,8 +1,21 @@
-import { AccountClassification, AccountType, Action, Alg, Signature, UserRole } from '@narval/authz-shared'
+import {
+  AccountClassification,
+  AccountType,
+  Action,
+  Alg,
+  Criterion,
+  EntityType,
+  Signature,
+  Then,
+  TimeWindow,
+  UserRole,
+  ValueOperators
+} from '@narval/authz-shared'
+import { Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { existsSync, readFileSync, unlinkSync } from 'fs'
+import { readFileSync, unlinkSync } from 'fs'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
 import { AAUser, AAUser_Credential_1 } from '../../../app/persistence/repository/mock_data'
@@ -444,106 +457,106 @@ describe('Admin Endpoints', () => {
         authentication,
         approvals,
         request: {
-          action: 'setPolicyRules',
+          action: Action.SET_POLICY_RULES,
           nonce: 'random-nonce-111',
           data: [
             {
-              then: 'permit',
+              then: Then.PERMIT,
               name: 'examplePermitPolicy',
               when: [
                 {
-                  criterion: 'checkResourceIntegrity',
+                  criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
                   args: null
                 },
                 {
-                  criterion: 'checkNonceExists',
+                  criterion: Criterion.CHECK_NONCE_EXISTS,
                   args: null
                 },
                 {
-                  criterion: 'checkAction',
-                  args: ['signTransaction']
+                  criterion: Criterion.CHECK_ACTION,
+                  args: [Action.SIGN_TRANSACTION]
                 },
                 {
-                  criterion: 'checkPrincipalId',
+                  criterion: Criterion.CHECK_PRINCIPAL_ID,
                   args: ['matt@narval.xyz']
                 },
                 {
-                  criterion: 'checkWalletId',
+                  criterion: Criterion.CHECK_WALLET_ID,
                   args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
                 },
                 {
-                  criterion: 'checkIntentType',
-                  args: ['transferNative']
+                  criterion: Criterion.CHECK_INTENT_TYPE,
+                  args: [Intents.TRANSFER_NATIVE]
                 },
                 {
-                  criterion: 'checkIntentToken',
+                  criterion: Criterion.CHECK_INTENT_TOKEN,
                   args: ['eip155:137/slip44:966']
                 },
                 {
-                  criterion: 'checkIntentAmount',
+                  criterion: Criterion.CHECK_INTENT_AMOUNT,
                   args: {
                     currency: '*',
-                    operator: 'lte',
+                    operator: ValueOperators.LESS_THAN_OR_EQUAL,
                     value: '1000000000000000000'
                   }
                 },
                 {
-                  criterion: 'checkApprovals',
+                  criterion: Criterion.CHECK_APPROVALS,
                   args: [
                     {
                       approvalCount: 2,
                       countPrincipal: false,
-                      approvalEntityType: 'Narval::User',
+                      approvalEntityType: EntityType.User,
                       entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
                     },
                     {
                       approvalCount: 1,
                       countPrincipal: false,
-                      approvalEntityType: 'Narval::UserRole',
-                      entityIds: ['admin']
+                      approvalEntityType: EntityType.UserRole,
+                      entityIds: [UserRole.ADMIN]
                     }
                   ]
                 }
               ]
             },
             {
-              then: 'forbid',
+              then: Then.FORBID,
               name: 'exampleForbidPolicy',
               when: [
                 {
-                  criterion: 'checkResourceIntegrity',
+                  criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
                   args: null
                 },
                 {
-                  criterion: 'checkNonceExists',
+                  criterion: Criterion.CHECK_NONCE_EXISTS,
                   args: null
                 },
                 {
-                  criterion: 'checkAction',
-                  args: ['signTransaction']
+                  criterion: Criterion.CHECK_ACTION,
+                  args: [Action.SIGN_TRANSACTION]
                 },
                 {
-                  criterion: 'checkPrincipalId',
+                  criterion: Criterion.CHECK_PRINCIPAL_ID,
                   args: ['matt@narval.xyz']
                 },
                 {
-                  criterion: 'checkWalletId',
+                  criterion: Criterion.CHECK_WALLET_ID,
                   args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
                 },
                 {
-                  criterion: 'checkIntentType',
-                  args: ['transferNative']
+                  criterion: Criterion.CHECK_INTENT_TYPE,
+                  args: [Intents.TRANSFER_NATIVE]
                 },
                 {
-                  criterion: 'checkIntentToken',
+                  criterion: Criterion.CHECK_INTENT_TOKEN,
                   args: ['eip155:137/slip44:966']
                 },
                 {
-                  criterion: 'checkSpendingLimit',
+                  criterion: Criterion.CHECK_SPENDING_LIMIT,
                   args: {
                     limit: '1000000000000000000',
                     timeWindow: {
-                      type: 'rolling',
+                      type: TimeWindow.ROLLING,
                       value: 43200
                     },
                     filters: {
@@ -571,7 +584,6 @@ describe('Admin Endpoints', () => {
       expect(rego).toBeDefined()
 
       unlinkSync(path)
-      expect(existsSync(path)).toBeFalsy()
     })
   })
 })

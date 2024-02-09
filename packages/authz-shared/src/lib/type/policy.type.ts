@@ -81,6 +81,13 @@ export const Criterion = {
 
 export type Criterion = (typeof Criterion)[keyof typeof Criterion]
 
+export const TimeWindow = {
+  ROLLING: 'rolling',
+  FIXED: 'fixed'
+} as const
+
+export type TimeWindow = (typeof TimeWindow)[keyof typeof TimeWindow]
+
 export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
   currency: FiatCurrency | '*'
@@ -166,8 +173,9 @@ export class ApprovalCondition {
 }
 
 export class SpendingLimitTimeWindow {
-  @IsIn(['rolling', 'fixed'])
-  type?: 'rolling' | 'fixed'
+  @IsEnum(TimeWindow)
+  @IsOptional()
+  type?: TimeWindow
 
   @IsNumber()
   @IsOptional()
@@ -318,7 +326,7 @@ class IntentTypeCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
 
-  // @IsNotEmptyArrayEnum(Intents)
+  @IsNotEmptyArrayEnum(Intents)
   args: Intents[]
 }
 
