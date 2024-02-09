@@ -19,6 +19,7 @@ import {
   IsArray,
   IsBoolean,
   IsDefined,
+  IsEnum,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -84,7 +85,8 @@ export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
   currency: FiatCurrency | '*'
 
-  // @IsNotEmptyArrayEnum(ValueOperators)
+  @IsNotEmpty()
+  @IsEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -96,7 +98,8 @@ export class ERC1155AmountCondition {
   @IsAssetId()
   tokenId: AssetId
 
-  // @IsNotEmptyArrayEnum(ValueOperators)
+  @IsNotEmpty()
+  @IsEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -105,6 +108,7 @@ export class ERC1155AmountCondition {
 }
 
 export class SignMessageCondition {
+  @IsNotEmpty()
   @IsIn([ValueOperators.EQUAL, IdentityOperators.CONTAINS])
   operator: ValueOperators.EQUAL | IdentityOperators.CONTAINS
 
@@ -135,7 +139,8 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  // @IsNotEmptyArrayEnum(ValueOperators)
+  @IsNotEmpty()
+  @IsEnum(ValueOperators)
   operator: ValueOperators
 
   @IsNotEmpty()
