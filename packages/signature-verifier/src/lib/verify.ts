@@ -1,6 +1,6 @@
 import { importSPKI, jwtVerify } from 'jose'
-import { hashRequest } from 'packages/authz-shared/src'
 import { JwtError } from './error'
+import { hashRequest } from './hash-request'
 import { isHeader, isPayload } from './typeguards'
 import { Jwt, Payload, VerificationInput } from './types'
 

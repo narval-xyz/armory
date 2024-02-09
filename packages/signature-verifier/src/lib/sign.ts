@@ -1,6 +1,6 @@
 import { SignJWT, importPKCS8 } from 'jose'
-import { hashRequest } from 'packages/authz-shared/src'
 import { decode } from './decode'
+import { hashRequest } from './hash-request'
 import { Payload, SignatureInput } from './types'
 
 const DEF_EXP_TIME = '2h'
