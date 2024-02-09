@@ -1,6 +1,7 @@
-import { hashRequest } from '@narval/authz-shared'
 import { SignJWT, importPKCS8 } from 'jose'
-import { SignatureInput } from '../types'
+import { decode } from './decode'
+import { hashRequest } from './hash-request'
+import { Payload, SignatureInput } from './types'
 
 const DEF_EXP_TIME = '2h'
 
@@ -22,5 +23,19 @@ export async function sign(signingInput: SignatureInput): Promise<string> {
     .setExpirationTime(DEF_EXP_TIME)
     .sign(privateKeyObj)
 
+  return jwt
+}
+
+/**
+ * Signs a request using the provided private key and algorithm.
+ * Returns the parsed JWT.
+ *
+ * @param {SignatureInput} signingInput - The input required to sign a request.
+ * @returns {Promise<Jwt>} A promise that resolves with the parsed JWT.
+ *
+ */
+export async function signAndParse(signingInput: SignatureInput): Promise<Payload> {
+  const token = await sign(signingInput)
+  const jwt = decode(token)
   return jwt
 }
