@@ -5,8 +5,6 @@ import { FiatId } from './shared/core/type/price.type'
 
 export const REQUEST_HEADER_ORG_ID = 'x-org-id'
 
-export const API_RESOURCE_POLICY_ENGINE_USERS = '/policy-engine/users'
-
 //
 // Queues
 //
