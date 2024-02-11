@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common'
-import { ArrayMinSize, IsArray, IsDefined, IsString } from 'class-validator'
+import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator'
 
 export function IsNotEmptyArrayString() {
-  return applyDecorators(IsDefined(), IsArray(), IsString({ each: true }), ArrayMinSize(1))
+  return applyDecorators(IsArray(), IsNotEmpty({ each: true }), IsString({ each: true }), ArrayMinSize(1))
 }

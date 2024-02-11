@@ -93,12 +93,13 @@ export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
   currency: FiatCurrency | '*'
 
-  @IsNotEmpty()
   @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
+  @ApiProperty({ type: String })
   value: string
 }
 
@@ -106,22 +107,23 @@ export class ERC1155AmountCondition {
   @IsAssetId()
   tokenId: AssetId
 
-  @IsNotEmpty()
   @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
+  @ApiProperty({ type: String })
   value: string
 }
 
 export class SignMessageCondition {
-  @IsNotEmpty()
   @IsIn([ValueOperators.EQUAL, IdentityOperators.CONTAINS])
   operator: ValueOperators.EQUAL | IdentityOperators.CONTAINS
 
   @IsNotEmpty()
   @IsString()
+  @ApiProperty({ type: String })
   value: string
 }
 
@@ -147,12 +149,13 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  @IsNotEmpty()
   @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
+  @ApiProperty({ type: String })
   value: string // timestamp in ms
 }
 
@@ -167,6 +170,7 @@ export class ApprovalCondition {
 
   @IsDefined()
   @IsIn(Object.values(EntityType))
+  @ApiProperty({ enum: Object.values(EntityType) })
   approvalEntityType: EntityType
 
   @IsNotEmptyArrayString()
@@ -221,8 +225,9 @@ export class SpendingLimitFilters {
 }
 
 export class SpendingLimitCondition {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: String })
   limit: string
 
   @IsIn(Object.values(FiatCurrency))
@@ -603,12 +608,11 @@ export type PolicyCriterion =
 
 @ApiExtraModels(...SUPPORTED_CRITERION)
 export class Policy {
-  @IsDefined()
+  @IsNotEmpty()
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ type: String })
   name: string
 
-  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
