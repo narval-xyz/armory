@@ -108,7 +108,8 @@ export const ExecuteParamsTransform = (params: unknown[]): ExecuteParams => {
   const value = assertBigInt(params[1])
   const data = assertHexString(params[2])
 
-  if (!to || !value || !data) {
+  // value can be 0 so we must be explicit that we check for non null value
+  if (!to || null === value || !data) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 
@@ -181,15 +182,15 @@ export const HandleOpsParamsTransform = (params: unknown[]): HandleOpsParams => 
     throw new DecoderError({ message: 'Invalid input format', status: 400 })
   }
 
-  const assertAddressBeneficiary = assertAddress(params[1])
+  const assertBeneficiary = assertAddress(params[1])
 
-  if (!assertAddressBeneficiary) {
+  if (!assertBeneficiary) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 
   return {
     userOps: params[0].map(transformUserOperation),
-    beneficiary: assertAddressBeneficiary
+    beneficiary: assertBeneficiary
   }
 }
 

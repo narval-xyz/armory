@@ -1,5 +1,5 @@
 import { Address } from '@narval/authz-shared'
-import { assertAddress, assertBigInt, assertHexString } from 'packages/authz-shared/src/lib/util/typeguards'
+import { assertAddress, assertHexString } from 'packages/authz-shared/src/lib/util/typeguards'
 import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
@@ -17,12 +17,12 @@ const decodeExecute = (callData: Hex, from: Address, chainId: number, supportedM
   const params = extract(supportedMethods, dataWithoutMethodId, SupportedMethodId.EXECUTE) as ExecuteParams
   const { to, value, data } = params
 
-  const assertAddressfrom = assertAddress(from)
   const assertAddressTo = assertAddress(to)
+  const assertAddressfrom = assertAddress(from)
   const assertAddressValue = assertHexString(value)
   const assertData = assertHexString(data)
 
-  if (!assertAddressfrom || !assertAddressTo || !assertAddressValue || !assertData) {
+  if (!assertAddressTo || !assertAddressfrom || !assertAddressValue || !assertData) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 
@@ -56,18 +56,14 @@ const decodeExecuteAndRevert = (
     dataWithoutMethodId,
     SupportedMethodId.EXECUTE_AND_REVERT
   ) as ExecuteAndRevertParams
-  const { to, value } = params
-  const bigint = assertBigInt(value)
+  const { to, value, data } = params
 
-  if (!bigint) {
-    throw new DecoderError({ message: 'Invalid value', status: 400 })
-  }
-
-  const hexValue = toHex(bigint)
-  const assertAddressfrom = assertAddress(from)
   const assertAddressTo = assertAddress(to)
+  const assertAddressfrom = assertAddress(from)
+  const assertValue = toHex(value)
+  const assertData = assertHexString(data)
 
-  if (!assertAddressfrom || !assertAddressTo) {
+  if (!assertAddressTo || !assertAddressfrom || !assertData) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 
@@ -75,10 +71,10 @@ const decodeExecuteAndRevert = (
     input: {
       type: InputType.TRANSACTION_REQUEST,
       txRequest: {
-        to: assertAddress(to),
+        to: assertAddressTo,
         from: assertAddressfrom,
-        value: hexValue,
-        data: assertAddressTo,
+        value: assertValue,
+        data: assertData,
         chainId
       }
     },
