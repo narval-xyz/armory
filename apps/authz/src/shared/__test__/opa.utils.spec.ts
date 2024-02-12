@@ -1,3 +1,4 @@
+import { EntityType, ValueOperators } from '@narval/authz-shared'
 import {
   ApprovalsCriterion,
   Criterion,
@@ -7,9 +8,8 @@ import {
   Policy,
   Then,
   WalletAddressCriterion
-} from '@app/authz/src/shared/types/policy.type'
-import { criterionToString, reasonToString } from '@app/authz/src/shared/utils/opa.utils'
-import { EntityType, ValueOperators } from '@narval/authz-shared'
+} from '../types/policy.type'
+import { criterionToString, reasonToString } from '../utils/opa.utils'
 
 describe('criterionToString', () => {
   test('returns criterion if args are null', () => {
