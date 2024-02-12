@@ -1,7 +1,7 @@
 package main
 
 test_resource {
-	checkTransferResourceIntegrity with input as request
+	checkResourceIntegrity with input as request
 		with data.entities as entities
 
 	wallet = resource with input as request

@@ -1,11 +1,12 @@
 import { Address } from '@narval/authz-shared'
+import { assertAddress, assertBigInt, assertHexString } from 'packages/authz-shared/src/lib/util/typeguards'
 import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
 import { ExecuteAndRevertParams, ExecuteParams, HandleOpsParams } from '../../../extraction/types'
 import { Intent, UserOperation } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
-import { assertAddress, assertBigInt, assertHexString, isSupportedMethodId } from '../../../typeguards'
+import { isSupportedMethodId } from '../../../typeguards'
 import { getMethodId, toAccountIdLowerCase } from '../../../utils'
 import { decode } from '../../decode'
 import { extract } from '../../utils'
@@ -16,14 +17,23 @@ const decodeExecute = (callData: Hex, from: Address, chainId: number, supportedM
   const params = extract(supportedMethods, dataWithoutMethodId, SupportedMethodId.EXECUTE) as ExecuteParams
   const { to, value, data } = params
 
+  const assertAddressfrom = assertAddress(from)
+  const assertAddressTo = assertAddress(to)
+  const assertAddressValue = assertHexString(value)
+  const assertData = assertHexString(data)
+
+  if (!assertAddressfrom || !assertAddressTo || !assertAddressValue || !assertData) {
+    throw new DecoderError({ message: 'Invalid parameters', status: 400 })
+  }
+
   return decode({
     input: {
       type: InputType.TRANSACTION_REQUEST,
       txRequest: {
-        to: assertAddress(to),
-        from: assertAddress(from),
-        value: assertHexString(value),
-        data: assertHexString(data),
+        to: assertAddressTo,
+        from: assertAddressfrom,
+        value: assertAddressValue,
+        data: assertData,
         chainId
       }
     },
@@ -46,17 +56,29 @@ const decodeExecuteAndRevert = (
     dataWithoutMethodId,
     SupportedMethodId.EXECUTE_AND_REVERT
   ) as ExecuteAndRevertParams
-  const { to, value, data } = params
-  const hexValue = toHex(assertBigInt(value))
+  const { to, value } = params
+  const bigint = assertBigInt(value)
+
+  if (!bigint) {
+    throw new DecoderError({ message: 'Invalid value', status: 400 })
+  }
+
+  const hexValue = toHex(bigint)
+  const assertAddressfrom = assertAddress(from)
+  const assertAddressTo = assertAddress(to)
+
+  if (!assertAddressfrom || !assertAddressTo) {
+    throw new DecoderError({ message: 'Invalid parameters', status: 400 })
+  }
 
   return decode({
     input: {
       type: InputType.TRANSACTION_REQUEST,
       txRequest: {
         to: assertAddress(to),
-        from: assertAddress(from),
+        from: assertAddressfrom,
         value: hexValue,
-        data: assertHexString(data),
+        data: assertAddressTo,
         chainId
       }
     },
