@@ -4,7 +4,7 @@ import future.keywords.in
 
 resource = data.entities.wallets[input.resource.uid]
 
-checkTransferResourceIntegrity {
+checkResourceIntegrity {
 	checkAction({"signTransaction"})
 	transactionRequestFromAddress = input.transactionRequest.from
 	resourceAddress = extractAddressFromCaip10(input.resource.uid)

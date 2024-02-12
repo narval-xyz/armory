@@ -14,7 +14,7 @@ wildcard = "*"
 
 operators = {
 	"equal": "eq",
-	"notEqual": "neq",
+	"notEqual": "ne",
 	"greaterThan": "gt",
 	"greaterThanOrEqual": "gte",
 	"lessThan": "lt",

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import { isEmpty } from 'lodash'
-import { Criterion, Then } from '../../shared/types/policy-builder.type'
+import { Criterion, Then } from '../../shared/types/policy.type'
 import { policies } from './mockData'
 
 Handlebars.registerHelper('criterion', function (item) {

@@ -11,6 +11,7 @@ import {
   UpdateUserRequest
 } from '@narval/authz-shared'
 import { Body, Controller, Logger, Patch, Post } from '@nestjs/common'
+import { SetPolicyRulesRequest } from '../../../../shared/types/policy.type'
 import { AdminService } from '../../../core/admin.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '../dto/assign-user-group-response.dto'
@@ -26,6 +27,8 @@ import { CreateOrganizationRequestDto } from '../dto/create-organization-request
 import { CreateOrganizationResponseDto } from '../dto/create-organization-response.dto'
 import { CreateUserRequestDto } from '../dto/create-user-request.dto'
 import { CreateUserResponseDto } from '../dto/create-user-response.dto'
+import { SetPolicyRulesRequestDto } from '../dto/policy-rules/set-policy-rules-request.dto'
+import { SetPolicyRulesResponseDto } from '../dto/policy-rules/set-policy-rules-response.dto'
 import { RegisterTokensRequestDto } from '../dto/register-tokens-request.dto'
 import { RegisterTokensResponseDto } from '../dto/register-tokens-response.dto'
 import { RegisterWalletRequestDto } from '../dto/register-wallet-request.dto'
@@ -135,6 +138,16 @@ export class AdminController {
     const tokens = await this.adminService.registerTokens(payload)
 
     const response = new RegisterTokensResponseDto(tokens)
+    return response
+  }
+
+  @Post('/policies')
+  async setPolicyRules(@Body() body: SetPolicyRulesRequestDto) {
+    const payload: SetPolicyRulesRequest = body
+
+    const policies = await this.adminService.setPolicyRules(payload)
+
+    const response = new SetPolicyRulesResponseDto(policies)
     return response
   }
 }

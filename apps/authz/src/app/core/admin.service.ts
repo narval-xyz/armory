@@ -16,11 +16,13 @@ import {
 } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookAccount, Organization, Token, User, Wallet } from '../../shared/types/entities.types'
+import { Policy, SetPolicyRulesRequest } from '../../shared/types/policy.type'
+import { OpaService } from '../opa/opa.service'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 
 @Injectable()
 export class AdminService {
-  constructor(private adminRepository: AdminRepository) {}
+  constructor(private adminRepository: AdminRepository, private opaService: OpaService) {}
 
   async createOrganization(payload: CreateOrganizationRequest): Promise<{
     organization: Organization
@@ -97,5 +99,11 @@ export class AdminService {
     await this.adminRepository.registerTokens(payload.request.tokens)
 
     return payload.request.tokens
+  }
+
+  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<{ policies: Policy[]; fileId: string }> {
+    const fileId = this.opaService.generateRegoFile(payload.request.data)
+
+    return { policies: payload.request.data, fileId }
   }
 }

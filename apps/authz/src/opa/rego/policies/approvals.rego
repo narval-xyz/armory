@@ -14,7 +14,7 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 		"entityIds": ["test-bob-uid", "test-bar-uid"],
 	}]
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -45,7 +45,7 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 		"entityIds": ["test-user-group-one-uid"],
 	}]
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -76,7 +76,7 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 		"entityIds": ["root", "admin"],
 	}]
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
