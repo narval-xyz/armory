@@ -1,4 +1,4 @@
-import { AssetType, Hex, toAccountId, toAssetId } from '@narval/authz-shared'
+import { AssetType, Hex, toAssetId } from '@narval/authz-shared'
 import { Address } from 'viem'
 import { ContractCallInput, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
@@ -6,6 +6,7 @@ import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../.
 import { ERC1155Transfer, TransferErc1155 } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
+import { toAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeERC1155Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc1155 => {
@@ -71,10 +72,10 @@ function constructTransferErc1155Intent({
   chainId: number
 }): TransferErc1155 {
   return {
-    to: toAccountId({ chainId, address: to }),
-    from: toAccountId({ chainId, address: from }),
+    to: toAccountIdLowerCase({ chainId, address: to }),
+    from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC1155,
     transfers,
-    contract: toAccountId({ chainId, address: contract })
+    contract: toAccountIdLowerCase({ chainId, address: contract })
   }
 }
