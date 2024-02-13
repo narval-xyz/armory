@@ -124,6 +124,12 @@ model Feed {
 // Store Module
 //
 
+model OrganizationEntity {
+  uid String @id
+
+  @@map("organization_entity")
+}
+
 // TODO (@wcalderipe, 12/02/24): Evaluate the location of this model. The
 // Identity Provider (IdP) seems the right place.
 model AuthCredentialEntity {
@@ -134,13 +140,6 @@ model AuthCredentialEntity {
   userId String @map("user_id")
 
   @@map("auth_credential_entity")
-}
-
-model OrganizationEntity {
-  orgId String @map("org_id")
-  uid   String @id
-
-  @@map("organization_entity")
 }
 
 model UserEntity {

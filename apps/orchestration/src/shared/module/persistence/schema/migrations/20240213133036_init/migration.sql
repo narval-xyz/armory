@@ -85,6 +85,13 @@ CREATE TABLE "feed" (
 );
 
 -- CreateTable
+CREATE TABLE "organization_entity" (
+    "uid" TEXT NOT NULL,
+
+    CONSTRAINT "organization_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
 CREATE TABLE "auth_credential_entity" (
     "org_id" TEXT NOT NULL,
     "uid" TEXT NOT NULL,
@@ -93,14 +100,6 @@ CREATE TABLE "auth_credential_entity" (
     "user_id" TEXT NOT NULL,
 
     CONSTRAINT "auth_credential_entity_pkey" PRIMARY KEY ("uid")
-);
-
--- CreateTable
-CREATE TABLE "organization_entity" (
-    "org_id" TEXT NOT NULL,
-    "uid" TEXT NOT NULL,
-
-    CONSTRAINT "organization_entity_pkey" PRIMARY KEY ("uid")
 );
 
 -- CreateTable

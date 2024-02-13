@@ -1,4 +1,4 @@
-import { Action, Alg, Signature, UserRole } from '@narval/authz-shared'
+import { Action, Alg, AuthCredential, Signature, UserEntity, UserRole } from '@narval/authz-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -18,7 +18,7 @@ import { UserRepository } from '../../persistence/repository/user.repository'
 
 const API_RESOURCE_USER_ENTITY = '/store/users'
 
-describe('User Entity Store', () => {
+describe('User Store', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -36,14 +36,14 @@ describe('User Entity Store', () => {
 
   const approvals: Signature[] = [generateSignature(), generateSignature()]
 
-  const user = {
+  const user: UserEntity = {
     uid: '68182475-4365-4c4d-a7bd-295daad634c9',
     role: UserRole.MEMBER
   }
 
   const nonce = 'b6d826b4-72cb-4c14-a6ca-235a2d8e9060'
 
-  const credential = {
+  const credential: AuthCredential = {
     uid: sha256('0x501d5c2ce1ef208aadf9131a98baa593258cfa06'),
     userId: '68182475-4365-4c4d-a7bd-295daad634c9',
     alg: Alg.ES256K,
