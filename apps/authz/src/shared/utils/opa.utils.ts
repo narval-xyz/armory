@@ -24,11 +24,12 @@ export const criterionToString = (item: PolicyCriterion) => {
   return `${criterion}`
 }
 
-export const reasonToString = (item: Policy) => {
+export const reasonToString = (item: Policy & { id: string }) => {
   if (item.then === Then.PERMIT) {
     const reason = [
       `"type":"${item.then}"`,
-      `"policyId":"${item.name}"`,
+      `"policyId":"${item.id}"`,
+      `"policyName":"${item.name}"`,
       '"approvalsSatisfied":approvals.approvalsSatisfied',
       '"approvalsMissing":approvals.approvalsMissing'
     ]
@@ -37,7 +38,8 @@ export const reasonToString = (item: Policy) => {
 
   const reason = {
     type: item.then,
-    policyId: item.name,
+    policyId: item.id,
+    policyName: item.name,
     approvalsSatisfied: [],
     approvalsMissing: []
   }
