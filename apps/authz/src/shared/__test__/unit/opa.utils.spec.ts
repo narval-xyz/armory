@@ -72,11 +72,11 @@ describe('reasonToString', () => {
     const item = {
       id: '12345',
       then: Then.PERMIT,
-      name: 'policyId',
+      name: 'policyName',
       when: []
     }
-    expect(reasonToString(item)).toBe(
-      'reason = {"type":"permit","policyId":"policyId","approvalsSatisfied":approvals.approvalsSatisfied,"approvalsMissing":approvals.approvalsMissing}'
+    expect(reasonToString(item)).toEqual(
+      'reason = {"type":"permit","policyId":"12345","policyName":"policyName","approvalsSatisfied":approvals.approvalsSatisfied,"approvalsMissing":approvals.approvalsMissing}'
     )
   })
 
@@ -84,11 +84,11 @@ describe('reasonToString', () => {
     const item = {
       id: '12345',
       then: Then.FORBID,
-      name: 'policyId',
+      name: 'policyName',
       when: []
     }
-    expect(reasonToString(item)).toBe(
-      'reason = {"type":"forbid","policyId":"policyId","approvalsSatisfied":[],"approvalsMissing":[]}'
+    expect(reasonToString(item)).toEqual(
+      'reason = {"type":"forbid","policyId":"12345","policyName":"policyName","approvalsSatisfied":[],"approvalsMissing":[]}'
     )
   })
 })
