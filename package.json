@@ -78,7 +78,7 @@
     "@nestjs/common": "^10.3.1",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.3.0",
-    "@nestjs/platform-express": "^10.0.2",
+    "@nestjs/platform-express": "^10.3.3",
     "@nestjs/swagger": "^7.2.0",
     "@open-policy-agent/opa-wasm": "^1.8.0",
     "@prisma/client": "^5.7.1",
