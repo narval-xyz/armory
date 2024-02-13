@@ -5,7 +5,6 @@ import {
   ERC1155TransfersCriterion,
   IntentAmountCriterion,
   NonceRequiredCriterion,
-  Policy,
   Then,
   WalletAddressCriterion
 } from '../../types/policy.type'
@@ -70,7 +69,8 @@ describe('criterionToString', () => {
 
 describe('reasonToString', () => {
   it('returns reason for PERMIT rules', () => {
-    const item: Policy = {
+    const item = {
+      id: '12345',
       then: Then.PERMIT,
       name: 'policyId',
       when: []
@@ -81,7 +81,8 @@ describe('reasonToString', () => {
   })
 
   it('returns reason for FORBID rules', () => {
-    const item: Policy = {
+    const item = {
+      id: '12345',
       then: Then.FORBID,
       name: 'policyId',
       when: []
