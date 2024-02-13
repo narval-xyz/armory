@@ -131,7 +131,7 @@ export class EvaluationRequestDto {
   @IsOptional()
   @ValidateNested()
   @ApiProperty({
-    type: RequestSignatureDto,
+    type: () => RequestSignatureDto,
     isArray: true
   })
   approvals?: RequestSignatureDto[]

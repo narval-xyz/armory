@@ -1,8 +1,8 @@
 import { applyDecorators } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
-import { Matches } from 'class-validator'
+import { IsDefined, IsString, Matches } from 'class-validator'
 import { Criterion } from '../types/policy.type'
 
 export function ValidateCriterion(name: string) {
-  return applyDecorators(Matches(name), ApiProperty({ type: Criterion, default: name }))
+  return applyDecorators(IsDefined(), IsString(), Matches(name), ApiProperty({ type: () => Criterion, default: name }))
 }

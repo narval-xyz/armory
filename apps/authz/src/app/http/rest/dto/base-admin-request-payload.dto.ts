@@ -8,14 +8,14 @@ export class BaseAdminRequestPayloadDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => RequestSignatureDto)
-  @ApiProperty({ type: RequestSignatureDto })
+  @ApiProperty({ type: () => RequestSignatureDto })
   authentication: RequestSignatureDto
 
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => RequestSignatureDto)
   @ApiProperty({
-    type: RequestSignatureDto,
+    type: () => RequestSignatureDto,
     isArray: true
   })
   approvals: RequestSignatureDto[]
