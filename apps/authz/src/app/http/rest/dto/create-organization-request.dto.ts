@@ -1,42 +1,41 @@
 import { Action } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsDefined, IsNotEmpty, IsString, Matches, ValidateNested } from 'class-validator'
+import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
 import { AuthCredentialDto } from './auth-credential.dto'
 import { BaseActionDto } from './base-action.dto'
 import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
 
 class CreateOrganizationDataDto {
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ type: String })
+  @IsDefined()
+  @ApiProperty()
   uid: string
 
+  @IsString()
   @IsDefined()
+  @ApiProperty()
   @ValidateNested()
-  @Type(() => AuthCredentialDto)
-  @ApiProperty({ type: String })
   credential: AuthCredentialDto
 }
 
 class CreateOrganizationActionDto extends BaseActionDto {
-  @IsString()
-  @IsNotEmpty()
-  @Matches(Action.CREATE_ORGANIZATION)
-  @ApiProperty({ default: Action.CREATE_ORGANIZATION })
+  @IsIn(Object.values(Action))
+  @IsDefined()
+  @ApiProperty({
+    enum: Object.values(Action),
+    default: Action.CREATE_ORGANIZATION
+  })
   action: typeof Action.CREATE_ORGANIZATION
 
   @IsDefined()
   @ValidateNested()
-  @Type(() => CreateOrganizationDataDto)
-  @ApiProperty({ type: () => CreateOrganizationDataDto })
+  @ApiProperty()
   organization: CreateOrganizationDataDto
 }
 
 export class CreateOrganizationRequestDto extends BaseAdminRequestPayloadDto {
   @IsDefined()
   @ValidateNested()
-  @Type(() => CreateOrganizationActionDto)
-  @ApiProperty({ type: () => CreateOrganizationActionDto })
+  @ApiProperty()
   request: CreateOrganizationActionDto
 }
