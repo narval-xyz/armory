@@ -24,7 +24,6 @@ import {
   ArrayNotEmpty,
   IsBoolean,
   IsDefined,
-  IsEnum,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -93,8 +92,8 @@ export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
   currency: FiatCurrency | '*'
 
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -107,8 +106,8 @@ export class ERC1155AmountCondition {
   @IsAssetId()
   tokenId: AssetId
 
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -149,8 +148,8 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -169,8 +168,8 @@ export class ApprovalCondition {
   countPrincipal: boolean
 
   @IsDefined()
-  @IsEnum(EntityType)
-  @ApiProperty({ enum: EntityType })
+  @IsIn(Object.values(EntityType))
+  @ApiProperty({ enum: Object.values(EntityType) })
   approvalEntityType: EntityType
 
   @IsNotEmptyArrayString()
@@ -178,8 +177,9 @@ export class ApprovalCondition {
 }
 
 export class SpendingLimitTimeWindow {
-  @IsEnum(TimeWindow)
   @IsOptional()
+  @IsIn(Object.values(TimeWindow))
+  @ApiProperty({ enum: Object.values(TimeWindow) })
   type?: TimeWindow
 
   @IsNumber()
@@ -231,8 +231,8 @@ export class SpendingLimitCondition {
   limit: string
 
   @IsOptional()
-  @IsEnum(FiatCurrency)
-  @ApiProperty({ enum: FiatCurrency })
+  @IsIn(Object.values(FiatCurrency))
+  @ApiProperty({ enum: Object.values(FiatCurrency) })
   currency?: FiatCurrency
 
   @ValidateNested()
@@ -637,8 +637,8 @@ export class Policy {
   })
   when: PolicyCriterion[]
 
-  @IsEnum(Then)
-  @ApiProperty({ enum: Then })
+  @IsIn(Object.values(Then))
+  @ApiProperty({ enum: Object.values(Then) })
   then: Then
 }
 
