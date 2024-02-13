@@ -31,10 +31,10 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  Matches,
   ValidateNested
 } from 'class-validator'
 import { Address, Hex } from 'viem'
-import { ValidateCriterion } from '../decorators/validate-criterion.decorator'
 
 export const Then = {
   PERMIT: 'permit',
@@ -251,7 +251,7 @@ class BaseCriterion {
 }
 
 export class ActionCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ACTION)
+  @Matches(Criterion.CHECK_ACTION)
   criterion: typeof Criterion.CHECK_ACTION
 
   @IsNotEmptyArrayEnum(Action)
@@ -259,14 +259,14 @@ export class ActionCriterion extends BaseCriterion {
 }
 
 export class ResourceIntegrityCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_RESOURCE_INTEGRITY)
+  @Matches(Criterion.CHECK_RESOURCE_INTEGRITY)
   criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
 
   args: null
 }
 
 export class PrincipalIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ID)
+  @Matches(Criterion.CHECK_PRINCIPAL_ID)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ID
 
   @IsNotEmptyArrayString()
@@ -274,7 +274,7 @@ export class PrincipalIdCriterion extends BaseCriterion {
 }
 
 export class PrincipalRoleCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ROLE)
+  @Matches(Criterion.CHECK_PRINCIPAL_ROLE)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ROLE
 
   @IsNotEmptyArrayEnum(UserRole)
@@ -282,7 +282,7 @@ export class PrincipalRoleCriterion extends BaseCriterion {
 }
 
 export class PrincipalGroupCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_GROUP)
+  @Matches(Criterion.CHECK_PRINCIPAL_GROUP)
   criterion: typeof Criterion.CHECK_PRINCIPAL_GROUP
 
   @IsNotEmptyArrayString()
@@ -290,7 +290,7 @@ export class PrincipalGroupCriterion extends BaseCriterion {
 }
 
 export class WalletIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ID)
+  @Matches(Criterion.CHECK_WALLET_ID)
   criterion: typeof Criterion.CHECK_WALLET_ID
 
   @IsNotEmptyArrayString()
@@ -298,7 +298,7 @@ export class WalletIdCriterion extends BaseCriterion {
 }
 
 export class WalletAddressCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ADDRESS)
+  @Matches(Criterion.CHECK_WALLET_ADDRESS)
   criterion: typeof Criterion.CHECK_WALLET_ADDRESS
 
   @IsNotEmptyArrayString()
@@ -306,7 +306,7 @@ export class WalletAddressCriterion extends BaseCriterion {
 }
 
 export class WalletAccountTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
+  @Matches(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_WALLET_ACCOUNT_TYPE
 
   @IsNotEmptyArrayEnum(AccountType)
@@ -314,7 +314,7 @@ export class WalletAccountTypeCriterion extends BaseCriterion {
 }
 
 export class WalletChainIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_CHAIN_ID)
+  @Matches(Criterion.CHECK_WALLET_CHAIN_ID)
   criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
 
   @IsNotEmptyArrayString()
@@ -322,7 +322,7 @@ export class WalletChainIdCriterion extends BaseCriterion {
 }
 
 export class WalletGroupCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_GROUP)
+  @Matches(Criterion.CHECK_WALLET_GROUP)
   criterion: typeof Criterion.CHECK_WALLET_GROUP
 
   @IsNotEmptyArrayString()
@@ -330,7 +330,7 @@ export class WalletGroupCriterion extends BaseCriterion {
 }
 
 export class IntentTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
+  @Matches(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
 
   @IsNotEmptyArrayEnum(Intents)
@@ -338,7 +338,7 @@ export class IntentTypeCriterion extends BaseCriterion {
 }
 
 export class DestinationIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ID)
+  @Matches(Criterion.CHECK_DESTINATION_ID)
   criterion: typeof Criterion.CHECK_DESTINATION_ID
 
   @IsNotEmptyArrayString()
@@ -347,7 +347,7 @@ export class DestinationIdCriterion extends BaseCriterion {
 }
 
 export class DestinationAddressCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ADDRESS)
+  @Matches(Criterion.CHECK_DESTINATION_ADDRESS)
   criterion: typeof Criterion.CHECK_DESTINATION_ADDRESS
 
   @IsNotEmptyArrayString()
@@ -355,7 +355,7 @@ export class DestinationAddressCriterion extends BaseCriterion {
 }
 
 export class DestinationAccountTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
+  @Matches(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_DESTINATION_ACCOUNT_TYPE
 
   @IsNotEmptyArrayEnum(AccountType)
@@ -363,7 +363,7 @@ export class DestinationAccountTypeCriterion extends BaseCriterion {
 }
 
 export class DestinationClassificationCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_CLASSIFICATION)
+  @Matches(Criterion.CHECK_DESTINATION_CLASSIFICATION)
   criterion: typeof Criterion.CHECK_DESTINATION_CLASSIFICATION
 
   @IsNotEmptyArrayString()
@@ -371,7 +371,7 @@ export class DestinationClassificationCriterion extends BaseCriterion {
 }
 
 export class IntentContractCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_CONTRACT)
+  @Matches(Criterion.CHECK_INTENT_CONTRACT)
   criterion: typeof Criterion.CHECK_INTENT_CONTRACT
 
   @IsNotEmptyArrayString()
@@ -380,7 +380,7 @@ export class IntentContractCriterion extends BaseCriterion {
 }
 
 export class IntentTokenCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_TOKEN)
+  @Matches(Criterion.CHECK_INTENT_TOKEN)
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
 
   @IsNotEmptyArrayString()
@@ -389,7 +389,7 @@ export class IntentTokenCriterion extends BaseCriterion {
 }
 
 export class IntentSpenderCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_SPENDER)
+  @Matches(Criterion.CHECK_INTENT_SPENDER)
   criterion: typeof Criterion.CHECK_INTENT_SPENDER
 
   @IsNotEmptyArrayString()
@@ -398,7 +398,7 @@ export class IntentSpenderCriterion extends BaseCriterion {
 }
 
 export class IntentChainIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_CHAIN_ID)
+  @Matches(Criterion.CHECK_INTENT_CHAIN_ID)
   criterion: typeof Criterion.CHECK_INTENT_CHAIN_ID
 
   @IsNotEmptyArrayString()
@@ -406,7 +406,7 @@ export class IntentChainIdCriterion extends BaseCriterion {
 }
 
 export class IntentHexSignatureCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_HEX_SIGNATURE)
+  @Matches(Criterion.CHECK_INTENT_HEX_SIGNATURE)
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
 
   @IsNotEmptyArrayString()
@@ -415,7 +415,7 @@ export class IntentHexSignatureCriterion extends BaseCriterion {
 }
 
 export class IntentAmountCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_AMOUNT)
+  @Matches(Criterion.CHECK_INTENT_AMOUNT)
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
 
   @ValidateNested()
@@ -424,7 +424,7 @@ export class IntentAmountCriterion extends BaseCriterion {
 }
 
 export class ERC721TokenIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC721_TOKEN_ID)
+  @Matches(Criterion.CHECK_ERC721_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
 
   @IsNotEmptyArrayString()
@@ -433,7 +433,7 @@ export class ERC721TokenIdCriterion extends BaseCriterion {
 }
 
 export class ERC1155TokenIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC1155_TOKEN_ID)
+  @Matches(Criterion.CHECK_ERC1155_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
 
   @IsNotEmptyArrayString()
@@ -442,7 +442,7 @@ export class ERC1155TokenIdCriterion extends BaseCriterion {
 }
 
 export class ERC1155TransfersCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC1155_TRANSFERS)
+  @Matches(Criterion.CHECK_ERC1155_TRANSFERS)
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
 
   @ValidateNested()
@@ -451,7 +451,7 @@ export class ERC1155TransfersCriterion extends BaseCriterion {
 }
 
 export class IntentMessageCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_MESSAGE)
+  @Matches(Criterion.CHECK_INTENT_MESSAGE)
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
 
   @ValidateNested()
@@ -460,7 +460,7 @@ export class IntentMessageCriterion extends BaseCriterion {
 }
 
 export class IntentPayloadCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_PAYLOAD)
+  @Matches(Criterion.CHECK_INTENT_PAYLOAD)
   criterion: typeof Criterion.CHECK_INTENT_PAYLOAD
 
   @IsNotEmptyArrayString()
@@ -468,7 +468,7 @@ export class IntentPayloadCriterion extends BaseCriterion {
 }
 
 export class IntentAlgorithmCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_ALGORITHM)
+  @Matches(Criterion.CHECK_INTENT_ALGORITHM)
   criterion: typeof Criterion.CHECK_INTENT_ALGORITHM
 
   @IsNotEmptyArrayEnum(Alg)
@@ -476,7 +476,7 @@ export class IntentAlgorithmCriterion extends BaseCriterion {
 }
 
 export class IntentDomainCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_DOMAIN)
+  @Matches(Criterion.CHECK_INTENT_DOMAIN)
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
 
   @ValidateNested()
@@ -485,7 +485,7 @@ export class IntentDomainCriterion extends BaseCriterion {
 }
 
 export class PermitDeadlineCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PERMIT_DEADLINE)
+  @Matches(Criterion.CHECK_PERMIT_DEADLINE)
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
 
   @ValidateNested()
@@ -494,7 +494,7 @@ export class PermitDeadlineCriterion extends BaseCriterion {
 }
 
 export class GasFeeAmountCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_GAS_FEE_AMOUNT)
+  @Matches(Criterion.CHECK_GAS_FEE_AMOUNT)
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
 
   @ValidateNested()
@@ -503,21 +503,21 @@ export class GasFeeAmountCriterion extends BaseCriterion {
 }
 
 export class NonceRequiredCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_NONCE_EXISTS)
+  @Matches(Criterion.CHECK_NONCE_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_EXISTS
 
   args: null
 }
 
 export class NonceNotRequiredCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_NONCE_NOT_EXISTS)
+  @Matches(Criterion.CHECK_NONCE_NOT_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_NOT_EXISTS
 
   args: null
 }
 
 export class ApprovalsCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_APPROVALS)
+  @Matches(Criterion.CHECK_APPROVALS)
   criterion: typeof Criterion.CHECK_APPROVALS
 
   @ValidateNested()
@@ -526,7 +526,7 @@ export class ApprovalsCriterion extends BaseCriterion {
 }
 
 export class SpendingLimitCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_SPENDING_LIMIT)
+  @Matches(Criterion.CHECK_SPENDING_LIMIT)
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
 
   @ValidateNested()
