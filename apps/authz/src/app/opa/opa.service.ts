@@ -2,13 +2,13 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
-import { isEmpty } from 'lodash'
 import path from 'path'
 import * as R from 'remeda'
 import { v4 as uuidv4 } from 'uuid'
 import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
-import { Criterion, Policy, Then } from '../../shared/types/policy.type'
+import { Policy } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
+import { criterionToString, reasonToString } from '../../shared/utils/opa.utils'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
@@ -41,52 +41,9 @@ export class OpaService implements OnApplicationBootstrap {
   }
 
   generateRegoFile(policies: Policy[]): string {
-    Handlebars.registerHelper('criterion', function (item) {
-      const criterion: Criterion = item.criterion
-      const args = item.args
+    Handlebars.registerHelper('criterion', criterionToString)
 
-      if (args === null) {
-        return `${criterion}`
-      }
-
-      if (!isEmpty(args)) {
-        if (Array.isArray(args)) {
-          if (typeof args[0] === 'string') {
-            return `${criterion}({${args.map((el) => `"${el}"`).join(', ')}})`
-          }
-
-          if (criterion === Criterion.CHECK_APPROVALS) {
-            return `approvals = ${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
-          }
-
-          return `${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
-        }
-
-        return `${criterion}(${JSON.stringify(args)})`
-      }
-    })
-
-    Handlebars.registerHelper('reason', function (item) {
-      if (item.then === Then.PERMIT) {
-        const reason = [
-          `"type": "${item.then}"`,
-          `"policyId": "${item.name}"`,
-          '"approvalsSatisfied": approvals.approvalsSatisfied',
-          '"approvalsMissing": approvals.approvalsMissing'
-        ]
-        return `reason = {${reason.join(', ')}}`
-      }
-
-      if (item.then === Then.FORBID) {
-        const reason = {
-          type: item.then,
-          policyId: item.name,
-          approvalsSatisfied: [],
-          approvalsMissing: []
-        }
-        return `reason = ${JSON.stringify(reason)}`
-      }
-    })
+    Handlebars.registerHelper('reason', reasonToString)
 
     const templateSource = readFileSync('./apps/authz/src/opa/template/template.hbs', 'utf-8')
 

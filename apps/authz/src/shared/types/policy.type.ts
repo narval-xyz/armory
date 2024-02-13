@@ -249,7 +249,7 @@ class BaseCriterion {
   criterion: Criterion
 }
 
-class ActionCriterion extends BaseCriterion {
+export class ActionCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_ACTION)
   criterion: typeof Criterion.CHECK_ACTION
 
@@ -257,14 +257,14 @@ class ActionCriterion extends BaseCriterion {
   args: Action[]
 }
 
-class ResourceIntegrityCriterion extends BaseCriterion {
+export class ResourceIntegrityCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_RESOURCE_INTEGRITY)
   criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
 
   args: null
 }
 
-class PrincipalIdCriterion extends BaseCriterion {
+export class PrincipalIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ID)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ID
 
@@ -272,7 +272,7 @@ class PrincipalIdCriterion extends BaseCriterion {
   args: string[]
 }
 
-class PrincipalRoleCriterion extends BaseCriterion {
+export class PrincipalRoleCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ROLE)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ROLE
 
@@ -280,7 +280,7 @@ class PrincipalRoleCriterion extends BaseCriterion {
   args: UserRole[]
 }
 
-class PrincipalGroupCriterion extends BaseCriterion {
+export class PrincipalGroupCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_PRINCIPAL_GROUP)
   criterion: typeof Criterion.CHECK_PRINCIPAL_GROUP
 
@@ -288,7 +288,7 @@ class PrincipalGroupCriterion extends BaseCriterion {
   args: string[]
 }
 
-class WalletIdCriterion extends BaseCriterion {
+export class WalletIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_WALLET_ID)
   criterion: typeof Criterion.CHECK_WALLET_ID
 
@@ -296,7 +296,7 @@ class WalletIdCriterion extends BaseCriterion {
   args: string[]
 }
 
-class WalletAddressCriterion extends BaseCriterion {
+export class WalletAddressCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_WALLET_ADDRESS)
   criterion: typeof Criterion.CHECK_WALLET_ADDRESS
 
@@ -304,7 +304,7 @@ class WalletAddressCriterion extends BaseCriterion {
   args: string[]
 }
 
-class WalletAccountTypeCriterion extends BaseCriterion {
+export class WalletAccountTypeCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_WALLET_ACCOUNT_TYPE
 
@@ -312,7 +312,7 @@ class WalletAccountTypeCriterion extends BaseCriterion {
   args: AccountType[]
 }
 
-class WalletChainIdCriterion extends BaseCriterion {
+export class WalletChainIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_WALLET_CHAIN_ID)
   criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
 
@@ -320,7 +320,7 @@ class WalletChainIdCriterion extends BaseCriterion {
   args: string[]
 }
 
-class WalletGroupCriterion extends BaseCriterion {
+export class WalletGroupCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_WALLET_GROUP)
   criterion: typeof Criterion.CHECK_WALLET_GROUP
 
@@ -328,7 +328,7 @@ class WalletGroupCriterion extends BaseCriterion {
   args: string[]
 }
 
-class IntentTypeCriterion extends BaseCriterion {
+export class IntentTypeCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
 
@@ -336,7 +336,7 @@ class IntentTypeCriterion extends BaseCriterion {
   args: Intents[]
 }
 
-class DestinationIdCriterion extends BaseCriterion {
+export class DestinationIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_DESTINATION_ID)
   criterion: typeof Criterion.CHECK_DESTINATION_ID
 
@@ -345,7 +345,7 @@ class DestinationIdCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class DestinationAddressCriterion extends BaseCriterion {
+export class DestinationAddressCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_DESTINATION_ADDRESS)
   criterion: typeof Criterion.CHECK_DESTINATION_ADDRESS
 
@@ -353,7 +353,7 @@ class DestinationAddressCriterion extends BaseCriterion {
   args: string[]
 }
 
-class DestinationAccountTypeCriterion extends BaseCriterion {
+export class DestinationAccountTypeCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_DESTINATION_ACCOUNT_TYPE
 
@@ -361,7 +361,7 @@ class DestinationAccountTypeCriterion extends BaseCriterion {
   args: AccountType[]
 }
 
-class DestinationClassificationCriterion extends BaseCriterion {
+export class DestinationClassificationCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_DESTINATION_CLASSIFICATION)
   criterion: typeof Criterion.CHECK_DESTINATION_CLASSIFICATION
 
@@ -369,7 +369,7 @@ class DestinationClassificationCriterion extends BaseCriterion {
   args: string[]
 }
 
-class IntentContractCriterion extends BaseCriterion {
+export class IntentContractCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_CONTRACT)
   criterion: typeof Criterion.CHECK_INTENT_CONTRACT
 
@@ -378,7 +378,7 @@ class IntentContractCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class IntentTokenCriterion extends BaseCriterion {
+export class IntentTokenCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_TOKEN)
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
 
@@ -387,7 +387,7 @@ class IntentTokenCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class IntentSpenderCriterion extends BaseCriterion {
+export class IntentSpenderCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_SPENDER)
   criterion: typeof Criterion.CHECK_INTENT_SPENDER
 
@@ -396,7 +396,7 @@ class IntentSpenderCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class IntentChainIdCriterion extends BaseCriterion {
+export class IntentChainIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_CHAIN_ID)
   criterion: typeof Criterion.CHECK_INTENT_CHAIN_ID
 
@@ -404,7 +404,7 @@ class IntentChainIdCriterion extends BaseCriterion {
   args: string[]
 }
 
-class IntentHexSignatureCriterion extends BaseCriterion {
+export class IntentHexSignatureCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_HEX_SIGNATURE)
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
 
@@ -413,7 +413,7 @@ class IntentHexSignatureCriterion extends BaseCriterion {
   args: Hex[]
 }
 
-class IntentAmountCriterion extends BaseCriterion {
+export class IntentAmountCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_AMOUNT)
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
 
@@ -422,7 +422,7 @@ class IntentAmountCriterion extends BaseCriterion {
   args: AmountCondition
 }
 
-class ERC721TokenIdCriterion extends BaseCriterion {
+export class ERC721TokenIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_ERC721_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
 
@@ -431,7 +431,7 @@ class ERC721TokenIdCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class ERC1155TokenIdCriterion extends BaseCriterion {
+export class ERC1155TokenIdCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_ERC1155_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
 
@@ -440,7 +440,7 @@ class ERC1155TokenIdCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class ERC1155TransfersCriterion extends BaseCriterion {
+export class ERC1155TransfersCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_ERC1155_TRANSFERS)
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
 
@@ -449,7 +449,7 @@ class ERC1155TransfersCriterion extends BaseCriterion {
   args: ERC1155AmountCondition[]
 }
 
-class IntentMessageCriterion extends BaseCriterion {
+export class IntentMessageCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_MESSAGE)
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
 
@@ -458,7 +458,7 @@ class IntentMessageCriterion extends BaseCriterion {
   args: SignMessageCondition
 }
 
-class IntentPayloadCriterion extends BaseCriterion {
+export class IntentPayloadCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_PAYLOAD)
   criterion: typeof Criterion.CHECK_INTENT_PAYLOAD
 
@@ -466,7 +466,7 @@ class IntentPayloadCriterion extends BaseCriterion {
   args: string[]
 }
 
-class IntentAlgorithmCriterion extends BaseCriterion {
+export class IntentAlgorithmCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_ALGORITHM)
   criterion: typeof Criterion.CHECK_INTENT_ALGORITHM
 
@@ -474,7 +474,7 @@ class IntentAlgorithmCriterion extends BaseCriterion {
   args: Alg[]
 }
 
-class IntentDomainCriterion extends BaseCriterion {
+export class IntentDomainCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_INTENT_DOMAIN)
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
 
@@ -483,7 +483,7 @@ class IntentDomainCriterion extends BaseCriterion {
   args: SignTypedDataDomainCondition
 }
 
-class PermitDeadlineCriterion extends BaseCriterion {
+export class PermitDeadlineCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_PERMIT_DEADLINE)
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
 
@@ -492,7 +492,7 @@ class PermitDeadlineCriterion extends BaseCriterion {
   args: PermitDeadlineCondition
 }
 
-class GasFeeAmountCriterion extends BaseCriterion {
+export class GasFeeAmountCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_GAS_FEE_AMOUNT)
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
 
@@ -501,21 +501,21 @@ class GasFeeAmountCriterion extends BaseCriterion {
   args: AmountCondition
 }
 
-class NonceRequiredCriterion extends BaseCriterion {
+export class NonceRequiredCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_NONCE_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_EXISTS
 
   args: null
 }
 
-class NonceNotRequiredCriterion extends BaseCriterion {
+export class NonceNotRequiredCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_NONCE_NOT_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_NOT_EXISTS
 
   args: null
 }
 
-class ApprovalsCriterion extends BaseCriterion {
+export class ApprovalsCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_APPROVALS)
   criterion: typeof Criterion.CHECK_APPROVALS
 
@@ -524,13 +524,22 @@ class ApprovalsCriterion extends BaseCriterion {
   args: ApprovalCondition[]
 }
 
-class SpendingLimitCriterion extends BaseCriterion {
+export class SpendingLimitCriterion extends BaseCriterion {
   @ValidateCriterion(Criterion.CHECK_SPENDING_LIMIT)
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
 
   @ValidateNested()
   @Type(() => SpendingLimitCondition)
   args: SpendingLimitCondition
+}
+
+export type SetPolicyRulesAction = BaseAction & {
+  action: typeof Action.SET_POLICY_RULES
+  data: Policy[]
+}
+
+export type SetPolicyRulesRequest = BaseAdminRequest & {
+  request: SetPolicyRulesAction
 }
 
 const SUPPORTED_CRITERION = [
@@ -706,13 +715,4 @@ const instantiateCriterion = (criterion: PolicyCriterion) => {
     default:
       throw new Error('Unknown criterion: ' + criterion)
   }
-}
-
-export type SetPolicyRulesAction = BaseAction & {
-  action: typeof Action.SET_POLICY_RULES
-  data: Policy[]
-}
-
-export type SetPolicyRulesRequest = BaseAdminRequest & {
-  request: SetPolicyRulesAction
 }
