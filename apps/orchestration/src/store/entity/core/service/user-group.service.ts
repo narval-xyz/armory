@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { UserGroupRepository } from '../../persistence/repository/user-group.repository'
 
 @Injectable()
-export class UserGroupEntityService {
+export class UserGroupService {
   constructor(private userGroupRepository: UserGroupRepository) {}
 
   async assign(orgId: string, userId: string, groupId: string): Promise<boolean> {

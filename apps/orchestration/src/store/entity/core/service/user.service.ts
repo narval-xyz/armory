@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { UserRepository } from '../../persistence/repository/user.repository'
 
 @Injectable()
-export class UserEntityService {
+export class UserService {
   constructor(private userRepository: UserRepository) {}
 
   create(orgId: string, user: UserEntity, credential?: AuthCredential): Promise<UserEntity> {

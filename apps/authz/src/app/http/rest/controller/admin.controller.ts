@@ -42,6 +42,7 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post('/organizations')
+  // DONE
   async createOrganization(@Body() body: CreateOrganizationRequestDto) {
     const payload: CreateOrganizationRequest = body
 
