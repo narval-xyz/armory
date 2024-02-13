@@ -15,13 +15,11 @@ class CreateOrganizationDataDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => AuthCredentialDto)
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: AuthCredentialDto })
   credential: AuthCredentialDto
 }
 
 class CreateOrganizationActionDto extends BaseActionDto {
-  @IsString()
-  @IsNotEmpty()
   @Matches(Action.CREATE_ORGANIZATION)
   @ApiProperty({ default: Action.CREATE_ORGANIZATION })
   action: typeof Action.CREATE_ORGANIZATION
@@ -29,7 +27,7 @@ class CreateOrganizationActionDto extends BaseActionDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => CreateOrganizationDataDto)
-  @ApiProperty({ type: () => CreateOrganizationDataDto })
+  @ApiProperty({ type: CreateOrganizationDataDto })
   organization: CreateOrganizationDataDto
 }
 
@@ -37,6 +35,6 @@ export class CreateOrganizationRequestDto extends BaseAdminRequestPayloadDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => CreateOrganizationActionDto)
-  @ApiProperty({ type: () => CreateOrganizationActionDto })
+  @ApiProperty({ type: CreateOrganizationActionDto })
   request: CreateOrganizationActionDto
 }
