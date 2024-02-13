@@ -49,7 +49,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  buildPoliciesWasm(policies: Policy[]): string {
+  buildPoliciesWasm(payload: Policy[]): { fileId: string; policies: Policy[] } {
     Handlebars.registerHelper('criterion', criterionToString)
 
     Handlebars.registerHelper('reason', reasonToString)
@@ -58,7 +58,9 @@ export class OpaService implements OnApplicationBootstrap {
 
     const template = Handlebars.compile(templateSource)
 
-    const regoContent = template({ policies: policies.map((p) => ({ ...p, id: uuidv4() })) })
+    const policies = payload.map((p) => ({ ...p, id: uuidv4() }))
+
+    const regoContent = template({ policies })
 
     const fileId = uuidv4()
 
@@ -70,7 +72,7 @@ export class OpaService implements OnApplicationBootstrap {
 
     this.logger.log('Policies .wasm file build successfully.')
 
-    return fileId
+    return { fileId, policies }
   }
 
   private async fetchEntityData(): Promise<RegoData> {

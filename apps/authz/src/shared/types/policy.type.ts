@@ -21,7 +21,7 @@ import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'
 import {
-  IsArray,
+  ArrayNotEmpty,
   IsBoolean,
   IsDefined,
   IsEnum,
@@ -169,8 +169,8 @@ export class ApprovalCondition {
   countPrincipal: boolean
 
   @IsDefined()
-  @IsIn(Object.values(EntityType))
-  @ApiProperty({ enum: Object.values(EntityType) })
+  @IsEnum(EntityType)
+  @ApiProperty({ enum: EntityType })
   approvalEntityType: EntityType
 
   @IsNotEmptyArrayString()
@@ -230,8 +230,9 @@ export class SpendingLimitCondition {
   @ApiProperty({ type: String })
   limit: string
 
-  @IsIn(Object.values(FiatCurrency))
   @IsOptional()
+  @IsEnum(FiatCurrency)
+  @ApiProperty({ enum: FiatCurrency })
   currency?: FiatCurrency
 
   @ValidateNested()
@@ -622,7 +623,7 @@ export class Policy {
   @ApiProperty({ type: String })
   name: string
 
-  @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
     return value.map((criterion: PolicyCriterion) => {
@@ -636,9 +637,8 @@ export class Policy {
   })
   when: PolicyCriterion[]
 
-  @IsDefined()
-  @IsIn(Object.values(Then))
-  @ApiProperty({ enum: Object.values(Then) })
+  @IsEnum(Then)
+  @ApiProperty({ enum: Then })
   then: Then
 }
 

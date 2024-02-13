@@ -1,20 +1,19 @@
 import { Alg } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsIn, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class RequestSignatureDto {
   @IsString()
-  @IsDefined()
-  @ApiProperty()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
   sig: string
 
-  @IsIn(Object.values(Alg))
-  @IsDefined()
-  @ApiProperty({ enum: Object.values(Alg) })
+  @IsEnum(Alg)
+  @ApiProperty({ enum: Alg })
   alg: Alg
 
   @IsString()
-  @IsDefined()
-  @ApiProperty()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
   pubKey: string
 }
