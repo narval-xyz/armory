@@ -101,9 +101,9 @@ export class AdminService {
     return payload.request.tokens
   }
 
-  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<{ policies: Policy[]; fileId: string }> {
-    const fileId = this.opaService.generateRegoFile(payload.request.data)
+  async setPolicyRules(payload: SetPolicyRulesRequest): Promise<{ fileId: string; policies: Policy[] }> {
+    const { fileId, policies } = this.opaService.buildPoliciesWasm(payload.request.data)
 
-    return { policies: payload.request.data, fileId }
+    return { fileId, policies }
   }
 }

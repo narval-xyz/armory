@@ -54,23 +54,25 @@ default evaluate = {
 	"default": true,
 }
 
-permit[{"policyId": "allow-root-user"}] = reason {
+permit[{"policyId": "allow-root-user", "policyName": "Allow root user"}] = reason {
 	isPrincipalRootUser
 
 	reason = {
 		"type": "permit",
 		"policyId": "allow-root-user",
+		"policyName": "Allow root user",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
 }
 
-forbid[{"policyId": "default-forbid-policy"}] = reason {
+forbid[{"policyId": "default-forbid-policy", "policyName": "Default Forbid Policy"}] = reason {
 	false
 
 	reason = {
 		"type": "forbid",
 		"policyId": "default-forbid-policy",
+		"policyName": "Default Forbid Policy",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
