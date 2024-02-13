@@ -1,5 +1,6 @@
 import { Body, Controller, HttpStatus, Patch, Post } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { UserService } from '../../../core/service/user.service'
 import { CreateUserRequestDto } from '../dto/create-user-request.dto'
@@ -14,7 +15,10 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Creates a new user entity'
+    summary: 'Creates a new user entity.'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_ORG_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -32,7 +36,10 @@ export class UserController {
 
   @Patch('/:uid')
   @ApiOperation({
-    summary: 'Updates an existing user'
+    summary: 'Updates an existing user.'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_ORG_ID
   })
   @ApiResponse({
     status: HttpStatus.OK,

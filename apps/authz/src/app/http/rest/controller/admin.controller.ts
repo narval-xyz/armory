@@ -103,6 +103,7 @@ export class AdminController {
     return response
   }
 
+  // DONE
   @Post('/wallets')
   async registerWallet(@Body() body: RegisterWalletRequestDto) {
     const payload: RegisterWalletRequest = body
@@ -113,6 +114,7 @@ export class AdminController {
     return response
   }
 
+  // DONE
   @Post('/wallet-groups')
   async assignWalletGroup(@Body() body: AssignWalletGroupRequestDto) {
     const payload: AssignWalletGroupRequest = body

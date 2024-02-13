@@ -1,5 +1,6 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { UserGroupService } from '../../../core/service/user-group.service'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
@@ -13,6 +14,9 @@ export class UserGroupController {
   @Post()
   @ApiOperation({
     summary: "Assigns a user to a group. If the group doesn't exist, creates it first."
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_ORG_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,

@@ -17,6 +17,7 @@ export class WalletDto {
   @IsEthereumAddress()
   @IsNotEmpty()
   @ApiProperty({
+    type: String,
     format: 'address'
   })
   address: Address

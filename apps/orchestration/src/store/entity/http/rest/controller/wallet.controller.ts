@@ -1,5 +1,6 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { WalletService } from '../../../core/service/wallet.service'
 import { RegisterWalletRequestDto } from '../dto/register-wallet-request.dto'
@@ -12,7 +13,10 @@ export class WalletController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers wallet as an entity'
+    summary: 'Registers wallet as an entity.'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_ORG_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
