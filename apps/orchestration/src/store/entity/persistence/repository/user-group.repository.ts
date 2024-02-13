@@ -10,29 +10,40 @@ export class UserGroupRepository {
     await this.prismaService.userGroupEntity.create({
       data: {
         orgId,
-        ...userGroup
+        uid: userGroup.uid
       }
     })
 
-    await this.enroll(userGroup)
+    if (userGroup.users.length) {
+      await this.enroll(userGroup.uid, userGroup.users)
+    }
 
     return userGroup
   }
 
-  async enroll(userGroup: UserGroupEntity): Promise<UserGroupEntity> {
+  async update(userGroup: UserGroupEntity): Promise<UserGroupEntity> {
     if (userGroup.users.length) {
-      const memberships = userGroup.users.map((userId) => ({
+      await this.enroll(userGroup.uid, userGroup.users)
+    }
+
+    return userGroup
+  }
+
+  private async enroll(groupId: string, userIds: string[]): Promise<boolean> {
+    try {
+      const memberships = userIds.map((userId) => ({
         user: userId,
-        group: userGroup.uid
+        group: groupId
       }))
 
       await this.prismaService.userGroupEntityMembership.createMany({
         data: memberships,
         skipDuplicates: true
       })
+      return true
+    } catch (error) {
+      return false
     }
-
-    return userGroup
   }
 
   async findById(uid: string): Promise<UserGroupEntity | null> {

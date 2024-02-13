@@ -60,6 +60,7 @@ export class AdminController {
     status: HttpStatus.CREATED,
     type: CreateUserResponseDto
   })
+  // DONE
   async createUser(@Body() body: CreateUserRequestDto): Promise<CreateUserResponseDto> {
     const payload: CreateUserRequest = body
 
@@ -70,6 +71,7 @@ export class AdminController {
     return response
   }
 
+  // DONE
   @Patch('/users/:uid')
   async updateUser(@Body() body: UpdateUserRequestDto) {
     const payload: UpdateUserRequest = body
@@ -89,6 +91,7 @@ export class AdminController {
     return new CreateCredentialResponseDto({ credential })
   }
 
+  // DONE
   @Post('/user-groups')
   async assignUserGroup(@Body() body: AssignUserGroupRequestDto) {
     const payload: AssignUserGroupRequest = body
