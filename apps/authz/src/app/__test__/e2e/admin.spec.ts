@@ -1,13 +1,25 @@
-import { AccountClassification, AccountType, Action, Alg, Signature, UserRole } from '@narval/authz-shared'
+import {
+  AccountClassification,
+  AccountType,
+  Action,
+  Alg,
+  EntityType,
+  Signature,
+  UserRole,
+  ValueOperators
+} from '@narval/authz-shared'
+import { Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { readFileSync, unlinkSync } from 'fs'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
 import { AAUser, AAUser_Credential_1 } from '../../../app/persistence/repository/mock_data'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { Organization } from '../../../shared/types/entities.types'
+import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type'
 import { load } from '../../app.config'
 
 const REQUEST_HEADER_ORG_ID = 'x-org-id'
@@ -434,6 +446,142 @@ describe('Admin Endpoints', () => {
         tokens: payload.request.tokens
       })
       expect(status).toEqual(HttpStatus.CREATED)
+    })
+  })
+
+  describe('POST /policies', () => {
+    it('sets the organization policies', async () => {
+      const payload = {
+        authentication,
+        approvals,
+        request: {
+          action: Action.SET_POLICY_RULES,
+          nonce: 'random-nonce-111',
+          data: [
+            {
+              then: Then.PERMIT,
+              name: 'examplePermitPolicy',
+              when: [
+                {
+                  criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
+                  args: null
+                },
+                {
+                  criterion: Criterion.CHECK_NONCE_EXISTS,
+                  args: null
+                },
+                {
+                  criterion: Criterion.CHECK_ACTION,
+                  args: [Action.SIGN_TRANSACTION]
+                },
+                {
+                  criterion: Criterion.CHECK_PRINCIPAL_ID,
+                  args: ['matt@narval.xyz']
+                },
+                {
+                  criterion: Criterion.CHECK_WALLET_ID,
+                  args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+                },
+                {
+                  criterion: Criterion.CHECK_INTENT_TYPE,
+                  args: [Intents.TRANSFER_NATIVE]
+                },
+                {
+                  criterion: Criterion.CHECK_INTENT_TOKEN,
+                  args: ['eip155:137/slip44:966']
+                },
+                {
+                  criterion: Criterion.CHECK_INTENT_AMOUNT,
+                  args: {
+                    currency: '*',
+                    operator: ValueOperators.LESS_THAN_OR_EQUAL,
+                    value: '1000000000000000000'
+                  }
+                },
+                {
+                  criterion: Criterion.CHECK_APPROVALS,
+                  args: [
+                    {
+                      approvalCount: 2,
+                      countPrincipal: false,
+                      approvalEntityType: EntityType.User,
+                      entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
+                    },
+                    {
+                      approvalCount: 1,
+                      countPrincipal: false,
+                      approvalEntityType: EntityType.UserRole,
+                      entityIds: [UserRole.ADMIN]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              then: Then.FORBID,
+              name: 'exampleForbidPolicy',
+              when: [
+                {
+                  criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
+                  args: null
+                },
+                {
+                  criterion: Criterion.CHECK_NONCE_EXISTS,
+                  args: null
+                },
+                {
+                  criterion: Criterion.CHECK_ACTION,
+                  args: [Action.SIGN_TRANSACTION]
+                },
+                {
+                  criterion: Criterion.CHECK_PRINCIPAL_ID,
+                  args: ['matt@narval.xyz']
+                },
+                {
+                  criterion: Criterion.CHECK_WALLET_ID,
+                  args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+                },
+                {
+                  criterion: Criterion.CHECK_INTENT_TYPE,
+                  args: [Intents.TRANSFER_NATIVE]
+                },
+                {
+                  criterion: Criterion.CHECK_INTENT_TOKEN,
+                  args: ['eip155:137/slip44:966']
+                },
+                {
+                  criterion: Criterion.CHECK_SPENDING_LIMIT,
+                  args: {
+                    limit: '1000000000000000000',
+                    timeWindow: {
+                      type: TimeWindow.ROLLING,
+                      value: 43200
+                    },
+                    filters: {
+                      tokens: ['eip155:137/slip44:966'],
+                      users: ['matt@narval.xyz']
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/admin/policies')
+        .set(REQUEST_HEADER_ORG_ID, org.uid)
+        .send(payload)
+
+      expect(body.policies).toMatchObject(payload.request.data)
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      const path = `./apps/authz/src/opa/rego/generated/${body.fileId}.rego`
+      const rego = readFileSync(path, 'utf-8')
+      expect(rego).toBeDefined()
+
+      unlinkSync(path)
     })
   })
 })

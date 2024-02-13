@@ -123,12 +123,12 @@ export type TransactionRequest = {
 /**
  * Action Types; these correspond to each Action
  */
-type BaseAction = {
+export type BaseAction = {
   action: Action
   nonce: string
 }
 
-type BaseAdminRequest = {
+export type BaseAdminRequest = {
   /**
    * The initiator signature of the request using `hashRequest` method to ensure
    * SHA256 format.

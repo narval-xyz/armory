@@ -12,6 +12,7 @@ import {
   toAccountId,
   toAssetId
 } from '@narval/authz-shared'
+import { assertHexString, isString } from 'packages/authz-shared/src/lib/util/typeguards'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
@@ -38,9 +39,21 @@ import {
 import { DecoderError } from './error'
 import { Permit, Permit2, SignMessage, SignTypedData } from './intent.types'
 import { MethodsMapping, SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
-import { assertLowerHexString, isAssetType, isPermit, isPermit2, isString, isSupportedMethodId } from './typeguards'
+import { isAssetType, isPermit, isPermit2, isSupportedMethodId } from './typeguards'
 
-export const getMethodId = (data?: string): Hex => (data ? assertLowerHexString(data.slice(0, 10)) : NULL_METHOD_ID)
+export const getMethodId = (data?: string): Hex => {
+  if (!data) {
+    return NULL_METHOD_ID
+  }
+
+  const assertData = assertHexString(data.slice(0, 10))
+
+  if (!assertData) {
+    throw new DecoderError({ message: 'Invalid data', status: 400 })
+  }
+
+  return assertData
+}
 
 export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
   if (methodId === SupportedMethodId.NULL_METHOD_ID) {

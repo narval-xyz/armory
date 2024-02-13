@@ -11,7 +11,7 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 	currency = "fiat:usd"
 	limit = "5000000000"
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -48,7 +48,7 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	currency = "fiat:usd"
 	limit = "5000000000"
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -81,7 +81,7 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	currency = "fiat:usd"
 	limit = "5000000000"
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -113,7 +113,7 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	currency = "fiat:usd"
 	limit = "5000000000"
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
@@ -144,7 +144,7 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 	currency = "fiat:usd"
 	limit = "5000000000"
 
-	checkTransferResourceIntegrity
+	checkResourceIntegrity
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})

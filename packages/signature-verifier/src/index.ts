@@ -1,2 +1,4 @@
-export { sign } from './src/lib/signature/signRequest'
-export { verify } from './src/lib/signature/verifySignature'
+export { decode } from './lib/decode'
+export { sign } from './lib/sign'
+export { Jwt } from './lib/types'
+export { verify as verify } from './lib/verify'

@@ -1,9 +1,13 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
+import Handlebars from 'handlebars'
+import { isEmpty } from 'lodash'
 import path from 'path'
 import * as R from 'remeda'
+import { v4 as uuidv4 } from 'uuid'
 import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
+import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 
@@ -34,6 +38,69 @@ export class OpaService implements OnApplicationBootstrap {
     this.opaEngine = await this.getOpaEngine()
     const evalResult: { result: OpaResult }[] = await this.opaEngine.evaluate(input, 'main/evaluate')
     return evalResult.map(({ result }) => result)
+  }
+
+  generateRegoFile(policies: Policy[]): string {
+    Handlebars.registerHelper('criterion', function (item) {
+      const criterion: Criterion = item.criterion
+      const args = item.args
+
+      if (args === null) {
+        return `${criterion}`
+      }
+
+      if (!isEmpty(args)) {
+        if (Array.isArray(args)) {
+          if (typeof args[0] === 'string') {
+            return `${criterion}({${args.map((el) => `"${el}"`).join(', ')}})`
+          }
+
+          if (criterion === Criterion.CHECK_APPROVALS) {
+            return `approvals = ${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
+          }
+
+          return `${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
+        }
+
+        return `${criterion}(${JSON.stringify(args)})`
+      }
+    })
+
+    Handlebars.registerHelper('reason', function (item) {
+      if (item.then === Then.PERMIT) {
+        const reason = [
+          `"type": "${item.then}"`,
+          `"policyId": "${item.name}"`,
+          '"approvalsSatisfied": approvals.approvalsSatisfied',
+          '"approvalsMissing": approvals.approvalsMissing'
+        ]
+        return `reason = {${reason.join(', ')}}`
+      }
+
+      if (item.then === Then.FORBID) {
+        const reason = {
+          type: item.then,
+          policyId: item.name,
+          approvalsSatisfied: [],
+          approvalsMissing: []
+        }
+        return `reason = ${JSON.stringify(reason)}`
+      }
+    })
+
+    const templateSource = readFileSync('./apps/authz/src/opa/template/template.hbs', 'utf-8')
+
+    const template = Handlebars.compile(templateSource)
+
+    const regoContent = template({ policies })
+
+    const fileId = uuidv4()
+
+    writeFileSync(`./apps/authz/src/opa/rego/generated/${fileId}.rego`, regoContent, 'utf-8')
+
+    this.logger.log('Policy .rego file generated successfully.')
+
+    return fileId
   }
 
   private async fetchEntityData(): Promise<RegoData> {

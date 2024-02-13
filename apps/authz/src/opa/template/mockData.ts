@@ -1,13 +1,14 @@
-import { Action } from '@narval/authz-shared'
+import { Action, EntityType, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
-import { Criterion, PolicyCriterionBuilder, Then } from '../../shared/types/policy-builder.type'
 
-export const examplePermitPolicy: PolicyCriterionBuilder = {
+import { Criterion, Policy, Then } from '../../shared/types/policy.type'
+
+export const examplePermitPolicy: Policy = {
   then: Then.PERMIT,
   name: 'examplePermitPolicy',
   when: [
     {
-      criterion: Criterion.CHECK_TRANSFER_RESOURCE_INTEGRITY,
+      criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
       args: null
     },
     {
@@ -36,7 +37,7 @@ export const examplePermitPolicy: PolicyCriterionBuilder = {
     },
     {
       criterion: Criterion.CHECK_INTENT_AMOUNT,
-      args: { currency: '*', operator: 'lte', value: '1000000000000000000' }
+      args: { currency: '*', operator: ValueOperators.LESS_THAN_OR_EQUAL, value: '1000000000000000000' }
     },
     {
       criterion: Criterion.CHECK_APPROVALS,
@@ -44,13 +45,13 @@ export const examplePermitPolicy: PolicyCriterionBuilder = {
         {
           approvalCount: 2,
           countPrincipal: false,
-          approvalEntityType: 'Narval::User',
+          approvalEntityType: EntityType.User,
           entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
         },
         {
           approvalCount: 1,
           countPrincipal: false,
-          approvalEntityType: 'Narval::UserRole',
+          approvalEntityType: EntityType.UserRole,
           entityIds: ['admin']
         }
       ]
@@ -58,12 +59,12 @@ export const examplePermitPolicy: PolicyCriterionBuilder = {
   ]
 }
 
-export const exampleForbidPolicy: PolicyCriterionBuilder = {
+export const exampleForbidPolicy: Policy = {
   then: Then.FORBID,
   name: 'exampleForbidPolicy',
   when: [
     {
-      criterion: Criterion.CHECK_TRANSFER_RESOURCE_INTEGRITY,
+      criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
       args: null
     },
     {
