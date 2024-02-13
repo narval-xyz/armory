@@ -103,7 +103,7 @@ model ApprovedTransfer {
 }
 
 //
-//  Data Feed Module
+// Data Feed Module
 //
 
 model Feed {
@@ -118,4 +118,50 @@ model Feed {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("feed")
+}
+
+//
+// Store Module
+//
+
+// TODO (@wcalderipe, 12/02/24): Evaluate the location of this model. The
+// Identity Provider (IdP) seems the right place.
+model AuthCredentialEntity {
+  orgId  String @map("org_id")
+  id     String @id
+  pubKey String @map("pub_key")
+  alg    String
+  userId String @map("user_id")
+
+  @@map("auth_credential_entity")
+}
+
+model OrganizationEntity {
+  orgId String @map("org_id")
+  uid   String @id
+
+  @@map("organization_entity")
+}
+
+model UserEntity {
+  orgId String @map("org_id")
+  uid   String @id
+  role  String
+
+  @@map("user_entity")
+}
+
+model UserGroupEntity {
+  orgId String @map("org_id")
+  uid   String @id
+
+  @@map("user_group_entity")
+}
+
+model UserGroupEntityMembership {
+  user  String @map("user_uid")
+  group String @map("user_group_uid")
+
+  @@id([user, group])
+  @@map("user_group_entity_membership")
 }

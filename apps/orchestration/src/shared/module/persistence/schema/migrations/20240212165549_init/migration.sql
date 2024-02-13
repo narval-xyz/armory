@@ -84,6 +84,50 @@ CREATE TABLE "feed" (
     CONSTRAINT "feed_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "auth_credential_entity" (
+    "org_id" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "pub_key" TEXT NOT NULL,
+    "alg" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+
+    CONSTRAINT "auth_credential_entity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "organization_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+
+    CONSTRAINT "organization_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "user_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+
+    CONSTRAINT "user_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "user_group_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+
+    CONSTRAINT "user_group_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "user_group_entity_membership" (
+    "user_uid" TEXT NOT NULL,
+    "user_group_uid" TEXT NOT NULL,
+
+    CONSTRAINT "user_group_entity_membership_pkey" PRIMARY KEY ("user_uid","user_group_uid")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
 
