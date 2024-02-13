@@ -8,11 +8,11 @@ import {
   Policy,
   Then,
   WalletAddressCriterion
-} from '../types/policy.type'
-import { criterionToString, reasonToString } from '../utils/opa.utils'
+} from '../../types/policy.type'
+import { criterionToString, reasonToString } from '../../utils/opa.utils'
 
 describe('criterionToString', () => {
-  test('returns criterion if args are null', () => {
+  it('returns criterion if args are null', () => {
     const item: NonceRequiredCriterion = {
       criterion: Criterion.CHECK_NONCE_EXISTS,
       args: null
@@ -20,7 +20,7 @@ describe('criterionToString', () => {
     expect(criterionToString(item)).toEqual(Criterion.CHECK_NONCE_EXISTS)
   })
 
-  test('returns criterion if args is an array of strings', () => {
+  it('returns criterion if args is an array of strings', () => {
     const item: WalletAddressCriterion = {
       criterion: Criterion.CHECK_WALLET_ADDRESS,
       args: ['0x123', '0x456']
@@ -28,7 +28,7 @@ describe('criterionToString', () => {
     expect(criterionToString(item)).toEqual(`${Criterion.CHECK_WALLET_ADDRESS}({"0x123", "0x456"})`)
   })
 
-  test('returns criterion if args is an array of objects', () => {
+  it('returns criterion if args is an array of objects', () => {
     const item: ERC1155TransfersCriterion = {
       criterion: Criterion.CHECK_ERC1155_TRANSFERS,
       args: [{ tokenId: 'eip155:137/erc1155:0x12345/123', operator: ValueOperators.LESS_THAN_OR_EQUAL, value: '5' }]
@@ -38,7 +38,7 @@ describe('criterionToString', () => {
     )
   })
 
-  test('returns criterion if args is an object', () => {
+  it('returns criterion if args is an object', () => {
     const item: IntentAmountCriterion = {
       criterion: Criterion.CHECK_INTENT_AMOUNT,
       args: {
@@ -50,7 +50,7 @@ describe('criterionToString', () => {
     expect(criterionToString(item)).toEqual(`${Criterion.CHECK_INTENT_AMOUNT}(${JSON.stringify(item.args)})`)
   })
 
-  test('returns approvals criterion', () => {
+  it('returns approvals criterion', () => {
     const item: ApprovalsCriterion = {
       criterion: Criterion.CHECK_APPROVALS,
       args: [
@@ -69,7 +69,7 @@ describe('criterionToString', () => {
 })
 
 describe('reasonToString', () => {
-  test('returns reason for PERMIT rules', () => {
+  it('returns reason for PERMIT rules', () => {
     const item: Policy = {
       then: Then.PERMIT,
       name: 'policyId',
@@ -80,7 +80,7 @@ describe('reasonToString', () => {
     )
   })
 
-  test('returns reason for FORBID rules', () => {
+  it('returns reason for FORBID rules', () => {
     const item: Policy = {
       then: Then.FORBID,
       name: 'policyId',
