@@ -1,7 +1,7 @@
 package main
 
 {{#each policies}}
-  {{then}}[{"policyId": "{{name}}" }] = reason {
+  {{then}}[{"policyId": "{{id}}", "policyName": "{{name}}" }] = reason {
   {{#each when}}
     {{#criterion this}}{{/criterion}}
   {{/each}}

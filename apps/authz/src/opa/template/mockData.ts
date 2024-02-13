@@ -1,6 +1,5 @@
 import { Action, EntityType, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
-
 import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 
 export const examplePermitPolicy: Policy = {

@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { execSync } from 'child_process'
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import path from 'path'
@@ -26,12 +27,20 @@ export class OpaService implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
     const policyWasmPath = OPA_WASM_PATH
-    const policyWasm = readFileSync(policyWasmPath)
-    const opaEngine = await loadPolicy(policyWasm, undefined, {
-      'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
-    })
-    this.opaEngine = opaEngine
-    await this.reloadEntityData()
+    try {
+      const policyWasm = readFileSync(policyWasmPath)
+      const opaEngine = await loadPolicy(policyWasm, undefined, {
+        'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
+      })
+      this.opaEngine = opaEngine
+      await this.reloadEntityData()
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        this.logger.error(`Policy wasm not found at ${policyWasmPath}`)
+      } else {
+        throw err
+      }
+    }
   }
 
   async evaluate(input: RegoInput): Promise<OpaResult[]> {
@@ -40,7 +49,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  generateRegoFile(policies: Policy[]): string {
+  buildPoliciesWasm(policies: Policy[]): string {
     Handlebars.registerHelper('criterion', criterionToString)
 
     Handlebars.registerHelper('reason', reasonToString)
@@ -49,13 +58,17 @@ export class OpaService implements OnApplicationBootstrap {
 
     const template = Handlebars.compile(templateSource)
 
-    const regoContent = template({ policies })
+    const regoContent = template({ policies: policies.map((p) => ({ ...p, id: uuidv4() })) })
 
     const fileId = uuidv4()
 
     writeFileSync(`./apps/authz/src/opa/rego/generated/${fileId}.rego`, regoContent, 'utf-8')
 
     this.logger.log('Policy .rego file generated successfully.')
+
+    execSync('make authz/rego/build')
+
+    this.logger.log('Policies .wasm file build successfully.')
 
     return fileId
   }
