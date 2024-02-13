@@ -51,7 +51,7 @@ export class UserRepository {
         }
       })
 
-      await tx.userGroupEntityMembership.deleteMany({
+      await tx.userGroupMembership.deleteMany({
         where: {
           user: uid
         }

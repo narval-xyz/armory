@@ -157,10 +157,44 @@ model UserGroupEntity {
   @@map("user_group_entity")
 }
 
-model UserGroupEntityMembership {
+model UserGroupMembership {
   user  String @map("user_uid")
   group String @map("user_group_uid")
 
   @@id([user, group])
-  @@map("user_group_entity_membership")
+  @@map("user_group_membership")
+}
+
+model WalletEntity {
+  orgId       String @map("org_id")
+  uid         String @id
+  address     String
+  accountType String @map("account_type")
+  /// Chain ID is only needed for chain-specific wallets (smart accounts).
+  chainId     Int?   @map("chain_id")
+
+  @@map("wallet_entity")
+}
+
+model WalletGroupEntity {
+  orgId String @map("org_id")
+  uid   String @id
+
+  @@map("wallet_group_entity")
+}
+
+model WalletGroupMembership {
+  wallet String @map("wallet_uid")
+  group  String @map("wallet_group_uid")
+
+  @@id([wallet, group])
+  @@map("wallet_group_membership")
+}
+
+model UserWalletAssignment {
+  userId   String @map("user_id")
+  walletId String @map("wallet_id")
+
+  @@id([userId, walletId])
+  @@map("user_wallet_assignment")
 }

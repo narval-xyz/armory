@@ -120,11 +120,46 @@ CREATE TABLE "user_group_entity" (
 );
 
 -- CreateTable
-CREATE TABLE "user_group_entity_membership" (
+CREATE TABLE "user_group_membership" (
     "user_uid" TEXT NOT NULL,
     "user_group_uid" TEXT NOT NULL,
 
-    CONSTRAINT "user_group_entity_membership_pkey" PRIMARY KEY ("user_uid","user_group_uid")
+    CONSTRAINT "user_group_membership_pkey" PRIMARY KEY ("user_uid","user_group_uid")
+);
+
+-- CreateTable
+CREATE TABLE "wallet_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "account_type" TEXT NOT NULL,
+    "chain_id" INTEGER,
+
+    CONSTRAINT "wallet_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "wallet_group_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+
+    CONSTRAINT "wallet_group_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "wallet_group_membership" (
+    "wallet_uid" TEXT NOT NULL,
+    "wallet_group_uid" TEXT NOT NULL,
+
+    CONSTRAINT "wallet_group_membership_pkey" PRIMARY KEY ("wallet_uid","wallet_group_uid")
+);
+
+-- CreateTable
+CREATE TABLE "user_wallet_assignment" (
+    "user_id" TEXT NOT NULL,
+    "wallet_id" TEXT NOT NULL,
+
+    CONSTRAINT "user_wallet_assignment_pkey" PRIMARY KEY ("user_id","wallet_id")
 );
 
 -- CreateIndex

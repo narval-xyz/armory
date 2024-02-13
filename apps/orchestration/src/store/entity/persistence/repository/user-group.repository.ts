@@ -36,7 +36,7 @@ export class UserGroupRepository {
         group: groupId
       }))
 
-      await this.prismaService.userGroupEntityMembership.createMany({
+      await this.prismaService.userGroupMembership.createMany({
         data: memberships,
         skipDuplicates: true
       })
@@ -52,7 +52,7 @@ export class UserGroupRepository {
     })
 
     if (group) {
-      const users = await this.prismaService.userGroupEntityMembership.findMany({
+      const users = await this.prismaService.userGroupMembership.findMany({
         where: { group: uid }
       })
 
