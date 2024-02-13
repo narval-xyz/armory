@@ -10,7 +10,7 @@ export class SetPolicyRulesDto extends BaseActionDto {
   @IsString()
   @IsNotEmpty()
   @Matches(Action.SET_POLICY_RULES)
-  @ApiProperty()
+  @ApiProperty({ default: Action.SET_POLICY_RULES })
   action: typeof Action.SET_POLICY_RULES
 
   @ArrayNotEmpty()
