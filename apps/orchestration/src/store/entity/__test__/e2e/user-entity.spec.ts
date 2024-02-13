@@ -12,7 +12,7 @@ import { PolicyEngineModule } from '../../../../policy-engine/policy-engine.modu
 import { PersistenceModule } from '../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
-import { StoreModule } from '../../../store.module'
+import { EntityStoreModule } from '../../entity-store.module'
 import { AuthCredentialRepository } from '../../persistence/repository/auth-credential.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'
 
@@ -60,7 +60,7 @@ describe('User Entity Store', () => {
         PersistenceModule,
         QueueModule.forRoot(),
         PolicyEngineModule,
-        StoreModule
+        EntityStoreModule
       ]
     }).compile()
 
