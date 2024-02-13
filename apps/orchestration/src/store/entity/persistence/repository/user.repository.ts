@@ -2,21 +2,7 @@ import { AuthCredential, UserEntity, UserRole } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
-
-function convertResponse<T, K extends keyof T, V extends T[K]>(
-  response: T,
-  key: K,
-  validValues: V[]
-): T & Record<K, V> {
-  if (!validValues.includes(response[key] as V)) {
-    throw new Error(`Invalid value for key ${key as string}: ${response[key]}`)
-  }
-
-  return {
-    ...response,
-    [key]: response[key] as V
-  } as T & Record<K, V>
-}
+import { decodeConstant } from '../decode.util'
 
 @Injectable()
 export class UserRepository {
@@ -31,13 +17,13 @@ export class UserRepository {
             orgId
           }
         })
-        .then((d) => convertResponse(d, 'role', Object.values(UserRole)))
+        .then((d) => decodeConstant(d, 'role', Object.values(UserRole)))
 
       if (credential) {
         await tx.authCredentialEntity.create({
           data: {
             orgId,
-            id: credential.uid,
+            uid: credential.uid,
             pubKey: credential.pubKey,
             alg: credential.alg,
             userId: user.uid
@@ -76,7 +62,7 @@ export class UserRepository {
   }
 
   async update(user: SetRequired<Partial<UserEntity>, 'uid'>): Promise<UserEntity> {
-    return convertResponse(
+    return decodeConstant(
       await this.prismaService.userEntity.update({
         where: {
           uid: user.uid
@@ -94,7 +80,7 @@ export class UserRepository {
     })
 
     if (entity) {
-      return convertResponse(entity, 'role', Object.values(UserRole))
+      return decodeConstant(entity, 'role', Object.values(UserRole))
     }
 
     return null

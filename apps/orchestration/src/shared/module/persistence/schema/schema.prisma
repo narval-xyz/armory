@@ -128,7 +128,7 @@ model Feed {
 // Identity Provider (IdP) seems the right place.
 model AuthCredentialEntity {
   orgId  String @map("org_id")
-  id     String @id
+  uid    String @id
   pubKey String @map("pub_key")
   alg    String
   userId String @map("user_id")

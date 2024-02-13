@@ -87,12 +87,12 @@ CREATE TABLE "feed" (
 -- CreateTable
 CREATE TABLE "auth_credential_entity" (
     "org_id" TEXT NOT NULL,
-    "id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
     "pub_key" TEXT NOT NULL,
     "alg" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
 
-    CONSTRAINT "auth_credential_entity_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "auth_credential_entity_pkey" PRIMARY KEY ("uid")
 );
 
 -- CreateTable

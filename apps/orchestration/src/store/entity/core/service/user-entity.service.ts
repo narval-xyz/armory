@@ -15,17 +15,11 @@ export class UserEntityService {
     return this.userRepository.delete(uid)
   }
 
-  async grantRole(uid: string, role: UserRole): Promise<boolean> {
-    try {
-      await this.userRepository.update({
-        uid,
-        role
-      })
-
-      return true
-    } catch (error) {
-      return false
-    }
+  async grantRole(uid: string, role: UserRole): Promise<UserEntity> {
+    return this.userRepository.update({
+      uid,
+      role
+    })
   }
 
   async enroll(orgId: string, userId: string, groupId: string): Promise<boolean> {
