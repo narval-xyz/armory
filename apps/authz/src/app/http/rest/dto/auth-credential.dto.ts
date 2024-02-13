@@ -1,6 +1,6 @@
 import { Alg } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsIn, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class AuthCredentialDto {
   constructor(data: AuthCredentialDto) {
@@ -11,22 +11,21 @@ export class AuthCredentialDto {
   }
 
   @IsString()
-  @IsDefined()
-  @ApiProperty()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
   uid: string
 
   @IsString()
-  @IsDefined()
-  @ApiProperty()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
   pubKey: string
 
-  @IsIn(Object.values(Alg))
-  @IsDefined()
-  @ApiProperty({ enum: Object.values(Alg) })
+  @IsEnum(Alg)
+  @ApiProperty({ enum: Alg })
   alg: Alg
 
   @IsString()
-  @IsDefined()
-  @ApiProperty()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
   userId: string
 }
