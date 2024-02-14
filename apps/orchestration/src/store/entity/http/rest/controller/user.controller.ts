@@ -3,13 +3,14 @@ import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { UserService } from '../../../core/service/user.service'
+import { API_PREFIX, API_TAG } from '../../../entity-store.constant'
 import { CreateUserRequestDto } from '../dto/create-user-request.dto'
 import { CreateUserResponseDto } from '../dto/create-user-response.dto'
 import { UpdateUserRequestDto } from '../dto/update-user-request.dto'
 import { UpdateUserResponseDto } from '../dto/update-user-response.dto'
 
-@Controller('/store/users')
-@ApiTags('Entity Store')
+@Controller(`${API_PREFIX}/users`)
+@ApiTags(API_TAG)
 export class UserController {
   constructor(private userService: UserService) {}
 

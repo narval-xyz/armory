@@ -162,6 +162,29 @@ CREATE TABLE "user_wallet_assignment" (
     CONSTRAINT "user_wallet_assignment_pkey" PRIMARY KEY ("user_id","wallet_id")
 );
 
+-- CreateTable
+CREATE TABLE "address_book_account_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "chain_id" INTEGER NOT NULL,
+    "classification" TEXT NOT NULL,
+
+    CONSTRAINT "address_book_account_entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "token_entity" (
+    "org_id" TEXT NOT NULL,
+    "uid" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "symbol" TEXT NOT NULL,
+    "chain_id" INTEGER NOT NULL,
+    "decimals" INTEGER NOT NULL,
+
+    CONSTRAINT "token_entity_pkey" PRIMARY KEY ("uid")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "authorization_request_idempotency_key_key" ON "authorization_request"("idempotency_key");
 

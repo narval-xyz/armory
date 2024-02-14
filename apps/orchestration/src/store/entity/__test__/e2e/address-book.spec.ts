@@ -1,8 +1,7 @@
-import { Action, Signature, UserRole } from '@narval/authz-shared'
+import { AccountClassification, Action, OrganizationEntity, Signature } from '@narval/authz-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Organization } from '@prisma/client/orchestration'
 import request from 'supertest'
 import { generateSignature } from '../../../../__test__/fixture/authorization-request.fixture'
 import { load } from '../../../../orchestration.config'
@@ -12,37 +11,27 @@ import { PersistenceModule } from '../../../../shared/module/persistence/persist
 import { TestPrismaService } from '../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
 import { EntityStoreModule } from '../../entity-store.module'
-import { UserGroupRepository } from '../../persistence/repository/user-group.repository'
-import { UserRepository } from '../../persistence/repository/user.repository'
+import { AddressBookRepository } from '../../persistence/repository/address-book.repository'
+import { OrganizationRepository } from '../../persistence/repository/organization.repository'
 
-const API_RESOURCE_USER_ENTITY = '/store/user-groups'
+const API_RESOURCE_USER_ENTITY = '/store/address-book'
 
-describe('User Group Entity', () => {
+describe('Address Book Entity', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let userRepository: UserRepository
-  let userGroupRepository: UserGroupRepository
+  let orgRepository: OrganizationRepository
+  let addressBookRepository: AddressBookRepository
 
-  const org: Organization = {
-    id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
-    name: 'Test Evaluation',
-    createdAt: new Date(),
-    updatedAt: new Date()
+  const organization: OrganizationEntity = {
+    uid: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc'
   }
 
   const authentication: Signature = generateSignature()
 
   const approvals: Signature[] = [generateSignature(), generateSignature()]
 
-  const user = {
-    uid: '68182475-4365-4c4d-a7bd-295daad634c9',
-    role: UserRole.MEMBER
-  }
-
   const nonce = 'b6d826b4-72cb-4c14-a6ca-235a2d8e9060'
-
-  const groupId = '2a1509ad-ea87-422e-bebd-974547cd4fee'
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -59,8 +48,8 @@ describe('User Group Entity', () => {
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    userRepository = module.get<UserRepository>(UserRepository)
-    userGroupRepository = module.get<UserGroupRepository>(UserGroupRepository)
+    orgRepository = module.get<OrganizationRepository>(OrganizationRepository)
+    addressBookRepository = module.get<AddressBookRepository>(AddressBookRepository)
 
     app = module.createNestApplication()
 
@@ -74,8 +63,7 @@ describe('User Group Entity', () => {
   })
 
   beforeEach(async () => {
-    await testPrismaService.getClient().organization.create({ data: org })
-    await userRepository.create(org.id, user)
+    await orgRepository.create(organization.uid)
   })
 
   afterEach(async () => {
@@ -83,39 +71,33 @@ describe('User Group Entity', () => {
   })
 
   describe(`POST ${API_RESOURCE_USER_ENTITY}`, () => {
-    it('assigns a user to a group', async () => {
+    it('registers a new account in the address book', async () => {
+      const account = {
+        uid: '089c131e-9507-412a-8b4a-45e6a8213d77',
+        address: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+        chainId: 1,
+        classification: AccountClassification.INTERNAL
+      }
+
       const payload = {
         authentication,
         approvals,
         request: {
-          action: Action.ASSIGN_USER_GROUP,
           nonce,
-          data: {
-            userId: user.uid,
-            groupId
-          }
+          action: Action.CREATE_ADDRESS_BOOK_ACCOUNT,
+          account
         }
       }
 
       const { status, body } = await request(app.getHttpServer())
         .post(API_RESOURCE_USER_ENTITY)
-        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .set(REQUEST_HEADER_ORG_ID, organization.uid)
         .send(payload)
 
-      const group = await userGroupRepository.findById(groupId)
+      const actualAccount = await addressBookRepository.findById(account.uid)
 
-      expect(body).toEqual({
-        data: {
-          userId: user.uid,
-          groupId
-        }
-      })
-
-      expect(group).toEqual({
-        orgId: org.id,
-        uid: groupId,
-        users: [user.uid]
-      })
+      expect(body).toEqual({ account })
+      expect(actualAccount).toEqual(account)
       expect(status).toEqual(HttpStatus.CREATED)
     })
   })

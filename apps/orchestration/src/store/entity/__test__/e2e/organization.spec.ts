@@ -17,7 +17,7 @@ import { UserRepository } from '../../persistence/repository/user.repository'
 
 const API_RESOURCE_USER_ENTITY = '/store/organizations'
 
-describe('Organization Store', () => {
+describe('Organization Entity', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService

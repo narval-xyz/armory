@@ -1,11 +1,12 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { OrganizationService } from '../../../core/service/organization.service'
+import { API_PREFIX, API_TAG } from '../../../entity-store.constant'
 import { CreateOrganizationRequestDto } from '../dto/create-organization-request.dto'
 import { CreateOrganizationResponseDto } from '../dto/create-organization-response.dto'
 
-@Controller('/store/organizations')
-@ApiTags('Entity Store')
+@Controller(`${API_PREFIX}/organizations`)
+@ApiTags(API_TAG)
 export class OrganizationController {
   constructor(private orgService: OrganizationService) {}
 

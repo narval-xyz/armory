@@ -198,3 +198,24 @@ model UserWalletAssignment {
   @@id([userId, walletId])
   @@map("user_wallet_assignment")
 }
+
+model AddressBookAccountEntity {
+  orgId          String @map("org_id")
+  uid            String @id
+  address        String
+  chainId        Int    @map("chain_id")
+  classification String
+
+  @@map("address_book_account_entity")
+}
+
+model TokenEntity {
+  orgId    String @map("org_id")
+  uid      String @id
+  address  String
+  symbol   String
+  chainId  Int    @map("chain_id")
+  decimals Int
+
+  @@map("token_entity")
+}

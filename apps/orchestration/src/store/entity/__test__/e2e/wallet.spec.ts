@@ -16,7 +16,7 @@ import { WalletRepository } from '../../persistence/repository/wallet.repository
 
 const API_RESOURCE_USER_ENTITY = '/store/wallets'
 
-describe('Wallet Store', () => {
+describe('Wallet Entity', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService

@@ -3,11 +3,12 @@ import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { WalletService } from '../../../core/service/wallet.service'
+import { API_PREFIX, API_TAG } from '../../../entity-store.constant'
 import { RegisterWalletRequestDto } from '../dto/register-wallet-request.dto'
 import { RegisterWalletResponseDto } from '../dto/register-wallet-response.dto'
 
-@Controller('/store/wallets')
-@ApiTags('Entity Store')
+@Controller(`${API_PREFIX}/wallets`)
+@ApiTags(API_TAG)
 export class WalletController {
   constructor(private walletService: WalletService) {}
 

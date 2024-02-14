@@ -3,11 +3,12 @@ import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_ORG_ID } from '../../../../../orchestration.constant'
 import { OrgId } from '../../../../../shared/decorator/org-id.decorator'
 import { UserGroupService } from '../../../core/service/user-group.service'
+import { API_PREFIX, API_TAG } from '../../../entity-store.constant'
 import { AssignUserGroupRequestDto } from '../dto/assign-user-group-request.dto'
 import { AssignUserGroupResponseDto } from '../dto/assign-user-group-response.dto'
 
-@Controller('/store/user-groups')
-@ApiTags('Entity Store')
+@Controller(`${API_PREFIX}/user-groups`)
+@ApiTags(API_TAG)
 export class UserGroupController {
   constructor(private userGroupService: UserGroupService) {}
 
