@@ -1,6 +1,6 @@
 import { Alg } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsIn, IsNotEmpty, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class AuthCredentialDto {
   @IsString()
