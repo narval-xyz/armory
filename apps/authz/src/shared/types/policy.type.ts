@@ -21,7 +21,7 @@ import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, ApiPropertyOptional, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'
 import {
-  IsArray,
+  ArrayNotEmpty,
   IsBoolean,
   IsDefined,
   IsEnum,
@@ -31,10 +31,10 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  Matches,
   ValidateNested
 } from 'class-validator'
 import { Address, Hex } from 'viem'
-import { ValidateCriterion } from '../decorators/validate-criterion.decorator'
 
 export const Then = {
   PERMIT: 'permit',
@@ -94,8 +94,8 @@ export class AmountCondition {
   @ApiProperty({ enum: [...Object.values(FiatCurrency), '*'] })
   currency: FiatCurrency | '*'
 
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -109,8 +109,8 @@ export class ERC1155AmountCondition {
   @ApiProperty()
   tokenId: AssetId
 
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -156,8 +156,8 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  @IsEnum(ValueOperators)
-  @ApiProperty({ enum: ValueOperators })
+  @IsIn(Object.values(ValueOperators))
+  @ApiProperty({ enum: Object.values(ValueOperators) })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -190,7 +190,7 @@ export class ApprovalCondition {
 export class SpendingLimitTimeWindow {
   @IsEnum(TimeWindow)
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: TimeWindow })
   type?: TimeWindow
 
   @IsNumber()
@@ -250,9 +250,9 @@ export class SpendingLimitCondition {
   @ApiProperty()
   limit: string
 
-  @IsIn(Object.values(FiatCurrency))
   @IsOptional()
-  @ApiPropertyOptional()
+  @IsEnum(FiatCurrency)
+  @ApiPropertyOptional({ enum: FiatCurrency })
   currency?: FiatCurrency
 
   @ValidateNested()
@@ -272,95 +272,95 @@ class BaseCriterion {
   criterion: Criterion
 }
 
-class ActionCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ACTION)
+export class ActionCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_ACTION)
   criterion: typeof Criterion.CHECK_ACTION
 
   @IsNotEmptyArrayEnum(Action)
   args: Action[]
 }
 
-class ResourceIntegrityCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_RESOURCE_INTEGRITY)
+export class ResourceIntegrityCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_RESOURCE_INTEGRITY)
   criterion: typeof Criterion.CHECK_RESOURCE_INTEGRITY
 
   args: null
 }
 
-class PrincipalIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ID)
+export class PrincipalIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_PRINCIPAL_ID)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ID
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class PrincipalRoleCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_ROLE)
+export class PrincipalRoleCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_PRINCIPAL_ROLE)
   criterion: typeof Criterion.CHECK_PRINCIPAL_ROLE
 
   @IsNotEmptyArrayEnum(UserRole)
   args: UserRole[]
 }
 
-class PrincipalGroupCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PRINCIPAL_GROUP)
+export class PrincipalGroupCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_PRINCIPAL_GROUP)
   criterion: typeof Criterion.CHECK_PRINCIPAL_GROUP
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ID)
+export class WalletIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_WALLET_ID)
   criterion: typeof Criterion.CHECK_WALLET_ID
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletAddressCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ADDRESS)
+export class WalletAddressCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_WALLET_ADDRESS)
   criterion: typeof Criterion.CHECK_WALLET_ADDRESS
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletAccountTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
+export class WalletAccountTypeCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_WALLET_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_WALLET_ACCOUNT_TYPE
 
   @IsNotEmptyArrayEnum(AccountType)
   args: AccountType[]
 }
 
-class WalletChainIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_CHAIN_ID)
+export class WalletChainIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_WALLET_CHAIN_ID)
   criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class WalletGroupCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_WALLET_GROUP)
+export class WalletGroupCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_WALLET_GROUP)
   criterion: typeof Criterion.CHECK_WALLET_GROUP
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_TYPE)
+export class IntentTypeCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_TYPE)
   criterion: typeof Criterion.CHECK_INTENT_TYPE
 
   @IsNotEmptyArrayEnum(Intents)
   args: Intents[]
 }
 
-class DestinationIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ID)
+export class DestinationIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_DESTINATION_ID)
   criterion: typeof Criterion.CHECK_DESTINATION_ID
 
   @IsNotEmptyArrayString()
@@ -368,32 +368,32 @@ class DestinationIdCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class DestinationAddressCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ADDRESS)
+export class DestinationAddressCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_DESTINATION_ADDRESS)
   criterion: typeof Criterion.CHECK_DESTINATION_ADDRESS
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class DestinationAccountTypeCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
+export class DestinationAccountTypeCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_DESTINATION_ACCOUNT_TYPE)
   criterion: typeof Criterion.CHECK_DESTINATION_ACCOUNT_TYPE
 
   @IsNotEmptyArrayEnum(AccountType)
   args: AccountType[]
 }
 
-class DestinationClassificationCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_DESTINATION_CLASSIFICATION)
+export class DestinationClassificationCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_DESTINATION_CLASSIFICATION)
   criterion: typeof Criterion.CHECK_DESTINATION_CLASSIFICATION
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentContractCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_CONTRACT)
+export class IntentContractCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_CONTRACT)
   criterion: typeof Criterion.CHECK_INTENT_CONTRACT
 
   @IsNotEmptyArrayString()
@@ -401,8 +401,8 @@ class IntentContractCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class IntentTokenCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_TOKEN)
+export class IntentTokenCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_TOKEN)
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
 
   @IsNotEmptyArrayString()
@@ -410,8 +410,8 @@ class IntentTokenCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class IntentSpenderCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_SPENDER)
+export class IntentSpenderCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_SPENDER)
   criterion: typeof Criterion.CHECK_INTENT_SPENDER
 
   @IsNotEmptyArrayString()
@@ -419,16 +419,16 @@ class IntentSpenderCriterion extends BaseCriterion {
   args: AccountId[]
 }
 
-class IntentChainIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_CHAIN_ID)
+export class IntentChainIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_CHAIN_ID)
   criterion: typeof Criterion.CHECK_INTENT_CHAIN_ID
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentHexSignatureCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_HEX_SIGNATURE)
+export class IntentHexSignatureCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_HEX_SIGNATURE)
   criterion: typeof Criterion.CHECK_INTENT_HEX_SIGNATURE
 
   @IsNotEmptyArrayString()
@@ -436,8 +436,8 @@ class IntentHexSignatureCriterion extends BaseCriterion {
   args: Hex[]
 }
 
-class IntentAmountCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_AMOUNT)
+export class IntentAmountCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_AMOUNT)
   criterion: typeof Criterion.CHECK_INTENT_AMOUNT
 
   @ValidateNested()
@@ -445,8 +445,8 @@ class IntentAmountCriterion extends BaseCriterion {
   args: AmountCondition
 }
 
-class ERC721TokenIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC721_TOKEN_ID)
+export class ERC721TokenIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_ERC721_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
 
   @IsNotEmptyArrayString()
@@ -454,8 +454,8 @@ class ERC721TokenIdCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class ERC1155TokenIdCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC1155_TOKEN_ID)
+export class ERC1155TokenIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_ERC1155_TOKEN_ID)
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
 
   @IsNotEmptyArrayString()
@@ -463,8 +463,8 @@ class ERC1155TokenIdCriterion extends BaseCriterion {
   args: AssetId[]
 }
 
-class ERC1155TransfersCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_ERC1155_TRANSFERS)
+export class ERC1155TransfersCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_ERC1155_TRANSFERS)
   criterion: typeof Criterion.CHECK_ERC1155_TRANSFERS
 
   @ValidateNested()
@@ -472,8 +472,8 @@ class ERC1155TransfersCriterion extends BaseCriterion {
   args: ERC1155AmountCondition[]
 }
 
-class IntentMessageCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_MESSAGE)
+export class IntentMessageCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_MESSAGE)
   criterion: typeof Criterion.CHECK_INTENT_MESSAGE
 
   @ValidateNested()
@@ -481,24 +481,24 @@ class IntentMessageCriterion extends BaseCriterion {
   args: SignMessageCondition
 }
 
-class IntentPayloadCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_PAYLOAD)
+export class IntentPayloadCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_PAYLOAD)
   criterion: typeof Criterion.CHECK_INTENT_PAYLOAD
 
   @IsNotEmptyArrayString()
   args: string[]
 }
 
-class IntentAlgorithmCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_ALGORITHM)
+export class IntentAlgorithmCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_ALGORITHM)
   criterion: typeof Criterion.CHECK_INTENT_ALGORITHM
 
   @IsNotEmptyArrayEnum(Alg)
   args: Alg[]
 }
 
-class IntentDomainCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_INTENT_DOMAIN)
+export class IntentDomainCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_INTENT_DOMAIN)
   criterion: typeof Criterion.CHECK_INTENT_DOMAIN
 
   @ValidateNested()
@@ -506,8 +506,8 @@ class IntentDomainCriterion extends BaseCriterion {
   args: SignTypedDataDomainCondition
 }
 
-class PermitDeadlineCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_PERMIT_DEADLINE)
+export class PermitDeadlineCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_PERMIT_DEADLINE)
   criterion: typeof Criterion.CHECK_PERMIT_DEADLINE
 
   @ValidateNested()
@@ -515,8 +515,8 @@ class PermitDeadlineCriterion extends BaseCriterion {
   args: PermitDeadlineCondition
 }
 
-class GasFeeAmountCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_GAS_FEE_AMOUNT)
+export class GasFeeAmountCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_GAS_FEE_AMOUNT)
   criterion: typeof Criterion.CHECK_GAS_FEE_AMOUNT
 
   @ValidateNested()
@@ -524,22 +524,22 @@ class GasFeeAmountCriterion extends BaseCriterion {
   args: AmountCondition
 }
 
-class NonceRequiredCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_NONCE_EXISTS)
+export class NonceRequiredCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_NONCE_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_EXISTS
 
   args: null
 }
 
-class NonceNotRequiredCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_NONCE_NOT_EXISTS)
+export class NonceNotRequiredCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_NONCE_NOT_EXISTS)
   criterion: typeof Criterion.CHECK_NONCE_NOT_EXISTS
 
   args: null
 }
 
-class ApprovalsCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_APPROVALS)
+export class ApprovalsCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_APPROVALS)
   criterion: typeof Criterion.CHECK_APPROVALS
 
   @ValidateNested()
@@ -547,13 +547,22 @@ class ApprovalsCriterion extends BaseCriterion {
   args: ApprovalCondition[]
 }
 
-class SpendingLimitCriterion extends BaseCriterion {
-  @ValidateCriterion(Criterion.CHECK_SPENDING_LIMIT)
+export class SpendingLimitCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_SPENDING_LIMIT)
   criterion: typeof Criterion.CHECK_SPENDING_LIMIT
 
   @ValidateNested()
   @Type(() => SpendingLimitCondition)
   args: SpendingLimitCondition
+}
+
+export type SetPolicyRulesAction = BaseAction & {
+  action: typeof Action.SET_POLICY_RULES
+  data: Policy[]
+}
+
+export type SetPolicyRulesRequest = BaseAdminRequest & {
+  request: SetPolicyRulesAction
 }
 
 const SUPPORTED_CRITERION = [
@@ -636,7 +645,7 @@ export class Policy {
   @ApiProperty()
   name: string
 
-  @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Transform(({ value }) => {
     return value.map((criterion: PolicyCriterion) => {
@@ -650,7 +659,6 @@ export class Policy {
   })
   when: PolicyCriterion[]
 
-  @IsDefined()
   @IsIn(Object.values(Then))
   @ApiProperty({ enum: Object.values(Then) })
   then: Then
@@ -729,13 +737,4 @@ const instantiateCriterion = (criterion: PolicyCriterion) => {
     default:
       throw new Error('Unknown criterion: ' + criterion)
   }
-}
-
-export type SetPolicyRulesAction = BaseAction & {
-  action: typeof Action.SET_POLICY_RULES
-  data: Policy[]
-}
-
-export type SetPolicyRulesRequest = BaseAdminRequest & {
-  request: SetPolicyRulesAction
 }

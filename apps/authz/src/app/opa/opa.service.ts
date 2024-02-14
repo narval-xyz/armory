@@ -1,14 +1,15 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { execSync } from 'child_process'
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
-import { isEmpty } from 'lodash'
 import path from 'path'
 import * as R from 'remeda'
 import { v4 as uuidv4 } from 'uuid'
 import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
-import { Criterion, Policy, Then } from '../../shared/types/policy.type'
+import { Policy } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
+import { criterionToString, reasonToString } from '../../shared/utils/opa.utils'
 import { AdminRepository } from '../persistence/repository/admin.repository'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
@@ -26,12 +27,20 @@ export class OpaService implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
     const policyWasmPath = OPA_WASM_PATH
-    const policyWasm = readFileSync(policyWasmPath)
-    const opaEngine = await loadPolicy(policyWasm, undefined, {
-      'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
-    })
-    this.opaEngine = opaEngine
-    await this.reloadEntityData()
+    try {
+      const policyWasm = readFileSync(policyWasmPath)
+      const opaEngine = await loadPolicy(policyWasm, undefined, {
+        'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
+      })
+      this.opaEngine = opaEngine
+      await this.reloadEntityData()
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        this.logger.error(`Policy wasm not found at ${policyWasmPath}`)
+      } else {
+        throw err
+      }
+    }
   }
 
   async evaluate(input: RegoInput): Promise<OpaResult[]> {
@@ -40,57 +49,16 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  generateRegoFile(policies: Policy[]): string {
-    Handlebars.registerHelper('criterion', function (item) {
-      const criterion: Criterion = item.criterion
-      const args = item.args
+  buildPoliciesWasm(payload: Policy[]): { fileId: string; policies: Policy[] } {
+    Handlebars.registerHelper('criterion', criterionToString)
 
-      if (args === null) {
-        return `${criterion}`
-      }
-
-      if (!isEmpty(args)) {
-        if (Array.isArray(args)) {
-          if (typeof args[0] === 'string') {
-            return `${criterion}({${args.map((el) => `"${el}"`).join(', ')}})`
-          }
-
-          if (criterion === Criterion.CHECK_APPROVALS) {
-            return `approvals = ${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
-          }
-
-          return `${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
-        }
-
-        return `${criterion}(${JSON.stringify(args)})`
-      }
-    })
-
-    Handlebars.registerHelper('reason', function (item) {
-      if (item.then === Then.PERMIT) {
-        const reason = [
-          `"type": "${item.then}"`,
-          `"policyId": "${item.name}"`,
-          '"approvalsSatisfied": approvals.approvalsSatisfied',
-          '"approvalsMissing": approvals.approvalsMissing'
-        ]
-        return `reason = {${reason.join(', ')}}`
-      }
-
-      if (item.then === Then.FORBID) {
-        const reason = {
-          type: item.then,
-          policyId: item.name,
-          approvalsSatisfied: [],
-          approvalsMissing: []
-        }
-        return `reason = ${JSON.stringify(reason)}`
-      }
-    })
+    Handlebars.registerHelper('reason', reasonToString)
 
     const templateSource = readFileSync('./apps/authz/src/opa/template/template.hbs', 'utf-8')
 
     const template = Handlebars.compile(templateSource)
+
+    const policies = payload.map((p) => ({ ...p, id: uuidv4() }))
 
     const regoContent = template({ policies })
 
@@ -100,7 +68,11 @@ export class OpaService implements OnApplicationBootstrap {
 
     this.logger.log('Policy .rego file generated successfully.')
 
-    return fileId
+    execSync('make authz/rego/build')
+
+    this.logger.log('Policies .wasm file build successfully.')
+
+    return { fileId, policies }
   }
 
   private async fetchEntityData(): Promise<RegoData> {

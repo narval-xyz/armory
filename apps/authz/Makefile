@@ -113,7 +113,7 @@ authz/test:
 
 # === Open Policy Agent & Rego ===
 
-authz/rego/compile:
+authz/rego/build:
 	rm -rf ./rego-build
 	mkdir -p ./rego-build
 	opa build \
@@ -121,27 +121,20 @@ authz/rego/compile:
 		--entrypoint main/evaluate \
 		--bundle ${AUTHZ_PROJECT_DIR}/src/opa/rego \
 		--ignore "__test__" \
+		--ignore "policies" \
 		--output ./rego-build/policies.gz
 	tar -xzf ./rego-build/policies.gz -C ./rego-build/
 
 authz/rego/eval:
-	make authz/rego/compile
-
 	npx ts-node \
 		--compiler-options "{\"module\":\"CommonJS\"}" \
 		${AUTHZ_PROJECT_DIR}/src/opa/rego/script.ts
-
-authz/rego/template:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register \
-		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/template/script.ts
-
-	make authz/rego/eval
 
 authz/rego/test:
 	opa test \
 	--format="pretty" \
 	${AUTHZ_PROJECT_DIR}/src/opa/rego \
+	--ignore "generated" \
 	--verbose \
 	${ARGS}
 
