@@ -149,7 +149,7 @@ export const permitMetaPermission: Policy = {
           approvalCount: 2,
           countPrincipal: false,
           approvalEntityType: EntityType.UserRole,
-          entityIds: ['admin']
+          entityIds: ['admin', 'root']
         }
       ]
     }
