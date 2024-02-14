@@ -13,7 +13,7 @@ import { PersistenceModule } from '../../../../shared/module/persistence/persist
 import { TestPrismaService } from '../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
 import { EntityStoreModule } from '../../entity-store.module'
-import { AuthCredentialRepository } from '../../persistence/repository/auth-credential.repository'
+import { CredentialRepository } from '../../persistence/repository/credential.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'
 
 const API_RESOURCE_USER_ENTITY = '/store/users'
@@ -23,7 +23,7 @@ describe('User Entity', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
   let userRepository: UserRepository
-  let authCredentialRepository: AuthCredentialRepository
+  let authCredentialRepository: CredentialRepository
 
   const org: Organization = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
@@ -66,7 +66,7 @@ describe('User Entity', () => {
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     userRepository = module.get<UserRepository>(UserRepository)
-    authCredentialRepository = module.get<AuthCredentialRepository>(AuthCredentialRepository)
+    authCredentialRepository = module.get<CredentialRepository>(CredentialRepository)
 
     app = module.createNestApplication()
 

@@ -14,7 +14,7 @@ export class TokenController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers a token entity'
+    summary: 'Registers a token entity.'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
