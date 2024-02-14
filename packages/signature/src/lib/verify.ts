@@ -44,8 +44,7 @@ export async function verify(input: VerificationInput): Promise<Jwt> {
         alg: protectedHeader.alg,
         kid: protectedHeader.kid
       },
-      payload,
-      signature: rawToken.split('.')[2]
+      payload
     }
     return jwt
   } catch (error) {

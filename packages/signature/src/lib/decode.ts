@@ -17,7 +17,6 @@ export function decode(rawToken: string): Jwt {
     if (parts.length !== 3) {
       throw new Error('Invalid JWT: The token must have three parts')
     }
-    const signature = parts[2]
     const header = decodeProtectedHeader(rawToken)
     const payload = decodeJwt<Payload>(rawToken)
     if (!isPayload(payload)) {
@@ -28,8 +27,7 @@ export function decode(rawToken: string): Jwt {
     }
     return {
       header,
-      payload,
-      signature
+      payload
     }
   } catch (error) {
     throw new JwtError({ message: 'Malformed token', context: { rawToken, error } })

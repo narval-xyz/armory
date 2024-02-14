@@ -34,7 +34,6 @@ export type Payload = {
 export type Jwt = {
   header: Header
   payload: Payload
-  signature: string
 }
 
 /**

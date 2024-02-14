@@ -77,24 +77,14 @@ describe('JWT lib', () => {
         algorithm
       }
       const jwt = await verify(verificationInput)
-      expect(jwt).toStrictEqual(
-        expect.objectContaining({
-          ...decodedToken,
-          signature: expect.any(String)
-        })
-      )
+      expect(jwt).toBe(decodedToken)
     })
   })
 
   describe('decode', () => {
     it('decodes a request successfully', async () => {
       const jwt = decode(signedToken)
-      expect(jwt).toStrictEqual(
-        expect.objectContaining({
-          ...decodedToken,
-          signature: expect.any(String)
-        })
-      )
+      expect(jwt).toBe(decodedToken)
     })
   })
 })
