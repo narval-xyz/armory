@@ -1,4 +1,4 @@
-import { Action, BaseActionDto, BaseAdminRequestPayloadDto } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsArray, IsDefined, IsString, Matches, ValidateNested } from 'class-validator'
@@ -19,7 +19,7 @@ export class SetPolicyRulesDto extends BaseActionDto {
   data: Policy[]
 }
 
-export class SetPolicyRulesRequestDto extends BaseAdminRequestPayloadDto {
+export class SetPolicyRulesRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => SetPolicyRulesDto)

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString } from 'class-validator'
 import { Alg } from '../type/action.type'
 
-export class RequestSignatureDto {
+export class SignatureDto {
   @IsString()
   @IsDefined()
   @ApiProperty()

@@ -1,10 +1,8 @@
-import { Action } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsNotEmpty, IsString, ValidateNested } from 'class-validator'
 import { AuthCredentialDto } from './auth-credential.dto'
-import { BaseActionDto } from './base-action.dto'
-import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
 
 class CreateOrganizationDataDto {
   @IsString()
@@ -39,7 +37,7 @@ class CreateOrganizationActionDto extends BaseActionDto {
   organization: CreateOrganizationDataDto
 }
 
-export class CreateOrganizationRequestDto extends BaseAdminRequestPayloadDto {
+export class CreateOrganizationRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @Type(() => CreateOrganizationActionDto)
   @ValidateNested()

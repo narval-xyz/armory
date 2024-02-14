@@ -1,4 +1,4 @@
-import { Action, BaseActionDto, BaseAdminRequestPayloadDto, UserRole } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
 
@@ -31,7 +31,7 @@ class UpdateUserActionDto extends BaseActionDto {
   user: UpdateUserDataDto
 }
 
-export class UpdateUserRequestDto extends BaseAdminRequestPayloadDto {
+export class UpdateUserRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @ValidateNested()
   @ApiProperty()

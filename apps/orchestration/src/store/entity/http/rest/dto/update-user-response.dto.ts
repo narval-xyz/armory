@@ -1,7 +1,7 @@
-import { UserDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, ValidateNested } from 'class-validator'
+import { UserDto } from './user-dto'
 
 export class UpdateUserResponseDto {
   @IsDefined()

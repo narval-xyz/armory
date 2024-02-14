@@ -1,20 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { ArrayNotEmpty, IsDefined, ValidateNested } from 'class-validator'
-import { RequestSignatureDto } from './request-signature.dto'
+import { SignatureDto } from './signature.dto'
 
-export class BaseAdminRequestPayloadDto {
+export class BaseActionRequestDto {
   @IsDefined()
   @ApiProperty({
-    type: () => RequestSignatureDto
+    type: () => SignatureDto
   })
-  authentication: RequestSignatureDto
+  authentication: SignatureDto
 
   @IsDefined()
   @ArrayNotEmpty()
   @ValidateNested()
   @ApiProperty({
-    type: () => RequestSignatureDto,
+    type: () => SignatureDto,
     isArray: true
   })
-  approvals: RequestSignatureDto[]
+  approvals: SignatureDto[]
 }

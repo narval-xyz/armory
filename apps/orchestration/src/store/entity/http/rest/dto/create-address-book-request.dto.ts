@@ -1,4 +1,4 @@
-import { Action, BaseActionDto, BaseAdminRequestPayloadDto } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsEnum, ValidateNested } from 'class-validator'
@@ -21,7 +21,7 @@ class CreateAddressBookAccountActionDto extends BaseActionDto {
   account: AddressBookAccountDataDto
 }
 
-export class CreateAddressBookAccountRequestDto extends BaseAdminRequestPayloadDto {
+export class CreateAddressBookAccountRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @Type(() => CreateAddressBookAccountActionDto)
   @ValidateNested()

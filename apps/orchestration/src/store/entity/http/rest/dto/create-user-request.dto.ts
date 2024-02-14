@@ -1,9 +1,7 @@
-import { Action, UserRole } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { AuthCredentialDto } from './auth-credential.dto'
-import { BaseActionDto } from './base-action.dto'
-import { BaseAdminRequestPayloadDto } from './base-admin-request-payload.dto'
 
 class CreateUserDataDto {
   @IsString()
@@ -43,7 +41,7 @@ class CreateUserActionDto extends BaseActionDto {
   user: CreateUserDataDto
 }
 
-export class CreateUserRequestDto extends BaseAdminRequestPayloadDto {
+export class CreateUserRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @ValidateNested()
   @ApiProperty()
