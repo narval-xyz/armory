@@ -27,6 +27,7 @@ export type Header = {
  */
 export type Payload = {
   requestHash: string
+  pubKey: string
   iat: number
 }
 
@@ -41,11 +42,15 @@ export type Jwt = {
  *
  * @param {string} privateKey - The private key to sign the JWT with. Private key will be identified by the kid in the header if this is not provided.
  * @param {string} kid - The key ID to identify the signing key.
+ * @param {string} [exp] - The time the JWT expires.
+ * @param {number} [iat] - The time the JWT was issued.
  * @param {Alg} algorithm - The algorithm to use for signing.
  * @param {unknown} request - The content of the request to be signed.
  */
 export type SignatureInput = {
   privateKey: string
+  exp?: string | Date
+  iat?: number
   kid: string
   algorithm: Alg
   request: unknown

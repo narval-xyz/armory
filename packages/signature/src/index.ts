@@ -1,4 +1,5 @@
 export { decode } from './lib/decode'
+export { hashRequest } from './lib/hash-request'
 export { sign } from './lib/sign'
 export { Jwt } from './lib/types'
-export { verify as verify } from './lib/verify'
+export { verify } from './lib/verify'
