@@ -8,7 +8,6 @@ export class TokenDto {
   @ApiProperty()
   uid: string
 
-  @IsDefined()
   @IsEthereumAddress()
   @ApiProperty({
     format: 'address',

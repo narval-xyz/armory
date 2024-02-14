@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsString } from 'class-validator'
+import { IsDefined, IsNotEmpty, IsString } from 'class-validator'
 
 export class UserGroupMembershipDto {
   @IsString()
-  @IsDefined()
+  @IsNotEmpty()
   @ApiProperty()
   userId: string
 
   @IsString()
-  @IsDefined()
+  @IsNotEmpty()
   @ApiProperty()
   groupId: string
 

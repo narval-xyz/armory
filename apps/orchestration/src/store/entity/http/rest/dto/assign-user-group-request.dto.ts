@@ -1,14 +1,13 @@
 import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsIn, ValidateNested } from 'class-validator'
+import { IsDefined, Matches, ValidateNested } from 'class-validator'
 import { UserGroupMembershipDto } from './user-group-membership.dto'
 
 class AssignUserGroupActionDto extends BaseActionDto {
-  @IsIn(Object.values(Action))
-  @IsDefined()
+  @Matches(Action.ASSIGN_USER_GROUP)
   @ApiProperty({
-    enum: Object.values(Action),
+    enum: [Action.ASSIGN_USER_GROUP],
     default: Action.ASSIGN_USER_GROUP
   })
   action: typeof Action.ASSIGN_USER_GROUP
@@ -16,9 +15,7 @@ class AssignUserGroupActionDto extends BaseActionDto {
   @IsDefined()
   @Type(() => UserGroupMembershipDto)
   @ValidateNested()
-  @ApiProperty({
-    type: UserGroupMembershipDto
-  })
+  @ApiProperty()
   data: UserGroupMembershipDto
 }
 
@@ -26,8 +23,6 @@ export class AssignUserGroupRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @Type(() => AssignUserGroupActionDto)
   @ValidateNested()
-  @ApiProperty({
-    type: AssignUserGroupActionDto
-  })
+  @ApiProperty()
   request: AssignUserGroupActionDto
 }

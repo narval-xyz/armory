@@ -1,31 +1,29 @@
 import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsDefined, IsEnum, IsNotEmpty, IsString, Matches, ValidateNested } from 'class-validator'
 
 class UpdateUserDataDto {
   @IsString()
-  @IsDefined()
+  @IsNotEmpty()
   @ApiProperty()
   uid: string
 
-  @IsIn(Object.values(UserRole))
-  @IsDefined()
-  @ApiProperty({
-    enum: Object.values(UserRole)
-  })
+  @IsEnum(UserRole)
+  @ApiProperty({ enum: UserRole })
   role: UserRole
 }
 
 class UpdateUserActionDto extends BaseActionDto {
-  @IsIn(Object.values(Action))
-  @IsDefined()
+  @Matches(Action.UPDATE_USER)
   @ApiProperty({
-    enum: Object.values(Action),
+    enum: [Action.UPDATE_USER],
     default: Action.UPDATE_USER
   })
   action: typeof Action.UPDATE_USER
 
   @IsDefined()
+  @Type(() => UpdateUserDataDto)
   @ValidateNested()
   @ApiProperty()
   user: UpdateUserDataDto
@@ -33,6 +31,7 @@ class UpdateUserActionDto extends BaseActionDto {
 
 export class UpdateUserRequestDto extends BaseActionRequestDto {
   @IsDefined()
+  @Type(() => UpdateUserActionDto)
   @ValidateNested()
   @ApiProperty()
   request: UpdateUserActionDto

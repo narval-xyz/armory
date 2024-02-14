@@ -9,13 +9,10 @@ export class WalletDto {
   uid: string
 
   @IsEnum(AccountType)
-  @ApiProperty({
-    enum: Object.values(AccountType)
-  })
+  @ApiProperty({ enum: AccountType })
   accountType: AccountType
 
   @IsEthereumAddress()
-  @IsNotEmpty()
   @ApiProperty({
     type: String,
     format: 'address'

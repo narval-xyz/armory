@@ -1,14 +1,13 @@
 import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsEnum, ValidateNested } from 'class-validator'
+import { IsDefined, Matches, ValidateNested } from 'class-validator'
 import { WalletGroupMembershipDto } from './wallet-group-membership.dto'
 
 class AssignWalletGroupActionDto extends BaseActionDto {
-  @IsEnum(Action)
-  @IsDefined()
+  @Matches(Action.ASSIGN_WALLET_GROUP)
   @ApiProperty({
-    enum: Object.values(Action),
+    enum: [Action.ASSIGN_WALLET_GROUP],
     default: Action.ASSIGN_WALLET_GROUP
   })
   action: typeof Action.ASSIGN_WALLET_GROUP
@@ -16,9 +15,7 @@ class AssignWalletGroupActionDto extends BaseActionDto {
   @IsDefined()
   @Type(() => WalletGroupMembershipDto)
   @ValidateNested()
-  @ApiProperty({
-    type: WalletGroupMembershipDto
-  })
+  @ApiProperty()
   data: WalletGroupMembershipDto
 }
 
@@ -26,8 +23,6 @@ export class AssignWalletGroupRequestDto extends BaseActionRequestDto {
   @IsDefined()
   @Type(() => AssignWalletGroupActionDto)
   @ValidateNested()
-  @ApiProperty({
-    type: AssignWalletGroupActionDto
-  })
+  @ApiProperty()
   request: AssignWalletGroupActionDto
 }

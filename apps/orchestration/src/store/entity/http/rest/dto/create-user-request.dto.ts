@@ -1,41 +1,36 @@
 import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/authz-shared'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
+import { IsDefined, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, ValidateNested } from 'class-validator'
 import { AuthCredentialDto } from './auth-credential.dto'
 
 class CreateUserDataDto {
   @IsString()
-  @IsDefined()
+  @IsNotEmpty()
   @ApiProperty()
   uid: string
 
-  @IsIn(Object.values(UserRole))
-  @IsDefined()
-  @ApiProperty({
-    enum: Object.values(UserRole)
-  })
+  @IsEnum(UserRole)
+  @ApiProperty({ enum: UserRole })
   role: UserRole
 
-  @IsString()
   @IsOptional()
+  @Type(() => AuthCredentialDto)
   @ValidateNested()
-  @ApiProperty({
-    type: () => AuthCredentialDto,
-    required: false
-  })
+  @ApiPropertyOptional()
   credential?: AuthCredentialDto
 }
 
 class CreateUserActionDto extends BaseActionDto {
-  @IsIn(Object.values(Action))
-  @IsDefined()
+  @Matches(Action.CREATE_USER)
   @ApiProperty({
-    enum: Object.values(Action),
+    enum: [Action.CREATE_USER],
     default: Action.CREATE_USER
   })
   action: typeof Action.CREATE_USER
 
   @IsDefined()
+  @Type(() => CreateUserDataDto)
   @ValidateNested()
   @ApiProperty()
   user: CreateUserDataDto
@@ -43,6 +38,7 @@ class CreateUserActionDto extends BaseActionDto {
 
 export class CreateUserRequestDto extends BaseActionRequestDto {
   @IsDefined()
+  @Type(() => CreateUserActionDto)
   @ValidateNested()
   @ApiProperty()
   request: CreateUserActionDto

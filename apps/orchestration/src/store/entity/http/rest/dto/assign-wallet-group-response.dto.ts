@@ -7,9 +7,7 @@ export class AssignWalletGroupResponseDto {
   @IsDefined()
   @Type(() => WalletGroupMembershipDto)
   @ValidateNested()
-  @ApiProperty({
-    type: WalletGroupMembershipDto
-  })
+  @ApiProperty()
   data: WalletGroupMembershipDto
 
   constructor(partial: Partial<AssignWalletGroupResponseDto>) {

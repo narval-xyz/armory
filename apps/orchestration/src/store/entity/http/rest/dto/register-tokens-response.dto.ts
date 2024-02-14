@@ -1,16 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsArray, ValidateNested } from 'class-validator'
-import { TokenDto } from './token-dto'
+import { ArrayNotEmpty, ValidateNested } from 'class-validator'
+import { TokenDto } from './token.dto'
 
 export class RegisterTokensResponseDto {
+  @ArrayNotEmpty()
   @Type(() => TokenDto)
   @ValidateNested({ each: true })
-  @IsArray()
-  @ApiProperty({
-    type: TokenDto,
-    isArray: true
-  })
+  @ApiProperty({ type: [TokenDto] })
   tokens: TokenDto[]
 
   constructor(partial: Partial<RegisterTokensResponseDto>) {

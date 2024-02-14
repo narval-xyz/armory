@@ -1,18 +1,15 @@
 import { UserRole } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsIn, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class UserDto {
   @IsString()
-  @IsDefined()
+  @IsNotEmpty()
   @ApiProperty()
   uid: string
 
-  @IsIn(Object.values(UserRole))
-  @IsDefined()
-  @ApiProperty({
-    enum: Object.values(UserRole)
-  })
+  @IsEnum(UserRole)
+  @ApiProperty({ enum: UserRole })
   role: UserRole
 
   constructor(partial: Partial<UserDto>) {

@@ -7,9 +7,7 @@ export class CreateCredentialResponseDto {
   @IsDefined()
   @Type(() => AuthCredentialDto)
   @ValidateNested()
-  @ApiProperty({
-    type: AuthCredentialDto
-  })
+  @ApiProperty()
   credential: AuthCredentialDto
 
   constructor(partial: Partial<CreateCredentialResponseDto>) {

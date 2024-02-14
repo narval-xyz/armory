@@ -7,9 +7,7 @@ export class AssignUserGroupResponseDto {
   @IsDefined()
   @Type(() => UserGroupMembershipDto)
   @ValidateNested()
-  @ApiProperty({
-    type: UserGroupMembershipDto
-  })
+  @ApiProperty()
   data: UserGroupMembershipDto
 
   constructor(partial: Partial<AssignUserGroupResponseDto>) {

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsNotEmpty, IsString, ValidateNested } from 'class-validator'
 import { AuthCredentialDto } from './auth-credential.dto'
-import { UserDto } from './user-dto'
+import { UserDto } from './user.dto'
 
 class OrganizationDataDto {
   @IsString()
@@ -15,25 +15,19 @@ export class CreateOrganizationResponseDto {
   @IsDefined()
   @Type(() => OrganizationDataDto)
   @ValidateNested()
-  @ApiProperty({
-    type: OrganizationDataDto
-  })
+  @ApiProperty()
   organization: OrganizationDataDto
 
   @IsDefined()
   @Type(() => AuthCredentialDto)
   @ValidateNested()
-  @ApiProperty({
-    type: AuthCredentialDto
-  })
+  @ApiProperty()
   rootCredential: AuthCredentialDto
 
   @IsDefined()
   @Type(() => UserDto)
   @ValidateNested()
-  @ApiProperty({
-    type: UserDto
-  })
+  @ApiProperty()
   rootUser: UserDto
 
   constructor(partial: Partial<CreateOrganizationResponseDto>) {
