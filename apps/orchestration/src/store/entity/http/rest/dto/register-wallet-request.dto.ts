@@ -1,7 +1,11 @@
 import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
+<<<<<<< HEAD
 import { IsDefined, Matches, ValidateNested } from 'class-validator'
+=======
+import { IsDefined, IsEnum, ValidateNested } from 'class-validator'
+>>>>>>> ed7dbf7 (Fix wrong DTO file suffix)
 import { WalletDto } from './wallet.dto'
 
 class RegisterWalletActionDto extends BaseActionDto {
