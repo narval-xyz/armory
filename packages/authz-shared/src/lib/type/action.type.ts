@@ -1,3 +1,5 @@
+import { UserWalletEntity } from './entity.type'
+
 export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
 
@@ -32,6 +34,7 @@ export const Action = {
 
 export type Action = (typeof Action)[keyof typeof Action]
 
+// ENTITY
 export type AuthCredential = {
   uid: string // sha256 of the pubKey, used as the short identifier
   pubKey: string
@@ -39,6 +42,7 @@ export type AuthCredential = {
   userId: string
 }
 
+// ENTITY
 export const UserRole = {
   ROOT: 'root',
   ADMIN: 'admin',
@@ -46,15 +50,19 @@ export const UserRole = {
   MANAGER: 'manager'
 } as const
 
+// ENTITY
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
+// ENTITY
 export const AccountType = {
   EOA: 'eoa',
   AA: '4337'
 } as const
 
+// ENTITY
 export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 
+// ENTITY
 export const AccountClassification = {
   EXTERNAL: 'external',
   COUNTERPARTY: 'counterparty',
@@ -62,23 +70,22 @@ export const AccountClassification = {
   WALLET: 'wallet'
 } as const
 
+// ENTITY
 export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
 
+// ENTITY
 export type UserGroupMembership = {
   userId: string
   groupId: string
 }
 
+// ENTITY
 export type WalletGroupMembership = {
   walletId: string
   groupId: string
 }
 
-export type UserWallet = {
-  userId: string
-  walletId: string
-}
-
+// DOMAIN
 export type Signature = {
   sig: string
   alg: Alg
@@ -89,23 +96,29 @@ export type Signature = {
   pubKey: string
 }
 
+// SIGNATURE LIB
 export const Alg = {
   ES256K: 'ES256K', // secp256k1, an Ethereum EOA
   ES256: 'ES256', // secp256r1, ecdsa but not ethereum
   RS256: 'RS256'
 } as const
 
+// SIGNATURE LIB
 export type Alg = (typeof Alg)[keyof typeof Alg]
 
+// DOMAIN
 export type Hex = `0x${string}`
 
+// DOMAIN
 export type Address = `0x${string}`
 
+// DOMAIN
 export type AccessList = {
   address: Address
   storageKeys: Hex[]
 }[]
 
+// DOMAIN
 export type TransactionRequest = {
   chainId: number
   from: Address
@@ -233,7 +246,7 @@ export type AssignWalletGroupRequest = BaseAdminRequest & {
 
 export type AssignUserWalletAction = BaseAction & {
   action: typeof Action.ASSIGN_USER_WALLET
-  data: UserWallet
+  data: UserWalletEntity
 }
 
 export type AssignUserWalletRequest = BaseAdminRequest & {

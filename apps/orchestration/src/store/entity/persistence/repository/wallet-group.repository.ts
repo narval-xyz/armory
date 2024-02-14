@@ -1,30 +1,34 @@
 import { WalletGroupEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { WalletGroupEntity as GroupModel, WalletGroupMemberEntity as MemberModel } from '@prisma/client/orchestration'
+import { map } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
+
+type Model = GroupModel & {
+  members: MemberModel[]
+}
 
 @Injectable()
 export class WalletGroupRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async maybeCreate(orgId: string, walletGroup: WalletGroupEntity): Promise<WalletGroupEntity> {
-    await this.prismaService.$transaction(async (tx) => {
-      const group = await tx.walletGroupEntity.findUnique({
-        where: { uid: walletGroup.uid }
-      })
-
-      if (!group) {
-        await tx.walletGroupEntity.create({
-          data: {
-            orgId,
-            uid: walletGroup.uid
-          }
-        })
-      }
-
-      if (walletGroup.wallets.length) {
-        await this.enroll(walletGroup.uid, walletGroup.wallets)
-      }
+  async create(orgId: string, walletGroup: WalletGroupEntity): Promise<WalletGroupEntity> {
+    const group = await this.prismaService.walletGroupEntity.findUnique({
+      where: { uid: walletGroup.uid }
     })
+
+    if (!group) {
+      await this.prismaService.walletGroupEntity.create({
+        data: {
+          orgId,
+          uid: walletGroup.uid
+        }
+      })
+    }
+
+    if (walletGroup.wallets.length) {
+      await this.enroll(walletGroup.uid, walletGroup.wallets)
+    }
 
     return walletGroup
   }
@@ -38,39 +42,49 @@ export class WalletGroupRepository {
   }
 
   private async enroll(groupId: string, walletIds: string[]): Promise<boolean> {
-    try {
-      const memberships = walletIds.map((walletId) => ({
-        wallet: walletId,
-        group: groupId
-      }))
+    const members = walletIds.map((walletId) => ({
+      walletId,
+      groupId
+    }))
 
-      await this.prismaService.walletGroupMembership.createMany({
-        data: memberships,
-        skipDuplicates: true
-      })
+    await this.prismaService.walletGroupMemberEntity.createMany({
+      data: members,
+      skipDuplicates: true
+    })
 
-      return true
-    } catch (error) {
-      return false
-    }
+    return true
   }
 
   async findById(uid: string): Promise<WalletGroupEntity | null> {
-    const group = await this.prismaService.walletGroupEntity.findUnique({
-      where: { uid }
+    const model = await this.prismaService.walletGroupEntity.findUnique({
+      where: { uid },
+      include: {
+        members: true
+      }
     })
 
-    if (group) {
-      const wallets = await this.prismaService.walletGroupMembership.findMany({
-        where: { group: uid }
-      })
-
-      return {
-        uid: group.uid,
-        wallets: wallets.map(({ wallet }) => wallet)
-      }
+    if (model) {
+      return this.decode(model)
     }
 
     return null
+  }
+
+  async findByOrgId(orgId: string): Promise<WalletGroupEntity[]> {
+    const models = await this.prismaService.walletGroupEntity.findMany({
+      where: { orgId },
+      include: {
+        members: true
+      }
+    })
+
+    return models.map(this.decode)
+  }
+
+  private decode(model: Model): WalletGroupEntity {
+    return {
+      uid: model.uid,
+      wallets: map('walletId', model.members)
+    }
   }
 }

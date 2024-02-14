@@ -1,4 +1,4 @@
-import { AuthCredential, UserEntity, UserRole, UserWallet } from '@narval/authz-shared'
+import { AuthCredential, UserEntity, UserRole, UserWalletEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { UserWalletRepository } from '../../persistence/repository/user-wallet.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'
@@ -22,7 +22,7 @@ export class UserService {
     })
   }
 
-  async assignWallet(assignment: UserWallet): Promise<UserWallet> {
-    return this.userWalletRepository.assign(assignment)
+  async assignWallet(orgId: string, assignment: UserWalletEntity): Promise<UserWalletEntity> {
+    return this.userWalletRepository.create(orgId, assignment)
   }
 }

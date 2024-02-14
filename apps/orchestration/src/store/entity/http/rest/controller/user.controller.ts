@@ -16,7 +16,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Creates a new user entity.'
+    summary: 'Creates a new user entity'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
@@ -37,7 +37,7 @@ export class UserController {
 
   @Patch('/:uid')
   @ApiOperation({
-    summary: 'Updates an existing user.'
+    summary: 'Updates an existing user'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID

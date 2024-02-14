@@ -1,5 +1,6 @@
 import { AccountType, WalletEntity, getAddress } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { WalletEntity as WalletModel } from '@prisma/client/orchestration'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 import { decodeConstant } from '../decode.util'
 
@@ -22,21 +23,33 @@ export class WalletRepository {
   }
 
   async findById(uid: string): Promise<WalletEntity | null> {
-    const entity = await this.prismaService.walletEntity.findUnique({ where: { uid } })
+    const model = await this.prismaService.walletEntity.findUnique({ where: { uid } })
 
-    if (entity) {
-      return decodeConstant(
-        {
-          uid: entity.uid,
-          address: getAddress(entity.address),
-          accountType: entity.accountType,
-          chainId: entity.chainId || undefined
-        },
-        'accountType',
-        Object.values(AccountType)
-      )
+    if (model) {
+      return this.decode(model)
     }
 
     return null
+  }
+
+  async findByOrgId(orgId: string): Promise<WalletEntity[]> {
+    const models = await this.prismaService.walletEntity.findMany({
+      where: { orgId }
+    })
+
+    return models.map(this.decode)
+  }
+
+  private decode({ uid, address, accountType, chainId }: WalletModel): WalletEntity {
+    return decodeConstant(
+      {
+        uid,
+        address: getAddress(address),
+        accountType,
+        chainId: chainId || undefined
+      },
+      'accountType',
+      Object.values(AccountType)
+    )
   }
 }

@@ -2,7 +2,7 @@ import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-share
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, Matches, ValidateNested } from 'class-validator'
-import { AddressBookAccountDataDto } from './address-book-account.dto'
+import { AddressBookAccountDto } from './address-book-account.dto'
 
 class CreateAddressBookAccountActionDto extends BaseActionDto {
   @Matches(Action.CREATE_ADDRESS_BOOK_ACCOUNT)
@@ -13,12 +13,12 @@ class CreateAddressBookAccountActionDto extends BaseActionDto {
   action: typeof Action.CREATE_ADDRESS_BOOK_ACCOUNT
 
   @IsDefined()
-  @Type(() => AddressBookAccountDataDto)
+  @Type(() => AddressBookAccountDto)
   @ValidateNested()
   @ApiProperty({
-    type: AddressBookAccountDataDto
+    type: AddressBookAccountDto
   })
-  account: AddressBookAccountDataDto
+  account: AddressBookAccountDto
 }
 
 export class CreateAddressBookAccountRequestDto extends BaseActionRequestDto {

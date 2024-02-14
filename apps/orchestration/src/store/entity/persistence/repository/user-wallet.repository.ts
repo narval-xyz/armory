@@ -1,4 +1,4 @@
-import { UserWallet } from '@narval/authz-shared'
+import { UserWalletEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 
@@ -6,11 +6,20 @@ import { PrismaService } from '../../../../shared/module/persistence/service/pri
 export class UserWalletRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async assign(assignment: UserWallet): Promise<UserWallet> {
-    await this.prismaService.userWalletAssignment.create({
-      data: assignment
+  async create(orgId: string, userWallet: UserWalletEntity): Promise<UserWalletEntity> {
+    await this.prismaService.userWalletEntity.create({
+      data: {
+        orgId,
+        ...userWallet
+      }
     })
 
-    return assignment
+    return userWallet
+  }
+
+  async findByOrgId(orgId: string): Promise<UserWalletEntity[]> {
+    return this.prismaService.userWalletEntity.findMany({
+      where: { orgId }
+    })
   }
 }

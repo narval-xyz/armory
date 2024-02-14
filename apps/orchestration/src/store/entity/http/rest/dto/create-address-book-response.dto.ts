@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, ValidateNested } from 'class-validator'
-import { AddressBookAccountDataDto } from './address-book-account.dto'
+import { AddressBookAccountDto } from './address-book-account.dto'
 
 export class CreateAddressBookAccountResponseDto {
   @IsDefined()
-  @Type(() => AddressBookAccountDataDto)
+  @Type(() => AddressBookAccountDto)
   @ValidateNested()
   @ApiProperty()
-  account: AddressBookAccountDataDto
+  account: AddressBookAccountDto
 
   constructor(partial: Partial<CreateAddressBookAccountResponseDto>) {
     Object.assign(this, partial)

@@ -12,7 +12,7 @@ export class WalletService {
   }
 
   async assignGroup(orgId: string, walletId: string, groupId: string): Promise<WalletGroupMembership> {
-    await this.walletGroupRepository.maybeCreate(orgId, {
+    await this.walletGroupRepository.create(orgId, {
       uid: groupId,
       wallets: [walletId]
     })

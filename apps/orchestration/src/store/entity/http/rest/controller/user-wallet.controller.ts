@@ -26,7 +26,7 @@ export class UserWalletController {
   async assign(@OrgId() orgId: string, @Body() body: AssignUserWalletRequestDto) {
     const { data } = body.request
 
-    await this.userService.assignWallet(body.request.data)
+    await this.userService.assignWallet(orgId, body.request.data)
 
     return new AssignUserWalletResponseDto({ data })
   }

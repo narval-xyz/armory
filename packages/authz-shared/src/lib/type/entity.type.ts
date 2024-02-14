@@ -14,6 +14,11 @@ export type UserGroupEntity = {
   users: string[]
 }
 
+export type UserWalletEntity = {
+  userId: string
+  walletId: string
+}
+
 export type WalletEntity = {
   uid: string
   address: Address
@@ -34,14 +39,20 @@ export type AddressBookAccountEntity = {
   classification: AccountClassification
 }
 
-// TODO (@wcalderipe, 07/02/2024): Are we sure about this schema?
-//
-// The token definition doesn't reflect the real-world. The symbol and decimals
-// can be null.
 export type TokenEntity = {
   uid: string
   address: Address
   symbol: string
   chainId: number
   decimals: number
+}
+
+export type Entities = {
+  addressBook: AddressBookAccountEntity[]
+  users: UserEntity[]
+  userWallets: UserWalletEntity[]
+  userGroups: UserGroupEntity[]
+  wallets: WalletEntity[]
+  walletGroups: WalletGroupEntity[]
+  tokens: TokenEntity[]
 }

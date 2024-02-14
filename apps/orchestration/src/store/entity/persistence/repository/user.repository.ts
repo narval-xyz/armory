@@ -1,5 +1,7 @@
 import { AuthCredential, UserEntity, UserRole } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { UserEntity as UserModel } from '@prisma/client/orchestration'
+import { omit } from 'lodash/fp'
 import { SetRequired } from 'type-fest'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 import { decodeConstant } from '../decode.util'
@@ -51,9 +53,9 @@ export class UserRepository {
         }
       })
 
-      await tx.userGroupMembership.deleteMany({
+      await tx.userGroupMemberEntity.deleteMany({
         where: {
-          user: uid
+          userId: uid
         }
       })
     })
@@ -62,16 +64,14 @@ export class UserRepository {
   }
 
   async update(user: SetRequired<Partial<UserEntity>, 'uid'>): Promise<UserEntity> {
-    return decodeConstant(
-      await this.prismaService.userEntity.update({
-        where: {
-          uid: user.uid
-        },
-        data: user
-      }),
-      'role',
-      Object.values(UserRole)
-    )
+    const entity = await this.prismaService.userEntity.update({
+      where: {
+        uid: user.uid
+      },
+      data: user
+    })
+
+    return this.decode(entity)
   }
 
   async findById(uid: string): Promise<UserEntity | null> {
@@ -80,9 +80,19 @@ export class UserRepository {
     })
 
     if (entity) {
-      return decodeConstant(entity, 'role', Object.values(UserRole))
+      return this.decode(entity)
     }
 
     return null
+  }
+
+  async findByOrgId(orgId: string): Promise<UserEntity[]> {
+    const entities = await this.prismaService.userEntity.findMany({ where: { orgId } })
+
+    return entities.map(this.decode)
+  }
+
+  private decode(model: UserModel): UserEntity {
+    return decodeConstant(omit(['orgId'], model), 'role', Object.values(UserRole))
   }
 }

@@ -1,6 +1,12 @@
 import { UserGroupEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
+import { UserGroupEntity as GroupModel, UserGroupMemberEntity as MemberModel } from '@prisma/client/orchestration'
+import { map } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
+
+type Model = GroupModel & {
+  members: MemberModel[]
+}
 
 @Injectable()
 export class UserGroupRepository {
@@ -30,38 +36,46 @@ export class UserGroupRepository {
   }
 
   private async enroll(groupId: string, userIds: string[]): Promise<boolean> {
-    try {
-      const memberships = userIds.map((userId) => ({
-        user: userId,
-        group: groupId
-      }))
+    const members = userIds.map((userId) => ({ userId, groupId }))
 
-      await this.prismaService.userGroupMembership.createMany({
-        data: memberships,
-        skipDuplicates: true
-      })
-      return true
-    } catch (error) {
-      return false
-    }
+    await this.prismaService.userGroupMemberEntity.createMany({
+      data: members,
+      skipDuplicates: true
+    })
+
+    return true
   }
 
   async findById(uid: string): Promise<UserGroupEntity | null> {
-    const group = await this.prismaService.userGroupEntity.findUnique({
-      where: { uid }
+    const model = await this.prismaService.userGroupEntity.findUnique({
+      where: { uid },
+      include: {
+        members: true
+      }
     })
 
-    if (group) {
-      const users = await this.prismaService.userGroupMembership.findMany({
-        where: { group: uid }
-      })
-
-      return {
-        ...group,
-        users: users.map(({ user }) => user)
-      }
+    if (model) {
+      return this.decode(model)
     }
 
     return null
+  }
+
+  async findByOrgId(orgId: string): Promise<UserGroupEntity[]> {
+    const models = await this.prismaService.userGroupEntity.findMany({
+      where: { orgId },
+      include: {
+        members: true
+      }
+    })
+
+    return models.map(this.decode)
+  }
+
+  private decode(model: Model): UserGroupEntity {
+    return {
+      uid: model.uid,
+      users: map('userId', model.members)
+    }
   }
 }

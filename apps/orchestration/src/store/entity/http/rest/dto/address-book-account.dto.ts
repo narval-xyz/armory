@@ -2,10 +2,9 @@ import { AccountClassification, Address } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsEthereumAddress, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class AddressBookAccountDataDto {
+export class AddressBookAccountDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   uid: string
 
   @IsEnum(AccountClassification)
@@ -20,6 +19,5 @@ export class AddressBookAccountDataDto {
   address: Address
 
   @IsNumber()
-  @ApiProperty()
   chainId: number
 }

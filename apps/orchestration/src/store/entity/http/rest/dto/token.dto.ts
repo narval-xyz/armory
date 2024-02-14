@@ -5,7 +5,6 @@ import { IsDefined, IsEthereumAddress, IsNotEmpty, IsNumber, IsString, Min } fro
 export class TokenDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   uid: string
 
   @IsEthereumAddress()
@@ -18,17 +17,14 @@ export class TokenDto {
   @IsNumber()
   @IsDefined()
   @Min(1)
-  @ApiProperty()
   chainId: number
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   symbol: string
 
   @IsNumber()
   @IsDefined()
-  @ApiProperty()
   decimals: number
 
   constructor(partial: Partial<TokenDto>) {

@@ -6,6 +6,7 @@ import { PolicyEngineModule } from '../../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../../shared/module/persistence/persistence.module'
 import { AddressBookService } from './core/service/address-book.service'
 import { CredentialService } from './core/service/credential.service'
+import { EntityService } from './core/service/entity.service'
 import { OrganizationService } from './core/service/organization.service'
 import { TokenService } from './core/service/token.service'
 import { UserGroupService } from './core/service/user-group.service'
@@ -13,6 +14,7 @@ import { UserService } from './core/service/user.service'
 import { WalletService } from './core/service/wallet.service'
 import { AddressBookController } from './http/rest/controller/address-book.controller'
 import { CredentialController } from './http/rest/controller/credential.controller'
+import { EntityController } from './http/rest/controller/entity.controller'
 import { OrganizationController } from './http/rest/controller/organization.controller'
 import { TokenController } from './http/rest/controller/token.controller'
 import { UserGroupController } from './http/rest/controller/user-group.controller'
@@ -35,6 +37,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
   controllers: [
     AddressBookController,
     CredentialController,
+    EntityController,
     OrganizationController,
     TokenController,
     UserController,
@@ -48,6 +51,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     AddressBookService,
     CredentialRepository,
     CredentialService,
+    EntityService,
     OrganizationRepository,
     OrganizationService,
     TokenRepository,

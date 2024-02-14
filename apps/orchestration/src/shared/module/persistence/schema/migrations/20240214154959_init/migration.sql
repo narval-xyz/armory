@@ -120,11 +120,11 @@ CREATE TABLE "user_group_entity" (
 );
 
 -- CreateTable
-CREATE TABLE "user_group_membership" (
+CREATE TABLE "user_group_member_entity" (
     "user_uid" TEXT NOT NULL,
     "user_group_uid" TEXT NOT NULL,
 
-    CONSTRAINT "user_group_membership_pkey" PRIMARY KEY ("user_uid","user_group_uid")
+    CONSTRAINT "user_group_member_entity_pkey" PRIMARY KEY ("user_uid","user_group_uid")
 );
 
 -- CreateTable
@@ -147,19 +147,20 @@ CREATE TABLE "wallet_group_entity" (
 );
 
 -- CreateTable
-CREATE TABLE "wallet_group_membership" (
+CREATE TABLE "wallet_group_member_entity" (
     "wallet_uid" TEXT NOT NULL,
     "wallet_group_uid" TEXT NOT NULL,
 
-    CONSTRAINT "wallet_group_membership_pkey" PRIMARY KEY ("wallet_uid","wallet_group_uid")
+    CONSTRAINT "wallet_group_member_entity_pkey" PRIMARY KEY ("wallet_uid","wallet_group_uid")
 );
 
 -- CreateTable
-CREATE TABLE "user_wallet_assignment" (
+CREATE TABLE "user_wallet_entity" (
+    "org_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "wallet_id" TEXT NOT NULL,
 
-    CONSTRAINT "user_wallet_assignment_pkey" PRIMARY KEY ("user_id","wallet_id")
+    CONSTRAINT "user_wallet_entity_pkey" PRIMARY KEY ("user_id","wallet_id")
 );
 
 -- CreateTable
@@ -193,3 +194,21 @@ ALTER TABLE "authorization_request_approval" ADD CONSTRAINT "authorization_reque
 
 -- AddForeignKey
 ALTER TABLE "evaluation_log" ADD CONSTRAINT "evaluation_log_request_id_fkey" FOREIGN KEY ("request_id") REFERENCES "authorization_request"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_group_member_entity" ADD CONSTRAINT "user_group_member_entity_user_uid_fkey" FOREIGN KEY ("user_uid") REFERENCES "user_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_group_member_entity" ADD CONSTRAINT "user_group_member_entity_user_group_uid_fkey" FOREIGN KEY ("user_group_uid") REFERENCES "user_group_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "wallet_group_member_entity" ADD CONSTRAINT "wallet_group_member_entity_wallet_uid_fkey" FOREIGN KEY ("wallet_uid") REFERENCES "wallet_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "wallet_group_member_entity" ADD CONSTRAINT "wallet_group_member_entity_wallet_group_uid_fkey" FOREIGN KEY ("wallet_group_uid") REFERENCES "wallet_group_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_wallet_entity" ADD CONSTRAINT "user_wallet_entity_wallet_id_fkey" FOREIGN KEY ("wallet_id") REFERENCES "wallet_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_wallet_entity" ADD CONSTRAINT "user_wallet_entity_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user_entity"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
