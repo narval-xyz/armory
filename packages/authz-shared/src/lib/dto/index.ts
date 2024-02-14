@@ -1,7 +1,4 @@
-export * from './auth-credential.dto'
 export * from './base-action.dto'
 export * from './base-admin-request-payload.dto'
-export * from './create-user-request.dto'
-export * from './create-user-response.dto'
 export * from './request-signature.dto'
 export * from './user-dto'

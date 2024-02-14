@@ -1,11 +1,4 @@
-import {
-  CreateUserRequestDto,
-  CreateUserResponseDto,
-  Decision,
-  EvaluationRequest,
-  EvaluationResponse,
-  hashRequest
-} from '@narval/authz-shared'
+import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@narval/authz-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
@@ -137,43 +130,5 @@ export class ClusterService {
         throw new InvalidAttestationSignatureException(node.pubKey, recoveredPubKey)
       }
     })
-  }
-
-  async createUser(input: { orgId: string; data: CreateUserRequestDto }): Promise<CreateUserResponseDto> {
-    const cluster = await this.getByOrgId(input.orgId)
-
-    if (!cluster) {
-      throw new ClusterNotFoundException(input.orgId)
-    }
-
-    const hosts = cluster.nodes.map((node) => ClusterService.getNodeHost(node))
-
-    this.logger.log('Sending create user request', {
-      clusterId: cluster.id,
-      clusterSize: cluster.size,
-      nodes: cluster.nodes.map((node) => ({
-        id: node.id,
-        host: ClusterService.getNodeHost(node)
-      }))
-    })
-
-    const responses = await Promise.all(
-      hosts.map((host) =>
-        this.authzApplicationClient.createUser({
-          host,
-          data: input.data
-        })
-      )
-    )
-
-    if (responses.length) {
-      if (responses.every((response) => response === responses[0])) {
-        throw new ConsensusAgreementNotReachException(responses, cluster.nodes)
-      }
-
-      return responses[0]
-    }
-
-    throw new UnreachableClusterException(cluster)
   }
 }
