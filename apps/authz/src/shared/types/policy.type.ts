@@ -94,8 +94,8 @@ export class AmountCondition {
   @ApiProperty({ enum: [...Object.values(FiatCurrency), '*'] })
   currency: FiatCurrency | '*'
 
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -109,8 +109,8 @@ export class ERC1155AmountCondition {
   @ApiProperty()
   tokenId: AssetId
 
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -156,8 +156,8 @@ export class SignTypedDataDomainCondition {
 }
 
 export class PermitDeadlineCondition {
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
@@ -188,8 +188,8 @@ export class ApprovalCondition {
 }
 
 export class SpendingLimitTimeWindow {
-  @IsEnum(TimeWindow)
   @IsOptional()
+  @IsEnum(TimeWindow)
   @ApiPropertyOptional({ enum: TimeWindow })
   type?: TimeWindow
 
@@ -659,8 +659,8 @@ export class Policy {
   })
   when: PolicyCriterion[]
 
-  @IsIn(Object.values(Then))
-  @ApiProperty({ enum: Object.values(Then) })
+  @IsEnum(Then)
+  @ApiProperty({ enum: Then })
   then: Then
 }
 
