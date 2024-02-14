@@ -14,7 +14,7 @@ export class AddressBookController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers an account in the address book'
+    summary: 'Registers an account in the address book entity'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID

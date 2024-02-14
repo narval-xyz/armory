@@ -125,6 +125,7 @@ export class AdminController {
     return response
   }
 
+  // DONE
   @Post('/user-wallets')
   async assignUserWallet(@Body() body: AssignUserWalletRequestDto) {
     const payload: AssignUserWalletRequest = body
@@ -136,6 +137,7 @@ export class AdminController {
   }
 
   @Post('/address-book')
+  // DONE
   async createAddressBookEntry(@Body() body: CreateAddressBookAccountRequestDto) {
     const payload: CreateAddressBookAccountRequest = body
 
@@ -146,6 +148,7 @@ export class AdminController {
   }
 
   @Post('/tokens')
+  // DONE
   async registerTokens(@Body() body: RegisterTokensRequestDto) {
     const payload: RegisterTokensRequest = body
     const tokens = await this.adminService.registerTokens(payload)

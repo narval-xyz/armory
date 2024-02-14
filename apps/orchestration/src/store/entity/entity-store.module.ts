@@ -6,11 +6,13 @@ import { PolicyEngineModule } from '../../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../../shared/module/persistence/persistence.module'
 import { AddressBookService } from './core/service/address-book.service'
 import { OrganizationService } from './core/service/organization.service'
+import { TokenService } from './core/service/token.service'
 import { UserGroupService } from './core/service/user-group.service'
 import { UserService } from './core/service/user.service'
 import { WalletService } from './core/service/wallet.service'
 import { AddressBookController } from './http/rest/controller/address-book.controller'
 import { OrganizationController } from './http/rest/controller/organization.controller'
+import { TokenController } from './http/rest/controller/token.controller'
 import { UserGroupController } from './http/rest/controller/user-group.controller'
 import { UserWalletController } from './http/rest/controller/user-wallet.controller'
 import { UserController } from './http/rest/controller/user.controller'
@@ -19,6 +21,7 @@ import { WalletController } from './http/rest/controller/wallet.controller'
 import { AddressBookRepository } from './persistence/repository/address-book.repository'
 import { AuthCredentialRepository } from './persistence/repository/auth-credential.repository'
 import { OrganizationRepository } from './persistence/repository/organization.repository'
+import { TokenRepository } from './persistence/repository/token.repository'
 import { UserGroupRepository } from './persistence/repository/user-group.repository'
 import { UserWalletRepository } from './persistence/repository/user-wallet.repository'
 import { UserRepository } from './persistence/repository/user.repository'
@@ -30,6 +33,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
   controllers: [
     AddressBookController,
     OrganizationController,
+    TokenController,
     UserController,
     UserGroupController,
     UserWalletController,
@@ -42,6 +46,8 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     AuthCredentialRepository,
     OrganizationRepository,
     OrganizationService,
+    TokenRepository,
+    TokenService,
     UserGroupRepository,
     UserGroupService,
     UserRepository,
