@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsString, ValidateNested } from 'class-validator'
+import { ArrayNotEmpty, IsDefined, IsString, ValidateNested } from 'class-validator'
 import { Policy } from '../../../../../shared/types/policy.type'
 
 export class SetPolicyRulesResponseDto {
@@ -8,10 +8,10 @@ export class SetPolicyRulesResponseDto {
   @IsString()
   fileId: string
 
-  @IsDefined()
+  @ArrayNotEmpty()
   @Type(() => Policy)
-  @ValidateNested()
-  @ApiProperty({ type: () => Policy, isArray: true })
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: [Policy] })
   policies: Policy[]
 
   constructor(partial: Partial<SetPolicyRulesResponseDto>) {

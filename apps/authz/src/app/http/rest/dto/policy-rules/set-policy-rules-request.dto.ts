@@ -1,21 +1,21 @@
 import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/authz-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsArray, IsDefined, IsString, Matches, ValidateNested } from 'class-validator'
+import { ArrayNotEmpty, IsDefined, Matches, ValidateNested } from 'class-validator'
 import { Policy } from '../../../../../shared/types/policy.type'
 
 export class SetPolicyRulesDto extends BaseActionDto {
-  @IsDefined()
-  @IsString()
   @Matches(Action.SET_POLICY_RULES)
-  @ApiProperty()
+  @ApiProperty({
+    enum: [Action.SET_POLICY_RULES],
+    default: Action.SET_POLICY_RULES
+  })
   action: typeof Action.SET_POLICY_RULES
 
-  @IsDefined()
-  @IsArray()
+  @ArrayNotEmpty()
   @Type(() => Policy)
   @ValidateNested({ each: true })
-  @ApiProperty()
+  @ApiProperty({ type: [Policy] })
   data: Policy[]
 }
 
