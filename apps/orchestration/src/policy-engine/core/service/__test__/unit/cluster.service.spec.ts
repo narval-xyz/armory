@@ -12,7 +12,7 @@ import { generatePrices } from '../../../../../__test__/fixture/price.fixture'
 import { PriceFeedService } from '../../../../../data-feed/core/service/price-feed.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { ClusterNotFoundException } from '../../../../core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '../../../../core/exception/evaluation-consensus.exception'
+import { ConsensusAgreementNotReachException } from '../../../../core/exception/consensus-agreement-not-reach.exception'
 import { InvalidAttestationSignatureException } from '../../../../core/exception/invalid-attestation-signature.exception'
 import { ClusterService } from '../../../../core/service/cluster.service'
 import { Cluster, Node } from '../../../../core/type/clustering.type'
@@ -161,7 +161,7 @@ describe(ClusterService.name, () => {
       authzApplicationClientMock.evaluation.mockResolvedValueOnce(permit)
       authzApplicationClientMock.evaluation.mockResolvedValueOnce(forbid)
 
-      expect(service.evaluation(input)).rejects.toThrow(EvaluationConsensusException)
+      expect(service.evaluation(input)).rejects.toThrow(ConsensusAgreementNotReachException)
     })
 
     it('throws when node attestation is invalid', async () => {

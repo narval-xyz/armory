@@ -1,9 +1,16 @@
-import { AccessList, AccountId, Action, Address, FiatCurrency, Hex } from '@narval/authz-shared'
+import {
+  AccessList,
+  AccountId,
+  Action,
+  Address,
+  BaseActionDto,
+  FiatCurrency,
+  Hex,
+  SignatureDto
+} from '@narval/authz-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEthereumAddress, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
-import { BaseActionDto } from './http/rest/dto/base-action.dto'
-import { RequestSignatureDto } from './http/rest/dto/request-signature.dto'
 
 export class TransactionRequestDto {
   @IsString()
@@ -126,15 +133,15 @@ export class EvaluationRequestDto {
   @IsDefined()
   @ValidateNested()
   @ApiProperty()
-  authentication: RequestSignatureDto
+  authentication: SignatureDto
 
   @IsOptional()
   @ValidateNested()
   @ApiProperty({
-    type: () => RequestSignatureDto,
+    type: () => SignatureDto,
     isArray: true
   })
-  approvals?: RequestSignatureDto[]
+  approvals?: SignatureDto[]
 
   @ValidateNested()
   @Type((opts) => {

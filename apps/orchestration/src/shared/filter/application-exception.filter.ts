@@ -30,7 +30,7 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
             message: exception.message,
             context: exception.context,
             stack: exception.stack,
-            ...(exception.originalError && { origin: exception.originalError })
+            ...(exception.origin && { origin: exception.origin })
           }
     )
   }
@@ -45,7 +45,7 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
         status: exception.getStatus(),
         context: exception.context,
         stacktrace: exception.stack,
-        origin: exception.originalError
+        origin: exception.origin
       })
     }
   }

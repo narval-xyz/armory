@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
@@ -8,7 +9,7 @@ import { AppService } from './app.service'
 import { AdminService } from './core/admin.service'
 import { AdminController } from './http/rest/controller/admin.controller'
 import { OpaService } from './opa/opa.service'
-import { AdminRepository } from './persistence/repository/admin.repository'
+import { EntityRepository } from './persistence/repository/entity.repository'
 
 @Module({
   imports: [
@@ -16,14 +17,15 @@ import { AdminRepository } from './persistence/repository/admin.repository'
       load: [load],
       isGlobal: true
     }),
+    HttpModule,
     PersistenceModule
   ],
   controllers: [AppController, AdminController],
   providers: [
     AppService,
     AdminService,
-    AdminRepository,
     OpaService,
+    EntityRepository,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe

@@ -1,9 +1,4 @@
-import {
-  assertAddress,
-  assertArray,
-  assertBigInt,
-  assertHexString
-} from 'packages/authz-shared/src/lib/util/typeguards'
+import { assertAddress, assertArray, assertBigInt, assertHexString } from '@narval/authz-shared'
 import { DecoderError } from '../error'
 import {
   ApproveAllowanceParams,

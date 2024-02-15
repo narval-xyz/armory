@@ -23,6 +23,6 @@ dotenv.config({ path: testEnvFile, override: true })
 // Disable outgoing HTTP requests to avoid flaky tests.
 nock.disableNetConnect()
 
-// Enable outgoing HTTP requests to 127.0.0.1 to allow E2E tests with
-// supertestwith supertest to work.
-nock.enableNetConnect('127.0.0.1')
+// Enable local outgoing HTTP request to allow E2E tests with supertestwith
+// supertest to work.
+nock.enableNetConnect(/127.0.0.1|localhost/)

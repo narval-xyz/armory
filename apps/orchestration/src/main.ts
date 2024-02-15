@@ -23,7 +23,9 @@ const withSwagger = (app: INestApplication): INestApplication => {
       .setVersion('1.0')
       .build()
   )
-  SwaggerModule.setup('docs', app, document)
+  SwaggerModule.setup('docs', app, document, {
+    customSiteTitle: 'Orchestration API'
+  })
 
   return app
 }
