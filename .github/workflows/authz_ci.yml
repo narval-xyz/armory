@@ -40,7 +40,6 @@ jobs:
         shell: bash
         run: |
           make authz/copy-default-env
-          make authz/test/db/setup
           make authz/db/generate-types
 
       - name: Test types
@@ -56,7 +55,6 @@ jobs:
       - name: Test integration
         shell: bash
         run: |
-          make authz/test/db/setup
           make authz/test/integration
 
       # - name: Test E2E

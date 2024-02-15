@@ -1,6 +1,6 @@
 import { AssetId } from '@narval/authz-shared'
 import { BackoffOptions } from 'bull'
-import { Chain, ChainId } from './shared/core/lib/chains.lib'
+import { Chain } from './shared/core/lib/chains.lib'
 import { FiatId } from './shared/core/type/price.type'
 
 export const REQUEST_HEADER_ORG_ID = 'x-org-id'
@@ -32,7 +32,7 @@ export const FIAT_ID_USD: FiatId = 'fiat:usd'
 //
 
 export const ETHEREUM: Chain = {
-  id: ChainId.ETHEREUM,
+  id: 1,
   isTestnet: false,
   name: 'Ethereum Mainnet',
   chain: 'ETH',
@@ -49,7 +49,7 @@ export const ETHEREUM: Chain = {
 }
 
 export const POLYGON: Chain = {
-  id: ChainId.POLYGON,
+  id: 137,
   isTestnet: false,
   name: 'Polygon Mainnet',
   chain: 'Polygon',
@@ -69,6 +69,6 @@ export const POLYGON: Chain = {
  * @see https://chainid.network/chains.json
  */
 export const CHAINS = new Map<number, Chain>([
-  [ChainId.ETHEREUM, ETHEREUM],
-  [ChainId.POLYGON, POLYGON]
+  [1, ETHEREUM],
+  [137, POLYGON]
 ])

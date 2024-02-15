@@ -2,11 +2,11 @@ import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@n
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '../../core/exception/evaluation-consensus.exception'
 import { InvalidAttestationSignatureException } from '../../core/exception/invalid-attestation-signature.exception'
 import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
 import { Cluster, Node } from '../../core/type/clustering.type'
 import { AuthzApplicationClient } from '../../http/client/authz-application.client'
+import { ConsensusAgreementNotReachException } from '../exception/consensus-agreement-not-reach.exception'
 // eslint-disable-next-line no-restricted-imports
 import { getAddress, isAddressEqual, recoverMessageAddress } from 'viem'
 
@@ -52,14 +52,14 @@ export class ClusterService {
       throw new ClusterNotFoundException(input.orgId)
     }
 
-    const hosts = cluster.nodes.map(this.getHost)
+    const hosts = cluster.nodes.map((node) => ClusterService.getNodeHost(node))
 
     this.logger.log('Sending evaluation request to cluster', {
       clusterId: cluster.id,
       clusterSize: cluster.size,
       nodes: cluster.nodes.map((node) => ({
         id: node.id,
-        host: this.getHost(node)
+        host: ClusterService.getNodeHost(node)
       }))
     })
 
@@ -76,7 +76,7 @@ export class ClusterService {
       const decision = responses[0].decision
 
       if (!responses.every((response) => response.decision === decision)) {
-        throw new EvaluationConsensusException(responses, cluster.nodes)
+        throw new ConsensusAgreementNotReachException(responses, cluster.nodes)
       }
 
       const evaluations = this.combineNodeResponse(cluster.nodes, responses)
@@ -98,7 +98,7 @@ export class ClusterService {
     throw new UnreachableClusterException(cluster)
   }
 
-  private getHost({ host, port }: Node): string {
+  static getNodeHost({ host, port }: Node): string {
     return `http://${host}:${port}`
   }
 

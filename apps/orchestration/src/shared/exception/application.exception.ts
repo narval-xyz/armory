@@ -4,12 +4,12 @@ export type ApplicationExceptionParams = {
   message: string
   suggestedHttpStatusCode: HttpStatus
   context?: unknown
-  originalError?: Error
+  origin?: Error
 }
 
 export class ApplicationException extends HttpException {
   readonly context: unknown
-  readonly originalError?: Error
+  readonly origin?: Error
 
   constructor(params: ApplicationExceptionParams) {
     super(params.message, params.suggestedHttpStatusCode)
@@ -20,6 +20,6 @@ export class ApplicationException extends HttpException {
 
     this.name = this.constructor.name
     this.context = params.context
-    this.originalError = params.originalError
+    this.origin = params.origin
   }
 }

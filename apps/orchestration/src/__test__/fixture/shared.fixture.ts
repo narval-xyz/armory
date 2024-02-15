@@ -20,7 +20,7 @@ export const addressGenerator = Generator({
   output: () => generateAddress()
 })
 
-export const generateSupportedChainId = (): ChainId => sample(Array.from(CHAINS.keys())) as ChainId
+export const generateSupportedChainId = (): number => sample(Array.from(CHAINS.keys())) || ChainId.ETHEREUM
 
 export const chainIdGenerator = Generator({
   schema: chainIdSchema,

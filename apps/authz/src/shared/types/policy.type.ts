@@ -18,12 +18,13 @@ import {
   ValueOperators
 } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
-import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
+import { ApiExtraModels, ApiProperty, ApiPropertyOptional, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'
 import {
   ArrayNotEmpty,
   IsBoolean,
   IsDefined,
+  IsEnum,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -90,39 +91,42 @@ export type TimeWindow = (typeof TimeWindow)[keyof typeof TimeWindow]
 
 export class AmountCondition {
   @IsIn([...Object.values(FiatCurrency), '*'])
+  @ApiProperty({ enum: [...Object.values(FiatCurrency), '*'] })
   currency: FiatCurrency | '*'
 
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   value: string
 }
 
 export class ERC1155AmountCondition {
   @IsAssetId()
+  @ApiProperty()
   tokenId: AssetId
 
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   value: string
 }
 
 export class SignMessageCondition {
   @IsIn([ValueOperators.EQUAL, IdentityOperators.CONTAINS])
+  @ApiProperty({ enum: [ValueOperators.EQUAL, IdentityOperators.CONTAINS] })
   operator: ValueOperators.EQUAL | IdentityOperators.CONTAINS
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   value: string
 }
 
@@ -130,68 +134,78 @@ export class SignTypedDataDomainCondition {
   @IsOptional()
   @IsNotEmptyArrayString()
   @IsNumberString({}, { each: true })
+  @ApiPropertyOptional()
   version?: string[]
 
   @IsOptional()
   @IsNotEmptyArrayString()
   @IsNumberString({}, { each: true })
+  @ApiPropertyOptional()
   chainId?: string[]
 
   @IsOptional()
   @IsNotEmptyArrayString()
+  @ApiPropertyOptional()
   name?: string[]
 
   @IsOptional()
   @IsNotEmptyArrayString()
   @IsHexString({ each: true })
+  @ApiPropertyOptional()
   verifyingContract?: Address[]
 }
 
 export class PermitDeadlineCondition {
-  @IsIn(Object.values(ValueOperators))
-  @ApiProperty({ enum: Object.values(ValueOperators) })
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
   operator: ValueOperators
 
   @IsNotEmpty()
   @IsNumberString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   value: string // timestamp in ms
 }
 
 export class ApprovalCondition {
   @IsDefined()
   @IsNumber()
+  @ApiProperty()
   approvalCount: number
 
   @IsDefined()
   @IsBoolean()
+  @ApiProperty()
   countPrincipal: boolean
 
   @IsDefined()
-  @IsIn(Object.values(EntityType))
-  @ApiProperty({ enum: Object.values(EntityType) })
+  @IsEnum(EntityType)
+  @ApiProperty({ enum: EntityType })
   approvalEntityType: EntityType
 
   @IsNotEmptyArrayString()
+  @ApiProperty()
   entityIds: string[]
 }
 
 export class SpendingLimitTimeWindow {
   @IsOptional()
-  @IsIn(Object.values(TimeWindow))
-  @ApiProperty({ enum: Object.values(TimeWindow) })
+  @IsEnum(TimeWindow)
+  @ApiPropertyOptional({ enum: TimeWindow })
   type?: TimeWindow
 
   @IsNumber()
   @IsOptional()
+  @ApiPropertyOptional()
   value?: number // in seconds
 
   @IsNumber()
   @IsOptional()
+  @ApiPropertyOptional()
   startDate?: number // in seconds
 
   @IsNumber()
   @IsOptional()
+  @ApiPropertyOptional()
   endDate?: number // in seconds
 }
 
@@ -199,50 +213,58 @@ export class SpendingLimitFilters {
   @IsNotEmptyArrayString()
   @IsAssetId({ each: true })
   @IsOptional()
+  @ApiPropertyOptional()
   tokens?: AssetId[]
 
   @IsNotEmptyArrayString()
   @IsOptional()
+  @ApiPropertyOptional()
   users?: string[]
 
   @IsNotEmptyArrayString()
   @IsAccountId({ each: true })
   @IsOptional()
+  @ApiPropertyOptional()
   resources?: AccountId[]
 
   @IsNotEmptyArrayString()
   @IsNumberString({}, { each: true })
   @IsOptional()
+  @ApiPropertyOptional()
   chains?: string[]
 
   @IsNotEmptyArrayString()
   @IsOptional()
+  @ApiPropertyOptional()
   userGroups?: string[]
 
   @IsNotEmptyArrayString()
   @IsOptional()
+  @ApiPropertyOptional()
   walletGroups?: string[]
 }
 
 export class SpendingLimitCondition {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   limit: string
 
   @IsOptional()
-  @IsIn(Object.values(FiatCurrency))
-  @ApiProperty({ enum: Object.values(FiatCurrency) })
+  @IsEnum(FiatCurrency)
+  @ApiPropertyOptional({ enum: FiatCurrency })
   currency?: FiatCurrency
 
   @ValidateNested()
   @Type(() => SpendingLimitTimeWindow)
   @IsOptional()
+  @ApiPropertyOptional()
   timeWindow?: SpendingLimitTimeWindow
 
   @ValidateNested()
   @Type(() => SpendingLimitFilters)
   @IsOptional()
+  @ApiPropertyOptional()
   filters?: SpendingLimitFilters
 }
 
@@ -621,7 +643,7 @@ export type PolicyCriterion =
 export class Policy {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: String })
+  @ApiProperty()
   name: string
 
   @ArrayNotEmpty()
@@ -638,8 +660,8 @@ export class Policy {
   })
   when: PolicyCriterion[]
 
-  @IsIn(Object.values(Then))
-  @ApiProperty({ enum: Object.values(Then) })
+  @IsEnum(Then)
+  @ApiProperty({ enum: Then })
   then: Then
 }
 
