@@ -1,3 +1,5 @@
+import { Entities } from '@narval/authz-shared'
+import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { execSync } from 'child_process'
@@ -5,6 +7,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import path from 'path'
 import * as R from 'remeda'
+import { lastValueFrom, map, tap } from 'rxjs'
 import { v4 as uuidv4 } from 'uuid'
 import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
 import { Policy } from '../../shared/types/policy.type'
@@ -22,7 +25,7 @@ export class OpaService implements OnApplicationBootstrap {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
-  constructor(private adminRepository: AdminRepository) {}
+  constructor(private adminRepository: AdminRepository, private httpService: HttpService) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
@@ -75,6 +78,23 @@ export class OpaService implements OnApplicationBootstrap {
     return { fileId, policies }
   }
 
+  private getEntities(): Promise<Entities> {
+    return lastValueFrom(
+      this.httpService
+        .get<Entities>('http://localhost:3005/store/entities', {
+          headers: {
+            'x-org-id': '7d704a62-d15e-4382-a826-1eb41563043b'
+          }
+        })
+        .pipe(
+          map((response) => response.data),
+          tap((entities) => {
+            this.logger.log('Received entities snapshot', entities)
+          })
+        )
+    )
+  }
+
   private async fetchEntityData(): Promise<RegoData> {
     const users = await this.adminRepository.getAllUsers()
     const wallets = await this.adminRepository.getAllWallets()
@@ -83,6 +103,10 @@ export class OpaService implements OnApplicationBootstrap {
     const userGroups = await this.adminRepository.getAllUserGroups()
     const addressBook = await this.adminRepository.getAllAddressBook()
     const tokens = await this.adminRepository.getAllTokens()
+
+    const entities = await this.getEntities()
+
+    console.log('####', entities)
 
     const regoUsers: Record<string, User> = R.indexBy(users, (u) => u.uid)
     const regoWallets = R.indexBy(wallets, (w) => w.uid)

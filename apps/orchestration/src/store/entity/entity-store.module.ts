@@ -22,6 +22,7 @@ import { UserWalletController } from './http/rest/controller/user-wallet.control
 import { UserController } from './http/rest/controller/user.controller'
 import { WalletGroupController } from './http/rest/controller/wallet-group.controller'
 import { WalletController } from './http/rest/controller/wallet.controller'
+import { EntityStoreSeed } from './persistence/entity-store.seed'
 import { AddressBookRepository } from './persistence/repository/address-book.repository'
 import { CredentialRepository } from './persistence/repository/credential.repository'
 import { OrganizationRepository } from './persistence/repository/organization.repository'
@@ -52,6 +53,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     CredentialRepository,
     CredentialService,
     EntityService,
+    EntityStoreSeed,
     OrganizationRepository,
     OrganizationService,
     TokenRepository,

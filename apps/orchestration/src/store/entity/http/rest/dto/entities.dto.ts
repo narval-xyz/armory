@@ -12,6 +12,10 @@ export class EntitiesDto {
   @ValidateNested({ each: true })
   addressBook: AddressBookAccountDto[]
 
+  @Type(() => TokenDto)
+  @ValidateNested({ each: true })
+  tokens: TokenDto[]
+
   @Type(() => UserDto)
   @ValidateNested({ each: true })
   users: UserDto[]
@@ -27,10 +31,6 @@ export class EntitiesDto {
   @Type(() => WalletDto)
   @ValidateNested({ each: true })
   walletGroups: WalletGroupDto[]
-
-  @Type(() => TokenDto)
-  @ValidateNested({ each: true })
-  tokens: TokenDto[]
 
   constructor(partial: Partial<EntitiesDto>) {
     Object.assign(this, partial)

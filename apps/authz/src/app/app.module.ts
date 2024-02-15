@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
@@ -16,6 +17,7 @@ import { AdminRepository } from './persistence/repository/admin.repository'
       load: [load],
       isGlobal: true
     }),
+    HttpModule,
     PersistenceModule
   ],
   controllers: [AppController, AdminController],

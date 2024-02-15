@@ -32,7 +32,7 @@ export class AuthorizationRequestProcessingConsumer {
       // Short-circuits the retry mechanism on unrecoverable domain errors.
       //
       // IMPORTANT: To stop retrying a job in Bull, the process must return an
-      // error instance.
+      // error instance. If the process throws, it'll automaticaly retry.
       if (this.isUnrecoverableError(error)) {
         return error
       }
