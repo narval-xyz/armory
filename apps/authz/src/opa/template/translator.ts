@@ -1,14 +1,25 @@
 import { EntityType, FiatCurrency, ValueOperators } from '@narval/authz-shared'
 import axios from 'axios'
-import { Criterion, Policy, Then } from '../../shared/types/policy.type'
+import { omit } from 'lodash'
+import { Address } from 'viem'
+import {
+  ApprovalCondition,
+  Criterion,
+  Policy,
+  PolicyCriterion,
+  SignTypedDataDomainCondition,
+  Then
+} from '../../shared/types/policy.type'
 import data from './policy_rule_202402141519_policy_rules_ngg_prod_v_161.json'
 
 type NewPolicy = Policy & { id: string }
 
-const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
+type OldPolicy = { [key: string]: string | null }
+
+const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
   const result: NewPolicy = {
-    id: oldPolicy.id,
-    name: oldPolicy.id,
+    id: oldPolicy.id as string,
+    name: oldPolicy.id as string,
     when: [
       {
         criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
@@ -19,7 +30,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
         args: null
       }
     ],
-    then: ['approve', 'confirm'].includes(oldPolicy.result) ? Then.PERMIT : Then.FORBID
+    then: ['approve', 'confirm'].includes(oldPolicy.result as string) ? Then.PERMIT : Then.FORBID
   }
 
   for (const [key, value] of Object.entries(oldPolicy)) {
@@ -40,7 +51,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
       result.when.push({
         criterion: Criterion.CHECK_PRINCIPAL_ROLE,
         args: [role]
-      })
+      } as PolicyCriterion)
     }
 
     if (key === 'user_group') {
@@ -75,7 +86,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
       result.when.push({
         criterion: Criterion.CHECK_INTENT_HEX_SIGNATURE,
         args: [value]
-      })
+      } as PolicyCriterion)
     }
 
     if (key === 'activity_type') {
@@ -86,7 +97,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
       let spender = ''
       let tokenId = ''
 
-      let when: any[] = []
+      const when: PolicyCriterion[] = []
 
       const chainId = oldPolicy.chain_id !== '*' && oldPolicy.chain_id !== null ? oldPolicy.chain_id : '137'
 
@@ -161,44 +172,44 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
         when.push({
           criterion: Criterion.CHECK_ACTION,
           args: [action]
-        })
+        } as PolicyCriterion)
       }
       if (intent) {
         when.push({
           criterion: Criterion.CHECK_INTENT_TYPE,
           args: [intent]
-        })
+        } as PolicyCriterion)
       }
       if (token) {
         when.push({
           criterion: Criterion.CHECK_INTENT_TOKEN,
           args: [token]
-        })
+        } as PolicyCriterion)
       }
       if (contract) {
         when.push({
           criterion: Criterion.CHECK_INTENT_CONTRACT,
           args: [contract]
-        })
+        } as PolicyCriterion)
       }
       if (spender) {
         when.push({
           criterion: Criterion.CHECK_INTENT_SPENDER,
           args: [spender]
-        })
+        } as PolicyCriterion)
       }
       if (tokenId) {
         if (intent === 'transferErc721') {
           when.push({
             criterion: Criterion.CHECK_ERC721_TOKEN_ID,
             args: [tokenId]
-          })
+          } as PolicyCriterion)
         }
         if (intent === 'transferErc1155') {
           when.push({
             criterion: Criterion.CHECK_ERC1155_TOKEN_ID,
             args: [tokenId]
-          })
+          } as PolicyCriterion)
         }
       }
 
@@ -224,7 +235,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
     }
 
     if (['domain_version', 'domain_name', 'domain_verifying_contract'].includes(key)) {
-      const args: { [key: string]: any } = {}
+      const args: SignTypedDataDomainCondition = {}
 
       if (oldPolicy.domain_version !== null && oldPolicy.domain_version !== '*') {
         args['version'] = [oldPolicy.domain_version]
@@ -235,7 +246,7 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
       }
 
       if (oldPolicy.domain_verifying_contract !== null && oldPolicy.domain_verifying_contract !== '*') {
-        args['verifyingContract'] = [oldPolicy.domain_verifying_contract]
+        args['verifyingContract'] = [oldPolicy.domain_verifying_contract as Address]
       }
 
       if (Object.keys(args).length > 0) {
@@ -248,26 +259,26 @@ const translatePolicy = (oldPolicy: { [key: string]: any }): NewPolicy => {
   }
 
   if (result.then === Then.PERMIT) {
-    const approval = {
+    const approval: ApprovalCondition = {
       approvalCount: 2,
       countPrincipal: false,
       approvalEntityType: EntityType.UserRole,
       entityIds: ['root', 'admin']
     }
     if (oldPolicy.approval_threshold !== null && oldPolicy.approval_threshold !== '*') {
-      approval.approvalCount = oldPolicy.approval_threshold
+      approval.approvalCount = Number(oldPolicy.approval_threshold)
     }
     if (oldPolicy.approval_user_id !== null && oldPolicy.approval_user_id !== '*') {
       approval.approvalEntityType = EntityType.User
-      approval.entityIds = oldPolicy.approval_user_id
+      approval.entityIds = [oldPolicy.approval_user_id]
     }
     if (oldPolicy.approval_user_role !== null && oldPolicy.approval_user_role !== '*') {
       approval.approvalEntityType = EntityType.UserRole
-      approval.entityIds = oldPolicy.approval_user_role
+      approval.entityIds = [oldPolicy.approval_user_role]
     }
     if (oldPolicy.approval_user_group !== null && oldPolicy.approval_user_group !== '*') {
       approval.approvalEntityType = EntityType.UserGroup
-      approval.entityIds = oldPolicy.approval_user_group
+      approval.entityIds = [oldPolicy.approval_user_group]
     }
     result.when.push({
       criterion: Criterion.CHECK_APPROVALS,
@@ -329,7 +340,9 @@ const main = async () => {
         action: 'setPolicyRules',
         nonce: 'random-nonce-111',
         data: data.policies.map((policy) => {
-          const res = translatePolicy(policy)
+          const copy: OldPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
+          copy.amount = `${policy.amount}`
+          const res = translatePolicy(copy)
           return res
         })
       }
