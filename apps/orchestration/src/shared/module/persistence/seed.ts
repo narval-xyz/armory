@@ -41,12 +41,8 @@ async function main() {
     await germinateTransferTrackingModule(prisma)
 
     logger.log('Orchestration database germinated 🌱')
-
-    process.exit(0)
-  } catch (error) {
-    logger.error('Seed failed', error)
-
-    process.exit(1)
+  } finally {
+    await application.close()
   }
 }
 

@@ -9,7 +9,7 @@ import { AppService } from './app.service'
 import { AdminService } from './core/admin.service'
 import { AdminController } from './http/rest/controller/admin.controller'
 import { OpaService } from './opa/opa.service'
-import { AdminRepository } from './persistence/repository/admin.repository'
+import { EntityRepository } from './persistence/repository/entity.repository'
 
 @Module({
   imports: [
@@ -24,8 +24,8 @@ import { AdminRepository } from './persistence/repository/admin.repository'
   providers: [
     AppService,
     AdminService,
-    AdminRepository,
     OpaService,
+    EntityRepository,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe

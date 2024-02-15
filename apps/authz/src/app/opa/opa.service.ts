@@ -1,19 +1,17 @@
-import { Entities } from '@narval/authz-shared'
-import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { execSync } from 'child_process'
 import { readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
+import { indexBy } from 'lodash/fp'
+import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import path from 'path'
-import * as R from 'remeda'
-import { lastValueFrom, map, tap } from 'rxjs'
-import { v4 as uuidv4 } from 'uuid'
-import { RegoData, User, UserGroup, WalletGroup } from '../../shared/types/entities.types'
+import { v4 as uuid } from 'uuid'
+import { RegoData } from '../../shared/types/entities.types'
 import { Policy } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
 import { criterionToString, reasonToString } from '../../shared/utils/opa.utils'
-import { AdminRepository } from '../persistence/repository/admin.repository'
+import { EntityRepository } from '../persistence/repository/entity.repository'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
@@ -25,7 +23,7 @@ export class OpaService implements OnApplicationBootstrap {
   private logger = new Logger(OpaService.name)
   private opaEngine: OpaEngine | undefined
 
-  constructor(private adminRepository: AdminRepository, private httpService: HttpService) {}
+  constructor(private entityRepository: EntityRepository) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
@@ -61,11 +59,11 @@ export class OpaService implements OnApplicationBootstrap {
 
     const template = Handlebars.compile(templateSource)
 
-    const policies = payload.map((p) => ({ ...p, id: uuidv4() }))
+    const policies = payload.map((p) => ({ ...p, id: uuid() }))
 
     const regoContent = template({ policies })
 
-    const fileId = uuidv4()
+    const fileId = uuid()
 
     writeFileSync(`./apps/authz/src/opa/rego/generated/${fileId}.rego`, regoContent, 'utf-8')
 
@@ -78,90 +76,23 @@ export class OpaService implements OnApplicationBootstrap {
     return { fileId, policies }
   }
 
-  private getEntities(): Promise<Entities> {
-    return lastValueFrom(
-      this.httpService
-        .get<Entities>('http://localhost:3005/store/entities', {
-          headers: {
-            'x-org-id': '7d704a62-d15e-4382-a826-1eb41563043b'
-          }
-        })
-        .pipe(
-          map((response) => response.data),
-          tap((entities) => {
-            this.logger.log('Received entities snapshot', entities)
-          })
-        )
-    )
-  }
-
   private async fetchEntityData(): Promise<RegoData> {
-    const users = await this.adminRepository.getAllUsers()
-    const wallets = await this.adminRepository.getAllWallets()
-    const walletGroups = await this.adminRepository.getAllWalletGroups()
-    const userWallets = await this.adminRepository.getAllUserWallets()
-    const userGroups = await this.adminRepository.getAllUserGroups()
-    const addressBook = await this.adminRepository.getAllAddressBook()
-    const tokens = await this.adminRepository.getAllTokens()
+    const entities = await this.entityRepository.fetch(ORGANIZATION.uid)
 
-    const entities = await this.getEntities()
-
-    console.log('####', entities)
-
-    const regoUsers: Record<string, User> = R.indexBy(users, (u) => u.uid)
-    const regoWallets = R.indexBy(wallets, (w) => w.uid)
-    const regoAddressBook = R.indexBy(addressBook, (a) => a.uid)
-    const regoTokens = R.indexBy(tokens, (t) => t.uid)
-
-    // Add the assignees into the regoWallets
-    userWallets.forEach((uw) => {
-      if (regoWallets[uw.walletId]) {
-        if (!regoWallets[uw.walletId].assignees) regoWallets[uw.walletId].assignees = []
-        regoWallets[uw.walletId].assignees?.push(uw.userId)
-      }
-    })
-
-    const regoUserGroups = userGroups.reduce((acc, ug) => {
-      if (!acc[ug.userGroupId]) {
-        acc[ug.userGroupId] = {
-          uid: ug.userGroupId,
-          users: []
-        }
-      }
-
-      acc[ug.userGroupId].users.push(ug.userId)
-
-      return acc
-    }, {} as Record<string, UserGroup>)
-
-    const regoWalletGroups = walletGroups.reduce((acc, ug) => {
-      if (!acc[ug.walletGroupId]) {
-        acc[ug.walletGroupId] = {
-          uid: ug.walletGroupId,
-          wallets: []
-        }
-      }
-
-      acc[ug.walletGroupId].wallets.push(ug.walletId)
-
-      return acc
-    }, {} as Record<string, WalletGroup>)
-
-    const mockData = await this.adminRepository.getEntityData()
-
-    const regoData: RegoData = {
+    const data: RegoData = {
       entities: {
-        users: regoUsers,
-        wallets: regoWallets,
-        userGroups: regoUserGroups,
-        walletGroups: regoWalletGroups,
-        addressBook: regoAddressBook,
-        tokens: regoTokens
+        addressBook: indexBy('uid', entities.addressBook),
+        users: indexBy('uid', entities.users),
+        userGroups: indexBy('uid', entities.userGroups),
+        wallets: indexBy('uid', entities.wallets),
+        walletGroups: indexBy('uid', entities.walletGroups),
+        tokens: indexBy('uid', entities.tokens)
       }
     }
-    this.logger.log('Fetched OPA Engine data', regoData)
 
-    return mockData
+    this.logger.log('Fetched OPA Engine data', data)
+
+    return data
   }
 
   async reloadEntityData() {

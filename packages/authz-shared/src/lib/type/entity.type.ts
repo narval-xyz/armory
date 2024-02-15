@@ -1,4 +1,4 @@
-import { AccountClassification, AccountType, Address, UserRole } from './action.type'
+import { AccountClassification, AccountType, Address, AuthCredential, UserRole } from './action.type'
 
 export type OrganizationEntity = {
   uid: string
@@ -49,10 +49,10 @@ export type TokenEntity = {
 
 export type Entities = {
   addressBook: AddressBookAccountEntity[]
-  users: UserEntity[]
-  userWallets: UserWalletEntity[]
-  userGroups: UserGroupEntity[]
-  wallets: WalletEntity[]
-  walletGroups: WalletGroupEntity[]
+  credentials: AuthCredential[]
   tokens: TokenEntity[]
+  userGroups: UserGroupEntity[]
+  users: UserEntity[]
+  walletGroups: WalletGroupEntity[]
+  wallets: WalletEntity[]
 }

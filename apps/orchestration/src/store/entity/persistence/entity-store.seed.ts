@@ -3,7 +3,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import { Seeder } from '../../../shared/module/persistence/persistence.type'
-import { EntityService } from '../core/service/entity.service'
 import { AddressBookRepository } from './repository/address-book.repository'
 import { CredentialRepository } from './repository/credential.repository'
 import { TokenRepository } from './repository/token.repository'
@@ -25,8 +24,7 @@ export class EntityStoreSeed implements Seeder {
     private userRepository: UserRepository,
     private userWalletRepository: UserWalletRepository,
     private walletGroupRepository: WalletGroupRepository,
-    private walletRepository: WalletRepository,
-    private entityService: EntityService
+    private walletRepository: WalletRepository
   ) {}
 
   async germinate(): Promise<void> {
@@ -70,7 +68,5 @@ export class EntityStoreSeed implements Seeder {
     await Promise.all(FIXTURE.ADDRESS_BOOK.map((entity) => this.addressBookRepository.create(ORGANIZATION.uid, entity)))
 
     await this.tokenRepository.create(ORGANIZATION.uid, Object.values(FIXTURE.TOKEN))
-
-    this.logger.log('Entities seeded', await this.entityService.getEntities(ORGANIZATION.uid))
   }
 }

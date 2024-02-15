@@ -1,8 +1,9 @@
-import { Account, sha256 } from 'viem'
+import { PrivateKeyAccount, sha256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { AccountClassification, AccountType, Alg, AuthCredential, UserRole } from './type/action.type'
 import {
   AddressBookAccountEntity,
+  Entities,
   OrganizationEntity,
   TokenEntity,
   UserEntity,
@@ -28,7 +29,7 @@ export const UNSAFE_PRIVATE_KEY: Record<Persona, `0x${string}`> = {
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
 }
 
-export const ACCOUNT: Record<Persona, Account> = {
+export const ACCOUNT: Record<Persona, PrivateKeyAccount> = {
   Root: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Root),
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
@@ -194,4 +195,14 @@ export const TOKEN: Record<string, TokenEntity> = {
     symbol: 'USDC',
     decimals: 6
   }
+}
+
+export const ENTITIES: Entities = {
+  addressBook: ADDRESS_BOOK,
+  credentials: Object.values(CREDENTIAL),
+  tokens: Object.values(TOKEN),
+  userGroups: Object.values(USER_GROUP),
+  users: Object.values(USER),
+  walletGroups: Object.values(WALLET_GROUP),
+  wallets: Object.values(WALLET)
 }

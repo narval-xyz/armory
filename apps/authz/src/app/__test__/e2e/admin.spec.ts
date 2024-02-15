@@ -1,9 +1,10 @@
-import { Action, Alg, EntityType, Signature, UserRole, ValueOperators } from '@narval/authz-shared'
+import { Action, Alg, EntityType, FIXTURE, Signature, UserRole, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { readFileSync, unlinkSync } from 'fs'
+import { mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
@@ -11,6 +12,7 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { Organization } from '../../../shared/types/entities.types'
 import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type'
 import { load } from '../../app.config'
+import { EntityRepository } from '../../persistence/repository/entity.repository'
 
 const REQUEST_HEADER_ORG_ID = 'x-org-id'
 describe('Admin Endpoints', () => {
@@ -43,6 +45,9 @@ describe('Admin Endpoints', () => {
   }
 
   beforeAll(async () => {
+    const entityRepositoryMock = mock<EntityRepository>()
+    entityRepositoryMock.fetch.mockResolvedValue(FIXTURE.ENTITIES)
+
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -52,9 +57,13 @@ describe('Admin Endpoints', () => {
         PersistenceModule,
         AppModule
       ]
-    }).compile()
+    })
+      .overrideProvider(EntityRepository)
+      .useValue(entityRepositoryMock)
+      .compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+
     app = module.createNestApplication()
 
     await app.init()
