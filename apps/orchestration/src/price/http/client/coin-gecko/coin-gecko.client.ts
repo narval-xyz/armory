@@ -83,7 +83,7 @@ export class CoinGeckoClient {
           new CoinGeckoException({
             message: 'Request to CoinGecko failed',
             suggestedHttpStatusCode: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-            originalError: error,
+            origin: error,
             context: {
               cause: error.cause,
               request: redactedRequest,
@@ -102,7 +102,7 @@ export class CoinGeckoClient {
         new CoinGeckoException({
           message: 'Unknown CoinGecko client error',
           suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          originalError: error,
+          origin: error,
           context: {
             request: redactedRequest
           }

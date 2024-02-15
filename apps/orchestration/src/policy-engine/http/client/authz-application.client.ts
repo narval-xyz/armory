@@ -4,6 +4,8 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
+export class AuthzApplicationClientException extends ApplicationException {}
+
 @Injectable()
 export class AuthzApplicationClient {
   private logger = new Logger(AuthzApplicationClient.name)
@@ -17,6 +19,7 @@ export class AuthzApplicationClient {
       this.httpService.post(`${option.host}/evaluation`, option.data).pipe(
         tap((response) => {
           this.logger.log('Received evaluation response', {
+            host: option.host,
             status: response.status,
             headers: response.headers,
             response: response.data
@@ -24,12 +27,11 @@ export class AuthzApplicationClient {
         }),
         map((response) => response.data),
         catchError((error) => {
-          throw new ApplicationException({
+          throw new AuthzApplicationClientException({
             message: 'Evaluation request failed',
             suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-            context: {
-              sourceError: error
-            }
+            origin: error,
+            context: option
           })
         })
       )

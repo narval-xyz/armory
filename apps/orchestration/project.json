@@ -15,7 +15,12 @@
         "main": "apps/orchestration/src/main.ts",
         "tsConfig": "apps/orchestration/tsconfig.app.json",
         "isolatedConfig": true,
-        "webpackConfig": "apps/orchestration/webpack.config.js"
+        "webpackConfig": "apps/orchestration/webpack.config.js",
+        "transformers": [
+          {
+            "name": "@nestjs/swagger/plugin"
+          }
+        ]
       },
       "configurations": {
         "repl": {

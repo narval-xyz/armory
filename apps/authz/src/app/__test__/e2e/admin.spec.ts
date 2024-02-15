@@ -1,26 +1,18 @@
-import {
-  AccountClassification,
-  AccountType,
-  Action,
-  Alg,
-  EntityType,
-  Signature,
-  UserRole,
-  ValueOperators
-} from '@narval/authz-shared'
+import { Action, Alg, EntityType, FIXTURE, Signature, UserRole, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { readFileSync, unlinkSync } from 'fs'
+import { mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
-import { AAUser, AAUser_Credential_1 } from '../../../app/persistence/repository/mock_data'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { Organization } from '../../../shared/types/entities.types'
 import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type'
 import { load } from '../../app.config'
+import { EntityRepository } from '../../persistence/repository/entity.repository'
 
 const REQUEST_HEADER_ORG_ID = 'x-org-id'
 describe('Admin Endpoints', () => {
@@ -53,6 +45,9 @@ describe('Admin Endpoints', () => {
   }
 
   beforeAll(async () => {
+    const entityRepositoryMock = mock<EntityRepository>()
+    entityRepositoryMock.fetch.mockResolvedValue(FIXTURE.ENTITIES)
+
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -62,9 +57,13 @@ describe('Admin Endpoints', () => {
         PersistenceModule,
         AppModule
       ]
-    }).compile()
+    })
+      .overrideProvider(EntityRepository)
+      .useValue(entityRepositoryMock)
+      .compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+
     app = module.createNestApplication()
 
     await app.init()
@@ -82,371 +81,6 @@ describe('Admin Endpoints', () => {
 
   afterEach(async () => {
     await testPrismaService.truncateAll()
-  })
-
-  describe('POST /admin/organizations', () => {
-    it('creates a new organization', async () => {
-      // Clear the db since we create an org in beforeEach
-      await testPrismaService.truncateAll()
-
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          action: Action.CREATE_ORGANIZATION,
-          nonce: 'random-nonce-111',
-          organization: {
-            uid: org.uid,
-            credential: AAUser_Credential_1
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/organizations')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(status).toEqual(HttpStatus.CREATED)
-      expect(body).toMatchObject({ organization: org })
-    })
-  })
-
-  describe('POST /admin/users', () => {
-    it('creates a new user & credential', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          action: Action.CREATE_USER,
-          nonce: 'random-nonce-111',
-          user: {
-            ...AAUser,
-            credential: AAUser_Credential_1
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/users')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        user: AAUser
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-
-    it('creates a new user without credential', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          action: Action.CREATE_USER,
-          nonce: 'random-nonce-111',
-          user: AAUser
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/users')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        user: AAUser
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-
-    it('errors on duplicate', async () => {
-      expect.assertions(3)
-
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          action: Action.CREATE_USER,
-          nonce: 'random-nonce-111',
-          user: AAUser
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/users')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      // Repeat it
-      const { status: duplicateStatus } = await request(app.getHttpServer())
-        .post('/admin/users')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({ user: AAUser })
-      expect(status).toEqual(HttpStatus.CREATED)
-      expect(duplicateStatus).toEqual(HttpStatus.INTERNAL_SERVER_ERROR)
-    })
-  })
-
-  describe('PATCH /admin/users/:uid', () => {
-    it('updates a user', async () => {
-      // First, insert the user who is an ADMIN
-      await testPrismaService.getClient().user.create({
-        data: {
-          ...AAUser,
-          role: UserRole.ADMIN
-        }
-      })
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          action: Action.UPDATE_USER,
-          nonce: 'random-nonce-111',
-          user: {
-            ...AAUser,
-            role: UserRole.MEMBER
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .patch(`/admin/users/${AAUser.uid}`)
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        user: {
-          ...AAUser,
-          role: UserRole.MEMBER
-        }
-      })
-      expect(status).toEqual(HttpStatus.OK)
-    })
-  })
-
-  describe('POST /admin/credentials', () => {
-    it(`creates a new credential`, async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.CREATE_CREDENTIAL,
-          credential: AAUser_Credential_1
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/credentials')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        credential: AAUser_Credential_1
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /user-groups', () => {
-    it('creates a new user group', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.ASSIGN_USER_GROUP,
-          data: {
-            userId: AAUser.uid,
-            groupId: 'test-user-group-uid'
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/user-groups')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        data: {
-          userId: AAUser.uid,
-          groupId: 'test-user-group-uid'
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /wallets', () => {
-    it('creates a new wallet', async () => {
-      // TODO: This data _should_ fail a test later once we add validations.
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.REGISTER_WALLET,
-          wallet: {
-            uid: 'test-wallet-uid',
-            address: '0x1234',
-            accountType: AccountType.EOA,
-            chainId: 1
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/wallets')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        wallet: {
-          uid: 'test-wallet-uid',
-          address: '0x1234',
-          accountType: AccountType.EOA,
-          chainId: 1
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /wallet-groups', () => {
-    it('creates a new wallet group', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.ASSIGN_WALLET_GROUP,
-          data: {
-            walletId: 'test-wallet-uid',
-            groupId: 'test-wallet-group-uid'
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/wallet-groups')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        data: {
-          walletId: 'test-wallet-uid',
-          groupId: 'test-wallet-group-uid'
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /user-wallets', () => {
-    it('creates a new user wallet', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.ASSIGN_USER_WALLET,
-          data: {
-            userId: AAUser.uid,
-            walletId: 'test-wallet-uid'
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/user-wallets')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        data: {
-          userId: AAUser.uid,
-          walletId: 'test-wallet-uid'
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /address-book', () => {
-    it('creates a new address book entry', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce-111',
-          action: Action.CREATE_ADDRESS_BOOK_ACCOUNT,
-          account: {
-            uid: 'test-address-book-uid',
-            address: '0x1234',
-            chainId: 1,
-            classification: AccountClassification.INTERNAL
-          }
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/address-book')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        account: {
-          uid: 'test-address-book-uid',
-          address: '0x1234',
-          chainId: 1,
-          classification: AccountClassification.INTERNAL
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-
-  describe('POST /tokens', () => {
-    it('registers new tokens', async () => {
-      const payload = {
-        authentication,
-        approvals,
-        request: {
-          nonce: 'random-nonce',
-          action: Action.REGISTER_TOKENS,
-          tokens: [
-            {
-              uid: 'test-token-uid',
-              address: '0x1234',
-              chainId: 1,
-              symbol: 'TT',
-              decimals: 18
-            },
-            {
-              uid: 'test-token-uid-2',
-              address: '0x1234',
-              chainId: 137,
-              symbol: 'TT2',
-              decimals: 6
-            }
-          ]
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/admin/tokens')
-        .set(REQUEST_HEADER_ORG_ID, org.uid)
-        .send(payload)
-
-      expect(body).toMatchObject({
-        tokens: payload.request.tokens
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
   })
 
   describe('POST /policies', () => {

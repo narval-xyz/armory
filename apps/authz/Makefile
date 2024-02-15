@@ -52,7 +52,6 @@ authz/db/setup:
 		prisma migrate reset \
 			--schema ${AUTHZ_DATABASE_SCHEMA} \
 			--force
-	make authz/db/seed
 
 	@echo ""
 	@echo "${TERM_GREEN}🛠️  Setting up Authz test database${TERM_NO_COLOR}"
@@ -65,22 +64,7 @@ authz/db/create-migration:
 			--schema ${AUTHZ_DATABASE_SCHEMA} \
 			--name ${NAME}
 
-# To maintain seed data within their respective modules and then import them
-# into the main seed.ts file for execution, it's necessary to compile the
-# project and resolve its path aliases before running the vanilla JavaScript
-# seed entry point.
-authz/db/seed:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register --project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/shared/module/persistence/seed.ts
-
 # === Testing ===
-
-authz/test/db/setup:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env.test --override -- \
-		prisma migrate reset \
-		--schema ${AUTHZ_DATABASE_SCHEMA} \
-		--skip-seed \
-		--force
 
 authz/test/type:
 	make authz/db/generate-types
@@ -105,6 +89,11 @@ authz/test/e2e:
 
 authz/test/e2e/watch:
 	make authz/test/e2e ARGS=--watch
+
+authz/test:
+	make authz/test/unit
+	make authz/test/integration
+	make authz/test/e2e
 
 # === Open Policy Agent & Rego ===
 

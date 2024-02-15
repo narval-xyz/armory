@@ -14,6 +14,7 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.module'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
 import { ClusterService } from './core/service/cluster.service'
+import { AuthorizationRequestGateway } from './gateway/authorization-request.gateway'
 import { AuthzApplicationClient } from './http/client/authz-application.client'
 import { AuthorizationRequestController } from './http/rest/controller/authorization-request.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
@@ -46,6 +47,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     AuthorizationRequestRepository,
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer,
+    AuthorizationRequestGateway,
     AuthzApplicationClient,
     ClusterService,
     {
@@ -64,6 +66,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
       provide: APP_PIPE,
       useClass: ValidationPipe
     }
-  ]
+  ],
+  exports: [AuthorizationRequestGateway]
 })
 export class PolicyEngineModule {}

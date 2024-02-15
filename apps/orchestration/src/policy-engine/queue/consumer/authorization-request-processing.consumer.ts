@@ -7,7 +7,7 @@ import {
 } from '../../../orchestration.constant'
 import { AuthorizationRequestAlreadyProcessingException } from '../../core/exception/authorization-request-already-processing.exception'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '../../core/exception/evaluation-consensus.exception'
+import { ConsensusAgreementNotReachException } from '../../core/exception/consensus-agreement-not-reach.exception'
 import { InvalidAttestationSignatureException } from '../../core/exception/invalid-attestation-signature.exception'
 import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestService } from '../../core/service/authorization-request.service'
@@ -32,7 +32,7 @@ export class AuthorizationRequestProcessingConsumer {
       // Short-circuits the retry mechanism on unrecoverable domain errors.
       //
       // IMPORTANT: To stop retrying a job in Bull, the process must return an
-      // error instance.
+      // error instance. If the process throws, it'll automaticaly retry.
       if (this.isUnrecoverableError(error)) {
         return error
       }
@@ -44,7 +44,7 @@ export class AuthorizationRequestProcessingConsumer {
   private isUnrecoverableError(error: Error): boolean {
     switch (error.constructor) {
       case ClusterNotFoundException:
-      case EvaluationConsensusException:
+      case ConsensusAgreementNotReachException:
       case UnreachableClusterException:
       case InvalidAttestationSignatureException:
       case AuthorizationRequestAlreadyProcessingException:

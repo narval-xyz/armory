@@ -11,14 +11,20 @@ import {
   hashRequest
 } from '@narval/authz-shared'
 import { safeDecode } from '@narval/transaction-request-intent'
-import { Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnprocessableEntityException
+} from '@nestjs/common'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { AdminRepository } from '../app/persistence/repository/admin.repository'
 import { OpaResult, RegoInput } from '../shared/types/domain.type'
 import { OpaService } from './opa/opa.service'
+import { EntityRepository } from './persistence/repository/entity.repository'
 
 const ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -62,11 +68,16 @@ export const finalizeDecision = (response: OpaResult[]) => {
 
 @Injectable()
 export class AppService {
-  constructor(private adminRepository: AdminRepository, private opaService: OpaService) {}
+  constructor(private opaService: OpaService, private entityRepository: EntityRepository) {}
 
   async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<AuthCredential> {
     const { pubKey, alg, sig } = requestSignature
-    const credential = await this.adminRepository.getCredentialForPubKey(pubKey)
+    const credential = this.entityRepository.getCredentialForPubKey(pubKey)
+
+    if (!credential) {
+      throw new NotFoundException('Credential not found')
+    }
+
     if (alg === Alg.ES256K) {
       // TODO: ensure sig & pubkey begins with 0x
       const signature = sig.startsWith('0x') ? sig : `0x${sig}`
@@ -82,10 +93,9 @@ export class AppService {
           sig
         })
 
-        throw new Error('Invalid Signature')
+        throw new BadRequestException('Invalid signature')
       }
     }
-    // TODO: verify other alg types
 
     return credential
   }
@@ -133,7 +143,7 @@ export class AppService {
       }
     }
 
-    throw new Error(`Unsupported action ${request.action}`)
+    throw new InternalServerErrorException(`Unsupported action ${request.action}`)
   }
 
   /**
@@ -165,7 +175,7 @@ export class AppService {
         : undefined
 
     if (intentResult?.success === false) {
-      throw new Error(`Could not decode intent: ${intentResult.error.message}`)
+      throw new UnprocessableEntityException(`Could not decode intent: ${intentResult.error.message}`)
     }
 
     const intent = intentResult?.intent

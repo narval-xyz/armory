@@ -1,4 +1,4 @@
-import { Action, EntityType, ValueOperators } from '@narval/authz-shared'
+import { Action, EntityType, FIXTURE, UserRole, ValueOperators } from '@narval/authz-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 
@@ -20,11 +20,11 @@ export const examplePermitPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_PRINCIPAL_ID,
-      args: ['matt@narval.xyz']
+      args: [FIXTURE.USER.Alice.role]
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+      args: [FIXTURE.WALLET.engineering1.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,
@@ -36,7 +36,11 @@ export const examplePermitPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_INTENT_AMOUNT,
-      args: { currency: '*', operator: ValueOperators.LESS_THAN_OR_EQUAL, value: '1000000000000000000' }
+      args: {
+        currency: '*',
+        operator: ValueOperators.LESS_THAN_OR_EQUAL,
+        value: '1000000000000000000'
+      }
     },
     {
       criterion: Criterion.CHECK_APPROVALS,
@@ -45,13 +49,13 @@ export const examplePermitPolicy: Policy = {
           approvalCount: 2,
           countPrincipal: false,
           approvalEntityType: EntityType.User,
-          entityIds: ['aa@narval.xyz', 'bb@narval.xyz']
+          entityIds: [FIXTURE.USER.Bob.uid, FIXTURE.USER.Carol.uid]
         },
         {
           approvalCount: 1,
           countPrincipal: false,
           approvalEntityType: EntityType.UserRole,
-          entityIds: ['admin']
+          entityIds: [UserRole.ADMIN]
         }
       ]
     }
@@ -76,11 +80,11 @@ export const exampleForbidPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_PRINCIPAL_ID,
-      args: ['matt@narval.xyz']
+      args: [FIXTURE.USER.Alice.uid]
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: ['eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b']
+      args: [FIXTURE.WALLET.engineering1.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,
@@ -140,7 +144,7 @@ export const permitMetaPermission: Policy = {
     },
     {
       criterion: Criterion.CHECK_PRINCIPAL_ROLE,
-      args: ['admin']
+      args: [UserRole.ADMIN]
     },
     {
       criterion: Criterion.CHECK_APPROVALS,
@@ -149,7 +153,7 @@ export const permitMetaPermission: Policy = {
           approvalCount: 2,
           countPrincipal: false,
           approvalEntityType: EntityType.UserRole,
-          entityIds: ['admin', 'root']
+          entityIds: [UserRole.ADMIN, UserRole.ROOT]
         }
       ]
     }
@@ -166,7 +170,7 @@ export const forbidMetaPermission: Policy = {
     },
     {
       criterion: Criterion.CHECK_PRINCIPAL_ROLE,
-      args: ['admin']
+      args: [UserRole.ADMIN]
     }
   ],
   then: Then.FORBID

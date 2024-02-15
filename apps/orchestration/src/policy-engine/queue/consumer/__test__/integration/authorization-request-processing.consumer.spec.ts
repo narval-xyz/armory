@@ -19,7 +19,7 @@ import { QueueModule } from '../../../../../shared/module/queue/queue.module'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { ClusterNotFoundException } from '../../../../core/exception/cluster-not-found.exception'
-import { EvaluationConsensusException } from '../../../../core/exception/evaluation-consensus.exception'
+import { ConsensusAgreementNotReachException } from '../../../../core/exception/consensus-agreement-not-reach.exception'
 import { InvalidAttestationSignatureException } from '../../../../core/exception/invalid-attestation-signature.exception'
 import { UnreachableClusterException } from '../../../../core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
@@ -174,7 +174,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
       it('stops retrying on known unrecoverable errors', async () => {
         const unrecoverableErrors = [
           new ClusterNotFoundException(authzRequest.orgId),
-          new EvaluationConsensusException([], []),
+          new ConsensusAgreementNotReachException([], []),
           new UnreachableClusterException(mock<Cluster>()),
           new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey'),
           new AuthorizationRequestAlreadyProcessingException(authzRequest)

@@ -7,12 +7,13 @@ import {
   Hex,
   Namespace,
   TransactionRequest,
+  assertHexString,
   isAccountId,
   isAddress,
+  isString,
   toAccountId,
   toAssetId
 } from '@narval/authz-shared'
-import { assertHexString, isString } from 'packages/authz-shared/src/lib/util/typeguards'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {

@@ -1,5 +1,4 @@
-import { Address } from '@narval/authz-shared'
-import { assertAddress, assertHexString } from 'packages/authz-shared/src/lib/util/typeguards'
+import { Address, assertAddress, assertHexString } from '@narval/authz-shared'
 import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
