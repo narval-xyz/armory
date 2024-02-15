@@ -2,6 +2,8 @@ import {
   AccountClassification,
   AccountType,
   AddressBookAccountEntity,
+  Alg,
+  AuthCredential,
   Entities,
   OrganizationEntity,
   TokenEntity,
@@ -17,6 +19,7 @@ import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { map } from 'lodash/fp'
 import request from 'supertest'
+import { sha256 } from 'viem'
 import { load } from '../../../../orchestration.config'
 import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
 import { PolicyEngineModule } from '../../../../policy-engine/policy-engine.module'
@@ -25,6 +28,7 @@ import { TestPrismaService } from '../../../../shared/module/persistence/service
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
 import { EntityStoreModule } from '../../entity-store.module'
 import { AddressBookRepository } from '../../persistence/repository/address-book.repository'
+import { CredentialRepository } from '../../persistence/repository/credential.repository'
 import { OrganizationRepository } from '../../persistence/repository/organization.repository'
 import { TokenRepository } from '../../persistence/repository/token.repository'
 import { UserGroupRepository } from '../../persistence/repository/user-group.repository'
@@ -41,6 +45,7 @@ describe('Entity', () => {
   let testPrismaService: TestPrismaService
 
   let addressBookRepository: AddressBookRepository
+  let credentialRepository: CredentialRepository
   let orgRepository: OrganizationRepository
   let tokenRepository: TokenRepository
   let userGroupRepository: UserGroupRepository
@@ -61,6 +66,15 @@ describe('Entity', () => {
     {
       uid: '70d4128a-4b47-4944-859b-c570c69d3120',
       role: UserRole.ADMIN
+    }
+  ]
+
+  const credentials: AuthCredential[] = [
+    {
+      uid: sha256('0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc'),
+      pubKey: '0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc',
+      alg: Alg.ES256K,
+      userId: users[0].uid
     }
   ]
 
@@ -127,12 +141,19 @@ describe('Entity', () => {
     return entities.sort((a, b) => a.uid.localeCompare(b.uid))
   }
 
-  const getDeterministicEntities = ({ users, wallets, walletGroups, userGroups, addressBook }: Entities): Entities => {
+  const getDeterministicEntities = ({
+    users,
+    wallets,
+    walletGroups,
+    userGroups,
+    addressBook,
+    credentials
+  }: Entities): Entities => {
     return {
       addressBook: sortByUid(addressBook),
-      tokens: [],
+      credentials: sortByUid(credentials),
+      tokens: sortByUid(tokens),
       userGroups: sortByUid(userGroups),
-      userWallets: userWallets.sort((a, b) => a.userId.localeCompare(b.userId)),
       users: sortByUid(users),
       walletGroups: sortByUid(walletGroups),
       wallets: sortByUid(wallets)
@@ -164,6 +185,7 @@ describe('Entity', () => {
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
     addressBookRepository = module.get<AddressBookRepository>(AddressBookRepository)
+    credentialRepository = module.get<CredentialRepository>(CredentialRepository)
     orgRepository = module.get<OrganizationRepository>(OrganizationRepository)
     tokenRepository = module.get<TokenRepository>(TokenRepository)
     userGroupRepository = module.get<UserGroupRepository>(UserGroupRepository)
@@ -194,6 +216,7 @@ describe('Entity', () => {
     await bulkCreate(organization.uid, userGroups, userGroupRepository)
     await bulkCreate(organization.uid, addressBook, addressBookRepository)
     await bulkCreate(organization.uid, userWallets, userWalletRepository)
+    await bulkCreate(organization.uid, credentials, credentialRepository)
   })
 
   afterEach(async () => {
@@ -209,8 +232,8 @@ describe('Entity', () => {
       expect(getDeterministicEntities(body)).toEqual(
         getDeterministicEntities({
           addressBook,
+          credentials,
           userGroups,
-          userWallets,
           users,
           walletGroups,
           wallets,

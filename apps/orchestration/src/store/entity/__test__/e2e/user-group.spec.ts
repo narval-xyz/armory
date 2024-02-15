@@ -112,7 +112,6 @@ describe('User Group Entity', () => {
       })
 
       expect(group).toEqual({
-        orgId: org.id,
         uid: groupId,
         users: [user.uid]
       })

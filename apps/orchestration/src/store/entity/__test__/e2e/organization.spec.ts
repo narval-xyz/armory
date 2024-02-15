@@ -110,14 +110,8 @@ describe('Organization Entity', () => {
       expect(status).toEqual(HttpStatus.CREATED)
 
       expect(actualOrganization).toEqual(organization)
-      expect(actualCredential).toEqual({
-        orgId: organization.uid,
-        ...credential
-      })
-      expect(actualRootUser).toEqual({
-        orgId: organization.uid,
-        ...expectedRootUser
-      })
+      expect(actualCredential).toEqual(credential)
+      expect(actualRootUser).toEqual(expectedRootUser)
     })
   })
 })

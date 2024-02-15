@@ -1,6 +1,7 @@
 import { Alg, AuthCredential } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { AuthCredentialEntity as Model } from '@prisma/client/orchestration'
+import { omit } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 import { decodeConstant } from '../decode.util'
 
@@ -43,6 +44,6 @@ export class CredentialRepository {
   }
 
   private decode(model: Model): AuthCredential {
-    return decodeConstant(model, 'alg', Object.values(Alg))
+    return decodeConstant(omit('orgId', model), 'alg', Object.values(Alg))
   }
 }

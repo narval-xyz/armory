@@ -113,8 +113,8 @@ describe('User Entity', () => {
       expect(status).toEqual(HttpStatus.CREATED)
       expect(body).toEqual({ user })
 
-      expect(actualUser).toEqual({ ...user, orgId: org.id })
-      expect(actualCredential).toEqual({ ...credential, orgId: org.id })
+      expect(actualUser).toEqual(user)
+      expect(actualCredential).toEqual(credential)
     })
 
     it('creates user entity without credential', async () => {
@@ -139,7 +139,7 @@ describe('User Entity', () => {
       expect(status).toEqual(HttpStatus.CREATED)
       expect(body).toEqual({ user })
 
-      expect(actualUser).toEqual({ ...user, orgId: org.id })
+      expect(actualUser).toEqual(user)
       expect(actualCredential).toEqual(null)
     })
 
@@ -191,7 +191,7 @@ describe('User Entity', () => {
         authentication,
         approvals,
         request: {
-          action: Action.CREATE_USER,
+          action: Action.UPDATE_USER,
           nonce,
           user: {
             ...user,

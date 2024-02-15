@@ -17,7 +17,7 @@ import { OrganizationRepository } from '../../persistence/repository/organizatio
 
 const API_RESOURCE_USER_ENTITY = '/store/credentials'
 
-describe('Token Entity', () => {
+describe('Credential Entity', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -98,7 +98,7 @@ describe('Token Entity', () => {
       const actualCredential = await credentialRepository.findById(credential.uid)
 
       expect(body).toEqual({ credential })
-      expect(actualCredential).toEqual({ orgId: organization.uid, ...credential })
+      expect(actualCredential).toEqual(credential)
       expect(status).toEqual(HttpStatus.CREATED)
     })
   })

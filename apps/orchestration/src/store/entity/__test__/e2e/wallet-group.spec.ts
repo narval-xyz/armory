@@ -1,4 +1,4 @@
-import { Action, OrganizationEntity, Signature } from '@narval/authz-shared'
+import { AccountType, Action, OrganizationEntity, Signature, WalletEntity } from '@narval/authz-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -13,6 +13,7 @@ import { QueueModule } from '../../../../shared/module/queue/queue.module'
 import { EntityStoreModule } from '../../entity-store.module'
 import { OrganizationRepository } from '../../persistence/repository/organization.repository'
 import { WalletGroupRepository } from '../../persistence/repository/wallet-group.repository'
+import { WalletRepository } from '../../persistence/repository/wallet.repository'
 
 const API_RESOURCE_USER_ENTITY = '/store/wallet-groups'
 
@@ -22,6 +23,7 @@ describe('Wallet Group Entity', () => {
   let testPrismaService: TestPrismaService
   let orgRepository: OrganizationRepository
   let walletGroupRepository: WalletGroupRepository
+  let walletRepository: WalletRepository
 
   const organization: OrganizationEntity = {
     uid: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc'
@@ -33,7 +35,12 @@ describe('Wallet Group Entity', () => {
 
   const nonce = 'b6d826b4-72cb-4c14-a6ca-235a2d8e9060'
 
-  const walletId = 'c7eac7d1-7572-4756-b52e-0caebe208364'
+  const wallet: WalletEntity = {
+    uid: 'a5c1fd4e-b021-4fad-b5a6-256b434916ef',
+    address: '0x648edbd0e1bd5f15d58481bc7f034a790f9741fe',
+    accountType: AccountType.EOA,
+    chainId: 1
+  }
 
   const groupId = '2a1509ad-ea87-422e-bebd-974547cd4fee'
 
@@ -53,6 +60,7 @@ describe('Wallet Group Entity', () => {
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     orgRepository = module.get<OrganizationRepository>(OrganizationRepository)
+    walletRepository = module.get<WalletRepository>(WalletRepository)
     walletGroupRepository = module.get<WalletGroupRepository>(WalletGroupRepository)
 
     app = module.createNestApplication()
@@ -68,6 +76,7 @@ describe('Wallet Group Entity', () => {
 
   beforeEach(async () => {
     await orgRepository.create(organization.uid)
+    await walletRepository.create(organization.uid, wallet)
   })
 
   afterEach(async () => {
@@ -82,7 +91,10 @@ describe('Wallet Group Entity', () => {
         request: {
           action: Action.ASSIGN_WALLET_GROUP,
           nonce,
-          data: { walletId, groupId }
+          data: {
+            groupId,
+            walletId: wallet.uid
+          }
         }
       }
 
@@ -95,15 +107,15 @@ describe('Wallet Group Entity', () => {
 
       expect(body).toEqual({
         data: {
-          walletId,
-          groupId
+          groupId,
+          walletId: wallet.uid
         }
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
       expect(actualGroup).toEqual({
         uid: groupId,
-        wallets: [walletId]
+        wallets: [wallet.uid]
       })
     })
   })

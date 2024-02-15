@@ -1,4 +1,12 @@
-import { Action, OrganizationEntity, Signature } from '@narval/authz-shared'
+import {
+  AccountType,
+  Action,
+  OrganizationEntity,
+  Signature,
+  UserEntity,
+  UserRole,
+  WalletEntity
+} from '@narval/authz-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -12,6 +20,8 @@ import { TestPrismaService } from '../../../../shared/module/persistence/service
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
 import { EntityStoreModule } from '../../entity-store.module'
 import { OrganizationRepository } from '../../persistence/repository/organization.repository'
+import { UserRepository } from '../../persistence/repository/user.repository'
+import { WalletRepository } from '../../persistence/repository/wallet.repository'
 
 const API_RESOURCE_USER_ENTITY = '/store/user-wallets'
 
@@ -20,6 +30,8 @@ describe('User Wallet Entity', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
   let orgRepository: OrganizationRepository
+  let walletRepository: WalletRepository
+  let userRepository: UserRepository
 
   const organization: OrganizationEntity = {
     uid: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc'
@@ -31,9 +43,17 @@ describe('User Wallet Entity', () => {
 
   const nonce = 'b6d826b4-72cb-4c14-a6ca-235a2d8e9060'
 
-  const walletId = 'c7eac7d1-7572-4756-b52e-0caebe208364'
+  const wallet: WalletEntity = {
+    uid: 'a5c1fd4e-b021-4fad-b5a6-256b434916ef',
+    address: '0x648edbd0e1bd5f15d58481bc7f034a790f9741fe',
+    accountType: AccountType.EOA,
+    chainId: 1
+  }
 
-  const userId = '2a1509ad-ea87-422e-bebd-974547cd4fee'
+  const user: UserEntity = {
+    uid: '2d7a6811-509f-4bee-90fb-e382fc127de5',
+    role: UserRole.ADMIN
+  }
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -49,8 +69,10 @@ describe('User Wallet Entity', () => {
       ]
     }).compile()
 
-    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     orgRepository = module.get<OrganizationRepository>(OrganizationRepository)
+    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+    userRepository = module.get<UserRepository>(UserRepository)
+    walletRepository = module.get<WalletRepository>(WalletRepository)
 
     app = module.createNestApplication()
 
@@ -65,6 +87,8 @@ describe('User Wallet Entity', () => {
 
   beforeEach(async () => {
     await orgRepository.create(organization.uid)
+    await walletRepository.create(organization.uid, wallet)
+    await userRepository.create(organization.uid, user)
   })
 
   afterEach(async () => {
@@ -79,7 +103,10 @@ describe('User Wallet Entity', () => {
         request: {
           nonce,
           action: Action.ASSIGN_USER_WALLET,
-          data: { userId, walletId }
+          data: {
+            userId: user.uid,
+            walletId: wallet.uid
+          }
         }
       }
 
@@ -90,8 +117,8 @@ describe('User Wallet Entity', () => {
 
       expect(body).toEqual({
         data: {
-          walletId,
-          userId
+          userId: user.uid,
+          walletId: wallet.uid
         }
       })
       expect(status).toEqual(HttpStatus.CREATED)
