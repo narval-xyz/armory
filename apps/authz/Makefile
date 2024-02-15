@@ -135,3 +135,8 @@ authz/rego/test:
 
 authz/rego/test/watch:
 	make authz/rego/test ARGS=--watch
+
+translator:
+	npx ts-node \
+		--compiler-options "{\"module\":\"CommonJS\"}" \
+		${AUTHZ_PROJECT_DIR}/src/opa/template/translator.ts

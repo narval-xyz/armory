@@ -51,7 +51,6 @@ export const Criterion = {
   CHECK_WALLET_ID: 'checkWalletId',
   CHECK_WALLET_ADDRESS: 'checkWalletAddress',
   CHECK_WALLET_ACCOUNT_TYPE: 'checkWalletAccountType',
-  CHECK_WALLET_CHAIN_ID: 'checkWalletChainId',
   CHECK_WALLET_GROUP: 'checkWalletGroup',
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_DESTINATION_ID: 'checkDestinationId',
@@ -72,6 +71,7 @@ export const Criterion = {
   CHECK_INTENT_ALGORITHM: 'checkIntentAlgorithm',
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
   CHECK_PERMIT_DEADLINE: 'checkPermitDeadline',
+  CHECK_CHAIN_ID: 'checkChainId',
   CHECK_GAS_FEE_AMOUNT: 'checkGasFeeAmount',
   CHECK_NONCE_EXISTS: 'checkNonceExists',
   CHECK_NONCE_NOT_EXISTS: 'checkNonceNotExists',
@@ -313,11 +313,12 @@ export class WalletAccountTypeCriterion extends BaseCriterion {
   args: AccountType[]
 }
 
-export class WalletChainIdCriterion extends BaseCriterion {
-  @Matches(Criterion.CHECK_WALLET_CHAIN_ID)
-  criterion: typeof Criterion.CHECK_WALLET_CHAIN_ID
+export class ChainIdCriterion extends BaseCriterion {
+  @Matches(Criterion.CHECK_CHAIN_ID)
+  criterion: typeof Criterion.CHECK_CHAIN_ID
 
   @IsNotEmptyArrayString()
+  @IsNumberString({}, { each: true })
   args: string[]
 }
 
@@ -552,7 +553,6 @@ const SUPPORTED_CRITERION = [
   WalletIdCriterion,
   WalletAddressCriterion,
   WalletAccountTypeCriterion,
-  WalletChainIdCriterion,
   WalletGroupCriterion,
   IntentTypeCriterion,
   DestinationIdCriterion,
@@ -573,6 +573,7 @@ const SUPPORTED_CRITERION = [
   IntentAlgorithmCriterion,
   IntentDomainCriterion,
   PermitDeadlineCriterion,
+  ChainIdCriterion,
   GasFeeAmountCriterion,
   NonceRequiredCriterion,
   NonceNotRequiredCriterion,
@@ -589,7 +590,6 @@ export type PolicyCriterion =
   | WalletIdCriterion
   | WalletAddressCriterion
   | WalletAccountTypeCriterion
-  | WalletChainIdCriterion
   | WalletGroupCriterion
   | IntentTypeCriterion
   | DestinationIdCriterion
@@ -610,6 +610,7 @@ export type PolicyCriterion =
   | IntentAlgorithmCriterion
   | IntentDomainCriterion
   | PermitDeadlineCriterion
+  | ChainIdCriterion
   | GasFeeAmountCriterion
   | NonceRequiredCriterion
   | NonceNotRequiredCriterion
@@ -660,8 +661,6 @@ const instantiateCriterion = (criterion: PolicyCriterion) => {
       return plainToInstance(WalletAddressCriterion, criterion)
     case Criterion.CHECK_WALLET_ACCOUNT_TYPE:
       return plainToInstance(WalletAccountTypeCriterion, criterion)
-    case Criterion.CHECK_WALLET_CHAIN_ID:
-      return plainToInstance(WalletChainIdCriterion, criterion)
     case Criterion.CHECK_WALLET_GROUP:
       return plainToInstance(WalletGroupCriterion, criterion)
     case Criterion.CHECK_INTENT_TYPE:
@@ -702,6 +701,8 @@ const instantiateCriterion = (criterion: PolicyCriterion) => {
       return plainToInstance(IntentDomainCriterion, criterion)
     case Criterion.CHECK_PERMIT_DEADLINE:
       return plainToInstance(PermitDeadlineCriterion, criterion)
+    case Criterion.CHECK_CHAIN_ID:
+      return plainToInstance(ChainIdCriterion, criterion)
     case Criterion.CHECK_GAS_FEE_AMOUNT:
       return plainToInstance(GasFeeAmountCriterion, criterion)
     case Criterion.CHECK_NONCE_EXISTS:
