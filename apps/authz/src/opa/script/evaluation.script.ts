@@ -1,8 +1,8 @@
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
-import policyData from './data.json'
-import policyInput from './input.json'
+import policyData from '../rego/data.json'
+import policyInput from '../rego/input.json'
 
 const OPA_WASM_PATH = readFileSync(path.join(process.cwd(), './rego-build/policy.wasm'))
 
