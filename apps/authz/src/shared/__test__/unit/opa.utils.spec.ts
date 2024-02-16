@@ -68,7 +68,24 @@ describe('criterionToString', () => {
 })
 
 describe('reasonToString', () => {
-  it('returns reason for PERMIT rules', () => {
+  it('returns reason with approvals for PERMIT rules', () => {
+    const item = {
+      id: '12345',
+      then: Then.PERMIT,
+      name: 'policyName',
+      when: [
+        {
+          criterion: Criterion.CHECK_APPROVALS,
+          args: [{ approvalCount: 2, countPrincipal: false, approvalEntityType: EntityType.User, entityIds: [] }]
+        }
+      ]
+    }
+    expect(reasonToString(item)).toEqual(
+      'reason = {"type":"permit","policyId":"12345","policyName":"policyName","approvalsSatisfied":approvals.approvalsSatisfied,"approvalsMissing":approvals.approvalsMissing}'
+    )
+  })
+
+  it('returns reason without approvals for PERMIT rules', () => {
     const item = {
       id: '12345',
       then: Then.PERMIT,
@@ -76,7 +93,7 @@ describe('reasonToString', () => {
       when: []
     }
     expect(reasonToString(item)).toEqual(
-      'reason = {"type":"permit","policyId":"12345","policyName":"policyName","approvalsSatisfied":approvals.approvalsSatisfied,"approvalsMissing":approvals.approvalsMissing}'
+      'reason = {"type":"permit","policyId":"12345","policyName":"policyName","approvalsSatisfied":[],"approvalsMissing":[]}'
     )
   })
 

@@ -11,7 +11,7 @@ authz/start/dev:
 
 authz/setup:
 	make authz/copy-default-env
-	make authz/rego/compile
+	make authz/rego/build
 
 authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env
@@ -90,3 +90,8 @@ authz/rego/test:
 
 authz/rego/test/watch:
 	make authz/rego/test ARGS=--watch
+
+authz/rego/translate-legacy-policy:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/template/translate-legacy-policy.script.ts
