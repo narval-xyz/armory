@@ -1,6 +1,5 @@
 import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/authz-shared'
 import axios from 'axios'
-import { omit } from 'lodash'
 import { Address, Hex } from 'viem'
 import {
   ApprovalCondition,
@@ -307,11 +306,11 @@ const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
   return res
 }
 
-const sendTranslatingRequest = async (data: { policies: OldPolicy[] }) => {
+export const sendTranslatingRequest = async (policies: OldPolicy[]) => {
   try {
-    console.log(data.policies.length)
-
-    const res = await axios.post('http://localhost:3010/admin/policies', {
+    console.log(`Number of policies to translate: ${policies.length}.`)
+    console.log('Translation in progress...')
+    await axios.post('http://localhost:3010/admin/policies', {
       authentication: {
         sig: '0x746ed2e4bf7311da76bc157c7fe8c0520b6e4c27ab96abf5a8d16fecbaac98b669418b2db9da8e6d3cbd4e1eaff1a9d9e765f0470e9b86c6694145778a8d46f81c',
         alg: 'ES256K',
@@ -332,18 +331,19 @@ const sendTranslatingRequest = async (data: { policies: OldPolicy[] }) => {
       request: {
         action: 'setPolicyRules',
         nonce: 'random-nonce-111',
-        data: data.policies.map((policy) => {
-          const copy: OldPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
-          copy.amount = policy.amount !== null ? `${policy.amount}` : null
-          return translateLegacyPolicy(copy)
-        })
+        data: policies.map(translateLegacyPolicy)
       }
     })
-
-    console.log(res.data)
+    console.log('Translation completed!')
   } catch (err) {
     console.error(err.response.data)
   }
 }
 
-sendTranslatingRequest({ policies: [] as OldPolicy[] })
+// sendTranslatingRequest(
+//   data.policies.map((policy) => {
+//     const copy: OldPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
+//     copy.amount = policy.amount !== null ? `${policy.amount}` : null
+//     return copy
+//   })
+// )
