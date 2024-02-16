@@ -12,8 +12,6 @@ authz/start/dev:
 authz/setup:
 	make authz/copy-default-env
 	make authz/rego/compile
-	make authz/db/setup
-	make authz/test/db/setup
 
 authz/copy-default-env:
 	cp ${AUTHZ_PROJECT_DIR}/.env.default ${AUTHZ_PROJECT_DIR}/.env
@@ -33,41 +31,9 @@ authz/format/check:
 authz/lint/check:
 	npx nx lint ${AUTHZ_PROJECT_NAME}
 
-# === Database ===
-
-authz/db/generate-types:
-	npx prisma generate \
-		--schema ${AUTHZ_DATABASE_SCHEMA}
-
-authz/db/migrate:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		prisma migrate dev \
-			--schema ${AUTHZ_DATABASE_SCHEMA}
-
-authz/db/setup:
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Authz development database${TERM_NO_COLOR}"
-	@echo ""
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		prisma migrate reset \
-			--schema ${AUTHZ_DATABASE_SCHEMA} \
-			--force
-
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Authz test database${TERM_NO_COLOR}"
-	@echo ""
-	make authz/test/db/setup
-
-authz/db/create-migration:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		prisma migrate dev \
-			--schema ${AUTHZ_DATABASE_SCHEMA} \
-			--name ${NAME}
-
 # === Testing ===
 
 authz/test/type:
-	make authz/db/generate-types
 	npx tsc \
 		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json \
 		--noEmit

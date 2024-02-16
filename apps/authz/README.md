@@ -11,8 +11,6 @@ TBD
 ## Getting started
 
 ```bash
-# Boot PostgreSQL and Redis
-make docker/up
 make authz/setup
 ```
 
