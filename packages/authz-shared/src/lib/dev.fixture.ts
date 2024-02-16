@@ -1,13 +1,17 @@
 import { PrivateKeyAccount, sha256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { AccountClassification, AccountType, Alg, AuthCredential, UserRole } from './type/action.type'
+import { Alg } from './type/action.type'
 import {
+  AccountClassification,
+  AccountType,
   AddressBookAccountEntity,
+  CredentialEntity,
   Entities,
   OrganizationEntity,
   TokenEntity,
   UserEntity,
   UserGroupEntity,
+  UserRole,
   WalletEntity,
   WalletGroupEntity
 } from './type/entity.type'
@@ -60,7 +64,7 @@ export const USER: Record<Persona, UserEntity> = {
   }
 }
 
-export const CREDENTIAL: Record<Persona, AuthCredential> = {
+export const CREDENTIAL: Record<Persona, CredentialEntity> = {
   Root: {
     uid: sha256(ACCOUNT.Root.address).toLowerCase(),
     pubKey: ACCOUNT.Root.address,

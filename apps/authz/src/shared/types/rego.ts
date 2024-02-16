@@ -1,7 +1,7 @@
 import {
   Action,
   ApprovalRequirement,
-  AuthCredential,
+  CredentialEntity,
   HistoricalTransfer,
   TransactionRequest
 } from '@narval/authz-shared'
@@ -11,9 +11,9 @@ export type RegoInput = {
   action: Action
   intent?: Intent
   transactionRequest?: TransactionRequest
-  principal: AuthCredential
+  principal: CredentialEntity
   resource?: { uid: string }
-  approvals: AuthCredential[]
+  approvals: CredentialEntity[]
   transfers?: HistoricalTransfer[]
 }
 
