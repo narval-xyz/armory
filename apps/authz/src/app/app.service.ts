@@ -1,7 +1,7 @@
 import {
   Action,
   Alg,
-  AuthCredential,
+  CredentialEntity,
   Decision,
   EvaluationRequest,
   EvaluationResponse,
@@ -70,7 +70,7 @@ export const finalizeDecision = (response: OpaResult[]) => {
 export class AppService {
   constructor(private opaService: OpaService, private entityRepository: EntityRepository) {}
 
-  async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<AuthCredential> {
+  async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<CredentialEntity> {
     const { pubKey, alg, sig } = requestSignature
     const credential = this.entityRepository.getCredentialForPubKey(pubKey)
 
@@ -103,7 +103,7 @@ export class AppService {
   async #populateApprovals(
     approvals: Signature[] | undefined,
     verificationMessage: string
-  ): Promise<AuthCredential[] | null> {
+  ): Promise<CredentialEntity[] | null> {
     if (!approvals) return null
     const approvalSigs = await Promise.all(
       approvals.map(async ({ sig, alg, pubKey }) => {
@@ -121,9 +121,9 @@ export class AppService {
     intent,
     transfers
   }: {
-    principal: AuthCredential
+    principal: CredentialEntity
     request: Request
-    approvals: AuthCredential[] | null
+    approvals: CredentialEntity[] | null
     intent?: Intent
     transfers?: HistoricalTransfer[]
   }): RegoInput {

@@ -1,4 +1,4 @@
-import { AuthCredential, CreateCredentialRequest } from '@narval/authz-shared'
+import { CreateCredentialRequest, CredentialEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { CredentialRepository } from '../../persistence/repository/credential.repository'
 
@@ -6,7 +6,7 @@ import { CredentialRepository } from '../../persistence/repository/credential.re
 export class CredentialService {
   constructor(private credentialRepository: CredentialRepository) {}
 
-  create(orgId: string, request: CreateCredentialRequest): Promise<AuthCredential> {
+  create(orgId: string, request: CreateCredentialRequest): Promise<CredentialEntity> {
     return this.credentialRepository.create(orgId, request.request.credential)
   }
 }

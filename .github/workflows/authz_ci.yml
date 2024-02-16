@@ -40,7 +40,6 @@ jobs:
         shell: bash
         run: |
           make authz/copy-default-env
-          make authz/db/generate-types
 
       - name: Test types
         shell: bash
