@@ -26,13 +26,20 @@ export const criterionToString = (item: PolicyCriterion) => {
 
 export const reasonToString = (item: Policy & { id: string }) => {
   if (item.then === Then.PERMIT) {
+    const approvals = item.when.find((c) => c.criterion === Criterion.CHECK_APPROVALS)
+    const approvalsSatisfied = approvals
+      ? '"approvalsSatisfied":approvals.approvalsSatisfied'
+      : '"approvalsSatisfied":[]'
+    const approvalsMissing = approvals ? '"approvalsMissing":approvals.approvalsMissing' : '"approvalsMissing":[]'
+
     const reason = [
       `"type":"${item.then}"`,
       `"policyId":"${item.id}"`,
       `"policyName":"${item.name}"`,
-      '"approvalsSatisfied":approvals.approvalsSatisfied',
-      '"approvalsMissing":approvals.approvalsMissing'
+      approvalsSatisfied,
+      approvalsMissing
     ]
+
     return `reason = {${reason.join(',')}}`
   }
 

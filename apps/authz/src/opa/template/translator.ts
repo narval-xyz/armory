@@ -1,7 +1,7 @@
-import { EntityType, FiatCurrency, ValueOperators } from '@narval/authz-shared'
+import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/authz-shared'
 import axios from 'axios'
 import { omit } from 'lodash'
-import { Address } from 'viem'
+import { Address, Hex } from 'viem'
 import {
   ApprovalCondition,
   Criterion,
@@ -12,14 +12,39 @@ import {
 } from '../../shared/types/policy.type'
 import data from './policy_rule_202402141519_policy_rules_ngg_prod_v_161.json'
 
-type NewPolicy = Policy & { id: string }
-
 type OldPolicy = { [key: string]: string | null }
 
-const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
-  const result: NewPolicy = {
-    id: oldPolicy.id as string,
-    name: oldPolicy.id as string,
+type NewPolicy = Policy & { id: string }
+
+const translatePolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
+  const {
+    id,
+    result,
+    chain_id,
+    assetType,
+    asset_contract_address: assetAddress,
+    asset_token_id: assetTokenId,
+    destination_account_type,
+    destination_address,
+    signing_type,
+    usd_amount,
+    comparison_operator,
+    domain_version,
+    domain_name,
+    domain_verifying_contract,
+    approval_threshold,
+    approval_user_id,
+    approval_user_role,
+    approval_user_group
+  } = oldPolicy
+
+  if (!id || !result) {
+    return null
+  }
+
+  const res: NewPolicy = {
+    id,
+    name: id,
     when: [
       {
         criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
@@ -30,8 +55,12 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
         args: null
       }
     ],
-    then: ['approve', 'confirm'].includes(oldPolicy.result as string) ? Then.PERMIT : Then.FORBID
+    then: ['approve', 'confirm'].includes(result) ? Then.PERMIT : Then.FORBID
   }
+
+  const chainId = chain_id !== '*' && chain_id !== null ? chain_id : '137'
+
+  const currency = usd_amount ? FiatCurrency.USD : '*'
 
   for (const [key, value] of Object.entries(oldPolicy)) {
     if (value === null || value === undefined || value === '*') {
@@ -39,54 +68,54 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
     }
 
     if (key === 'user_id') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_PRINCIPAL_ID,
         args: [value]
       })
     }
 
     if (key === 'guild_user_role') {
-      const role = ['root', 'admin', 'member', 'manager'].includes(value) ? value : 'member'
+      const role = ['root', 'admin', 'member', 'manager'].includes(value) ? (value as UserRole) : UserRole.MEMBER
 
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_PRINCIPAL_ROLE,
         args: [role]
-      } as PolicyCriterion)
+      })
     }
 
     if (key === 'user_group') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_PRINCIPAL_GROUP,
         args: [value]
       })
     }
 
     if (key === 'chain_id') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_CHAIN_ID,
         args: [value]
       })
     }
 
     if (key === 'source_address') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_WALLET_ADDRESS,
         args: [value]
       })
     }
 
     if (key === 'destination_address') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_DESTINATION_ADDRESS,
         args: [value]
       })
     }
 
     if (key === 'contract_hex_signature') {
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_INTENT_HEX_SIGNATURE,
-        args: [value]
-      } as PolicyCriterion)
+        args: [value as Hex]
+      })
     }
 
     if (key === 'activity_type') {
@@ -99,16 +128,13 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
 
       const when: PolicyCriterion[] = []
 
-      const chainId = oldPolicy.chain_id !== '*' && oldPolicy.chain_id !== null ? oldPolicy.chain_id : '137'
-
       if (value === 'fungibleAssetTransfer') {
         action = 'signTransaction'
-
-        if (oldPolicy.assetType === 'erc20') {
+        if (assetType === 'erc20') {
           intent = 'transferErc20'
-          token = `eip155:${chainId}/${oldPolicy.assetType}:${oldPolicy.asset_contract_address}`
+          token = `eip155:${chainId}/${assetType}:${assetAddress}`
         }
-        if (oldPolicy.assetType === 'native') {
+        if (assetType === 'native') {
           intent = 'transferNative'
           if (chainId === '1') {
             token = `eip155:${chainId}/slip44:60`
@@ -120,50 +146,40 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
       }
       if (value === 'nftAssetTransfer') {
         action = 'signTransaction'
-
-        if (oldPolicy.asset_contract_address !== null && oldPolicy.asset_contract_address !== '*') {
-          contract = `eip155:${chainId}/${oldPolicy.asset_contract_address}`
-          if (
-            oldPolicy.assetType !== null &&
-            oldPolicy.assetType !== '*' &&
-            oldPolicy.asset_token_id !== null &&
-            oldPolicy.asset_token_id !== '*'
-          ) {
-            tokenId = `eip155:${chainId}/${oldPolicy.assetType}:${oldPolicy.asset_contract_address}/${oldPolicy.asset_token_id}`
-          }
-        }
-        if (oldPolicy.assetType === 'erc721') {
+        if (assetType === 'erc721') {
           intent = 'transferErc721'
         }
-        if (oldPolicy.assetType === 'erc1155') {
+        if (assetType === 'erc1155') {
           intent = 'transferERC1155'
+        }
+        if (assetAddress !== null && assetAddress !== '*') {
+          contract = `eip155:${chainId}/${assetAddress}`
+          if (assetType !== null && assetType !== '*' && assetTokenId !== null && assetTokenId !== '*') {
+            tokenId = `eip155:${chainId}/${assetType}:${assetAddress}/${assetTokenId}`
+          }
         }
       }
       if (value === 'contractCall') {
         action = 'signTransaction'
         intent = 'callContract'
-
-        if (oldPolicy.destination_account_type === 'contract' && oldPolicy.destination_address !== '*') {
-          contract = `eip155:${chainId}/${oldPolicy.destination_address}`
+        if (destination_account_type === 'contract' && destination_address !== '*') {
+          contract = `eip155:${chainId}/${destination_address}`
         }
       }
       if (value === 'tokenApproval') {
         action = 'signTransaction'
         intent = 'approveTokenAllowance'
-        token = `eip155:${chainId}/${oldPolicy.assetType || 'erc20'}:${oldPolicy.asset_contract_address}`
-
-        if ((oldPolicy.destination_account_type === 'contract', oldPolicy.destination_address !== '*')) {
-          spender = `eip155:${chainId}/${oldPolicy.destination_address}`
+        token = `eip155:${chainId}/${assetType || 'erc20'}:${assetAddress}`
+        if (destination_account_type === 'contract' && destination_address !== '*') {
+          spender = `eip155:${chainId}/${destination_address}`
         }
       }
       if (value === 'signMessage') {
         action = 'signMessage'
-
-        if (oldPolicy.signing_type === 'personalSign') {
+        if (signing_type === 'personalSign') {
           intent = 'signMessage'
         }
-
-        if (oldPolicy.signing_type === 'signTypedData') {
+        if (signing_type === 'signTypedData') {
           intent = 'signTypedData'
         }
       }
@@ -213,22 +229,21 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
         }
       }
 
-      result.when = result.when.concat(when)
+      res.when = res.when.concat(when)
     }
 
     if (key === 'amount') {
-      const currency = oldPolicy.usd_amount ? FiatCurrency.USD : '*'
-      let operator: ValueOperators = ValueOperators.LESS_THAN
+      let operator = ValueOperators.LESS_THAN
 
-      if (oldPolicy.comparison_operator === '>') {
+      if (comparison_operator === '>') {
         operator = ValueOperators.GREATER_THAN
-      } else if (oldPolicy.comparison_operator === '<') {
+      } else if (comparison_operator === '<') {
         operator = ValueOperators.LESS_THAN
-      } else if (oldPolicy.comparison_operator === '=') {
+      } else if (comparison_operator === '=') {
         operator = ValueOperators.EQUAL
       }
 
-      result.when.push({
+      res.when.push({
         criterion: Criterion.CHECK_INTENT_AMOUNT,
         args: { currency, operator, value: `${value}` }
       })
@@ -237,20 +252,20 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
     if (['domain_version', 'domain_name', 'domain_verifying_contract'].includes(key)) {
       const args: SignTypedDataDomainCondition = {}
 
-      if (oldPolicy.domain_version !== null && oldPolicy.domain_version !== '*') {
-        args['version'] = [oldPolicy.domain_version]
+      if (domain_version !== null && domain_version !== '*') {
+        args['version'] = [domain_version]
       }
 
-      if (oldPolicy.domain_name !== null && oldPolicy.domain_name !== '*') {
-        args['name'] = [oldPolicy.domain_name]
+      if (domain_name !== null && domain_name !== '*') {
+        args['name'] = [domain_name]
       }
 
-      if (oldPolicy.domain_verifying_contract !== null && oldPolicy.domain_verifying_contract !== '*') {
-        args['verifyingContract'] = [oldPolicy.domain_verifying_contract as Address]
+      if (domain_verifying_contract !== null && domain_verifying_contract !== '*') {
+        args['verifyingContract'] = [domain_verifying_contract as Address]
       }
 
       if (Object.keys(args).length > 0) {
-        result.when.push({
+        res.when.push({
           criterion: Criterion.CHECK_INTENT_DOMAIN,
           args
         })
@@ -258,60 +273,39 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy => {
     }
   }
 
-  if (result.then === Then.PERMIT) {
+  if (res.then === Then.PERMIT) {
     const approval: ApprovalCondition = {
-      approvalCount: 2,
+      approvalCount: 1,
       countPrincipal: false,
-      approvalEntityType: EntityType.UserRole,
-      entityIds: ['root', 'admin']
+      approvalEntityType: EntityType.User,
+      entityIds: []
     }
-    if (oldPolicy.approval_threshold !== null && oldPolicy.approval_threshold !== '*') {
-      approval.approvalCount = Number(oldPolicy.approval_threshold)
+
+    if (approval_threshold !== null && approval_threshold !== '*') {
+      approval.approvalCount = Number(approval_threshold)
     }
-    if (oldPolicy.approval_user_id !== null && oldPolicy.approval_user_id !== '*') {
+    if (approval_user_id !== null && approval_user_id !== '*') {
       approval.approvalEntityType = EntityType.User
-      approval.entityIds = [oldPolicy.approval_user_id]
+      approval.entityIds = [approval_user_id]
     }
-    if (oldPolicy.approval_user_role !== null && oldPolicy.approval_user_role !== '*') {
+    if (approval_user_role !== null && approval_user_role !== '*') {
       approval.approvalEntityType = EntityType.UserRole
-      approval.entityIds = [oldPolicy.approval_user_role]
+      approval.entityIds = [approval_user_role]
     }
-    if (oldPolicy.approval_user_group !== null && oldPolicy.approval_user_group !== '*') {
+    if (approval_user_group !== null && approval_user_group !== '*') {
       approval.approvalEntityType = EntityType.UserGroup
-      approval.entityIds = [oldPolicy.approval_user_group]
+      approval.entityIds = [approval_user_group]
     }
-    result.when.push({
-      criterion: Criterion.CHECK_APPROVALS,
-      args: [approval]
-    })
+
+    if (approval.entityIds.length > 0) {
+      res.when.push({
+        criterion: Criterion.CHECK_APPROVALS,
+        args: [approval]
+      })
+    }
   }
 
-  //   if (
-  //     oldPolicy.source_assignee_user_id ||
-  //     oldPolicy.source_assignee_user_role ||
-  //     oldPolicy.source_assignee_user_group
-  //   ) {
-  //     console.log(JSON.stringify(oldPolicy, null, 4))
-  //   }
-
-  //   if (
-  //     oldPolicy.destination_assignee_user_id ||
-  //     oldPolicy.destination_assignee_user_role ||
-  //     oldPolicy.destination_assignee_user_group
-  //   ) {
-  //     console.log(JSON.stringify(oldPolicy, null, 4))
-  //   }
-
-  //   if (oldPolicy.chain_id === '*' || oldPolicy.chain_id === null) {
-  //     if (oldPolicy.destination_address !== null && oldPolicy.destination_address !== '*') {
-  //       console.log(JSON.stringify(oldPolicy, null, 4))
-  //     }
-  //     if (oldPolicy.asset_contract_address !== null && oldPolicy.asset_contract_address !== '*') {
-  //       console.log(JSON.stringify(oldPolicy, null, 4))
-  //     }
-  //   }
-
-  return result
+  return res
 }
 
 const main = async () => {
@@ -341,16 +335,15 @@ const main = async () => {
         nonce: 'random-nonce-111',
         data: data.policies.map((policy) => {
           const copy: OldPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
-          copy.amount = `${policy.amount}`
-          const res = translatePolicy(copy)
-          return res
+          copy.amount = policy.amount !== null ? `${policy.amount}` : null
+          return translatePolicy(copy)
         })
       }
     })
 
     console.log(res.data)
-  } catch (error) {
-    console.error(error.response.data)
+  } catch (err) {
+    console.error(err.response.data)
   }
 }
 
