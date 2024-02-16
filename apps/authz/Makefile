@@ -78,7 +78,13 @@ authz/rego/build:
 authz/rego/eval:
 	npx ts-node \
 		--compiler-options "{\"module\":\"CommonJS\"}" \
-		${AUTHZ_PROJECT_DIR}/src/opa/rego/script.ts
+		${AUTHZ_PROJECT_DIR}/src/opa/script/evaluation.script.ts
+
+authz/rego/translate:
+	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/script/translate-legacy-policy.script.ts
+
 
 authz/rego/test:
 	opa test \
@@ -91,7 +97,3 @@ authz/rego/test:
 authz/rego/test/watch:
 	make authz/rego/test ARGS=--watch
 
-authz/rego/translate-legacy-policy:
-	npx dotenv -e ${AUTHZ_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register \
-		--project ${AUTHZ_PROJECT_DIR}/tsconfig.app.json ${AUTHZ_PROJECT_DIR}/src/opa/template/translate-legacy-policy.script.ts
