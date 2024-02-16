@@ -1,4 +1,4 @@
-import { AuthCredential, Entities } from '@narval/authz-shared'
+import { CredentialEntity, Entities } from '@narval/authz-shared'
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
@@ -31,7 +31,7 @@ export class EntityRepository implements OnApplicationBootstrap {
     )
   }
 
-  getCredentialForPubKey(pubKey: string): AuthCredential | null {
+  getCredentialForPubKey(pubKey: string): CredentialEntity | null {
     if (this.entities) {
       return this.entities.credentials.find((cred) => cred.pubKey === pubKey) || null
     }

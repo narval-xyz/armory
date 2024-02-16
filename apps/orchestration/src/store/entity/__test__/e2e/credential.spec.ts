@@ -1,4 +1,4 @@
-import { Action, Alg, AuthCredential, OrganizationEntity, Signature } from '@narval/authz-shared'
+import { Action, Alg, CredentialEntity, OrganizationEntity, Signature } from '@narval/authz-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -34,7 +34,7 @@ describe('Credential Entity', () => {
 
   const nonce = 'b6d826b4-72cb-4c14-a6ca-235a2d8e9060'
 
-  const credential: AuthCredential = {
+  const credential: CredentialEntity = {
     uid: sha256('0x501d5c2ce1ef208aadf9131a98baa593258cfa06'),
     userId: '68182475-4365-4c4d-a7bd-295daad634c9',
     alg: Alg.ES256K,

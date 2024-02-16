@@ -1,4 +1,4 @@
-import { AuthCredential, UserEntity, UserRole } from '@narval/authz-shared'
+import { CredentialEntity, UserEntity, UserRole } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { UserEntity as UserModel } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
@@ -10,7 +10,7 @@ import { decodeConstant } from '../decode.util'
 export class UserRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(orgId: string, user: UserEntity, credential?: AuthCredential): Promise<UserEntity> {
+  async create(orgId: string, user: UserEntity, credential?: CredentialEntity): Promise<UserEntity> {
     const result = await this.prismaService.$transaction(async (tx) => {
       const entity: UserEntity = await tx.userEntity
         .create({

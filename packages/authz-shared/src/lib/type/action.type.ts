@@ -1,4 +1,13 @@
-import { UserWalletEntity } from './entity.type'
+import { Address, TransactionRequest } from './domain.type'
+import {
+  AccountClassification,
+  AccountType,
+  CredentialEntity,
+  UserGroupMemberEntity,
+  UserRole,
+  UserWalletEntity,
+  WalletGroupMemberEntity
+} from './entity.type'
 
 export const Action = {
   CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
@@ -34,57 +43,6 @@ export const Action = {
 
 export type Action = (typeof Action)[keyof typeof Action]
 
-// ENTITY
-export type AuthCredential = {
-  uid: string // sha256 of the pubKey, used as the short identifier
-  pubKey: string
-  alg: Alg
-  userId: string
-}
-
-// ENTITY
-export const UserRole = {
-  ROOT: 'root',
-  ADMIN: 'admin',
-  MEMBER: 'member',
-  MANAGER: 'manager'
-} as const
-
-// ENTITY
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
-
-// ENTITY
-export const AccountType = {
-  EOA: 'eoa',
-  AA: '4337'
-} as const
-
-// ENTITY
-export type AccountType = (typeof AccountType)[keyof typeof AccountType]
-
-// ENTITY
-export const AccountClassification = {
-  EXTERNAL: 'external',
-  COUNTERPARTY: 'counterparty',
-  INTERNAL: 'internal',
-  WALLET: 'wallet'
-} as const
-
-// ENTITY
-export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
-
-// ENTITY
-export type UserGroupMembership = {
-  userId: string
-  groupId: string
-}
-
-// ENTITY
-export type WalletGroupMembership = {
-  walletId: string
-  groupId: string
-}
-
 // DOMAIN
 export type Signature = {
   sig: string
@@ -105,33 +63,6 @@ export const Alg = {
 
 // SIGNATURE LIB
 export type Alg = (typeof Alg)[keyof typeof Alg]
-
-// DOMAIN
-export type Hex = `0x${string}`
-
-// DOMAIN
-export type Address = `0x${string}`
-
-// DOMAIN
-export type AccessList = {
-  address: Address
-  storageKeys: Hex[]
-}[]
-
-// DOMAIN
-export type TransactionRequest = {
-  chainId: number
-  from: Address
-  nonce?: number
-  accessList?: AccessList
-  data?: Hex
-  gas?: bigint
-  maxFeePerGas?: bigint
-  maxPriorityFeePerGas?: bigint
-  to?: Address | null
-  type?: '2'
-  value?: Hex
-}
 
 /**
  * Action Types; these correspond to each Action
@@ -170,7 +101,7 @@ export type CreateOrganizationAction = BaseAction & {
   action: typeof Action.CREATE_ORGANIZATION
   organization: {
     uid: string
-    credential: AuthCredential
+    credential: CredentialEntity
   }
 }
 
@@ -183,7 +114,7 @@ export type CreateUserAction = BaseAction & {
   user: {
     uid: string
     role: UserRole
-    credential?: AuthCredential
+    credential?: CredentialEntity
   }
 }
 
@@ -205,7 +136,7 @@ export type UpdateUserRequest = BaseAdminRequest & {
 
 export type CreateCredentialAction = BaseAction & {
   action: typeof Action.CREATE_CREDENTIAL
-  credential: AuthCredential
+  credential: CredentialEntity
 }
 
 export type CreateCredentialRequest = BaseAdminRequest & {
@@ -214,7 +145,7 @@ export type CreateCredentialRequest = BaseAdminRequest & {
 
 export type AssignUserGroupAction = BaseAction & {
   action: typeof Action.ASSIGN_USER_GROUP
-  data: UserGroupMembership
+  data: UserGroupMemberEntity
 }
 
 export type AssignUserGroupRequest = BaseAdminRequest & {
@@ -237,7 +168,7 @@ export type RegisterWalletRequest = BaseAdminRequest & {
 
 export type AssignWalletGroupAction = BaseAction & {
   action: typeof Action.ASSIGN_WALLET_GROUP
-  data: WalletGroupMembership
+  data: WalletGroupMemberEntity
 }
 
 export type AssignWalletGroupRequest = BaseAdminRequest & {
