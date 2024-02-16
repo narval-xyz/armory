@@ -1,4 +1,4 @@
-import { Alg, AuthCredential } from '@narval/authz-shared'
+import { Alg, CredentialEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { AuthCredentialEntity as Model } from '@prisma/client/orchestration'
 import { omit } from 'lodash/fp'
@@ -9,7 +9,7 @@ import { decodeConstant } from '../decode.util'
 export class CredentialRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(orgId: string, credential: AuthCredential): Promise<AuthCredential> {
+  async create(orgId: string, credential: CredentialEntity): Promise<CredentialEntity> {
     await this.prismaService.authCredentialEntity.create({
       data: {
         orgId,
@@ -23,7 +23,7 @@ export class CredentialRepository {
     return credential
   }
 
-  async findById(uid: string): Promise<AuthCredential | null> {
+  async findById(uid: string): Promise<CredentialEntity | null> {
     const model = await this.prismaService.authCredentialEntity.findUnique({
       where: { uid }
     })
@@ -35,7 +35,7 @@ export class CredentialRepository {
     return null
   }
 
-  async findByOrgId(orgId: string): Promise<AuthCredential[]> {
+  async findByOrgId(orgId: string): Promise<CredentialEntity[]> {
     const models = await this.prismaService.authCredentialEntity.findMany({
       where: { orgId }
     })
@@ -43,7 +43,7 @@ export class CredentialRepository {
     return models.map(this.decode)
   }
 
-  private decode(model: Model): AuthCredential {
+  private decode(model: Model): CredentialEntity {
     return decodeConstant(omit('orgId', model), 'alg', Object.values(Alg))
   }
 }

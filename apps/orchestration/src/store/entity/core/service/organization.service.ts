@@ -1,4 +1,4 @@
-import { AuthCredential, OrganizationEntity, UserEntity, UserRole } from '@narval/authz-shared'
+import { CredentialEntity, OrganizationEntity, UserEntity, UserRole } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { OrganizationRepository } from '../../persistence/repository/organization.repository'
 import { UserService } from './user.service'
@@ -7,10 +7,10 @@ import { UserService } from './user.service'
 export class OrganizationService {
   constructor(private orgRepository: OrganizationRepository, private userService: UserService) {}
 
-  async create(input: { uid: string; rootCredential: AuthCredential }): Promise<{
+  async create(input: { uid: string; rootCredential: CredentialEntity }): Promise<{
     organization: OrganizationEntity
     rootUser: UserEntity
-    rootCredential: AuthCredential
+    rootCredential: CredentialEntity
   }> {
     const { uid, rootCredential } = input
 

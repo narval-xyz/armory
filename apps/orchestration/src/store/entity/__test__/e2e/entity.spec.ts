@@ -3,7 +3,7 @@ import {
   AccountType,
   AddressBookAccountEntity,
   Alg,
-  AuthCredential,
+  CredentialEntity,
   Entities,
   OrganizationEntity,
   TokenEntity,
@@ -69,7 +69,7 @@ describe('Entity', () => {
     }
   ]
 
-  const credentials: AuthCredential[] = [
+  const credentials: CredentialEntity[] = [
     {
       uid: sha256('0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc'),
       pubKey: '0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc',
