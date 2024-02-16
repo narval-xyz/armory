@@ -310,7 +310,7 @@ export const sendTranslatingRequest = async (policies: OldPolicy[]) => {
   try {
     console.log(`Number of policies to translate: ${policies.length}.`)
     console.log('Translation in progress...')
-    const res = await axios.post('http://localhost:3010/admin/policies', {
+    await axios.post('http://localhost:3010/admin/policies', {
       authentication: {
         sig: '0x746ed2e4bf7311da76bc157c7fe8c0520b6e4c27ab96abf5a8d16fecbaac98b669418b2db9da8e6d3cbd4e1eaff1a9d9e765f0470e9b86c6694145778a8d46f81c',
         alg: 'ES256K',
