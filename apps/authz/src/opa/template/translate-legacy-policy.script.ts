@@ -15,9 +15,7 @@ type OldPolicy = { [key: string]: string | null }
 
 type NewPolicy = Policy & { id: string }
 
-const data = { policies: [] as OldPolicy[] }
-
-const translatePolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
+const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
   const {
     id,
     result,
@@ -309,7 +307,7 @@ const translatePolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
   return res
 }
 
-const main = async () => {
+const sendTranslatingRequest = async (data: { policies: OldPolicy[] }) => {
   try {
     console.log(data.policies.length)
 
@@ -337,7 +335,7 @@ const main = async () => {
         data: data.policies.map((policy) => {
           const copy: OldPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
           copy.amount = policy.amount !== null ? `${policy.amount}` : null
-          return translatePolicy(copy)
+          return translateLegacyPolicy(copy)
         })
       }
     })
@@ -348,4 +346,4 @@ const main = async () => {
   }
 }
 
-main()
+sendTranslatingRequest({ policies: [] as OldPolicy[] })
