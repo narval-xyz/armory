@@ -168,7 +168,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         const error = new Error('unknown error')
         jest.spyOn(service, 'process').mockRejectedValue(error)
 
-        expect(consumer.process(job)).rejects.toThrow(error)
+        await expect(consumer.process(job)).rejects.toThrow(error)
       })
 
       it('stops retrying on known unrecoverable errors', async () => {
