@@ -10,11 +10,12 @@ import {
   SignTypedDataDomainCondition,
   Then
 } from '../../shared/types/policy.type'
-import data from './policy_rule_202402141519_policy_rules_ngg_prod_v_161.json'
 
 type OldPolicy = { [key: string]: string | null }
 
 type NewPolicy = Policy & { id: string }
+
+const data = { policies: [] as OldPolicy[] }
 
 const translatePolicy = (oldPolicy: OldPolicy): NewPolicy | null => {
   const {
