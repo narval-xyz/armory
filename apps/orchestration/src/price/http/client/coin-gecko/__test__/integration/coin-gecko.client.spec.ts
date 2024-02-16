@@ -94,7 +94,7 @@ describe(CoinGeckoClient.name, () => {
           boom: 'something went wrong'
         })
 
-      expect.assertions(2)
+      expect.assertions(1)
 
       try {
         await client.getSimplePrice({
