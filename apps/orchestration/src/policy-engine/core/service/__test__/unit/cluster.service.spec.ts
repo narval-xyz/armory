@@ -126,10 +126,10 @@ describe(ClusterService.name, () => {
       authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
     })
 
-    it('throws when organization cluster is not found', () => {
+    it('throws when organization cluster is not found', async () => {
       jest.spyOn(service, 'getByOrgId').mockResolvedValue(null)
 
-      expect(service.evaluation(input)).rejects.toThrow(ClusterNotFoundException)
+      await expect(service.evaluation(input)).rejects.toThrow(ClusterNotFoundException)
     })
 
     it('responds with the first response from the cluster', async () => {
@@ -161,7 +161,7 @@ describe(ClusterService.name, () => {
       authzApplicationClientMock.evaluation.mockResolvedValueOnce(permit)
       authzApplicationClientMock.evaluation.mockResolvedValueOnce(forbid)
 
-      expect(service.evaluation(input)).rejects.toThrow(ConsensusAgreementNotReachException)
+      await expect(service.evaluation(input)).rejects.toThrow(ConsensusAgreementNotReachException)
     })
 
     it('throws when node attestation is invalid', async () => {
@@ -179,7 +179,7 @@ describe(ClusterService.name, () => {
         }
       })
 
-      expect(service.evaluation(input)).rejects.toThrow(InvalidAttestationSignatureException)
+      await expect(service.evaluation(input)).rejects.toThrow(InvalidAttestationSignatureException)
     })
   })
 })

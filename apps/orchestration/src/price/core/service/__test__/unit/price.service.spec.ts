@@ -78,8 +78,8 @@ describe(PriceService.name, () => {
       })
     })
 
-    it('throws PriceException when given asset id does not exist on coin gecko index', () => {
-      expect(() =>
+    it('throws PriceException when given asset id does not exist on coin gecko index', async () => {
+      await expect(() =>
         service.getPrices({
           from: [getAssetId('eip155:00000/erc20:0x0000000000000000000000000000000000000000')],
           to: [FIAT_ID_USD]

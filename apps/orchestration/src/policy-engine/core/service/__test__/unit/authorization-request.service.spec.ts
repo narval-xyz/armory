@@ -216,7 +216,7 @@ describe(AuthorizationRequestService.name, () => {
     })
 
     it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING', async () => {
-      expect(
+      await expect(
         service.evaluate({
           ...authzRequest,
           status: AuthorizationRequestStatus.PROCESSING

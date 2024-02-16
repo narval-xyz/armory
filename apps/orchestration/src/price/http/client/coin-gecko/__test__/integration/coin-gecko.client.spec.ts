@@ -65,7 +65,7 @@ describe(CoinGeckoClient.name, () => {
           boom: 'something went wrong'
         })
 
-      expect(() => {
+      await expect(() => {
         return client.getSimplePrice({
           url: CoinGeckoClient.V3_URL,
           data: {
