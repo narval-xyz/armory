@@ -172,6 +172,7 @@ describe('Admin Endpoints', () => {
                   criterion: Criterion.CHECK_SPENDING_LIMIT,
                   args: {
                     limit: '1000000000000000000',
+                    operator: ValueOperators.GREATER_THAN,
                     timeWindow: {
                       type: TimeWindow.ROLLING,
                       value: 43200
