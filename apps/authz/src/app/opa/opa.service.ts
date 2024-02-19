@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import { indexBy } from 'lodash/fp'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
@@ -65,7 +65,11 @@ export class OpaService implements OnApplicationBootstrap {
 
     const fileId = uuid()
 
-    writeFileSync(`./apps/authz/src/opa/rego/generated/${fileId}.rego`, regoContent, 'utf-8')
+    const basePath = './apps/authz/src/opa/rego/generated'
+
+    mkdirSync(basePath, { recursive: true })
+
+    writeFileSync(`${basePath}/${fileId}.rego`, regoContent, 'utf-8')
 
     this.logger.log('Policy .rego file generated successfully.')
 
