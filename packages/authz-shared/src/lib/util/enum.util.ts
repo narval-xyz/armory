@@ -29,17 +29,20 @@ export const convertEnums = <T extends Record<string, string>>(
   enumMap: EnumMap<T>,
   data: T
 ): EnumConverted<T, EnumMap<T>> => {
-  return Object.entries(data).reduce((acc, [key, value]) => {
-    if (key in enumMap) {
-      acc[key as keyof T] = toEnum(enumMap[key as keyof EnumMap<T>], value) as EnumConverted<T, EnumMap<T>>[keyof T]
-      if (acc[key] === undefined || acc[key] === null) {
-        throw new Error(`Invalid enum value for key ${key}: ${value}`)
+  return Object.entries(data).reduce(
+    (acc, [key, value]) => {
+      if (key in enumMap) {
+        acc[key as keyof T] = toEnum(enumMap[key as keyof EnumMap<T>], value) as EnumConverted<T, EnumMap<T>>[keyof T]
+        if (acc[key] === undefined || acc[key] === null) {
+          throw new Error(`Invalid enum value for key ${key}: ${value}`)
+        }
+      } else {
+        acc[key as keyof T] = value as EnumConverted<T, EnumMap<T>>[keyof T]
       }
-    } else {
-      acc[key as keyof T] = value as EnumConverted<T, EnumMap<T>>[keyof T]
-    }
-    return acc
-  }, {} as EnumConverted<T, EnumMap<T>>)
+      return acc
+    },
+    {} as EnumConverted<T, EnumMap<T>>
+  )
 }
 
 export const convertEnumsArray = <T extends Record<string, string>>(

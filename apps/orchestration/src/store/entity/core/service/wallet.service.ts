@@ -5,7 +5,10 @@ import { WalletRepository } from '../../persistence/repository/wallet.repository
 
 @Injectable()
 export class WalletService {
-  constructor(private walletRepository: WalletRepository, private walletGroupRepository: WalletGroupRepository) {}
+  constructor(
+    private walletRepository: WalletRepository,
+    private walletGroupRepository: WalletGroupRepository
+  ) {}
 
   async create(orgId: string, wallet: WalletEntity): Promise<WalletEntity> {
     return this.walletRepository.create(orgId, wallet)

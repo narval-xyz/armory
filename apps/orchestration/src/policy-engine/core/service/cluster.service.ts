@@ -106,13 +106,16 @@ export class ClusterService {
     nodes: Node[],
     responses: EvaluationResponse[]
   ): { node: Node; response: EvaluationResponse }[] {
-    return zip(nodes, responses).reduce((acc, [node, response]) => {
-      if (node && response) {
-        return [...acc, { node, response }]
-      }
+    return zip(nodes, responses).reduce(
+      (acc, [node, response]) => {
+        if (node && response) {
+          return [...acc, { node, response }]
+        }
 
-      return acc
-    }, [] as { node: Node; response: EvaluationResponse }[])
+        return acc
+      },
+      [] as { node: Node; response: EvaluationResponse }[]
+    )
   }
 
   private async recoverPubKey(response: EvaluationResponse) {
