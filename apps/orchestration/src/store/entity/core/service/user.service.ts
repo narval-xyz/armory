@@ -5,7 +5,10 @@ import { UserRepository } from '../../persistence/repository/user.repository'
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository, private userWalletRepository: UserWalletRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private userWalletRepository: UserWalletRepository
+  ) {}
 
   create(orgId: string, user: UserEntity, credential?: CredentialEntity): Promise<UserEntity> {
     return this.userRepository.create(orgId, user, credential)

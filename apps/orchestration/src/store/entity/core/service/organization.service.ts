@@ -5,7 +5,10 @@ import { UserService } from './user.service'
 
 @Injectable()
 export class OrganizationService {
-  constructor(private orgRepository: OrganizationRepository, private userService: UserService) {}
+  constructor(
+    private orgRepository: OrganizationRepository,
+    private userService: UserService
+  ) {}
 
   async create(input: { uid: string; rootCredential: CredentialEntity }): Promise<{
     organization: OrganizationEntity
