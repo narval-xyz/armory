@@ -20,6 +20,7 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 	checkIntentToken(tokens)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
@@ -57,6 +58,7 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	checkIntentToken(tokens)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
@@ -89,6 +91,7 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	checkWalletId(resources)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
@@ -120,6 +123,7 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	checkIntentType(transferTypes)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
@@ -151,6 +155,7 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 	checkIntentType(transferTypes)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
@@ -191,6 +196,7 @@ permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
 	checkIntentToken(tokens)
 	checkSpendingLimit({
 		"limit": limit,
+		"operator": operators.greaterThan,
 		"currency": currency,
 		"timeWindow": {
 			"type": "rolling",
