@@ -12,17 +12,14 @@ export class OrganizationController {
 
   @Post()
   @ApiOperation({
-    summary: 'Creates a new organization and root user.'
+    summary: 'Creates a new organization and root user'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: CreateOrganizationResponseDto
   })
   async create(@Body() body: CreateOrganizationRequestDto): Promise<CreateOrganizationResponseDto> {
-    const { organization, rootCredential, rootUser } = await this.orgService.create({
-      uid: body.request.organization.uid,
-      rootCredential: body.request.organization.credential
-    })
+    const { organization, rootCredential, rootUser } = await this.orgService.create(body)
 
     return new CreateOrganizationResponseDto({
       organization,

@@ -1,4 +1,4 @@
-import { CredentialEntity, UserEntity, UserRole, UserWalletEntity } from '@narval/authz-shared'
+import { CreateUserRequest, UserEntity, UserRole, UserWalletEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { UserWalletRepository } from '../../persistence/repository/user-wallet.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'
@@ -10,8 +10,10 @@ export class UserService {
     private userWalletRepository: UserWalletRepository
   ) {}
 
-  create(orgId: string, user: UserEntity, credential?: CredentialEntity): Promise<UserEntity> {
-    return this.userRepository.create(orgId, user, credential)
+  create(orgId: string, input: CreateUserRequest): Promise<UserEntity> {
+    const { user } = input.request
+
+    return this.userRepository.create(orgId, user, user.credential)
   }
 
   delete(uid: string): Promise<boolean> {

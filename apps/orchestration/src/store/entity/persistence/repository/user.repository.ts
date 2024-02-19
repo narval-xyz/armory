@@ -15,7 +15,8 @@ export class UserRepository {
       const entity: UserEntity = await tx.userEntity
         .create({
           data: {
-            ...user,
+            uid: user.uid,
+            role: user.role,
             orgId
           }
         })

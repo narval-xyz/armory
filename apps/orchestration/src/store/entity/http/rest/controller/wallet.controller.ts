@@ -14,7 +14,7 @@ export class WalletController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers wallet as an entity.'
+    summary: 'Registers wallet as an entity'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
@@ -24,7 +24,7 @@ export class WalletController {
     type: RegisterWalletResponseDto
   })
   async register(@OrgId() orgId: string, @Body() body: RegisterWalletRequestDto): Promise<RegisterWalletResponseDto> {
-    const wallet = await this.walletService.create(orgId, body.request.wallet)
+    const wallet = await this.walletService.create(orgId, body)
 
     return new RegisterWalletResponseDto({ wallet })
   }

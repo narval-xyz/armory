@@ -1,4 +1,4 @@
-import { AddressBookAccountEntity } from '@narval/authz-shared'
+import { AddressBookAccountEntity, CreateAddressBookAccountRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookRepository } from '../../persistence/repository/address-book.repository'
 
@@ -6,7 +6,7 @@ import { AddressBookRepository } from '../../persistence/repository/address-book
 export class AddressBookService {
   constructor(private addressBookRepository: AddressBookRepository) {}
 
-  create(orgId: string, account: AddressBookAccountEntity): Promise<AddressBookAccountEntity> {
-    return this.addressBookRepository.create(orgId, account)
+  create(orgId: string, data: CreateAddressBookAccountRequest): Promise<AddressBookAccountEntity> {
+    return this.addressBookRepository.create(orgId, data.request.account)
   }
 }

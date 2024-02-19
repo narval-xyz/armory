@@ -1,3 +1,4 @@
+import { AssignUserGroupRequest } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { UserGroupRepository } from '../../persistence/repository/user-group.repository'
 
@@ -5,7 +6,8 @@ import { UserGroupRepository } from '../../persistence/repository/user-group.rep
 export class UserGroupService {
   constructor(private userGroupRepository: UserGroupRepository) {}
 
-  async assign(orgId: string, userId: string, groupId: string): Promise<boolean> {
+  async assign(orgId: string, input: AssignUserGroupRequest): Promise<boolean> {
+    const { groupId, userId } = input.request.data
     const group = await this.userGroupRepository.findById(groupId)
 
     if (group) {

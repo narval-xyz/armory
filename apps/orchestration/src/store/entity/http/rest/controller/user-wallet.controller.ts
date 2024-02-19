@@ -14,7 +14,7 @@ export class UserWalletController {
 
   @Post()
   @ApiOperation({
-    summary: 'Assigns a wallet to a user.'
+    summary: 'Assigns a wallet to a user'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
