@@ -59,7 +59,7 @@ jobs:
       - name: Test E2E
         shell: bash
         run: |
-          make orchestration/test/e2e
+          make authz/test/e2e
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
