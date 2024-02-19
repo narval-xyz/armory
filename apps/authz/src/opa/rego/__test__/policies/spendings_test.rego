@@ -163,3 +163,43 @@ test_spendingLimitByWalletGroup {
 		"approvalsMissing": [],
 	}
 }
+
+test_permitRuleSpendingLimit {
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as entities
+
+	res == {
+		"approvalsMissing": [{
+			"approvalCount": 2,
+			"approvalEntityType": "Narval::User",
+			"countPrincipal": false,
+			"entityIds": ["test-bob-uid", "test-bar-uid"],
+		}],
+		"approvalsSatisfied": [],
+		"policyId": "spendingLimitWithApprovals",
+		"type": "permit",
+	}
+}
+
+test_permitRuleSpendingLimit {
+	spendingLimitWithApprovalsReq = object.union(request, {
+		"principal": {"userId": "test-alice-uid"},
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
+			{"userId": "test-bob-uid"},
+			{"userId": "test-bar-uid"},
+		],
+	})
+
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
+
+	res == {
+		"approvalsMissing": [],
+		"approvalsSatisfied": [{
+			"approvalCount": 2,
+			"approvalEntityType": "Narval::User",
+			"countPrincipal": false,
+			"entityIds": ["test-bob-uid", "test-bar-uid"],
+		}],
+		"policyId": "spendingLimitWithApprovals",
+		"type": "permit",
+	}
+}
