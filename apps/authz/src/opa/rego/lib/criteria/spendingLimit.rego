@@ -87,6 +87,28 @@ checkSpendingTimeWindow(timestamp, timeWindow) {
 	timestampNs >= time.now_ns() - secondsToNanoSeconds(timeWindow.value)
 }
 
+# Check By Operator
+
+checkSpendingOperator(spendings, operator, limit) {
+	operator == operators.lessThan
+	spendings < limit
+}
+
+checkSpendingOperator(spendings, operator, limit) {
+	operator == operators.lessThanOrEqual
+	spendings <= limit
+}
+
+checkSpendingOperator(spendings, operator, limit) {
+	operator == operators.greaterThan
+	spendings > limit
+}
+
+checkSpendingOperator(spendings, operator, limit) {
+	operator == operators.greaterThanOrEqual
+	spendings >= limit
+}
+
 # Calculate Spending
 
 calculateSpending(transfer, currency) = result {
@@ -105,6 +127,8 @@ checkSpendingLimit(params) {
 	conditions = object.union(
 		{
 			"currency": wildcard,
+			"limit": wildcard,
+			"operator": wildcard,
 			"timeWindow": {
 				"type": wildcard,
 				"value": wildcard, # in seconds
@@ -123,9 +147,11 @@ checkSpendingLimit(params) {
 		params,
 	)
 
-	limit = conditions.limit
-
 	currency = conditions.currency
+
+	limit = to_number(conditions.limit)
+
+	operator = conditions.operator
 
 	timeWindow = conditions.timeWindow
 
@@ -166,5 +192,5 @@ checkSpendingLimit(params) {
 		spending = calculateSpending(transfer, currency)
 	])
 
-	spendings + amount > to_number(limit)
+	checkSpendingOperator(spendings + amount, operator, limit)
 }

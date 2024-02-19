@@ -98,6 +98,7 @@ export const exampleForbidPolicy: Policy = {
       criterion: Criterion.CHECK_SPENDING_LIMIT,
       args: {
         limit: '1000000000000000000',
+        operator: ValueOperators.GREATER_THAN,
         timeWindow: {
           type: 'rolling',
           value: 12 * 60 * 60

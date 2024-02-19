@@ -250,6 +250,10 @@ export class SpendingLimitCondition {
   @ApiProperty()
   limit: string
 
+  @IsEnum(ValueOperators)
+  @ApiProperty({ enum: ValueOperators })
+  operator: ValueOperators
+
   @IsOptional()
   @IsEnum(FiatCurrency)
   @ApiPropertyOptional({ enum: FiatCurrency })
