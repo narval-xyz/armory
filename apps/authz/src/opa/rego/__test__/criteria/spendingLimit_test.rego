@@ -38,6 +38,7 @@ test_checkRollingTimeWindow {
 test_checkSpendingLimitByAmount {
 	conditions = {
 		"limit": "1000000000000000000",
+		"operator": operators.greaterThan,
 		"timeWindow": {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
@@ -57,6 +58,7 @@ test_checkSpendingLimitByAmount {
 test_checkSpendingLimitByValue {
 	conditions = {
 		"limit": "900000000000000000",
+		"operator": operators.greaterThan,
 		"currency": "fiat:usd",
 		"timeWindow": {
 			"type": "rolling",
