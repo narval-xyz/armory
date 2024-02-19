@@ -166,3 +166,45 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 		"approvalsMissing": [],
 	}
 }
+
+# If Alice transfers >$5k usd value of USDC in a 12 hour rolling window, then require approvals
+
+permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
+	transferTypes = {"transferERC20"}
+	users = {"test-alice-uid"}
+	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
+	currency = "fiat:usd"
+	limit = "5000000000"
+	approvalsRequired = [{
+		"approvalCount": 2,
+		"countPrincipal": false,
+		"approvalEntityType": "Narval::User",
+		"entityIds": ["test-bob-uid", "test-bar-uid"],
+	}]
+
+	checkResourceIntegrity
+	checkPrincipal
+	checkNonceExists
+	checkAction({"signTransaction"})
+	checkPrincipalId(users)
+	checkIntentType(transferTypes)
+	checkIntentToken(tokens)
+	checkSpendingLimit({
+		"limit": limit,
+		"currency": currency,
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
+		"filters": {"tokens": tokens},
+	})
+
+	approvals = checkApprovals(approvalsRequired)
+
+	reason = {
+		"type": "permit",
+		"policyId": "spendingLimitWithApprovals",
+		"approvalsSatisfied": approvals.approvalsSatisfied,
+		"approvalsMissing": approvals.approvalsMissing,
+	}
+}
