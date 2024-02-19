@@ -1,8 +1,8 @@
 import { FIXTURE } from '@narval/authz-shared'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
-import { Seeder } from '../../../shared/module/persistence/persistence.type'
+import { SeedService } from '../../../shared/module/persistence/service/seed.service'
 import { AddressBookRepository } from './repository/address-book.repository'
 import { CredentialRepository } from './repository/credential.repository'
 import { TokenRepository } from './repository/token.repository'
@@ -13,9 +13,7 @@ import { WalletGroupRepository } from './repository/wallet-group.repository'
 import { WalletRepository } from './repository/wallet.repository'
 
 @Injectable()
-export class EntityStoreSeed implements Seeder {
-  private logger = new Logger(EntityStoreSeed.name)
-
+export class EntityStoreSeed extends SeedService {
   constructor(
     private addressBookRepository: AddressBookRepository,
     private credentialRepository: CredentialRepository,
@@ -25,11 +23,11 @@ export class EntityStoreSeed implements Seeder {
     private userWalletRepository: UserWalletRepository,
     private walletGroupRepository: WalletGroupRepository,
     private walletRepository: WalletRepository
-  ) {}
+  ) {
+    super()
+  }
 
-  async germinate(): Promise<void> {
-    this.logger.log('Germinating the Entity Store module database')
-
+  override async germinate(): Promise<void> {
     await Promise.all(
       Object.values(FIXTURE.USER).map((entity) => this.userRepository.create(FIXTURE.ORGANIZATION.uid, entity))
     )
