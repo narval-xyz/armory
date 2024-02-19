@@ -1,6 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
-import { execSync } from 'child_process'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import { indexBy } from 'lodash/fp'
@@ -72,10 +71,6 @@ export class OpaService implements OnApplicationBootstrap {
     writeFileSync(`${basePath}/${fileId}.rego`, regoContent, 'utf-8')
 
     this.logger.log('Policy .rego file generated successfully.')
-
-    execSync('make authz/rego/build')
-
-    this.logger.log('Policies .wasm file build successfully.')
 
     return { fileId, policies }
   }
