@@ -16,7 +16,10 @@ type GetPricesOption = {
 export class PriceService {
   private logger = new Logger(PriceService.name)
 
-  constructor(private coinGeckoClient: CoinGeckoClient, private coinGeckoAssetRepository: CoinGeckoAssetRepository) {}
+  constructor(
+    private coinGeckoClient: CoinGeckoClient,
+    private coinGeckoAssetRepository: CoinGeckoAssetRepository
+  ) {}
 
   async getPrices(options: GetPricesOption): Promise<Prices> {
     this.logger.log('Get prices', options)
@@ -68,22 +71,25 @@ export class PriceService {
   }
 
   private getAssetsPriceInformation(simplePrice: SimplePrice) {
-    return Object.keys(simplePrice).reduce((acc, coinId) => {
-      const sourceAssetIds = this.coinGeckoAssetRepository.getAssetIds(coinId)
+    return Object.keys(simplePrice).reduce(
+      (acc, coinId) => {
+        const sourceAssetIds = this.coinGeckoAssetRepository.getAssetIds(coinId)
 
-      if (sourceAssetIds) {
-        return [
-          ...acc,
-          ...sourceAssetIds.map((sourceAssetId) => ({
-            sourceAssetId,
-            coinId,
-            values: this.getValues(simplePrice, coinId)
-          }))
-        ]
-      }
+        if (sourceAssetIds) {
+          return [
+            ...acc,
+            ...sourceAssetIds.map((sourceAssetId) => ({
+              sourceAssetId,
+              coinId,
+              values: this.getValues(simplePrice, coinId)
+            }))
+          ]
+        }
 
-      return acc
-    }, [] as { sourceAssetId: AssetId; coinId: string; values: unknown }[])
+        return acc
+      },
+      [] as { sourceAssetId: AssetId; coinId: string; values: unknown }[]
+    )
   }
 
   private getValues(simplePrice: SimplePrice, coinId: string) {

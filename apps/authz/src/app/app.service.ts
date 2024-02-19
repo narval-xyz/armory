@@ -68,7 +68,10 @@ export const finalizeDecision = (response: OpaResult[]) => {
 
 @Injectable()
 export class AppService {
-  constructor(private opaService: OpaService, private entityRepository: EntityRepository) {}
+  constructor(
+    private opaService: OpaService,
+    private entityRepository: EntityRepository
+  ) {}
 
   async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<CredentialEntity> {
     const { pubKey, alg, sig } = requestSignature

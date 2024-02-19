@@ -16,7 +16,10 @@ import { DataFeed } from '../type/data-feed.type'
 export class PriceFeedService implements DataFeed<Prices> {
   static SOURCE_ID = 'armory/price-feed'
 
-  constructor(private priceService: PriceService, private configService: ConfigService<Config, true>) {}
+  constructor(
+    private priceService: PriceService,
+    private configService: ConfigService<Config, true>
+  ) {}
 
   getId(): string {
     return PriceFeedService.SOURCE_ID
