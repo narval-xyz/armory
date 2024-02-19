@@ -14,7 +14,7 @@ export class WalletGroupController {
 
   @Post()
   @ApiOperation({
-    summary: "Assigns a wallet to a group. If the group doesn't exist, creates it first."
+    summary: "Assigns a wallet to a group. If the group doesn't exist, creates it first"
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
@@ -27,11 +27,7 @@ export class WalletGroupController {
     @OrgId() orgId: string,
     @Body() body: AssignWalletGroupRequestDto
   ): Promise<AssignWalletGroupResponseDto> {
-    const membership = await this.walletService.assignGroup(
-      orgId,
-      body.request.data.walletId,
-      body.request.data.groupId
-    )
+    const membership = await this.walletService.assignGroup(orgId, body)
 
     return new AssignWalletGroupResponseDto({ data: membership })
   }

@@ -14,7 +14,7 @@ export class UserGroupController {
 
   @Post()
   @ApiOperation({
-    summary: "Assigns a user to a group. If the group doesn't exist, creates it first."
+    summary: "Assigns a user to a group. If the group doesn't exist, creates it first"
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
@@ -26,7 +26,7 @@ export class UserGroupController {
   async assign(@OrgId() orgId: string, @Body() body: AssignUserGroupRequestDto): Promise<AssignUserGroupResponseDto> {
     const { userId, groupId } = body.request.data
 
-    await this.userGroupService.assign(orgId, userId, groupId)
+    await this.userGroupService.assign(orgId, body)
 
     return new AssignUserGroupResponseDto({
       data: { userId, groupId }

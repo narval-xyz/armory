@@ -14,7 +14,7 @@ export class AddressBookController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers an account in the address book entity.'
+    summary: 'Registers an account in the address book entity'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID
@@ -27,9 +27,7 @@ export class AddressBookController {
     @OrgId() orgId: string,
     @Body() body: CreateAddressBookAccountRequestDto
   ): Promise<CreateAddressBookAccountResponseDto> {
-    const { account } = body.request
-
-    await this.addressBookService.create(orgId, account)
+    const account = await this.addressBookService.create(orgId, body)
 
     return new CreateAddressBookAccountResponseDto({ account })
   }

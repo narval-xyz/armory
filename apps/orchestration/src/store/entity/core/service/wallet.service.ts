@@ -1,4 +1,9 @@
-import { WalletEntity, WalletGroupMemberEntity } from '@narval/authz-shared'
+import {
+  AssignWalletGroupRequest,
+  RegisterWalletRequest,
+  WalletEntity,
+  WalletGroupMemberEntity
+} from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
 import { WalletGroupRepository } from '../../persistence/repository/wallet-group.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
@@ -10,11 +15,13 @@ export class WalletService {
     private walletGroupRepository: WalletGroupRepository
   ) {}
 
-  async create(orgId: string, wallet: WalletEntity): Promise<WalletEntity> {
-    return this.walletRepository.create(orgId, wallet)
+  async create(orgId: string, input: RegisterWalletRequest): Promise<WalletEntity> {
+    return this.walletRepository.create(orgId, input.request.wallet)
   }
 
-  async assignGroup(orgId: string, walletId: string, groupId: string): Promise<WalletGroupMemberEntity> {
+  async assignGroup(orgId: string, input: AssignWalletGroupRequest): Promise<WalletGroupMemberEntity> {
+    const { groupId, walletId } = input.request.data
+
     await this.walletGroupRepository.create(orgId, {
       uid: groupId,
       wallets: [walletId]
