@@ -14,7 +14,7 @@ export class CredentialController {
 
   @Post()
   @ApiOperation({
-    summary: 'Registers a new user credential.'
+    summary: 'Registers a new user credential'
   })
   @ApiHeader({
     name: REQUEST_HEADER_ORG_ID

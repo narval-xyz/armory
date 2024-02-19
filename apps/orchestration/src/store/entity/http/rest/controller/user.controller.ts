@@ -26,9 +26,9 @@ export class UserController {
     type: CreateUserResponseDto
   })
   async create(@OrgId() orgId: string, @Body() body: CreateUserRequestDto): Promise<CreateUserResponseDto> {
-    const { uid, role, credential } = body.request.user
+    const { uid, role } = body.request.user
 
-    await this.userService.create(orgId, { uid, role }, credential)
+    await this.userService.create(orgId, body)
 
     return new CreateUserResponseDto({
       user: { uid, role }
