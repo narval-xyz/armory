@@ -7,7 +7,7 @@ import {
   FiatCurrency,
   Hex,
   SignatureDto
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEthereumAddress, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'

@@ -1,4 +1,4 @@
-import { EvaluationRequest, EvaluationResponse } from '@narval/authz-shared'
+import { EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'

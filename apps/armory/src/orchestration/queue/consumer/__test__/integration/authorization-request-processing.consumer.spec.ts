@@ -1,4 +1,4 @@
-import { Action, Alg, Signature } from '@narval/authz-shared'
+import { Action, Alg, Signature } from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'

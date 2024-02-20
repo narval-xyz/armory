@@ -1,4 +1,4 @@
-import { CreateUserRequest, UserEntity, UserRole, UserWalletEntity } from '@narval/authz-shared'
+import { CreateUserRequest, UserEntity, UserRole, UserWalletEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { UserWalletRepository } from '../../persistence/repository/user-wallet.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'

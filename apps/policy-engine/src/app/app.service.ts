@@ -9,7 +9,7 @@ import {
   Request,
   Signature,
   hashRequest
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,

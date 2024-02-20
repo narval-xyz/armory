@@ -1,4 +1,4 @@
-import { RegisterTokensRequest, TokenEntity } from '@narval/authz-shared'
+import { RegisterTokensRequest, TokenEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { TokenRepository } from '../../persistence/repository/token.repository'
 

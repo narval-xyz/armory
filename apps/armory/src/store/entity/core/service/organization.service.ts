@@ -4,7 +4,7 @@ import {
   OrganizationEntity,
   UserEntity,
   UserRole
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { OrganizationRepository } from '../../persistence/repository/organization.repository'
 import { UserRepository } from '../../persistence/repository/user.repository'

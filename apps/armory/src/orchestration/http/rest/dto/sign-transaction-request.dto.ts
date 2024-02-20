@@ -1,4 +1,4 @@
-import { Action } from '@narval/authz-shared'
+import { Action } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString, ValidateNested } from 'class-validator'
 import { TransactionRequestDto } from '../../../http/rest/dto/transaction-request.dto'

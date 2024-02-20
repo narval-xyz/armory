@@ -1,4 +1,4 @@
-import { AssetId } from '@narval/authz-shared'
+import { AssetId } from '@narval/policy-engine-shared'
 
 export type FiatId = `fiat:${string}`
 

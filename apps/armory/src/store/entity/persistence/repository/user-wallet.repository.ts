@@ -1,4 +1,4 @@
-import { UserWalletEntity } from '@narval/authz-shared'
+import { UserWalletEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 

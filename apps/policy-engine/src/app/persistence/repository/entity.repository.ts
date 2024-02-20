@@ -1,7 +1,6 @@
-import { CredentialEntity, Entities } from '@narval/authz-shared'
+import { CredentialEntity, Entities, FIXTURE } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
-import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import { lastValueFrom, map, tap } from 'rxjs'
 
 @Injectable()
@@ -44,7 +43,7 @@ export class EntityRepository implements OnApplicationBootstrap {
     // from. It depends on the deployment model: standalone engine per
     // organization or cluster with multi tenant.
     if (!this.entities) {
-      const entities = await this.fetch(ORGANIZATION.uid)
+      const entities = await this.fetch(FIXTURE.ORGANIZATION.uid)
 
       this.entities = entities
     }

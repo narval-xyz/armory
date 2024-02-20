@@ -1,4 +1,4 @@
-import { Action } from '@narval/authz-shared'
+import { Action } from '@narval/policy-engine-shared'
 import { EvaluationLog } from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'

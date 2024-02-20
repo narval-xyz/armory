@@ -1,4 +1,4 @@
-import { Decision, EntityType } from '@narval/authz-shared'
+import { Decision, EntityType } from '@narval/policy-engine-shared'
 import { OpaResult } from '../../../shared/types/rego'
 import { finalizeDecision } from '../../app.service'
 

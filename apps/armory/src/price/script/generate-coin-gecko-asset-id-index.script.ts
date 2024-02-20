@@ -2,7 +2,7 @@
  * Generates an CAIP Asset ID to coin ID index using CoinGecko API to make price
  * queries faster and easier.
  */
-import { AssetId, AssetType, getAddress, isAddress, toAssetId } from '@narval/authz-shared'
+import { AssetId, AssetType, getAddress, isAddress, toAssetId } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
 import { Logger } from '@nestjs/common'
 import File from 'fs'

@@ -1,4 +1,4 @@
-import { Action } from '@narval/authz-shared'
+import { Action } from '@narval/policy-engine-shared'
 import { ZodType } from 'zod'
 import { SupportedAction } from './core/type/domain.type'
 import { createSignMessageSchema, readSignMessageSchema } from './persistence/schema/sign-message.schema'

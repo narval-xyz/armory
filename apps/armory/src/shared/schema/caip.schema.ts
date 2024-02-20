@@ -1,4 +1,4 @@
-import { AssetType, Namespace, isAccountId, isAssetId } from '@narval/authz-shared'
+import { AssetType, Namespace, isAccountId, isAssetId } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 const nonCollectableAssetIdSchema = z.custom<`${Namespace}:${number}/${AssetType}:${string}`>((value) => {

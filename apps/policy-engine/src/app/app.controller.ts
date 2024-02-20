@@ -1,4 +1,4 @@
-import { EvaluationRequest } from '@narval/authz-shared'
+import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { generateInboundRequest } from '../app/persistence/repository/mock_data'
 import { AppService } from './app.service'

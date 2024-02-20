@@ -4,7 +4,7 @@ import {
   CredentialEntity,
   HistoricalTransfer,
   TransactionRequest
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 
 export type RegoInput = {

@@ -16,7 +16,7 @@ import {
   IsNotEmptyArrayString,
   UserRole,
   ValueOperators
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, ApiPropertyOptional, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'

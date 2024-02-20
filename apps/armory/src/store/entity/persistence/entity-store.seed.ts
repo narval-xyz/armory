@@ -1,7 +1,6 @@
-import { FIXTURE } from '@narval/authz-shared'
+import { FIXTURE } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
-import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import { SeedService } from '../../../shared/module/persistence/service/seed.service'
 import { AddressBookRepository } from './repository/address-book.repository'
 import { CredentialRepository } from './repository/credential.repository'
@@ -28,9 +27,9 @@ export class EntityStoreSeed extends SeedService {
   }
 
   override async germinate(): Promise<void> {
-    await Promise.all(
-      Object.values(FIXTURE.USER).map((entity) => this.userRepository.create(FIXTURE.ORGANIZATION.uid, entity))
-    )
+    const { ORGANIZATION } = FIXTURE
+
+    await Promise.all(Object.values(FIXTURE.USER).map((entity) => this.userRepository.create(ORGANIZATION.uid, entity)))
 
     await Promise.all(
       Object.values(FIXTURE.CREDENTIAL).map((entity) => this.credentialRepository.create(ORGANIZATION.uid, entity))

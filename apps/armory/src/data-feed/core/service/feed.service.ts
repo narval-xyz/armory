@@ -1,4 +1,4 @@
-import { Feed } from '@narval/authz-shared'
+import { Feed } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'

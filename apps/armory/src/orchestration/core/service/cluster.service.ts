@@ -1,4 +1,4 @@
-import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@narval/authz-shared'
+import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@narval/policy-engine-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'

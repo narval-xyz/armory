@@ -1,4 +1,4 @@
-import { Action, EntityType, UserRole } from '@narval/authz-shared'
+import { Action, EntityType, UserRole } from '@narval/policy-engine-shared'
 import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 
 const metaPermissions = [

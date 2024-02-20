@@ -1,4 +1,4 @@
-import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/authz-shared'
+import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { Address, Hex } from 'viem'
 import {

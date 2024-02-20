@@ -1,9 +1,9 @@
+import { FIXTURE } from '@narval/policy-engine-shared'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import Handlebars from 'handlebars'
 import { indexBy } from 'lodash/fp'
-import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
 import { RegoData } from '../../shared/types/entities.types'
@@ -76,7 +76,7 @@ export class OpaService implements OnApplicationBootstrap {
   }
 
   private async fetchEntityData(): Promise<RegoData> {
-    const entities = await this.entityRepository.fetch(ORGANIZATION.uid)
+    const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.uid)
 
     const data: RegoData = {
       entities: {

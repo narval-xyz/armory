@@ -1,4 +1,4 @@
-import { Action, Alg, Request, hashRequest } from '@narval/authz-shared'
+import { Action, Alg, Request, hashRequest } from '@narval/policy-engine-shared'
 import { exportPKCS8, exportSPKI, generateKeyPair } from 'jose'
 import { decode } from '../../decode'
 import { sign } from '../../sign'

@@ -1,4 +1,4 @@
-import { Alg, CredentialEntity } from '@narval/authz-shared'
+import { Alg, CredentialEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { AuthCredentialEntity as Model } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'

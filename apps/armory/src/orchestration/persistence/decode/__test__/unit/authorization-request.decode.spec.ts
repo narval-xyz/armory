@@ -1,4 +1,4 @@
-import { Action } from '@narval/authz-shared'
+import { Action } from '@narval/policy-engine-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/armory'
 import { decodeAuthorizationRequest } from '../../../../persistence/decode/authorization-request.decode'
 import { DecodeAuthorizationRequestException } from '../../../../persistence/exception/decode-authorization-request.exception'

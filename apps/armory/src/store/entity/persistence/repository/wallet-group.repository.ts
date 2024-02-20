@@ -1,4 +1,4 @@
-import { WalletGroupEntity } from '@narval/authz-shared'
+import { WalletGroupEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { WalletGroupEntity as GroupModel, WalletGroupMemberEntity as MemberModel } from '@prisma/client/armory'
 import { map } from 'lodash/fp'

@@ -1,4 +1,4 @@
-import { Feed, HistoricalTransfer } from '@narval/authz-shared'
+import { Feed, HistoricalTransfer } from '@narval/policy-engine-shared'
 import { times } from 'lodash/fp'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'

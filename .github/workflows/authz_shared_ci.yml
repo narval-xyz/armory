@@ -1,4 +1,4 @@
-name: '@narval/authz-shared CI'
+name: '@narval/policy-engine-shared CI'
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@narval/authz-shared CI failed'
+          author_name: '@narval/policy-engine-shared CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:

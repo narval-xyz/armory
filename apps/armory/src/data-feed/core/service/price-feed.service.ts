@@ -1,4 +1,4 @@
-import { Action, Alg, AssetId, Feed, Signature, hashRequest } from '@narval/authz-shared'
+import { Action, Alg, AssetId, Feed, Signature, hashRequest } from '@narval/policy-engine-shared'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'

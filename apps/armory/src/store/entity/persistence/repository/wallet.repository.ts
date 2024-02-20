@@ -1,4 +1,4 @@
-import { AccountType, WalletEntity, getAddress } from '@narval/authz-shared'
+import { AccountType, WalletEntity, getAddress } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { WalletEntity as WalletModel } from '@prisma/client/armory'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'

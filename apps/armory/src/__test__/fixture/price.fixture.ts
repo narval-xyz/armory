@@ -1,4 +1,4 @@
-import { AssetType, Namespace, Prices } from '@narval/authz-shared'
+import { AssetType, Namespace, Prices } from '@narval/policy-engine-shared'
 import { sample } from 'lodash'
 import { times } from 'lodash/fp'
 import { z } from 'zod'

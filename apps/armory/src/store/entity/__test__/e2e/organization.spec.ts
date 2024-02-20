@@ -1,4 +1,4 @@
-import { Action, Alg, CredentialEntity, OrganizationEntity, Signature, UserRole } from '@narval/authz-shared'
+import { Action, Alg, CredentialEntity, OrganizationEntity, Signature, UserRole } from '@narval/policy-engine-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'

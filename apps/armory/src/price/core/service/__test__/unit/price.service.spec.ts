@@ -1,4 +1,4 @@
-import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/authz-shared'
+import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
 import { ASSET_ID_MAINNET_USDC, ETHEREUM, FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'

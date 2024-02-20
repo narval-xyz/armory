@@ -1,4 +1,4 @@
-import { UserRole } from '@narval/authz-shared'
+import { UserRole } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 

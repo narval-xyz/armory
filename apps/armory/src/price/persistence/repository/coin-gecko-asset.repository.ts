@@ -1,4 +1,4 @@
-import { AssetId, getAssetId, isCoin, parseAsset } from '@narval/authz-shared'
+import { AssetId, getAssetId, isCoin, parseAsset } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { findChain, safeGetChain } from '../../../shared/core/lib/chains.lib'
 import { FiatId } from '../../../shared/core/type/price.type'

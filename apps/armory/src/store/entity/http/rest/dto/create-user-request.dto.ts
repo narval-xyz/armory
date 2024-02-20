@@ -1,4 +1,4 @@
-import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/authz-shared'
+import { Action, BaseActionDto, BaseActionRequestDto, UserRole } from '@narval/policy-engine-shared'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, ValidateNested } from 'class-validator'

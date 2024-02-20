@@ -1,4 +1,4 @@
-import { AccountClassification, AddressBookAccountEntity, getAddress } from '@narval/authz-shared'
+import { AccountClassification, AddressBookAccountEntity, getAddress } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookAccountEntity as Model } from '@prisma/client/armory'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'

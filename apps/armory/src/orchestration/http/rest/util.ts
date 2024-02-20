@@ -1,4 +1,4 @@
-import { Signature } from '@narval/authz-shared'
+import { Signature } from '@narval/policy-engine-shared'
 import { plainToInstance } from 'class-transformer'
 import { CreateApproval, CreateAuthorizationRequest } from '../../core/type/domain.type'
 import { AuthorizationRequestDto } from '../../http/rest/dto/authorization-request.dto'

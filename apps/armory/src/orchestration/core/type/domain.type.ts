@@ -1,4 +1,4 @@
-import { Action, Signature, TransactionRequest } from '@narval/authz-shared'
+import { Action, Signature, TransactionRequest } from '@narval/policy-engine-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 
 export enum AuthorizationRequestStatus {

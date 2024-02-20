@@ -1,4 +1,4 @@
-import { Alg } from '@narval/authz-shared'
+import { Alg } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const algSchema = z.nativeEnum(Alg)

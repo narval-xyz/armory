@@ -1,4 +1,4 @@
-import { AccountClassification, AccountType, Address, UserRole } from '@narval/authz-shared'
+import { AccountClassification, AccountType, Address, UserRole } from '@narval/policy-engine-shared'
 
 // TODO: Move these to shared?
 

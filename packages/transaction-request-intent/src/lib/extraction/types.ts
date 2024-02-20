@@ -1,4 +1,4 @@
-import { Address, Hex } from '@narval/authz-shared'
+import { Address, Hex } from '@narval/policy-engine-shared'
 
 export type Erc721SafeTransferFromParams = {
   from: Hex

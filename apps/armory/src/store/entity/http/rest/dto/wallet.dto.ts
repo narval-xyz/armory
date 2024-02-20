@@ -1,4 +1,4 @@
-import { AccountType, Address } from '@narval/authz-shared'
+import { AccountType, Address } from '@narval/policy-engine-shared'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsEnum, IsEthereumAddress, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator'
 

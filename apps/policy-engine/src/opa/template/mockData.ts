@@ -1,4 +1,4 @@
-import { Action, EntityType, FIXTURE, UserRole, ValueOperators } from '@narval/authz-shared'
+import { Action, EntityType, FIXTURE, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { Criterion, Policy, Then } from '../../shared/types/policy.type'
 

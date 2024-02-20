@@ -1,4 +1,4 @@
-import { Address } from '@narval/authz-shared'
+import { Address } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsEthereumAddress, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator'
 

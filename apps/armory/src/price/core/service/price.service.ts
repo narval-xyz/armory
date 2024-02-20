@@ -1,4 +1,4 @@
-import { AssetId } from '@narval/authz-shared'
+import { AssetId } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { FiatId, Prices } from '../../../shared/core/type/price.type'

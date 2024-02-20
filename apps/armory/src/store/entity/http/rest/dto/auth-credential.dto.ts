@@ -1,4 +1,4 @@
-import { Alg } from '@narval/authz-shared'
+import { Alg } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 

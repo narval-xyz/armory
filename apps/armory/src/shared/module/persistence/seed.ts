@@ -1,7 +1,7 @@
+import { ORGANIZATION } from '@narval/policy-engine-shared/lib/dev.fixture'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { Organization, PrismaClient } from '@prisma/client/armory'
-import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import { ArmoryModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 

@@ -1,4 +1,4 @@
-import { Feed, Signature } from '@narval/authz-shared'
+import { Feed, Signature } from '@narval/policy-engine-shared'
 // TODO (@wcalderipe, 06/02/24): Move the AuthorizationRequest type to shared
 import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
 

@@ -1,4 +1,4 @@
-import { UserGroupEntity } from '@narval/authz-shared'
+import { UserGroupEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { UserGroupEntity as GroupModel, UserGroupMemberEntity as MemberModel } from '@prisma/client/armory'
 import { map } from 'lodash/fp'

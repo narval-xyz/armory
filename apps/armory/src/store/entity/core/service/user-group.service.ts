@@ -1,4 +1,4 @@
-import { AssignUserGroupRequest } from '@narval/authz-shared'
+import { AssignUserGroupRequest } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { UserGroupRepository } from '../../persistence/repository/user-group.repository'
 

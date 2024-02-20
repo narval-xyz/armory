@@ -1,4 +1,4 @@
-import { Alg, Decision, EvaluationResponse, Feed, Prices, hashRequest } from '@narval/authz-shared'
+import { Alg, Decision, EvaluationResponse, Feed, Prices, hashRequest } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'

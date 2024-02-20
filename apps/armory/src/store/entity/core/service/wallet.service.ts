@@ -3,7 +3,7 @@ import {
   RegisterWalletRequest,
   WalletEntity,
   WalletGroupMemberEntity
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { WalletGroupRepository } from '../../persistence/repository/wallet-group.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'

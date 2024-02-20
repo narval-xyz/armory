@@ -1,4 +1,4 @@
-import { isAddress } from '@narval/authz-shared'
+import { isAddress } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 /**

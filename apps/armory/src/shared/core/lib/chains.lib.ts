@@ -1,4 +1,4 @@
-import { AssetId } from '@narval/authz-shared'
+import { AssetId } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { CHAINS } from '../../../armory.constant'
 import { ApplicationException } from '../../../shared/exception/application.exception'

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { Address, getAddress } from '@narval/authz-shared'
+import { Address, getAddress } from '@narval/policy-engine-shared'
 import { sample } from 'lodash/fp'
 import { Generator } from 'zod-fixture'
 import { CHAINS } from '../../armory.constant'

@@ -1,4 +1,4 @@
-import { TokenEntity, getAddress } from '@narval/authz-shared'
+import { TokenEntity, getAddress } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { pick } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'

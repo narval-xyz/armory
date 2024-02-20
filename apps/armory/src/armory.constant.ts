@@ -1,4 +1,4 @@
-import { AssetId } from '@narval/authz-shared'
+import { AssetId } from '@narval/policy-engine-shared'
 import { BackoffOptions } from 'bull'
 import { Chain } from './shared/core/lib/chains.lib'
 import { FiatId } from './shared/core/type/price.type'

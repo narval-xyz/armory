@@ -1,4 +1,4 @@
-import { OrganizationEntity } from '@narval/authz-shared'
+import { OrganizationEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 

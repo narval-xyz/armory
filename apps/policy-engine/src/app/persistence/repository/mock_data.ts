@@ -1,4 +1,12 @@
-import { Action, Alg, EvaluationRequest, FIXTURE, Request, TransactionRequest, hashRequest } from '@narval/authz-shared'
+import {
+  Action,
+  Alg,
+  EvaluationRequest,
+  FIXTURE,
+  Request,
+  TransactionRequest,
+  hashRequest
+} from '@narval/policy-engine-shared'
 import { toHex } from 'viem'
 
 export const ONE_ETH = BigInt('1000000000000000000')

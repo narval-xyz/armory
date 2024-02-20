@@ -1,4 +1,4 @@
-import { AddressBookAccountEntity, CreateAddressBookAccountRequest } from '@narval/authz-shared'
+import { AddressBookAccountEntity, CreateAddressBookAccountRequest } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookRepository } from '../../persistence/repository/address-book.repository'
 

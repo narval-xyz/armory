@@ -1,4 +1,4 @@
-import { AccountType, Action, OrganizationEntity, Signature, WalletEntity } from '@narval/authz-shared'
+import { AccountType, Action, OrganizationEntity, Signature, WalletEntity } from '@narval/policy-engine-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'

@@ -13,7 +13,7 @@ import {
   UserWalletEntity,
   WalletEntity,
   WalletGroupEntity
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'

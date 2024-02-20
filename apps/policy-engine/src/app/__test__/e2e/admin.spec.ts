@@ -1,4 +1,4 @@
-import { Action, Alg, EntityType, FIXTURE, Signature, UserRole, ValueOperators } from '@narval/authz-shared'
+import { Action, Alg, EntityType, FIXTURE, Signature, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'

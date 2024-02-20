@@ -1,4 +1,4 @@
-import { Feed, HistoricalTransfer, Prices } from '@narval/authz-shared'
+import { Feed, HistoricalTransfer, Prices } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock, mockDeep } from 'jest-mock-extended'
 import {

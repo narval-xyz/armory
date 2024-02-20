@@ -1,7 +1,7 @@
 import type { Config } from 'jest'
 
 const config: Config = {
-  displayName: 'apps/armory',
+  displayName: 'armory',
   moduleFileExtensions: ['ts', 'js', 'html'],
   preset: '../../jest.preset.js',
   setupFiles: ['<rootDir>/jest.setup.ts'],

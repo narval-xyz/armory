@@ -1,4 +1,4 @@
-import { Action, Decision } from '@narval/authz-shared'
+import { Action, Decision } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { Injectable, Logger } from '@nestjs/common'
 import { SetOptional } from 'type-fest'

@@ -1,4 +1,4 @@
-import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/authz-shared'
+import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/policy-engine-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'

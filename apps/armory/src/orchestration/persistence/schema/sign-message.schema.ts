@@ -1,4 +1,4 @@
-import { Action } from '@narval/authz-shared'
+import { Action } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const readSignMessageSchema = z.object({

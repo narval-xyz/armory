@@ -1,4 +1,4 @@
-import { Action, Alg, Signature } from '@narval/authz-shared'
+import { Action, Alg, Signature } from '@narval/policy-engine-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/armory'

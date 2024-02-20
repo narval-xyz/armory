@@ -1,4 +1,4 @@
-import { Entities } from '@narval/authz-shared'
+import { Entities } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { AddressBookRepository } from '../../persistence/repository/address-book.repository'
 import { CredentialRepository } from '../../persistence/repository/credential.repository'

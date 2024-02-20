@@ -1,4 +1,4 @@
-import { Alg } from '@narval/authz-shared'
+import { Alg } from '@narval/policy-engine-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'

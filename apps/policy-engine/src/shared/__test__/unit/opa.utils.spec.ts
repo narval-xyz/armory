@@ -1,4 +1,4 @@
-import { EntityType, ValueOperators } from '@narval/authz-shared'
+import { EntityType, ValueOperators } from '@narval/policy-engine-shared'
 import {
   ApprovalsCriterion,
   Criterion,

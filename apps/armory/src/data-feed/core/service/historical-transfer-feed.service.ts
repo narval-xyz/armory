@@ -1,4 +1,4 @@
-import { Alg, Feed, HistoricalTransfer, Signature, hashRequest } from '@narval/authz-shared'
+import { Alg, Feed, HistoricalTransfer, Signature, hashRequest } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'

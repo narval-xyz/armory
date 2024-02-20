@@ -1,4 +1,4 @@
-import { CreateCredentialRequest, CredentialEntity } from '@narval/authz-shared'
+import { CreateCredentialRequest, CredentialEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { CredentialRepository } from '../../persistence/repository/credential.repository'
 
