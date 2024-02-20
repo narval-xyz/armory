@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nest
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { ZodError } from 'zod'
-import { Config, Env } from '../../orchestration.config'
+import { Config, Env } from '../../armory.config'
 
 @Catch(ZodError)
 export class ZodExceptionFilter implements ExceptionFilter {

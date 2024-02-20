@@ -11,8 +11,8 @@ import {
   generateTransactionRequest
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
+import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
-import { FIAT_ID_USD, POLYGON } from '../../../../../orchestration.constant'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'

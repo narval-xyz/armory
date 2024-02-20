@@ -6,12 +6,12 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Organization } from '@prisma/client/orchestration'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
-import { FeedService } from '../../../../../data-feed/core/service/feed.service'
-import { load } from '../../../../../orchestration.config'
+import { load } from '../../../../../armory.config'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
-} from '../../../../../orchestration.constant'
+} from '../../../../../armory.constant'
+import { FeedService } from '../../../../../data-feed/core/service/feed.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'

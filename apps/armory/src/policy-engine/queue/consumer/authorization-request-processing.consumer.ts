@@ -4,7 +4,7 @@ import { Job } from 'bull'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
-} from '../../../orchestration.constant'
+} from '../../../armory.constant'
 import { AuthorizationRequestAlreadyProcessingException } from '../../core/exception/authorization-request-already-processing.exception'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
 import { ConsensusAgreementNotReachException } from '../../core/exception/consensus-agreement-not-reach.exception'

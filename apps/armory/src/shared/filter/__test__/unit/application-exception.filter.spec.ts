@@ -3,7 +3,7 @@ import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { mock } from 'jest-mock-extended'
-import { Config, Env } from '../../../../orchestration.config'
+import { Config, Env } from '../../../../armory.config'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
 import { ApplicationExceptionFilter } from '../../../../shared/filter/application-exception.filter'
 

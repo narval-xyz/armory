@@ -1,6 +1,6 @@
 import { AssetId } from '@narval/authz-shared'
 import { HttpStatus } from '@nestjs/common'
-import { CHAINS } from '../../../orchestration.constant'
+import { CHAINS } from '../../../armory.constant'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
 // TODO (@wcalderipe, 09/02/24): After the commit bddb7b3 [1], this constant

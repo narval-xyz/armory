@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { getTime, subHours } from 'date-fns'
-import { POLYGON } from '../../orchestration.constant'
+import { POLYGON } from '../../armory.constant'
 import { PrismaService } from '../../shared/module/persistence/service/prisma.service'
 import { SeedService } from '../../shared/module/persistence/service/seed.service'
 

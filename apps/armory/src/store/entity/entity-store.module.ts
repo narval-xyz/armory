@@ -1,7 +1,7 @@
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { load } from '../../orchestration.config'
+import { load } from '../../armory.config'
 import { PolicyEngineModule } from '../../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../../shared/module/persistence/persistence.module'
 import { AddressBookService } from './core/service/address-book.service'

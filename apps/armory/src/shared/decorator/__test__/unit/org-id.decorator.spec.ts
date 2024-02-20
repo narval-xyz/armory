@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common'
-import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
+import { REQUEST_HEADER_ORG_ID } from '../../../../armory.constant'
 import { factory } from '../../../decorator/org-id.decorator'
 
 describe('OrgId Decorator', () => {

@@ -1,5 +1,5 @@
 import { repl } from '@nestjs/core'
-import { OrchestrationModule } from './orchestration.module'
+import { OrchestrationModule } from './armory.module'
 
 async function bootstrap() {
   try {

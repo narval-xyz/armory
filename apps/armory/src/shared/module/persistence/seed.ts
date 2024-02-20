@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { Organization, PrismaClient } from '@prisma/client/orchestration'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
-import { OrchestrationModule } from '../../../orchestration.module'
+import { OrchestrationModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 
 const now = new Date()

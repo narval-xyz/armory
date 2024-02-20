@@ -1,7 +1,7 @@
 import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/authz-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
-import { ASSET_ID_MAINNET_USDC, ETHEREUM, FIAT_ID_USD, POLYGON } from '../../../../../orchestration.constant'
+import { ASSET_ID_MAINNET_USDC, ETHEREUM, FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { PriceException } from '../../../../core/exception/price.exception'
 import { PriceService } from '../../../../core/service/price.service'
 import { CoinGeckoClient } from '../../../../http/client/coin-gecko/coin-gecko.client'

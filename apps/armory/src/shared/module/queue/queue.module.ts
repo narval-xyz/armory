@@ -3,8 +3,8 @@ import { BullBoardModule } from '@bull-board/nestjs'
 import { BullModule } from '@nestjs/bull'
 import { DynamicModule } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Config, Env } from '../../../orchestration.config'
-import { QUEUE_PREFIX } from '../../../orchestration.constant'
+import { Config, Env } from '../../../armory.config'
+import { QUEUE_PREFIX } from '../../../armory.constant'
 
 export type RegisterQueueOption = {
   name: string

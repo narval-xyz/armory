@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { REQUEST_HEADER_ORG_ID } from '../../../../orchestration.constant'
+import { REQUEST_HEADER_ORG_ID } from '../../../../armory.constant'
 import { OrgId } from '../../../../shared/decorator/org-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'

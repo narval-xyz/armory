@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, LogLevel, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
-import { Config, Env } from '../../orchestration.config'
+import { Config, Env } from '../../armory.config'
 import { ApplicationException } from '../../shared/exception/application.exception'
 
 @Catch(ApplicationException)

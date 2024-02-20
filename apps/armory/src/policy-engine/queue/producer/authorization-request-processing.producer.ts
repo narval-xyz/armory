@@ -5,7 +5,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
-} from '../../../orchestration.constant'
+} from '../../../armory.constant'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
