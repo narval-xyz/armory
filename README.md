@@ -3,10 +3,10 @@
 </p>
 <p align="center">Narval is the most advanced and secure authorization stack for web3.</p>
 <p align="center">
-<a href="https://github.com/narval-xyz/narval/actions/workflows/armory_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory_ci.yml/badge.svg?branch=main" alt="@app/armory" /></a>
-<a href="https://github.com/narval-xyz/narval/actions/workflows/policy_engine_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy_engine_ci.yml/badge.svg?branch=main" alt="@app/policy-engine" /></a>
-<a href="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction_request_intent_ci.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
-<a href="https://github.com/narval-xyz/narval/actions/workflows/authz_shared_ci.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/authz_shared_ci.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
+<a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent" /></a>
 </p>
 
 ## Description
@@ -29,7 +29,7 @@ At the end, you must have a working environment ready to run any application.
 
 - [@app/armory](./apps/armory/README.md)
 - [@app/policy-engine](./apps/policy-engine/README.md)
-- [@narval/policy-engine-shared](./packages/authz-shared/README.md)
+- [@narval/policy-engine-shared](./packages/policy-engine-shared/README.md)
 - [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md)
 
 ## Docker

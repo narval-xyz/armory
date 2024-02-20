@@ -1,29 +1,29 @@
-AUTHZ_SHARED_PROJECT_NAME := authz-shared
-AUTHZ_SHARED_PROJECT_DIR := ./packages/authz-shared
+POLICY_ENGINE_SHARED_PROJECT_NAME := policy-engine-shared
+POLICY_ENGINE_SHARED_PROJECT_DIR := ./packages/policy-engine-shared
 
 # == Code format ==
 
-authz-shared/format:
-	 npx nx format:write --projects ${AUTHZ_SHARED_PROJECT_NAME}
+policy-engine-shared/format:
+	 npx nx format:write --projects ${POLICY_ENGINE_SHARED_PROJECT_NAME}
 
-authz-shared/lint:
-	npx nx lint ${AUTHZ_SHARED_PROJECT_NAME} -- --fix
+policy-engine-shared/lint:
+	npx nx lint ${POLICY_ENGINE_SHARED_PROJECT_NAME} -- --fix
 
-authz-shared/format/check:
-	 npx nx format:check --projects ${AUTHZ_SHARED_PROJECT_NAME}
+policy-engine-shared/format/check:
+	 npx nx format:check --projects ${POLICY_ENGINE_SHARED_PROJECT_NAME}
 
-authz-shared/lint/check:
-	npx nx lint ${AUTHZ_SHARED_PROJECT_NAME}
+policy-engine-shared/lint/check:
+	npx nx lint ${POLICY_ENGINE_SHARED_PROJECT_NAME}
 
 # == Testing ==
 
-authz-shared/test/type:
+policy-engine-shared/test/type:
 	npx tsc \
-		--project ${AUTHZ_SHARED_PROJECT_DIR}/tsconfig.lib.json \
+		--project ${POLICY_ENGINE_SHARED_PROJECT_DIR}/tsconfig.lib.json \
 		--noEmit
 
-authz-shared/test/unit:
-	npx nx test:unit ${AUTHZ_SHARED_PROJECT_NAME} -- ${ARGS}
+policy-engine-shared/test/unit:
+	npx nx test:unit ${POLICY_ENGINE_SHARED_PROJECT_NAME} -- ${ARGS}
 
-authz-shared/test/unit/watch:
-	make authz-shared/test/unit ARGS=--watch
+policy-engine-shared/test/unit/watch:
+	make policy-engine-shared/test/unit ARGS=--watch
