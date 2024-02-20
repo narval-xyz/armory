@@ -1,4 +1,4 @@
-import { AssetType } from '@narval/authz-shared'
+import { AssetType } from '@narval/policy-engine-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
 import { Erc721SafeTransferFromParams } from '../../../extraction/types'

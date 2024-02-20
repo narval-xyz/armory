@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { AssetType, Hex } from '@narval/authz-shared'
+import { AssetType, Hex } from '@narval/policy-engine-shared'
 import { isAddress } from 'viem/utils'
 import { AssetTypeAndUnknown, Misc, Permit2Message, PermitMessage } from './domain'
 import { SupportedMethodId } from './supported-methods'

@@ -13,7 +13,7 @@ import {
   isString,
   toAccountId,
   toAssetId
-} from '@narval/authz-shared'
+} from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {

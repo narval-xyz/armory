@@ -1,4 +1,4 @@
-import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/authz-shared'
+import { AccountId, Address, Alg, AssetType, Hex, TransactionRequest } from '@narval/policy-engine-shared'
 import { TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 import { MethodsMapping } from './supported-methods'
