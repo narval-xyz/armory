@@ -91,7 +91,7 @@ export type Prices = Record<AssetId, Record<string, number>>
 export type Request = SignTransactionAction | SignMessageAction | CreateOrganizationAction
 
 /**
- * The feeds represent arbitrary data collected by the Orchestration and
+ * The feeds represent arbitrary data collected by the Armory and
  * supplied to the Policy Engine for each evaluation request.
  */
 export type Feed<Data> = {

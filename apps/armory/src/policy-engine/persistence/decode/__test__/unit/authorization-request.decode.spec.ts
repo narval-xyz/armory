@@ -1,5 +1,5 @@
 import { Action } from '@narval/authz-shared'
-import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
+import { AuthorizationRequestStatus } from '@prisma/client/armory'
 import { decodeAuthorizationRequest } from '../../../../persistence/decode/authorization-request.decode'
 import { DecodeAuthorizationRequestException } from '../../../../persistence/exception/decode-authorization-request.exception'
 import { AuthorizationRequestModel } from '../../../../persistence/type/model.type'

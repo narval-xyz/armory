@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { Organization, PrismaClient } from '@prisma/client/orchestration'
+import { Organization, PrismaClient } from '@prisma/client/armory'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
-import { OrchestrationModule } from '../../../armory.module'
+import { ArmoryModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 
 const now = new Date()
@@ -18,14 +18,14 @@ const orgs: Organization[] = [
 ]
 
 async function main() {
-  const logger = new Logger('OrchestrationSeed')
+  const logger = new Logger('ArmorySeed')
   // Create a standalone application without any network listeners like controllers.
   //
   // See https://docs.nestjs.com/standalone-applications
-  const application = await NestFactory.createApplicationContext(OrchestrationModule)
+  const application = await NestFactory.createApplicationContext(ArmoryModule)
   const seeder = application.get<SeederService>(SeederService)
 
-  logger.log('Seeding Orchestration database')
+  logger.log('Seeding database')
 
   for (const org of orgs) {
     logger.log(`Creating organization ${org.name} (ID: ${org.id})`)
@@ -35,7 +35,7 @@ async function main() {
   }
 
   try {
-    logger.log('Orchestration database germinated 🌱')
+    logger.log('Database germinated 🌱')
     await seeder.seed()
   } finally {
     await application.close()

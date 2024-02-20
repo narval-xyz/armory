@@ -1,7 +1,7 @@
 import { Action, Alg, Signature } from '@narval/authz-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestStatus, Organization } from '@prisma/client/orchestration'
+import { AuthorizationRequestStatus, Organization } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'

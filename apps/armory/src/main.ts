@@ -4,7 +4,7 @@ import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
-import { OrchestrationModule } from './armory.module'
+import { ArmoryModule } from './armory.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
@@ -18,13 +18,13 @@ const withSwagger = (app: INestApplication): INestApplication => {
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
-      .setTitle('Orchestration')
-      .setDescription('Orchestration is the most secure infrastructure to run authorization for web3.')
+      .setTitle('Armory')
+      .setDescription('Armory is the most secure access management for web3')
       .setVersion('1.0')
       .build()
   )
   SwaggerModule.setup('docs', app, document, {
-    customSiteTitle: 'Orchestration API'
+    customSiteTitle: 'Armory API'
   })
 
   return app
@@ -70,14 +70,14 @@ const withGlobalFilters =
   }
 
 /**
- * Boots up the orchestration application.
+ * Boots up the armory application.
  *
  * @returns {Promise<void>} A promise that resolves when the application is
  * successfully bootstrapped.
  */
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('OrchestrationBootstrap')
-  const application = await NestFactory.create(OrchestrationModule)
+  const logger = new Logger('ArmoryBootstrap')
+  const application = await NestFactory.create(ArmoryModule)
   const configService = application.get<ConfigService<Config, true>>(ConfigService)
   const port = configService.get('port', { infer: true })
 
@@ -91,7 +91,7 @@ async function bootstrap(): Promise<void> {
     )
   )
 
-  logger.log(`Orchestration is running on port ${port}`)
+  logger.log(`Armory is running on port ${port}`)
 }
 
 bootstrap()

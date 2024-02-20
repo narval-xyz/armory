@@ -28,7 +28,7 @@ At the end, you must have a working environment ready to run any application.
 ## Project
 
 - [@app/authz](./apps/authz/README.md)
-- [@app/orchestration](./apps/orchestration/README.md)
+- [@app/armory](./apps/armory/README.md)
 - [@narval/authz-shared](./packages/authz-shared/README.md)
 - [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md)
 

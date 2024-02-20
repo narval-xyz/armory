@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PrismaClient } from '@prisma/client/orchestration'
+import { PrismaClient } from '@prisma/client/armory'
 import { Config } from '../../../../armory.config'
 
 @Injectable()

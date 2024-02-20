@@ -29,7 +29,7 @@ export const load = (): Config => {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
     database: {
-      url: process.env.ORCHESTRATION_DATABASE_URL
+      url: process.env.ARMORY_DATABASE_URL
     },
     redis: {
       host: process.env.REDIS_HOST,
@@ -45,5 +45,5 @@ export const load = (): Config => {
     return result.data
   }
 
-  throw new Error(`Invalid Orchestration configuration: ${result.error.message}`)
+  throw new Error(`Invalid configuration: ${result.error.message}`)
 }

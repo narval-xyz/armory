@@ -8,7 +8,7 @@ const envFile = `${__dirname}/.env`
 // Ensure a test environment variable file exists because of the override config
 // loading mechanics below.
 if (!fs.existsSync(testEnvFile)) {
-  throw new Error('No .env.test file found. Please create one by running "make orchestration/copy-default-env".')
+  throw new Error('No .env.test file found. Please create one by running "make armory/copy-default-env".')
 }
 
 // We don't want to have two dotenv files that are exactly the same, so we

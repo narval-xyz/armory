@@ -1,5 +1,5 @@
 import { Action } from '@narval/authz-shared'
-import { EvaluationLog } from '@prisma/client/orchestration'
+import { EvaluationLog } from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
 import { AuthorizationRequest, Evaluation } from '../../core/type/domain.type'

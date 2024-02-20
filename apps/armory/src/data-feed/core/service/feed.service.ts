@@ -1,6 +1,6 @@
 import { Feed } from '@narval/authz-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client/orchestration'
+import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { HistoricalTransferFeedService } from '../../../data-feed/core/service/historical-transfer-feed.service'
 import { PriceFeedService } from '../../../data-feed/core/service/price-feed.service'

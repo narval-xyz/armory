@@ -108,7 +108,7 @@ const run = async () => {
         return acc
       }, {}),
       tap((dictionary) => {
-        const file = 'apps/orchestration/src/price/resource/coin-gecko-asset-id-index.json'
+        const file = 'apps/armory/src/price/resource/coin-gecko-asset-id-index.json'
 
         File.writeFileSync(file, encode(dictionary))
 

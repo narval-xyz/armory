@@ -9,7 +9,7 @@ export const REQUEST_HEADER_ORG_ID = 'x-org-id'
 // Queues
 //
 
-export const QUEUE_PREFIX = 'orchestration'
+export const QUEUE_PREFIX = 'armory'
 
 export const AUTHORIZATION_REQUEST_PROCESSING_QUEUE = 'authorization-request:processing'
 export const AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS = 3

@@ -4,12 +4,12 @@ generator client {
   // monorepo.
   //
   // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
-  output   = "../../../../../../../node_modules/@prisma/client/orchestration"
+  output   = "../../../../../../../node_modules/@prisma/client/armory"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("ORCHESTRATION_DATABASE_URL")
+  url      = env("ARMORY_DATABASE_URL")
 }
 
 model Organization {

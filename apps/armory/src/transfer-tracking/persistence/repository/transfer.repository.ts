@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ApprovedTransfer } from '@prisma/client/orchestration'
+import { ApprovedTransfer } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { CreateTransfer, Transfer } from '../../../shared/core/type/transfer-tracking.type'

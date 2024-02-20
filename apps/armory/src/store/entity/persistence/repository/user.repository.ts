@@ -1,6 +1,6 @@
 import { CredentialEntity, UserEntity, UserRole } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { UserEntity as UserModel } from '@prisma/client/orchestration'
+import { UserEntity as UserModel } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { SetRequired } from 'type-fest'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'

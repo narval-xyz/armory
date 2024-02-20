@@ -24,7 +24,7 @@ export type Evaluation = {
 }
 
 /**
- * AuthZ actions currently supported by the Orchestration.
+ * AuthZ actions currently supported by the Armory.
  */
 export type SupportedAction = typeof Action.SIGN_TRANSACTION | typeof Action.SIGN_MESSAGE
 

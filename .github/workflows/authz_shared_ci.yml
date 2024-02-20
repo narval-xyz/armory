@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           make authz/test/type
-          make orchestration/test/type
+          make armory/test/type
 
       - name: Test unit
         shell: bash

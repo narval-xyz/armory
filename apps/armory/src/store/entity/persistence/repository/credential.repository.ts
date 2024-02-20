@@ -1,6 +1,6 @@
 import { Alg, CredentialEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { AuthCredentialEntity as Model } from '@prisma/client/orchestration'
+import { AuthCredentialEntity as Model } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 import { decodeConstant } from '../decode.util'

@@ -23,7 +23,7 @@ setup:
 	make armory/setup
 	make authz/setup
 	@echo ""
-	@echo "${TERM_GREEN}🐋 Orchestration & AuthZ applications are ready!${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🐋 Armory & AuthZ applications are ready!${TERM_NO_COLOR}"
 	@echo ""
 	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
 

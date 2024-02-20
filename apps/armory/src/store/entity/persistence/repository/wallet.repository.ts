@@ -1,6 +1,6 @@
 import { AccountType, WalletEntity, getAddress } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { WalletEntity as WalletModel } from '@prisma/client/orchestration'
+import { WalletEntity as WalletModel } from '@prisma/client/armory'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 import { decodeConstant } from '../decode.util'
 

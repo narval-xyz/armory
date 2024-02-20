@@ -1,6 +1,6 @@
 import { WalletGroupEntity } from '@narval/authz-shared'
 import { Injectable } from '@nestjs/common'
-import { WalletGroupEntity as GroupModel, WalletGroupMemberEntity as MemberModel } from '@prisma/client/orchestration'
+import { WalletGroupEntity as GroupModel, WalletGroupMemberEntity as MemberModel } from '@prisma/client/armory'
 import { map } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 

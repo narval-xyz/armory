@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EvaluationLog } from '@prisma/client/orchestration'
+import { EvaluationLog } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import {

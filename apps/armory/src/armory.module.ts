@@ -25,4 +25,4 @@ import { TransferTrackingModule } from './transfer-tracking/transfer-tracking.mo
     }
   ]
 })
-export class OrchestrationModule {}
+export class ArmoryModule {}

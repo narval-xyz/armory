@@ -1,5 +1,5 @@
 import { Decision, Signature, TransactionRequest } from '@narval/authz-shared'
-import { AuthorizationRequestStatus } from '@prisma/client/orchestration'
+import { AuthorizationRequestStatus } from '@prisma/client/armory'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
 import { Approval, AuthorizationRequest, SignTransaction } from '../../policy-engine/core/type/domain.type'
