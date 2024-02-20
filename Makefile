@@ -1,5 +1,5 @@
 include ./apps/authz/Makefile
-include ./apps/orchestration/Makefile
+include ./apps/armory/Makefile
 include ./packages/authz-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 
@@ -20,12 +20,12 @@ install/ci:
 setup:
 	make install
 	make docker/up
+	make armory/setup
 	make authz/setup
-	make orchestration/setup
 	@echo ""
 	@echo "${TERM_GREEN}🐋 Orchestration & AuthZ applications are ready!${TERM_NO_COLOR}"
 	@echo ""
-	@echo "${TERM_GREEN}Run 'make orchestration/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
 
 # == Docker ==
 

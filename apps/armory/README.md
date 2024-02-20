@@ -5,13 +5,13 @@
 ```bash
 # Boot PostgreSQL and Redis
 make docker/up
-make orchestration/setup
+make armory/setup
 ```
 
 ## Running
 
 ```bash
-make orchestration/start/dev
+make armory/start/dev
 ```
 
 ## Testing
@@ -19,42 +19,42 @@ make orchestration/start/dev
 First time? Setup the test database:
 
 ```bash
-make orchestration/test/copy-default-env
-make orchestration/test/db/setup
+make armory/test/copy-default-env
+make armory/test/db/setup
 ```
 
 Running the tests:
 
 ```bash
 # Run all tests
-make orchestration/test
+make armory/test
 
-make orchestration/test/type
-make orchestration/test/unit
-make orchestration/test/integration
-make orchestration/test/e2e
+make armory/test/type
+make armory/test/unit
+make armory/test/integration
+make armory/test/e2e
 
 # Watch tests
-make orchestration/test/unit/watch
-make orchestration/test/integration/watch
-make orchestration/test/e2e/watch
+make armory/test/unit/watch
+make armory/test/integration/watch
+make armory/test/e2e/watch
 ```
 
 ## Database
 
 ```bash
-make orchestration/db/migrate
-make orchestration/db/create-migration NAME=your-migration-name
+make armory/db/migrate
+make armory/db/create-migration NAME=your-migration-name
 ```
 
 ## Formatting
 
 ```bash
-make orchestration/format
-make orchestration/lint
+make armory/format
+make armory/lint
 
-make orchestration/format/check
-make orchestration/lint/check
+make armory/format/check
+make armory/lint/check
 ```
 
 ## Price Module
@@ -71,7 +71,7 @@ a static index mapping Asset IDs to Coin IDs. This index is used to translate
 inputs from the application to the CoinGecko.
 
 ```bash
-make orchestration/price/generate-coin-gecko-asset-id-index
+make armory/price/generate-coin-gecko-asset-id-index
 ```
 
 The script will write the index to [coin-gecko-asset-id-index.json](./src/price/resource/coin-gecko-asset-id-index.json).

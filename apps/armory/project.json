@@ -1,7 +1,7 @@
 {
-  "name": "orchestration",
+  "name": "armory",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/orchestration/src",
+  "sourceRoot": "apps/armory/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -11,11 +11,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/orchestration",
-        "main": "apps/orchestration/src/main.ts",
-        "tsConfig": "apps/orchestration/tsconfig.app.json",
+        "outputPath": "dist/apps/armory",
+        "main": "apps/armory/src/main.ts",
+        "tsConfig": "apps/armory/tsconfig.app.json",
         "isolatedConfig": true,
-        "webpackConfig": "apps/orchestration/webpack.config.js",
+        "webpackConfig": "apps/armory/webpack.config.js",
         "transformers": [
           {
             "name": "@nestjs/swagger/plugin"
@@ -24,7 +24,7 @@
       },
       "configurations": {
         "repl": {
-          "main": "apps/orchestration/src/repl.ts"
+          "main": "apps/armory/src/repl.ts"
         },
         "development": {},
         "production": {}
@@ -33,21 +33,21 @@
     "repl": {
       "executor": "@nx/node:node",
       "options": {
-        "buildTarget": "orchestration:build:repl"
+        "buildTarget": "armory:build:repl"
       }
     },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "orchestration:build"
+        "buildTarget": "armory:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "orchestration:build:development"
+          "buildTarget": "armory:build:development"
         },
         "production": {
-          "buildTarget": "orchestration:build:production"
+          "buildTarget": "armory:build:production"
         }
       }
     },
@@ -55,7 +55,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/orchestration/**/*.ts"]
+        "lintFilePatterns": ["apps/armory/**/*.ts"]
       }
     },
     "test:type": {
@@ -68,7 +68,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.unit.ts",
+        "jestConfig": "apps/armory/jest.unit.ts",
         "verbose": true
       }
     },
@@ -76,7 +76,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.integration.ts",
+        "jestConfig": "apps/armory/jest.integration.ts",
         "verbose": true,
         "runInBand": true
       }
@@ -85,7 +85,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/orchestration/jest.e2e.ts",
+        "jestConfig": "apps/armory/jest.e2e.ts",
         "verbose": true,
         "runInBand": true
       }
