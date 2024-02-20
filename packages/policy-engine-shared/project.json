@@ -1,21 +1,21 @@
 {
-  "name": "authz-shared",
+  "name": "policy-engine-shared",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/authz-shared/src",
+  "sourceRoot": "packages/policy-engine-shared/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/authz-shared/**/*.ts"]
+        "lintFilePatterns": ["packages/policy-engine-shared/**/*.ts"]
       }
     },
     "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/authz-shared/jest.unit.ts",
+        "jestConfig": "packages/policy-engine-shared/jest.unit.ts",
         "verbose": true
       }
     }

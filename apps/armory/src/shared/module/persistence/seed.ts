@@ -1,4 +1,4 @@
-import { ORGANIZATION } from '@narval/policy-engine-shared/lib/dev.fixture'
+import { FIXTURE } from '@narval/policy-engine-shared'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { Organization, PrismaClient } from '@prisma/client/armory'
@@ -10,7 +10,7 @@ const prisma = new PrismaClient()
 
 const orgs: Organization[] = [
   {
-    id: ORGANIZATION.uid,
+    id: FIXTURE.ORGANIZATION.uid,
     name: 'Dev',
     createdAt: now,
     updatedAt: now
