@@ -197,7 +197,7 @@ describe('Admin Endpoints', () => {
       expect(body.policies).toMatchObject(payload.request.data)
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const path = `./apps/authz/src/opa/rego/generated/${body.fileId}.rego`
+      const path = `./apps/policy-engine/src/opa/rego/generated/${body.fileId}.rego`
       const rego = readFileSync(path, 'utf-8')
       expect(rego).toBeDefined()
 

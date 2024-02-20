@@ -1,5 +1,5 @@
-include ./apps/authz/Makefile
 include ./apps/armory/Makefile
+include ./apps/policy-engine/Makefile
 include ./packages/authz-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 
@@ -21,11 +21,11 @@ setup:
 	make install
 	make docker/up
 	make armory/setup
-	make authz/setup
+	make policy-engine/setup
 	@echo ""
-	@echo "${TERM_GREEN}🐋 Armory & AuthZ applications are ready!${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🐋 Armory & Policy Engine applications are ready!${TERM_NO_COLOR}"
 	@echo ""
-	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make policy-engine/start/dev' to get them running.${TERM_NO_COLOR}"
 
 # == Docker ==
 

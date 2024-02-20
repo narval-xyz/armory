@@ -61,7 +61,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc --noEmit --project apps/authz/tsconfig.app.json"
+        "command": "npx tsc --noEmit --project apps/armory/tsconfig.app.json"
       }
     },
     "test:unit": {

@@ -54,7 +54,7 @@ export class OpaService implements OnApplicationBootstrap {
 
     Handlebars.registerHelper('reason', reasonToString)
 
-    const templateSource = readFileSync('./apps/authz/src/opa/template/template.hbs', 'utf-8')
+    const templateSource = readFileSync('./apps/policy-engine/src/opa/template/template.hbs', 'utf-8')
 
     const template = Handlebars.compile(templateSource)
 
@@ -64,7 +64,7 @@ export class OpaService implements OnApplicationBootstrap {
 
     const fileId = uuid()
 
-    const basePath = './apps/authz/src/opa/rego/generated'
+    const basePath = './apps/policy-engine/src/opa/rego/generated'
 
     mkdirSync(basePath, { recursive: true })
 

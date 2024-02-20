@@ -1,7 +1,7 @@
 import type { Config } from 'jest'
 
 const config: Config = {
-  displayName: 'authz',
+  displayName: 'policy-engine',
   moduleFileExtensions: ['ts', 'js', 'html'],
   preset: '../../jest.preset.js',
   setupFiles: ['<rootDir>/jest.setup.ts'],

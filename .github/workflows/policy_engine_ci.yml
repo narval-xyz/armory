@@ -1,10 +1,10 @@
-name: '@app/authz CI'
+name: '@app/policy-engine CI'
 
 on:
   push:
     paths:
-      - apps/authz/**
-      - .github/workflows/authz_ci.yml
+      - apps/policy-engine/**
+      - .github/workflows/policy_engine_ci.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -33,40 +33,40 @@ jobs:
       - name: Code format
         shell: bash
         run: |
-          make authz/format/check
-          make authz/lint/check
+          make policy-engine/format/check
+          make policy-engine/lint/check
 
       - name: Setup database and Prisma types
         shell: bash
         run: |
-          make authz/copy-default-env
+          make policy-engine/copy-default-env
 
       - name: Test types
         shell: bash
         run: |
-          make authz/test/type
+          make policy-engine/test/type
 
       - name: Test unit
         shell: bash
         run: |
-          make authz/test/unit
+          make policy-engine/test/unit
 
       - name: Test integration
         shell: bash
         run: |
-          make authz/test/integration
+          make policy-engine/test/integration
 
       - name: Test E2E
         shell: bash
         run: |
-          make authz/test/e2e
+          make policy-engine/test/e2e
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@app/authz CI failed'
+          author_name: '@app/policy-engine CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
@@ -87,4 +87,4 @@ jobs:
           version: latest
 
       - name: Run OPA Tests
-        run: make authz/rego/test
+        run: make policy-engine/rego/test
