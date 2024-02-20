@@ -3,10 +3,10 @@ import { EvaluationLog } from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
 import { AuthorizationRequest, Evaluation } from '../../core/type/domain.type'
+import { ACTION_REQUEST } from '../../orchestration.constant'
 import { DecodeAuthorizationRequestException } from '../../persistence/exception/decode-authorization-request.exception'
 import { signatureSchema } from '../../persistence/schema/signature.schema'
 import { AuthorizationRequestModel } from '../../persistence/type/model.type'
-import { ACTION_REQUEST } from '../../policy-engine.constant'
 
 type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 

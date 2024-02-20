@@ -69,4 +69,4 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
   ],
   exports: [AuthorizationRequestGateway]
 })
-export class PolicyEngineModule {}
+export class OrchestrationModule {}

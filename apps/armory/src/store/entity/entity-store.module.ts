@@ -2,7 +2,7 @@ import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/comm
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { load } from '../../armory.config'
-import { PolicyEngineModule } from '../../policy-engine/policy-engine.module'
+import { OrchestrationModule } from '../../orchestration/orchestration.module'
 import { PersistenceModule } from '../../shared/module/persistence/persistence.module'
 import { AddressBookService } from './core/service/address-book.service'
 import { CredentialService } from './core/service/credential.service'
@@ -34,7 +34,7 @@ import { WalletGroupRepository } from './persistence/repository/wallet-group.rep
 import { WalletRepository } from './persistence/repository/wallet.repository'
 
 @Module({
-  imports: [ConfigModule.forRoot({ load: [load] }), PersistenceModule, PolicyEngineModule],
+  imports: [ConfigModule.forRoot({ load: [load] }), PersistenceModule, OrchestrationModule],
   controllers: [
     AddressBookController,
     CredentialController,

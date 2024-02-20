@@ -9,13 +9,13 @@ import request from 'supertest'
 import { stringToHex } from 'viem'
 import { load } from '../../../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, REQUEST_HEADER_ORG_ID } from '../../../armory.constant'
-import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
-import { SignatureDto } from '../../../policy-engine/http/rest/dto/signature.dto'
-import { AuthorizationRequestRepository } from '../../../policy-engine/persistence/repository/authorization-request.repository'
-import { PolicyEngineModule } from '../../../policy-engine/policy-engine.module'
+import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
+import { SignatureDto } from '../../../orchestration/http/rest/dto/signature.dto'
+import { AuthorizationRequestRepository } from '../../../orchestration/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../shared/module/queue/queue.module'
+import { OrchestrationModule } from '../../orchestration.module'
 
 const ENDPOINT_PREFIX = '/authorization-requests'
 
@@ -62,7 +62,7 @@ describe('Authorization Request', () => {
         }),
         QueueModule.forRoot(),
         PersistenceModule,
-        PolicyEngineModule
+        OrchestrationModule
       ]
     }).compile()
 

@@ -8,7 +8,7 @@ import { sha256 } from 'viem'
 import { generateSignature } from '../../../../__test__/fixture/authorization-request.fixture'
 import { load } from '../../../../armory.config'
 import { REQUEST_HEADER_ORG_ID } from '../../../../armory.constant'
-import { PolicyEngineModule } from '../../../../policy-engine/policy-engine.module'
+import { OrchestrationModule } from '../../../../orchestration/orchestration.module'
 import { PersistenceModule } from '../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../shared/module/queue/queue.module'
@@ -59,7 +59,7 @@ describe('User Entity', () => {
         }),
         PersistenceModule,
         QueueModule.forRoot(),
-        PolicyEngineModule,
+        OrchestrationModule,
         EntityStoreModule
       ]
     }).compile()

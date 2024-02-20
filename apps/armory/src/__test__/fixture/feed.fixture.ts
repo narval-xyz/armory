@@ -3,7 +3,7 @@ import { times } from 'lodash/fp'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
 import { HistoricalTransferFeedService } from '../../data-feed/core/service/historical-transfer-feed.service'
-import { signatureSchema } from '../../policy-engine/persistence/schema/signature.schema'
+import { signatureSchema } from '../../orchestration/persistence/schema/signature.schema'
 import { hexGenerator } from './shared.fixture'
 import { generateTransfer } from './transfer-tracking.fixture'
 

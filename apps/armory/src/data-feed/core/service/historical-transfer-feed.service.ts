@@ -5,7 +5,7 @@ import { mapValues, omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
 import { DataFeed } from '../../../data-feed/core/type/data-feed.type'
-import { AuthorizationRequest } from '../../../policy-engine/core/type/domain.type'
+import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
 import { Transfer } from '../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 

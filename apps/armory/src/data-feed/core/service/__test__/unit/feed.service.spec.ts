@@ -9,7 +9,7 @@ import {
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateHistoricalTransfers } from '../../../../../__test__/fixture/feed.fixture'
 import { generatePrices } from '../../../../../__test__/fixture/price.fixture'
-import { AuthorizationRequest } from '../../../../../policy-engine/core/type/domain.type'
+import { AuthorizationRequest } from '../../../../../orchestration/core/type/domain.type'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { PrismaService } from '../../../../../shared/module/persistence/service/prisma.service'
 import { FeedService } from '../../feed.service'

@@ -9,7 +9,7 @@ import {
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { load } from '../../../../../armory.config'
 import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
-import { AuthorizationRequest } from '../../../../../policy-engine/core/type/domain.type'
+import { AuthorizationRequest } from '../../../../../orchestration/core/type/domain.type'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { PriceFeedService } from '../../../../core/service/price-feed.service'
