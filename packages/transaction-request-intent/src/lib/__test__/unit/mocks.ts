@@ -1,4 +1,4 @@
-import { AccountId, AssetId, TransactionRequest, getAssetId } from '@narval/authz-shared'
+import { AccountId, AssetId, TransactionRequest, getAssetId } from '@narval/policy-engine-shared'
 import { Address } from 'viem'
 import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'

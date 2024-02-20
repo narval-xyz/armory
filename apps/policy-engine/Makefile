@@ -1,0 +1,98 @@
+POLICY_ENGINE_PROJECT_NAME := policy-engine
+POLICY_ENGINE_PROJECT_DIR := ./apps/policy-engine
+
+# === Start ===
+
+policy-engine/start/dev:
+	npx nx serve ${POLICY_ENGINE_PROJECT_NAME}
+
+# === Setup ===
+
+policy-engine/setup:
+	make policy-engine/copy-default-env
+	make policy-engine/rego/build
+
+policy-engine/copy-default-env:
+	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.default ${POLICY_ENGINE_PROJECT_DIR}/.env
+	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.test.default ${POLICY_ENGINE_PROJECT_DIR}/.env.test
+
+# == Code format ==
+
+policy-engine/format:
+	npx nx format:write --projects ${POLICY_ENGINE_PROJECT_NAME}
+
+policy-engine/lint:
+	npx nx lint ${POLICY_ENGINE_PROJECT_NAME} -- --fix
+
+policy-engine/format/check:
+	npx nx format:check --projects ${POLICY_ENGINE_PROJECT_NAME}
+
+policy-engine/lint/check:
+	npx nx lint ${POLICY_ENGINE_PROJECT_NAME}
+
+# === Testing ===
+
+policy-engine/test/type:
+	npx tsc \
+		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json \
+		--noEmit
+
+policy-engine/test/unit:
+	npx nx test:unit ${POLICY_ENGINE_PROJECT_NAME} -- ${ARGS}
+
+policy-engine/test/unit/watch:
+	make policy-engine/test/unit ARGS=--watch
+
+policy-engine/test/integration:
+	npx nx test:integration ${POLICY_ENGINE_PROJECT_NAME} -- ${ARGS}
+
+policy-engine/test/integration/watch:
+	make policy-engine/test/integration ARGS=--watch
+
+policy-engine/test/e2e:
+	npx nx test:e2e ${POLICY_ENGINE_PROJECT_NAME} -- ${ARGS}
+
+policy-engine/test/e2e/watch:
+	make policy-engine/test/e2e ARGS=--watch
+
+policy-engine/test:
+	make policy-engine/test/unit
+	make policy-engine/test/integration
+	make policy-engine/test/e2e
+
+# === Open Policy Agent & Rego ===
+
+policy-engine/rego/build:
+	rm -rf ./rego-build
+	mkdir -p ./rego-build
+	opa build \
+		--target wasm \
+		--entrypoint main/evaluate \
+		--bundle ${POLICY_ENGINE_PROJECT_DIR}/src/opa/rego \
+		--ignore "__test__" \
+		--ignore "policies" \
+		--output ./rego-build/policies.gz
+	tar -xzf ./rego-build/policies.gz -C ./rego-build/
+
+policy-engine/rego/eval:
+	npx ts-node \
+		--compiler-options "{\"module\":\"CommonJS\"}" \
+		${POLICY_ENGINE_PROJECT_DIR}/src/opa/script/evaluation.script.ts
+
+policy-engine/rego/translate:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/opa/script/translate-legacy-policy.script.ts
+
+
+policy-engine/rego/test:
+	opa test \
+	--format="pretty" \
+	${POLICY_ENGINE_PROJECT_DIR}/src/opa/rego \
+	--ignore "generated" \
+	--verbose \
+	${ARGS}
+
+policy-engine/rego/test/watch:
+	make policy-engine/rego/test ARGS=--watch
+

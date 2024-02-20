@@ -1,0 +1,81 @@
+{
+  "name": "policy-engine",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/policy-engine/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/policy-engine",
+        "main": "apps/policy-engine/src/main.ts",
+        "tsConfig": "apps/policy-engine/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/policy-engine/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "policy-engine:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "policy-engine:build:development"
+        },
+        "production": {
+          "buildTarget": "policy-engine:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/policy-engine/**/*.ts"]
+      }
+    },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsc --noEmit --project apps/policy-engine/tsconfig.app.json"
+      }
+    },
+    "test:unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/policy-engine/jest.unit.ts",
+        "verbose": true
+      }
+    },
+    "test:integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/policy-engine/jest.integration.ts",
+        "verbose": true,
+        "runInBand": true
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/policy-engine/jest.e2e.ts",
+        "verbose": true,
+        "runInBand": true
+      }
+    }
+  },
+  "tags": []
+}

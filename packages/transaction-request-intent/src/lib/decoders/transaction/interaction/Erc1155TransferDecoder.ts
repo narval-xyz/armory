@@ -1,4 +1,4 @@
-import { AssetType, Hex, toAssetId } from '@narval/authz-shared'
+import { AssetType, Hex, toAssetId } from '@narval/policy-engine-shared'
 import { Address } from 'viem'
 import { ContractCallInput, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'

@@ -1,4 +1,4 @@
-import { Address, assertAddress, assertHexString } from '@narval/authz-shared'
+import { Address, assertAddress, assertHexString } from '@narval/policy-engine-shared'
 import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'

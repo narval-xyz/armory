@@ -1,6 +1,6 @@
-include ./apps/authz/Makefile
-include ./apps/orchestration/Makefile
-include ./packages/authz-shared/Makefile
+include ./apps/armory/Makefile
+include ./apps/policy-engine/Makefile
+include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 
 # For more terminal color codes, head over to https://opensource.com/article/19/9/linux-terminal-colors
@@ -20,12 +20,12 @@ install/ci:
 setup:
 	make install
 	make docker/up
-	make authz/setup
-	make orchestration/setup
+	make armory/setup
+	make policy-engine/setup
 	@echo ""
-	@echo "${TERM_GREEN}🐋 Orchestration & AuthZ applications are ready!${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🐋 Armory & Policy Engine applications are ready!${TERM_NO_COLOR}"
 	@echo ""
-	@echo "${TERM_GREEN}Run 'make orchestration/start/dev' or/and 'make authz/start/dev' to get them running.${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make policy-engine/start/dev' to get them running.${TERM_NO_COLOR}"
 
 # == Docker ==
 
