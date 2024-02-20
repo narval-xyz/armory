@@ -3,8 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { Organization, PrismaClient } from '@prisma/client/orchestration'
 import { ORGANIZATION } from 'packages/authz-shared/src/lib/dev.fixture'
 import { OrchestrationModule } from '../../../orchestration.module'
-import { EntityStoreSeed } from '../../../store/entity/persistence/entity-store.seed'
-import { germinate as germinateTransferTrackingModule } from '../../../transfer-tracking/persistence/transfer.seed'
+import { SeederService } from './service/seeder.service'
 
 const now = new Date()
 const prisma = new PrismaClient()
@@ -24,7 +23,7 @@ async function main() {
   //
   // See https://docs.nestjs.com/standalone-applications
   const application = await NestFactory.createApplicationContext(OrchestrationModule)
-  const entityStoreSeed = application.get<EntityStoreSeed>(EntityStoreSeed)
+  const seeder = application.get<SeederService>(SeederService)
 
   logger.log('Seeding Orchestration database')
 
@@ -36,11 +35,8 @@ async function main() {
   }
 
   try {
-    await entityStoreSeed.germinate()
-    // TODO (@wcalderipe, 15/02/24): Refactor to a seeder provider like entity store.
-    await germinateTransferTrackingModule(prisma)
-
     logger.log('Orchestration database germinated 🌱')
+    await seeder.seed()
   } finally {
     await application.close()
   }
