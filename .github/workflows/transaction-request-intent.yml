@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - packages/transaction-request-intent/**
-      - .github/workflows/transaction_request_intent_ci.yml
+      - .github/workflows/transaction-request-intent.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json

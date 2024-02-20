@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - apps/policy-engine/**
-      - .github/workflows/policy_engine_ci.yml
+      - .github/workflows/policy-engine.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json

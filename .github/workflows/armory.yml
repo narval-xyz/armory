@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - apps/armory/**
-      - .github/workflows/armory_ci.yml
+      - .github/workflows/armory.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json

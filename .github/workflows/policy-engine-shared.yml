@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - packages/policy-engine-shared/**
-      - .github/workflows/authz_shared_ci.yml
+      - .github/workflows/policy-engine-shared.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
