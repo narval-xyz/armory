@@ -1,4 +1,4 @@
-# Orchestration
+# Armory
 
 ## Getting started
 

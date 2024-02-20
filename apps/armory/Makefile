@@ -51,7 +51,7 @@ armory/db/migrate:
 
 armory/db/setup:
 	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Orchestration development database${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🛠️  Setting up Armory development database${TERM_NO_COLOR}"
 	@echo ""
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
 		prisma migrate reset \
@@ -60,7 +60,7 @@ armory/db/setup:
 	make armory/db/seed
 
 	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Orchestration test database${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🛠️  Setting up Armory test database${TERM_NO_COLOR}"
 	@echo ""
 	make armory/test/db/setup
 
