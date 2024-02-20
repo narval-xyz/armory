@@ -29,7 +29,7 @@
     "@swc-node/register": "~1.6.7",
     "@swc/core": "~1.4.0",
     "@testing-library/react": "14.1.2",
-    "@types/jest": "^29.5.11",
+    "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.202",
     "@types/nock": "^11.1.0",
     "@types/node": "^18.14.2",
