@@ -45,7 +45,7 @@ jobs:
       - name: Test upstream application types
         shell: bash
         run: |
-          make authz/test/type
+          make policy-engine/test/type
 
       - name: Test unit
         shell: bash
