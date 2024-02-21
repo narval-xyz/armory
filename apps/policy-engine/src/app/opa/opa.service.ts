@@ -26,9 +26,8 @@ export class OpaService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('OPA Service boot')
-    const policyWasmPath = OPA_WASM_PATH
     try {
-      const policyWasm = readFileSync(policyWasmPath)
+      const policyWasm = readFileSync(OPA_WASM_PATH)
       const opaEngine = await loadPolicy(policyWasm, undefined, {
         'time.now_ns': () => new Date().getTime() * 1000000 // TODO: @sam this happens on app bootstrap one time; if you need a timestamp per-request then this needs to be passed in w/ Entity data not into the Policy.
       })
@@ -36,7 +35,7 @@ export class OpaService implements OnApplicationBootstrap {
       await this.reloadEntityData()
     } catch (err) {
       if (err.code === 'ENOENT') {
-        this.logger.error(`Policy wasm not found at ${policyWasmPath}`)
+        this.logger.error(`Policy wasm not found at ${OPA_WASM_PATH}`)
       } else {
         throw err
       }
@@ -49,7 +48,7 @@ export class OpaService implements OnApplicationBootstrap {
     return evalResult.map(({ result }) => result)
   }
 
-  buildPoliciesWasm(payload: Policy[]): { fileId: string; policies: Policy[] } {
+  generateRegoPolicies(payload: Policy[]): { fileId: string; policies: Policy[] } {
     Handlebars.registerHelper('criterion', criterionToString)
 
     Handlebars.registerHelper('reason', reasonToString)
