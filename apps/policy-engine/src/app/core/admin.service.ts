@@ -7,7 +7,7 @@ export class AdminService {
   constructor(private opaService: OpaService) {}
 
   async setPolicyRules(payload: SetPolicyRulesRequest): Promise<{ fileId: string; policies: Policy[] }> {
-    const { fileId, policies } = this.opaService.buildPoliciesWasm(payload.request.data)
+    const { fileId, policies } = this.opaService.generateRegoPolicies(payload.request.data)
 
     return { fileId, policies }
   }
