@@ -124,8 +124,8 @@ describe(AuthorizationRequestService.name, () => {
       transactionRequestIntent: {
         type: Intents.TRANSFER_NATIVE,
         amount: '1000000000000000000',
-        to: getAccountId('eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
-        from: getAccountId('eip155:137/0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'),
+        to: getAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
+        from: getAccountId('eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b'),
         token: POLYGON.coin.id
       }
     }
