@@ -19,10 +19,10 @@ import {
 
 describe('caip', () => {
   const validAddress = '0x5db3Bf14413d7e3c69FAA279EFa1D1B08637eC4c'
-  const validAccountId = `${Namespace.EIP155}:1/${validAddress}`
+  const validAccountId = `${Namespace.EIP155}:1:${validAddress}`
   const invalidAccountId = 'invalid_caip10_id'
-  const invalidAccountIdNamespace = 'invalid_namespace:1/0x1234567890abcdef'
-  const invalidAccountIdAddress = `${Namespace.EIP155}:1/invalid_address`
+  const invalidAccountIdNamespace = 'invalid_namespace:1:0x1234567890abcdef'
+  const invalidAccountIdAddress = `${Namespace.EIP155}:1:invalid_address`
 
   describe('safeParseAccount', () => {
     it('returns success for valid account id', () => {
@@ -96,7 +96,7 @@ describe('caip', () => {
           chainId: 1,
           address: '0x1234567890abcdef'
         })
-      ).toEqual(`${Namespace.EIP155}:1/0x1234567890abcdef`)
+      ).toEqual(`${Namespace.EIP155}:1:0x1234567890abcdef`)
     })
   })
 
