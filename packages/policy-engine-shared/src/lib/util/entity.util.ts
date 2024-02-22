@@ -1,6 +1,6 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
 import { Entities } from '../type/entity.type'
-import { isAccountId, isAssetId } from '../util/caip.util'
+import { isAccountId, isAssetId } from './caip.util'
 
 export type ValidationIssue = {
   code: string

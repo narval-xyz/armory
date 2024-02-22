@@ -22,10 +22,7 @@ export class WalletService {
   async assignGroup(orgId: string, input: AssignWalletGroupRequest): Promise<WalletGroupMemberEntity> {
     const { groupId, walletId } = input.request.data
 
-    await this.walletGroupRepository.create(orgId, {
-      uid: groupId,
-      wallets: [walletId]
-    })
+    await this.walletGroupRepository.create(orgId, { uid: groupId })
 
     return { groupId, walletId }
   }

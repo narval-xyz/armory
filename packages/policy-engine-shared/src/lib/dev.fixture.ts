@@ -254,11 +254,11 @@ export const ENTITIES: Entities = {
   addressBook: ADDRESS_BOOK,
   credentials: Object.values(CREDENTIAL),
   tokens: Object.values(TOKEN),
-  userGroups: Object.values(USER_GROUP),
-  users: Object.values(USER),
   userGroupMembers: USER_GROUP_MEMBER,
+  userGroups: Object.values(USER_GROUP),
   userWallets: USER_WALLET,
-  walletGroups: Object.values(WALLET_GROUP),
+  users: Object.values(USER),
   walletGroupMembers: WALLET_GROUP_MEMBER,
+  walletGroups: Object.values(WALLET_GROUP),
   wallets: Object.values(WALLET)
 }

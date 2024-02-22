@@ -1,6 +1,6 @@
 import { ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP, WALLET, WALLET_GROUP } from '../../../dev.fixture'
 import { AccountClassification, Entities } from '../../../type/entity.type'
-import { validate } from '../../entity.domain'
+import { validate } from '../../entity.util'
 
 describe('validate', () => {
   const emptyEntities: Entities = {

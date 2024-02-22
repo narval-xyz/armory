@@ -1,7 +1,6 @@
 import { UserGroupEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { UserGroupEntity as GroupModel, UserGroupMemberEntity as MemberModel } from '@prisma/client/armory'
-import { map } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 
 type Model = GroupModel & {
@@ -20,30 +19,7 @@ export class UserGroupRepository {
       }
     })
 
-    if (userGroup.users.length) {
-      await this.enroll(userGroup.uid, userGroup.users)
-    }
-
     return userGroup
-  }
-
-  async update(userGroup: UserGroupEntity): Promise<UserGroupEntity> {
-    if (userGroup.users.length) {
-      await this.enroll(userGroup.uid, userGroup.users)
-    }
-
-    return userGroup
-  }
-
-  private async enroll(groupId: string, userIds: string[]): Promise<boolean> {
-    const members = userIds.map((userId) => ({ userId, groupId }))
-
-    await this.prismaService.userGroupMemberEntity.createMany({
-      data: members,
-      skipDuplicates: true
-    })
-
-    return true
   }
 
   async findById(uid: string): Promise<UserGroupEntity | null> {
@@ -73,9 +49,6 @@ export class UserGroupRepository {
   }
 
   private decode(model: Model): UserGroupEntity {
-    return {
-      uid: model.uid,
-      users: map('userId', model.members)
-    }
+    return { uid: model.uid }
   }
 }

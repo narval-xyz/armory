@@ -1,7 +1,6 @@
 import { WalletGroupEntity } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { WalletGroupEntity as GroupModel, WalletGroupMemberEntity as MemberModel } from '@prisma/client/armory'
-import { map } from 'lodash/fp'
 import { PrismaService } from '../../../../shared/module/persistence/service/prisma.service'
 
 type Model = GroupModel & {
@@ -26,33 +25,7 @@ export class WalletGroupRepository {
       })
     }
 
-    if (walletGroup.wallets.length) {
-      await this.enroll(walletGroup.uid, walletGroup.wallets)
-    }
-
     return walletGroup
-  }
-
-  async update(walletGroup: WalletGroupEntity): Promise<WalletGroupEntity> {
-    if (walletGroup.wallets.length) {
-      await this.enroll(walletGroup.uid, walletGroup.wallets)
-    }
-
-    return walletGroup
-  }
-
-  private async enroll(groupId: string, walletIds: string[]): Promise<boolean> {
-    const members = walletIds.map((walletId) => ({
-      walletId,
-      groupId
-    }))
-
-    await this.prismaService.walletGroupMemberEntity.createMany({
-      data: members,
-      skipDuplicates: true
-    })
-
-    return true
   }
 
   async findById(uid: string): Promise<WalletGroupEntity | null> {
@@ -82,9 +55,6 @@ export class WalletGroupRepository {
   }
 
   private decode(model: Model): WalletGroupEntity {
-    return {
-      uid: model.uid,
-      wallets: map('walletId', model.members)
-    }
+    return { uid: model.uid }
   }
 }

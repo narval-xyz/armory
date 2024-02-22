@@ -1,6 +1,5 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
-import { compact } from 'lodash/fp'
 import { SeedService } from '../../../shared/module/persistence/service/seed.service'
 import { AddressBookRepository } from './repository/address-book.repository'
 import { CredentialRepository } from './repository/credential.repository'
@@ -47,20 +46,20 @@ export class EntityStoreSeed extends SeedService {
       Object.values(FIXTURE.USER_GROUP).map((entity) => this.userGroupRepository.create(ORGANIZATION.uid, entity))
     )
 
-    await Promise.all(
-      compact(
-        Object.values(FIXTURE.WALLET).map(({ uid, assignees }) => {
-          if (assignees?.length) {
-            return assignees.map((userId) =>
-              this.userWalletRepository.create(ORGANIZATION.uid, {
-                userId,
-                walletId: uid
-              })
-            )
-          }
-        })
-      )
-    )
+    // await Promise.all(
+    //   compact(
+    //     Object.values(FIXTURE.WALLET).map(({ uid, assignees }) => {
+    //       if (assignees?.length) {
+    //         return assignees.map((userId) =>
+    //           this.userWalletRepository.create(ORGANIZATION.uid, {
+    //             userId,
+    //             walletId: uid
+    //           })
+    //         )
+    //       }
+    //     })
+    //   )
+    // )
 
     await Promise.all(FIXTURE.ADDRESS_BOOK.map((entity) => this.addressBookRepository.create(ORGANIZATION.uid, entity)))
 

@@ -1,25 +1,22 @@
 import {
-  AccountClassification,
-  AccountType,
   AddressBookAccountEntity,
-  Alg,
   CredentialEntity,
   Entities,
+  FIXTURE,
   OrganizationEntity,
   TokenEntity,
   UserEntity,
   UserGroupEntity,
-  UserRole,
+  UserGroupMemberEntity,
   UserWalletEntity,
   WalletEntity,
-  WalletGroupEntity
+  WalletGroupEntity,
+  WalletGroupMemberEntity
 } from '@narval/policy-engine-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { map } from 'lodash/fp'
 import request from 'supertest'
-import { sha256 } from 'viem'
 import { load } from '../../../../armory.config'
 import { REQUEST_HEADER_ORG_ID } from '../../../../armory.constant'
 import { OrchestrationModule } from '../../../../orchestration/orchestration.module'
@@ -58,84 +55,16 @@ describe('Entity', () => {
     uid: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc'
   }
 
-  const users: UserEntity[] = [
-    {
-      uid: '2d7a6811-509f-4bee-90fb-e382fc127de5',
-      role: UserRole.ADMIN
-    },
-    {
-      uid: '70d4128a-4b47-4944-859b-c570c69d3120',
-      role: UserRole.ADMIN
-    }
-  ]
-
-  const credentials: CredentialEntity[] = [
-    {
-      uid: sha256('0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc'),
-      pubKey: '0x5a4c3948723e02cbdef57d0eeb0fa8e2fc8f81fc',
-      alg: Alg.ES256K,
-      userId: users[0].uid
-    }
-  ]
-
-  const wallets: WalletEntity[] = [
-    {
-      uid: 'a5c1fd4e-b021-4fad-b5a6-256b434916ef',
-      address: '0x648edbd0e1bd5f15d58481bc7f034a790f9741fe',
-      accountType: AccountType.EOA,
-      chainId: 1
-    },
-    {
-      uid: '3fe39a8e-1721-4111-bc3a-4f89c0d67594',
-      address: '0x40710fae7b7d1200b644a579ddee65aecd7a991a',
-      accountType: AccountType.EOA,
-      chainId: 1
-    }
-  ]
-
-  const walletGroups: WalletGroupEntity[] = [
-    {
-      uid: 'a104baeb-c9dd-4066-ae56-d85168715f90',
-      wallets: map('uid', wallets)
-    }
-  ]
-
-  const userWallets: UserWalletEntity[] = [
-    {
-      userId: users[0].uid,
-      walletId: wallets[0].uid
-    },
-    {
-      userId: users[1].uid,
-      walletId: wallets[1].uid
-    }
-  ]
-
-  const userGroups: UserGroupEntity[] = [
-    {
-      uid: 'd160dab5-211a-447d-9c25-2772e3ecbe17',
-      users: [users[0].uid]
-    }
-  ]
-
-  const addressBook: AddressBookAccountEntity[] = [
-    {
-      uid: '6b88f31f-564f-4463-86a6-28c3ad9105ff',
-      address: '0xeff7eda2dd2567b80f96ba5eb292e399cc360a05',
-      chainId: 1,
-      classification: AccountClassification.EXTERNAL
-    }
-  ]
-
-  const tokens: TokenEntity[] = [
-    {
-      uid: '2ece731a-51be-4b4f-91de-5665eacf7006',
-      address: '0x63d74e23f70f66511417bc7acf95f002d1dbd33c',
-      chainId: 1,
-      symbol: 'AAA',
-      decimals: 18
-    }
-  ]
+  const addressBook: AddressBookAccountEntity[] = FIXTURE.ADDRESS_BOOK
+  const credentials: CredentialEntity[] = Object.values(FIXTURE.CREDENTIAL)
+  const tokens: TokenEntity[] = Object.values(FIXTURE.TOKEN)
+  const userGroupMembers: UserGroupMemberEntity[] = FIXTURE.USER_GROUP_MEMBER
+  const userGroups: UserGroupEntity[] = Object.values(FIXTURE.USER_GROUP)
+  const userWallets: UserWalletEntity[] = FIXTURE.USER_WALLET
+  const users: UserEntity[] = Object.values(FIXTURE.USER)
+  const walletGroupMembers: WalletGroupMemberEntity[] = FIXTURE.WALLET_GROUP_MEMBER
+  const walletGroups: WalletGroupEntity[] = Object.values(FIXTURE.WALLET_GROUP)
+  const wallets: WalletEntity[] = Object.values(FIXTURE.WALLET)
 
   const sortByUid = <E extends { uid: string }>(entities: E[]): E[] => {
     return entities.sort((a, b) => a.uid.localeCompare(b.uid))
@@ -147,14 +76,20 @@ describe('Entity', () => {
     walletGroups,
     userGroups,
     addressBook,
-    credentials
+    credentials,
+    userGroupMembers,
+    userWallets,
+    walletGroupMembers
   }: Entities): Entities => {
     return {
       addressBook: sortByUid(addressBook),
       credentials: sortByUid(credentials),
       tokens: sortByUid(tokens),
+      userGroupMembers: userGroupMembers.sort(),
       userGroups: sortByUid(userGroups),
+      userWallets: userWallets.sort(),
       users: sortByUid(users),
+      walletGroupMembers: walletGroupMembers.sort(),
       walletGroups: sortByUid(walletGroups),
       wallets: sortByUid(wallets)
     }
@@ -233,11 +168,14 @@ describe('Entity', () => {
         getDeterministicEntities({
           addressBook,
           credentials,
+          tokens,
+          userGroupMembers,
           userGroups,
+          userWallets,
           users,
+          walletGroupMembers,
           walletGroups,
-          wallets,
-          tokens
+          wallets
         })
       )
       expect(status).toEqual(HttpStatus.OK)
