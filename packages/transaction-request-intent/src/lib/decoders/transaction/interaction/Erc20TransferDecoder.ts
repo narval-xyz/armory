@@ -1,4 +1,3 @@
-import { AssetType, toAssetId } from '@narval/policy-engine-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
 import { TransferParams } from '../../../extraction/types'
@@ -9,7 +8,7 @@ import { toAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc20 => {
-  const { from, chainId, data, methodId } = input
+  const { from, to, chainId, data, methodId } = input
   if (!isSupportedMethodId(methodId)) {
     throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
@@ -22,7 +21,7 @@ export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: 
     from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC20,
     amount,
-    token: toAssetId({ assetType: AssetType.ERC20, chainId, address: input.to })
+    token: toAccountIdLowerCase({ chainId, address: to })
   }
 
   return intent
