@@ -9,7 +9,7 @@ import { toAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc20 => {
-  const { from, to, chainId, data, methodId } = input
+  const { from, chainId, data, methodId } = input
   if (!isSupportedMethodId(methodId)) {
     throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
