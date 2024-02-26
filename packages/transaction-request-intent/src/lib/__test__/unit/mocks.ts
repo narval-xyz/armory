@@ -249,7 +249,7 @@ const ERC20_TRANSFER_INTENT: TransferErc20 = {
   type: Intents.TRANSFER_ERC20,
   to: getAccountId('eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'),
   from: getAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}`),
-  token: getAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}`),
+  token: `eip155:137/erc20:${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as AssetId,
   amount: '428406414311469998210669'
 }
 
