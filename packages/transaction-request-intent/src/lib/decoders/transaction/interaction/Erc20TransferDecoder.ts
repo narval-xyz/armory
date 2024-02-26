@@ -8,7 +8,7 @@ import { toAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc20 => {
-  const { from, chainId, data, methodId } = input
+  const { from, to, chainId, data, methodId } = input
   if (!isSupportedMethodId(methodId)) {
     throw new DecoderError({ message: 'Unsupported methodId', status: 400 })
   }
@@ -21,7 +21,7 @@ export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: 
     from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC20,
     amount,
-    token: toAccountIdLowerCase({ chainId, address: input.to })
+    token: toAccountIdLowerCase({ chainId, address: to })
   }
 
   return intent
