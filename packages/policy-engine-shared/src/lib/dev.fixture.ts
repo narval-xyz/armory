@@ -1,3 +1,4 @@
+import { Alg } from '@narval/signature'
 import { PrivateKeyAccount, sha256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
@@ -17,7 +18,6 @@ import {
   WalletGroupEntity,
   WalletGroupMemberEntity
 } from './type/entity.type'
-import { Alg } from '@narval/signature'
 
 const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
