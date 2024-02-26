@@ -38,6 +38,18 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
   return app
 }
 
+const withJsonBodyParser = (app: INestApplication): INestApplication => {
+  app.use(json({ limit: '50mb' }))
+
+  return app
+}
+
+const withUrlEncoded = (app: INestApplication): INestApplication => {
+  app.use(urlencoded({ extended: true, limit: '50mb' }))
+
+  return app
+}
+
 async function bootstrap() {
   const logger = new Logger('AuthorizationNodeBootstrap')
   const application = await NestFactory.create(AppModule)
@@ -52,11 +64,8 @@ async function bootstrap() {
     of(application).pipe(
       map(withSwagger),
       map(withGlobalPipes),
-      map((app) => {
-        app.use(json({ limit: '50mb' }))
-        app.use(urlencoded({ extended: true, limit: '50mb' }))
-        return app
-      }),
+      map(withJsonBodyParser),
+      map(withUrlEncoded),
       switchMap((app) => app.listen(port))
     )
   )

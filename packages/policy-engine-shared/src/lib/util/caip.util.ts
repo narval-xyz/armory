@@ -1,5 +1,6 @@
 import { SetOptional } from 'type-fest'
 import { Address } from 'viem'
+import { z } from 'zod'
 import { toEnum } from './enum.util'
 import { getAddress, isAddress } from './evm.util'
 
@@ -45,15 +46,16 @@ export type Account = {
   namespace: Namespace
 }
 
+type NonCollectableAssetId = `${Namespace}:${number}/${AssetType}:${string}`
+type CollectableAssetId = `${Namespace}:${number}/${AssetType}:${string}/${string}`
+type CoinAssetId = `${Namespace}:${number}/${AssetType.SLIP44}:${number}`
+
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-19.md
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-20.md
  * @see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
  */
-export type AssetId =
-  | `${Namespace}:${number}/${AssetType}:${string}`
-  | `${Namespace}:${number}/${AssetType}:${string}/${string}`
-  | `${Namespace}:${number}/${AssetType.SLIP44}:${number}`
+export type AssetId = NonCollectableAssetId | CollectableAssetId | CoinAssetId
 
 export type Token = Account & {
   assetType: AssetType
@@ -464,3 +466,49 @@ export const safeGetAssetId = (value: string): Result<AssetId> => {
  * @returns The parsed AssetId.
  */
 export const getAssetId = (value: string): AssetId => unsafeParse<AssetId>(safeGetAssetId, value)
+
+//
+// Zod Schema
+//
+
+const nonCollectableAssetIdSchema = z.custom<NonCollectableAssetId>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+const collectableAssetIdSchema = z.custom<CollectableAssetId>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+const coinAssetIdSchema = z.custom<CoinAssetId>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+export const assetIdSchema = z.union([nonCollectableAssetIdSchema, collectableAssetIdSchema, coinAssetIdSchema])
+
+export const accountIdSchema = z.custom<AccountId>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAccountId(parse.data)
+  }
+
+  return false
+})

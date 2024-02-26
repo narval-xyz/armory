@@ -54,8 +54,8 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.TRANSFER_NATIVE,
-          to: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
-          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          to: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
           amount: '16676',
           token: 'eip155:137/slip44:966'
         })
@@ -75,10 +75,10 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.APPROVE_TOKEN_ALLOWANCE,
-          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          token: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          token: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           amount: '11541971132511365478906515907109950360107522067033065608472376982619868367719',
-          spender: 'eip155:137/0x1111111254eeb25477b68fb85ed929f73a960582'
+          spender: 'eip155:137:0x1111111254eeb25477b68fb85ed929f73a960582'
         })
       })
       it('decodes user operation', () => {
@@ -95,13 +95,13 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.USER_OPERATION,
-          from: 'eip155:1/0x791b1689526b5560145f99cb9d3b7f24eca2591a',
-          entrypoint: 'eip155:1/0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
+          from: 'eip155:1:0x791b1689526b5560145f99cb9d3b7f24eca2591a',
+          entrypoint: 'eip155:1:0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
           beneficiary: '0x791b1689526b5560145f99cb9d3b7f24eca2591a',
           operationIntents: [
             {
-              contract: 'eip155:1/0x8ae01fcf7c655655ff2c6ef907b8b4718ab4e17c',
-              from: 'eip155:1/0x791b1689526b5560145f99cb9d3b7f24eca2591a',
+              contract: 'eip155:1:0x8ae01fcf7c655655ff2c6ef907b8b4718ab4e17c',
+              from: 'eip155:1:0x791b1689526b5560145f99cb9d3b7f24eca2591a',
               hexSignature: '0x8d80ff0a',
               type: Intents.CALL_CONTRACT
             }
@@ -123,8 +123,8 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.CALL_CONTRACT,
-          from: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
-          contract: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448',
+          contract: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           hexSignature: '0xf2d12b12'
         })
       })
@@ -221,7 +221,7 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.DEPLOY_SAFE_WALLET,
-          from: 'eip155:137/0xaaad8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0xaaad8c0ca142921c459bcb28104c0ff37928f9ed',
           chainId: 137
         })
       })
@@ -241,7 +241,7 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.DEPLOY_ERC_4337_WALLET,
-          from: 'eip155:137/0xcccd8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0xcccd8c0ca142921c459bcb28104c0ff37928f9ed',
           chainId: 137,
           bytecode: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
         })
@@ -262,7 +262,7 @@ describe('decode', () => {
         })
         expect(decoded).toEqual({
           type: Intents.DEPLOY_CONTRACT,
-          from: 'eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
+          from: 'eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed',
           chainId: 137
         })
       })
@@ -380,11 +380,11 @@ describe('decode', () => {
       })
       expect(decoded).toEqual({
         type: Intents.PERMIT,
-        spender: 'eip155:137/0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
-        token: 'eip155:137/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        spender: 'eip155:137:0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+        token: 'eip155:137:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
         amount: '1000000000000000000',
         deadline: '9999999999',
-        owner: 'eip155:137/0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
+        owner: 'eip155:137:0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
       })
     })
     it('decodes permit2', () => {
@@ -431,13 +431,12 @@ describe('decode', () => {
       })
       expect(decoded).toEqual({
         type: Intents.PERMIT2,
-        token: 'eip155:137/0x64060ab139feaae7f06ca4e63189d86adeb51691',
-        spender: 'eip155:137/0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+        token: 'eip155:137:0x64060ab139feaae7f06ca4e63189d86adeb51691',
+        spender: 'eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
         amount: '1461501637330902918203684832716283019655932542975',
         deadline: 1709143217,
-        owner: 'eip155:137/0xed123cf8e3ba51c6c15da1eac74b2b5deea31448'
+        owner: 'eip155:137:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448'
       })
     })
-    it('defaults to raw payload', () => {})
   })
 })
