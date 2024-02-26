@@ -14,7 +14,7 @@ export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
   to: AccountId
   from: AccountId
-  token: AccountId
+  token: AssetId
   amount: string
 }
 

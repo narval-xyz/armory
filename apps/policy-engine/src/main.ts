@@ -2,6 +2,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { json, urlencoded } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { AppModule } from './app/app.module'
 
@@ -51,6 +52,11 @@ async function bootstrap() {
     of(application).pipe(
       map(withSwagger),
       map(withGlobalPipes),
+      map((app) => {
+        app.use(json({ limit: '50mb' }))
+        app.use(urlencoded({ extended: true, limit: '50mb' }))
+        return app
+      }),
       switchMap((app) => app.listen(port))
     )
   )

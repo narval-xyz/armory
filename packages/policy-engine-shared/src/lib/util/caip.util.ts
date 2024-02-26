@@ -37,7 +37,7 @@ export enum AssetType {
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
  */
-export type AccountId = `${Namespace}:${number}/${string}`
+export type AccountId = `${Namespace}:${number}:${string}`
 
 export type Account = {
   chainId: number
@@ -101,7 +101,7 @@ const unsafeParse = <T>(fn: (value: string) => Result<T>, value: string): T => {
 //
 
 const matchAccountId = (value: string) => {
-  const match = value.match(/^([^:]+):(\d+)\/(.+)$/)
+  const match = value.match(/^([^:]+):(\d+):(.+)$/)
 
   if (!match) {
     return null
@@ -207,7 +207,7 @@ export const toAccountId = (input: SetOptional<Account, 'namespace'>): AccountId
     namespace: input.namespace || Namespace.EIP155
   }
 
-  return `${account.namespace}:${account.chainId}/${account.address}`
+  return `${account.namespace}:${account.chainId}:${account.address}`
 }
 
 /**

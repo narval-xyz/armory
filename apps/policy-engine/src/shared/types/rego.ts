@@ -18,6 +18,7 @@ export type RegoInput = {
 }
 
 type MatchedRule = {
+  policyName: string
   policyId: string
   type: 'permit' | 'forbid'
   approvalsSatisfied: ApprovalRequirement[]

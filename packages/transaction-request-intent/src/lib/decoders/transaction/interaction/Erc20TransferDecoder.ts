@@ -1,3 +1,4 @@
+import { AssetType, toAssetId } from '@narval/policy-engine-shared'
 import { ContractCallInput, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
 import { TransferParams } from '../../../extraction/types'
@@ -21,7 +22,7 @@ export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: 
     from: toAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC20,
     amount,
-    token: toAccountIdLowerCase({ chainId, address: to })
+    token: toAssetId({ assetType: AssetType.ERC20, chainId, address: input.to })
   }
 
   return intent
