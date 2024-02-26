@@ -1,4 +1,4 @@
-import { AccountId, AssetId, TransactionRequest, getAssetId } from '@narval/policy-engine-shared'
+import { AccountId, AssetId, TransactionRequest, getAccountId, getAssetId } from '@narval/policy-engine-shared'
 import { Address } from 'viem'
 import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'
@@ -247,9 +247,9 @@ const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
 
 const ERC20_TRANSFER_INTENT: TransferErc20 = {
   type: Intents.TRANSFER_ERC20,
-  to: `eip155:137/0x031d8c0ca142921c459bcb28104c0ff37928f9ed` as AccountId,
-  from: `eip155:137/${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}` as AccountId,
-  token: `eip155:137:${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}` as AssetId,
+  to: getAccountId('eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'),
+  from: getAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}`),
+  token: getAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}`),
   amount: '428406414311469998210669'
 }
 
