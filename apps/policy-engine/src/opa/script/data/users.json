@@ -1,0 +1,1201 @@
+[
+  {
+    "id": "eb6a52c3-0744-41b0-9c79-c6c7ba48f75f",
+    "email": "william@narval.xyz",
+    "username": "wcalderipe.admin",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-12-05T11:01:59.049Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "de73bbac-02f1-4dd9-ad96-35cb65f4f302",
+    "email": "samuel+prodqa@narval.xyz",
+    "username": "samprodqa",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x49f0cf726dc7c0ed153b2519caddbf02fc846d15",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-11-13T11:12:36.554Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "fae276de-f846-4228-a657-63125002f0a3",
+    "email": null,
+    "username": "API User - db1a",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "API",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-08-26T17:51:40.253Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "77a9cbb7-2416-4010-b983-6b6fa3a27e50",
+    "email": null,
+    "username": "API User - 40db",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "API",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-08-26T17:46:53.797Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "dd88bd38-f8de-45d6-bf4d-75f11e94ae25",
+    "email": null,
+    "username": "API user",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "API",
+    "wallets": [
+      {
+        "address": "0xc4419e73b5275f33d73f87d433103b7333b79e13",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "101.5",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x96b3f1cb30ecd319db811347e3a92147c665cce4",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0xe59181236c44d72393fe54c7b7176f47522ab2ee",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-07-20T18:00:46.300Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|64b0002c0bb7035998c9bf04",
+    "email": "william+admin@narval.xyz",
+    "username": "william.admin",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-07-13T13:46:29.153Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|64784e51867282eb243a9daa",
+    "email": "samuel@narval.xyz",
+    "username": "sam",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x85d37184f4d56a6ef46bf125e012fad439f0e00e",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-06-01T07:52:59.358Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|643ebef9af5c0fbcd869943d",
+    "email": "pierre@narval.xyz",
+    "username": "pierretroger",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-04-18T16:02:08.177Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|63bbcd1f74477f9bd2dcdd06",
+    "email": "pierre.troger@gmail.com",
+    "username": "ptroger",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x5207a4029f0f5242ac443b65e8a4869f227c0881",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2023-01-09T08:15:45.921Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-04-19T08:07:02.539Z",
+    "__typename": "User"
+  },
+  {
+    "id": "6944cede-1ebb-48b4-9108-88f9133d0760",
+    "email": "matt+fb1@narval.xyz",
+    "username": "matt+fb1@narval.xyz",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-11-16T19:27:28.424Z",
+    "status": "INVITED",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "51d86a6a-1fc8-475f-ab3e-0f25c0408490",
+    "email": "greg+scholar6@narval.xyz",
+    "username": "Gregolimano",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x06cd5e3176a69dd4ce21cf9c666b6e858c302738",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.01",
+            "assetSymbol": "UNIM",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-10-18T20:38:22.085Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "f6e53ed0-8822-4a2e-9995-d929c0f5b9d3",
+    "email": "greg+scholar5@narval.xyz",
+    "username": "Gregos120",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-10-18T20:32:05.405Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "60aae2af-3b36-41c1-ba20-6bb1375d13e4",
+    "email": null,
+    "username": "GregDiscord",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x247d40d91caab04c60a681cf0c9ac88ec5423655",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-10-03T09:34:32.597Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "c88b1634-49cd-4eb2-aa62-c27e51d9c6f8",
+    "email": "greg+scholar4@narval.xyz",
+    "username": "greg+scholar4@narval.xyz",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xc4419e73b5275f33d73f87d433103b7333b79e13",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "101.5",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0xc21e1917ed7ecac355163ecae4b86274934ad66c",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-10-02T19:03:56.556Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2022-10-02T19:09:54.760Z",
+    "__typename": "User"
+  },
+  {
+    "id": "615f46d7-7039-43a3-a904-6daccaf72e61",
+    "email": "matt+oct2@narval.xyz",
+    "username": "matt+oct2",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x4da6dc9a4efebb7b2619e29056815ec6a6324a1e",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-10-02T15:29:27.071Z",
+    "status": "INVITED",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "4c859e9e-05ad-405e-a621-2e7ea23e787d",
+    "email": "greg+scholar3@narval.xyz",
+    "username": "greg+scholar3@narval.xyz",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-25T13:54:04.647Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2022-09-05T15:17:51.077Z",
+    "__typename": "User"
+  },
+  {
+    "id": "bfe97488-6612-4305-8fc1-a9f9a1bd7595",
+    "email": null,
+    "username": "empty2",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-11T15:04:36.603Z",
+    "status": "INVITED",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "bd48ba65-18bf-4f63-8f9a-3909d255d5e3",
+    "email": null,
+    "username": "empty1",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xfbc9f4c6152675109f13ecd3a16376aecf3100f9",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-11T15:04:33.624Z",
+    "status": "INVITED",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+    "email": "matt+rudra1@narval.xyz",
+    "username": "matt+rudra1",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x9afac2534134311e1c2b40401144fa2b8325bd70",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0xad54c38bada51a47514fdf7822b952b2cd13bc06",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-11T13:05:54.136Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2022-08-11T15:27:47.608Z",
+    "__typename": "User"
+  },
+  {
+    "id": "3d41f653-7ed9-4395-8a4a-18302a26b01e",
+    "email": "greg+scholar2@narval.xyz",
+    "username": "greg+scholar2@narval.xyz",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x05aea1be7c98d6d9cdf5fcfe4ae79189416a62aa",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-04T13:46:13.068Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "c2fd426d-6570-4269-85b3-8cfaa0ba23a9",
+    "email": "0xshock721@gmail.com",
+    "username": "matt_discord1",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-01T21:19:30.858Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2022-08-22T12:58:31.653Z",
+    "__typename": "User"
+  },
+  {
+    "id": "7e779319-3e4e-498e-91c2-0bb1851219a3",
+    "email": "greg+scholar1@narval.xyz",
+    "username": "greg+scholar1",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xb692de82a3df3b17ae2ac1e7c185924e8ee6b6c1",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          },
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "UNIM",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-01T20:29:14.602Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2022-08-02T17:25:13.422Z",
+    "__typename": "User"
+  },
+  {
+    "id": "11cfae14-cf78-41e7-821d-2f2f16c8c072",
+    "email": "matt+i_scholar1@narval.xyz",
+    "username": "",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xfdf317957e2f864d3c5a229efb2795d09951ad0c",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-08-01T18:53:44.429Z",
+    "status": "ACTIVE",
+    "lastPlayed": null,
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62e4305b43e9885859dce878",
+    "email": "matt+scholar2@narval.xyz",
+    "username": "matt+scholar2",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          },
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "UNIM",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-29T19:09:18.256Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-11-06T17:00:54.032Z",
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62e3998004533b042cb44ccf",
+    "email": "greg.jessner@gmail.com",
+    "username": "greg.jessner",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xfd02926dc94e5076db649addff22ab718a79be04",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x6034472000fa5f9af47dede4ba3112fa268dc649",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x9b1cd8458c8188cde66da12404922a10fe7943d0",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-29T08:25:47.118Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-05-09T16:55:43.335Z",
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62e1d7ca04533b042cb42419",
+    "email": "greg+admin2@narval.xyz",
+    "username": "greg+admin2",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x19f3cb15f810c0550edf4ef272d8248dc8cc7727",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x7a0854f64ded80455208ad6939950d915b2a101e",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-28T00:26:53.402Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-07-26T14:19:50.213Z",
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62e1d713b54ba28e7f0e4d89",
+    "email": "matt+admin2@narval.xyz",
+    "username": "matt+admin2",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0x5aa356d10af288c84bd379d46cabcdfb48938dd7",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.1",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-28T00:23:52.552Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-01-28T15:05:55.202Z",
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62cafdbc9929eb63dbcc9b10",
+    "email": "matt@narval.xyz",
+    "username": "matt.schoch",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "ADMIN",
+    "wallets": [
+      {
+        "address": "0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          },
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "UNIM",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x1ac06760a053414ee9845a1352febe5dfbe81ac3",
+        "isRemoteWallet": true,
+        "balances": [
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "RBW",
+            "__typename": "TokenBalance"
+          },
+          {
+            "guildClaimableBalance": "0.0",
+            "assetSymbol": "UNIM",
+            "__typename": "TokenBalance"
+          }
+        ],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0xc1dad8b73a053d69aaca1ae7306adf5dd9de511b",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-10T16:27:33.038Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2024-02-19T13:50:50.276Z",
+    "__typename": "User"
+  },
+  {
+    "id": "auth0|62cafaca9160dacc2311e612",
+    "email": "matt+ngg@narval.xyz",
+    "username": "matt+ngg@narval.xyz",
+    "avatar": {
+      "fullUrl": null,
+      "svg": null,
+      "__typename": "Image"
+    },
+    "guildUserRole": "SCHOLAR",
+    "wallets": [
+      {
+        "address": "0xc1dad8b73a053d69aaca1ae7306adf5dd9de511b",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      },
+      {
+        "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+        "isRemoteWallet": true,
+        "balances": [],
+        "guild": {
+          "id": "2",
+          "__typename": "Guild"
+        },
+        "assets": [],
+        "__typename": "Wallet"
+      }
+    ],
+    "createdAt": "2022-07-10T16:14:07.441Z",
+    "status": "ACTIVE",
+    "lastPlayed": "2023-01-13T18:14:25.323Z",
+    "__typename": "User"
+  }
+]

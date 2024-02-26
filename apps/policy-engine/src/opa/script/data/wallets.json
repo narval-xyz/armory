@@ -1,0 +1,1280 @@
+[
+  {
+    "id": "39035205092363b14f394aceba35dbd294a932771bb5428e73ba068ac04c6607",
+    "address": "0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723",
+    "label": "Narval Default Wallet",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-07-10T15:34:49.684Z",
+    "updatedAt": "2023-05-11T21:59:11.768Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e4305b43e9885859dce878",
+        "username": "matt+scholar2",
+        "email": "matt+scholar2@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "77a9cbb7-2416-4010-b983-6b6fa3a27e50",
+        "username": "API User - 40db",
+        "role": "api"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "0b4acdd48e12ff2dc0c42664bca5f1eb2e306a9ac6fe9d0fde2e2bc8cbf60188",
+    "address": "0x1ac06760a053414ee9845a1352febe5dfbe81ac3",
+    "label": "Staging 1",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-07-28T00:49:53.308Z",
+    "updatedAt": "2023-10-04T09:25:03.402Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "af79919788a09391d8fe1b6f25d8917d446e476917b936e084b2df7840afad3d",
+    "address": "0xc4419e73b5275f33d73f87d433103b7333b79e13",
+    "label": "Prod Test 2.1",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-07-29T08:51:07.160Z",
+    "updatedAt": "2023-08-30T13:22:16.839Z",
+    "assignees": [
+      {
+        "userId": "c88b1634-49cd-4eb2-aa62-c27e51d9c6f8",
+        "username": "greg+scholar4@narval.xyz",
+        "email": "greg+scholar4@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "dd88bd38-f8de-45d6-bf4d-75f11e94ae25",
+        "username": "API user",
+        "role": "api"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "a1e63ec4c9f66c09dbc351430c8ba6fd4114d3b47dcd21b15fba00b7128c5587",
+    "address": "0x49f0cf726dc7c0ed153b2519caddbf02fc846d15",
+    "label": "Brandon's Wallet",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T13:06:57.084Z",
+    "updatedAt": "2023-09-13T14:22:04.275Z",
+    "assignees": [
+      {
+        "userId": "de73bbac-02f1-4dd9-ad96-35cb65f4f302",
+        "username": "samprodqa",
+        "email": "samuel+prodqa@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "8e015c98792d65681508f702ed8dbcbade607fa6025621f6460ab8cb612af5ca",
+    "address": "0x0ff514df05c423a120152df9e04ba94fab7b3491",
+    "label": "0x0ff514df05c423a120152df9e04ba94fab7b3491",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T13:27:21.106Z",
+    "updatedAt": "2023-08-30T13:22:29.963Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "6bf79aadca3dd9843c44558cb261764687e670e894db190cd312d9d3f96f71c6",
+    "address": "0xff2fbd84c6a44dce8ffc343d1d84277dfbd83818",
+    "label": "Narval collection wallet",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T19:56:59.363Z",
+    "updatedAt": "2023-09-28T20:32:03.194Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "e9e963a0265e332ec450ed16212619e333bfc2c3c9ee7b81c94e5c9f8522e64b",
+    "address": "0xed03bb0e361ed8b6c2fd2b51dfcffb37af0a5195",
+    "label": "Dev team A",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T20:15:50.623Z",
+    "updatedAt": "2023-09-28T20:32:31.958Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "add735de34e0b859b789502524214b3ffe5a2afc7f9bd64d26e245987ac6e0d9",
+    "address": "0xb692de82a3df3b17ae2ac1e7c185924e8ee6b6c1",
+    "label": "Dev team B",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T20:59:15.599Z",
+    "updatedAt": "2023-09-28T20:32:52.269Z",
+    "assignees": [
+      {
+        "userId": "7e779319-3e4e-498e-91c2-0bb1851219a3",
+        "username": "greg+scholar1",
+        "email": "greg+scholar1@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "7e779319-3e4e-498e-91c2-0bb1851219a3",
+        "email": "greg+scholar1@narval.xyz",
+        "username": "greg+scholar1"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "4da2fd7dec508b452cadb7766f967f6b0adfab4b6f66cbec432830dbdecdf8ee",
+    "address": "0xb15c95bf51b96395bcfb3f4cdbfcb01c5e4f8477",
+    "label": "0xb15c95bf51b96395bcfb3f4cdbfcb01c5e4f8477",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-08-01T21:19:44.788Z",
+    "updatedAt": "2022-08-01T21:19:44.788Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "2b4f6fcf0443920a5b158b80f5f0c476bfd5cf7bc9e9015892a4ff87d7067e48",
+    "address": "0x05aea1be7c98d6d9cdf5fcfe4ae79189416a62aa",
+    "label": "Marketing group",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-04T13:49:51.711Z",
+    "updatedAt": "2023-09-28T20:33:14.845Z",
+    "assignees": [
+      {
+        "userId": "3d41f653-7ed9-4395-8a4a-18302a26b01e",
+        "username": "greg+scholar2@narval.xyz",
+        "email": "greg+scholar2@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "3d41f653-7ed9-4395-8a4a-18302a26b01e",
+        "email": "greg+scholar2@narval.xyz",
+        "username": "greg+scholar2@narval.xyz"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "34444ea443eb70893dee3849b41c472e16a2f1bdc41d8f48b5540bbc8d26df09",
+    "address": "0x9afac2534134311e1c2b40401144fa2b8325bd70",
+    "label": "NFT drop wallet",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-08-11T13:06:14.542Z",
+    "updatedAt": "2023-09-28T20:33:42.684Z",
+    "assignees": [
+      {
+        "userId": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+        "username": "matt+rudra1",
+        "email": "matt+rudra1@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+        "email": "matt+rudra1@narval.xyz",
+        "username": "matt+rudra1"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "8f366ced310764399f1a6dfebf5af2cf2765dc7dd2b31e794971f7ad91a9ba57",
+    "address": "0xad54c38bada51a47514fdf7822b952b2cd13bc06",
+    "label": "Lens account",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-11T13:06:14.551Z",
+    "updatedAt": "2023-09-28T20:34:06.793Z",
+    "assignees": [
+      {
+        "userId": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+        "username": "matt+rudra1",
+        "email": "matt+rudra1@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+        "email": "matt+rudra1@narval.xyz",
+        "username": "matt+rudra1"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "a1a6d3ab08c6d071fa85579c6d741af80df31764e8df26430e09e7252421ca49",
+    "address": "0xfdf317957e2f864d3c5a229efb2795d09951ad0c",
+    "label": "DeFi wallet",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-12T20:37:05.149Z",
+    "updatedAt": "2023-09-28T20:34:27.000Z",
+    "assignees": [
+      {
+        "userId": "11cfae14-cf78-41e7-821d-2f2f16c8c072",
+        "email": "matt+i_scholar1@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "11cfae14-cf78-41e7-821d-2f2f16c8c072",
+        "email": "matt+i_scholar1@narval.xyz"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "5955fe7d2dbd96cb23d958915804562356578d591d678fba39875c055d50b99d",
+    "address": "0xfbc9f4c6152675109f13ecd3a16376aecf3100f9",
+    "label": "General Treasury",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-12T20:49:26.952Z",
+    "updatedAt": "2023-09-28T20:34:50.159Z",
+    "assignees": [
+      {
+        "userId": "bd48ba65-18bf-4f63-8f9a-3909d255d5e3",
+        "username": "empty1",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "bd48ba65-18bf-4f63-8f9a-3909d255d5e3",
+        "username": "empty1"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "25cc0942524225bd41b05998414253668e1dbdeabe8a562d485399d42e92ffc8",
+    "address": "0x19f3cb15f810c0550edf4ef272d8248dc8cc7727",
+    "label": "Infra payments",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-08-22T17:33:22.464Z",
+    "updatedAt": "2023-09-28T20:35:27.421Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e1d7ca04533b042cb42419",
+        "username": "greg+admin2",
+        "email": "greg+admin2@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "c8d3a333189de5e6303698db489635882f4f36fe34c78b5d27b31f7ebc2781e0",
+    "address": "0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62",
+    "label": "Player Wallet 1",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-08-25T13:54:35.242Z",
+    "updatedAt": "2023-04-10T12:52:27.650Z",
+    "assignees": [
+      {
+        "userId": "4c859e9e-05ad-405e-a621-2e7ea23e787d",
+        "username": "greg+scholar3@narval.xyz",
+        "email": "greg+scholar3@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "4c859e9e-05ad-405e-a621-2e7ea23e787d",
+        "email": "greg+scholar3@narval.xyz",
+        "username": "greg+scholar3@narval.xyz"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "df5bfd9c57def9505bf3093f07594dd3270fd2954f0f247fd81e7e14c74f19f1",
+    "address": "0x5207a4029f0f5242ac443b65e8a4869f227c0881",
+    "label": "Voting",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-09-11T20:53:26.026Z",
+    "updatedAt": "2023-09-28T20:36:05.565Z",
+    "assignees": [
+      {
+        "userId": "auth0|63bbcd1f74477f9bd2dcdd06",
+        "username": "ptroger",
+        "email": "pierre.troger@gmail.com",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "auth0|63bbcd1f74477f9bd2dcdd06",
+        "email": "pierre.troger@gmail.com",
+        "username": "ptroger"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "c7e59c4d6f541abe316dab21a3ec747e17879df1e61ce4261c0dc0306f8566ba",
+    "address": "0x4da6dc9a4efebb7b2619e29056815ec6a6324a1e",
+    "label": "Project Lambda",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-10-02T15:29:37.700Z",
+    "updatedAt": "2023-09-28T20:37:14.444Z",
+    "assignees": [
+      {
+        "userId": "615f46d7-7039-43a3-a904-6daccaf72e61",
+        "username": "matt+oct2",
+        "email": "matt+oct2@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "615f46d7-7039-43a3-a904-6daccaf72e61",
+        "email": "matt+oct2@narval.xyz",
+        "username": "matt+oct2"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "c721d373273da38d41df4ffc29a5036c8167d420f11cdddaf0cb98e92c0b9d78",
+    "address": "0xc21e1917ed7ecac355163ecae4b86274934ad66c",
+    "label": "Client 1",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-10-02T19:04:11.600Z",
+    "updatedAt": "2023-09-28T20:40:51.161Z",
+    "assignees": [
+      {
+        "userId": "c88b1634-49cd-4eb2-aa62-c27e51d9c6f8",
+        "username": "greg+scholar4@narval.xyz",
+        "email": "greg+scholar4@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "c88b1634-49cd-4eb2-aa62-c27e51d9c6f8",
+        "email": "greg+scholar4@narval.xyz",
+        "username": "greg+scholar4@narval.xyz"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "82bbb57575ebbc1a0537465f8a7766ea086011d9c07ef17056694f46b2635266",
+    "address": "0x5aa356d10af288c84bd379d46cabcdfb48938dd7",
+    "label": "Agency Wallet",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-10-27T12:12:31.318Z",
+    "updatedAt": "2023-09-28T20:53:58.918Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e1d713b54ba28e7f0e4d89",
+        "username": "matt+admin2",
+        "email": "matt+admin2@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "auth0|62e1d713b54ba28e7f0e4d89",
+        "email": "matt+admin2@narval.xyz",
+        "username": "matt+admin2"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "b035c17a8e37b1b0db2f007701fe3fb3f882f2837d70a351160dd61b41896609",
+    "address": "0x06cd5e3176a69dd4ce21cf9c666b6e858c302738",
+    "label": "NFT holdings",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-11-02T12:55:53.599Z",
+    "updatedAt": "2023-09-28T20:55:08.631Z",
+    "assignees": [
+      {
+        "userId": "51d86a6a-1fc8-475f-ab3e-0f25c0408490",
+        "username": "Gregolimano",
+        "email": "greg+scholar6@narval.xyz",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "51d86a6a-1fc8-475f-ab3e-0f25c0408490",
+        "email": "greg+scholar6@narval.xyz",
+        "username": "Gregolimano"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "8300bc1b504bafa1f533a67e96f7f4c4b9dc2fcc05be33fc8978bd58ed03c5f8",
+    "address": "0x7a0854f64ded80455208ad6939950d915b2a101e",
+    "label": "Fireblocks NGG-2-22",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2022-11-16T19:27:44.538Z",
+    "updatedAt": "2023-07-14T10:40:37.262Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e1d7ca04533b042cb42419",
+        "username": "greg+admin2",
+        "email": "greg+admin2@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "27",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "670b60b0304057a617e18b61b4eb56594aa069096dbb37d1414856ba5e0d819a",
+    "address": "0x247d40d91caab04c60a681cf0c9ac88ec5423655",
+    "label": "Fireblocks NGG-23",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-11-23T17:16:11.362Z",
+    "updatedAt": "2022-11-23T17:29:54.890Z",
+    "assignees": [
+      {
+        "userId": "60aae2af-3b36-41c1-ba20-6bb1375d13e4",
+        "username": "GregDiscord",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "40",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    },
+    "beneficiary": {
+      "user": {
+        "id": "60aae2af-3b36-41c1-ba20-6bb1375d13e4",
+        "username": "GregDiscord"
+      },
+      "userPercent": 80,
+      "workspacePercent": 20
+    }
+  },
+  {
+    "id": "447c25282f71d389157193999ee4a98f2176ff1b509c0b770f0b38b199829016",
+    "address": "0x982bb017b4c86ed62bfaeb6d33751c9121d0543e",
+    "label": "Fireblocks NGG-24",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2022-12-19T14:53:35.914Z",
+    "updatedAt": "2022-12-19T14:53:35.914Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "49",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "873e0e1012211eab300c992d378cfdc5842de15100ce4174daf97b0f0c5cb658",
+    "address": "0x85d37184f4d56a6ef46bf125e012fad439f0e00e",
+    "label": "Fireblocks - Fit London",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2023-04-03T00:44:18.916Z",
+    "updatedAt": "2023-07-06T17:05:30.727Z",
+    "assignees": [
+      {
+        "userId": "auth0|64784e51867282eb243a9daa",
+        "username": "sam",
+        "email": "samuel@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "94",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+
+  {
+    "id": "e1fbe9dfd2271c07158540a941eba2de69b2094370bc14c8f2a10412e8cd8926",
+    "address": "0xfd02926dc94e5076db649addff22ab718a79be04",
+    "label": "Fireblocks - Early Answer",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-04-03T00:44:43.616Z",
+    "updatedAt": "2023-07-13T12:16:56.312Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e3998004533b042cb44ccf",
+        "username": "greg.jessner",
+        "email": "greg.jessner@gmail.com",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "95",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "befc712ca4214a9bc1fc69f7027cb8854a2dec94530b1febb0dbd77133328d1d",
+    "address": "0x6034472000fa5f9af47dede4ba3112fa268dc649",
+    "label": "Fireblocks - Millions Spoon",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2023-04-03T15:18:40.156Z",
+    "updatedAt": "2023-07-05T15:06:59.585Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e3998004533b042cb44ccf",
+        "username": "greg.jessner",
+        "email": "greg.jessner@gmail.com",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "96",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "502d86354301d7e921aa6645514dbce851490fe1a675b8bbae2ea086f5245963",
+    "address": "0x96b3f1cb30ecd319db811347e3a92147c665cce4",
+    "label": "API-Created Wallet 1",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-07-20T18:52:31.867Z",
+    "updatedAt": "2023-07-20T18:52:31.867Z",
+    "assignees": [
+      {
+        "userId": "dd88bd38-f8de-45d6-bf4d-75f11e94ae25",
+        "username": "API user",
+        "role": "api"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "189",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "c294637c9b4c840a7e71ae44185e34aa8ba374197e3195a7d6e5625332bd35e6",
+    "address": "0xe59181236c44d72393fe54c7b7176f47522ab2ee",
+    "label": "API-Created Wallet 2 (legacy)",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-07-20T18:53:08.604Z",
+    "updatedAt": "2023-07-20T18:53:08.604Z",
+    "assignees": [
+      {
+        "userId": "dd88bd38-f8de-45d6-bf4d-75f11e94ae25",
+        "username": "API user",
+        "role": "api"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "3cfbd60fdd4f4058add713509db8e9a589f05aec745be488c36bb592311f804a",
+    "address": "0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1",
+    "label": "Jeremy's Test Wallet",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-07-20T23:16:53.994Z",
+    "updatedAt": "2023-07-20T23:17:21.066Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "190",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "2cfdf9f1a7c71cdd336493919cdbc7f6f91eb460d746b0616dbcc77183957fcb",
+    "address": "0x9b1cd8458c8188cde66da12404922a10fe7943d0",
+    "label": "API-Created Wallet 3",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-07-24T20:31:26.626Z",
+    "updatedAt": "2023-08-01T08:53:22.884Z",
+    "assignees": [
+      {
+        "userId": "auth0|62e3998004533b042cb44ccf",
+        "username": "greg.jessner",
+        "email": "greg.jessner@gmail.com",
+        "role": "scholar"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "194",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "451f60430c3537f6247321a20f432b961114ee7db11b4baccd674d3199c0f959",
+    "address": "0xc1dad8b73a053d69aaca1ae7306adf5dd9de511b",
+    "label": "Aug10",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-08-11T01:37:59.589Z",
+    "updatedAt": "2023-08-11T01:37:59.589Z",
+    "assignees": [
+      {
+        "userId": "auth0|62cafaca9160dacc2311e612",
+        "username": "matt+ngg@narval.xyz",
+        "email": "matt+ngg@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|62cafdbc9929eb63dbcc9b10",
+        "username": "matt.schoch",
+        "email": "matt@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "575",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "ad32037c98c8dc6f2b21d680c77d360cffba1e49df270f432860766f0e9ead9e",
+    "address": "0x418e64c608ca79c42a90762ad8fe72c6ed384815",
+    "label": "Brainy Salesclerk",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-08-25T12:15:21.946Z",
+    "updatedAt": "2023-08-25T12:15:21.946Z",
+    "assignees": [
+      {
+        "userId": "eb6a52c3-0744-41b0-9c79-c6c7ba48f75f",
+        "username": "wcalderipe.admin",
+        "email": "william@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|62cafaca9160dacc2311e612",
+        "username": "matt+ngg@narval.xyz",
+        "email": "matt+ngg@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|62e1d713b54ba28e7f0e4d89",
+        "username": "matt+admin2",
+        "email": "matt+admin2@narval.xyz",
+        "role": "admin"
+      },
+      {
+        "userId": "auth0|62e1d7ca04533b042cb42419",
+        "username": "greg+admin2",
+        "email": "greg+admin2@narval.xyz",
+        "role": "admin"
+      },
+      {
+        "userId": "auth0|62e3998004533b042cb44ccf",
+        "username": "greg.jessner",
+        "email": "greg.jessner@gmail.com",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|62e4305b43e9885859dce878",
+        "username": "matt+scholar2",
+        "email": "matt+scholar2@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "11cfae14-cf78-41e7-821d-2f2f16c8c072",
+        "email": "matt+i_scholar1@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "7e779319-3e4e-498e-91c2-0bb1851219a3",
+        "username": "greg+scholar1",
+        "email": "greg+scholar1@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "c2fd426d-6570-4269-85b3-8cfaa0ba23a9",
+        "username": "matt_discord1",
+        "email": "0xshock721@gmail.com",
+        "role": "scholar"
+      },
+      {
+        "userId": "3d41f653-7ed9-4395-8a4a-18302a26b01e",
+        "username": "greg+scholar2@narval.xyz",
+        "email": "greg+scholar2@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "8ac4ab41-80c9-430a-992a-0d68b04d69f1",
+        "username": "matt+rudra1",
+        "email": "matt+rudra1@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "bd48ba65-18bf-4f63-8f9a-3909d255d5e3",
+        "username": "empty1",
+        "role": "scholar"
+      },
+      {
+        "userId": "bfe97488-6612-4305-8fc1-a9f9a1bd7595",
+        "username": "empty2",
+        "role": "scholar"
+      },
+      {
+        "userId": "4c859e9e-05ad-405e-a621-2e7ea23e787d",
+        "username": "greg+scholar3@narval.xyz",
+        "email": "greg+scholar3@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "615f46d7-7039-43a3-a904-6daccaf72e61",
+        "username": "matt+oct2",
+        "email": "matt+oct2@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "c88b1634-49cd-4eb2-aa62-c27e51d9c6f8",
+        "username": "greg+scholar4@narval.xyz",
+        "email": "greg+scholar4@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "60aae2af-3b36-41c1-ba20-6bb1375d13e4",
+        "username": "GregDiscord",
+        "role": "scholar"
+      },
+      {
+        "userId": "f6e53ed0-8822-4a2e-9995-d929c0f5b9d3",
+        "username": "Gregos120",
+        "email": "greg+scholar5@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "51d86a6a-1fc8-475f-ab3e-0f25c0408490",
+        "username": "Gregolimano",
+        "email": "greg+scholar6@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "6944cede-1ebb-48b4-9108-88f9133d0760",
+        "username": "matt+fb1@narval.xyz",
+        "email": "matt+fb1@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|63bbcd1f74477f9bd2dcdd06",
+        "username": "ptroger",
+        "email": "pierre.troger@gmail.com",
+        "role": "admin"
+      },
+      {
+        "userId": "auth0|62cafdbc9929eb63dbcc9b10",
+        "username": "matt.schoch",
+        "email": "matt@narval.xyz",
+        "role": "admin"
+      },
+      {
+        "userId": "auth0|64784e51867282eb243a9daa",
+        "username": "sam",
+        "email": "samuel@narval.xyz",
+        "role": "admin"
+      },
+      {
+        "userId": "de73bbac-02f1-4dd9-ad96-35cb65f4f302",
+        "username": "samprodqa",
+        "email": "samuel+prodqa@narval.xyz",
+        "role": "scholar"
+      },
+      {
+        "userId": "auth0|64b0002c0bb7035998c9bf04",
+        "username": "william.admin",
+        "email": "william+admin@narval.xyz",
+        "role": "admin"
+      },
+      {
+        "userId": "dd88bd38-f8de-45d6-bf4d-75f11e94ae25",
+        "username": "API user",
+        "role": "api"
+      },
+      {
+        "userId": "77a9cbb7-2416-4010-b983-6b6fa3a27e50",
+        "username": "API User - 40db",
+        "role": "api"
+      },
+      {
+        "userId": "fae276de-f846-4228-a657-63125002f0a3",
+        "username": "API User - db1a",
+        "role": "api"
+      },
+      {
+        "userId": "auth0|643ebef9af5c0fbcd869943d",
+        "username": "pierretroger",
+        "email": "pierre@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "9d3c668c54a7be73d65cffc28aa0c87e7ef4f7dfdce055a8c8b847910519f719",
+    "address": "0xd797e4cddfc30b27b8924a8ad531bac2fb386cf8",
+    "label": "NEW WALLET TEST BRAND",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2023-08-28T16:16:59.784Z",
+    "updatedAt": "2023-08-28T16:16:59.784Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "866",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "b80904ff0ba53eb0bb0109551230e37fc56fbb9adf71c0ef2545ed263ce3f380",
+    "address": "0x6800d14e0e85e73440270a6aae4aa22a2003057a",
+    "label": "FB for Matt",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-09-11T21:32:41.881Z",
+    "updatedAt": "2023-09-11T21:32:41.881Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "1058",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "b6cd04c83074dc2e2d25c6a3417afe72350487c1438fc3f0ba18b3af36134b2e",
+    "address": "0x85a83b440512792015b351682a84541da77b32ec",
+    "label": "sam's new wallet",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2023-09-20T09:24:41.549Z",
+    "updatedAt": "2023-09-20T09:24:41.549Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "1165",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "7fcc31e8175aca08a18a12473be7c683d76974d4e360ab78dde9c360b12e74b8",
+    "address": "0x70176edb0c0730582b91abaf1b44daf3d38acc7c",
+    "label": "sam 56",
+    "generationType": "derived",
+    "isContract": true,
+    "accountType": "eoa",
+    "createdAt": "2023-09-20T18:34:17.043Z",
+    "updatedAt": "2023-09-20T18:34:17.043Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "1169",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "84e34e65596c3c68dd38dfd2ffe9fe025859067f2ee0f3886ad425109f6e69f4",
+    "address": "0xf9f2f7c7a997dda7ba278ebaca5ff16d3af3b06d",
+    "label": "Test William",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-11-30T17:56:17.311Z",
+    "updatedAt": "2023-11-30T17:56:17.311Z",
+    "assignees": [
+      {
+        "userId": "auth0|64b0002c0bb7035998c9bf04",
+        "username": "william.admin",
+        "email": "william+admin@narval.xyz",
+        "role": "admin"
+      }
+    ],
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "8b6164645a72ed2fca059efd6a7d590b379e629dbe477588ca44266735f362bd",
+    "address": "0x17f13074d4f4269028b7881db845e6e9c0836508",
+    "label": "evm_account-test1",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-12-05T15:09:44.890Z",
+    "updatedAt": "2023-12-05T15:09:44.890Z",
+    "vault": {
+      "id": "narval-legacy-signer",
+      "location": "database",
+      "name": "Narval Vault",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  },
+  {
+    "id": "31b41849d005d69fbda690ad42f9f8cffe2d0443a1e2b8f310f84ce2781971cb",
+    "address": "0x9e5c7f65a2e7ad878ec7583383c702708dd91237",
+    "label": "sam's wallet prod 26",
+    "generationType": "derived",
+    "isContract": false,
+    "accountType": "eoa",
+    "createdAt": "2023-12-06T11:24:45.129Z",
+    "updatedAt": "2023-12-06T11:24:45.129Z",
+    "vault": {
+      "id": "narval-managed-fireblocks",
+      "location": "fireblocks",
+      "fireblocksVaultId": "1865",
+      "name": "Narval-Managed MPC",
+      "verifiedAt": "2023-03-26T22:55:28.951Z"
+    },
+    "gasStation": {
+      "address": "0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b"
+    }
+  }
+]
