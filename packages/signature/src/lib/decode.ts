@@ -27,7 +27,8 @@ export function decode(rawToken: string): Jwt {
     }
     return {
       header,
-      payload
+      payload,
+      signature: parts[2]
     }
   } catch (error) {
     throw new JwtError({ message: 'Malformed token', context: { rawToken, error } })

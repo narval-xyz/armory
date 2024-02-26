@@ -1,8 +1,48 @@
 import { importSPKI, jwtVerify } from 'jose'
+import { Hex, recoverMessageAddress } from 'viem'
+import { publicKeyToAddress } from 'viem/utils'
+import { decode } from './decode'
 import { JwtError } from './error'
 import { hashRequest } from './hash-request'
-import { isHeader, isPayload } from './typeguards'
-import { Jwt, Payload, VerificationInput } from './types'
+import { Alg, Jwt, Payload, VerificationInput } from './types'
+
+const isHex = (key: string | Hex): key is Hex => key.startsWith('0x') || key.startsWith('0X')
+
+const checkTokenValidity = (token: string): boolean => {
+  const parts = token.split('.')
+  return parts.length === 3
+}
+
+const handleViemKey = async (signingInput: VerificationInput): Promise<Jwt> => {
+  const { rawToken, request, publicKey } = signingInput
+
+  if (!checkTokenValidity(rawToken)) {
+    throw new JwtError({ message: 'Invalid token', context: { rawToken } })
+  }
+
+  if (!checkTokenValidity(rawToken)) {
+    throw new JwtError({ message: 'Invalid token', context: { rawToken } })
+  }
+
+  const { signature } = decode(rawToken)
+
+  // Use the original message for verification
+  const message = hashRequest(request)
+
+  // Recover the address from the signature
+  const recoveredAddress = await recoverMessageAddress({
+    message: message as Hex,
+    signature: signature as Hex
+  })
+
+  const pubKeyAddress = publicKeyToAddress(publicKey as Hex)
+
+  if (pubKeyAddress !== recoveredAddress) {
+    throw new JwtError({ message: 'Invalid signature', context: { rawToken } })
+  }
+
+  return decode(rawToken)
+}
 
 /**
  * Verifies a JWT encoded and returns its payload.
@@ -14,9 +54,12 @@ import { Jwt, Payload, VerificationInput } from './types'
 export async function verify(input: VerificationInput): Promise<Jwt> {
   const { rawToken, request, algorithm, publicKey } = input
   try {
+    if (isHex(publicKey) && algorithm === Alg.ES256K) {
+      return handleViemKey(input)
+    }
     const publicKeyObj = await importSPKI(publicKey, algorithm)
 
-    const { payload, protectedHeader } = await jwtVerify<Payload>(rawToken, publicKeyObj, {
+    const { payload } = await jwtVerify<Payload>(rawToken, publicKeyObj, {
       algorithms: [algorithm]
     })
 
@@ -31,21 +74,7 @@ export async function verify(input: VerificationInput): Promise<Jwt> {
         }
       })
     }
-
-    if (!isHeader(protectedHeader)) {
-      throw new JwtError({ message: 'Invalid header', context: { rawToken, payload, protectedHeader } })
-    }
-    if (!isPayload(payload)) {
-      throw new JwtError({ message: 'Invalid payload', context: { rawToken, payload, protectedHeader } })
-    }
-
-    const jwt: Jwt = {
-      header: {
-        alg: protectedHeader.alg,
-        kid: protectedHeader.kid
-      },
-      payload
-    }
+    const jwt = decode(rawToken)
     return jwt
   } catch (error) {
     throw new JwtError({ message: 'Malformed token', context: { input, error } })

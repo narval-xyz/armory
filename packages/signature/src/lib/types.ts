@@ -1,9 +1,26 @@
-import { Alg } from 'packages/authz-shared/src'
+import { Hex } from 'viem'
 
-export type AlgorithmParameter = {
-  kty: 'EC' | 'RSA'
-  crv?: string
-}
+export const AlgTypes = {
+  EC: 'EC',
+  RSA: 'RSA'
+} as const
+
+export type AlgTypes = (typeof AlgTypes)[keyof typeof AlgTypes]
+
+export const Curves = {
+  SECP256K1: 'secp256k1',
+  P256: 'P-256'
+} as const
+
+export type Curves = (typeof Curves)[keyof typeof Curves]
+
+export const Alg = {
+  ES256K: 'ES256K', // secp256k1, an Ethereum EOA
+  ES256: 'ES256', // secp256r1, ecdsa but not ethereum
+  RS256: 'RS256'
+} as const
+
+export type Alg = (typeof Alg)[keyof typeof Alg]
 
 /**
  * Defines the header of JWT.
@@ -34,12 +51,13 @@ export type Payload = {
 export type Jwt = {
   header: Header
   payload: Payload
+  signature: string
 }
 
 /**
  * Defines the input required to generate a JWT signature for a request.
  *
- * @param {string} privateKey - The private key to sign the JWT with. Private key will be identified by the kid in the header if this is not provided.
+ * @param {string | Hex} privateKey - The private key to sign the JWT with.
  * @param {string} kid - The key ID to identify the signing key.
  * @param {string} [exp] - The time the JWT expires.
  * @param {number} [iat] - The time the JWT was issued.
@@ -47,7 +65,7 @@ export type Jwt = {
  * @param {unknown} request - The content of the request to be signed.
  */
 export type SignatureInput = {
-  privateKey: string
+  privateKey: string | Hex
   exp?: string | Date
   iat?: number
   kid: string
