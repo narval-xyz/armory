@@ -124,7 +124,7 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
         }
         if (assetType === 'erc20') {
           intent = ['transferErc20']
-          token = `eip155:${chainId}/${assetType}:${assetAddress}`
+          token = `eip155:${chainId}:${assetAddress}`
         }
         if (assetType === 'native') {
           intent = ['transferNative']

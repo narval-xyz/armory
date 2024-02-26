@@ -10,7 +10,7 @@ import {
   FiatCurrency,
   IdentityOperators,
   IsAccountId,
-  IsAssetId,
+  IsAccountOrAssetId,
   IsHexString,
   IsNotEmptyArrayEnum,
   IsNotEmptyArrayString,
@@ -105,7 +105,7 @@ export class AmountCondition {
 }
 
 export class ERC1155AmountCondition {
-  @IsAssetId()
+  @IsAccountOrAssetId()
   @ApiProperty()
   tokenId: AssetId
 
@@ -211,7 +211,7 @@ export class SpendingLimitTimeWindow {
 
 export class SpendingLimitFilters {
   @IsNotEmptyArrayString()
-  @IsAssetId({ each: true })
+  @IsAccountOrAssetId({ each: true })
   @IsOptional()
   @ApiPropertyOptional()
   tokens?: AssetId[]
@@ -411,8 +411,8 @@ export class IntentTokenCriterion extends BaseCriterion {
   criterion: typeof Criterion.CHECK_INTENT_TOKEN
 
   @IsNotEmptyArrayString()
-  @IsAssetId({ each: true })
-  args: AssetId[]
+  @IsAccountOrAssetId({ each: true })
+  args: Array<AccountId | AssetId>
 }
 
 export class IntentSpenderCriterion extends BaseCriterion {
@@ -455,7 +455,7 @@ export class ERC721TokenIdCriterion extends BaseCriterion {
   criterion: typeof Criterion.CHECK_ERC721_TOKEN_ID
 
   @IsNotEmptyArrayString()
-  @IsAssetId({ each: true })
+  @IsAccountOrAssetId({ each: true })
   args: AssetId[]
 }
 
@@ -464,7 +464,7 @@ export class ERC1155TokenIdCriterion extends BaseCriterion {
   criterion: typeof Criterion.CHECK_ERC1155_TOKEN_ID
 
   @IsNotEmptyArrayString()
-  @IsAssetId({ each: true })
+  @IsAccountOrAssetId({ each: true })
   args: AssetId[]
 }
 

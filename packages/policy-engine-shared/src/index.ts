@@ -1,5 +1,5 @@
 export * from './lib/decorators/is-account-id.decorator'
-export * from './lib/decorators/is-asset-id.decorator'
+export * from './lib/decorators/is-account-or-asset-id.decorator'
 export * from './lib/decorators/is-hex-string.decorator'
 export * from './lib/decorators/is-not-empty-array-enum.decorator'
 export * from './lib/decorators/is-not-empty-array-string.decorator'
