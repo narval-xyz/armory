@@ -2,7 +2,6 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { json, urlencoded } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { AppModule } from './app/app.module'
 
@@ -38,21 +37,9 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
   return app
 }
 
-const withJsonBodyParser = (app: INestApplication): INestApplication => {
-  app.use(json({ limit: '50mb' }))
-
-  return app
-}
-
-const withUrlEncoded = (app: INestApplication): INestApplication => {
-  app.use(urlencoded({ extended: true, limit: '50mb' }))
-
-  return app
-}
-
 async function bootstrap() {
   const logger = new Logger('AuthorizationNodeBootstrap')
-  const application = await NestFactory.create(AppModule)
+  const application = await NestFactory.create(AppModule, { bodyParser: true })
   const configService = application.get(ConfigService)
   const port = configService.get('PORT')
 
@@ -64,8 +51,6 @@ async function bootstrap() {
     of(application).pipe(
       map(withSwagger),
       map(withGlobalPipes),
-      map(withJsonBodyParser),
-      map(withUrlEncoded),
       switchMap((app) => app.listen(port))
     )
   )
