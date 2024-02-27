@@ -9,7 +9,7 @@ import wallets from './data/wallets.json'
 import legacyRequests from './requests/legacy-requests.json'
 
 export const run = async () => {
-  // eslint-disable-next-line no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const entities: { [key: string]: any } = { users: {}, wallets: {} }
 
   for (const user of users) {

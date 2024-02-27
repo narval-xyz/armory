@@ -28,32 +28,34 @@ checkIntentPayload(condition) {
 
 # Intent Sign Raw Payload Algorithm
 
-checkIntentAlgorithm(values) = input.intent.algorithm in values
+checkIntentAlgorithm(values) {
+	input.intent.algorithm in values
+}
 
 # Intent Sign Typed Data Domain
 
-checkDomainCondition(value, set) {
-	set == wildcard
+checkDomainCondition(value, arr) {
+	arr == wildcard
 }
 
-checkDomainCondition(value, set) {
-	set != wildcard
-	value in set
+checkDomainCondition(value, arr) {
+	arr != wildcard
+	value in arr
 }
 
 checkIntentDomain(filters) {
-	conditions = object.union(
-		{
-			"version": wildcard,
-			"chainId": wildcard,
-			"name": wildcard,
-			"verifyingContract": wildcard,
-		},
-		filters,
-	)
+	wildcardDomain = {
+		"version": wildcard,
+		"chainId": wildcard,
+		"name": wildcard,
+		"verifyingContract": wildcard,
+	}
 
-	checkDomainCondition(input.intent.domain.version, conditions.version)
-	checkDomainCondition(numberToString(input.intent.domain.chainId), conditions.chainId)
-	checkDomainCondition(input.intent.domain.name, conditions.name)
-	checkDomainCondition(input.intent.domain.verifyingContract, conditions.verifyingContract)
+	domain = object.union(wildcardDomain, input.intent.domain)
+	conditions = object.union(wildcardDomain, filters)
+
+	checkDomainCondition(domain.version, conditions.version)
+	checkDomainCondition(numberToString(domain.chainId), conditions.chainId)
+	checkDomainCondition(domain.name, conditions.name)
+	checkDomainCondition(domain.verifyingContract, conditions.verifyingContract)
 }

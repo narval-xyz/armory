@@ -10,7 +10,7 @@ import {
   SignTypedDataDomainCondition,
   Then
 } from '../../shared/types/policy.type'
-import data from './policies/policy_rules_ngg_prod.json'
+import { policies } from './policies/policy_rules_ngg_prod.json'
 
 type OldPolicy = { [key: string]: string | null }
 
@@ -45,12 +45,7 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
   const res: NewPolicy = {
     id,
     name: id,
-    when: [
-      {
-        criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
-        args: null
-      }
-    ],
+    when: [],
     then: ['approve', 'confirm'].includes(result) ? Then.PERMIT : Then.FORBID
   }
 
@@ -86,13 +81,6 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
       })
     }
 
-    if (key === 'chain_id') {
-      res.when.push({
-        criterion: Criterion.CHECK_CHAIN_ID,
-        args: [value]
-      })
-    }
-
     if (key === 'source_address') {
       res.when.push({
         criterion: Criterion.CHECK_WALLET_ADDRESS,
@@ -108,7 +96,7 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
     }
 
     if (key === 'activity_type') {
-      let action = ''
+      let action: string[] = []
       let intent: string[] = []
       let token = ''
       let contract = ''
@@ -117,84 +105,125 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
 
       const when: PolicyCriterion[] = []
 
-      if (value === 'fungibleAssetTransfer') {
-        action = 'signTransaction'
-        if (assetType === '*') {
-          intent = ['transferErc20', 'transferNative']
-        }
-        if (assetType === 'erc20') {
-          intent = ['transferErc20']
-          token = `eip155:${chainId}:${assetAddress}`
-        }
-        if (assetType === 'native') {
-          intent = ['transferNative']
-          if (chainId === '1') {
-            token = `eip155:${chainId}/slip44:60`
-          }
-          if (chainId === '137') {
-            token = `eip155:${chainId}/slip44:966`
-          }
-        }
-        if (destination_address && destination_address !== '*') {
-          res.when.push({
-            criterion: Criterion.CHECK_DESTINATION_ADDRESS,
-            args: [value]
-          })
-        }
-      }
-      if (value === 'nftAssetTransfer') {
-        action = 'signTransaction'
-        if (assetType === '*') {
-          intent = ['transferErc721', 'transferErc1155']
-        }
-        if (assetType === 'erc721') {
-          intent = ['transferErc721']
-        }
-        if (assetType === 'erc1155') {
-          intent = ['transferErc1155']
-        }
-        if (assetAddress && assetAddress !== '*') {
-          contract = `eip155:${chainId}:${assetAddress}`
-          if (assetType && assetType !== '*' && assetTokenId && assetTokenId !== '*') {
-            tokenId = `eip155:${chainId}/${assetType}:${assetAddress}/${assetTokenId}`
-          }
-        }
-        if (destination_address && destination_address !== '*') {
-          res.when.push({
-            criterion: Criterion.CHECK_DESTINATION_ADDRESS,
-            args: [value]
-          })
-        }
-      }
-      if (value === 'contractCall') {
-        action = 'signTransaction'
-        intent = ['callContract']
-        if (destination_account_type === 'contract' && destination_address !== '*') {
-          contract = `eip155:${chainId}:${destination_address}`
-        }
-      }
-      if (value === 'tokenApproval') {
-        action = 'signTransaction'
-        intent = ['approveTokenAllowance']
-        token = `eip155:${chainId}/${assetType || 'erc20'}:${assetAddress}`
-        if (destination_account_type === 'contract' && destination_address !== '*') {
-          spender = `eip155:${chainId}:${destination_address}`
-        }
-      }
       if (value === 'signMessage') {
-        action = 'signMessage'
+        if (signing_type === '*') {
+          action = ['signMessage', 'signTypedData']
+          intent = ['signMessage', 'signTypedData']
+        }
         if (signing_type === 'personalSign') {
+          action = ['signMessage']
           intent = ['signMessage']
         }
-        if (signing_type === 'signTypedData') {
+        if (signing_type === 'typedData') {
+          action = ['signTypedData']
           intent = ['signTypedData']
+
+          const args: SignTypedDataDomainCondition = {}
+
+          if (domain_version && domain_version !== '*') {
+            args['version'] = [domain_version]
+          }
+
+          if (domain_name && domain_name !== '*') {
+            args['name'] = [domain_name]
+          }
+
+          if (domain_verifying_contract && domain_verifying_contract !== '*') {
+            args['verifyingContract'] = [domain_verifying_contract as Address]
+          }
+
+          if (chainId && chainId !== '*') {
+            args['chainId'] = [chainId]
+          }
+
+          if (Object.keys(args).length > 0) {
+            res.when.push({
+              criterion: Criterion.CHECK_INTENT_DOMAIN,
+              args
+            })
+          }
+        }
+      } else {
+        res.when.push({
+          criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
+          args: null
+        })
+        if (value === 'fungibleAssetTransfer') {
+          action = ['signTransaction']
+          if (assetType === '*') {
+            intent = ['transferErc20', 'transferNative']
+          }
+          if (assetType === 'erc20') {
+            intent = ['transferErc20']
+            token = `eip155:${chainId}:${assetAddress}`
+          }
+          if (assetType === 'native') {
+            intent = ['transferNative']
+            if (chainId === '1') {
+              token = `eip155:${chainId}/slip44:60`
+            }
+            if (chainId === '137') {
+              token = `eip155:${chainId}/slip44:966`
+            }
+          }
+          if (destination_address && destination_address !== '*') {
+            res.when.push({
+              criterion: Criterion.CHECK_DESTINATION_ADDRESS,
+              args: [value]
+            })
+          }
+        }
+        if (value === 'nftAssetTransfer') {
+          action = ['signTransaction']
+          if (assetType === '*') {
+            intent = ['transferErc721', 'transferErc1155']
+          }
+          if (assetType === 'erc721') {
+            intent = ['transferErc721']
+          }
+          if (assetType === 'erc1155') {
+            intent = ['transferErc1155']
+          }
+          if (assetAddress && assetAddress !== '*') {
+            contract = `eip155:${chainId}:${assetAddress}`
+            if (assetType && assetType !== '*' && assetTokenId && assetTokenId !== '*') {
+              tokenId = `eip155:${chainId}/${assetType}:${assetAddress}/${assetTokenId}`
+            }
+          }
+          if (destination_address && destination_address !== '*') {
+            res.when.push({
+              criterion: Criterion.CHECK_DESTINATION_ADDRESS,
+              args: [value]
+            })
+          }
+        }
+        if (value === 'contractCall') {
+          action = ['signTransaction']
+          intent = ['callContract']
+          if (destination_account_type === 'contract' && destination_address !== '*') {
+            contract = `eip155:${chainId}:${destination_address}`
+          }
+        }
+        if (value === 'tokenApproval') {
+          action = ['signTransaction']
+          intent = ['approveTokenAllowance']
+          token = `eip155:${chainId}/${assetType || 'erc20'}:${assetAddress}`
+          if (destination_account_type === 'contract' && destination_address !== '*') {
+            spender = `eip155:${chainId}:${destination_address}`
+          }
+        }
+        if (chainId && chainId !== '*') {
+          res.when.push({
+            criterion: Criterion.CHECK_CHAIN_ID,
+            args: [chainId]
+          })
         }
       }
 
-      if (action) {
+      if (action.length > 0) {
         when.push({
           criterion: Criterion.CHECK_ACTION,
-          args: [action]
+          args: action
         } as PolicyCriterion)
       }
       if (intent.length > 0) {
@@ -255,29 +284,6 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
         args: { currency, operator, value: `${value}` }
       })
     }
-
-    if (key === 'domain_version') {
-      const args: SignTypedDataDomainCondition = {}
-
-      if (domain_version && domain_version !== '*') {
-        args['version'] = [domain_version]
-      }
-
-      if (domain_name && domain_name !== '*') {
-        args['name'] = [domain_name]
-      }
-
-      if (domain_verifying_contract && domain_verifying_contract !== '*') {
-        args['verifyingContract'] = [domain_verifying_contract as Address]
-      }
-
-      if (Object.keys(args).length > 0) {
-        res.when.push({
-          criterion: Criterion.CHECK_INTENT_DOMAIN,
-          args
-        })
-      }
-    }
   }
 
   if (res.then === Then.PERMIT) {
@@ -316,13 +322,17 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
 }
 
 export const run = () => {
-  const policies = data.policies.map((policy) => {
-    const copy = omit(policy, ['guild_id', 'sequence', 'version', 'amount']) as OldPolicy
-    copy.amount = policy.amount ? `${policy.amount}` : null
-    return copy
-  })
-  const requestData = policies.map(translateLegacyPolicy).filter(Boolean) as NewPolicy[]
-  console.log(`number of policies to translate: ${requestData.length}.`)
+  const data = policies
+    .map((policy) => {
+      const copy = omit(policy, ['guild_id', 'sequence', 'version', 'amount']) as OldPolicy
+      copy.amount = policy.amount ? `${policy.amount}` : null
+      return copy
+    })
+    .map(translateLegacyPolicy)
+    .filter(Boolean) as NewPolicy[]
+
+  console.log(`number of policies to translate: ${data.length}.`)
+
   return axios.post('http://localhost:3010/admin/policies', {
     authentication: {
       sig: '0x746ed2e4bf7311da76bc157c7fe8c0520b6e4c27ab96abf5a8d16fecbaac98b669418b2db9da8e6d3cbd4e1eaff1a9d9e765f0470e9b86c6694145778a8d46f81c',
@@ -344,7 +354,7 @@ export const run = () => {
     request: {
       action: 'setPolicyRules',
       nonce: 'random-nonce-111',
-      data: requestData
+      data
     }
   })
 }
