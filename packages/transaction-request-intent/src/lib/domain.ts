@@ -11,7 +11,7 @@ export type Eip712Domain = {
 }
 
 export type Raw = {
-  rawData: string
+  payload: string
   algorithm: Alg
 }
 

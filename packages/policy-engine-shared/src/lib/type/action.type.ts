@@ -97,6 +97,12 @@ export type SignMessageAction = BaseAction & {
   message: string
 }
 
+export type SignTypedDataAction = BaseAction & {
+  action: typeof Action.SIGN_TYPED_DATA
+  resourceId: string
+  typedData: string
+}
+
 export type CreateOrganizationAction = BaseAction & {
   action: typeof Action.CREATE_ORGANIZATION
   organization: {

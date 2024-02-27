@@ -169,7 +169,7 @@
     "request": {
       "action": "signMessage",
       "nonce": "random-nonce-111",
-      "message": "\"0x57656c636f6d6520746f204f70656e536561210a0a436c69636b20746f207369676e20696e20616e642061636365707420746865204f70656e536561205465726d73206f662053657276696365202868747470733a2f2f6f70656e7365612e696f2f746f732920616e64205072697661637920506f6c696379202868747470733a2f2f6f70656e7365612e696f2f70726976616379292e0a0a5468697320726571756573742077696c6c206e6f742074726967676572206120626c6f636b636861696e207472616e73616374696f6e206f7220636f737420616e792067617320666565732e0a0a596f75722061757468656e7469636174696f6e207374617475732077696c6c20726573657420616674657220323420686f7572732e0a0a57616c6c657420616464726573733a0a3078313966336362313566383130633035353065646634656632373264383234386463386363373732370a0a4e6f6e63653a0a33343537353830652d363432312d343735352d613063612d373436326366383032613061\"",
+      "message": "0x57656c636f6d6520746f204f70656e536561210a0a436c69636b20746f207369676e20696e20616e642061636365707420746865204f70656e536561205465726d73206f662053657276696365202868747470733a2f2f6f70656e7365612e696f2f746f732920616e64205072697661637920506f6c696379202868747470733a2f2f6f70656e7365612e696f2f70726976616379292e0a0a5468697320726571756573742077696c6c206e6f742074726967676572206120626c6f636b636861696e207472616e73616374696f6e206f7220636f737420616e792067617320666565732e0a0a596f75722061757468656e7469636174696f6e207374617475732077696c6c20726573657420616674657220323420686f7572732e0a0a57616c6c657420616464726573733a0a3078313966336362313566383130633035353065646634656632373264383234386463386363373732370a0a4e6f6e63653a0a33343537353830652d363432312d343735352d613063612d373436326366383032613061",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -320,9 +320,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"7190250a-f35c-4d89-8211-111765d30406\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"7190250a-f35c-4d89-8211-111765d30406\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -330,9 +330,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"b8b1056e-0c06-4e11-b15a-d7c2982342a9\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"b8b1056e-0c06-4e11-b15a-d7c2982342a9\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -340,9 +340,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"2aad2a52-56c8-4448-9408-940c8d060d7d\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"2aad2a52-56c8-4448-9408-940c8d060d7d\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -350,9 +350,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"257a2d00-154c-45d8-b96c-6be746db6a10\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"257a2d00-154c-45d8-b96c-6be746db6a10\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -379,9 +379,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"e63d0934-b9e5-4d6c-85b2-2f915b705263\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"e63d0934-b9e5-4d6c-85b2-2f915b705263\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -408,9 +408,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"0ad58ac9-175e-4d7f-866b-a3b74d15982b\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"0ad58ac9-175e-4d7f-866b-a3b74d15982b\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -418,9 +418,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"a191af89-6d31-46dc-9530-ca33e3ea5385\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"a191af89-6d31-46dc-9530-ca33e3ea5385\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -428,9 +428,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"8e15eab0-881b-4a62-a38b-37ee3257e512\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"8e15eab0-881b-4a62-a38b-37ee3257e512\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -457,9 +457,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e1d7ca04533b042cb42419",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"20a0654a-ae54-4c62-9da7-3692e9ea7aac\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"20a0654a-ae54-4c62-9da7-3692e9ea7aac\",\"wallet\":\"0x19f3cb15f810c0550edf4ef272d8248dc8cc7727\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -588,9 +588,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -614,9 +614,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -624,9 +624,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -634,9 +634,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -644,9 +644,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -654,9 +654,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -664,9 +664,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -674,9 +674,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -684,9 +684,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -694,9 +694,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -704,9 +704,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -714,9 +714,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -724,9 +724,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -734,9 +734,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9f28e8a4-0584-484c-bba6-74b9fd4127ce\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -744,9 +744,9 @@
     "status": "completed",
     "initiator_user_id": "debb4c0f-235c-497e-8009-7476b7494c26",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"8ebdf7d0-3c6e-4a93-8641-94eac48b0275\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"8ebdf7d0-3c6e-4a93-8641-94eac48b0275\",\"wallet\":\"0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xa1d6e9a37b3fb99b226f64741627af6f4ae219e1"
     }
   },
@@ -1565,9 +1565,9 @@
     "status": "denied",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"d7cb67ed-f8e3-4879-a650-008999b8de27\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"d7cb67ed-f8e3-4879-a650-008999b8de27\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x1ac06760a053414ee9845a1352febe5dfbe81ac3"
     }
   },
@@ -1591,9 +1591,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"fefd49bc-89b3-4497-abeb-a71e01a18775\",\"wallet\":\"0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"fefd49bc-89b3-4497-abeb-a71e01a18775\",\"wallet\":\"0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xf6cbb75a25dc8f202f49fd8cd20b15dcef87ee62"
     }
   },
@@ -1620,9 +1620,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"d7cb67ed-f8e3-4879-a650-008999b8de27\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"d7cb67ed-f8e3-4879-a650-008999b8de27\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x1ac06760a053414ee9845a1352febe5dfbe81ac3"
     }
   },
@@ -1665,9 +1665,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"b9237236-4eb5-42bf-b450-abe9d9f33e48\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"b9237236-4eb5-42bf-b450-abe9d9f33e48\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x1ac06760a053414ee9845a1352febe5dfbe81ac3"
     }
   },
@@ -1675,9 +1675,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"186ccfde-12f5-4af6-9de3-fa21f0bb0f3b\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"186ccfde-12f5-4af6-9de3-fa21f0bb0f3b\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x49f0cf726dc7c0ed153b2519caddbf02fc846d15"
     }
   },
@@ -1685,9 +1685,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"66ed42a6-5b59-48fe-a3ca-e0b9e5ee3456\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"66ed42a6-5b59-48fe-a3ca-e0b9e5ee3456\",\"wallet\":\"0x1ac06760a053414ee9845a1352febe5dfbe81ac3\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x1ac06760a053414ee9845a1352febe5dfbe81ac3"
     }
   },
@@ -1791,9 +1791,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"ad514005-c9f0-4955-ad62-891ef9ad1430\",\"wallet\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"ad514005-c9f0-4955-ad62-891ef9ad1430\",\"wallet\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xc4419e73b5275f33d73f87d433103b7333b79e13"
     }
   },
@@ -1817,9 +1817,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"9072ecb4-ebf2-45a5-af28-c49472d3cf67\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"9072ecb4-ebf2-45a5-af28-c49472d3cf67\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x49f0cf726dc7c0ed153b2519caddbf02fc846d15"
     }
   },
@@ -1827,9 +1827,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"2fd0a26c-db76-4e52-ace7-eee6cc4fff14\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"2fd0a26c-db76-4e52-ace7-eee6cc4fff14\",\"wallet\":\"0x49f0cf726dc7c0ed153b2519caddbf02fc846d15\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0x49f0cf726dc7c0ed153b2519caddbf02fc846d15"
     }
   },
@@ -3469,9 +3469,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62e4305b43e9885859dce878",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"c4a567d5-3775-40ee-872c-81aaca69d5e3\",\"wallet\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"c4a567d5-3775-40ee-872c-81aaca69d5e3\",\"wallet\":\"0xc4419e73b5275f33d73f87d433103b7333b79e13\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xc4419e73b5275f33d73f87d433103b7333b79e13"
     }
   },
@@ -3723,7 +3723,7 @@
     "request": {
       "action": "signMessage",
       "nonce": "random-nonce-111",
-      "message": "\"0x31316562306533342d343666642d346234652d393165392d666332316532613435373335\"",
+      "message": "0x31316562306533342d343666642d346234652d393165392d666332316532613435373335",
       "resourceId": "eip155:eoa:0x19f3cb15f810c0550edf4ef272d8248dc8cc7727"
     }
   },
@@ -4019,9 +4019,9 @@
     "status": "completed",
     "initiator_user_id": "auth0|62cafdbc9929eb63dbcc9b10",
     "request": {
-      "action": "signMessage",
+      "action": "signTypedData",
       "nonce": "random-nonce-111",
-      "message": "{\"nonce\":\"e62fa1bf-632f-4315-913c-e3da143812f4\",\"wallet\":\"0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723\",\"contents\":\"UNICOOOORN :)\"}",
+      "typedData": "{\"address\":\"0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723\",\"types\":{\"Validator\":[{\"name\":\"contents\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"string\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"}]},\"domain\":{\"name\":\"Crypto Unicorns Authentication\",\"chainId\":137,\"version\":\"1\"},\"message\":{\"nonce\":\"e62fa1bf-632f-4315-913c-e3da143812f4\",\"wallet\":\"0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723\",\"contents\":\"UNICOOOORN :)\"},\"primaryType\":\"Validator\"}",
       "resourceId": "eip155:eoa:0xfb5eb43c63fdb02be3805d8997c3eda1cfc4f723"
     }
   }

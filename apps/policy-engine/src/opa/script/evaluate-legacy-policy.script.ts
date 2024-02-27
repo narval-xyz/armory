@@ -73,6 +73,63 @@ export const run = async () => {
       }
     }
 
+    if (request.action === Action.SIGN_MESSAGE) {
+      const intentResult = safeDecode({
+        input: {
+          type: InputType.MESSAGE,
+          payload: request.message
+        }
+      })
+
+      if (intentResult?.success === false) {
+        console.log(`Could not decode intent: ${intentResult.error.message}`, JSON.stringify(request.message, null, 2))
+        continue
+      }
+
+      input = {
+        action: request.action,
+        intent: intentResult?.intent,
+        principal: {
+          uid: initiator_user_id,
+          userId: initiator_user_id,
+          alg: 'ES256K',
+          pubKey: ''
+        },
+        resource: request.resourceId ? { uid: request.resourceId } : undefined,
+        approvals: []
+      }
+    }
+
+    if (request.action === Action.SIGN_TYPED_DATA) {
+      const intentResult = safeDecode({
+        input: {
+          type: InputType.TYPED_DATA,
+          typedData: JSON.parse(request.typedData)
+        }
+      })
+
+      if (intentResult?.success === false) {
+        console.log(
+          `Could not decode intent: ${intentResult.error.message}`,
+          JSON.stringify(request.typedData, null, 2)
+        )
+        continue
+      }
+
+      input = {
+        action: request.action,
+        intent: intentResult?.intent,
+        principal: {
+          uid: initiator_user_id,
+          userId: initiator_user_id,
+          alg: 'ES256K',
+          pubKey: ''
+        },
+        resource: request.resourceId ? { uid: request.resourceId } : undefined,
+        approvals: []
+      }
+    }
+
     const OPA_WASM_PATH = path.join(process.cwd(), './rego-build/policy.wasm')
     const policyWasm = readFileSync(OPA_WASM_PATH)
     const opaEngine = await loadPolicy(policyWasm, undefined, { 'time.now_ns': () => new Date().getTime() * 1000000 })
@@ -81,16 +138,16 @@ export const run = async () => {
     const evalResult: { result: OpaResult }[] = await opaEngine.evaluate(input, 'main/evaluate')
     const results = evalResult.map(({ result }) => result)
 
-    // if (request.action === Action.SIGN_TRANSACTION && status == 'denied' && results[0].permit) {
+    // if (status == 'denied' && results[0].permit) {
     //   // console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
     //   if ((input.intent as any).type.includes('transfer')) {
     //     console.log({ intent: input.intent, initiator_user_id, status, result: results[0].permit })
     //   }
     // }
 
-    if (request.action === Action.SIGN_TRANSACTION && status == 'completed' && !results[0].permit) {
-      console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
-    }
+    // if (status == 'completed' && !results[0].permit) {
+    //   console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
+    // }
   }
 }
 

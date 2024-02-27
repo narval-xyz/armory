@@ -153,7 +153,7 @@ const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?
       return {
         type: Intents.SIGN_RAW,
         algorithm: input.raw.algorithm,
-        payload: input.raw.rawData
+        payload: input.raw.payload
       }
     default:
       throw new DecoderError({ message: 'Invalid input type', status: 400 })
