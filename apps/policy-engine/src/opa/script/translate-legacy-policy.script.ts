@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { omit } from 'lodash'

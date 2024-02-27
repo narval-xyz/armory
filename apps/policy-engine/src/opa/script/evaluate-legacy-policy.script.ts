@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { Action, Request, UserRole } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
