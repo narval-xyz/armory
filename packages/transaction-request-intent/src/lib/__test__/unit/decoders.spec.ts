@@ -330,7 +330,7 @@ describe('decode', () => {
           type: InputType.RAW,
           raw: {
             algorithm: Alg.ES256K,
-            rawData: '0xdeadbeef'
+            payload: '0xdeadbeef'
           }
         }
       })

@@ -9,6 +9,7 @@ import wallets from './data/wallets.json'
 import legacyRequests from './requests/legacy-requests.json'
 
 export const run = async () => {
+  // eslint-disable-next-line no-explicit-any
   const entities: { [key: string]: any } = { users: {}, wallets: {} }
 
   for (const user of users) {
@@ -145,9 +146,9 @@ export const run = async () => {
     //   }
     // }
 
-    // if (status == 'completed' && !results[0].permit) {
-    //   console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
-    // }
+    if (status == 'completed' && !results[0].permit) {
+      console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
+    }
   }
 }
 
