@@ -1,3 +1,4 @@
+// eslint-disable @typescript-eslint/no-explicit-any
 import { EntityType, FiatCurrency, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { omit } from 'lodash'
@@ -322,7 +323,7 @@ export const translateLegacyPolicy = (oldPolicy: OldPolicy): NewPolicy | null =>
 }
 
 export const run = () => {
-  const data = policies
+  const data = (policies as any[])
     .map((policy) => {
       const copy = omit(policy, ['guild_id', 'sequence', 'version', 'amount']) as OldPolicy
       copy.amount = policy.amount ? `${policy.amount}` : null

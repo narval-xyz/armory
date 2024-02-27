@@ -1,3 +1,4 @@
+// eslint-disable @typescript-eslint/no-explicit-any
 import { Action, Request, UserRole } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -9,10 +10,9 @@ import wallets from './data/wallets.json'
 import legacyRequests from './requests/legacy-requests.json'
 
 export const run = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const entities: { [key: string]: any } = { users: {}, wallets: {} }
 
-  for (const user of users) {
+  for (const user of users as any[]) {
     let role = user.guildUserRole
     if (['SCHOLAR'].includes(role)) {
       role = UserRole.MEMBER
@@ -22,13 +22,13 @@ export const run = async () => {
     entities.users[user.id] = { uid: user.id, role }
   }
 
-  for (const wallet of wallets) {
+  for (const wallet of wallets as any[]) {
     const uid = `eip155:${wallet.accountType}:${wallet.address}`
     entities.wallets[uid] = {
       uid,
       address: wallet.address,
       accountType: wallet.accountType,
-      assignees: wallet.assignees?.map((assignee) => assignee.userId) || []
+      assignees: wallet.assignees?.map((assignee: any) => assignee.userId) || []
     }
   }
 
