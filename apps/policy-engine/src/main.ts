@@ -39,7 +39,7 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 
 async function bootstrap() {
   const logger = new Logger('AuthorizationNodeBootstrap')
-  const application = await NestFactory.create(AppModule)
+  const application = await NestFactory.create(AppModule, { bodyParser: true })
   const configService = application.get(ConfigService)
   const port = configService.get('PORT')
 
