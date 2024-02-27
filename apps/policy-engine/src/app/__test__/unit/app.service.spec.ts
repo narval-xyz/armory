@@ -10,12 +10,14 @@ describe('finalizeDecision', () => {
         reasons: [
           {
             policyId: 'forbid-rule-id',
+            policyName: 'Forbid Rule',
             type: 'forbid',
             approvalsMissing: [],
             approvalsSatisfied: []
           },
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
@@ -34,12 +36,14 @@ describe('finalizeDecision', () => {
         reasons: [
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
           },
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [],
             approvalsSatisfied: []
@@ -58,6 +62,7 @@ describe('finalizeDecision', () => {
         reasons: [
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [
               {
@@ -111,6 +116,7 @@ describe('finalizeDecision', () => {
         reasons: [
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [missingApproval],
             approvalsSatisfied: [satisfiedApproval]
@@ -122,6 +128,7 @@ describe('finalizeDecision', () => {
         reasons: [
           {
             policyId: 'permit-rule-id',
+            policyName: 'Permit Rule',
             type: 'permit',
             approvalsMissing: [missingApproval2],
             approvalsSatisfied: [satisfiedApproval2]
