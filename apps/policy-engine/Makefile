@@ -74,14 +74,14 @@ policy-engine/db/create-migration:
 # project and resolve its path aliases before running the vanilla JavaScript
 # seed entry point.
 policy-engine/db/seed:
-	make policy-engine/build/script
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
-		node dist/out-tsc/${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.js
+		ts-node -r tsconfig-paths/register --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.ts
 
 
 # === Testing ===
 
 policy-engine/test/type:
+	make policy-engine/db/generate-types
 	npx tsc \
 		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json \
 		--noEmit
