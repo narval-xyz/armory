@@ -23,14 +23,14 @@ const validateUserGroupMemberIntegrity: Validator = (entities: Entities): Valida
     .filter(({ userId }) => !users[userId])
     .map(({ userId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`
+      message: `couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`
     }))
 
   const groupIssues: ValidationIssue[] = entities.userGroupMembers
     .filter(({ groupId }) => !userGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't create the user group member because the group ${groupId} is undefined`
+      message: `couldn't create the user group member because the group ${groupId} is undefined`
     }))
 
   return [...userIssues, ...groupIssues]
@@ -44,14 +44,14 @@ const validateWalletGroupMemberIntegrity: Validator = (entities: Entities): Vali
     .filter(({ walletId }) => !wallets[walletId])
     .map(({ walletId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't create the wallet group member for group ${groupId} because the wallet ${walletId} is undefined`
+      message: `couldn't create the wallet group member for group ${groupId} because the wallet ${walletId} is undefined`
     }))
 
   const groupIssues: ValidationIssue[] = entities.walletGroupMembers
     .filter(({ groupId }) => !walletGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't create the wallet group member because the group ${groupId} is undefined`
+      message: `couldn't create the wallet group member because the group ${groupId} is undefined`
     }))
 
   return [...walletIssues, ...groupIssues]
@@ -65,14 +65,14 @@ const validateUserWalletIntegrity: Validator = (entities: Entities): ValidationI
     .filter(({ userId }) => !users[userId])
     .map(({ userId, walletId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't assign the wallet ${walletId} because the user ${userId} is undefined`
+      message: `couldn't assign the wallet ${walletId} because the user ${userId} is undefined`
     }))
 
   const walletIssues: ValidationIssue[] = entities.userWallets
     .filter(({ walletId }) => !wallets[walletId])
     .map(({ walletId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `Couldn't assign the wallet ${walletId} because it's undefined`
+      message: `couldn't assign the wallet ${walletId} because it's undefined`
     }))
 
   return [...userIssues, ...walletIssues]
@@ -92,13 +92,13 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
   }
 
   return flatten([
-    findIssues(entities.addressBook, (id) => `The address book account ${id} is duplicated`),
-    findIssues(entities.credentials, (id) => `The credential ${id} is duplicated`),
-    findIssues(entities.tokens, (id) => `The token ${id} is duplicated`),
-    findIssues(entities.userGroups, (id) => `The user group ${id} is duplicated`),
-    findIssues(entities.users, (id) => `The user ${id} is duplicated`),
-    findIssues(entities.walletGroups, (id) => `The wallet group ${id} is duplicated`),
-    findIssues(entities.wallets, (id) => `The wallet ${id} is duplicated`)
+    findIssues(entities.addressBook, (id) => `the address book account ${id} is duplicated`),
+    findIssues(entities.credentials, (id) => `the credential ${id} is duplicated`),
+    findIssues(entities.tokens, (id) => `the token ${id} is duplicated`),
+    findIssues(entities.userGroups, (id) => `the user group ${id} is duplicated`),
+    findIssues(entities.users, (id) => `the user ${id} is duplicated`),
+    findIssues(entities.walletGroups, (id) => `the wallet group ${id} is duplicated`),
+    findIssues(entities.wallets, (id) => `the wallet ${id} is duplicated`)
   ])
 }
 
@@ -108,7 +108,7 @@ const validateAddressBookUniqueIdFormat: Validator = (entities: Entities): Valid
     .map(({ id: uid }) => {
       return {
         code: 'INVALID_UID_FORMAT',
-        message: `address book account uid ${uid} is not a valid account id`
+        message: `address book account id ${uid} is not a valid account id`
       }
     })
 }
@@ -119,7 +119,7 @@ const validateTokenUniqueIdFormat: Validator = (entities: Entities): ValidationI
     .map(({ id: uid }) => {
       return {
         code: 'INVALID_UID_FORMAT',
-        message: `token uid ${uid} is not a valid asset id`
+        message: `token id ${uid} is not a valid asset id`
       }
     })
 }

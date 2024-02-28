@@ -22,8 +22,8 @@ describe('validate', () => {
         ...emptyEntities,
         userGroupMembers: [
           {
-            groupId: USER_GROUP.Engineering.uid,
-            userId: USER.Alice.uid
+            groupId: USER_GROUP.Engineering.id,
+            userId: USER.Alice.id
           }
         ],
         users: [USER.Alice]
@@ -35,7 +35,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "Couldn't create the user group member because the group test-engineering-user-group-uid is undefined"
+              "couldn't create the user group member because the group test-engineering-user-group-uid is undefined"
           }
         ]
       })
@@ -47,8 +47,8 @@ describe('validate', () => {
         userGroups: [USER_GROUP.Engineering],
         userGroupMembers: [
           {
-            groupId: USER_GROUP.Engineering.uid,
-            userId: USER.Alice.uid
+            groupId: USER_GROUP.Engineering.id,
+            userId: USER.Alice.id
           }
         ]
       })
@@ -59,7 +59,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "Couldn't create the user group member for group test-engineering-user-group-uid because the user test-alice-user-uid is undefined"
+              "couldn't create the user group member for group test-engineering-user-group-uid because the user test-alice-user-uid is undefined"
           }
         ]
       })
@@ -71,8 +71,8 @@ describe('validate', () => {
         wallets: [WALLET.Engineering],
         walletGroupMembers: [
           {
-            walletId: WALLET.Engineering.uid,
-            groupId: WALLET_GROUP.Engineering.uid
+            walletId: WALLET.Engineering.id,
+            groupId: WALLET_GROUP.Engineering.id
           }
         ]
       })
@@ -83,7 +83,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "Couldn't create the wallet group member because the group test-engineering-wallet-group-uid is undefined"
+              "couldn't create the wallet group member because the group test-engineering-wallet-group-uid is undefined"
           }
         ]
       })
@@ -95,8 +95,8 @@ describe('validate', () => {
         walletGroups: [WALLET_GROUP.Engineering],
         walletGroupMembers: [
           {
-            walletId: WALLET.Engineering.uid,
-            groupId: WALLET_GROUP.Engineering.uid
+            walletId: WALLET.Engineering.id,
+            groupId: WALLET_GROUP.Engineering.id
           }
         ]
       })
@@ -107,7 +107,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "Couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4 is undefined"
+              "couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4 is undefined"
           }
         ]
       })
@@ -119,8 +119,8 @@ describe('validate', () => {
         wallets: [WALLET.Engineering],
         userWallets: [
           {
-            userId: USER.Alice.uid,
-            walletId: WALLET.Engineering.uid
+            userId: USER.Alice.id,
+            walletId: WALLET.Engineering.id
           }
         ]
       })
@@ -130,7 +130,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `Couldn't assign the wallet ${WALLET.Engineering.uid} because the user ${USER.Alice.uid} is undefined`
+            message: `couldn't assign the wallet ${WALLET.Engineering.id} because the user ${USER.Alice.id} is undefined`
           }
         ]
       })
@@ -142,8 +142,8 @@ describe('validate', () => {
         users: [USER.Alice],
         userWallets: [
           {
-            userId: USER.Alice.uid,
-            walletId: WALLET.Engineering.uid
+            userId: USER.Alice.id,
+            walletId: WALLET.Engineering.id
           }
         ]
       })
@@ -153,7 +153,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `Couldn't assign the wallet ${WALLET.Engineering.uid} because it's undefined`
+            message: `couldn't assign the wallet ${WALLET.Engineering.id} because it's undefined`
           }
         ]
       })
@@ -172,7 +172,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The address book account ${ADDRESS_BOOK[0].uid} is duplicated`
+            message: `the address book account ${ADDRESS_BOOK[0].id} is duplicated`
           }
         ]
       })
@@ -189,7 +189,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The credential ${CREDENTIAL.Alice.uid} is duplicated`
+            message: `the credential ${CREDENTIAL.Alice.id} is duplicated`
           }
         ]
       })
@@ -206,7 +206,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The token ${TOKEN.usdc1.uid} is duplicated`
+            message: `the token ${TOKEN.usdc1.id} is duplicated`
           }
         ]
       })
@@ -223,7 +223,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The user group ${USER_GROUP.Engineering.uid} is duplicated`
+            message: `the user group ${USER_GROUP.Engineering.id} is duplicated`
           }
         ]
       })
@@ -240,7 +240,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The user ${USER.Alice.uid} is duplicated`
+            message: `the user ${USER.Alice.id} is duplicated`
           }
         ]
       })
@@ -257,7 +257,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The wallet group ${WALLET_GROUP.Engineering.uid} is duplicated`
+            message: `the wallet group ${WALLET_GROUP.Engineering.id} is duplicated`
           }
         ]
       })
@@ -274,21 +274,21 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `The wallet ${WALLET.Engineering.uid} is duplicated`
+            message: `the wallet ${WALLET.Engineering.id} is duplicated`
           }
         ]
       })
     })
   })
 
-  describe('uid format', () => {
-    it('fails when address book account uid is not an account id', () => {
+  describe('id format', () => {
+    it('fails when address book account id is not an account id', () => {
       const invalidAccountId = '16aba381-c54a-4f72-89bd-bd1e7c46ed29'
       const result = validate({
         ...emptyEntities,
         addressBook: [
           {
-            uid: invalidAccountId,
+            id: invalidAccountId,
             address: WALLET.Engineering.address,
             chainId: 137,
             classification: AccountClassification.WALLET
@@ -302,20 +302,20 @@ describe('validate', () => {
         issues: [
           {
             code: 'INVALID_UID_FORMAT',
-            message: `address book account uid ${invalidAccountId} is not a valid account id`
+            message: `address book account id ${invalidAccountId} is not a valid account id`
           }
         ]
       })
     })
 
-    it('fails when token uid is not an asset id', () => {
+    it('fails when token id is not an asset id', () => {
       const invalidAccountId = '16aba381-c54a-4f72-89bd-bd1e7c46ed29'
       const result = validate({
         ...emptyEntities,
         tokens: [
           {
             ...TOKEN.usdc1,
-            uid: invalidAccountId
+            id: invalidAccountId
           },
           TOKEN.usdc137
         ]
@@ -326,7 +326,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'INVALID_UID_FORMAT',
-            message: `token uid ${invalidAccountId} is not a valid asset id`
+            message: `token id ${invalidAccountId} is not a valid asset id`
           }
         ]
       })

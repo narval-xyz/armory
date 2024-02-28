@@ -219,12 +219,6 @@ export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
     classification: AccountClassification.WALLET
   },
   {
-    id: `eip155:137:${WALLET.Engineering.address}`,
-    address: WALLET.Engineering.address,
-    chainId: 137,
-    classification: AccountClassification.WALLET
-  },
-  {
     id: `eip155:1:${WALLET.Treasury.address}`,
     address: WALLET.Treasury.address,
     chainId: 1,
