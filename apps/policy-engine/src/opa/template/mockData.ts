@@ -24,7 +24,7 @@ export const examplePermitPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: [FIXTURE.WALLET.engineering1.address]
+      args: [FIXTURE.WALLET.Engineering.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,
@@ -49,7 +49,7 @@ export const examplePermitPolicy: Policy = {
           approvalCount: 2,
           countPrincipal: false,
           approvalEntityType: EntityType.User,
-          entityIds: [FIXTURE.USER.Bob.uid, FIXTURE.USER.Carol.uid]
+          entityIds: [FIXTURE.USER.Bob.id, FIXTURE.USER.Carol.id]
         },
         {
           approvalCount: 1,
@@ -80,11 +80,11 @@ export const exampleForbidPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_PRINCIPAL_ID,
-      args: [FIXTURE.USER.Alice.uid]
+      args: [FIXTURE.USER.Alice.id]
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: [FIXTURE.WALLET.engineering1.address]
+      args: [FIXTURE.WALLET.Engineering.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,

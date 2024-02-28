@@ -1,5 +1,5 @@
-import { isAddress } from '@narval/policy-engine-shared'
 import { z } from 'zod'
+import { isAddress } from '../util/evm.util'
 
 /**
  * Schema backward compatible with viem's Address type.

@@ -45,7 +45,7 @@ export class AuthorizationRequestService {
     private priceService: PriceService,
     private feedService: FeedService,
     private clusterService: ClusterService
-  ) {}
+  ) { }
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
     const now = new Date()
@@ -103,7 +103,7 @@ export class AuthorizationRequestService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async complete(id: string) {}
+  async complete(id: string) { }
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
     if (input.status === AuthorizationRequestStatus.PROCESSING) {
