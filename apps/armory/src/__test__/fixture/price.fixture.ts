@@ -1,11 +1,10 @@
-import { AssetType, Namespace, Prices } from '@narval/policy-engine-shared'
+import { AssetType, Namespace, Prices, assetIdSchema } from '@narval/policy-engine-shared'
 import { sample } from 'lodash'
 import { times } from 'lodash/fp'
 import { z } from 'zod'
 import { Fixture, Generator } from 'zod-fixture'
 import { CHAINS, FIAT_ID_USD } from '../../armory.constant'
 import { Price } from '../../shared/core/type/price.type'
-import { assetIdSchema } from '../../shared/schema/caip.schema'
 import { generateAddress, generateSupportedChainId } from './shared.fixture'
 
 export const fiatIdSchema = z.custom<`fiat:${string}`>((value) => {

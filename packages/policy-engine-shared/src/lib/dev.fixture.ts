@@ -11,29 +11,41 @@ import {
   TokenEntity,
   UserEntity,
   UserGroupEntity,
+  UserGroupMemberEntity,
   UserRole,
+  UserWalletEntity,
   WalletEntity,
-  WalletGroupEntity
+  WalletGroupEntity,
+  WalletGroupMemberEntity
 } from './type/entity.type'
 
-const PERSONA = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
+const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
+const GROUPS = ['Engineering', 'Treasury'] as const
+const WALLETS = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
-type Persona = (typeof PERSONA)[number]
+type Personas = (typeof PERSONAS)[number]
+type Groups = (typeof GROUPS)[number]
+type Wallets = (typeof WALLETS)[number]
 
 export const ORGANIZATION: OrganizationEntity = {
-  uid: '7d704a62-d15e-4382-a826-1eb41563043b'
+  id: '7d704a62-d15e-4382-a826-1eb41563043b'
 }
 
-export const UNSAFE_PRIVATE_KEY: Record<Persona, `0x${string}`> = {
+// See doc/prefixed-test-ethereum-accounts.md
+export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0x000966c8bf232032cd23f9002c4513dfea2531be
   Root: '0x4d377dba5424a7c1545a3c7b0522592927d49d2600a66f12e07a3977bafd79ab',
+  // 0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43
   Alice: '0x454c9f13f6591f6482b17bdb6a671a7294500c7dd126111ce1643b03b6aeb354',
+  // 0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23
   Bob: '0x569a6614716a76fdb9cf21b842d012add85e680b51fd4fb773109a93c6c4f307',
+  // 0xccc1472fce4ec74a1e3f9653776acfc790cd0743
   Carol: '0x33be709d0e3ffcd9ffa3d983d3fe3a55c34ab4eb4db2577847667262094f1786',
+  // 0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
 }
 
-export const ACCOUNT: Record<Persona, PrivateKeyAccount> = {
+export const ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Root: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Root),
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
@@ -41,159 +53,195 @@ export const ACCOUNT: Record<Persona, PrivateKeyAccount> = {
   Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave)
 }
 
-export const USER: Record<Persona, UserEntity> = {
+export const USER: Record<Personas, UserEntity> = {
   Root: {
-    uid: 'root:608bi1ef7-0efc-4a40-8739-0178a993b77c',
+    id: 'test-root-user-uid',
     role: UserRole.ROOT
   },
   Alice: {
-    uid: 'alice:0c6111fb-96ef-4177-8510-8cd994cc17ba',
+    id: 'test-alice-user-uid',
     role: UserRole.ADMIN
   },
   Bob: {
-    uid: 'bob:3761b384-b5d3-4d29-9ed8-4b615fa1bcb3',
+    id: 'test-bob-user-uid',
     role: UserRole.ADMIN
   },
   Carol: {
-    uid: 'carol:422dfe0b-0de1-44de-aaee-5262d6ebfb64',
+    id: 'test-carol-user-uid',
     role: UserRole.MANAGER
   },
   Dave: {
-    uid: 'dave:4e7f31ad-a8e9-4a07-a19b-91c6883d7adb',
+    id: 'test-dave-user-uid',
     role: UserRole.MEMBER
   }
 }
 
-export const CREDENTIAL: Record<Persona, CredentialEntity> = {
+export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    uid: sha256(ACCOUNT.Root.address).toLowerCase(),
+    id: sha256(ACCOUNT.Root.address).toLowerCase(),
     pubKey: ACCOUNT.Root.address,
     alg: Alg.ES256K,
-    userId: USER.Root.uid
+    userId: USER.Root.id
   },
   Alice: {
-    uid: sha256(ACCOUNT.Alice.address).toLowerCase(),
+    id: sha256(ACCOUNT.Alice.address).toLowerCase(),
     pubKey: ACCOUNT.Alice.address,
     alg: Alg.ES256K,
-    userId: USER.Alice.uid
+    userId: USER.Alice.id
   },
   Bob: {
-    uid: sha256(ACCOUNT.Bob.address).toLowerCase(),
+    id: sha256(ACCOUNT.Bob.address).toLowerCase(),
     pubKey: ACCOUNT.Bob.address,
     alg: Alg.ES256K,
-    userId: USER.Bob.uid
+    userId: USER.Bob.id
   },
   Carol: {
-    uid: sha256(ACCOUNT.Carol.address).toLowerCase(),
+    id: sha256(ACCOUNT.Carol.address).toLowerCase(),
     pubKey: ACCOUNT.Carol.address,
     alg: Alg.ES256K,
-    userId: USER.Carol.uid
+    userId: USER.Carol.id
   },
   Dave: {
-    uid: sha256(ACCOUNT.Dave.address).toLowerCase(),
+    id: sha256(ACCOUNT.Dave.address).toLowerCase(),
     pubKey: ACCOUNT.Dave.address,
     alg: Alg.ES256K,
-    userId: USER.Dave.uid
+    userId: USER.Dave.id
   }
 }
 
-export const USER_GROUP: Record<string, UserGroupEntity> = {
-  engineering: {
-    uid: 'ug:4735e190-6985-4f58-a723-c1a3aeec8b8c',
-    users: [USER.Alice.uid, USER.Carol.uid]
+export const USER_GROUP: Record<Groups, UserGroupEntity> = {
+  Engineering: {
+    id: 'test-engineering-user-group-uid'
   },
-  treasury: {
-    uid: 'ug:08319ee9-c4f1-458f-b88c-e501ac575957',
-    users: [USER.Bob.uid, USER.Dave.uid]
+  Treasury: {
+    id: 'test-treasury-user-group-uid'
   }
 }
 
-export const WALLET: Record<string, WalletEntity> = {
-  engineering1: {
-    uid: 'eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
+export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
+  {
+    groupId: USER_GROUP.Engineering.id,
+    userId: USER.Alice.id
+  },
+  {
+    groupId: USER_GROUP.Engineering.id,
+    userId: USER.Carol.id
+  },
+  {
+    groupId: USER_GROUP.Treasury.id,
+    userId: USER.Bob.id
+  }
+]
+
+export const WALLET: Record<Wallets, WalletEntity> = {
+  Testing: {
+    id: 'eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
     address: '0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
-    accountType: AccountType.EOA,
-    assignees: [USER.Alice.uid]
+    accountType: AccountType.EOA
   },
-  engineering2: {
-    uid: 'eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+  Engineering: {
+    id: 'eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
     address: '0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
     accountType: AccountType.EOA
   },
-  treasury: {
-    uid: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b', // Prod guild 58 - treasury wallet
+  Treasury: {
+    id: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b', // Prod guild 58 - treasury wallet
     address: '0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
-    accountType: AccountType.EOA,
-    assignees: [USER.Alice.uid]
+    accountType: AccountType.EOA
   },
-  operations: {
-    uid: 'eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+  Operation: {
+    id: 'eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
     address: '0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-    accountType: AccountType.EOA,
-    assignees: [USER.Alice.uid]
+    accountType: AccountType.EOA
   }
 }
 
-export const WALLET_GROUP: Record<string, WalletGroupEntity> = {
-  engineering: {
-    uid: 'wg:9e60a686-ffbb-44fb-8bae-742fe1dedefb',
-    wallets: [WALLET.engineering1.uid, WALLET.engineering2.uid]
+export const WALLET_GROUP: Record<Groups, WalletGroupEntity> = {
+  Engineering: {
+    id: 'test-engineering-wallet-group-uid'
   },
-  treasury: {
-    uid: 'wg:df5db763-a3e0-4e19-848c-214e527e47cc',
-    wallets: [WALLET.treasury.uid]
+  Treasury: {
+    id: 'test-treasury-wallet-group-uid'
   }
 }
+
+export const WALLET_GROUP_MEMBER: WalletGroupMemberEntity[] = [
+  {
+    groupId: WALLET_GROUP.Engineering.id,
+    walletId: WALLET.Engineering.id
+  },
+  {
+    groupId: WALLET_GROUP.Engineering.id,
+    walletId: WALLET.Testing.id
+  },
+  {
+    groupId: WALLET_GROUP.Treasury.id,
+    walletId: WALLET.Treasury.id
+  },
+  {
+    groupId: WALLET_GROUP.Treasury.id,
+    walletId: WALLET.Operation.id
+  }
+]
+
+export const USER_WALLET: UserWalletEntity[] = [
+  {
+    walletId: WALLET.Operation.id,
+    userId: USER.Alice.id
+  },
+  {
+    walletId: WALLET.Testing.id,
+    userId: USER.Alice.id
+  },
+  {
+    walletId: WALLET.Treasury.id,
+    userId: USER.Alice.id
+  }
+]
 
 export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
   {
-    uid: `eip155:137:${WALLET.engineering1.address}`,
-    address: WALLET.engineering1.address,
+    id: `eip155:137:${WALLET.Testing.address}`,
+    address: WALLET.Testing.address,
     chainId: 137,
     classification: AccountClassification.WALLET
   },
   {
-    uid: `eip155:1:${WALLET.engineering1.address}`,
-    address: WALLET.engineering1.address,
+    id: `eip155:1:${WALLET.Engineering.address}`,
+    address: WALLET.Engineering.address,
     chainId: 1,
     classification: AccountClassification.WALLET
   },
   {
-    uid: `eip155:137:${WALLET.engineering2.address}`,
-    address: WALLET.engineering2.address,
+    id: `eip155:137:${WALLET.Engineering.address}`,
+    address: WALLET.Treasury.address,
     chainId: 137,
     classification: AccountClassification.WALLET
   },
   {
-    uid: `eip155:137:${WALLET.treasury.address}`,
-    address: WALLET.treasury.address,
-    chainId: 137,
-    classification: AccountClassification.WALLET
-  },
-  {
-    uid: `eip155:1:${WALLET.treasury.address}`,
-    address: WALLET.treasury.address,
+    id: `eip155:1:${WALLET.Treasury.address}`,
+    address: WALLET.Treasury.address,
     chainId: 1,
     classification: AccountClassification.WALLET
   },
   {
-    uid: `eip155:137:${WALLET.operations.address}`,
-    address: WALLET.operations.address,
+    id: `eip155:137:${WALLET.Operation.address}`,
+    address: WALLET.Operation.address,
     chainId: 137,
     classification: AccountClassification.WALLET
   }
 ]
 
-export const TOKEN: Record<string, TokenEntity> = {
+export const TOKEN: Record<`${string}1` | `${string}137`, TokenEntity> = {
   usdc1: {
-    uid: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    id: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     chainId: 1,
     symbol: 'USDC',
     decimals: 6
   },
   usdc137: {
-    uid: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+    id: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
     address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
     chainId: 137,
     symbol: 'USDC',
@@ -205,8 +253,11 @@ export const ENTITIES: Entities = {
   addressBook: ADDRESS_BOOK,
   credentials: Object.values(CREDENTIAL),
   tokens: Object.values(TOKEN),
+  userGroupMembers: USER_GROUP_MEMBER,
   userGroups: Object.values(USER_GROUP),
+  userWallets: USER_WALLET,
   users: Object.values(USER),
+  walletGroupMembers: WALLET_GROUP_MEMBER,
   walletGroups: Object.values(WALLET_GROUP),
   wallets: Object.values(WALLET)
 }
