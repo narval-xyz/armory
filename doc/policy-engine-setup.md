@@ -2,16 +2,19 @@
 
 ## Terminology
 
-- CEK: Content Encryption Key
-- KEK: Key Encryption Key
-- MK: Master Key
-
-## Persona
-
-- **Engineer**, someone with high credentials to set up critical software within the
-  organization.
-- **Admin**, someone or something responsible for managing the engine in the
-  organization. It can be the same person as the Engineer.
+- **CEK**: Content Encryption Key
+- **KEK**: Key Encryption Key
+- **MK**: Master Key
+- **Data Storage**: The storage system responsible for holding data related to
+  tenants entities and policies. While Narval doesn't mandate the use of a
+  specific storage system like S3 or IPFS, it does require that the data stored
+  conforms to Narval's data structure for entities and policies.
+- **Database**: The engine's database. It's used to store some of engine's
+  configuration, tenant's encrypted configuration, and encrypted tenant's data.
+- **Engineer**: A persona with high credentials to set up critical software within
+  an organization.
+- **Admin**: A persona responsible for managing the engine in the organization.
+  It can be the same person as the Engineer.
 
 ## Provision
 
@@ -26,9 +29,12 @@ sequenceDiagram
   participant DB as Database
 
   Engineer ->> Engine: Run provision script
+  activate Engine
   Engine ->> Engine: Verify if is the first time provisioning
   alt is first time provisioning
+    Engine ->> Engine: Set environment variables and secrets
     Engine ->> Engine: Set up database
+    Engine ->> Engine: Run database migration
     Engine ->> Engine: Generate master key (MK)
     Engine ->> Engine: Generate admin API key (AK)
     Engine ->> DB: Write KEK (AES-256) encrypted MK
@@ -36,6 +42,7 @@ sequenceDiagram
     Engine -->> Engineer: Return engine configuration JSON
   else 
     Engine -->> Engineer: Prompt Yes/No to re-provision
+    deactivate Engine
     Note over Engine: Re-provisioning will overwrite existing data to "factory default".
   end
 ```
@@ -81,9 +88,16 @@ sequenceDiagram
   participant DB as Database
   participant DS as Data Storage
 
-  Engine ->> DB: Read tenants configuration
-  loop For each tenant
-    Engine ->> DS: Fetch tenant data
+  Engine ->> Engine: Read and validate engine's configuration 
+  activate Engine
+  alt if engine configuration is valid
+    Engine ->> DB: Read tenants configuration
+    loop For each tenant
+      Engine ->> DS: Fetch tenant data
+    end
+  else 
+    Engine ->> Engine: Abort the boot with invalid environment error message 
+    deactivate Engine
   end
   Note over DB: Encrypt tenant's data for privacy. The signature will have to match the encrypted JWKS public keys.
 ```
@@ -108,7 +122,6 @@ sequenceDiagram
   Engine ->> Engine: Generate tenant signing key pair
   Engine ->> Engine: Generate tenant API key (TAK)
   Engine ->> DB: Write CEK (AES-256) encrypted tenant configuration 
-  Note right of DB: 
   Engine ->> DS: Fetch tenant data
   Engine ->> DB: Write CEK (AES-256) tenant's data
   Note over DB: Does not fail the onboarding if fetching the tenant data failed
