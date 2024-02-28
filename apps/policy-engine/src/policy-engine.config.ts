@@ -12,8 +12,10 @@ const ConfigSchema = z.object({
   database: z.object({
     url: z.string().startsWith('postgresql:')
   }),
-  engineUid: z.string().optional(),
-  masterPassword: z.string().optional()
+  engine: z.object({
+    id: z.string(),
+    masterPassword: z.string()
+  })
 })
 
 export type Config = z.infer<typeof ConfigSchema>
@@ -25,8 +27,10 @@ export const load = (): Config => {
     database: {
       url: process.env.POLICY_ENGINE_DATABASE_URL
     },
-    engineUid: process.env.ENGINE_UID,
-    masterPassword: process.env.MASTER_PASSWORD
+    engine: {
+      id: process.env.ENGINE_UID,
+      masterPassword: process.env.MASTER_PASSWORD
+    }
   })
 
   if (result.success) {

@@ -13,7 +13,7 @@ datasource db {
 }
 
 model Engine {
-  uid         String @id
+  id          String @id
   masterKey   String @map("master_key")
   adminApiKey String @map("admin_api_key")
 

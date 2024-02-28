@@ -11,7 +11,7 @@ const AUTH_TAG_LENGTH = 16
 export class KeyringService implements OnApplicationBootstrap {
   private logger = new Logger(KeyringService.name)
 
-  private engineUid: string
+  private engineId: string
 
   private kek: Buffer
 
@@ -25,34 +25,34 @@ export class KeyringService implements OnApplicationBootstrap {
     private keyringRepository: KeyringRepository,
     @Inject(ConfigService) configService: ConfigService<Config, true>
   ) {
-    this.engineUid = configService.get('engineUid', { infer: true })
-    this.masterPassword = configService.get('masterPassword', { infer: true })
+    this.engineId = configService.get('engine.id', { infer: true })
+    this.masterPassword = configService.get('engine.masterPassword', { infer: true })
   }
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('Keyring Service boot')
-    let engine = await this.keyringRepository.getEngine(this.engineUid)
+    let engine = await this.keyringRepository.getEngine(this.engineId)
 
     // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
-    this.kek = this.deriveKek(this.masterPassword)
+    this.kek = this.deriveKeyEncryptionKey(this.masterPassword)
 
     if (!engine) {
       // New Engine, set it up
       engine = await this.firstTimeSetup()
     }
 
-    this.masterKey = this.decryptWithKey(engine.masterKey, this.kek)
-    this.adminApiKey = this.decryptWithKey(engine.adminApiKey, this.kek)
+    this.masterKey = this.decryptWithKey(this.kek, engine.masterKey)
+    this.adminApiKey = this.decryptWithKey(this.kek, engine.adminApiKey)
   }
 
-  private deriveKek(password: string): Buffer {
+  private deriveKeyEncryptionKey(password: string): Buffer {
     // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
-    const kek = crypto.pbkdf2Sync(password.normalize(), this.engineUid.normalize(), 1000000, 32, 'sha256')
-    this.logger.log('Derived KEK', { kek: kek.toString('hex') })
+    const kek = crypto.pbkdf2Sync(password.normalize(), this.engineId.normalize(), 1000000, 32, 'sha256')
+    this.logger.log('Derived KEK', { kek: kek.toString('hex') }) // TODO: Sanitize
     return kek
   }
 
-  decryptWithKey(encryptedString: string, key: Buffer): Buffer {
+  decryptWithKey(key: Buffer, encryptedString: string): Buffer {
     const encryptedBuffer = Buffer.from(encryptedString, 'hex')
     // IV and AuthTag are prepend/appended, so slice them off
     const iv = encryptedBuffer.subarray(0, IV_LENGTH)
@@ -68,7 +68,7 @@ export class KeyringService implements OnApplicationBootstrap {
     return decrypted
   }
 
-  encryptWithKey(data: Buffer, key: Buffer): string {
+  encryptWithKey(key: Buffer, data: Buffer): string {
     const iv = crypto.randomBytes(IV_LENGTH)
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv, { authTagLength: AUTH_TAG_LENGTH })
     let encrypted = cipher.update(data)
@@ -88,13 +88,14 @@ export class KeyringService implements OnApplicationBootstrap {
     const adminApiKeyBuffer = crypto.randomBytes(32)
 
     // Encrypt the Master Key (MK) with the Key Encryption Key (KEK)
-    const encryptedMk = this.encryptWithKey(mkBuffer, this.kek)
-    const encryptedApiKey = this.encryptWithKey(adminApiKeyBuffer, this.kek)
+    const encryptedMk = this.encryptWithKey(this.kek, mkBuffer)
+    const encryptedApiKey = this.encryptWithKey(this.kek, adminApiKeyBuffer)
 
     // Save the Result.
-    const engine = await this.keyringRepository.createEngine(this.engineUid, encryptedMk, encryptedApiKey)
+    const engine = await this.keyringRepository.createEngine(this.engineId, encryptedMk, encryptedApiKey)
 
     this.logger.log('Engine Initial Setup Complete')
+    // TODO: Print this to a console in a better way; may not even like this.
     this.logger.log('Admin API Key -- DO NOT LOSE THIS', adminApiKeyBuffer.toString('hex'))
     return engine
   }
@@ -107,7 +108,7 @@ export class KeyringService implements OnApplicationBootstrap {
   deriveContentEncryptionKey(keyId: string) {
     // Derive a CEK from the MK+keyId using HKDF
     const cek = crypto.hkdfSync('sha256', this.masterKey, keyId, 'content', 32)
-    this.logger.log('Derived KEK', { cek: Buffer.from(cek).toString('hex') })
+    this.logger.log('Derived KEK', { cek: Buffer.from(cek).toString('hex') }) // TODO: Sanitize
     return Buffer.from(cek)
   }
 }

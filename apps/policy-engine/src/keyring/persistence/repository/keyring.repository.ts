@@ -1,28 +1,24 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 
 @Injectable()
-export class KeyringRepository implements OnModuleInit {
+export class KeyringRepository {
   private logger = new Logger(KeyringRepository.name)
 
   constructor(private prismaService: PrismaService) {}
 
-  async onModuleInit() {
-    this.logger.log('KeyringRepository initialized')
-  }
-
-  async getEngine(engineUid: string) {
+  async getEngine(engineId: string) {
     return this.prismaService.engine.findUnique({
       where: {
-        uid: engineUid
+        id: engineId
       }
     })
   }
 
-  async createEngine(engineUid: string, masterKey: string, adminApiKey: string) {
+  async createEngine(engineId: string, masterKey: string, adminApiKey: string) {
     return this.prismaService.engine.create({
       data: {
-        uid: engineUid,
+        id: engineId,
         masterKey,
         adminApiKey
       }
