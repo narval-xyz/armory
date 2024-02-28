@@ -1,8 +1,5 @@
 import { AccountClassification, AccountType, Address, UserRole } from '@narval/policy-engine-shared'
 
-// TODO: Move these to shared?
-
-// ENTITIES: user, user group, wallet, wallet group, and address book.
 export type Organization = {
   uid: string
 }

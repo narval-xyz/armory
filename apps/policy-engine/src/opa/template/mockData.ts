@@ -24,7 +24,7 @@ export const examplePermitPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: [FIXTURE.WALLET.engineering1.address]
+      args: [FIXTURE.WALLET.Engineering.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,
@@ -84,7 +84,7 @@ export const exampleForbidPolicy: Policy = {
     },
     {
       criterion: Criterion.CHECK_WALLET_ID,
-      args: [FIXTURE.WALLET.engineering1.address]
+      args: [FIXTURE.WALLET.Engineering.address]
     },
     {
       criterion: Criterion.CHECK_INTENT_TYPE,

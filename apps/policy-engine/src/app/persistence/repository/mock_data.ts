@@ -13,8 +13,8 @@ export const ONE_ETH = BigInt('1000000000000000000')
 
 export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.WALLET.engineering1.address,
-    to: FIXTURE.WALLET.treasury.address,
+    from: FIXTURE.WALLET.Engineering.address,
+    to: FIXTURE.WALLET.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -26,7 +26,7 @@ export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
     action: Action.SIGN_TRANSACTION,
     nonce: 'random-nonce-111',
     transactionRequest: txRequest,
-    resourceId: FIXTURE.WALLET.engineering1.uid
+    resourceId: FIXTURE.WALLET.Engineering.uid
   }
 
   const message = hashRequest(request)

@@ -31,12 +31,17 @@ export const ORGANIZATION: OrganizationEntity = {
   uid: '7d704a62-d15e-4382-a826-1eb41563043b'
 }
 
+// See doc/prefixed-test-ethereum-accounts.md
 export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0x000966c8bf232032cd23f9002c4513dfea2531be
   Root: '0x4d377dba5424a7c1545a3c7b0522592927d49d2600a66f12e07a3977bafd79ab',
+  // 0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43
   Alice: '0x454c9f13f6591f6482b17bdb6a671a7294500c7dd126111ce1643b03b6aeb354',
+  // 0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23
   Bob: '0x569a6614716a76fdb9cf21b842d012add85e680b51fd4fb773109a93c6c4f307',
+  // 0xccc1472fce4ec74a1e3f9653776acfc790cd0743
   Carol: '0x33be709d0e3ffcd9ffa3d983d3fe3a55c34ab4eb4db2577847667262094f1786',
+  // 0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
 }
 
@@ -233,7 +238,7 @@ export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
   }
 ]
 
-export const TOKEN: Record<string, TokenEntity> = {
+export const TOKEN: Record<`${string}1` | `${string}137`, TokenEntity> = {
   usdc1: {
     uid: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',

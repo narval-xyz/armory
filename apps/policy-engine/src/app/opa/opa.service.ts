@@ -6,7 +6,7 @@ import Handlebars from 'handlebars'
 import { indexBy } from 'lodash/fp'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
-import { RegoData } from '../../shared/types/entities.types'
+import { RegoData, UserGroup, WalletGroup } from '../../shared/types/entities.types'
 import { Policy } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
 import { criterionToString, reasonToString } from '../../shared/utils/opa.utils'
@@ -74,17 +74,43 @@ export class OpaService implements OnApplicationBootstrap {
     return { fileId, policies }
   }
 
-  private async fetchEntityData(): Promise<RegoData> {
+  async fetchEntityData(): Promise<RegoData> {
     const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.uid)
+
+    const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
+      const group = groups.get(groupId)
+
+      if (group) {
+        return groups.set(groupId, {
+          uid: groupId,
+          users: group.users.concat(userId)
+        })
+      } else {
+        return groups.set(groupId, { uid: groupId, users: [userId] })
+      }
+    }, new Map<string, UserGroup>())
+
+    const walletGroups = entities.walletGroupMembers.reduce((groups, { walletId, groupId }) => {
+      const group = groups.get(groupId)
+
+      if (group) {
+        return groups.set(groupId, {
+          uid: groupId,
+          wallets: group.wallets.concat(walletId)
+        })
+      } else {
+        return groups.set(groupId, { uid: groupId, wallets: [walletId] })
+      }
+    }, new Map<string, WalletGroup>())
 
     const data: RegoData = {
       entities: {
         addressBook: indexBy('uid', entities.addressBook),
+        tokens: indexBy('uid', entities.tokens),
         users: indexBy('uid', entities.users),
-        userGroups: indexBy('uid', entities.userGroups),
+        userGroups: Object.fromEntries(userGroups),
         wallets: indexBy('uid', entities.wallets),
-        walletGroups: indexBy('uid', entities.walletGroups),
-        tokens: indexBy('uid', entities.tokens)
+        walletGroups: Object.fromEntries(walletGroups)
       }
     }
 
