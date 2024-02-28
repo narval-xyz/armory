@@ -1,5 +1,6 @@
 POLICY_ENGINE_PROJECT_NAME := policy-engine
 POLICY_ENGINE_PROJECT_DIR := ./apps/policy-engine
+POLICY_ENGINE_DATABASE_SCHEMA := ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
 
 # === Start ===
 
@@ -16,6 +17,12 @@ policy-engine/copy-default-env:
 	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.default ${POLICY_ENGINE_PROJECT_DIR}/.env
 	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.test.default ${POLICY_ENGINE_PROJECT_DIR}/.env.test
 
+# === Build ===
+
+policy-engine/build/script:
+	npx tsc --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
+	npx tsc-alias --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
+
 # == Code format ==
 
 policy-engine/format:
@@ -29,6 +36,48 @@ policy-engine/format/check:
 
 policy-engine/lint/check:
 	npx nx lint ${POLICY_ENGINE_PROJECT_NAME}
+
+# === Database ===
+
+policy-engine/db/generate-types:
+	npx prisma generate \
+		--schema ${POLICY_ENGINE_DATABASE_SCHEMA}
+
+policy-engine/db/migrate:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${POLICY_ENGINE_DATABASE_SCHEMA}
+
+policy-engine/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Engine development database${TERM_NO_COLOR}"
+	@echo ""
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		prisma migrate reset \
+			--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
+			--force
+	make policy-engine/db/seed
+
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Engine test database${TERM_NO_COLOR}"
+	@echo ""
+	make policy-engine/test/db/setup
+
+policy-engine/db/create-migration:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
+			--name ${NAME}
+
+# To maintain seed data within their respective modules and then import them
+# into the main seed.ts file for execution, it's necessary to compile the
+# project and resolve its path aliases before running the vanilla JavaScript
+# seed entry point.
+policy-engine/db/seed:
+	make policy-engine/build/script
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		node dist/out-tsc/${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.js
+
 
 # === Testing ===
 
