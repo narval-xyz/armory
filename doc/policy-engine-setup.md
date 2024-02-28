@@ -115,9 +115,8 @@ sequenceDiagram
   participant DB as Database
   participant DS as Data Storage
 
-  Admin ->> Engine: Onboard tenant
+  Admin ->> Engine: Onboard tenant request 
   activate Engine
-  Note over Engine: Require: <br>Admin API key <br> Tenant ID <br> Entity data source URL <br> Entity signature URL <br> Entity JWKS <br> Policy data source URL <br> Policy signature URL <br> Policy JWKS
   Engine ->> DB: Verify if admin API key exists
   Engine ->> Engine: Generate tenant signing key pair
   Engine ->> Engine: Generate tenant API key (TAK)
@@ -129,6 +128,9 @@ sequenceDiagram
   deactivate Engine
 ```
 
+- **Onboard Tenant Request**: Requires: Admin API key, Tenant ID, Entity storage
+  URL, Entity signature URL, Entity JWKS, Policy storage URL, Policy signature
+  URL, Policy JWKS.
 - **Content Encryption Key (CEK)**: A unique key made by blending a Master Key
   and a Tenant UID with a process called HMAC Key Derivation Function (HKDF), used
   to encrypt data.
