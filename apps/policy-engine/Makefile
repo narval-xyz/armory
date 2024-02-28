@@ -12,6 +12,8 @@ policy-engine/start/dev:
 policy-engine/setup:
 	make policy-engine/copy-default-env
 	make policy-engine/rego/build
+	make policy-engine/db/setup
+	make policy-engine/test/db/setup
 
 policy-engine/copy-default-env:
 	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.default ${POLICY_ENGINE_PROJECT_DIR}/.env
@@ -79,6 +81,14 @@ policy-engine/db/seed:
 
 
 # === Testing ===
+
+policy-engine/test/db/setup:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env.test --override -- \
+		prisma migrate reset \
+		--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
+		--skip-seed \
+		--force
+
 
 policy-engine/test/type:
 	make policy-engine/db/generate-types
