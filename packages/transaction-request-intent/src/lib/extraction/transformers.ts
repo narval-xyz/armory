@@ -1,4 +1,4 @@
-import { assertAddress, assertArray, assertBigInt, assertHexString } from '@narval/authz-shared'
+import { assertAddress, assertArray, assertBigInt, assertHexString } from '@narval/policy-engine-shared'
 import { DecoderError } from '../error'
 import {
   ApproveAllowanceParams,

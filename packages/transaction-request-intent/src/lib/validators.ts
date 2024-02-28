@@ -1,4 +1,4 @@
-import { Hex, TransactionRequest } from '@narval/authz-shared'
+import { Hex, TransactionRequest } from '@narval/policy-engine-shared'
 import { ContractCallInput, ContractDeploymentInput, NativeTransferInput } from './domain'
 import { DecoderError } from './error'
 

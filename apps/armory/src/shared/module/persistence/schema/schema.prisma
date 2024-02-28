@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output into a separate subdirectory so multiple schemas can be used in a
+  // monorepo.
+  //
+  // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
+  output   = "../../../../../../../node_modules/@prisma/client/armory"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ARMORY_DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("organization")
+}
+
+//
+// Policy Engine Module
+//
+
+enum AuthorizationRequestStatus {
+  CREATED
+  FAILED
+  CANCELED
+  PROCESSING
+  APPROVING
+  PERMITTED
+  FORBIDDEN
+}
+
+model AuthorizationRequest {
+  id             String                     @id @default(uuid()) @db.VarChar(255)
+  orgId          String                     @map("org_id")
+  status         AuthorizationRequestStatus @default(CREATED)
+  // Duplicate the action to pick the `request` schema at the application-level.
+  // After the decoding, the model's action is not used in the domain type.
+  action         String
+  request        Json
+  idempotencyKey String?                    @unique @map("idempotency_key")
+  authnAlg       String                     @map("authn_alg")
+  authnPubKey    String                     @map("authn_pub_key")
+  authnSig       String                     @map("authn_sig")
+  createdAt      DateTime                   @default(now()) @map("created_at")
+  updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
+
+  evaluationLog EvaluationLog[]
+  approvals     AuthorizationRequestApproval[]
+
+  @@map("authorization_request")
+}
+
+model AuthorizationRequestApproval {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  requestId String   @map("request_id")
+  alg       String
+  pubKey    String   @map("pub_key")
+  sig       String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request AuthorizationRequest @relation(fields: [requestId], references: [id])
+
+  @@map("authorization_request_approval")
+}
+
+model EvaluationLog {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  requestId String   @map("request_id")
+  decision  String
+  signature String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request AuthorizationRequest @relation(fields: [requestId], references: [id])
+
+  @@map("evaluation_log")
+}
+
+//
+// Transfer Tracking Module
+//
+
+model ApprovedTransfer {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  orgId       String   @map("org_id")
+  requestId   String   @map("request_id")
+  chainId     Int      @map("chain_id")
+  from        String
+  to          String
+  token       String
+  amount      String
+  rates       Json
+  initiatedBy String   @map("initiated_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("approved_transfer")
+}
+
+//
+// Data Feed Module
+//
+
+model Feed {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  requestId String   @map("request_id")
+  source    String
+  sig       String?
+  alg       String?
+  pubKey    String?
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("feed")
+}

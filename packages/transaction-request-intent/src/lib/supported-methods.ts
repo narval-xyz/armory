@@ -1,4 +1,4 @@
-import { AssetType } from '@narval/authz-shared'
+import { AssetType } from '@narval/policy-engine-shared'
 import { AbiParameter } from 'viem'
 import { AssetTypeAndUnknown, Intents, Misc } from './domain'
 import {

@@ -1,0 +1,101 @@
+name: '@app/armory CI'
+
+on:
+  push:
+    paths:
+      - apps/armory/**
+      - .github/workflows/armory.yml
+      - jest.config.ts
+      - jest.preset.js
+      - .eslintrc.json
+      - .prettierrc
+      - package.json
+      - package-lock.json
+
+jobs:
+  build-and-test:
+    name: Build and test
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        ports:
+          - '5432:5432'
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis
+        ports:
+          - '6379:6379'
+        env:
+          REDIS_PORT: 6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.4.0'
+
+      - name: Install dependencies
+        run: |
+          make install/ci
+
+      - name: Code format
+        shell: bash
+        run: |
+          make armory/format/check
+          make armory/lint/check
+
+      - name: Setup database and Prisma types
+        shell: bash
+        run: |
+          make armory/copy-default-env
+          make armory/test/db/setup
+          make armory/db/generate-types
+
+      - name: Test types
+        shell: bash
+        run: |
+          make armory/test/type
+
+      - name: Test unit
+        shell: bash
+        run: |
+          make armory/test/unit
+
+      - name: Test integration
+        shell: bash
+        run: |
+          make armory/test/integration
+
+      - name: Test E2E
+        shell: bash
+        run: |
+          make armory/test/e2e
+
+      - name: Send Slack notification on failure
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: '@app/armory CI failed'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
