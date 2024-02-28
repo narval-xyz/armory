@@ -75,18 +75,18 @@ export class OpaService implements OnApplicationBootstrap {
   }
 
   async fetchEntityData(): Promise<RegoData> {
-    const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.uid)
+    const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.id)
 
     const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
       const group = groups.get(groupId)
 
       if (group) {
         return groups.set(groupId, {
-          uid: groupId,
+          id: groupId,
           users: group.users.concat(userId)
         })
       } else {
-        return groups.set(groupId, { uid: groupId, users: [userId] })
+        return groups.set(groupId, { id: groupId, users: [userId] })
       }
     }, new Map<string, UserGroup>())
 
@@ -95,21 +95,21 @@ export class OpaService implements OnApplicationBootstrap {
 
       if (group) {
         return groups.set(groupId, {
-          uid: groupId,
+          id: groupId,
           wallets: group.wallets.concat(walletId)
         })
       } else {
-        return groups.set(groupId, { uid: groupId, wallets: [walletId] })
+        return groups.set(groupId, { id: groupId, wallets: [walletId] })
       }
     }, new Map<string, WalletGroup>())
 
     const data: RegoData = {
       entities: {
-        addressBook: indexBy('uid', entities.addressBook),
-        tokens: indexBy('uid', entities.tokens),
-        users: indexBy('uid', entities.users),
+        addressBook: indexBy('id', entities.addressBook),
+        tokens: indexBy('id', entities.tokens),
+        users: indexBy('id', entities.users),
         userGroups: Object.fromEntries(userGroups),
-        wallets: indexBy('uid', entities.wallets),
+        wallets: indexBy('id', entities.wallets),
         walletGroups: Object.fromEntries(walletGroups)
       }
     }

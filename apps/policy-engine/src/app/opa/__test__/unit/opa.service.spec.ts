@@ -33,8 +33,8 @@ describe(OpaService.name, () => {
       tokens: [tokenOne, tokenTwo],
       userGroupMembers: [
         {
-          userId: userOne.uid,
-          groupId: userGroupOne.uid
+          userId: userOne.id,
+          groupId: userGroupOne.id
         }
       ],
       userGroups: [userGroupOne, userGroupTwo],
@@ -42,8 +42,8 @@ describe(OpaService.name, () => {
       users: [userOne, userTwo],
       walletGroupMembers: [
         {
-          walletId: walletOne.uid,
-          groupId: walletGroupOne.uid
+          walletId: walletOne.id,
+          groupId: walletGroupOne.id
         }
       ],
       walletGroups: [walletGroupOne, walletGroupTwo],
@@ -70,32 +70,32 @@ describe(OpaService.name, () => {
       expect(data).toEqual({
         entities: {
           addressBook: {
-            [addressBookAccountOne.uid]: addressBookAccountOne,
-            [addressBookAccountTwo.uid]: addressBookAccountTwo
+            [addressBookAccountOne.id]: addressBookAccountOne,
+            [addressBookAccountTwo.id]: addressBookAccountTwo
           },
           tokens: {
-            [tokenOne.uid]: tokenOne,
-            [tokenTwo.uid]: tokenTwo
+            [tokenOne.id]: tokenOne,
+            [tokenTwo.id]: tokenTwo
           },
           userGroups: {
-            [userGroupOne.uid]: {
-              uid: userGroupOne.uid,
-              users: [userOne.uid]
+            [userGroupOne.id]: {
+              id: userGroupOne.id,
+              users: [userOne.id]
             }
           },
           users: {
-            [userOne.uid]: userOne,
-            [userTwo.uid]: userTwo
+            [userOne.id]: userOne,
+            [userTwo.id]: userTwo
           },
           walletGroups: {
-            [walletGroupOne.uid]: {
-              uid: walletGroupOne.uid,
-              wallets: [walletOne.uid]
+            [walletGroupOne.id]: {
+              id: walletGroupOne.id,
+              wallets: [walletOne.id]
             }
           },
           wallets: {
-            [walletOne.uid]: walletOne,
-            [walletTwo.uid]: walletTwo
+            [walletOne.id]: walletOne,
+            [walletTwo.id]: walletTwo
           }
         }
       })

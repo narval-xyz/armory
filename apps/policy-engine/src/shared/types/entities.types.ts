@@ -5,17 +5,17 @@ export type Organization = {
 }
 
 export type User = {
-  uid: string // Pubkey
+  id: string // Pubkey
   role: UserRole
 }
 
 export type UserGroup = {
-  uid: string
+  id: string
   users: string[] // userIds
 }
 
 export type Wallet = {
-  uid: string
+  id: string
   address: Address
   accountType: AccountType
   chainId?: number
@@ -23,19 +23,19 @@ export type Wallet = {
 }
 
 export type WalletGroup = {
-  uid: string
+  id: string
   wallets: string[] // walletIds
 }
 
 export type AddressBookAccount = {
-  uid: string
+  id: string
   address: Address
   chainId: number
   classification: AccountClassification
 }
 
 export type Token = {
-  uid: string
+  id: string
   address: Address
   symbol: string
   chainId: number

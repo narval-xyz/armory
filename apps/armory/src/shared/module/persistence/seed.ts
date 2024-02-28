@@ -10,7 +10,7 @@ const prisma = new PrismaClient()
 
 const orgs: Organization[] = [
   {
-    id: FIXTURE.ORGANIZATION.uid,
+    id: FIXTURE.ORGANIZATION.id,
     name: 'Dev',
     createdAt: now,
     updatedAt: now

@@ -26,7 +26,7 @@ export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
     action: Action.SIGN_TRANSACTION,
     nonce: 'random-nonce-111',
     transactionRequest: txRequest,
-    resourceId: FIXTURE.WALLET.Engineering.uid
+    resourceId: FIXTURE.WALLET.Engineering.id
   }
 
   const message = hashRequest(request)
