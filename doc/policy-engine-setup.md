@@ -69,12 +69,13 @@ sequenceDiagram
   end
   Engine ->> Engine: Verify signatures
   Engine ->> Engine: Check if tenant's data changed
-  Note over Engine: To verify if data changed, compare the stored hashes with the received ones.
   alt signatures are valid and data changed
     Engine ->> DB: Write CEK (AES-256) encrypted tenant's ED, ES, PD, and PS
     deactivate Engine
   end
 ```
+
+- To verify if data changed, we compare the stored hashes with the received ones.
 
 ## Boot
 
@@ -99,7 +100,6 @@ sequenceDiagram
     Engine ->> Engine: Abort the boot with invalid environment error message 
     deactivate Engine
   end
-  Note over DB: Encrypt tenant's data for privacy. The signature will have to match the encrypted JWKS public keys.
 ```
 
 ## Tenant onboard
