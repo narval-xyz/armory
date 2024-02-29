@@ -1,32 +1,43 @@
+import {
+  CommitmentPolicy,
+  RawAesKeyringNode,
+  RawAesWrappingSuiteIdentifier,
+  buildClient
+} from '@aws-crypto/client-node'
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import crypto from 'crypto'
 import { Config } from '../../policy-engine.config'
 import { EncryptionRepository } from '../persistence/repository/encryption.repository'
 
-const IV_LENGTH = 16
-const AUTH_TAG_LENGTH = 16
+const keyNamespace = 'narval.armory.engine'
+const commitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+const wrappingSuite = RawAesWrappingSuiteIdentifier.AES256_GCM_IV12_TAG16_NO_PADDING
+const defaultEncryptionContext = {
+  purpose: 'data-encryption',
+  app: 'armory-engine'
+}
+
+const { encrypt, decrypt } = buildClient(commitmentPolicy)
 
 @Injectable()
 export class EncryptionService implements OnApplicationBootstrap {
   private logger = new Logger(EncryptionService.name)
 
+  private configService: ConfigService<Config, true>
+
   private engineId: string
 
-  private kek: Buffer
+  private masterKey: Buffer | undefined
 
-  private masterPassword: string
-
-  private masterKey: Buffer
-
-  private adminApiKey: Buffer
+  private adminApiKey: Buffer | undefined
 
   constructor(
     private encryptionRepository: EncryptionRepository,
     @Inject(ConfigService) configService: ConfigService<Config, true>
   ) {
+    this.configService = configService
     this.engineId = configService.get('engine.id', { infer: true })
-    this.masterPassword = configService.get('engine.masterPassword', { infer: true })
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -34,65 +45,113 @@ export class EncryptionService implements OnApplicationBootstrap {
     let engine = await this.encryptionRepository.getEngine(this.engineId)
 
     // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
-    this.kek = this.deriveKeyEncryptionKey(this.masterPassword)
+    const masterPassword = this.configService.get('engine.masterPassword', { infer: true })
+    const kek = this.deriveKeyEncryptionKey(masterPassword)
 
     if (!engine) {
       // New Engine, set it up
-      engine = await this.firstTimeSetup()
+      engine = await this.firstTimeSetup(kek)
     }
 
-    this.masterKey = this.decryptWithKey(this.kek, engine.masterKey)
-    this.adminApiKey = this.decryptWithKey(this.kek, engine.adminApiKey)
+    this.masterKey = await this.decryptMasterKey(kek, engine.masterKey)
+
+    this.adminApiKey = Buffer.from(engine.adminApiKey, 'hex')
+  }
+
+  private getKeyEncryptionKeyring(kek: Buffer) {
+    const keyring = new RawAesKeyringNode({
+      keyName: 'armory.engine.kek',
+      keyNamespace,
+      unencryptedMasterKey: kek,
+      wrappingSuite
+    })
+
+    return keyring
+  }
+
+  private getKeyring() {
+    if (!this.masterKey) throw new Error('Master Key not set')
+
+    /* Configure the Raw AES keyring. */
+    const keyring = new RawAesKeyringNode({
+      keyName: 'armory.engine.wrapping-key',
+      keyNamespace,
+      unencryptedMasterKey: this.masterKey,
+      wrappingSuite
+    })
+
+    // TODO: also support KMS keyring
+
+    return keyring
   }
 
   private deriveKeyEncryptionKey(password: string): Buffer {
     // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
     const kek = crypto.pbkdf2Sync(password.normalize(), this.engineId.normalize(), 1000000, 32, 'sha256')
-    this.logger.log('Derived KEK', { kek: kek.toString('hex') }) // TODO: Sanitize
     return kek
   }
 
-  decryptWithKey(key: Buffer, encryptedString: string): Buffer {
-    const encryptedBuffer = Buffer.from(encryptedString, 'hex')
-    // IV and AuthTag are prepend/appended, so slice them off
-    const iv = encryptedBuffer.subarray(0, IV_LENGTH)
-    const authTag = encryptedBuffer.subarray(encryptedBuffer.length - AUTH_TAG_LENGTH)
-    const encrypted = encryptedBuffer.subarray(IV_LENGTH, encryptedBuffer.length - AUTH_TAG_LENGTH)
+  private async encryptMaterKey(kek: Buffer, cleartext: Buffer): Promise<Buffer> {
+    // Encrypt the Master Key (MK) with the Key Encryption Key (KEK)
+    const keyring = this.getKeyEncryptionKeyring(kek)
+    const { result } = await encrypt(keyring, cleartext)
 
-    // Decrypt the data with the key
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv, { authTagLength: AUTH_TAG_LENGTH })
-    decipher.setAuthTag(authTag)
-    let decrypted = decipher.update(encrypted)
-    decrypted = Buffer.concat([decrypted, decipher.final()])
-
-    return decrypted
+    return result
   }
 
-  encryptWithKey(key: Buffer, data: Buffer): string {
-    const iv = crypto.randomBytes(IV_LENGTH)
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv, { authTagLength: AUTH_TAG_LENGTH })
-    let encrypted = cipher.update(data)
-    encrypted = Buffer.concat([encrypted, cipher.final()])
-    const authTag = cipher.getAuthTag()
-    // Concatenate the IV, encrypted key, and auth tag since those are not-secret and needed for decryption
-    const result = Buffer.concat([iv, encrypted, authTag])
-    return result.toString('hex')
+  private async decryptMasterKey(kek: Buffer, ciphertext: string): Promise<Buffer> {
+    const keyring = this.getKeyEncryptionKeyring(kek)
+    const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
+
+    // Verify the context wasn't changed
+    const { encryptionContext } = messageHeader
+    Object.entries(defaultEncryptionContext).forEach(([key, value]) => {
+      if (encryptionContext[key] !== value) throw new Error('Encryption Context does not match expected values')
+    })
+
+    return plaintext
   }
 
-  private async firstTimeSetup() {
+  async encrypt(cleartext: string): Promise<Buffer> {
+    const keyring = this.getKeyring()
+
+    const { result } = await encrypt(keyring, cleartext, {
+      encryptionContext: defaultEncryptionContext
+    })
+
+    return result
+  }
+
+  async decrypt(ciphertext: string): Promise<Buffer> {
+    const keyring = this.getKeyring()
+
+    const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
+
+    // Verify the context wasn't changed
+    const { encryptionContext } = messageHeader
+    Object.entries(defaultEncryptionContext).forEach(([key, value]) => {
+      if (encryptionContext[key] !== value) throw new Error('Encryption Context does not match expected values')
+    })
+
+    return plaintext
+  }
+
+  private async firstTimeSetup(kek: Buffer) {
     // Generate a new Master Key (MK) with AES256
     const mk = crypto.generateKeySync('aes', { length: 256 })
     const mkBuffer = mk.export()
 
+    const encryptedMk = await this.encryptMaterKey(kek, mkBuffer)
+
     // Generate an Admin API Key, just a random 32-byte string
     const adminApiKeyBuffer = crypto.randomBytes(32)
 
-    // Encrypt the Master Key (MK) with the Key Encryption Key (KEK)
-    const encryptedMk = this.encryptWithKey(this.kek, mkBuffer)
-    const encryptedApiKey = this.encryptWithKey(this.kek, adminApiKeyBuffer)
-
     // Save the Result.
-    const engine = await this.encryptionRepository.createEngine(this.engineId, encryptedMk, encryptedApiKey)
+    const engine = await this.encryptionRepository.createEngine(
+      this.engineId,
+      encryptedMk.toString('hex'),
+      adminApiKeyBuffer.toString('hex') // TODO: this isn't encrypted, it should be encrypted with a CEK not with KEK
+    )
 
     this.logger.log('Engine Initial Setup Complete')
     // TODO: Print this to a console in a better way; may not even like this.
@@ -102,13 +161,6 @@ export class EncryptionService implements OnApplicationBootstrap {
 
   // Verify if a given string matches our internal Admin Api Key
   verifyAdminApiKey(apiKey: string): boolean {
-    return apiKey === this.adminApiKey.toString('hex')
-  }
-
-  deriveContentEncryptionKey(keyId: string) {
-    // Derive a CEK from the MK+keyId using HKDF
-    const cek = crypto.hkdfSync('sha256', this.masterKey, keyId, 'content', 32)
-    this.logger.log('Derived KEK', { cek: Buffer.from(cek).toString('hex') }) // TODO: Sanitize
-    return Buffer.from(cek)
+    return apiKey === this.adminApiKey?.toString('hex')
   }
 }
