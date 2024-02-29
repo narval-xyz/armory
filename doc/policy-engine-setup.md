@@ -2,8 +2,8 @@
 
 ## Terminology
 
-- **CEK**: Content Encryption Key
-- **KEK**: Key Encryption Key
+- **CEK**: Content Encryption Key. The key used to encrypt tenant-related data.
+- **KEK**: Key Encryption Key. The key used to encrypt engine-related data.
 - **MK**: Master Key
 - **Data Storage**: The storage system responsible for holding data related to
   tenants entities and policies. While Narval doesn't mandate the use of a
@@ -38,7 +38,7 @@ sequenceDiagram
     Engine ->> Engine: Generate master key (MK)
     Engine ->> Engine: Generate admin API key (AK)
     Engine ->> DB: Write KEK (AES-256) encrypted MK
-    Engine ->> DB: Write CEK (AES-256) encrypted AK
+    Engine ->> DB: Write KEK (AES-256) encrypted AK
     Engine -->> Engineer: Return engine configuration JSON
   else 
     Engine -->> Engineer: Prompt Yes/No to re-provision
