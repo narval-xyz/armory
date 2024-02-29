@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 
 @Injectable()
-export class KeyringRepository {
-  private logger = new Logger(KeyringRepository.name)
+export class EncryptionRepository {
+  private logger = new Logger(EncryptionRepository.name)
 
   constructor(private prismaService: PrismaService) {}
 

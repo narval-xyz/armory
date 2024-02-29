@@ -2,7 +2,7 @@ import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
-import { KeyringModule } from '../keyring/keyring.module'
+import { EncryptionModule } from '../encryption/encryption.module'
 import { load } from '../policy-engine.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -18,7 +18,7 @@ import { EntityRepository } from './persistence/repository/entity.repository'
       isGlobal: true
     }),
     HttpModule,
-    KeyringModule
+    EncryptionModule
   ],
   controllers: [AppController, AdminController],
   providers: [
