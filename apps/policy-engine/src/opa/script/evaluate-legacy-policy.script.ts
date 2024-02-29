@@ -18,7 +18,7 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
       role = UserRole.ADMIN
     }
 
-    entities.users[user.id] = { uid: user.id, role }
+    entities.users[user.id] = { id: user.id, role }
   }
 
   for (const wallet of wallets) {
@@ -64,7 +64,7 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         intent: intentResult?.intent,
         transactionRequest: request.transactionRequest,
         principal: {
-          uid: initiator_user_id,
+          id: initiator_user_id,
           userId: initiator_user_id,
           alg: 'ES256K',
           pubKey: ''
@@ -91,7 +91,7 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         action: request.action,
         intent: intentResult?.intent,
         principal: {
-          uid: initiator_user_id,
+          id: initiator_user_id,
           userId: initiator_user_id,
           alg: 'ES256K',
           pubKey: ''
@@ -121,7 +121,7 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         action: request.action,
         intent: intentResult?.intent,
         principal: {
-          uid: initiator_user_id,
+          id: initiator_user_id,
           userId: initiator_user_id,
           alg: 'ES256K',
           pubKey: ''
