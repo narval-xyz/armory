@@ -10,7 +10,6 @@ import {
 } from '@narval/policy-engine-shared'
 import { Intents } from '@narval/transaction-request-intent'
 import axios from 'axios'
-import { omit } from 'lodash'
 import { Address, Hex } from 'viem'
 import {
   ActionCriterion,
@@ -32,7 +31,6 @@ import {
   SignTypedDataDomainCondition,
   Then
 } from '../../shared/types/policy.type'
-import { policies } from './policies/policy_rules_ngg.json'
 
 type LegacyPolicy = { [key: string]: string | null }
 
@@ -458,12 +456,12 @@ export const translate = (policies: LegacyPolicy[]) => {
   })
 }
 
-translate(
-  policies.map((policy) => {
-    const res: LegacyPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
-    res.amount = policy.amount ? `${policy.amount}` : null
-    return res
-  })
-)
-  .then(() => console.log('done'))
-  .catch((error) => console.log('error', error))
+// translate(
+//   policies.map((policy) => {
+//     const res: LegacyPolicy = omit(policy, ['guild_id', 'sequence', 'version', 'amount'])
+//     res.amount = policy.amount ? `${policy.amount}` : null
+//     return res
+//   })
+// )
+//   .then(() => console.log('done'))
+//   .catch((error) => console.log('error', error))
