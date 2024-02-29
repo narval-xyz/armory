@@ -5,25 +5,25 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
 import { OpaResult, RegoInput } from '../../shared/types/domain.type'
-import users from './data/users.json'
-import wallets from './data/wallets.json'
-import legacyRequests from './requests/legacy-requests.json'
 
-export const run = async () => {
+export const evaluate = async (users: any[], wallets: any[], legacyActivityRequests: any[]) => {
   const entities: { [key: string]: any } = { users: {}, wallets: {} }
 
-  for (const user of users as any[]) {
+  for (const user of users) {
     let role = user.guildUserRole
+
     if (['SCHOLAR'].includes(role)) {
       role = UserRole.MEMBER
     } else if (['ADMIN', 'API'].includes(role)) {
       role = UserRole.ADMIN
     }
+
     entities.users[user.id] = { uid: user.id, role }
   }
 
-  for (const wallet of wallets as any[]) {
+  for (const wallet of wallets) {
     const uid = `eip155:${wallet.accountType}:${wallet.address}`
+
     entities.wallets[uid] = {
       uid,
       address: wallet.address,
@@ -32,7 +32,7 @@ export const run = async () => {
     }
   }
 
-  const requests = legacyRequests.filter(
+  const requests = legacyActivityRequests.filter(
     ({ initiator_user_id }) => undefined !== entities.users[initiator_user_id]
   ) as {
     status: string
@@ -139,19 +139,12 @@ export const run = async () => {
     const evalResult: { result: OpaResult }[] = await opaEngine.evaluate(input, 'main/evaluate')
     const results = evalResult.map(({ result }) => result)
 
-    // if (status == 'denied' && results[0].permit) {
-    //   // console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
-    //   if ((input.intent as any).type.includes('transfer')) {
-    //     console.log({ intent: input.intent, initiator_user_id, status, result: results[0].permit })
-    //   }
-    // }
-
     if (status == 'completed' && !results[0].permit) {
       console.log({ id: results[0].reasons.map((reason) => reason.policyName), status, result: results[0].permit })
     }
   }
 }
 
-run()
-  .then(() => console.log('done'))
-  .catch((error) => console.log('error', error))
+// evaluate(users, wallets, requests)
+//   .then(() => console.log('done'))
+//   .catch((error) => console.log('error', error))
