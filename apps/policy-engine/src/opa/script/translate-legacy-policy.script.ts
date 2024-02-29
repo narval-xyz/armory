@@ -28,7 +28,6 @@ import {
   IntentTypeCriterion,
   Policy,
   PolicyCriterion,
-  SignTypedDataDomainCondition,
   Then
 } from '../../shared/types/policy.type'
 
@@ -115,8 +114,6 @@ const translateActivityType = (policy: LegacyPolicy): PolicyCriterion[] => {
       if (signing_type === 'typedData') {
         actionCriteria.args = [...actionCriteria.args, Action.SIGN_TYPED_DATA]
         intentCriteria.args = [...intentCriteria.args, Intents.SIGN_TYPED_DATA]
-
-        const args: SignTypedDataDomainCondition = {}
 
         if (chain_id && chain_id !== '*') {
           intentDomain.args['chainId'] = [chain_id]
