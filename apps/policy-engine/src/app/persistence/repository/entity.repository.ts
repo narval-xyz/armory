@@ -43,7 +43,7 @@ export class EntityRepository implements OnApplicationBootstrap {
     // from. It depends on the deployment model: standalone engine per
     // organization or cluster with multi tenant.
     if (!this.entities) {
-      const entities = await this.fetch(FIXTURE.ORGANIZATION.uid)
+      const entities = await this.fetch(FIXTURE.ORGANIZATION.id)
 
       this.entities = entities
     }

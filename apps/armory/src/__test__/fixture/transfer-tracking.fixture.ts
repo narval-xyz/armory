@@ -1,8 +1,8 @@
+import { addressSchema } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
 import { generatePrice } from '../../__test__/fixture/price.fixture'
 import { Transfer } from '../../shared/core/type/transfer-tracking.type'
-import { addressSchema } from '../../shared/schema/address.schema'
 import { chainIdSchema } from '../../shared/schema/chain-id.schema'
 import { addressGenerator, chainIdGenerator } from './shared.fixture'
 

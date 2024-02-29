@@ -6,7 +6,7 @@ import Handlebars from 'handlebars'
 import { indexBy } from 'lodash/fp'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
-import { RegoData } from '../../shared/types/entities.types'
+import { RegoData, UserGroup, WalletGroup } from '../../shared/types/entities.types'
 import { Policy } from '../../shared/types/policy.type'
 import { OpaResult, RegoInput } from '../../shared/types/rego'
 import { criterionToString, reasonToString } from '../../shared/utils/opa.utils'
@@ -74,17 +74,43 @@ export class OpaService implements OnApplicationBootstrap {
     return { fileId, policies }
   }
 
-  private async fetchEntityData(): Promise<RegoData> {
-    const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.uid)
+  async fetchEntityData(): Promise<RegoData> {
+    const entities = await this.entityRepository.fetch(FIXTURE.ORGANIZATION.id)
+
+    const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
+      const group = groups.get(groupId)
+
+      if (group) {
+        return groups.set(groupId, {
+          id: groupId,
+          users: group.users.concat(userId)
+        })
+      } else {
+        return groups.set(groupId, { id: groupId, users: [userId] })
+      }
+    }, new Map<string, UserGroup>())
+
+    const walletGroups = entities.walletGroupMembers.reduce((groups, { walletId, groupId }) => {
+      const group = groups.get(groupId)
+
+      if (group) {
+        return groups.set(groupId, {
+          id: groupId,
+          wallets: group.wallets.concat(walletId)
+        })
+      } else {
+        return groups.set(groupId, { id: groupId, wallets: [walletId] })
+      }
+    }, new Map<string, WalletGroup>())
 
     const data: RegoData = {
       entities: {
-        addressBook: indexBy('uid', entities.addressBook),
-        users: indexBy('uid', entities.users),
-        userGroups: indexBy('uid', entities.userGroups),
-        wallets: indexBy('uid', entities.wallets),
-        walletGroups: indexBy('uid', entities.walletGroups),
-        tokens: indexBy('uid', entities.tokens)
+        addressBook: indexBy('id', entities.addressBook),
+        tokens: indexBy('id', entities.tokens),
+        users: indexBy('id', entities.users),
+        userGroups: Object.fromEntries(userGroups),
+        wallets: indexBy('id', entities.wallets),
+        walletGroups: Object.fromEntries(walletGroups)
       }
     }
 

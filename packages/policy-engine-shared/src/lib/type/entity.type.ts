@@ -26,30 +26,24 @@ export const AccountClassification = {
 
 export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
 
-export type UserGroupMemberEntity = {
-  userId: string
-  groupId: string
-}
-
 export type CredentialEntity = {
-  uid: string
+  id: string
   pubKey: string
   alg: Alg
   userId: string
 }
 
 export type OrganizationEntity = {
-  uid: string
+  id: string
 }
 
 export type UserEntity = {
-  uid: string
+  id: string
   role: UserRole
 }
 
 export type UserGroupEntity = {
-  uid: string
-  users: string[]
+  id: string
 }
 
 export type UserWalletEntity = {
@@ -57,17 +51,20 @@ export type UserWalletEntity = {
   walletId: string
 }
 
+export type UserGroupMemberEntity = {
+  userId: string
+  groupId: string
+}
+
 export type WalletEntity = {
-  uid: string
+  id: string
   address: Address
   accountType: AccountType
   chainId?: number
-  assignees?: string[]
 }
 
 export type WalletGroupEntity = {
-  uid: string
-  wallets: string[]
+  id: string
 }
 
 export type WalletGroupMemberEntity = {
@@ -76,14 +73,14 @@ export type WalletGroupMemberEntity = {
 }
 
 export type AddressBookAccountEntity = {
-  uid: string
+  id: string
   address: Address
   chainId: number
   classification: AccountClassification
 }
 
 export type TokenEntity = {
-  uid: string
+  id: string
   address: Address
   symbol: string
   chainId: number
@@ -94,8 +91,11 @@ export type Entities = {
   addressBook: AddressBookAccountEntity[]
   credentials: CredentialEntity[]
   tokens: TokenEntity[]
+  userGroupMembers: UserGroupMemberEntity[]
   userGroups: UserGroupEntity[]
+  userWallets: UserWalletEntity[]
   users: UserEntity[]
+  walletGroupMembers: WalletGroupMemberEntity[]
   walletGroups: WalletGroupEntity[]
   wallets: WalletEntity[]
 }
