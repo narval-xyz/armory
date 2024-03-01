@@ -78,12 +78,9 @@ export type SignatureInput = {
  * Defines the input required to verify a JWT.
  *
  * @param {string} jwt - The JWT to be verified.
- * @param {Request} request - The content of the request to be verified.
  * @param {string} publicKey - The public key that corresponds to the private key used for signing.
  */
 export type VerificationInput = {
-  rawToken: string
-  request: unknown
+  jwt: string
   publicKey: string
-  algorithm: Alg
 }

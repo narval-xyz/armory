@@ -1,5 +1,5 @@
 import { Feed, HistoricalTransfer, Signature } from '@narval/policy-engine-shared'
-import { Alg, hashRequest } from '@narval/signature'
+import { Alg, hash } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'
@@ -30,7 +30,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
   async sign(data: HistoricalTransfer[]): Promise<Signature> {
     const account = privateKeyToAccount(this.getPrivateKey())
     const sig = await account.signMessage({
-      message: hashRequest(data)
+      message: hash(data)
     })
 
     return {
