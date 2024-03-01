@@ -15,12 +15,24 @@ export class EncryptionRepository {
     })
   }
 
-  async createEngine(engineId: string, masterKey: string, adminApiKey: string) {
+  async createEngine(engineId: string, masterKey: string, adminApiKey?: string) {
     return this.prismaService.engine.create({
       data: {
         id: engineId,
         masterKey,
         adminApiKey
+      }
+    })
+  }
+
+  async saveMasterKey(engineId: string, masterKey: string) {
+    return this.prismaService.engine.update({
+      where: {
+        id: engineId,
+        masterKey: null // ONLY allow updating it if already null. We don't want to accidentally overwrite it!
+      },
+      data: {
+        masterKey
       }
     })
   }
