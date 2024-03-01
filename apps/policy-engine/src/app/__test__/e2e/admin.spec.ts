@@ -8,6 +8,7 @@ import { readFileSync, unlinkSync } from 'fs'
 import { mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
+import { EncryptionService } from '../../../encryption/core/encryption.service'
 import { load } from '../../../policy-engine.config'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -48,6 +49,7 @@ describe('Admin Endpoints', () => {
   beforeAll(async () => {
     const entityRepositoryMock = mock<EntityRepository>()
     entityRepositoryMock.fetch.mockResolvedValue(FIXTURE.ENTITIES)
+    const encryptionMock = mock<EncryptionService>()
 
     module = await Test.createTestingModule({
       imports: [
@@ -61,6 +63,8 @@ describe('Admin Endpoints', () => {
     })
       .overrideProvider(EntityRepository)
       .useValue(entityRepositoryMock)
+      .overrideProvider(EncryptionService)
+      .useValue(encryptionMock)
       .compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
