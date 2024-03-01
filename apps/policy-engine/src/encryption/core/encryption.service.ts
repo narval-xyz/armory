@@ -53,7 +53,9 @@ export class EncryptionService implements OnApplicationBootstrap {
       engine = await this.firstTimeSetup(kek)
     }
 
-    this.masterKey = await this.decryptMasterKey(kek, engine.masterKey)
+    const decryptedMasterKey = await this.decryptMasterKey(kek, Buffer.from(engine.masterKey, 'hex'))
+    this.masterKey = Buffer.alloc(decryptedMasterKey.length)
+    decryptedMasterKey.copy(decryptedMasterKey, 0, 0, decryptedMasterKey.length)
 
     this.adminApiKey = Buffer.from(engine.adminApiKey, 'hex')
   }
@@ -69,7 +71,7 @@ export class EncryptionService implements OnApplicationBootstrap {
     return keyring
   }
 
-  private getKeyring() {
+  private async getKeyring() {
     if (!this.masterKey) throw new Error('Master Key not set')
 
     /* Configure the Raw AES keyring. */
@@ -94,17 +96,20 @@ export class EncryptionService implements OnApplicationBootstrap {
   private async encryptMaterKey(kek: Buffer, cleartext: Buffer): Promise<Buffer> {
     // Encrypt the Master Key (MK) with the Key Encryption Key (KEK)
     const keyring = this.getKeyEncryptionKeyring(kek)
-    const { result } = await encrypt(keyring, cleartext)
+    const { result } = await encrypt(keyring, cleartext, {
+      encryptionContext: defaultEncryptionContext
+    })
 
     return result
   }
 
-  private async decryptMasterKey(kek: Buffer, ciphertext: string): Promise<Buffer> {
+  private async decryptMasterKey(kek: Buffer, ciphertext: Buffer): Promise<Buffer> {
     const keyring = this.getKeyEncryptionKeyring(kek)
     const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
 
     // Verify the context wasn't changed
     const { encryptionContext } = messageHeader
+
     Object.entries(defaultEncryptionContext).forEach(([key, value]) => {
       if (encryptionContext[key] !== value) throw new Error('Encryption Context does not match expected values')
     })
@@ -112,8 +117,8 @@ export class EncryptionService implements OnApplicationBootstrap {
     return plaintext
   }
 
-  async encrypt(cleartext: string): Promise<Buffer> {
-    const keyring = this.getKeyring()
+  async encrypt(cleartext: string | Buffer): Promise<Buffer> {
+    const keyring = await this.getKeyring()
 
     const { result } = await encrypt(keyring, cleartext, {
       encryptionContext: defaultEncryptionContext
@@ -122,13 +127,14 @@ export class EncryptionService implements OnApplicationBootstrap {
     return result
   }
 
-  async decrypt(ciphertext: string): Promise<Buffer> {
-    const keyring = this.getKeyring()
+  async decrypt(ciphertext: Buffer): Promise<Buffer> {
+    const keyring = await this.getKeyring()
 
     const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
 
     // Verify the context wasn't changed
     const { encryptionContext } = messageHeader
+
     Object.entries(defaultEncryptionContext).forEach(([key, value]) => {
       if (encryptionContext[key] !== value) throw new Error('Encryption Context does not match expected values')
     })
