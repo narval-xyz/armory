@@ -3,8 +3,7 @@ import { Hex, recoverMessageAddress } from 'viem'
 import { isHex, publicKeyToAddress, toHex } from 'viem/utils'
 import { decode } from './decode'
 import { JwtError } from './error'
-import { hashRequest } from './hash-request'
-import { Alg, Jwt, Payload, VerificationInput } from './types'
+import { Jwt, Payload, VerificationInput } from './types'
 
 const checkTokenValidity = (token: string): boolean => {
   const parts = token.split('.')
@@ -52,29 +51,15 @@ const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
  * @throws {Error} If the JWT is invalid or the request hash does not match the request.
  */
 export async function verify(input: VerificationInput): Promise<Jwt> {
-  const { rawToken, request, algorithm, publicKey } = input
+  const { rawToken, publicKey } = input
   try {
-    if (isHex(publicKey) && algorithm === Alg.ES256K) {
+    if (isHex(publicKey)) {
       return eoaKeys(input)
     }
-    const publicKeyObj = await importSPKI(publicKey, algorithm)
-
-    const { payload } = await jwtVerify<Payload>(rawToken, publicKeyObj, {
-      algorithms: [algorithm]
-    })
-
-    const requestHash = hashRequest(request)
-    if (payload.requestHash !== requestHash) {
-      throw new JwtError({
-        message: 'Request hash does not match the request',
-        context: {
-          payload,
-          requestHash,
-          input
-        }
-      })
-    }
     const jwt = decode(rawToken)
+    const publicKeyObj = await importSPKI(publicKey, jwt.header.alg)
+    await jwtVerify<Payload>(rawToken, publicKeyObj)
+
     return jwt
   } catch (error) {
     throw new JwtError({ message: 'Malformed token', context: { input, error } })
