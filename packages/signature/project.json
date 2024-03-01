@@ -1,21 +1,21 @@
 {
-  "name": "signature-verifier",
+  "name": "signature",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/signature-verifier/src",
+  "sourceRoot": "packages/signature/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/signature-verifier/**/*.ts"]
+        "lintFilePatterns": ["packages/signature/**/*.ts"]
       }
     },
     "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/signature-verifier/jest.unit.ts",
+        "jestConfig": "packages/signature/jest.unit.ts",
         "verbose": true
       }
     }

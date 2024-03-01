@@ -1,3 +1,4 @@
+import { Alg } from '@narval/signature'
 import { Address, TransactionRequest } from './domain.type'
 import {
   AccountClassification,
@@ -53,16 +54,6 @@ export type Signature = {
    */
   pubKey: string
 }
-
-// SIGNATURE LIB
-export const Alg = {
-  ES256K: 'ES256K', // secp256k1, an Ethereum EOA
-  ES256: 'ES256', // secp256r1, ecdsa but not ethereum
-  RS256: 'RS256'
-} as const
-
-// SIGNATURE LIB
-export type Alg = (typeof Alg)[keyof typeof Alg]
 
 /**
  * Action Types; these correspond to each Action

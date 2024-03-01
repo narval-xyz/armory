@@ -1,15 +1,14 @@
 import {
   Action,
-  Alg,
   CredentialEntity,
   Decision,
   EvaluationRequest,
   EvaluationResponse,
   HistoricalTransfer,
   Request,
-  Signature,
-  hashRequest
+  Signature
 } from '@narval/policy-engine-shared'
+import { Alg, hashRequest } from '@narval/signature'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,

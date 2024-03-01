@@ -1,4 +1,5 @@
-import { Decision, EvaluationRequest, EvaluationResponse, hashRequest } from '@narval/policy-engine-shared'
+import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
+import { hashRequest } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'

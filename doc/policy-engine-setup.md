@@ -40,7 +40,7 @@ sequenceDiagram
     Engine ->> DB: Write KEK (AES-256) encrypted MK
     Engine ->> DB: Write KEK (AES-256) encrypted AK
     Engine -->> Engineer: Return engine configuration JSON
-  else 
+  else
     Engine -->> Engineer: Prompt Yes/No to re-provision
     deactivate Engine
     Note over Engine: Re-provisioning will overwrite existing data to "factory default".
@@ -89,15 +89,15 @@ sequenceDiagram
   participant DB as Database
   participant DS as Data Storage
 
-  Engine ->> Engine: Read and validate engine's configuration 
+  Engine ->> Engine: Read and validate engine's configuration
   activate Engine
   alt if engine configuration is valid
     Engine ->> DB: Read tenants configuration
     loop For each tenant
       Engine ->> DS: Fetch tenant data
     end
-  else 
-    Engine ->> Engine: Abort the boot with invalid environment error message 
+  else
+    Engine ->> Engine: Abort the boot with invalid environment error message
     deactivate Engine
   end
 ```
@@ -115,12 +115,12 @@ sequenceDiagram
   participant DB as Database
   participant DS as Data Storage
 
-  Admin ->> Engine: Onboard tenant request 
+  Admin ->> Engine: Onboard tenant request
   activate Engine
   Engine ->> DB: Verify if admin API key exists
   Engine ->> Engine: Generate tenant signing key pair
   Engine ->> Engine: Generate tenant API key (TAK)
-  Engine ->> DB: Write CEK (AES-256) encrypted tenant configuration 
+  Engine ->> DB: Write CEK (AES-256) encrypted tenant configuration
   Engine ->> DS: Fetch tenant data
   Engine ->> DB: Write CEK (AES-256) tenant's data
   Note over DB: Does not fail the onboarding if fetching the tenant data failed
@@ -148,24 +148,24 @@ sequenceDiagram
 This section describes the encryption summary used to secure the Policy Engine.
 
 1. **Master Password to Key Encryption Key (KEK) via PBKDF2**: Using PBKDF2
-  (Password-Based Key Derivation Function 2) to derive a Key Encryption Key (KEK)
-  from an "encryptor master password" is a standard practice. PBKDF2 is designed
-  to make brute-force attacks difficult by using a salt and iterating the hashing
-  process many times, thus slowing down the attack attempts.
-    1. [node.js crypto built-in implementation](https://nodejs.org/api/crypto.html#cryptopbkdf2password-salt-iterations-keylen-digest-callback)
-    2. Master Password is an env secret
+   (Password-Based Key Derivation Function 2) to derive a Key Encryption Key (KEK)
+   from an "encryptor master password" is a standard practice. PBKDF2 is designed
+   to make brute-force attacks difficult by using a salt and iterating the hashing
+   process many times, thus slowing down the attack attempts.
+   1. [node.js crypto built-in implementation](https://nodejs.org/api/crypto.html#cryptopbkdf2password-salt-iterations-keylen-digest-callback)
+   2. Master Password is an env secret
 2. **Generating an AES-256 Master Key and Encrypting with KEK**: Generating a
-  strong AES-256 master key for encryption is a solid choice given AES-256's
-  widespread acceptance and strength. Encrypting this master key with the KEK for
-  storage is a common approach in hierarchical key management systems, ensuring
-  that the master key is not exposed in plaintext.
+   strong AES-256 master key for encryption is a solid choice given AES-256's
+   widespread acceptance and strength. Encrypting this master key with the KEK for
+   storage is a common approach in hierarchical key management systems, ensuring
+   that the master key is not exposed in plaintext.
 3. **Deriving a Content Encryption Key (CEK) from the Master Key using HKDF**:
-  HKDF (HMAC-based Key Derivation Function) is designed for deriving additional
-  keys from a single master key, which is a suitable method for generating Content
-  Encryption Keys (CEKs) from your master key. This step allows for different keys
-  to be used for different pieces of content or sessions, enhancing security by
-  limiting the scope of each key's usage.
-    1. [node.js crypto built-in implementation](https://nodejs.org/api/crypto.html#cryptohkdfdigest-ikm-salt-info-keylen-callback)
+   HKDF (HMAC-based Key Derivation Function) is designed for deriving additional
+   keys from a single master key, which is a suitable method for generating Content
+   Encryption Keys (CEKs) from your master key. This step allows for different keys
+   to be used for different pieces of content or sessions, enhancing security by
+   limiting the scope of each key's usage.
+   1. [node.js crypto built-in implementation](https://nodejs.org/api/crypto.html#cryptohkdfdigest-ikm-salt-info-keylen-callback)
 
 ### Notes
 
