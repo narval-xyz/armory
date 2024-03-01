@@ -1,4 +1,12 @@
-import { Header, Payload } from './types'
+import { Alg, Header, Payload } from './types'
+
+function isAlg(alg: unknown): alg is Alg {
+  return typeof alg === 'string' && Object.values(Alg).includes(alg as Alg)
+}
+
+function isStringNonNull(kid: unknown): kid is string {
+  return typeof kid === 'string' && kid.length > 0
+}
 
 export function isHeader(header: unknown): header is Header {
   return (
@@ -6,11 +14,27 @@ export function isHeader(header: unknown): header is Header {
     header !== null &&
     'alg' in header &&
     'kid' in header &&
-    typeof header.alg === 'string' &&
-    typeof header.kid === 'string' &&
-    (header.alg === 'ES256K' || header.alg === 'ES256') &&
-    header.kid.length > 0
+    isAlg(header.alg) &&
+    isStringNonNull(header.kid)
   )
+}
+
+function isDate(date: unknown): date is Date {
+  if (date instanceof Date) {
+    return true
+  }
+  if (typeof date === 'string') {
+    const parsed = Date.parse(date)
+    console.log('### parsed', parsed)
+    return !isNaN(parsed)
+  }
+  if (typeof date === 'number') {
+    const parsed = new Date(date)
+    console.log('### parsed', parsed)
+    return !isNaN(parsed.getTime())
+  }
+  console.log('### date', date)
+  return false
 }
 
 export function isPayload(payload: unknown): payload is Payload {
@@ -19,8 +43,9 @@ export function isPayload(payload: unknown): payload is Payload {
     payload !== null &&
     'requestHash' in payload &&
     'iat' in payload &&
-    typeof payload.iat === 'number' &&
-    typeof payload.requestHash === 'string' &&
-    payload.requestHash.length > 0
+    'exp' in payload &&
+    isStringNonNull(payload.requestHash) &&
+    isDate(payload.iat) &&
+    isDate(payload.exp)
   )
 }

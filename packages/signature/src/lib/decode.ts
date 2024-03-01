@@ -25,9 +25,14 @@ export function decode(rawToken: string): Jwt {
     if (!isHeader(header)) {
       throw new JwtError({ message: 'Invalid header', context: { rawToken, header } })
     }
+
     return {
       header,
-      payload,
+      payload: {
+        ...payload,
+        iat: new Date(payload.iat * 1000),
+        exp: new Date(payload.exp * 1000)
+      },
       signature: parts[2]
     }
   } catch (error) {

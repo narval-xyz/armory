@@ -1,11 +1,11 @@
 import { Hex } from 'viem'
 
-export const AlgTypes = {
+export const KeyTypes = {
   EC: 'EC',
   RSA: 'RSA'
 } as const
 
-export type AlgTypes = (typeof AlgTypes)[keyof typeof AlgTypes]
+export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
 
 export const Curves = {
   SECP256K1: 'secp256k1',
@@ -39,13 +39,14 @@ export type Header = {
  *
  * @param {string} requestHash - The hashed request.
  * @param {string} [iss] - The issuer of the JWT.
- * @param {number} [iat] - The time the JWT was issued.
- * @param {number} [exp] - The time the JWT expires.
+ * @param {Date} [iat] - The time the JWT was issued.
+ * @param {Date} [exp] - The time the JWT expires.
  */
 export type Payload = {
   requestHash: string
   pubKey: string
-  iat: number
+  iat: Date
+  exp: Date
 }
 
 export type Jwt = {
@@ -66,8 +67,8 @@ export type Jwt = {
  */
 export type SignatureInput = {
   privateKey: string | Hex
-  exp?: string | Date
-  iat?: number
+  exp?: Date
+  iat?: Date
   kid: string
   algorithm: Alg
   request: unknown

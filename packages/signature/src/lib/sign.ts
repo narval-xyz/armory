@@ -1,5 +1,5 @@
 import { SignJWT, base64url, importPKCS8 } from 'jose'
-import { Hex } from 'viem'
+import { isHex, toBytes } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { JwtError } from './error'
 import { hashRequest } from './hash-request'
@@ -7,9 +7,7 @@ import { Alg, SignatureInput } from './types'
 
 const DEF_EXP_TIME = '2h'
 
-const isHex = (key: string | Hex): key is Hex => key.startsWith('0x') || key.startsWith('0X')
-
-const handleViemKey = async (signingInput: SignatureInput): Promise<string> => {
+const eoaKeys = async (signingInput: SignatureInput): Promise<string> => {
   const { request, privateKey, algorithm, kid, iat, exp } = signingInput
 
   if (!isHex(privateKey)) {
@@ -17,14 +15,23 @@ const handleViemKey = async (signingInput: SignatureInput): Promise<string> => {
   }
 
   const account = privateKeyToAccount(privateKey)
+  const now = Math.floor(Date.now() / 1000)
+  const iatNumeric = iat ? Math.floor(iat.getTime() / 1000) : now
+  const expNumeric = exp ? Math.floor(exp.getTime() / 1000) : now + 2 * 60 * 60
+  const header = { alg: algorithm, kid }
+  const payload = {
+    requestHash: hashRequest(request),
+    iat: iatNumeric,
+    exp: expNumeric
+  }
 
-  const encodedHeader = base64url.encode(JSON.stringify({ alg: algorithm, kid }))
-  const hashedRequest = hashRequest(request)
-  const encodedPayload = base64url.encode(JSON.stringify({ requestHash: hashedRequest, iat, exp }))
+  const encodedHeader = base64url.encode(JSON.stringify(header))
+  const encodedPayload = base64url.encode(JSON.stringify(payload))
 
-  const signature = await account.signMessage({ message: hashedRequest })
+  const messageToSign = `${encodedHeader}.${encodedPayload}`
+  const signature = await account.signMessage({ message: messageToSign })
 
-  const completeJWT = `${encodedHeader}.${encodedPayload}.${signature}`
+  const completeJWT = `${messageToSign}.${base64url.encode(toBytes(signature))}`
   return completeJWT
 }
 
@@ -39,7 +46,7 @@ export async function sign(signingInput: SignatureInput): Promise<string> {
 
   try {
     if (isHex(pk) && algorithm === Alg.ES256K) {
-      return handleViemKey(signingInput)
+      return eoaKeys(signingInput)
     }
     const privateKey = await importPKCS8(pk, algorithm)
     const requestHash = hashRequest(request)

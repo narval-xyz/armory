@@ -1,47 +1,47 @@
-import { importSPKI, jwtVerify } from 'jose'
+import { base64url, importSPKI, jwtVerify } from 'jose'
 import { Hex, recoverMessageAddress } from 'viem'
-import { publicKeyToAddress } from 'viem/utils'
+import { isHex, publicKeyToAddress, toHex } from 'viem/utils'
 import { decode } from './decode'
 import { JwtError } from './error'
 import { hashRequest } from './hash-request'
 import { Alg, Jwt, Payload, VerificationInput } from './types'
-
-const isHex = (key: string | Hex): key is Hex => key.startsWith('0x') || key.startsWith('0X')
 
 const checkTokenValidity = (token: string): boolean => {
   const parts = token.split('.')
   return parts.length === 3
 }
 
-const handleViemKey = async (signingInput: VerificationInput): Promise<Jwt> => {
-  const { rawToken, request, publicKey } = signingInput
+const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
+  const { rawToken, publicKey } = verificationInput
 
   if (!checkTokenValidity(rawToken)) {
     throw new JwtError({ message: 'Invalid token', context: { rawToken } })
   }
 
-  if (!checkTokenValidity(rawToken)) {
-    throw new JwtError({ message: 'Invalid token', context: { rawToken } })
+  try {
+    const parts = rawToken.split('.')
+
+    const recoveredAddress = await recoverMessageAddress({
+      message: `${parts[0]}.${parts[1]}`,
+      signature: toHex(base64url.decode(parts[2]))
+    })
+    const pubKeyAddress = publicKeyToAddress(publicKey as Hex)
+
+    if (pubKeyAddress !== recoveredAddress) {
+      throw new JwtError({ message: 'Invalid signature', context: { rawToken } })
+    }
+
+    const token = decode(rawToken)
+
+    const now = new Date()
+    if (token.payload.exp && token.payload.exp < now) {
+      throw new JwtError({ message: 'Token has expired', context: { rawToken } })
+    }
+
+    return decode(rawToken)
+  } catch (e) {
+    throw new JwtError({ message: 'error verifying eoa signature', context: { e } })
   }
-
-  const { signature } = decode(rawToken)
-
-  // Use the original message for verification
-  const message = hashRequest(request)
-
-  // Recover the address from the signature
-  const recoveredAddress = await recoverMessageAddress({
-    message: message as Hex,
-    signature: signature as Hex
-  })
-
-  const pubKeyAddress = publicKeyToAddress(publicKey as Hex)
-
-  if (pubKeyAddress !== recoveredAddress) {
-    throw new JwtError({ message: 'Invalid signature', context: { rawToken } })
-  }
-
-  return decode(rawToken)
 }
 
 /**
@@ -55,7 +55,7 @@ export async function verify(input: VerificationInput): Promise<Jwt> {
   const { rawToken, request, algorithm, publicKey } = input
   try {
     if (isHex(publicKey) && algorithm === Alg.ES256K) {
-      return handleViemKey(input)
+      return eoaKeys(input)
     }
     const publicKeyObj = await importSPKI(publicKey, algorithm)
 
