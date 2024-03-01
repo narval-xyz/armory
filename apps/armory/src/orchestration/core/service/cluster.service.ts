@@ -1,5 +1,5 @@
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { hashRequest } from '@narval/signature'
+import { hash } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
 import { zip } from 'lodash/fp'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
@@ -120,10 +120,10 @@ export class ClusterService {
   }
 
   private async recoverPubKey(response: EvaluationResponse) {
-    const hash = hashRequest(response.request) as `0x${string}`
+    const requestHash = hash(response.request) as `0x${string}`
 
     return recoverMessageAddress({
-      message: hash,
+      message: requestHash,
       signature: response.attestation?.sig as `0x${string}`
     })
   }

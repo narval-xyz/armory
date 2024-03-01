@@ -28,7 +28,7 @@ const sort = (value: unknown): unknown => {
  * @param value an object
  * @returns object's hash
  */
-export const hashRequest = (value: unknown): string => {
+export const hash = (value: unknown): string => {
   return createHash('sha256')
     .update(stringify(sort(value)))
     .digest('hex')

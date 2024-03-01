@@ -1,5 +1,5 @@
 import { Decision, EvaluationResponse, Feed, Prices } from '@narval/policy-engine-shared'
-import { Alg, hashRequest } from '@narval/signature'
+import { Alg, hash } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -99,8 +99,8 @@ describe(ClusterService.name, () => {
       authzRequest: AuthorizationRequest,
       partial?: Partial<EvaluationResponse>
     ): Promise<EvaluationResponse> => {
-      const hash = hashRequest(authzRequest.request)
-      const signature = await nodeAccount.signMessage({ message: hash })
+      const requestHash = hash(authzRequest.request)
+      const signature = await nodeAccount.signMessage({ message: requestHash })
 
       return {
         decision: Decision.PERMIT,
@@ -168,7 +168,7 @@ describe(ClusterService.name, () => {
     it('throws when node attestation is invalid', async () => {
       const permit = await generateEvaluationResponse(nodeAccount, authzRequest)
       const signature = await nodeAccount.signMessage({
-        message: hashRequest({ notTheOriginalRequest: true })
+        message: hash({ notTheOriginalRequest: true })
       })
 
       authzApplicationClientMock.evaluation.mockResolvedValue({
