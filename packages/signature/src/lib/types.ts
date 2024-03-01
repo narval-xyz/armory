@@ -81,6 +81,6 @@ export type SignatureInput = {
  * @param {string} publicKey - The public key that corresponds to the private key used for signing.
  */
 export type VerificationInput = {
-  rawToken: string
+  jwt: string
   publicKey: string
 }

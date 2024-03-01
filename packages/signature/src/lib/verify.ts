@@ -11,14 +11,14 @@ const checkTokenValidity = (token: string): boolean => {
 }
 
 const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
-  const { rawToken, publicKey } = verificationInput
+  const { jwt, publicKey } = verificationInput
 
-  if (!checkTokenValidity(rawToken)) {
-    throw new JwtError({ message: 'Invalid token', context: { rawToken } })
+  if (!checkTokenValidity(jwt)) {
+    throw new JwtError({ message: 'Invalid token', context: { rawToken: jwt } })
   }
 
   try {
-    const parts = rawToken.split('.')
+    const parts = jwt.split('.')
 
     const recoveredAddress = await recoverMessageAddress({
       message: `${parts[0]}.${parts[1]}`,
@@ -27,17 +27,17 @@ const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
     const pubKeyAddress = publicKeyToAddress(publicKey as Hex)
 
     if (pubKeyAddress !== recoveredAddress) {
-      throw new JwtError({ message: 'Invalid signature', context: { rawToken } })
+      throw new JwtError({ message: 'Invalid signature', context: { rawToken: jwt } })
     }
 
-    const token = decode(rawToken)
+    const token = decode(jwt)
 
     const now = new Date()
     if (token.payload.exp && token.payload.exp < now) {
-      throw new JwtError({ message: 'Token has expired', context: { rawToken } })
+      throw new JwtError({ message: 'Token has expired', context: { rawToken: jwt } })
     }
 
-    return decode(rawToken)
+    return decode(jwt)
   } catch (e) {
     throw new JwtError({ message: 'error verifying eoa signature', context: { e } })
   }
@@ -51,16 +51,16 @@ const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
  * @throws {Error} If the JWT is invalid or the request hash does not match the request.
  */
 export async function verify(input: VerificationInput): Promise<Jwt> {
-  const { rawToken, publicKey } = input
+  const { jwt, publicKey } = input
   try {
     if (isHex(publicKey)) {
       return eoaKeys(input)
     }
-    const jwt = decode(rawToken)
-    const publicKeyObj = await importSPKI(publicKey, jwt.header.alg)
-    await jwtVerify<Payload>(rawToken, publicKeyObj)
+    const decodedJwt = decode(jwt)
+    const publicKeyObj = await importSPKI(publicKey, decodedJwt.header.alg)
+    await jwtVerify<Payload>(jwt, publicKeyObj)
 
-    return jwt
+    return decodedJwt
   } catch (error) {
     throw new JwtError({ message: 'Malformed token', context: { input, error } })
   }

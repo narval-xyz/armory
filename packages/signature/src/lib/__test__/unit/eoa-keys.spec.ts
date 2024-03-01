@@ -27,7 +27,7 @@ describe('flow with viem keypairs', () => {
     }
     const jwt = await sign(signingInput)
     const verificationInput: VerificationInput = {
-      rawToken: jwt,
+      jwt,
       publicKey: viemPk
     }
     const verifiedJwt = await verify(verificationInput)
