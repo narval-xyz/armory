@@ -25,15 +25,12 @@ function isDate(date: unknown): date is Date {
   }
   if (typeof date === 'string') {
     const parsed = Date.parse(date)
-    console.log('### parsed', parsed)
     return !isNaN(parsed)
   }
   if (typeof date === 'number') {
     const parsed = new Date(date)
-    console.log('### parsed', parsed)
     return !isNaN(parsed.getTime())
   }
-  console.log('### date', date)
   return false
 }
 
