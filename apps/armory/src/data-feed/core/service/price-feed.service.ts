@@ -1,5 +1,5 @@
 import { Action, AssetId, Feed, Signature } from '@narval/policy-engine-shared'
-import { Alg, hashRequest } from '@narval/signature'
+import { Alg, hash } from '@narval/signature'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -29,7 +29,7 @@ export class PriceFeedService implements DataFeed<Prices> {
   async sign(data: Prices): Promise<Signature> {
     const account = privateKeyToAccount(this.getPrivateKey())
     const sig = await account.signMessage({
-      message: hashRequest(data)
+      message: hash(data)
     })
 
     return {

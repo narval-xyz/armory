@@ -2,7 +2,7 @@ import { SignJWT, base64url, importPKCS8 } from 'jose'
 import { isHex, toBytes } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { JwtError } from './error'
-import { hashRequest } from './hash-request'
+import { hash } from './hash-request'
 import { Alg, SignatureInput } from './types'
 
 const DEF_EXP_TIME = '2h'
@@ -20,7 +20,7 @@ const eoaKeys = async (signingInput: SignatureInput): Promise<string> => {
   const expNumeric = exp ? Math.floor(exp.getTime() / 1000) : now + 2 * 60 * 60
   const header = { alg: algorithm, kid }
   const payload = {
-    requestHash: hashRequest(request),
+    requestHash: hash(request),
     iat: iatNumeric,
     exp: expNumeric
   }
@@ -49,7 +49,7 @@ export async function sign(signingInput: SignatureInput): Promise<string> {
       return eoaKeys(signingInput)
     }
     const privateKey = await importPKCS8(pk, algorithm)
-    const requestHash = hashRequest(request)
+    const requestHash = hash(request)
 
     const jwt = await new SignJWT({ requestHash })
       .setProtectedHeader({ alg: algorithm, kid })
