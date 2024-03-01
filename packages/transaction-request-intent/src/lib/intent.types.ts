@@ -1,4 +1,5 @@
-import { AccountId, Alg, AssetId, Hex } from '@narval/policy-engine-shared'
+import { AccountId, AssetId, Hex } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { Address } from 'viem'
 import { Eip712Domain, Intents } from './domain'
 

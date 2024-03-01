@@ -1,6 +1,6 @@
+import { Alg } from '@narval/signature'
 import { PrivateKeyAccount, sha256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { Alg } from './type/action.type'
 import {
   AccountClassification,
   AccountType,

@@ -1,4 +1,4 @@
-import { hashRequest } from '../../hash-request.util'
+import { hashRequest } from '../../hash-request'
 
 describe('hashRequest', () => {
   it('hashes the given object', () => {

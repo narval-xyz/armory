@@ -1,0 +1,5 @@
+export { decode } from './lib/decode'
+export { hashRequest } from './lib/hash-request'
+export { sign } from './lib/sign'
+export * from './lib/types'
+export { verify } from './lib/verify'
