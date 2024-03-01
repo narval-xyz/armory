@@ -13,8 +13,12 @@ const ConfigSchema = z.object({
     url: z.string().startsWith('postgresql:')
   }),
   engine: z.object({
-    id: z.string(),
-    masterPassword: z.string()
+    id: z.string()
+  }),
+  keyring: z.object({
+    type: z.enum(['awskms', 'raw']).default('raw'),
+    masterAwsKmsArn: z.string().optional(), // only if type = awskms
+    masterPassword: z.string().optional() // only if type = raw
   })
 })
 
@@ -28,7 +32,11 @@ export const load = (): Config => {
       url: process.env.POLICY_ENGINE_DATABASE_URL
     },
     engine: {
-      id: process.env.ENGINE_UID,
+      id: process.env.ENGINE_UID
+    },
+    keyring: {
+      type: process.env.KEYRING_TYPE,
+      masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
     }
   })

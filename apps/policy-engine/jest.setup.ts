@@ -3,7 +3,6 @@ import fs from 'fs'
 import nock from 'nock'
 
 const testEnvFile = `${__dirname}/.env.test`
-const envFile = `${__dirname}/.env`
 
 // Ensure a test environment variable file exists because of the override config
 // loading mechanics below.
@@ -17,7 +16,15 @@ if (!fs.existsSync(testEnvFile)) {
 // If a .env.test file is not found, the DATABASE_URL will fallback to the
 // default. Consequently, you'll lose your development database during the
 // integration tests teardown. Hence, the check above.
-dotenv.config({ path: envFile })
+
+// We also don't even want any .env values; just kill them during tests.
+// Clear process.env
+for (const prop in process.env) {
+  if (Object.prototype.hasOwnProperty.call(process.env, prop)) {
+    delete process.env[prop]
+  }
+}
+
 dotenv.config({ path: testEnvFile, override: true })
 
 // Disable outgoing HTTP requests to avoid flaky tests.

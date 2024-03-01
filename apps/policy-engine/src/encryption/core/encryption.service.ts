@@ -1,5 +1,6 @@
 import {
   CommitmentPolicy,
+  KmsKeyringNode,
   RawAesKeyringNode,
   RawAesWrappingSuiteIdentifier,
   buildClient
@@ -30,7 +31,7 @@ export class EncryptionService implements OnApplicationBootstrap {
 
   private masterKey: Buffer | undefined
 
-  private adminApiKey: Buffer | undefined
+  private keyring: RawAesKeyringNode | KmsKeyringNode | undefined
 
   constructor(
     private encryptionRepository: EncryptionRepository,
@@ -42,22 +43,43 @@ export class EncryptionService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     this.logger.log('Keyring Service boot')
-    let engine = await this.encryptionRepository.getEngine(this.engineId)
+    const keyringConfig = this.configService.get('keyring', { infer: true })
 
-    // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
-    const masterPassword = this.configService.get('engine.masterPassword', { infer: true })
-    const kek = this.deriveKeyEncryptionKey(masterPassword)
+    // We have a Raw Keyring, so we are using a MasterPassword/KEK+MasterKey for encryption
+    if (keyringConfig.masterPassword && !keyringConfig.masterAwsKmsArn) {
+      const engine = await this.encryptionRepository.getEngine(this.engineId)
+      let encryptedMasterKey = engine?.masterKey
 
-    if (!engine) {
-      // New Engine, set it up
-      engine = await this.firstTimeSetup(kek)
+      // Derive the Key Encryption Key (KEK) from the master password using PBKDF2
+      const masterPassword = keyringConfig.masterPassword
+      const kek = this.deriveKeyEncryptionKey(masterPassword)
+
+      if (!encryptedMasterKey) {
+        // No MK yet, so create it & encrypt w/ the KEK
+        encryptedMasterKey = await this.generateMasterKey(kek)
+      }
+
+      const decryptedMasterKey = await this.decryptMasterKey(kek, Buffer.from(encryptedMasterKey, 'hex'))
+      const isolatedMasterKey = Buffer.alloc(decryptedMasterKey.length)
+      decryptedMasterKey.copy(isolatedMasterKey, 0, 0, decryptedMasterKey.length)
+
+      /* Configure the Raw AES keyring. */
+      const keyring = new RawAesKeyringNode({
+        keyName: 'armory.engine.wrapping-key',
+        keyNamespace,
+        unencryptedMasterKey: isolatedMasterKey,
+        wrappingSuite
+      })
+
+      this.keyring = keyring
     }
-
-    const decryptedMasterKey = await this.decryptMasterKey(kek, Buffer.from(engine.masterKey, 'hex'))
-    this.masterKey = Buffer.alloc(decryptedMasterKey.length)
-    decryptedMasterKey.copy(decryptedMasterKey, 0, 0, decryptedMasterKey.length)
-
-    this.adminApiKey = Buffer.from(engine.adminApiKey, 'hex')
+    // We have AWS KMS config so we'll use that instead as the MasterKey, which means we don't need a KEK separately
+    else if (keyringConfig.masterAwsKmsArn && !keyringConfig.masterPassword) {
+      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.masterAwsKmsArn })
+      this.keyring = keyring
+    } else {
+      throw new Error('Invalid Keyring Configuration found')
+    }
   }
 
   private getKeyEncryptionKeyring(kek: Buffer) {
@@ -67,22 +89,6 @@ export class EncryptionService implements OnApplicationBootstrap {
       unencryptedMasterKey: kek,
       wrappingSuite
     })
-
-    return keyring
-  }
-
-  private async getKeyring() {
-    if (!this.masterKey) throw new Error('Master Key not set')
-
-    /* Configure the Raw AES keyring. */
-    const keyring = new RawAesKeyringNode({
-      keyName: 'armory.engine.wrapping-key',
-      keyNamespace,
-      unencryptedMasterKey: this.masterKey,
-      wrappingSuite
-    })
-
-    // TODO: also support KMS keyring
 
     return keyring
   }
@@ -118,7 +124,8 @@ export class EncryptionService implements OnApplicationBootstrap {
   }
 
   async encrypt(cleartext: string | Buffer): Promise<Buffer> {
-    const keyring = await this.getKeyring()
+    const keyring = this.keyring
+    if (!keyring) throw new Error('Keyring not set')
 
     const { result } = await encrypt(keyring, cleartext, {
       encryptionContext: defaultEncryptionContext
@@ -128,7 +135,8 @@ export class EncryptionService implements OnApplicationBootstrap {
   }
 
   async decrypt(ciphertext: Buffer): Promise<Buffer> {
-    const keyring = await this.getKeyring()
+    const keyring = this.keyring
+    if (!keyring) throw new Error('Keyring not set')
 
     const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
 
@@ -142,31 +150,26 @@ export class EncryptionService implements OnApplicationBootstrap {
     return plaintext
   }
 
-  private async firstTimeSetup(kek: Buffer) {
+  private async generateMasterKey(kek: Buffer): Promise<string> {
     // Generate a new Master Key (MK) with AES256
     const mk = crypto.generateKeySync('aes', { length: 256 })
     const mkBuffer = mk.export()
 
+    // Encrypt it with the Key Encryption Key (KEK) that was derived from the MP
     const encryptedMk = await this.encryptMaterKey(kek, mkBuffer)
-
-    // Generate an Admin API Key, just a random 32-byte string
-    const adminApiKeyBuffer = crypto.randomBytes(32)
+    const encryptedMkString = encryptedMk.toString('hex')
 
     // Save the Result.
-    const engine = await this.encryptionRepository.createEngine(
-      this.engineId,
-      encryptedMk.toString('hex'),
-      adminApiKeyBuffer.toString('hex') // TODO: this isn't encrypted, it should be encrypted with a CEK not with KEK
-    )
+    const existingEngine = await this.encryptionRepository.getEngine(this.engineId)
+    const engine = existingEngine
+      ? await this.encryptionRepository.saveMasterKey(this.engineId, encryptedMkString)
+      : await this.encryptionRepository.createEngine(this.engineId, encryptedMkString)
 
-    this.logger.log('Engine Initial Setup Complete')
-    // TODO: Print this to a console in a better way; may not even like this.
-    this.logger.log('Admin API Key -- DO NOT LOSE THIS', adminApiKeyBuffer.toString('hex'))
-    return engine
-  }
+    if (!engine?.masterKey) {
+      throw new Error('Master Key was not saved')
+    }
 
-  // Verify if a given string matches our internal Admin Api Key
-  verifyAdminApiKey(apiKey: string): boolean {
-    return apiKey === this.adminApiKey?.toString('hex')
+    this.logger.log('Engine Master Key Setup Complete')
+    return encryptedMkString
   }
 }
