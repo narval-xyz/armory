@@ -55,7 +55,7 @@ async function bootstrap() {
     )
   )
 
-  logger.log(`AuthZ is running on port ${port}`)
+  logger.log(`Policy Engine is running on port ${port}`)
 }
 
 bootstrap()

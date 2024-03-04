@@ -6,13 +6,10 @@ import {
   TransactionRequest
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
+import { z } from 'zod'
+import { tenantSchema } from '../schema/tenant.schema'
 
-export enum UserRoles {
-  ROOT = 'root',
-  ADMIN = 'admin',
-  MEMBER = 'member',
-  MANAGER = 'manager'
-}
+export type Tenant = z.infer<typeof tenantSchema>
 
 export type RegoInput = {
   action: Action

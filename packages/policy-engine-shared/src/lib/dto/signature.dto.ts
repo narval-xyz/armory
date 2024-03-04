@@ -1,6 +1,6 @@
+import { Alg } from '@narval/signature'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString } from 'class-validator'
-import { Alg } from '../type/action.type'
 
 export class SignatureDto {
   @IsString()

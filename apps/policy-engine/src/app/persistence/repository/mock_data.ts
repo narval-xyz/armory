@@ -1,12 +1,5 @@
-import {
-  Action,
-  Alg,
-  EvaluationRequest,
-  FIXTURE,
-  Request,
-  TransactionRequest,
-  hashRequest
-} from '@narval/policy-engine-shared'
+import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
+import { Alg, hash } from '@narval/signature'
 import { toHex } from 'viem'
 
 export const ONE_ETH = BigInt('1000000000000000000')
@@ -29,7 +22,7 @@ export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
     resourceId: FIXTURE.WALLET.Engineering.id
   }
 
-  const message = hashRequest(request)
+  const message = hash(request)
 
   const aliceSignature = await FIXTURE.ACCOUNT.Alice.signMessage({ message })
   const bobSignature = await FIXTURE.ACCOUNT.Bob.signMessage({ message })

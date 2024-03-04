@@ -1,4 +1,5 @@
-import { Alg, Prices } from '@narval/policy-engine-shared'
+import { Prices } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'

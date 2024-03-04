@@ -2,7 +2,6 @@ import {
   AccountId,
   AccountType,
   Action,
-  Alg,
   AssetId,
   BaseAction,
   BaseAdminRequest,
@@ -17,6 +16,7 @@ import {
   UserRole,
   ValueOperators
 } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { Intents } from '@narval/transaction-request-intent'
 import { ApiExtraModels, ApiProperty, ApiPropertyOptional, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type, plainToInstance } from 'class-transformer'
