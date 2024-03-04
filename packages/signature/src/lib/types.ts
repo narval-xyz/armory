@@ -22,6 +22,13 @@ export const Alg = {
 
 export type Alg = (typeof Alg)[keyof typeof Alg]
 
+export const Use  = {
+  SIG: 'sig',
+  ENC: 'enc'
+} as const
+
+export type Use = (typeof Use)[keyof typeof Use]
+
 /**
  * Defines the header of JWT.
  *
