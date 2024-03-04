@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output into a separate subdirectory so multiple schemas can be used in a
+  // monorepo.
+  //
+  // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
+  output   = "../../../../../../../node_modules/@prisma/client/policy-engine"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POLICY_ENGINE_DATABASE_URL")
+}
+
+model Engine {
+  id          String @id
+  masterKey   String? @map("master_key")
+  adminApiKey String? @map("admin_api_key")
+
+  @@map("engine")
+}

@@ -2,7 +2,8 @@ import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
-import { load } from './app.config'
+import { EncryptionModule } from '../encryption/encryption.module'
+import { load } from '../policy-engine.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AdminService } from './core/admin.service'
@@ -16,7 +17,8 @@ import { EntityRepository } from './persistence/repository/entity.repository'
       load: [load],
       isGlobal: true
     }),
-    HttpModule
+    HttpModule,
+    EncryptionModule
   ],
   controllers: [AppController, AdminController],
   providers: [
