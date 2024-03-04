@@ -5,7 +5,7 @@ import {
   RawAesWrappingSuiteIdentifier,
   buildClient
 } from '@aws-crypto/client-node'
-import { toBytes, toHex } from '@narval/policy-engine-shared'
+import { Hex, toBytes, toHex } from '@narval/policy-engine-shared'
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import crypto from 'crypto'
@@ -136,11 +136,16 @@ export class EncryptionService implements OnApplicationBootstrap {
     return result
   }
 
-  async decrypt(ciphertext: Buffer | Uint8Array): Promise<Buffer> {
+  async decrypt(ciphertext: Buffer | Uint8Array | Hex): Promise<Buffer> {
     const keyring = this.keyring
     if (!keyring) throw new Error('Keyring not set')
 
-    const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
+    let ciphertextBuffer = ciphertext
+    if (typeof ciphertext === 'string') {
+      ciphertextBuffer = toBytes(ciphertext)
+    }
+
+    const { plaintext, messageHeader } = await decrypt(keyring, ciphertextBuffer)
 
     // Verify the context wasn't changed
     const { encryptionContext } = messageHeader

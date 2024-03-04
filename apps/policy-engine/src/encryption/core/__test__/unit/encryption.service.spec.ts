@@ -77,4 +77,13 @@ describe('EncryptionService', () => {
 
     expect(toHex(decrypted)).toBe(data)
   })
+
+  it('should decrypt a hex-encoded string', async () => {
+    const data = 'Hello World'
+    const encryptedBuffer = await service.encrypt(data)
+    const encryptedHex = toHex(encryptedBuffer)
+    const decrypted = await service.decrypt(encryptedHex)
+
+    expect(decrypted.toString('utf-8')).toBe(data)
+  })
 })
