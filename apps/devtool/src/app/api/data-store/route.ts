@@ -2,7 +2,7 @@ import { JSONFilePreset } from 'lowdb/node'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export const GET = async (req: NextApiRequest, res: NextApiResponse) => {
-  const db = await JSONFilePreset('./data-store/storage.json', {
+  const db = await JSONFilePreset('./storage.json', {
     entity: { signature: '', data: {} },
     policy: { signature: '', data: [] }
   })
@@ -13,7 +13,7 @@ export const GET = async (req: NextApiRequest, res: NextApiResponse) => {
 export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
   const { entity, policy } = await req.json()
 
-  const db = await JSONFilePreset('./data-store/storage.json', {
+  const db = await JSONFilePreset('./storage.json', {
     entity: { signature: '', data: {} },
     policy: { signature: '', data: [] }
   })
