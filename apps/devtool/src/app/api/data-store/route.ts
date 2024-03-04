@@ -15,7 +15,7 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const db = await JSONFilePreset('./data-store/storage.json', {
     entity: { signature: '', data: {} },
-    policy: { signature: {}, data: [] }
+    policy: { signature: '', data: [] }
   })
 
   db.data = { entity, policy }
