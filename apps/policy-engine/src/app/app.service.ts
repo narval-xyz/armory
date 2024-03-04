@@ -1,15 +1,14 @@
 import {
   Action,
-  Alg,
   CredentialEntity,
   Decision,
   EvaluationRequest,
   EvaluationResponse,
   HistoricalTransfer,
   Request,
-  Signature,
-  hashRequest
+  Signature
 } from '@narval/policy-engine-shared'
+import { Alg, hash } from '@narval/signature'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,
@@ -160,7 +159,7 @@ export class AppService {
   }: EvaluationRequest): Promise<EvaluationResponse> {
     // Pre-Process
     // verify the signatures of the Principal and any Approvals
-    const verificationMessage = hashRequest(request)
+    const verificationMessage = hash(request)
 
     const principalCredential = await this.#verifySignature(authentication, verificationMessage)
     if (!principalCredential) throw new Error(`Could not find principal`)

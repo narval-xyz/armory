@@ -1,9 +1,9 @@
-import { hashRequest } from '../../hash-request.util'
+import { hash } from '../../hash-request'
 
 describe('hashRequest', () => {
   it('hashes the given object', () => {
     expect(
-      hashRequest({
+      hash({
         a: 'a',
         b: 1,
         c: false
@@ -12,7 +12,7 @@ describe('hashRequest', () => {
   })
 
   it('hashes the given array', () => {
-    expect(hashRequest(['a', 1, false])).toEqual('cdd23dea0598c5ffc66b6a53f9dc7448a87b47454f209caa310e21da91754173')
+    expect(hash(['a', 1, false])).toEqual('cdd23dea0598c5ffc66b6a53f9dc7448a87b47454f209caa310e21da91754173')
   })
 
   it('hashes two objects deterministically', () => {
@@ -35,6 +35,6 @@ describe('hashRequest', () => {
       a: 'a'
     }
 
-    expect(hashRequest(a)).toEqual(hashRequest(b))
+    expect(hash(a)).toEqual(hash(b))
   })
 })

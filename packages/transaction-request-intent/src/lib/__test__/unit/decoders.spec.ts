@@ -1,4 +1,4 @@
-import { Alg } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { Hex } from 'viem'
 import { decode } from '../../decoders/decode'
 import {

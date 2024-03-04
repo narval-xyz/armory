@@ -1,9 +1,26 @@
-import { Alg } from 'packages/authz-shared/src'
+import { Hex } from 'viem'
 
-export type AlgorithmParameter = {
-  kty: 'EC' | 'RSA'
-  crv?: string
-}
+export const KeyTypes = {
+  EC: 'EC',
+  RSA: 'RSA'
+} as const
+
+export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
+
+export const Curves = {
+  SECP256K1: 'secp256k1',
+  P256: 'P-256'
+} as const
+
+export type Curves = (typeof Curves)[keyof typeof Curves]
+
+export const Alg = {
+  ES256K: 'ES256K', // secp256k1, an Ethereum EOA
+  ES256: 'ES256', // secp256r1, ecdsa but not ethereum
+  RS256: 'RS256'
+} as const
+
+export type Alg = (typeof Alg)[keyof typeof Alg]
 
 /**
  * Defines the header of JWT.
@@ -22,12 +39,14 @@ export type Header = {
  *
  * @param {string} requestHash - The hashed request.
  * @param {string} [iss] - The issuer of the JWT.
- * @param {number} [iat] - The time the JWT was issued.
- * @param {number} [exp] - The time the JWT expires.
+ * @param {Date} [iat] - The time the JWT was issued.
+ * @param {Date} [exp] - The time the JWT expires.
  */
 export type Payload = {
   requestHash: string
-  iat: number
+  pubKey: string
+  iat: Date
+  exp: Date
 }
 
 export type Jwt = {
@@ -39,13 +58,17 @@ export type Jwt = {
 /**
  * Defines the input required to generate a JWT signature for a request.
  *
- * @param {string} privateKey - The private key to sign the JWT with. Private key will be identified by the kid in the header if this is not provided.
+ * @param {string | Hex} privateKey - The private key to sign the JWT with.
  * @param {string} kid - The key ID to identify the signing key.
+ * @param {string} [exp] - The time the JWT expires.
+ * @param {number} [iat] - The time the JWT was issued.
  * @param {Alg} algorithm - The algorithm to use for signing.
  * @param {unknown} request - The content of the request to be signed.
  */
 export type SignatureInput = {
-  privateKey: string
+  privateKey: string | Hex
+  exp?: Date
+  iat?: Date
   kid: string
   algorithm: Alg
   request: unknown
@@ -55,12 +78,9 @@ export type SignatureInput = {
  * Defines the input required to verify a JWT.
  *
  * @param {string} jwt - The JWT to be verified.
- * @param {Request} request - The content of the request to be verified.
  * @param {string} publicKey - The public key that corresponds to the private key used for signing.
  */
 export type VerificationInput = {
-  rawToken: string
-  request: unknown
+  jwt: string
   publicKey: string
-  algorithm: Alg
 }

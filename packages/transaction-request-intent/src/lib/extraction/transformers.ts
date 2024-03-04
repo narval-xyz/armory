@@ -80,7 +80,7 @@ export const Erc721SafeTransferFromParamsTransform = (params: unknown[]): Erc721
   const to = assertHexString(params[1])
   const tokenId = assertBigInt(params[2])
 
-  if (!from || !to || !tokenId) {
+  if (!from || !to || (!tokenId && tokenId !== BigInt(0))) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 

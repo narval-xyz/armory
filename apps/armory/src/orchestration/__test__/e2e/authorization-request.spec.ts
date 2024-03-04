@@ -1,4 +1,5 @@
-import { Action, Alg } from '@narval/policy-engine-shared'
+import { Action } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'

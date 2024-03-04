@@ -1,4 +1,4 @@
-import { Alg } from './action.type'
+import { Alg } from '@narval/signature'
 import { Address } from './domain.type'
 
 export const UserRole = {
