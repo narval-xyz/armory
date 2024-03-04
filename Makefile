@@ -1,4 +1,5 @@
 include ./apps/armory/Makefile
+include ./apps/devtool/Makefile
 include ./apps/policy-engine/Makefile
 include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile

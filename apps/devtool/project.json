@@ -1,0 +1,44 @@
+{
+  "name": "devtool",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/devtool",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/devtool"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "production",
+      "options": {
+        "buildTarget": "devtool:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "devtool:build:development"
+        },
+        "production": {
+          "buildTarget": "devtool:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/devtool/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
