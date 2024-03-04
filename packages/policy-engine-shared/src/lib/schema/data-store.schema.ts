@@ -1,13 +1,17 @@
 import { z } from 'zod'
 import { entitiesSchema } from './entity.schema'
 
-export const jsonWebKeySetSchema = z.object({
-  kty: z.string().describe('Key Type (e.g. RSA or EC'),
-  use: z.string(),
-  kid: z.string().describe('Arbitrary key ID'),
+export const jsonWebKeySchema = z.object({
+  kty: z.enum(['EC', 'RSA']).describe('Key Type (e.g. RSA or EC'),
+  crv: z.enum(['P-256', 'secp256k1']).optional().describe('Curve name'),
+  kid: z.string().describe('Unique key ID'),
   alg: z.string().describe('Algorithm'),
-  n: z.string().describe('Key modulus'),
-  e: z.string().describe('Key exponent')
+  use: z.enum(['sig', 'enc']).optional().describe('Public Key Use'),
+  n: z.string().optional().describe('(RSA) Key modulus'),
+  e: z.string().optional().describe('(RSA) Key exponent'),
+  x: z.string().optional().describe('(EC) X Coordinate'),
+  y: z.string().optional().describe('(EC) Y Coordinate'),
+  d: z.string().optional().describe('(EC) Private Key')
 })
 
 export const dataStoreProtocolSchema = z.enum(['file'])
@@ -15,7 +19,7 @@ export const dataStoreProtocolSchema = z.enum(['file'])
 export const dataStoreConfigurationSchema = z.object({
   dataUrl: z.string(),
   signatureUrl: z.string(),
-  keys: z.array(jsonWebKeySetSchema)
+  keys: z.array(jsonWebKeySchema)
 })
 
 export const entityDataSchema = z.object({
@@ -32,6 +36,6 @@ export const entitySignatureSchema = z.object({
 
 export const entityJsonWebKeySetSchema = z.object({
   entity: z.object({
-    keys: z.array(jsonWebKeySetSchema)
+    keys: z.array(jsonWebKeySchema)
   })
 })

@@ -5,6 +5,7 @@ import {
   RawAesWrappingSuiteIdentifier,
   buildClient
 } from '@aws-crypto/client-node'
+import { Hex, toBytes, toHex } from '@narval/policy-engine-shared'
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import crypto from 'crypto'
@@ -56,7 +57,7 @@ export class EncryptionService implements OnApplicationBootstrap {
         encryptedMasterKey = await this.generateMasterKey(kek)
       }
 
-      const decryptedMasterKey = await this.decryptMasterKey(kek, Buffer.from(encryptedMasterKey, 'hex'))
+      const decryptedMasterKey = await this.decryptMasterKey(kek, toBytes(encryptedMasterKey))
       const isolatedMasterKey = Buffer.alloc(decryptedMasterKey.length)
       decryptedMasterKey.copy(isolatedMasterKey, 0, 0, decryptedMasterKey.length)
 
@@ -110,7 +111,7 @@ export class EncryptionService implements OnApplicationBootstrap {
     return result
   }
 
-  private async decryptMasterKey(kek: Buffer, ciphertext: Buffer): Promise<Buffer> {
+  private async decryptMasterKey(kek: Buffer, ciphertext: Uint8Array): Promise<Buffer> {
     const keyring = this.getKeyEncryptionKeyring(kek)
     const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
 
@@ -124,7 +125,7 @@ export class EncryptionService implements OnApplicationBootstrap {
     return plaintext
   }
 
-  async encrypt(cleartext: string | Buffer): Promise<Buffer> {
+  async encrypt(cleartext: string | Buffer | Uint8Array): Promise<Buffer> {
     const keyring = this.keyring
     if (!keyring) throw new Error('Keyring not set')
 
@@ -135,11 +136,16 @@ export class EncryptionService implements OnApplicationBootstrap {
     return result
   }
 
-  async decrypt(ciphertext: Buffer): Promise<Buffer> {
+  async decrypt(ciphertext: Buffer | Uint8Array | Hex): Promise<Buffer> {
     const keyring = this.keyring
     if (!keyring) throw new Error('Keyring not set')
 
-    const { plaintext, messageHeader } = await decrypt(keyring, ciphertext)
+    let ciphertextBuffer = ciphertext
+    if (typeof ciphertext === 'string') {
+      ciphertextBuffer = toBytes(ciphertext)
+    }
+
+    const { plaintext, messageHeader } = await decrypt(keyring, ciphertextBuffer)
 
     // Verify the context wasn't changed
     const { encryptionContext } = messageHeader
@@ -158,7 +164,7 @@ export class EncryptionService implements OnApplicationBootstrap {
 
     // Encrypt it with the Key Encryption Key (KEK) that was derived from the MP
     const encryptedMk = await this.encryptMaterKey(kek, mkBuffer)
-    const encryptedMkString = encryptedMk.toString('hex')
+    const encryptedMkString = toHex(encryptedMk)
 
     // Save the Result.
     const existingEngine = await this.encryptionRepository.getEngine(this.engineId)
