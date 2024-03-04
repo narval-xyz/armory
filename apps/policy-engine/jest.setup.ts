@@ -10,15 +10,10 @@ if (!fs.existsSync(testEnvFile)) {
   throw new Error('No .env.test file found. Please create one by running "make policy-engine/copy-default-env".')
 }
 
-// We don't want to have two dotenv files that are exactly the same, so we
-// override the default with .env.test.
-//
-// If a .env.test file is not found, the DATABASE_URL will fallback to the
-// default. Consequently, you'll lose your development database during the
-// integration tests teardown. Hence, the check above.
-
-// We also don't even want any .env values; just kill them during tests.
-// Clear process.env
+// By default, dotenv always loads .env and then you can override with .env.test
+// But this is confusing, because then you have to look in multiple files to know which envs are loaded
+// So we will clear all envs and then load .env.test
+// NOTE: This will also override any CLI-declared envs (e.g. `MY_ENV=test jest`)
 for (const prop in process.env) {
   if (Object.prototype.hasOwnProperty.call(process.env, prop)) {
     delete process.env[prop]
