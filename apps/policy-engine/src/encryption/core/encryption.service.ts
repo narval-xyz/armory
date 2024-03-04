@@ -83,10 +83,14 @@ export class EncryptionService implements OnApplicationBootstrap {
   }
 
   private getKeyEncryptionKeyring(kek: Buffer) {
+    // Allocate a new isolated buffer to ensure we don't manipulate the kek
+    const isolatedKek = Buffer.alloc(kek.length)
+    kek.copy(isolatedKek, 0, 0, kek.length)
+
     const keyring = new RawAesKeyringNode({
       keyName: 'armory.engine.kek',
       keyNamespace,
-      unencryptedMasterKey: kek,
+      unencryptedMasterKey: isolatedKek,
       wrappingSuite
     })
 
