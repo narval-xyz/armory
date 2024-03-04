@@ -16,6 +16,7 @@ import { EncryptionRepository } from './persistence/repository/encryption.reposi
       provide: APP_PIPE,
       useClass: ValidationPipe
     }
-  ]
+  ],
+  exports: [EncryptionService]
 })
 export class EncryptionModule {}
