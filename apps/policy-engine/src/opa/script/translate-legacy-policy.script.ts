@@ -143,7 +143,7 @@ const translateActivityType = (policy: LegacyPolicy): PolicyCriterion[] => {
         if (chain_id && chain_id !== '*' && assetAddress && assetAddress !== '*') {
           intentToken.args = [
             ...intentToken.args,
-            toAccountId({ chainId: Number(chain_id), address: assetAddress as Address })
+            toAssetId({ assetType: AssetType.ERC20, chainId: Number(chain_id), address: assetAddress as Address })
           ]
         }
       }
@@ -267,7 +267,7 @@ const translateActivityType = (policy: LegacyPolicy): PolicyCriterion[] => {
         if (assetAddress && assetAddress !== '*') {
           intentToken.args = [
             ...intentToken.args,
-            toAccountId({ chainId: Number(chain_id), address: assetAddress as Address })
+            toAssetId({ assetType: AssetType.ERC20, chainId: Number(chain_id), address: assetAddress as Address })
           ]
         }
         if (destination_account_type === 'contract' && destination_address && destination_address !== '*') {
