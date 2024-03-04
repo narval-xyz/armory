@@ -5,10 +5,10 @@ import {
   entityDataSchema,
   entityJsonWebKeySetSchema,
   entitySignatureSchema,
-  jsonWebKeySetSchema
+  jsonWebKeySchema
 } from '../schema/data-store.schema'
 
-export type JsonWebKeySet = z.infer<typeof jsonWebKeySetSchema>
+export type JsonWebKey = z.infer<typeof jsonWebKeySchema>
 
 export type DataStoreProtocol = z.infer<typeof dataStoreProtocolSchema>
 export const DataStoreProtocol = dataStoreProtocolSchema.Enum
