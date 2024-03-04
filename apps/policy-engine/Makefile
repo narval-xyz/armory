@@ -143,6 +143,10 @@ policy-engine/rego/translate:
 		ts-node -r tsconfig-paths/register \
 		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/opa/script/translate-legacy-policy.script.ts
 
+policy-engine/rego/evaluation:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/opa/script/evaluate-legacy-policy.script.ts
 
 policy-engine/rego/test:
 	opa test \

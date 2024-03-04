@@ -1,5 +1,11 @@
 import { AssetId } from '../util/caip.util'
-import { CreateOrganizationAction, SignMessageAction, SignTransactionAction, Signature } from './action.type'
+import {
+  CreateOrganizationAction,
+  SignMessageAction,
+  SignTransactionAction,
+  SignTypedDataAction,
+  Signature
+} from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -88,7 +94,7 @@ export type HistoricalTransfer = {
  */
 export type Prices = Record<AssetId, Record<string, number>>
 
-export type Request = SignTransactionAction | SignMessageAction | CreateOrganizationAction
+export type Request = SignTransactionAction | SignMessageAction | SignTypedDataAction | CreateOrganizationAction
 
 /**
  * The feeds represent arbitrary data collected by the Armory and
