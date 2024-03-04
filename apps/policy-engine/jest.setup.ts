@@ -3,21 +3,23 @@ import fs from 'fs'
 import nock from 'nock'
 
 const testEnvFile = `${__dirname}/.env.test`
-const envFile = `${__dirname}/.env`
 
 // Ensure a test environment variable file exists because of the override config
 // loading mechanics below.
 if (!fs.existsSync(testEnvFile)) {
-  throw new Error('No .env.test file found. Please create one by running "make authz/copy-default-env".')
+  throw new Error('No .env.test file found. Please create one by running "make policy-engine/copy-default-env".')
 }
 
-// We don't want to have two dotenv files that are exactly the same, so we
-// override the default with .env.test.
-//
-// If a .env.test file is not found, the DATABASE_URL will fallback to the
-// default. Consequently, you'll lose your development database during the
-// integration tests teardown. Hence, the check above.
-dotenv.config({ path: envFile })
+// By default, dotenv always loads .env and then you can override with .env.test
+// But this is confusing, because then you have to look in multiple files to know which envs are loaded
+// So we will clear all envs and then load .env.test
+// NOTE: This will also override any CLI-declared envs (e.g. `MY_ENV=test jest`)
+for (const prop in process.env) {
+  if (Object.prototype.hasOwnProperty.call(process.env, prop)) {
+    delete process.env[prop]
+  }
+}
+
 dotenv.config({ path: testEnvFile, override: true })
 
 // Disable outgoing HTTP requests to avoid flaky tests.

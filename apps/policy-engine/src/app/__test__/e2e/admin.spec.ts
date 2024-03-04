@@ -8,7 +8,10 @@ import { readFileSync, unlinkSync } from 'fs'
 import { mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { AppModule } from '../../../app/app.module'
+import { EncryptionService } from '../../../encryption/core/encryption.service'
 import { load } from '../../../policy-engine.config'
+import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
+import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { Organization } from '../../../shared/types/entities.types'
 import { Criterion, Then, TimeWindow } from '../../../shared/types/policy.type'
 import { EntityRepository } from '../../persistence/repository/entity.repository'
@@ -17,6 +20,7 @@ const REQUEST_HEADER_ORG_ID = 'x-org-id'
 describe('Admin Endpoints', () => {
   let app: INestApplication
   let module: TestingModule
+  let testPrismaService: TestPrismaService
 
   // TODO: Real sigs; these will NOT match the test data.
   const authentication: Signature = {
@@ -45,6 +49,7 @@ describe('Admin Endpoints', () => {
   beforeAll(async () => {
     const entityRepositoryMock = mock<EntityRepository>()
     entityRepositoryMock.fetch.mockResolvedValue(FIXTURE.ENTITIES)
+    const encryptionMock = mock<EncryptionService>()
 
     module = await Test.createTestingModule({
       imports: [
@@ -52,21 +57,30 @@ describe('Admin Endpoints', () => {
           load: [load],
           isGlobal: true
         }),
-        AppModule
+        AppModule,
+        PersistenceModule
       ]
     })
       .overrideProvider(EntityRepository)
       .useValue(entityRepositoryMock)
+      .overrideProvider(EncryptionService)
+      .useValue(encryptionMock)
       .compile()
 
+    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     app = module.createNestApplication()
 
     await app.init()
   })
 
   afterAll(async () => {
+    await testPrismaService.truncateAll()
     await module.close()
     await app.close()
+  })
+
+  afterEach(async () => {
+    await testPrismaService.truncateAll()
   })
 
   describe('POST /policies', () => {

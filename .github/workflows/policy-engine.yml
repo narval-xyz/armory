@@ -17,6 +17,21 @@ jobs:
     name: Build and test
 
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        ports:
+          - '5432:5432'
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -40,6 +55,8 @@ jobs:
         shell: bash
         run: |
           make policy-engine/copy-default-env
+          make policy-engine/test/db/setup
+          make policy-engine/db/generate-types
 
       - name: Test types
         shell: bash
