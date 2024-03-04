@@ -1,0 +1,52 @@
+{
+  "entity": {
+    "signature": "0xa72428e25a2b9a90b0cbcd37804baae3f1a932a659f81fe57b311235a53276105f8d6058834ac544a65264d8363a9df2a6c58f3f790f7963af045ce836d8b9a31b",
+    "data": {
+      "addressBook": [],
+      "credentials": [],
+      "tokens": [],
+      "userGroupMembers": [],
+      "userGroups": [],
+      "userWallets": [],
+      "users": [],
+      "walletGroupMembers": [],
+      "walletGroups": [],
+      "wallets": []
+    }
+  },
+  "policy": {
+    "signature": "0xc4524c13303b29a302247c2edfa9b9aa34d7c16f3890b297e30c0fa105f74d1c478138e75d03e23ca5e34a70d4d9417034f7b199fb481cba9e86bbb914ffda571b",
+    "data": [
+      {
+        "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+        "name": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
+        "when": [
+          {
+            "criterion": "checkResourceIntegrity",
+            "args": null
+          },
+          {
+            "criterion": "checkPrincipalRole",
+            "args": [
+              "admin"
+            ]
+          },
+          {
+            "criterion": "checkAction",
+            "args": [
+              "signTransaction"
+            ]
+          },
+          {
+            "criterion": "checkIntentType",
+            "args": [
+              "transferErc721",
+              "transferErc1155"
+            ]
+          }
+        ],
+        "then": "permit"
+      }
+    ]
+  }
+}
