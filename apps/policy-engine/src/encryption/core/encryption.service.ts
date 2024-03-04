@@ -20,7 +20,6 @@ const defaultEncryptionContext = {
 }
 
 const { encrypt, decrypt } = buildClient(commitmentPolicy)
-
 @Injectable()
 export class EncryptionService implements OnApplicationBootstrap {
   private logger = new Logger(EncryptionService.name)
@@ -28,8 +27,6 @@ export class EncryptionService implements OnApplicationBootstrap {
   private configService: ConfigService<Config, true>
 
   private engineId: string
-
-  private masterKey: Buffer | undefined
 
   private keyring: RawAesKeyringNode | KmsKeyringNode | undefined
 
