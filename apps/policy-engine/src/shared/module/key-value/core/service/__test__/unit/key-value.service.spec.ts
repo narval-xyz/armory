@@ -5,7 +5,7 @@ import { InMemoryKeyValueRepository } from '../../../../persistence/repository/i
 import { KeyValueRepository } from '../../../repository/key-value.repository'
 import { KeyValueService } from '../../key-value.service'
 
-describe('foo', () => {
+describe(KeyValueService.name, () => {
   let service: KeyValueService
   let inMemoryKeyValueRepository: InMemoryKeyValueRepository
 

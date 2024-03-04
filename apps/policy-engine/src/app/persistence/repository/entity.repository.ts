@@ -42,10 +42,14 @@ export class EntityRepository implements OnApplicationBootstrap {
     // TODO (@wcalderipe, 15/02/24): Figure out where the organization will come
     // from. It depends on the deployment model: standalone engine per
     // organization or cluster with multi tenant.
-    if (!this.entities) {
-      const entities = await this.fetch(FIXTURE.ORGANIZATION.id)
+    try {
+      if (!this.entities) {
+        const entities = await this.fetch(FIXTURE.ORGANIZATION.id)
 
-      this.entities = entities
+        this.entities = entities
+      }
+    } catch (error) {
+      this.logger.error('Failed to bootstrap entities', error)
     }
   }
 }

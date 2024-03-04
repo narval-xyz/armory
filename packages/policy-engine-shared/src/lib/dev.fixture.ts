@@ -33,8 +33,8 @@ export const ORGANIZATION: OrganizationEntity = {
 
 // See doc/prefixed-test-ethereum-accounts.md
 export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
-  // 0x000966c8bf232032cd23f9002c4513dfea2531be
-  Root: '0x4d377dba5424a7c1545a3c7b0522592927d49d2600a66f12e07a3977bafd79ab',
+  // 0x000c0d191308a336356bee3813cc17f6868972c4
+  Root: '0xa95b097938cc1d1a800d2b10d2a175f979613c940868460fd66830059fc1e418',
   // 0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43
   Alice: '0x454c9f13f6591f6482b17bdb6a671a7294500c7dd126111ce1643b03b6aeb354',
   // 0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23
