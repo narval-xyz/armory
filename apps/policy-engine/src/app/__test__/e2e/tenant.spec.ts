@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { AppModule } from '../../../app/app.module'
+import { EncryptionService } from '../../../encryption/core/encryption.service'
 import { load } from '../../../policy-engine.config'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
@@ -14,6 +15,7 @@ describe('Tenant', () => {
   let app: INestApplication
   let module: TestingModule
   let tenantRepository: TenantRepository
+  let encryptionService: EncryptionService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -32,6 +34,7 @@ describe('Tenant', () => {
     app = module.createNestApplication()
 
     tenantRepository = module.get<TenantRepository>(TenantRepository)
+    encryptionService = module.get<EncryptionService>(EncryptionService)
 
     await app.init()
   })
@@ -39,6 +42,10 @@ describe('Tenant', () => {
   afterAll(async () => {
     await module.close()
     await app.close()
+  })
+
+  beforeEach(async () => {
+    await encryptionService.onApplicationBootstrap()
   })
 
   describe('POST /tenants', () => {

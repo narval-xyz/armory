@@ -22,9 +22,9 @@ export class KeyValueService {
     const encryptedValue = await this.keyValueRepository.get(key)
 
     if (encryptedValue) {
-      const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue))
+      const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue, 'hex'))
 
-      return value.toString('utf-8')
+      return value.toString()
     }
 
     return null
@@ -33,7 +33,7 @@ export class KeyValueService {
   async set(key: string, value: string): Promise<boolean> {
     const encryptedValue = await this.encryptionService.encrypt(value)
 
-    return this.keyValueRepository.set(key, encryptedValue.toString('utf-8'))
+    return this.keyValueRepository.set(key, encryptedValue.toString('hex'))
   }
 
   async delete(key: string): Promise<boolean> {
