@@ -1,15 +1,12 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
-import nock from 'nock'
 import { load } from '../../../../policy-engine.config'
 import { EncryptionRepository } from '../../../persistence/repository/encryption.repository'
 import { EncryptionService } from '../../encryption.service'
 
 describe('EncryptionService', () => {
   let service: EncryptionService
-
-  nock.enableNetConnect('kms.us-east-2.amazonaws.com:443')
 
   beforeEach(async () => {
     // These mocked config values matter; they're specifically tied to the mocked masterKey below
