@@ -55,7 +55,7 @@ Thumbs.db
 .env.test
 
 /rego-build
-/apps/devtool/data-store/storage.json
+/apps/devtool/storage.json
 
 *.sqlite
 *.sqlite-journal
