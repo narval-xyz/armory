@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
 import { tenantSchema } from '../../../shared/schema/tenant.schema'
-import { Tenant } from '../../../shared/types/domain.type'
+import { Tenant } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class TenantRepository {

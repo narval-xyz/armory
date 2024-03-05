@@ -1,6 +1,6 @@
 import { Action, EntityType, FIXTURE, UserRole, ValueOperators } from '@narval/policy-engine-shared'
 import { Intents } from '@narval/transaction-request-intent'
-import { Criterion, Policy, Then } from '../../shared/types/policy.type'
+import { Criterion, Policy, Then } from '../../shared/type/policy.type'
 
 export const examplePermitPolicy: Policy = {
   then: Then.PERMIT,

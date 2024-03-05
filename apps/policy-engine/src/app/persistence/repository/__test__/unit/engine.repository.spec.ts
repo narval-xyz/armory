@@ -4,7 +4,7 @@ import { ApplicationException } from '../../../../../shared/exception/applicatio
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
-import { Engine } from '../../../../../shared/types/domain.type'
+import { Engine } from '../../../../../shared/type/domain.type'
 import { EngineRepository } from '../../engine.repository'
 
 describe(EngineRepository.name, () => {

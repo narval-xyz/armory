@@ -2,7 +2,7 @@ import { Action, BaseActionDto, BaseActionRequestDto } from '@narval/policy-engi
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { ArrayNotEmpty, IsDefined, Matches, ValidateNested } from 'class-validator'
-import { Policy } from '../../../../../shared/types/policy.type'
+import { Policy } from '../../../../../shared/type/policy.type'
 
 export class SetPolicyRulesDto extends BaseActionDto {
   @Matches(Action.SET_POLICY_RULES)
