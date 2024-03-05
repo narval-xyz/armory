@@ -55,8 +55,8 @@ describe('EncryptionService', () => {
 
     await testPrismaService.truncateAll()
 
-    if (service.onApplicationBootstrap) {
-      await service.onApplicationBootstrap()
+    if (service.setup) {
+      await service.setup()
     }
   })
 
@@ -66,7 +66,7 @@ describe('EncryptionService', () => {
   })
 
   it('should create & encrypt a master key on application bootstrap', async () => {
-    await service.onApplicationBootstrap()
+    await service.setup()
 
     const engine = await testPrismaService.getClient().engine.findFirst({
       where: {
