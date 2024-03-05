@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Policy, SetPolicyRulesRequest } from '../../../shared/types/policy.type'
+import { Policy, SetPolicyRulesRequest } from '../../../shared/type/policy.type'
 import { OpaService } from '../../opa/opa.service'
 
 @Injectable()

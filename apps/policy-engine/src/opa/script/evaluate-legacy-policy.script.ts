@@ -4,7 +4,7 @@ import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { OpaResult, RegoInput } from '../../shared/types/domain.type'
+import { OpaResult, RegoInput } from '../../shared/type/domain.type'
 
 export const evaluate = async (users: any[], wallets: any[], legacyActivityRequests: any[]) => {
   const entities: { [key: string]: any } = { users: {}, wallets: {} }

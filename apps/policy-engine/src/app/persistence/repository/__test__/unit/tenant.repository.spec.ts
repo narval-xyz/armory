@@ -7,7 +7,7 @@ import { EncryptionRepository } from '../../../../../encryption/persistence/repo
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
-import { Tenant } from '../../../../../shared/types/domain.type'
+import { Tenant } from '../../../../../shared/type/domain.type'
 import { TenantRepository } from '../../../repository/tenant.repository'
 
 describe(TenantRepository.name, () => {

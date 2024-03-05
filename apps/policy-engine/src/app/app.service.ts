@@ -21,7 +21,7 @@ import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { OpaResult, RegoInput } from '../shared/types/domain.type'
+import { OpaResult, RegoInput } from '../shared/type/domain.type'
 import { OpaService } from './opa/opa.service'
 import { EntityRepository } from './persistence/repository/entity.repository'
 

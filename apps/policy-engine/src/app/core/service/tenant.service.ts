@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Tenant } from '../../../shared/types/domain.type'
+import { Tenant } from '../../../shared/type/domain.type'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
 
 @Injectable()
