@@ -4,12 +4,16 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { EncryptionModule } from '../encryption/encryption.module'
 import { load } from '../policy-engine.config'
+import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AdminService } from './core/admin.service'
+import { TenantService } from './core/service/tenant.service'
 import { AdminController } from './http/rest/controller/admin.controller'
+import { TenantController } from './http/rest/controller/tenant.controller'
 import { OpaService } from './opa/opa.service'
 import { EntityRepository } from './persistence/repository/entity.repository'
+import { TenantRepository } from './persistence/repository/tenant.repository'
 
 @Module({
   imports: [
@@ -18,14 +22,17 @@ import { EntityRepository } from './persistence/repository/entity.repository'
       isGlobal: true
     }),
     HttpModule,
-    EncryptionModule
+    EncryptionModule,
+    KeyValueModule
   ],
-  controllers: [AppController, AdminController],
+  controllers: [AppController, AdminController, TenantController],
   providers: [
     AppService,
     AdminService,
     OpaService,
     EntityRepository,
+    TenantRepository,
+    TenantService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe

@@ -121,9 +121,14 @@ export class OpaService implements OnApplicationBootstrap {
 
   async reloadEntityData() {
     if (!this.opaEngine) throw new Error('OPA Engine not initialized')
-    const data = await this.fetchEntityData()
-    this.opaEngine.setData(data)
-    this.logger.log('Reloaded OPA Engine data')
+
+    try {
+      const data = await this.fetchEntityData()
+      this.opaEngine.setData(data)
+      this.logger.log('Reloaded OPA Engine data')
+    } catch (error) {
+      this.logger.error('Failed to bootstrap OPA service')
+    }
   }
 
   private async getOpaEngine(): Promise<OpaEngine> {
