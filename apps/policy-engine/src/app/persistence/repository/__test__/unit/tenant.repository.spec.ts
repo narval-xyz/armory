@@ -45,7 +45,7 @@ describe(TenantRepository.name, () => {
     //
     // TODO: Refactor the encryption service. It MUST be ready for usage given
     // its arguments rather than depending on a set up step.
-    await module.get<EncryptionService>(EncryptionService).onApplicationBootstrap()
+    await module.get<EncryptionService>(EncryptionService).setup()
 
     repository = module.get<TenantRepository>(TenantRepository)
   })

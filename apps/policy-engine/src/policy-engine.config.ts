@@ -6,7 +6,7 @@ export enum Env {
   PRODUCTION = 'production'
 }
 
-const ConfigSchema = z.object({
+const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
   database: z.object({
@@ -15,17 +15,22 @@ const ConfigSchema = z.object({
   engine: z.object({
     id: z.string()
   }),
-  keyring: z.object({
-    type: z.enum(['awskms', 'raw']).default('raw'),
-    masterAwsKmsArn: z.string().optional(), // only if type = awskms
-    masterPassword: z.string().optional() // only if type = raw
-  })
+  keyring: z.union([
+    z.object({
+      type: z.literal('raw'),
+      masterPassword: z.string()
+    }),
+    z.object({
+      type: z.literal('awskms'),
+      masterAwsKmsArn: z.string()
+    })
+  ])
 })
 
-export type Config = z.infer<typeof ConfigSchema>
+export type Config = z.infer<typeof configSchema>
 
 export const load = (): Config => {
-  const result = ConfigSchema.safeParse({
+  const result = configSchema.safeParse({
     env: process.env.NODE_ENV,
     port: process.env.PORT,
     database: {
