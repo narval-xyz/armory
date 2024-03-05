@@ -24,7 +24,7 @@ export class TenantRepository {
   }
 
   getKey(clientId: string): string {
-    return `${clientId}:tenant`
+    return `tenant:${clientId}`
   }
 
   private encode(tenant: Tenant): string {

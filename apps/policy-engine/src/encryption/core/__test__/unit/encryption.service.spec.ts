@@ -57,8 +57,9 @@ describe('EncryptionService', () => {
     }).compile()
 
     service = moduleRef.get<EncryptionService>(EncryptionService)
-    if (service.onApplicationBootstrap) {
-      await service.onApplicationBootstrap()
+
+    if (service.setup) {
+      await service.setup()
     }
   })
 

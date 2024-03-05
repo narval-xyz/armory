@@ -1,6 +1,5 @@
 import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
-import { EncryptionService } from '../../../../../../../encryption/core/encryption.service'
 import { EncryptionModule } from '../../../../../../../encryption/encryption.module'
 import { load } from '../../../../../../../policy-engine.config'
 import { TestPrismaService } from '../../../../../../../shared/module/persistence/service/test-prisma.service'
@@ -40,11 +39,6 @@ describe(KeyValueService.name, () => {
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
     await testPrismaService.truncateAll()
-
-    // TODO: (@wcalderipe, 05/03/24): The onApplicationBootstrap performs
-    // multiple side-effects including writing to the storage to set up the
-    // encryption.
-    await module.get<EncryptionService>(EncryptionService).onApplicationBootstrap()
   })
 
   afterAll(async () => {

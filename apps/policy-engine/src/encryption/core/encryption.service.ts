@@ -6,7 +6,7 @@ import {
   buildClient
 } from '@aws-crypto/client-node'
 import { Hex, toBytes, toHex } from '@narval/policy-engine-shared'
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import crypto from 'crypto'
 import { Config } from '../../policy-engine.config'
@@ -22,7 +22,7 @@ const defaultEncryptionContext = {
 
 const { encrypt, decrypt } = buildClient(commitmentPolicy)
 @Injectable()
-export class EncryptionService implements OnApplicationBootstrap {
+export class EncryptionService {
   private logger = new Logger(EncryptionService.name)
 
   private configService: ConfigService<Config, true>
@@ -39,12 +39,12 @@ export class EncryptionService implements OnApplicationBootstrap {
     this.engineId = configService.get('engine.id', { infer: true })
   }
 
-  async onApplicationBootstrap(): Promise<void> {
-    this.logger.log('Keyring Service boot')
+  async setup(): Promise<void> {
+    this.logger.log('Set up keyring')
     const keyringConfig = this.configService.get('keyring', { infer: true })
 
     // We have a Raw Keyring, so we are using a MasterPassword/KEK+MasterKey for encryption
-    if (keyringConfig.masterPassword && !keyringConfig.masterAwsKmsArn) {
+    if (keyringConfig.type === 'raw') {
       const engine = await this.encryptionRepository.getEngine(this.engineId)
       let encryptedMasterKey = engine?.masterKey
 
@@ -72,7 +72,7 @@ export class EncryptionService implements OnApplicationBootstrap {
       this.keyring = keyring
     }
     // We have AWS KMS config so we'll use that instead as the MasterKey, which means we don't need a KEK separately
-    else if (keyringConfig.masterAwsKmsArn && !keyringConfig.masterPassword) {
+    else if (keyringConfig.type === 'awskms') {
       const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.masterAwsKmsArn })
       this.keyring = keyring
     } else {
