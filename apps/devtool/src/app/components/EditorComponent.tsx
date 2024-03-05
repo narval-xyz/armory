@@ -4,21 +4,32 @@ import Editor from '@monaco-editor/react'
 import { signMessage } from '@wagmi/core'
 import axios from 'axios'
 import Image from 'next/image'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { config } from './config'
-import example from './data.json'
 
 const EditorComponent = () => {
   const account = useAccount()
   const { connectors, connect } = useConnect()
   const { disconnect } = useDisconnect()
 
-  const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
+  const [data, setData] = useState<string>()
   const [displayLink, setDisplayLink] = useState(false)
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (data) return
+
+    const getData = async () => {
+      const dataStore = await axios.get('/api/data-store')
+      const { entity, policy } = dataStore.data
+      setData(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
+    }
+
+    getData()
+  }, [data])
 
   const sign = async () => {
     if (!data) return
