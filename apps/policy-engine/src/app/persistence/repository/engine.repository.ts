@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
 import { engineSchema } from '../../../shared/schema/engine.schema'
-import { Engine } from '../../../shared/types/domain.type'
+import { Engine } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class EngineRepository {

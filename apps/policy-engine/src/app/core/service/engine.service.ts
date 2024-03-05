@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../policy-engine.config'
-import { Engine } from '../../../shared/types/domain.type'
+import { Engine } from '../../../shared/type/domain.type'
 import { EngineRepository } from '../../persistence/repository/engine.repository'
 import { EngineNotProvisionedException } from '../exception/engine-not-provisioned.exception'
 

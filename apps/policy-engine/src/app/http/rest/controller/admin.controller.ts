@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common'
-import { SetPolicyRulesRequest } from '../../../../shared/types/policy.type'
-import { AdminService } from '../../../core/admin.service'
+import { SetPolicyRulesRequest } from '../../../../shared/type/policy.type'
+import { AdminService } from '../../../core/service/admin.service'
 import { SetPolicyRulesRequestDto } from '../dto/policy-rules/set-policy-rules-request.dto'
 import { SetPolicyRulesResponseDto } from '../dto/policy-rules/set-policy-rules-response.dto'
 

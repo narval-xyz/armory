@@ -29,7 +29,7 @@ import {
   Policy,
   PolicyCriterion,
   Then
-} from '../../shared/types/policy.type'
+} from '../../shared/type/policy.type'
 
 type LegacyPolicy = { [key: string]: string | null }
 

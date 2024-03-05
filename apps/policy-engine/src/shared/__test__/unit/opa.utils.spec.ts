@@ -7,7 +7,7 @@ import {
   NonceRequiredCriterion,
   Then,
   WalletAddressCriterion
-} from '../../types/policy.type'
+} from '../../type/policy.type'
 import { criterionToString, reasonToString } from '../../utils/opa.utils'
 
 describe('criterionToString', () => {

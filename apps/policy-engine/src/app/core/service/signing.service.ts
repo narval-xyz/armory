@@ -3,7 +3,7 @@ import { Alg, Curves, KeyTypes, Use } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { publicKeyToAddress } from 'viem/utils'
-import { EncryptionService } from '../../encryption/core/encryption.service'
+import { EncryptionService } from '../../../encryption/core/encryption.service'
 
 // Optional additional configs, such as for MPC-based DKG.
 type KeyGenerationOptions = {

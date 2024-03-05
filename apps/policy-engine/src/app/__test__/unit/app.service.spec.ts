@@ -1,5 +1,5 @@
 import { Decision, EntityType } from '@narval/policy-engine-shared'
-import { OpaResult } from '../../../shared/types/rego'
+import { OpaResult } from '../../../shared/type/rego'
 import { finalizeDecision } from '../../app.service'
 
 describe('finalizeDecision', () => {
