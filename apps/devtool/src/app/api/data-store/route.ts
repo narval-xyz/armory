@@ -1,7 +1,15 @@
+import { existsSync } from 'fs'
 import { JSONFilePreset } from 'lowdb/node'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import init from './init.json'
 
 export const GET = async (req: NextApiRequest, res: NextApiResponse) => {
+  const storageExists = existsSync('./storage.json')
+
+  if (!storageExists) {
+    return new Response(JSON.stringify(init))
+  }
+
   const db = await JSONFilePreset('./storage.json', {
     entity: { signature: '', data: {} },
     policy: { signature: '', data: [] }
