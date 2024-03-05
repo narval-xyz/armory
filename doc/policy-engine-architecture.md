@@ -11,12 +11,12 @@ columns 1
   end
   space
   block:Storage
-    StorageBackend["Storage Backend"] 
+    StorageBackend["Storage Backend"]
     PolicyStore["Policy Store"]
     EntityStore["Entity Store"]
   end
   Core -- "evaluates" --> OPA
-  Engine -- "reads/writes" --> StorageBackend 
+  Engine -- "reads/writes" --> StorageBackend
   Engine -- "reads" --> PolicyStore
   Engine -- "reads" --> EntityStore
 ```

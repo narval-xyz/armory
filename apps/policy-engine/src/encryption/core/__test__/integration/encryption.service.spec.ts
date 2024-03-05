@@ -53,6 +53,8 @@ describe('EncryptionService', () => {
     service = module.get<EncryptionService>(EncryptionService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
+    await testPrismaService.truncateAll()
+
     if (service.onApplicationBootstrap) {
       await service.onApplicationBootstrap()
     }
@@ -71,6 +73,7 @@ describe('EncryptionService', () => {
         id: 'local-dev-engine-instance-1'
       }
     })
+
     expect(engine?.masterKey).toBeDefined()
   })
 })

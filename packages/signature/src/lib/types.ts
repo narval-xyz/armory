@@ -22,7 +22,7 @@ export const Alg = {
 
 export type Alg = (typeof Alg)[keyof typeof Alg]
 
-export const Use  = {
+export const Use = {
   SIG: 'sig',
   ENC: 'enc'
 } as const
