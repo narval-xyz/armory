@@ -1,4 +1,4 @@
-import { Alg, KeyTypes, Curves } from './types'
+import { Alg, Curves, KeyTypes } from './types'
 
 export const algToJwk = (
   alg: Alg

@@ -7,9 +7,12 @@ import {
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
 import { z } from 'zod'
+import { engineSchema } from '../schema/engine.schema'
 import { tenantSchema } from '../schema/tenant.schema'
 
 export type Tenant = z.infer<typeof tenantSchema>
+
+export type Engine = z.infer<typeof engineSchema>
 
 export type RegoInput = {
   action: Action

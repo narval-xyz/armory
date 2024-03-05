@@ -1,5 +1,9 @@
 import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
+import { mock } from 'jest-mock-extended'
+import { EncryptionService } from '../../../../../encryption/core/encryption.service'
+import { EncryptionModule } from '../../../../../encryption/encryption.module'
+import { EncryptionRepository } from '../../../../../encryption/persistence/repository/encryption.repository'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
@@ -13,16 +17,35 @@ describe(TenantRepository.name, () => {
   beforeEach(async () => {
     inMemoryKeyValueRepository = new InMemoryKeyValueRepository()
 
+    const encryptionRepository = mock<EncryptionRepository>()
+    encryptionRepository.getEngine.mockResolvedValue({
+      id: 'test-engine',
+      masterKey: 'unsafe-test-master-key',
+      adminApiKey: 'unsafe-test-api-key'
+    })
+
     const module = await Test.createTestingModule({
+      imports: [EncryptionModule],
       providers: [
         KeyValueService,
         TenantRepository,
+        {
+          provide: EncryptionRepository,
+          useValue: encryptionRepository
+        },
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
         }
       ]
     }).compile()
+
+    // IMPORTANT: The onApplicationBootstrap performs several side-effects to
+    // set up the encryption.
+    //
+    // TODO: Refactor the encryption service. It MUST be ready for usage given
+    // its arguments rather than depending on a set up step.
+    await module.get<EncryptionService>(EncryptionService).onApplicationBootstrap()
 
     repository = module.get<TenantRepository>(TenantRepository)
   })

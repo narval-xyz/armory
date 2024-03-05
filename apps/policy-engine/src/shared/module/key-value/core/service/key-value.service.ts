@@ -19,21 +19,25 @@ export class KeyValueService {
   ) {}
 
   async get(key: string): Promise<string | null> {
-    const encryptedValue = await this.keyValueRepository.get(key)
+    // const encryptedValue = await this.keyValueRepository.get(key)
 
-    if (encryptedValue) {
-      const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue, 'hex'))
+    // if (encryptedValue) {
+    //   const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue, 'hex'))
 
-      return value.toString()
-    }
+    //   return value.toString()
+    // }
 
-    return null
+    // return null
+
+    return this.keyValueRepository.get(key)
   }
 
   async set(key: string, value: string): Promise<boolean> {
-    const encryptedValue = await this.encryptionService.encrypt(value)
+    // const encryptedValue = await this.encryptionService.encrypt(value)
 
-    return this.keyValueRepository.set(key, encryptedValue.toString('hex'))
+    // return this.keyValueRepository.set(key, encryptedValue.toString('hex'))
+
+    return this.keyValueRepository.set(key, value)
   }
 
   async delete(key: string): Promise<boolean> {

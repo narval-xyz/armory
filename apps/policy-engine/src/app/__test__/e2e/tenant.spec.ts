@@ -8,12 +8,14 @@ import { EncryptionService } from '../../../encryption/core/encryption.service'
 import { load } from '../../../policy-engine.config'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { CreateTenantDto } from '../../http/rest/dto/create-tenant.dto'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
 
 describe('Tenant', () => {
   let app: INestApplication
   let module: TestingModule
+  let testPrismaService: TestPrismaService
   let tenantRepository: TenantRepository
   let encryptionService: EncryptionService
 
@@ -34,17 +36,22 @@ describe('Tenant', () => {
     app = module.createNestApplication()
 
     tenantRepository = module.get<TenantRepository>(TenantRepository)
+    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     encryptionService = module.get<EncryptionService>(EncryptionService)
+
+    await module.get<EncryptionService>(EncryptionService).onApplicationBootstrap()
 
     await app.init()
   })
 
   afterAll(async () => {
+    await testPrismaService.truncateAll()
     await module.close()
     await app.close()
   })
 
   beforeEach(async () => {
+    await testPrismaService.truncateAll()
     await encryptionService.onApplicationBootstrap()
   })
 
