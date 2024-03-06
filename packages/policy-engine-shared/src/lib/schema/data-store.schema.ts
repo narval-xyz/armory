@@ -6,7 +6,7 @@ export const jsonWebKeySchema = z.object({
   kty: z.enum(['EC', 'RSA']).describe('Key Type (e.g. RSA or EC'),
   crv: z.enum(['P-256', 'secp256k1']).optional().describe('Curve name'),
   kid: z.string().describe('Unique key ID'),
-  alg: z.string().describe('Algorithm'),
+  alg: z.enum(['ES256K', 'ES256', 'RS256']).describe('Algorithm'),
   use: z.enum(['sig', 'enc']).optional().describe('Public Key Use'),
   n: z.string().optional().describe('(RSA) Key modulus'),
   e: z.string().optional().describe('(RSA) Key exponent'),

@@ -8,6 +8,7 @@ import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { EngineService } from './core/service/engine.service'
+import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { OpaService } from './opa/opa.service'
@@ -31,6 +32,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     OpaService,
     EngineRepository,
     EngineService,
+    SigningService,
     EntityRepository,
     TenantRepository,
     TenantService,
