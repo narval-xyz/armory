@@ -79,5 +79,11 @@ describe(TenantRepository.name, () => {
       expect(value).not.toEqual(null)
       expect(tenant).toEqual(actualTenant)
     })
+
+    it('indexes the new tenant', async () => {
+      await repository.create(tenant)
+
+      expect(await repository.getTenantIndex()).toEqual([tenant.clientId])
+    })
   })
 })
