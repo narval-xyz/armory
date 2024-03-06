@@ -44,6 +44,6 @@ export class FileSystemDataStoreRepository implements DataStoreRepository {
   }
 
   private getPath(url: string): string {
-    return url.replace('file:', '')
+    return url.replace('file://', '')
   }
 }
