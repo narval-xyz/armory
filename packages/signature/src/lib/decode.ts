@@ -28,11 +28,7 @@ export function decode(rawToken: string): Jwt {
 
     return {
       header,
-      payload: {
-        ...payload,
-        iat: new Date(payload.iat * 1000),
-        exp: new Date(payload.exp * 1000)
-      },
+      payload,
       signature: parts[2]
     }
   } catch (error) {

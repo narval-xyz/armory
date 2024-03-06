@@ -160,6 +160,11 @@ export type ApprovalRequirement = {
   countPrincipal: boolean
 }
 
+export type AccessToken = {
+  value: string // JWT
+  // could include a key-proof
+}
+
 export type EvaluationResponse = {
   decision: Decision
   request?: Request
@@ -168,7 +173,8 @@ export type EvaluationResponse = {
     missing: ApprovalRequirement[]
     satisfied: ApprovalRequirement[]
   }
-  attestation?: Signature
+  attestation?: Signature // @deprecated, use AccessToken
+  accessToken?: AccessToken
   transactionRequestIntent?: unknown
 }
 // DOMAIN

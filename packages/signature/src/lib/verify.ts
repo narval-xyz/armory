@@ -32,7 +32,7 @@ const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
 
     const token = decode(jwt)
 
-    const now = new Date()
+    const now = Math.floor(Date.now() / 1000)
     if (token.payload.exp && token.payload.exp < now) {
       throw new JwtError({ message: 'Token has expired', context: { rawToken: jwt } })
     }
