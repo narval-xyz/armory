@@ -1,7 +1,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
-import { Alg, Curves, Hex, JWK, KeyTypes, Use } from './types'
+import { Alg, Curves, Hex, JWK, KeyTypes } from './types'
 
 export const algToJwk = (
   alg: Alg
@@ -64,8 +64,21 @@ export function base64ToBase64Url(base64: string): string {
   return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
 }
 
+export function base64UrlToBase64(base64Url: string): string {
+  return base64Url.replace(/-/g, '+').replace(/_/g, '/')
+}
+
 export const hexToBase64Url = (hex: Hex): string => {
   const base64Signature = Buffer.from(hex.slice(2), 'hex').toString('base64')
 
   return base64ToBase64Url(base64Signature)
+}
+
+export const base64UrlToHex = (base64Url: string): Hex => {
+  const base64Signature = base64UrlToBase64(base64Url)
+  return `0x${Buffer.from(base64Signature, 'base64').toString('hex')}`
+}
+
+export const base64UrlToBytes = (base64Url: string): Buffer => {
+  return Buffer.from(base64UrlToBase64(base64Url), 'base64')
 }

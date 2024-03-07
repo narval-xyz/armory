@@ -19,7 +19,7 @@ export async function signJwt(
     typ: 'JWT'
   }
 
-  if (header.alg === SigningAlg.ES256K || header.alg === SigningAlg.EIP191) {
+  if (header.alg === SigningAlg.EIP191) {
     if (!signer) {
       throw new Error('Missing signer')
     }
