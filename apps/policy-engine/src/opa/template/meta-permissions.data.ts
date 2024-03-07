@@ -1,5 +1,4 @@
-import { Action, EntityType, UserRole } from '@narval/policy-engine-shared'
-import { Criterion, Policy, Then } from '../../shared/type/policy.type'
+import { Action, Criterion, EntityType, Policy, Then, UserRole } from '@narval/policy-engine-shared'
 
 const metaPermissions = [
   Action.CREATE_ORGANIZATION,

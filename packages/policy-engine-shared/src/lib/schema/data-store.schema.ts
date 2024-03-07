@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { entitiesSchema } from './entity.schema'
+import { policySchema } from './policy.schema'
 
 export const jsonWebKeySchema = z.object({
   kty: z.enum(['EC', 'RSA']).describe('Key Type (e.g. RSA or EC'),
@@ -22,26 +23,43 @@ export const dataStoreConfigurationSchema = z.object({
   keys: z.array(jsonWebKeySchema)
 })
 
-export const entityDataSchema = z
-  .object({
-    entity: z.object({
-      data: entitiesSchema
-    })
-  })
-  .describe('Entity data')
+export const dataStoreSchema = z.object({
+  entity: dataStoreConfigurationSchema,
+  policy: dataStoreConfigurationSchema
+})
 
-export const entitySignatureSchema = z
-  .object({
-    entity: z.object({
-      signature: z.string()
-    })
+export const entityDataSchema = z.object({
+  entity: z.object({
+    data: entitiesSchema
   })
-  .describe('Entity data signature')
+})
 
-export const entityJsonWebKeySetSchema = z
-  .object({
-    entity: z.object({
-      keys: z.array(jsonWebKeySchema)
-    })
+export const entitySignatureSchema = z.object({
+  entity: z.object({
+    signature: z.string()
   })
-  .describe('Entity JWKS')
+})
+
+export const entityJsonWebKeysSchema = z.object({
+  entity: z.object({
+    keys: z.array(jsonWebKeySchema)
+  })
+})
+
+export const policyDataSchema = z.object({
+  policy: z.object({
+    data: z.array(policySchema)
+  })
+})
+
+export const policySignatureSchema = z.object({
+  policy: z.object({
+    signature: z.string()
+  })
+})
+
+export const policyJsonWebKeysSchema = z.object({
+  policy: z.object({
+    keys: z.array(jsonWebKeySchema)
+  })
+})
