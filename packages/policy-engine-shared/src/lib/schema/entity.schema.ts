@@ -2,11 +2,24 @@ import { Alg } from '@narval/signature'
 import { z } from 'zod'
 import { addressSchema } from './address.schema'
 
-export const userRoleSchema = z.enum(['ROOT', 'ADMIN', 'MEMBER', 'MANAGER'])
+export const userRoleSchema = z.nativeEnum({
+  ROOT: 'root',
+  ADMIN: 'admin',
+  MEMBER: 'member',
+  MANAGER: 'manager'
+} as const)
 
-export const accountTypeSchema = z.enum(['EOA', '4337'])
+export const accountTypeSchema = z.nativeEnum({
+  EOA: 'eoa',
+  AA: '4337'
+} as const)
 
-export const accountClassificationSchema = z.enum(['EXTERNAL', 'COUNTERPARTY', 'INTERNAL', 'WALLET'])
+export const accountClassificationSchema = z.nativeEnum({
+  EXTERNAL: 'external',
+  COUNTERPARTY: 'counterparty',
+  INTERNAL: 'internal',
+  WALLET: 'wallet'
+} as const)
 
 export const credentialEntitySchema = z.object({
   id: z.string(),

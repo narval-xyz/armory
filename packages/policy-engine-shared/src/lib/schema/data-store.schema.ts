@@ -22,20 +22,26 @@ export const dataStoreConfigurationSchema = z.object({
   keys: z.array(jsonWebKeySchema)
 })
 
-export const entityDataSchema = z.object({
-  entity: z.object({
-    data: entitiesSchema
+export const entityDataSchema = z
+  .object({
+    entity: z.object({
+      data: entitiesSchema
+    })
   })
-})
+  .describe('Entity data')
 
-export const entitySignatureSchema = z.object({
-  entity: z.object({
-    signature: z.string()
+export const entitySignatureSchema = z
+  .object({
+    entity: z.object({
+      signature: z.string()
+    })
   })
-})
+  .describe('Entity data signature')
 
-export const entityJsonWebKeySetSchema = z.object({
-  entity: z.object({
-    keys: z.array(jsonWebKeySchema)
+export const entityJsonWebKeySetSchema = z
+  .object({
+    entity: z.object({
+      keys: z.array(jsonWebKeySchema)
+    })
   })
-})
+  .describe('Entity JWKS')

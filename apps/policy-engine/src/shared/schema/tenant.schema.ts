@@ -11,3 +11,5 @@ export const tenantSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date()
 })
+
+export const tenantIndexSchema = z.array(z.string())

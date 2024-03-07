@@ -64,11 +64,11 @@ below to generate a project of your choice.
 
 ```bash
 # Generate an standard JavaScript library.
- npx nx g @nrwl/workspace:lib
- # Generate an NestJS library.
- npx nx g @nx/nest:library
- # Generate an NestJS application.
- npx nx g @nx/nest:application
+npx nx g @nrwl/workspace:lib
+# Generate an NestJS library.
+npx nx g @nx/nest:library
+# Generate an NestJS application.
+npx nx g @nx/nest:application
 ```
 
 For more information about code generation, please refer to the [NX
