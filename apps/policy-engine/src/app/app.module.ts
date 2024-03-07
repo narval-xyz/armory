@@ -7,10 +7,8 @@ import { load } from '../policy-engine.config'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { AdminService } from './core/service/admin.service'
 import { EngineService } from './core/service/engine.service'
 import { TenantService } from './core/service/tenant.service'
-import { AdminController } from './http/rest/controller/admin.controller'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { OpaService } from './opa/opa.service'
 import { EngineRepository } from './persistence/repository/engine.repository'
@@ -27,10 +25,9 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     EncryptionModule,
     KeyValueModule
   ],
-  controllers: [AppController, AdminController, TenantController],
+  controllers: [AppController, TenantController],
   providers: [
     AppService,
-    AdminService,
     OpaService,
     EngineRepository,
     EngineService,
