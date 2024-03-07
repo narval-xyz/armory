@@ -15,11 +15,9 @@ export const jsonWebKeySchema = z.object({
   d: z.string().optional().describe('(EC) Private Key')
 })
 
-export const dataStoreProtocolSchema = z.enum(['file'])
-
 export const dataStoreConfigurationSchema = z.object({
-  dataUrl: z.string(),
-  signatureUrl: z.string(),
+  dataUrl: z.string().min(1),
+  signatureUrl: z.string().min(1),
   keys: z.array(jsonWebKeySchema)
 })
 
@@ -36,7 +34,7 @@ export const entityDataSchema = z.object({
 
 export const entitySignatureSchema = z.object({
   entity: z.object({
-    signature: z.string()
+    signature: z.string().min(1)
   })
 })
 
@@ -44,6 +42,11 @@ export const entityJsonWebKeysSchema = z.object({
   entity: z.object({
     keys: z.array(jsonWebKeySchema)
   })
+})
+
+export const entityStoreSchema = z.object({
+  data: entitiesSchema,
+  signature: z.string().min(1)
 })
 
 export const policyDataSchema = z.object({
@@ -54,7 +57,7 @@ export const policyDataSchema = z.object({
 
 export const policySignatureSchema = z.object({
   policy: z.object({
-    signature: z.string()
+    signature: z.string().min(1)
   })
 })
 
@@ -62,4 +65,9 @@ export const policyJsonWebKeysSchema = z.object({
   policy: z.object({
     keys: z.array(jsonWebKeySchema)
   })
+})
+
+export const policyStoreSchema = z.object({
+  data: z.array(policySchema),
+  signature: z.string().min(1)
 })
