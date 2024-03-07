@@ -35,14 +35,18 @@ export const algToJwk = (
 
 // ES256k
 export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
+  // remove the 0x04 prefix -- 04 means it's an uncompressed ECDSA key, 02 or 03 means compressed -- these need to be removed in a JWK!
+  const hexPubKey = publicKey.slice(4)
+  const x = hexPubKey.slice(0, 64)
+  const y = hexPubKey.slice(64)
   return {
     kty: KeyTypes.EC,
     crv: Curves.SECP256K1,
     alg: Alg.ES256K,
     // use: Use.SIG,
     kid: keyId || publicKeyToAddress(publicKey), // add an opaque prefix that indicates the key type
-    x: hexToBase64Url(`0x${publicKey.slice(2, 66)}`),
-    y: hexToBase64Url(`0x${publicKey.slice(66)}`)
+    x: hexToBase64Url(`0x${x}`),
+    y: hexToBase64Url(`0x${y}`)
   }
 }
 
@@ -52,7 +56,7 @@ export const privateKeyToJwk = (privateKey: Hex, keyId?: string): JWK => {
   const publicJwk = publicKeyToJwk(publicKey, keyId)
   return {
     ...publicJwk,
-    d: hexToBase64Url(`0x${privateKey.slice(2)}`)
+    d: hexToBase64Url(privateKey)
   }
 }
 

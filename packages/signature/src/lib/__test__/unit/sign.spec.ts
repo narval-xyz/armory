@@ -1,14 +1,17 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, importPKCS8, jwtVerify } from 'jose'
-import { verifyMessage } from 'viem'
-import { signMessage } from 'viem/accounts'
+import { createPublicKey } from 'node:crypto'
+
+import { toHex, verifyMessage } from 'viem'
+import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
 import { Alg, JWK, Payload } from '../../types'
+import { privateKeyToJwk } from '../../utils'
 import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
 
 describe('sign', () => {
-  it('should sign build & sign es256 JWT correcty', async () => {
+  it('should sign build & sign es256 JWT correctly with a PEM', async () => {
     const payload: Payload = {
       requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       sub: 'test-root-user-uid',
@@ -103,5 +106,22 @@ describe('sign', () => {
         y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
       }
     })
+  })
+
+  // This is testing that we can turn a private key into a JWK, and the way we know it's a "correct" JWK is by using the `createPublicKey` function from node's crypto module. If it throws an error, that means it's not a valid JWK
+  it('should make keyobject', async () => {
+    const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+    const publicKey = secp256k1.getPublicKey(ENGINE_PRIVATE_KEY, false)
+    const viemPubKey = privateKeyToAccount(`0x${ENGINE_PRIVATE_KEY}`).publicKey
+    expect(toHex(publicKey)).toBe(viemPubKey) // Confirm that our key is in fact the same as what viem would give.
+
+    const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+
+    const k = await createPublicKey({
+      format: 'jwk',
+      key: jwk
+    })
+
+    expect(k).toBeDefined()
   })
 })
