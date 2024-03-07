@@ -1,101 +1,54 @@
-import { Alg } from '@narval/signature'
-import { Address } from './domain.type'
+import { z } from 'zod'
+import {
+  accountClassificationSchema,
+  accountTypeSchema,
+  addressBookAccountEntitySchema,
+  credentialEntitySchema,
+  entitiesSchema,
+  organizationEntitySchema,
+  tokenEntitySchema,
+  userEntitySchema,
+  userGroupEntitySchema,
+  userGroupMemberEntitySchema,
+  userRoleSchema,
+  userWalletEntitySchema,
+  walletEntitySchema,
+  walletGroupEntitySchema,
+  walletGroupMemberEntitySchema
+} from '../schema/entity.schema'
 
-export const UserRole = {
-  ROOT: 'root',
-  ADMIN: 'admin',
-  MEMBER: 'member',
-  MANAGER: 'manager'
-} as const
+export const UserRole = userRoleSchema.enum
 
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+export type UserRole = z.infer<typeof userRoleSchema>
 
-export const AccountType = {
-  EOA: 'eoa',
-  AA: '4337'
-} as const
+export const AccountType = accountTypeSchema.enum
 
-export type AccountType = (typeof AccountType)[keyof typeof AccountType]
+export type AccountType = z.infer<typeof accountTypeSchema>
 
-export const AccountClassification = {
-  EXTERNAL: 'external',
-  COUNTERPARTY: 'counterparty',
-  INTERNAL: 'internal',
-  WALLET: 'wallet'
-} as const
+export const AccountClassification = accountClassificationSchema.enum
 
-export type AccountClassification = (typeof AccountClassification)[keyof typeof AccountClassification]
+export type AccountClassification = z.infer<typeof accountClassificationSchema>
 
-export type CredentialEntity = {
-  id: string
-  pubKey: string
-  alg: Alg
-  userId: string
-}
+export type CredentialEntity = z.infer<typeof credentialEntitySchema>
 
-export type OrganizationEntity = {
-  id: string
-}
+export type OrganizationEntity = z.infer<typeof organizationEntitySchema>
 
-export type UserEntity = {
-  id: string
-  role: UserRole
-}
+export type UserEntity = z.infer<typeof userEntitySchema>
 
-export type UserGroupEntity = {
-  id: string
-}
+export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
 
-export type UserWalletEntity = {
-  userId: string
-  walletId: string
-}
+export type UserWalletEntity = z.infer<typeof userWalletEntitySchema>
 
-export type UserGroupMemberEntity = {
-  userId: string
-  groupId: string
-}
+export type UserGroupMemberEntity = z.infer<typeof userGroupMemberEntitySchema>
 
-export type WalletEntity = {
-  id: string
-  address: Address
-  accountType: AccountType
-  chainId?: number
-}
+export type WalletEntity = z.infer<typeof walletEntitySchema>
 
-export type WalletGroupEntity = {
-  id: string
-}
+export type WalletGroupEntity = z.infer<typeof walletGroupEntitySchema>
 
-export type WalletGroupMemberEntity = {
-  walletId: string
-  groupId: string
-}
+export type WalletGroupMemberEntity = z.infer<typeof walletGroupMemberEntitySchema>
 
-export type AddressBookAccountEntity = {
-  id: string
-  address: Address
-  chainId: number
-  classification: AccountClassification
-}
+export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 
-export type TokenEntity = {
-  id: string
-  address: Address
-  symbol: string
-  chainId: number
-  decimals: number
-}
+export type TokenEntity = z.infer<typeof tokenEntitySchema>
 
-export type Entities = {
-  addressBook: AddressBookAccountEntity[]
-  credentials: CredentialEntity[]
-  tokens: TokenEntity[]
-  userGroupMembers: UserGroupMemberEntity[]
-  userGroups: UserGroupEntity[]
-  userWallets: UserWalletEntity[]
-  users: UserEntity[]
-  walletGroupMembers: WalletGroupMemberEntity[]
-  walletGroups: WalletGroupEntity[]
-  wallets: WalletEntity[]
-}
+export type Entities = z.infer<typeof entitiesSchema>
