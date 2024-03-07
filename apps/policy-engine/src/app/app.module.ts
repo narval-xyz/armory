@@ -7,12 +7,16 @@ import { load } from '../policy-engine.config'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
+import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
 import { TenantService } from './core/service/tenant.service'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { OpaService } from './opa/opa.service'
 import { EngineRepository } from './persistence/repository/engine.repository'
 import { EntityRepository } from './persistence/repository/entity.repository'
+import { FileSystemDataStoreRepository } from './persistence/repository/file-system-data-store.repository'
+import { HttpDataStoreRepository } from './persistence/repository/http-data-store.repository'
 import { TenantRepository } from './persistence/repository/tenant.repository'
 
 @Module({
@@ -28,10 +32,14 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
   controllers: [AppController, TenantController],
   providers: [
     AppService,
-    OpaService,
+    DataStoreRepositoryFactory,
+    DataStoreService,
     EngineRepository,
     EngineService,
     EntityRepository,
+    FileSystemDataStoreRepository,
+    HttpDataStoreRepository,
+    OpaService,
     TenantRepository,
     TenantService,
     {
