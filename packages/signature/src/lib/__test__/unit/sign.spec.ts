@@ -1,33 +1,47 @@
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { exportJWK, importPKCS8, jwtVerify } from 'jose'
 import { verifyMessage } from 'viem'
 import { signMessage } from 'viem/accounts'
-import { buildSignerEip191, buildSignerEs256k, sign } from '../../sign'
-import { Alg, SignatureInput } from '../../types'
-import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM, REQUEST } from './mock'
+import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
+import { Alg, JWK, Payload } from '../../types'
+import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
 
 describe('sign', () => {
   it('should sign build & sign es256 JWT correcty', async () => {
-    const signingInput: SignatureInput = {
-      request: REQUEST,
-      privateKey: PRIVATE_KEY_PEM,
-      algorithm: Alg.ES256,
-      kid: 'test-kid',
-      iat: new Date('2024-12-11T00:00:00Z').getTime() / 1000,
-      exp: new Date('2024-12-12T00:00:00Z').getTime() / 1000
+    const payload: Payload = {
+      requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+      sub: 'test-root-user-uid',
+      iss: 'https://armory.narval.xyz',
+      cnf: {
+        kty: 'EC',
+        crv: 'secp256k1',
+        alg: 'ES256K',
+        use: 'sig',
+        kid: '0x000c0d191308A336356BEe3813CC17F6868972C4',
+        x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
+        y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
+      }
     }
-    const jwt = await sign(signingInput)
-    const parts = jwt.split('.')
-    expect(parts.length).toBe(3)
-    expect(parts[0]).toBe('eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Qta2lkIn0')
-    expect(parts[1]).toBe(
-      'eyJyZXF1ZXN0SGFzaCI6IjY4NjMxYmIyMmIxNzFkMjk2YTUyMmJiNmMzMjQ4MDU1NTk3YmY2M2VhYzJiYTk1ZjFmZDAyYTQ4YWUxZWRmOGMiLCJpYXQiOjE3MzM4NzUyMDAsImV4cCI6MTczMzk2MTYwMH0'
-    )
+
+    const key = await importPKCS8(PRIVATE_KEY_PEM, Alg.ES256)
+    const jwk = await exportJWK(key)
+    const jwt = await signJwt(payload, { ...jwk, alg: Alg.ES256 } as JWK)
+
+    const verified = await jwtVerify(jwt, key)
+    expect(verified.payload).toEqual(payload)
   })
 
   it('should sign ES256k correctly', async () => {
     const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+    const pubkey = secp256k1.getPublicKey(Buffer.from(ENGINE_PRIVATE_KEY, 'hex'), false)
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
     const signer = buildSignerEs256k(ENGINE_PRIVATE_KEY)
     const signature = await signer(message)
+    const msgHash = sha256Hash(message)
+
+    const isVerified = secp256k1.verify(Buffer.from(signature, 'base64'), msgHash, pubkey)
+    expect(isVerified).toBe(true)
 
     expect(signature).toBe('FFI6M5oFpbQqq0-xhe5DgPVHj4CKoVF4F3K3cg1MRY1COqWatQNsSn2MrqJ10BbGLe7i76KRMDj4biqnZkxwsw')
   })

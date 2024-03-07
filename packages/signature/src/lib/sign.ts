@@ -1,77 +1,17 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
-import { SignJWT, base64url, importPKCS8 } from 'jose'
-import { isHex, signatureToHex, toBytes, toHex } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { JwtError } from './error'
-import { hash } from './hash-request'
-import { Alg, EcdsaSignature, Header, JWK, Payload, SignatureInput, SigningAlg } from './types'
+import { SignJWT, base64url, importJWK } from 'jose'
+import { signatureToHex, toBytes, toHex } from 'viem'
+import { EcdsaSignature, Header, JWK, Payload, SigningAlg } from './types'
 import { hexToBase64Url } from './utils'
-
-const DEF_EXP_TIME = '2h'
-
-const eoaKeys = async (signingInput: SignatureInput): Promise<string> => {
-  const { request, privateKey, algorithm, kid, iat, exp } = signingInput
-
-  if (!isHex(privateKey)) {
-    throw new JwtError({ message: 'Invalid private key', context: { privateKey } })
-  }
-
-  const account = privateKeyToAccount(privateKey)
-  const iatNumeric = iat
-  const expNumeric = exp
-  const header = { alg: algorithm, kid }
-  const payload = {
-    requestHash: hash(request),
-    iat: iatNumeric,
-    exp: expNumeric
-  }
-
-  const encodedHeader = base64url.encode(JSON.stringify(header))
-  const encodedPayload = base64url.encode(JSON.stringify(payload))
-
-  const messageToSign = `${encodedHeader}.${encodedPayload}`
-  const signature = await account.signMessage({ message: messageToSign })
-
-  const completeJWT = `${messageToSign}.${base64url.encode(toBytes(signature))}`
-  return completeJWT
-}
-
-/**
- * Signs a request using the provided private key and algorithm.
- *
- * @param {SignatureInput} signingInput - The input required to sign a request.
- * @returns {Promise<string>} A promise that resolves with the signed JWT.
- */
-export async function sign(signingInput: SignatureInput): Promise<string> {
-  const { request, privateKey: pk, algorithm, kid, iat, exp } = signingInput
-
-  try {
-    if (isHex(pk) && algorithm === Alg.ES256K) {
-      return eoaKeys(signingInput)
-    }
-    const privateKey = await importPKCS8(pk, algorithm)
-    const requestHash = hash(request)
-
-    const jwt = await new SignJWT({ requestHash })
-      .setProtectedHeader({ alg: algorithm, kid })
-      .setIssuedAt(iat)
-      .setExpirationTime(exp || DEF_EXP_TIME)
-      .sign(privateKey)
-    return jwt
-  } catch (error) {
-    console.log(error);
-    throw new JwtError({ message: 'Failed to sign request.', context: { error } })
-  }
-}
 
 // WIP to replace `sign`
 export async function signJwt(
   payload: Payload,
   jwk: JWK,
-  opts: { alg?: SigningAlg },
-  signer: (payload: string) => Promise<string>
+  opts: { alg?: SigningAlg } = {},
+  signer?: (payload: string) => Promise<string>
 ): Promise<string> {
   const header: Header = {
     kid: jwk.kid,
@@ -79,15 +19,24 @@ export async function signJwt(
     typ: 'JWT'
   }
 
-  const encodedHeader = base64url.encode(JSON.stringify(header))
-  const encodedPayload = base64url.encode(JSON.stringify(payload))
+  if (header.alg === SigningAlg.ES256K || header.alg === SigningAlg.EIP191) {
+    if (!signer) {
+      throw new Error('Missing signer')
+    }
+    const encodedHeader = base64url.encode(JSON.stringify(header))
+    const encodedPayload = base64url.encode(JSON.stringify(payload))
 
-  const messageToSign = `${encodedHeader}.${encodedPayload}`
+    const messageToSign = `${encodedHeader}.${encodedPayload}`
 
-  const signature = await signer(messageToSign)
+    const signature = await signer(messageToSign)
 
-  const completeJWT = `${messageToSign}.${signature}`
-  return completeJWT
+    const completeJWT = `${messageToSign}.${signature}`
+    return completeJWT
+  }
+
+  const privateKey = await importJWK(jwk)
+  const jwt = await new SignJWT(payload).setProtectedHeader(header).sign(privateKey)
+  return jwt
 }
 
 export const signSecp256k1 = (hash: Uint8Array, privateKey: string, isEth?: boolean): EcdsaSignature => {

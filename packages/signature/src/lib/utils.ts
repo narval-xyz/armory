@@ -39,10 +39,10 @@ export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
     kty: KeyTypes.EC,
     crv: Curves.SECP256K1,
     alg: Alg.ES256K,
-    use: Use.SIG,
+    // use: Use.SIG,
     kid: keyId || publicKeyToAddress(publicKey), // add an opaque prefix that indicates the key type
-    x: publicKey.slice(2, 66),
-    y: publicKey.slice(66)
+    x: hexToBase64Url(`0x${publicKey.slice(2, 66)}`),
+    y: hexToBase64Url(`0x${publicKey.slice(66)}`)
   }
 }
 
@@ -52,7 +52,7 @@ export const privateKeyToJwk = (privateKey: Hex, keyId?: string): JWK => {
   const publicJwk = publicKeyToJwk(publicKey, keyId)
   return {
     ...publicJwk,
-    d: privateKey.slice(2)
+    d: hexToBase64Url(`0x${privateKey.slice(2)}`)
   }
 }
 
