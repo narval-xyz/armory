@@ -78,8 +78,8 @@ export type Header = {
  */
 export type Payload = {
   sub: string
-  iat: number
-  exp: number
+  iat?: number
+  exp?: number
   iss: string
   aud?: string
   jti?: string
