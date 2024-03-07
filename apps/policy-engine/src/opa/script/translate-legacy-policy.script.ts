@@ -1,24 +1,15 @@
 import {
   Action,
-  AssetType,
-  EntityType,
-  FiatCurrency,
-  UserRole,
-  ValueOperators,
-  toAccountId,
-  toAssetId
-} from '@narval/policy-engine-shared'
-import { Intents } from '@narval/transaction-request-intent'
-import axios from 'axios'
-import { Address, Hex } from 'viem'
-import {
   ActionCriterion,
   ApprovalCondition,
   ApprovalsCriterion,
+  AssetType,
   Criterion,
   DestinationAddressCriterion,
   ERC1155TokenIdCriterion,
   ERC721TokenIdCriterion,
+  EntityType,
+  FiatCurrency,
   IntentAmountCriterion,
   IntentContractCriterion,
   IntentDomainCriterion,
@@ -28,8 +19,15 @@ import {
   IntentTypeCriterion,
   Policy,
   PolicyCriterion,
-  Then
-} from '../../shared/type/policy.type'
+  Then,
+  UserRole,
+  ValueOperators,
+  toAccountId,
+  toAssetId
+} from '@narval/policy-engine-shared'
+import { Intents } from '@narval/transaction-request-intent'
+import axios from 'axios'
+import { Address, Hex } from 'viem'
 
 type LegacyPolicy = { [key: string]: string | null }
 

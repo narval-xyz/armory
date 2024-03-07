@@ -1,5 +1,5 @@
+import { Criterion, Policy, PolicyCriterion, Then } from '@narval/policy-engine-shared'
 import { isEmpty } from 'lodash'
-import { Criterion, Policy, PolicyCriterion, Then } from '../type/policy.type'
 
 export const criterionToString = (item: PolicyCriterion) => {
   const criterion: Criterion = item.criterion

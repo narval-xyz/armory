@@ -1,4 +1,12 @@
-import { DataStoreConfiguration, entityDataSchema, entitySignatureSchema } from '@narval/policy-engine-shared'
+import {
+  DataStoreConfiguration,
+  Entities,
+  Policy,
+  entityDataSchema,
+  entitySignatureSchema,
+  policyDataSchema,
+  policySignatureSchema
+} from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ZodObject, z } from 'zod'
 import { DataStoreException } from '../exception/data-store.exception'
@@ -8,16 +16,31 @@ import { DataStoreRepositoryFactory } from '../factory/data-store-repository.fac
 export class DataStoreService {
   constructor(private dataStoreRepositoryFactory: DataStoreRepositoryFactory) {}
 
-  async fetch(config: DataStoreConfiguration) {
-    const [entityData, entitySignature] = await Promise.all([
-      this.fetchByUrl(config.dataUrl, entityDataSchema),
-      this.fetchByUrl(config.signatureUrl, entitySignatureSchema)
+  async fetch(store: { entity: DataStoreConfiguration; policy: DataStoreConfiguration }): Promise<{
+    entity: {
+      data: Entities
+      signature: string
+    }
+    policy: {
+      data: Policy[]
+      signature: string
+    }
+  }> {
+    const [entityData, entitySignature, policyData, policySignature] = await Promise.all([
+      this.fetchByUrl(store.entity.dataUrl, entityDataSchema),
+      this.fetchByUrl(store.entity.signatureUrl, entitySignatureSchema),
+      this.fetchByUrl(store.policy.dataUrl, policyDataSchema),
+      this.fetchByUrl(store.policy.signatureUrl, policySignatureSchema)
     ])
 
     return {
       entity: {
         data: entityData.entity.data,
         signature: entitySignature.entity.signature
+      },
+      policy: {
+        data: policyData.policy.data,
+        signature: policySignature.policy.signature
       }
     }
   }

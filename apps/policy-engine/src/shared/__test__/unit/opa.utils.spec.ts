@@ -1,13 +1,14 @@
-import { EntityType, ValueOperators } from '@narval/policy-engine-shared'
 import {
   ApprovalsCriterion,
   Criterion,
   ERC1155TransfersCriterion,
+  EntityType,
   IntentAmountCriterion,
   NonceRequiredCriterion,
   Then,
+  ValueOperators,
   WalletAddressCriterion
-} from '../../type/policy.type'
+} from '@narval/policy-engine-shared'
 import { criterionToString, reasonToString } from '../../utils/opa.utils'
 
 describe('criterionToString', () => {

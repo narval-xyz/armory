@@ -1,4 +1,13 @@
-import { DataStoreConfiguration, EntityData, EntitySignature, FIXTURE } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Criterion,
+  EntityData,
+  EntitySignature,
+  FIXTURE,
+  PolicyData,
+  PolicySignature,
+  Then
+} from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
@@ -14,15 +23,35 @@ describe(DataStoreService.name, () => {
 
   const remoteDataStoreUrl = 'http://9.9.9.9:9000'
 
-  const entityDataStore: EntityData = {
+  const entityData: EntityData = {
     entity: {
       data: FIXTURE.ENTITIES
     }
   }
 
-  const entitySignatureStore: EntitySignature = {
+  const policyData: PolicyData = {
+    policy: {
+      data: [
+        {
+          then: Then.PERMIT,
+          name: 'test-policy',
+          when: [
+            {
+              criterion: Criterion.CHECK_ACTION,
+              args: [Action.SIGN_TRANSACTION]
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+  const signatureStore: EntitySignature & PolicySignature = {
     entity: {
-      signature: 'test-signature'
+      signature: 'test-entity-signature'
+    },
+    policy: {
+      signature: 'test-policy-signature'
     }
   }
 
@@ -37,20 +66,34 @@ describe(DataStoreService.name, () => {
 
   describe('fetch', () => {
     it('fetches data and signature from distinct stores', async () => {
-      nock(remoteDataStoreUrl).get('/').reply(HttpStatus.OK, entityDataStore)
+      nock(remoteDataStoreUrl).get('/entity').reply(HttpStatus.OK, entityData)
+      nock(remoteDataStoreUrl).get('/policy').reply(HttpStatus.OK, policyData)
 
-      await withTempJsonFile(JSON.stringify(entitySignatureStore), async (path) => {
+      await withTempJsonFile(JSON.stringify(signatureStore), async (path) => {
         const url = `file://${path}`
-        const config: DataStoreConfiguration = {
-          dataUrl: remoteDataStoreUrl,
-          signatureUrl: url,
-          keys: []
+        const store = {
+          entity: {
+            dataUrl: `${remoteDataStoreUrl}/entity`,
+            signatureUrl: url,
+            keys: []
+          },
+          policy: {
+            dataUrl: `${remoteDataStoreUrl}/policy`,
+            signatureUrl: url,
+            keys: []
+          }
         }
 
-        const { entity } = await service.fetch(config)
+        const { entity, policy } = await service.fetch(store)
 
-        expect(entity.data).toEqual(entityDataStore.entity.data)
-        expect(entity.signature).toEqual(entitySignatureStore.entity.signature)
+        expect(entity).toEqual({
+          data: entityData.entity.data,
+          signature: signatureStore.entity.signature
+        })
+        expect(policy).toEqual({
+          data: policyData.policy.data,
+          signature: signatureStore.policy.signature
+        })
       })
     })
   })
