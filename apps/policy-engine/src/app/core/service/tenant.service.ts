@@ -18,7 +18,7 @@ export class TenantService {
     return this.tenantRepository.findByClientId(clientId)
   }
 
-  async save(tenant: Tenant): Promise<Tenant> {
+  async onboard(tenant: Tenant): Promise<Tenant> {
     const exists = await this.tenantRepository.findByClientId(tenant.clientId)
 
     if (exists) {
@@ -34,13 +34,13 @@ export class TenantService {
       const hasSynced = await this.syncDataStore(tenant.clientId)
 
       if (!hasSynced) {
-        this.logger.warn('Failed to sync tenant data store after save')
+        this.logger.warn('Failed to sync new tenant data store during the onboard')
       }
 
       return tenant
     } catch (error) {
       throw new ApplicationException({
-        message: 'Failed to save tenant',
+        message: 'Failed to onboard new tenant',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         origin: error,
         context: { tenant }

@@ -14,7 +14,7 @@ export class TenantController {
   async create(@Body() body: CreateTenantDto) {
     const now = new Date()
 
-    const tenant = await this.tenantService.save({
+    const tenant = await this.tenantService.onboard({
       clientId: body.clientId || uuid(),
       clientSecret: randomBytes(42).toString('hex'),
       dataStore: {
