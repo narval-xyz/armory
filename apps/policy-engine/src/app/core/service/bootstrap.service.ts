@@ -30,7 +30,7 @@ export class BootstrapService {
         updatedAt: new Date()
       },
       // Disable sync after the onboard because we'll sync it as part of the boot.
-      { syncAfter: true }
+      { syncAfter: false }
     )
 
     await this.syncTenants()
