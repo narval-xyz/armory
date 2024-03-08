@@ -113,8 +113,6 @@ export class OpaService implements OnApplicationBootstrap {
       }
     }
 
-    this.logger.log('Fetched OPA Engine data', data)
-
     return data
   }
 
