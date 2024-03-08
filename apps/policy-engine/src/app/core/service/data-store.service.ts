@@ -1,7 +1,7 @@
 import {
   DataStoreConfiguration,
-  Entities,
-  Policy,
+  EntityStore,
+  PolicyStore,
   entityDataSchema,
   entitySignatureSchema,
   policyDataSchema,
@@ -17,14 +17,8 @@ export class DataStoreService {
   constructor(private dataStoreRepositoryFactory: DataStoreRepositoryFactory) {}
 
   async fetch(store: { entity: DataStoreConfiguration; policy: DataStoreConfiguration }): Promise<{
-    entity: {
-      data: Entities
-      signature: string
-    }
-    policy: {
-      data: Policy[]
-      signature: string
-    }
+    entity: EntityStore
+    policy: PolicyStore
   }> {
     const [entityData, entitySignature, policyData, policySignature] = await Promise.all([
       this.fetchByUrl(store.entity.dataUrl, entityDataSchema),

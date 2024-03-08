@@ -1,6 +1,8 @@
 import { Alg } from '@narval/signature'
 import { PrivateKeyAccount, sha256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { Action } from './type/action.type'
+import { EntityType, ValueOperators } from './type/domain.type'
 import {
   AccountClassification,
   AccountType,
@@ -18,6 +20,7 @@ import {
   WalletGroupEntity,
   WalletGroupMemberEntity
 } from './type/entity.type'
+import { Criterion, Policy, Then } from './type/policy.type'
 
 const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
@@ -261,3 +264,114 @@ export const ENTITIES: Entities = {
   walletGroups: Object.values(WALLET_GROUP),
   wallets: Object.values(WALLET)
 }
+
+export const POLICIES: Policy[] = [
+  {
+    then: Then.PERMIT,
+    name: 'Example of permit policy',
+    when: [
+      {
+        criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
+        args: null
+      },
+      {
+        criterion: Criterion.CHECK_NONCE_EXISTS,
+        args: null
+      },
+      {
+        criterion: Criterion.CHECK_ACTION,
+        args: [Action.SIGN_TRANSACTION]
+      },
+      {
+        criterion: Criterion.CHECK_PRINCIPAL_ID,
+        args: [USER.Alice.role]
+      },
+      {
+        criterion: Criterion.CHECK_WALLET_ID,
+        args: [WALLET.Engineering.address]
+      },
+      {
+        criterion: Criterion.CHECK_INTENT_TYPE,
+        args: ['transferNative']
+      },
+      {
+        criterion: Criterion.CHECK_INTENT_TOKEN,
+        args: ['eip155:137/slip44:966']
+      },
+      {
+        criterion: Criterion.CHECK_INTENT_AMOUNT,
+        args: {
+          currency: '*',
+          operator: ValueOperators.LESS_THAN_OR_EQUAL,
+          value: '1000000000000000000'
+        }
+      },
+      {
+        criterion: Criterion.CHECK_APPROVALS,
+        args: [
+          {
+            approvalCount: 2,
+            countPrincipal: false,
+            approvalEntityType: EntityType.User,
+            entityIds: [USER.Bob.id, USER.Carol.id]
+          },
+          {
+            approvalCount: 1,
+            countPrincipal: false,
+            approvalEntityType: EntityType.UserRole,
+            entityIds: [UserRole.ADMIN]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    then: Then.FORBID,
+    name: 'Example of forbid policy',
+    when: [
+      {
+        criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
+        args: null
+      },
+      {
+        criterion: Criterion.CHECK_NONCE_EXISTS,
+        args: null
+      },
+      {
+        criterion: Criterion.CHECK_ACTION,
+        args: [Action.SIGN_TRANSACTION]
+      },
+      {
+        criterion: Criterion.CHECK_PRINCIPAL_ID,
+        args: [USER.Alice.id]
+      },
+      {
+        criterion: Criterion.CHECK_WALLET_ID,
+        args: [WALLET.Engineering.address]
+      },
+      {
+        criterion: Criterion.CHECK_INTENT_TYPE,
+        args: ['transferNative']
+      },
+      {
+        criterion: Criterion.CHECK_INTENT_TOKEN,
+        args: ['eip155:137/slip44:966']
+      },
+      {
+        criterion: Criterion.CHECK_SPENDING_LIMIT,
+        args: {
+          limit: '1000000000000000000',
+          operator: ValueOperators.GREATER_THAN,
+          timeWindow: {
+            type: 'rolling',
+            value: 12 * 60 * 60
+          },
+          filters: {
+            tokens: ['eip155:137/slip44:966'],
+            users: ['matt@narval.xyz']
+          }
+        }
+      }
+    ]
+  }
+]

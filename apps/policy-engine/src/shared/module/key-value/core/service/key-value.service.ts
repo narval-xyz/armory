@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { EncryptionService } from '../../../../../encryption/core/encryption.service'
 import { KeyValueRepository } from '../repository/key-value.repository'
 
 /**
@@ -13,10 +12,7 @@ import { KeyValueRepository } from '../repository/key-value.repository'
  */
 @Injectable()
 export class KeyValueService {
-  constructor(
-    @Inject(KeyValueRepository) private keyValueRepository: KeyValueRepository,
-    private encryptionService: EncryptionService
-  ) {}
+  constructor(@Inject(KeyValueRepository) private keyValueRepository: KeyValueRepository) {}
 
   async get(key: string): Promise<string | null> {
     // const encryptedValue = await this.keyValueRepository.get(key)
