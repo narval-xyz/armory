@@ -18,7 +18,9 @@ export class TenantService {
     return this.tenantRepository.findByClientId(clientId)
   }
 
-  async onboard(tenant: Tenant): Promise<Tenant> {
+  async onboard(tenant: Tenant, options?: { syncAfter?: boolean }): Promise<Tenant> {
+    const syncAfter = options?.syncAfter ?? true
+
     const exists = await this.tenantRepository.findByClientId(tenant.clientId)
 
     if (exists) {
@@ -31,10 +33,13 @@ export class TenantService {
 
     try {
       await this.tenantRepository.save(tenant)
-      const hasSynced = await this.syncDataStore(tenant.clientId)
 
-      if (!hasSynced) {
-        this.logger.warn('Failed to sync new tenant data store during the onboard')
+      if (syncAfter) {
+        const hasSynced = await this.syncDataStore(tenant.clientId)
+
+        if (!hasSynced) {
+          this.logger.warn('Failed to sync new tenant data store during the onboard')
+        }
       }
 
       return tenant
@@ -59,12 +64,14 @@ export class TenantService {
           dataStore: tenant.dataStore
         })
 
-        const store = await this.dataStoreService.fetch(tenant.dataStore)
+        const stores = await this.dataStoreService.fetch(tenant.dataStore)
 
         await Promise.all([
-          this.tenantRepository.saveEntityStore(clientId, store.entity),
-          this.tenantRepository.savePolicyStore(clientId, store.policy)
+          this.tenantRepository.saveEntityStore(clientId, stores.entity),
+          this.tenantRepository.savePolicyStore(clientId, stores.policy)
         ])
+
+        this.logger.log('Tenant data stores synced', { clientId, stores })
 
         return true
       }
@@ -86,5 +93,9 @@ export class TenantService {
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
     return this.tenantRepository.findPolicyStore(clientId)
+  }
+
+  async findAll(): Promise<Tenant[]> {
+    return this.tenantRepository.findAll()
   }
 }

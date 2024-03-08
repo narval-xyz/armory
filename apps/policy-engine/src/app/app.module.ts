@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios'
-import { Module, ValidationPipe } from '@nestjs/common'
+import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { EncryptionModule } from '../encryption/encryption.module'
@@ -8,6 +8,7 @@ import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
+import { BootstrapService } from './core/service/bootstrap.service'
 import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
 import { TenantService } from './core/service/tenant.service'
@@ -32,6 +33,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
   controllers: [AppController, TenantController],
   providers: [
     AppService,
+    BootstrapService,
     DataStoreRepositoryFactory,
     DataStoreService,
     EngineRepository,
@@ -48,4 +50,10 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     }
   ]
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(private bootstrapService: BootstrapService) {}
+
+  async onApplicationBootstrap() {
+    await this.bootstrapService.boot()
+  }
+}

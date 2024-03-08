@@ -1,5 +1,6 @@
 import { EntityStore, PolicyStore, entityStoreSchema, policyStoreSchema } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
+import { compact } from 'lodash/fp'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
 import { tenantIndexSchema, tenantSchema } from '../../../shared/schema/tenant.schema'
 import { Tenant } from '../../../shared/type/domain.type'
@@ -25,14 +26,6 @@ export class TenantRepository {
     return tenant
   }
 
-  private async index(tenant: Tenant): Promise<boolean> {
-    const currentIndex = await this.getTenantIndex()
-
-    await this.keyValueService.set(this.getIndexKey(), this.encodeIndex([...currentIndex, tenant.clientId]))
-
-    return true
-  }
-
   async getTenantIndex(): Promise<string[]> {
     const index = await this.keyValueService.get(this.getIndexKey())
 
@@ -43,7 +36,7 @@ export class TenantRepository {
     return []
   }
 
-  saveEntityStore(clientId: string, store: EntityStore): Promise<boolean> {
+  async saveEntityStore(clientId: string, store: EntityStore): Promise<boolean> {
     return this.keyValueService.set(this.getEntityStoreKey(clientId), this.encodeEntityStore(store))
   }
 
@@ -57,7 +50,7 @@ export class TenantRepository {
     return null
   }
 
-  savePolicyStore(clientId: string, store: PolicyStore): Promise<boolean> {
+  async savePolicyStore(clientId: string, store: PolicyStore): Promise<boolean> {
     return this.keyValueService.set(this.getPolicyStoreKey(clientId), this.encodePolicyStore(store))
   }
 
@@ -69,6 +62,20 @@ export class TenantRepository {
     }
 
     return null
+  }
+
+  // TODO: (@wcalderipe, 07/03/24) we need to rethink this strategy. If we use a
+  // SQL database, this could generate a massive amount of queries; thus,
+  // degrading the performance.
+  //
+  // An option is to move these general queries `findBy`, findAll`, etc to the
+  // KeyValeuRepository implementation letting each implementation pick the best
+  // strategy to solve the problem (e.g. where query in SQL)
+  async findAll(): Promise<Tenant[]> {
+    const ids = await this.getTenantIndex()
+    const tenants = await Promise.all(ids.map((id) => this.findByClientId(id)))
+
+    return compact(tenants)
   }
 
   getKey(clientId: string): string {
@@ -85,6 +92,14 @@ export class TenantRepository {
 
   getPolicyStoreKey(clientId: string): string {
     return `tenant:${clientId}:policy-store`
+  }
+
+  private async index(tenant: Tenant): Promise<boolean> {
+    const currentIndex = await this.getTenantIndex()
+
+    await this.keyValueService.set(this.getIndexKey(), this.encodeIndex([...currentIndex, tenant.clientId]))
+
+    return true
   }
 
   private encode(tenant: Tenant): string {
