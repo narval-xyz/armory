@@ -1,7 +1,7 @@
-import { Alg, Header, Payload } from './types'
+import { Header, Payload, SigningAlg } from './types'
 
-function isAlg(alg: unknown): alg is Alg {
-  return typeof alg === 'string' && Object.values(Alg).includes(alg as Alg)
+function isAlg(alg: unknown): alg is SigningAlg {
+  return typeof alg === 'string' && Object.values(SigningAlg).includes(alg as SigningAlg)
 }
 
 function isStringNonNull(kid: unknown): kid is string {
@@ -34,6 +34,7 @@ function isDate(date: unknown): date is Date {
   return false
 }
 
+// TODO: Probably don't need this; we won't always require payloads to have these specific fields, they're all optional
 export function isPayload(payload: unknown): payload is Payload {
   return (
     typeof payload === 'object' &&

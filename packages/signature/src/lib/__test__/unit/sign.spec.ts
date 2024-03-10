@@ -6,8 +6,9 @@ import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
 import { Alg, JWK, Payload, SigningAlg } from '../../types'
-import { base64UrlToBytes, base64UrlToHex, privateKeyToJwk } from '../../utils'
+import { base64UrlToBytes, base64UrlToHex, jwkToPrivateKey, jwkToPublicKey, privateKeyToJwk, publicKeyToJwk } from '../../utils'
 import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
+import { verifyJwt } from '../../verify'
 
 describe('sign', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -61,6 +62,10 @@ describe('sign', () => {
     const decodedPayload = base64UrlToBytes(payloadStr).toString('utf-8')
 
     expect(JSON.parse(decodedPayload)).toEqual(payload)
+
+    // Make sure OUR verification function also works
+    const isVerified = await verifyJwt(jwt, jwk)
+    expect(isVerified).toBeTruthy()
   })
 
   it('should sign ES256k correctly', async () => {
@@ -147,5 +152,18 @@ describe('sign', () => {
     })
 
     expect(k).toBeDefined()
+  })
+
+  it('should convert to and from jwk', async () => {
+    const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+    const pk = jwkToPrivateKey(jwk)
+    expect(pk).toBe(`0x${ENGINE_PRIVATE_KEY}`)
+  })
+
+  it('should convert to and from public jwk', async () => {
+    const publicKey = secp256k1.getPublicKey(ENGINE_PRIVATE_KEY, false)
+    const jwk = publicKeyToJwk(toHex(publicKey))
+    const pk = jwkToPublicKey(jwk)
+    expect(pk).toBe(toHex(publicKey))
   })
 })

@@ -60,6 +60,22 @@ export const privateKeyToJwk = (privateKey: Hex, keyId?: string): JWK => {
   }
 }
 
+export const jwkToPublicKey = (jwk: JWK): Hex => {
+  if (!jwk.x || !jwk.y) {
+    throw new Error('Invalid JWK; missing x or y')
+  }
+  const x = base64UrlToHex(jwk.x)
+  const y = base64UrlToHex(jwk.y)
+  return `0x04${x.slice(2)}${y.slice(2)}`
+}
+
+export const jwkToPrivateKey = (jwk: JWK): Hex => {
+  if (!jwk.d) {
+    throw new Error('Invalid JWK; missing d')
+  }
+  return base64UrlToHex(jwk.d)
+}
+
 export function base64ToBase64Url(base64: string): string {
   return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
 }
