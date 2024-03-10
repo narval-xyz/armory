@@ -3,8 +3,8 @@ import { Alg } from '../../types'
 
 export const ALGORITHM = Alg.ES256
 export const KID = 'test-kid'
-export const IAT = new Date('2024-12-11T00:00:00Z')
-export const EXP = new Date('2024-12-12T00:00:00Z')
+export const IAT = new Date('2024-12-11T00:00:00Z').getTime() / 1000
+export const EXP = new Date('2024-12-12T00:00:00Z').getTime() / 1000
 export const REQUEST = {
   action: 'CREATE_ORGANIZATION',
   nonce: 'random-nonce-111',
