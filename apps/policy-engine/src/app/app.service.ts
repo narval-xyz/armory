@@ -5,10 +5,11 @@ import {
   EvaluationRequest,
   EvaluationResponse,
   HistoricalTransfer,
+  JsonWebKey,
   Request,
   Signature
 } from '@narval/policy-engine-shared'
-import { Alg, hash } from '@narval/signature'
+import { Alg, Payload, SigningAlg, hash, privateKeyToJwk, publicKeyToJwk } from '@narval/signature'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,
@@ -20,8 +21,8 @@ import {
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
 import { Hex, verifyMessage } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
 import { OpaResult, RegoInput } from '../shared/type/domain.type'
+import { SigningService } from './core/service/signing.service'
 import { OpaService } from './opa/opa.service'
 import { EntityRepository } from './persistence/repository/entity.repository'
 
@@ -69,7 +70,8 @@ export const finalizeDecision = (response: OpaResult[]) => {
 export class AppService {
   constructor(
     private opaService: OpaService,
-    private entityRepository: EntityRepository
+    private entityRepository: EntityRepository,
+    private signingService: SigningService
   ) {}
 
   async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<CredentialEntity> {
@@ -213,15 +215,27 @@ export class AppService {
 
     // If we are allowing, then the ENGINE signs the verification too
     if (finalDecision.decision === Decision.PERMIT) {
-      // TODO: store a global configuration on the response signature alg
-      const engineAccount = privateKeyToAccount(ENGINE_PRIVATE_KEY)
-      const permitSignature = await engineAccount.signMessage({
-        message: verificationMessage
-      })
-      authzResponse.attestation = {
-        sig: permitSignature,
-        alg: Alg.ES256K,
-        pubKey: engineAccount.address // TODO: should this be account.publicKey?
+      const tenantSigningKey: JsonWebKey = privateKeyToJwk(ENGINE_PRIVATE_KEY)
+
+      const clientJwk = publicKeyToJwk(principalCredential.pubKey as Hex)
+
+      const jwtPayload: Payload = {
+        requestHash: verificationMessage,
+        sub: principalCredential.userId,
+        // TODO: iat & exp values must be arguments, cannot generate timestamps because of cluster mis-match
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
+        iss: 'https://armory.narval.xyz', // TODO: allow client-specific; should come from config
+        // aud: TODO
+        // jti: TODO
+        cnf: clientJwk
+      }
+
+      // TODO: signing alg should come from the tenant config
+      const permitJwt = await this.signingService.sign(jwtPayload, tenantSigningKey, { alg: SigningAlg.EIP191 })
+
+      authzResponse.accessToken = {
+        value: permitJwt
       }
     }
 

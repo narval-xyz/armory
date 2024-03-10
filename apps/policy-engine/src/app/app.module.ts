@@ -11,6 +11,7 @@ import { DataStoreRepositoryFactory } from './core/factory/data-store-repository
 import { BootstrapService } from './core/service/bootstrap.service'
 import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
+import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { OpaService } from './opa/opa.service'
@@ -38,6 +39,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     DataStoreService,
     EngineRepository,
     EngineService,
+    SigningService,
     EntityRepository,
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,

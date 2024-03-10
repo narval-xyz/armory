@@ -82,31 +82,31 @@ export const USER: Record<Personas, UserEntity> = {
 export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
     id: sha256(ACCOUNT.Root.address).toLowerCase(),
-    pubKey: ACCOUNT.Root.address,
+    pubKey: ACCOUNT.Root.publicKey,
     alg: Alg.ES256K,
     userId: USER.Root.id
   },
   Alice: {
     id: sha256(ACCOUNT.Alice.address).toLowerCase(),
-    pubKey: ACCOUNT.Alice.address,
+    pubKey: ACCOUNT.Alice.publicKey,
     alg: Alg.ES256K,
     userId: USER.Alice.id
   },
   Bob: {
     id: sha256(ACCOUNT.Bob.address).toLowerCase(),
-    pubKey: ACCOUNT.Bob.address,
+    pubKey: ACCOUNT.Bob.publicKey,
     alg: Alg.ES256K,
     userId: USER.Bob.id
   },
   Carol: {
     id: sha256(ACCOUNT.Carol.address).toLowerCase(),
-    pubKey: ACCOUNT.Carol.address,
+    pubKey: ACCOUNT.Carol.publicKey,
     alg: Alg.ES256K,
     userId: USER.Carol.id
   },
   Dave: {
     id: sha256(ACCOUNT.Dave.address).toLowerCase(),
-    pubKey: ACCOUNT.Dave.address,
+    pubKey: ACCOUNT.Dave.publicKey,
     alg: Alg.ES256K,
     userId: USER.Dave.id
   }

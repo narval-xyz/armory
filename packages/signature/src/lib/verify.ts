@@ -1,67 +1,49 @@
-import { base64url, importSPKI, jwtVerify } from 'jose'
-import { Hex, recoverMessageAddress } from 'viem'
-import { isHex, publicKeyToAddress, toHex } from 'viem/utils'
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { importJWK, jwtVerify } from 'jose'
 import { decode } from './decode'
 import { JwtError } from './error'
-import { Jwt, Payload, VerificationInput } from './types'
+import { eip191Hash } from './sign'
+import { JWK, Jwt, Payload, SigningAlg } from './types'
+import { base64UrlToHex, jwkToPublicKey } from './utils'
 
-const checkTokenValidity = (token: string): boolean => {
-  const parts = token.split('.')
-  return parts.length === 3
+const checkTokenExpiration = (payload: Payload): boolean => {
+  const now = Math.floor(Date.now() / 1000)
+  if (payload.exp && payload.exp < now) {
+    throw new JwtError({ message: 'Token has expired', context: { payload } })
+  }
+  return true
 }
 
-const eoaKeys = async (verificationInput: VerificationInput): Promise<Jwt> => {
-  const { jwt, publicKey } = verificationInput
+export async function verifyJwt(jwt: string, jwk: JWK): Promise<Jwt> {
+  const { header, payload, signature } = decode(jwt)
 
-  if (!checkTokenValidity(jwt)) {
-    throw new JwtError({ message: 'Invalid token', context: { rawToken: jwt } })
+  const [headerStr, payloadStr, jwtSig] = jwt.split('.')
+
+  if (header.alg === SigningAlg.EIP191) {
+    const verificationMsg = [headerStr, payloadStr].join('.')
+    const msg = eip191Hash(verificationMsg)
+    const sig = base64UrlToHex(jwtSig)
+    const pub = jwkToPublicKey(jwk)
+
+    // A eth sig has a `v` value of 27 or 28, so we need to remove that to get the signature
+    // And we remove the 0x prefix. So that means we slice the first and last 2 bytes, leaving the 128 character signature
+    const isValid = secp256k1.verify(sig.slice(2, 130), msg, pub.slice(2)) === true
+    if (!isValid) {
+      throw new Error('Invalid JWT signature')
+    }
+  } else {
+    // TODO: Implement other algs individually without jose
+    const joseJwk = await importJWK(jwk)
+    await jwtVerify<Payload>(jwt, joseJwk)
   }
 
-  try {
-    const parts = jwt.split('.')
+  // Payload validity checks
+  checkTokenExpiration(payload)
+  // TODO: Check for any other fields that might be relevant
 
-    const recoveredAddress = await recoverMessageAddress({
-      message: `${parts[0]}.${parts[1]}`,
-      signature: toHex(base64url.decode(parts[2]))
-    })
-    const pubKeyAddress = publicKeyToAddress(publicKey as Hex)
-
-    if (pubKeyAddress !== recoveredAddress) {
-      throw new JwtError({ message: 'Invalid signature', context: { rawToken: jwt } })
-    }
-
-    const token = decode(jwt)
-
-    const now = new Date()
-    if (token.payload.exp && token.payload.exp < now) {
-      throw new JwtError({ message: 'Token has expired', context: { rawToken: jwt } })
-    }
-
-    return decode(jwt)
-  } catch (e) {
-    throw new JwtError({ message: 'error verifying eoa signature', context: { e } })
-  }
-}
-
-/**
- * Verifies a JWT encoded and returns its payload.
- *
- * @param {VerificationInput} input - The input required to verify a JWT.
- * @returns {Promise<Jwt>} A promise that resolves with the JWT.
- * @throws {Error} If the JWT is invalid or the request hash does not match the request.
- */
-export async function verify(input: VerificationInput): Promise<Jwt> {
-  const { jwt, publicKey } = input
-  try {
-    if (isHex(publicKey)) {
-      return eoaKeys(input)
-    }
-    const decodedJwt = decode(jwt)
-    const publicKeyObj = await importSPKI(publicKey, decodedJwt.header.alg)
-    await jwtVerify<Payload>(jwt, publicKeyObj)
-
-    return decodedJwt
-  } catch (error) {
-    throw new JwtError({ message: 'Malformed token', context: { input, error } })
+  return {
+    header,
+    payload,
+    signature
   }
 }

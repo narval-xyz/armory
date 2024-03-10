@@ -3,6 +3,7 @@ include ./apps/devtool/Makefile
 include ./apps/policy-engine/Makefile
 include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
+include ./packages/signature/Makefile
 
 # For more terminal color codes, head over to https://opensource.com/article/19/9/linux-terminal-colors
 TERM_NO_COLOR := \033[0m
