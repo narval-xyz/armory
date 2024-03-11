@@ -6,10 +6,10 @@ import {
   EvaluationResponse,
   HistoricalTransfer,
   JsonWebKey,
-  Request,
-  Signature
+  JwtString,
+  Request
 } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, hash, privateKeyToJwk, publicKeyToJwk } from '@narval/signature'
+import { Payload, SigningAlg, decode, hash, privateKeyToJwk, publicKeyToJwk, verifyJwt } from '@narval/signature'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,
@@ -20,7 +20,7 @@ import {
 } from '@nestjs/common'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Hex, verifyMessage } from 'viem'
+import { Hex } from 'viem'
 import { OpaResult, RegoInput } from '../shared/type/domain.type'
 import { SigningService } from './core/service/signing.service'
 import { OpaService } from './opa/opa.service'
@@ -74,44 +74,34 @@ export class AppService {
     private signingService: SigningService
   ) {}
 
-  async #verifySignature(requestSignature: Signature, verificationMessage: string): Promise<CredentialEntity> {
-    const { pubKey, alg, sig } = requestSignature
-    const credential = this.entityRepository.getCredentialForPubKey(pubKey)
+  async #verifySignature(requestSignature: JwtString, verificationMessage: string): Promise<CredentialEntity> {
+    const { header } = await decode(requestSignature)
+
+    const credential = await this.entityRepository.getCredential(header.kid)
 
     if (!credential) {
       throw new NotFoundException('Credential not found')
     }
 
-    if (alg === Alg.ES256K) {
-      // TODO: ensure sig & pubkey begins with 0x
-      const signature = sig.startsWith('0x') ? sig : `0x${sig}`
-      const address = pubKey as Hex
-      const valid = await verifyMessage({
-        message: verificationMessage,
-        address,
-        signature: signature as Hex
-      })
-      if (!valid) {
-        console.log('### invalid', {
-          pubKey,
-          sig
-        })
+    const jwk = publicKeyToJwk(credential.pubKey as Hex)
 
-        throw new BadRequestException('Invalid signature')
-      }
+    const validJwt = await verifyJwt(requestSignature, jwk)
+    // Check the data is the same
+    if (validJwt.payload.requestHash !== verificationMessage) {
+      throw new BadRequestException('Invalid signature')
     }
 
     return credential
   }
 
   async #populateApprovals(
-    approvals: Signature[] | undefined,
+    approvals: JwtString[] | undefined,
     verificationMessage: string
   ): Promise<CredentialEntity[] | null> {
     if (!approvals) return null
     const approvalSigs = await Promise.all(
-      approvals.map(async ({ sig, alg, pubKey }) => {
-        const credential = await this.#verifySignature({ sig, alg, pubKey }, verificationMessage)
+      approvals.map(async (jwt) => {
+        const credential = await this.#verifySignature(jwt, verificationMessage)
         return credential
       })
     )

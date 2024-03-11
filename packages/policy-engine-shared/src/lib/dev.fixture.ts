@@ -1,5 +1,5 @@
-import { Alg } from '@narval/signature'
-import { PrivateKeyAccount, sha256 } from 'viem'
+import { Alg, addressToKid } from '@narval/signature'
+import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
 import { EntityType, ValueOperators } from './type/domain.type'
@@ -81,36 +81,42 @@ export const USER: Record<Personas, UserEntity> = {
 
 export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    id: sha256(ACCOUNT.Root.address).toLowerCase(),
+    id: addressToKid(ACCOUNT.Root.address),
     pubKey: ACCOUNT.Root.publicKey,
+    address: ACCOUNT.Root.address,
     alg: Alg.ES256K,
     userId: USER.Root.id
   },
   Alice: {
-    id: sha256(ACCOUNT.Alice.address).toLowerCase(),
+    id: addressToKid(ACCOUNT.Alice.address),
     pubKey: ACCOUNT.Alice.publicKey,
+    address: ACCOUNT.Alice.address,
     alg: Alg.ES256K,
     userId: USER.Alice.id
   },
   Bob: {
-    id: sha256(ACCOUNT.Bob.address).toLowerCase(),
+    id: addressToKid(ACCOUNT.Bob.address),
     pubKey: ACCOUNT.Bob.publicKey,
+    address: ACCOUNT.Bob.address,
     alg: Alg.ES256K,
     userId: USER.Bob.id
   },
   Carol: {
-    id: sha256(ACCOUNT.Carol.address).toLowerCase(),
+    id: addressToKid(ACCOUNT.Carol.address),
     pubKey: ACCOUNT.Carol.publicKey,
+    address: ACCOUNT.Carol.address,
     alg: Alg.ES256K,
     userId: USER.Carol.id
   },
   Dave: {
-    id: sha256(ACCOUNT.Dave.address).toLowerCase(),
+    id: addressToKid(ACCOUNT.Dave.address),
     pubKey: ACCOUNT.Dave.publicKey,
+    address: ACCOUNT.Dave.address,
     alg: Alg.ES256K,
     userId: USER.Dave.id
   }
 }
+console.log(CREDENTIAL)
 
 export const USER_GROUP: Record<Groups, UserGroupEntity> = {
   Engineering: {
