@@ -1,5 +1,6 @@
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
-import { Alg, hash } from '@narval/signature'
+import { Payload, SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { toHex } from 'viem'
 
 export const ONE_ETH = BigInt('1000000000000000000')
@@ -23,29 +24,32 @@ export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
   }
 
   const message = hash(request)
+  const payload: Payload = {
+    requestHash: message
+  }
 
-  const aliceSignature = await FIXTURE.ACCOUNT.Alice.signMessage({ message })
-  const bobSignature = await FIXTURE.ACCOUNT.Bob.signMessage({ message })
-  const carolSignature = await FIXTURE.ACCOUNT.Carol.signMessage({ message })
-
+  // const aliceSignature = await FIXTURE.ACCOUNT.Alice.signMessage({ message })
+  const aliceSignature = await signJwt(
+    payload,
+    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice),
+    { alg: SigningAlg.EIP191 },
+    buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
+  )
+  const bobSignature = await signJwt(
+    payload,
+    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob),
+    { alg: SigningAlg.EIP191 },
+    buildSignerEip191(UNSAFE_PRIVATE_KEY.Bob)
+  )
+  const carolSignature = await signJwt(
+    payload,
+    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol),
+    { alg: SigningAlg.EIP191 },
+    buildSignerEip191(UNSAFE_PRIVATE_KEY.Carol)
+  )
   return {
-    authentication: {
-      sig: aliceSignature,
-      alg: Alg.ES256K,
-      pubKey: FIXTURE.ACCOUNT.Alice.address
-    },
+    authentication: aliceSignature,
     request,
-    approvals: [
-      {
-        sig: bobSignature,
-        alg: Alg.ES256K,
-        pubKey: FIXTURE.ACCOUNT.Bob.address
-      },
-      {
-        sig: carolSignature,
-        alg: Alg.ES256K,
-        pubKey: FIXTURE.ACCOUNT.Carol.address
-      }
-    ]
+    approvals: [bobSignature, carolSignature]
   }
 }
