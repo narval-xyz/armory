@@ -1,6 +1,6 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { toHex } from 'viem'
-import { publicKeyToAddress } from 'viem/utils'
+import { getAddress, publicKeyToAddress } from 'viem/utils'
 import { Alg, Curves, Hex, JWK, KeyTypes } from './types'
 
 export const algToJwk = (
@@ -57,6 +57,17 @@ export const privateKeyToJwk = (privateKey: Hex, keyId?: string): JWK => {
   return {
     ...publicJwk,
     d: hexToBase64Url(privateKey)
+  }
+}
+
+// Eth EOA
+export const addressToJwk = (address: string, keyId?: string): JWK => {
+  return {
+    kty: KeyTypes.EC,
+    crv: Curves.SECP256K1,
+    alg: Alg.ES256K,
+    kid: keyId || getAddress(address),
+    addr: getAddress(address)
   }
 }
 
