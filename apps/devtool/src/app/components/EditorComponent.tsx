@@ -1,7 +1,8 @@
 'use client'
 
 import Editor from '@monaco-editor/react'
-import { signMessage } from '@wagmi/core'
+import { JWK, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
+import { getAccount, signMessage } from '@wagmi/core'
 import axios from 'axios'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -36,8 +37,40 @@ const EditorComponent = () => {
 
     const { entity, policy } = JSON.parse(data)
 
-    const entitySig = await signMessage(config, { message: JSON.stringify(entity) })
-    const policySig = await signMessage(config, { message: JSON.stringify(policy) })
+    const jwtSigner = async (msg: string) => {
+      const jwtSig = await signMessage(config, { message: msg })
+
+      return hexToBase64Url(jwtSig)
+    }
+
+    const address = getAccount(config).address
+    if (!address) throw new Error('No address connected')
+
+    // Need real JWK
+    const jwk: JWK = {
+      kty: 'EC',
+      crv: 'secp256k1',
+      alg: SigningAlg.ES256K,
+      kid: address
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+
+    const entityPayload: Payload = {
+      data: hash(entity),
+      sub: address,
+      iss: 'https://devtool.narval.xyz',
+      iat: now
+    }
+
+    const policyPayload: Payload = {
+      data: hash(policy),
+      sub: address,
+      iss: 'https://devtool.narval.xyz',
+      iat: now
+    }
+    const entitySig = await signJwt(entityPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    const policySig = await signJwt(policyPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
 
     await axios.post('/api/data-store', {
       entity: {

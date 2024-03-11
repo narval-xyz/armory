@@ -1,8 +1,15 @@
 import { JsonWebKey, toHex } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, privateKeyToJwk } from '@narval/signature'
+import {
+  Alg,
+  Payload,
+  SigningAlg,
+  buildSignerEip191,
+  buildSignerEs256k,
+  privateKeyToJwk,
+  signJwt
+} from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { buildSignerEip191, buildSignerEs256k, signJwt } from 'packages/signature/src/lib/sign'
 
 // Optional additional configs, such as for MPC-based DKG.
 type KeyGenerationOptions = {

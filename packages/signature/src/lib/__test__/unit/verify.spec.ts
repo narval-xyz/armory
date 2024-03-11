@@ -1,3 +1,4 @@
+import { hash } from '../../hash-request'
 import { Payload } from '../../types'
 import { privateKeyToJwk } from '../../utils'
 import { verifyJwt } from '../../verify'
@@ -39,5 +40,52 @@ describe('verify', () => {
       payload,
       signature: 'gFDywYsxY2-uT6H6hyxk51CtJhAZpI8WtcvoXHltiWsoBVOot1zMo3nHAhkWlYRmD3RuLtmOYzi6TwTUM8mFyBs'
     })
+  })
+
+  it('verifies a JWT signed by wagmi on client', async () => {
+    // Example data from devtool ui
+    const policy = [
+      {
+        id: 'a68e8d20-0419-475c-8fcc-b17d4de8c955',
+        name: 'Authorized any admin to transfer ERC721 or ERC1155 tokens',
+        when: [
+          {
+            criterion: 'checkResourceIntegrity',
+            args: null
+          },
+          {
+            criterion: 'checkPrincipalRole',
+            args: ['admin']
+          },
+          {
+            criterion: 'checkAction',
+            args: ['signTransaction']
+          },
+          {
+            criterion: 'checkIntentType',
+            args: ['transferErc721', 'transferErc1155']
+          }
+        ],
+        then: 'permit'
+      }
+    ]
+
+    // JWT signed w/ real metamask, narval dev-wallet 0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B
+    const jwt =
+      'eyJraWQiOiIweDA0QjEyRjA4NjNiODNjNzE2MjQyOWYwRWJiMERmZEEyMEUxYUE5N0IiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ.eyJkYXRhIjoiYzg2YWNkNzk3ODFmYTRjODRkZTEyNjk1YTYxODVkZWRiZDVlNTczN2UwYjlhMWEzOGYxYzliZDI4ZGE5MWJiNCIsInN1YiI6IjB4MDRCMTJGMDg2M2I4M2M3MTYyNDI5ZjBFYmIwRGZkQTIwRTFhQTk3QiIsImlzcyI6Imh0dHBzOi8vZGV2dG9vbC5uYXJ2YWwueHl6IiwiaWF0IjoxNzEwMTgyMDgxfQ.Q0p7sJxqDMhmyrCuJqH48y0sgbWUzs9zuANV0rYdyyphXMlxdBN5Jme37QNZ_NWtH-O2RNZe9nVY0iJuvDurexw'
+
+    // We do NOT have a publicKey, only the address. So we need to be able to verify with that only.
+    const res = await verifyJwt(jwt, {
+      kty: 'EC',
+      crv: 'secp256k1',
+      alg: 'ES256K',
+      use: 'sig',
+      kid: 'made-up-kid-that-matches-nothing',
+      addr: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B'
+    })
+    const policyHash = hash(policy)
+
+    expect(res).toBeDefined()
+    expect(res.payload.data).toEqual(policyHash)
   })
 })
