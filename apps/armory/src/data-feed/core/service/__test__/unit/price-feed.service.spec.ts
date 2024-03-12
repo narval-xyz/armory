@@ -1,5 +1,4 @@
 import { Prices } from '@narval/policy-engine-shared'
-import { Alg } from '@narval/signature'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -73,12 +72,7 @@ describe(PriceFeedService.name, () => {
       expect(feed).toMatchObject({
         data: prices,
         source: PriceFeedService.SOURCE_ID,
-        sig: {
-          alg: Alg.ES256K,
-          pubKey:
-            '0x04583c9cf37f209ca3afbdb43f83dfaed0e758b89545bfa8e297d3d727fc3ed9c6f16607bc859f2304704329bf19c843acce511d0639bbd8abb1fe70e7dd05f8f5',
-          sig: expect.any(String)
-        }
+        sig: expect.any(String)
       })
     })
 

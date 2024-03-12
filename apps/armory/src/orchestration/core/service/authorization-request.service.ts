@@ -1,14 +1,12 @@
-import { Action, Decision } from '@narval/policy-engine-shared'
+import { Action, Decision, JwtString } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { Injectable, Logger } from '@nestjs/common'
-import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { FIAT_ID_USD } from '../../../armory.constant'
 import { FeedService } from '../../../data-feed/core/service/feed.service'
 import { PriceService } from '../../../price/core/service/price.service'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 import {
-  Approval,
   AuthorizationRequest,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
@@ -87,16 +85,10 @@ export class AuthorizationRequestService {
     })
   }
 
-  async approve(id: string, approval: SetOptional<Approval, 'id' | 'createdAt'>): Promise<AuthorizationRequest> {
+  async approve(id: string, approval: JwtString): Promise<AuthorizationRequest> {
     const authzRequest = await this.authzRequestRepository.update({
       id: id,
-      approvals: [
-        {
-          id: approval.id || uuid(),
-          createdAt: approval.createdAt || new Date(),
-          ...approval
-        }
-      ]
+      approvals: [approval]
     })
 
     return this.evaluate(authzRequest)
@@ -137,8 +129,7 @@ export class AuthorizationRequestService {
         {
           id: uuid(),
           decision: evaluation.decision,
-          // TODO (@mattschoch, 23/01/24): return the full attestation?
-          signature: evaluation?.attestation?.sig || null,
+          signature: evaluation.accessToken?.value || null,
           createdAt: new Date()
         }
       ]
@@ -161,7 +152,7 @@ export class AuthorizationRequestService {
           to: intent.to,
           token: intent.token,
           chainId: authzRequest.request.transactionRequest.chainId,
-          initiatedBy: authzRequest.authentication.pubKey,
+          initiatedBy: authzRequest.authentication, // TODO: Get real initiator? -- this used to reference publicKey but should actually pull data out of a decoded JWT
           createdAt: new Date(),
           amount: BigInt(intent.amount),
           rates: transferPrices[intent.token]
