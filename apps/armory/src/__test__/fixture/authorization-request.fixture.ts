@@ -1,18 +1,12 @@
-import { Decision, Signature, TransactionRequest } from '@narval/policy-engine-shared'
+import { Decision, TransactionRequest } from '@narval/policy-engine-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/armory'
 import { z } from 'zod'
 import { Fixture } from 'zod-fixture'
-import { Approval, AuthorizationRequest, SignTransaction } from '../../orchestration/core/type/domain.type'
+import { AuthorizationRequest, SignTransaction } from '../../orchestration/core/type/domain.type'
 import { readRequestSchema } from '../../orchestration/persistence/schema/request.schema'
 import { readSignTransactionSchema } from '../../orchestration/persistence/schema/sign-transaction.schema'
-import { signatureSchema } from '../../orchestration/persistence/schema/signature.schema'
 import { readTransactionRequestSchema } from '../../orchestration/persistence/schema/transaction-request.schema'
 import { addressGenerator, chainIdGenerator, hexGenerator } from './shared.fixture'
-
-const approvalSchema = signatureSchema.extend({
-  id: z.string().uuid(),
-  createdAt: z.date()
-})
 
 const evaluationSchema = z.object({
   id: z.string().uuid(),
@@ -26,8 +20,8 @@ const authorizationRequestSchema = z.object({
   orgId: z.string().uuid(),
   status: z.nativeEnum(AuthorizationRequestStatus),
   request: readRequestSchema,
-  authentication: signatureSchema,
-  approvals: z.array(approvalSchema),
+  authentication: z.string(),
+  approvals: z.array(z.string()),
   evaluations: z.array(evaluationSchema),
   idempotencyKey: z.string().nullish(),
   createdAt: z.date(),
@@ -66,13 +60,3 @@ export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequ
     ...partial
   }
 }
-
-export const generateApproval = (partial?: Partial<Approval>): Approval => ({
-  ...new Fixture().fromSchema(approvalSchema),
-  ...partial
-})
-
-export const generateSignature = (partial?: Partial<Signature>): Signature => ({
-  ...new Fixture().fromSchema(approvalSchema),
-  ...partial
-})

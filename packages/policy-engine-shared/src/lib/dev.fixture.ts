@@ -116,7 +116,6 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
     userId: USER.Dave.id
   }
 }
-console.log(CREDENTIAL)
 
 export const USER_GROUP: Record<Groups, UserGroupEntity> = {
   Engineering: {

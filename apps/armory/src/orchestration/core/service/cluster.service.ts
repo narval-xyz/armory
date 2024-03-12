@@ -124,7 +124,7 @@ export class ClusterService {
 
     return recoverMessageAddress({
       message: requestHash,
-      signature: response.attestation?.sig as `0x${string}`
+      signature: response.accessToken?.value as `0x${string}` // TODO: This will fail for real because this is NOT a EIP191 sig, it's a JWT
     })
   }
 
