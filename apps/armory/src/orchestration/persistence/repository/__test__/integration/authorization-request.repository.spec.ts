@@ -1,5 +1,4 @@
-import { Action, Signature } from '@narval/policy-engine-shared'
-import { Alg } from '@narval/signature'
+import { Action } from '@narval/policy-engine-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Organization } from '@prisma/client/armory'
@@ -7,7 +6,7 @@ import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
-import { Approval, AuthorizationRequest, Evaluation, SignTransaction } from '../../../../core/type/domain.type'
+import { AuthorizationRequest, Evaluation, SignTransaction } from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../repository/authorization-request.repository'
 
 describe(AuthorizationRequestRepository.name, () => {
@@ -22,11 +21,8 @@ describe(AuthorizationRequestRepository.name, () => {
     updatedAt: new Date()
   }
 
-  const authentication: Signature = {
-    alg: Alg.ES256K,
-    pubKey: '0xd75D626a116D4a1959fE3bB938B2e7c116A05890',
-    sig: '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
-  }
+  const authentication =
+    '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c'
 
   const signMessageRequest: AuthorizationRequest = {
     authentication,
@@ -80,11 +76,7 @@ describe(AuthorizationRequestRepository.name, () => {
       })
 
       expect(request).toMatchObject(omit(['evaluations', 'approvals', 'authentication'], signMessageRequest))
-      expect({
-        sig: request?.authnSig,
-        alg: request?.authnAlg,
-        pubKey: request?.authnPubKey
-      }).toEqual(authentication)
+      expect(request?.authnSig).toEqual(authentication)
     })
 
     it('defaults status to CREATED', async () => {
@@ -128,13 +120,7 @@ describe(AuthorizationRequestRepository.name, () => {
     })
 
     it('creates approvals', async () => {
-      const approval: Approval = {
-        id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
-        alg: Alg.ES256K,
-        sig: 'test-signature',
-        pubKey: 'test-public-key',
-        createdAt: new Date()
-      }
+      const approval = 'test-signature'
 
       await repository.create({
         ...signMessageRequest,
@@ -147,9 +133,9 @@ describe(AuthorizationRequestRepository.name, () => {
         }
       })
 
-      expect(approvals).toEqual([
+      expect(approvals.map(omit(['id', 'createdAt']))).toEqual([
         {
-          ...approval,
+          sig: approval,
           requestId: signMessageRequest.id
         }
       ])
@@ -239,28 +225,12 @@ describe(AuthorizationRequestRepository.name, () => {
     it('appends approvals', async () => {
       const authzRequestOne = await repository.update({
         ...signMessageRequest,
-        approvals: [
-          {
-            id: 'c534332f-6dd9-4cc8-b727-e1ad21176238',
-            alg: Alg.ES256K,
-            sig: 'test-signature',
-            pubKey: 'test-public-key',
-            createdAt: new Date()
-          }
-        ]
+        approvals: ['test-signature']
       })
 
       const authzRequestTwo = await repository.update({
         ...signMessageRequest,
-        approvals: [
-          {
-            id: '790e30b0-35d1-4e22-8be5-71e64afbee89',
-            alg: Alg.ES256K,
-            sig: 'test-signature',
-            pubKey: 'test-public-key',
-            createdAt: new Date()
-          }
-        ]
+        approvals: ['test-signature']
       })
 
       const actual = await repository.findById(signMessageRequest.id)

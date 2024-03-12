@@ -36,11 +36,13 @@ export class AuthorizationRequestRepository {
         updatedAt,
         action: request.action,
         authnSig: authentication,
-        approvals: {
-          createMany: {
-            data: approvalsData
-          }
-        },
+        approvals: approvals
+          ? {
+              createMany: {
+                data: approvalsData
+              }
+            }
+          : undefined,
         evaluationLog: {
           createMany: {
             data: evaluationLogs

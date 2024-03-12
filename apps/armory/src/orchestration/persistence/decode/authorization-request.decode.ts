@@ -24,7 +24,7 @@ const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action
   status: model.status,
   idempotencyKey: model.idempotencyKey,
   authentication: model.authnSig,
-  approvals: z.array(z.string()).parse(model.approvals),
+  approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
   evaluations: (model.evaluationLog || []).map(buildEvaluation),
   createdAt: model.createdAt,
   updatedAt: model.updatedAt
