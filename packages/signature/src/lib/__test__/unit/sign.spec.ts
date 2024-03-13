@@ -6,9 +6,16 @@ import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
 import { Alg, JWK, Payload, SigningAlg } from '../../types'
-import { base64UrlToBytes, base64UrlToHex, jwkToPrivateKey, jwkToPublicKey, privateKeyToJwk, publicKeyToJwk } from '../../utils'
-import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
+import {
+  base64UrlToBytes,
+  base64UrlToHex,
+  jwkToPrivateKey,
+  jwkToPublicKey,
+  privateKeyToJwk,
+  publicKeyToJwk
+} from '../../utils'
 import { verifyJwt } from '../../verify'
+import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
 
 describe('sign', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -41,12 +48,7 @@ describe('sign', () => {
     const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
     const signer = buildSignerEip191(ENGINE_PRIVATE_KEY)
 
-    const jwt = await signJwt(
-      payload,
-      jwk,
-      { alg: SigningAlg.EIP191 },
-      signer
-    )
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
 
     const [headerStr, payloadStr, jwtSig] = jwt.split('.')
 

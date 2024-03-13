@@ -1,4 +1,4 @@
-# Encryption Module 
+# Encryption Module
 
 This is a NestJS module for encryption on top of `@aws-crypto/client-node`
 tailored to meet the needs of the Armory server.
