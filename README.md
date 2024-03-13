@@ -3,6 +3,17 @@
 </p>
 <p align="center">Armory is the most advanced and secure authorization stack for web3.</p>
 
+## Project
+
+| Project                                                                               | Status | 
+|---------------------------------------------------------------------------------------|--------|
+| [@app/armory](./apps/armory/README.md)                                                | <a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> | 
+| [@app/policy-engine](./apps/policy-engine/README.md)                                  | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> |
+| [@narval/encryption-module](./packages/encryption-module/README.md)                   | N/A |
+| [@narval/policy-engine-shared](./packages/policy-engine-shared/README.md)             | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml/badge.svg?branch=main" alt="@narval/policy-engine-shared CI status" /></a> |
+| [@narval/signature](./packages/signature/README.md)                                   | N/A |
+| [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md) | <a href="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent CI status" /></a> |
+
 ## Getting started
 
 To setup the project, run the following command:
@@ -14,17 +25,6 @@ make setup
 ```
 
 At the end, you must have a working environment ready to run any application.
-
-## Project
-
-| Project                                                                               | Status | 
-|---------------------------------------------------------------------------------------|--------|
-| [@app/armory](./apps/armory/README.md)                                                | <a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> | 
-| [@app/policy-engine](./apps/policy-engine/README.md)                                  | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> |
-| [@narval/encryption-module](./packages/encryption-module/README.md)                   | N/A |
-| [@narval/policy-engine-shared](./packages/policy-engine-shared/README.md)             | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml/badge.svg?branch=main" alt="@narval/policy-engine-shared CI status" /></a> |
-| [@narval/signature](./packages/signature/README.md)                                   | N/A |
-| [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md) | <a href="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent CI status" /></a> |
 
 ## Docker
 
