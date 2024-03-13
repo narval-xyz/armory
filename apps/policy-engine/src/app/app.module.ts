@@ -1,4 +1,4 @@
-import { RawAesKeyringNode, RawAesWrappingSuiteIdentifier } from '@aws-crypto/client-node'
+import { RawAesKeyringNode } from '@aws-crypto/client-node'
 import { EncryptionModule, decryptMasterKey, generateKeyEncryptionKey, isolateBuffer } from '@narval/encryption-module'
 import { toBytes } from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
@@ -6,7 +6,7 @@ import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { Config, load } from '../policy-engine.config'
-import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE } from '../policy-engine.constant'
+import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../policy-engine.constant'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -59,7 +59,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
               unencryptedMasterKey: isolateBuffer(unencryptedMasterKey),
               keyName: ENCRYPTION_KEY_NAME,
               keyNamespace: ENCRYPTION_KEY_NAMESPACE,
-              wrappingSuite: RawAesWrappingSuiteIdentifier.AES256_GCM_IV12_TAG16_NO_PADDING
+              wrappingSuite: ENCRYPTION_WRAPPING_SUITE
             })
           }
         }

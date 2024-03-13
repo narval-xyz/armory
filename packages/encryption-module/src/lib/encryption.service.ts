@@ -1,6 +1,7 @@
 import { Hex, toBytes } from '@narval/policy-engine-shared'
 import { Inject, Injectable } from '@nestjs/common'
 import { DEFAULT_ENCRYPTION_CONTEXT } from './encryption.constant'
+import { EncryptionException } from './encryption.exception'
 import { MODULE_OPTIONS_TOKEN } from './encryption.module-definition'
 import { EncryptionModuleOption, Keyring } from './encryption.type'
 import { getClient } from './encryption.util'
@@ -31,7 +32,7 @@ export class EncryptionService {
     const { encryptionContext } = messageHeader
     Object.entries(DEFAULT_ENCRYPTION_CONTEXT).forEach(([key, value]) => {
       if (encryptionContext[key] !== value) {
-        throw new Error('Encryption Context does not match expected values')
+        throw new EncryptionException('Encryption context does not match expected values')
       }
     })
 
@@ -43,6 +44,6 @@ export class EncryptionService {
       return this.options.keyring
     }
 
-    throw new Error("Missing keyring. It seems the encryption module wasn't properly registered")
+    throw new EncryptionException('Missing keyring. It seems the encryption module was not properly registered')
   }
 }
