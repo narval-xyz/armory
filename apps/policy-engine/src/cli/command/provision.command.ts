@@ -5,7 +5,8 @@ import { ProvisionService } from '../../app/core/service/provision.service'
 import { Config } from '../../policy-engine.config'
 
 @Command({
-  name: 'provision'
+  name: 'provision',
+  description: 'Provision the policy engine for the first time'
 })
 export class ProvisionCommand extends CommandRunner {
   constructor(
