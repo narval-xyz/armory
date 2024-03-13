@@ -1,6 +1,6 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
-import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
+import { BadRequestException, Logger, Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { load } from '../policy-engine.config'
@@ -55,11 +55,19 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     TenantService,
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe
-    }
+      useValue: new ValidationPipe({
+        exceptionFactory: (errors) => {
+          const logger = new Logger('ValidationPipe');
+          const errorMessages = errors.map(error => ({
+            property: error.property,
+            constraints: error.constraints
+          }));
+          logger.error(JSON.stringify(errorMessages));
+          return new BadRequestException('Validation failed');
+        },
+      }),
+    },
   ],
-  // - The EngineService is required by the EncryptionModule async registration.
-  // - The ProvisionService is required by the CliModule.
   exports: [EngineService, ProvisionService]
 })
 export class AppModule implements OnApplicationBootstrap {
