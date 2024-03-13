@@ -1,6 +1,9 @@
-import { RawAesKeyringNode, RawAesWrappingSuiteIdentifier } from '@aws-crypto/client-node'
-import { EncryptionModule, generateKeyEncryptionKey } from '@narval/encryption-module'
-import { Module } from '@nestjs/common'
+import { EncryptionModule } from '@narval/encryption-module'
+import { Module, forwardRef } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { AppModule } from '../../../app/app.module'
+import { EngineService } from '../../../app/core/service/engine.service'
+import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'
 import { PersistenceModule } from '../persistence/persistence.module'
 import { KeyValueRepository } from './core/repository/key-value.repository'
 import { EncryptKeyValueService } from './core/service/encrypt-key-value.service'
@@ -12,16 +15,9 @@ import { PrismaKeyValueRepository } from './persistence/repository/prisma-key-va
   imports: [
     PersistenceModule,
     EncryptionModule.registerAsync({
-      useFactory: () => {
-        const keyring = new RawAesKeyringNode({
-          keyName: 'test.key.name',
-          keyNamespace: 'test.key.namespace',
-          unencryptedMasterKey: generateKeyEncryptionKey('test-password', 'test-salt'),
-          wrappingSuite: RawAesWrappingSuiteIdentifier.AES256_GCM_IV12_TAG16_NO_PADDING
-        })
-
-        return { keyring }
-      }
+      imports: [forwardRef(() => AppModule)],
+      inject: [ConfigService, EngineService],
+      useClass: EncryptionModuleOptionFactory
     })
   ],
   providers: [
