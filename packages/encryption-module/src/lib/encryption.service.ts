@@ -2,7 +2,7 @@ import { Hex, toBytes } from '@narval/policy-engine-shared'
 import { Inject, Injectable } from '@nestjs/common'
 import { DEFAULT_ENCRYPTION_CONTEXT } from './encryption.constant'
 import { MODULE_OPTIONS_TOKEN } from './encryption.module-definition'
-import { EncryptionModuleOption } from './encryption.type'
+import { EncryptionModuleOption, Keyring } from './encryption.type'
 import { getClient } from './encryption.util'
 
 @Injectable()
@@ -11,7 +11,7 @@ export class EncryptionService {
 
   async encrypt(value: string | Buffer | Uint8Array): Promise<Buffer> {
     const { encrypt } = getClient()
-    const { result } = await encrypt(this.options.keyring, value, {
+    const { result } = await encrypt(this.getKeyring(), value, {
       encryptionContext: DEFAULT_ENCRYPTION_CONTEXT
     })
 
@@ -25,7 +25,7 @@ export class EncryptionService {
     }
 
     const { decrypt } = getClient()
-    const { plaintext, messageHeader } = await decrypt(this.options.keyring, ciphertextBuffer)
+    const { plaintext, messageHeader } = await decrypt(this.getKeyring(), ciphertextBuffer)
 
     // Verify the context wasn't changed.
     const { encryptionContext } = messageHeader
@@ -36,5 +36,13 @@ export class EncryptionService {
     })
 
     return plaintext
+  }
+
+  getKeyring(): Keyring {
+    if (this.options.keyring) {
+      return this.options.keyring
+    }
+
+    throw new Error("Missing keyring. It seems the encryption module wasn't properly registered")
   }
 }

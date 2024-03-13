@@ -8,7 +8,6 @@ import { APP_PIPE } from '@nestjs/core'
 import { Config, load } from '../policy-engine.config'
 import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE } from '../policy-engine.constant'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
-import { getTestRawAesKeyring } from '../shared/testing/encryption.testing'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
@@ -42,9 +41,8 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
         const engine = await engineService.getEngine()
 
         if (!engine) {
-          // Return a place holder keyring. This must only happen during provisoning.
           return {
-            keyring: getTestRawAesKeyring()
+            keyring: undefined
           }
         }
 
