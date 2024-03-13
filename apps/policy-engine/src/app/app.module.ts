@@ -57,16 +57,16 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       provide: APP_PIPE,
       useValue: new ValidationPipe({
         exceptionFactory: (errors) => {
-          const logger = new Logger('ValidationPipe');
-          const errorMessages = errors.map(error => ({
+          const logger = new Logger('ValidationPipe')
+          const errorMessages = errors.map((error) => ({
             property: error.property,
             constraints: error.constraints
-          }));
-          logger.error(JSON.stringify(errorMessages));
-          return new BadRequestException('Validation failed');
-        },
-      }),
-    },
+          }))
+          logger.error(JSON.stringify(errorMessages))
+          return new BadRequestException('Validation failed')
+        }
+      })
+    }
   ],
   exports: [EngineService, ProvisionService]
 })
