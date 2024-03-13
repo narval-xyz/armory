@@ -47,6 +47,7 @@ export type JWK = {
   x?: string | undefined
   y?: string | undefined
   d?: string | undefined
+  addr?: Hex | undefined
 }
 export type Hex = `0x${string}` // DOMAIN
 
@@ -83,8 +84,9 @@ export type Payload = {
   iss: string
   aud?: string
   jti?: string
-  cnf: JWK // The client-bound key
-  requestHash: string
+  cnf?: JWK // The client-bound key
+  requestHash?: string
+  data?: string // hash of any data
 }
 
 export type Jwt = {
