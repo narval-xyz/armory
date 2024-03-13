@@ -13,7 +13,6 @@ export class AuthorizationRequestDto {
   authentication: string
 
   @IsDefined()
-  @IsString()
   @ApiProperty({
     isArray: true
   })
