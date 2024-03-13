@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { AppModule } from '../engine/app.module'
+import { EngineModule } from '../engine/engine.module'
 import { ProvisionCommand } from './command/provision.command'
 
 @Module({
-  imports: [AppModule],
+  imports: [EngineModule],
   providers: [ProvisionCommand]
 })
 export class CliModule {}

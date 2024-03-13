@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
-import { AppModule } from './engine/app.module'
+import { PolicyEngineModule } from './policy-engine.module'
 
 /**
  * Adds Swagger documentation to the application.
@@ -38,8 +38,8 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 }
 
 async function bootstrap() {
-  const logger = new Logger('AuthorizationNodeBootstrap')
-  const application = await NestFactory.create(AppModule, { bodyParser: true })
+  const logger = new Logger('PolicyEngineBootstrap')
+  const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
   const configService = application.get(ConfigService)
   const port = configService.get('PORT')
 

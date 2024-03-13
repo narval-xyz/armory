@@ -4,15 +4,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { AppModule } from '../../../engine/app.module'
+import { EngineModule } from '../../../engine/app.module'
 import { Config, load } from '../../../policy-engine.config'
 import { REQUEST_HEADER_API_KEY } from '../../../policy-engine.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
+import { CreateTenantDto } from '../../../tenant/http/rest/dto/create-tenant.dto'
 import { EngineService } from '../../core/service/engine.service'
-import { CreateTenantDto } from '../../http/rest/dto/create-tenant.dto'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
 
 describe('Tenant', () => {
@@ -32,7 +32,7 @@ describe('Tenant', () => {
           load: [load],
           isGlobal: true
         }),
-        AppModule
+        EngineModule
       ]
     })
       .overrideProvider(KeyValueRepository)

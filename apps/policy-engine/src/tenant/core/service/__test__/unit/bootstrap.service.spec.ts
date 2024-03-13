@@ -1,13 +1,13 @@
 import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { EngineService } from '../../../../../engine/core/service/engine.service'
 import { EngineRepository } from '../../../../../engine/persistence/repository/engine.repository'
 import { load } from '../../../../../policy-engine.config'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { BootstrapService } from '../../bootstrap.service'
-import { EngineService } from '../../engine.service'
 import { TenantService } from '../../tenant.service'
 
 describe(BootstrapService.name, () => {

@@ -47,7 +47,7 @@ sequenceDiagram
   end
 ```
 
-## Fetch tenant data
+## Sync tenant data stores
 
 Summary of the procedure to fetch tenant data. This is used at boot time and
 when a new tenant is onboarded.
@@ -142,6 +142,23 @@ sequenceDiagram
 - **Tenant API Key**: Used by tenants to authenticate their requests to the
   Policy Engine, ensuring that the requests are legitimate. It's used alongside
   user signed requests.
+
+## Policy publish
+
+```mermaid
+sequenceDiagram
+  title Policy publish
+
+  actor Admin
+  participant Engine as Policy Engine
+  participant DB as Database
+  participant FS as File System
+
+  Engine ->> Engine: Sync tenant policy data store
+  Engine ->> DB: Get policy dataset latest version
+  Engine ->> Engine: Build Rego bundle
+  Engine ->> FS: Temporary save the Rego bundle
+```
 
 ## Encryption
 
