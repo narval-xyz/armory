@@ -20,14 +20,17 @@ describe(AdminApiKeyGuard.name, () => {
   }
 
   const mockEngineService = (adminApiKey: string = 'test-admin-api-key') => {
-    const engineService = mock<EngineService>()
-    engineService.getEngine.mockResolvedValue({
+    const engine = {
       adminApiKey,
       id: 'test-engine-id',
       masterKey: 'test-master-key'
-    })
+    }
 
-    return engineService
+    const serviceMock = mock<EngineService>()
+    serviceMock.getEngine.mockResolvedValue(engine)
+    serviceMock.getEngineOrThrow.mockResolvedValue(engine)
+
+    return serviceMock
   }
 
   it(`throws an error when ${REQUEST_HEADER_API_KEY} header is missing`, async () => {

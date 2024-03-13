@@ -12,8 +12,8 @@ export class EngineService {
     private engineRepository: EngineRepository
   ) {}
 
-  async getEngine(): Promise<Engine> {
-    const engine = await this.engineRepository.findById(this.getId())
+  async getEngineOrThrow(): Promise<Engine> {
+    const engine = await this.getEngine()
 
     if (engine) {
       return engine
@@ -22,8 +22,18 @@ export class EngineService {
     throw new EngineNotProvisionedException()
   }
 
-  async create(engine: Engine): Promise<Engine> {
-    return this.engineRepository.create(engine)
+  async getEngine(): Promise<Engine | null> {
+    const engine = await this.engineRepository.findById(this.getId())
+
+    if (engine) {
+      return engine
+    }
+
+    return null
+  }
+
+  async save(engine: Engine): Promise<Engine> {
+    return this.engineRepository.save(engine)
   }
 
   private getId(): string {

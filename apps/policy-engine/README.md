@@ -38,3 +38,9 @@ make policy-engine/lint
 make policy-engine/format/check
 make policy-engine/lint/check
 ```
+
+## CLI
+
+```bash
+make policy-engine/cli CMD=help
+```
