@@ -40,6 +40,8 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
         const keyring = configService.get('keyring', { infer: true })
         const engine = await engineService.getEngine()
 
+        // NOTE: An undefined engine at boot time only happens during the
+        // provisioning.
         if (!engine) {
           return {
             keyring: undefined
