@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config'
 import { Command, CommandRunner } from 'nest-commander'
-import { EngineService } from '../../app/core/service/engine.service'
-import { ProvisionService } from '../../app/core/service/provision.service'
+import { EngineService } from '../../engine/core/service/engine.service'
+import { ProvisionService } from '../../engine/core/service/provision.service'
 import { Config } from '../../policy-engine.config'
 
 @Command({

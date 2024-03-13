@@ -3,7 +3,7 @@ import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
-import { DataStoreException } from '../../../../../app/core/exception/data-store.exception'
+import { DataStoreException } from '../../../../../engine/core/exception/data-store.exception'
 import { HttpDataStoreRepository } from '../../http-data-store.repository'
 
 describe(HttpDataStoreRepository.name, () => {

@@ -8,7 +8,7 @@ import {
 import { toBytes } from '@narval/policy-engine-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EngineService } from '../../app/core/service/engine.service'
+import { EngineService } from '../../engine/core/service/engine.service'
 import { Config } from '../../policy-engine.config'
 import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../policy-engine.constant'
 

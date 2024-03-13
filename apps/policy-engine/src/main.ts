@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
-import { AppModule } from './app/app.module'
+import { AppModule } from './engine/app.module'
 
 /**
  * Adds Swagger documentation to the application.

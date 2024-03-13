@@ -1,7 +1,7 @@
 import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
-import { EngineRepository } from '../../../../../app/persistence/repository/engine.repository'
+import { EngineRepository } from '../../../../../engine/persistence/repository/engine.repository'
 import { load } from '../../../../../policy-engine.config'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
