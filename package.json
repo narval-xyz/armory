@@ -105,6 +105,7 @@
     "jose": "^5.2.2",
     "lodash": "^4.17.21",
     "lowdb": "^7.0.1",
+    "nest-commander": "^3.12.5",
     "next": "14.0.4",
     "prism-react-renderer": "^2.3.1",
     "react": "18.2.0",

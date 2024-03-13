@@ -18,7 +18,7 @@ export class AdminApiKeyGuard implements CanActivate {
       })
     }
 
-    const engine = await this.engineService.getEngine()
+    const engine = await this.engineService.getEngineOrThrow()
 
     return engine.adminApiKey === apiKey
   }

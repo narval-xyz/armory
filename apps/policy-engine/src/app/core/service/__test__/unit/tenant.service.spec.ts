@@ -1,8 +1,11 @@
+import { EncryptionModule } from '@narval/encryption-module'
 import { DataStoreConfiguration, FIXTURE } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
-import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
+import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
+import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Tenant } from '../../../../../shared/type/domain.type'
 import { TenantRepository } from '../../../../persistence/repository/tenant.repository'
 import { DataStoreService } from '../../data-store.service'
@@ -48,15 +51,21 @@ describe(TenantService.name, () => {
     dataStoreServiceMock.fetch.mockResolvedValue(stores)
 
     const module = await Test.createTestingModule({
+      imports: [
+        EncryptionModule.register({
+          keyring: getTestRawAesKeyring()
+        })
+      ],
       providers: [
         TenantService,
         TenantRepository,
+        EncryptKeyValueService,
         {
           provide: DataStoreService,
           useValue: dataStoreServiceMock
         },
         {
-          provide: KeyValueService,
+          provide: KeyValueRepository,
           useClass: InMemoryKeyValueRepository
         }
       ]

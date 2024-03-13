@@ -1,16 +1,16 @@
 import { EntityStore, PolicyStore, entityStoreSchema, policyStoreSchema } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
-import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
+import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { tenantIndexSchema, tenantSchema } from '../../../shared/schema/tenant.schema'
 import { Tenant } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class TenantRepository {
-  constructor(private keyValueService: KeyValueService) {}
+  constructor(private encryptKeyValueService: EncryptKeyValueService) {}
 
   async findByClientId(clientId: string): Promise<Tenant | null> {
-    const value = await this.keyValueService.get(this.getKey(clientId))
+    const value = await this.encryptKeyValueService.get(this.getKey(clientId))
 
     if (value) {
       return this.decode(value)
@@ -20,14 +20,14 @@ export class TenantRepository {
   }
 
   async save(tenant: Tenant): Promise<Tenant> {
-    await this.keyValueService.set(this.getKey(tenant.clientId), this.encode(tenant))
+    await this.encryptKeyValueService.set(this.getKey(tenant.clientId), this.encode(tenant))
     await this.index(tenant)
 
     return tenant
   }
 
   async getTenantIndex(): Promise<string[]> {
-    const index = await this.keyValueService.get(this.getIndexKey())
+    const index = await this.encryptKeyValueService.get(this.getIndexKey())
 
     if (index) {
       return this.decodeIndex(index)
@@ -37,11 +37,11 @@ export class TenantRepository {
   }
 
   async saveEntityStore(clientId: string, store: EntityStore): Promise<boolean> {
-    return this.keyValueService.set(this.getEntityStoreKey(clientId), this.encodeEntityStore(store))
+    return this.encryptKeyValueService.set(this.getEntityStoreKey(clientId), this.encodeEntityStore(store))
   }
 
   async findEntityStore(clientId: string): Promise<EntityStore | null> {
-    const value = await this.keyValueService.get(this.getEntityStoreKey(clientId))
+    const value = await this.encryptKeyValueService.get(this.getEntityStoreKey(clientId))
 
     if (value) {
       return this.decodeEntityStore(value)
@@ -51,11 +51,11 @@ export class TenantRepository {
   }
 
   async savePolicyStore(clientId: string, store: PolicyStore): Promise<boolean> {
-    return this.keyValueService.set(this.getPolicyStoreKey(clientId), this.encodePolicyStore(store))
+    return this.encryptKeyValueService.set(this.getPolicyStoreKey(clientId), this.encodePolicyStore(store))
   }
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
-    const value = await this.keyValueService.get(this.getPolicyStoreKey(clientId))
+    const value = await this.encryptKeyValueService.get(this.getPolicyStoreKey(clientId))
 
     if (value) {
       return this.decodePolicyStore(value)
@@ -97,13 +97,13 @@ export class TenantRepository {
   private async index(tenant: Tenant): Promise<boolean> {
     const currentIndex = await this.getTenantIndex()
 
-    await this.keyValueService.set(this.getIndexKey(), this.encodeIndex([...currentIndex, tenant.clientId]))
+    await this.encryptKeyValueService.set(this.getIndexKey(), this.encodeIndex([...currentIndex, tenant.clientId]))
 
     return true
   }
 
   private encode(tenant: Tenant): string {
-    return KeyValueService.encode(tenantSchema.parse(tenant))
+    return EncryptKeyValueService.encode(tenantSchema.parse(tenant))
   }
 
   private decode(value: string): Tenant {
@@ -111,7 +111,7 @@ export class TenantRepository {
   }
 
   private encodeIndex(value: string[]): string {
-    return KeyValueService.encode(tenantIndexSchema.parse(value))
+    return EncryptKeyValueService.encode(tenantIndexSchema.parse(value))
   }
 
   private decodeIndex(value: string): string[] {
@@ -119,7 +119,7 @@ export class TenantRepository {
   }
 
   private encodeEntityStore(value: EntityStore): string {
-    return KeyValueService.encode(entityStoreSchema.parse(value))
+    return EncryptKeyValueService.encode(entityStoreSchema.parse(value))
   }
 
   private decodeEntityStore(value: string): EntityStore {
@@ -127,7 +127,7 @@ export class TenantRepository {
   }
 
   private encodePolicyStore(value: PolicyStore): string {
-    return KeyValueService.encode(policyStoreSchema.parse(value))
+    return EncryptKeyValueService.encode(policyStoreSchema.parse(value))
   }
 
   private decodePolicyStore(value: string): PolicyStore {

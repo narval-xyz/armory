@@ -1,9 +1,9 @@
+import { EncryptionModule } from '@narval/encryption-module'
 import { Test } from '@nestjs/testing'
-import { EncryptionModule } from '../../../../../encryption/encryption.module'
-import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Engine } from '../../../../../shared/type/domain.type'
 import { EngineRepository } from '../../engine.repository'
 
@@ -15,7 +15,11 @@ describe(EngineRepository.name, () => {
     inMemoryKeyValueRepository = new InMemoryKeyValueRepository()
 
     const module = await Test.createTestingModule({
-      imports: [EncryptionModule],
+      imports: [
+        EncryptionModule.register({
+          keyring: getTestRawAesKeyring()
+        })
+      ],
       providers: [
         KeyValueService,
         EngineRepository,
@@ -29,27 +33,21 @@ describe(EngineRepository.name, () => {
     repository = module.get<EngineRepository>(EngineRepository)
   })
 
-  describe('create', () => {
+  describe('save', () => {
     const engine: Engine = {
       id: 'test-engine-id',
       adminApiKey: 'unsafe-test-admin-api-key',
       masterKey: 'unsafe-test-master-key'
     }
 
-    it('creates a new engine', async () => {
-      await repository.create(engine)
+    it('saves a new engine', async () => {
+      await repository.save(engine)
 
       const value = await inMemoryKeyValueRepository.get(repository.getKey(engine.id))
       const actualEngine = await repository.findById(engine.id)
 
       expect(value).not.toEqual(null)
       expect(engine).toEqual(actualEngine)
-    })
-
-    it('throws an error when engine is duplicate', async () => {
-      await repository.create(engine)
-
-      await expect(repository.create(engine)).rejects.toThrow(ApplicationException)
     })
   })
 })

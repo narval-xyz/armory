@@ -1,6 +1,13 @@
+import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { EngineRepository } from '../../../../../app/persistence/repository/engine.repository'
+import { load } from '../../../../../policy-engine.config'
+import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
+import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
+import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { BootstrapService } from '../../bootstrap.service'
+import { EngineService } from '../../engine.service'
 import { TenantService } from '../../tenant.service'
 
 describe(BootstrapService.name, () => {
@@ -41,8 +48,21 @@ describe(BootstrapService.name, () => {
     tenantServiceMock.findAll.mockResolvedValue([tenantOne, tenantTwo])
 
     const module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          load: [load],
+          isGlobal: true
+        })
+      ],
       providers: [
         BootstrapService,
+        EngineService,
+        EngineRepository,
+        KeyValueService,
+        {
+          provide: KeyValueRepository,
+          useClass: InMemoryKeyValueRepository
+        },
         {
           provide: TenantService,
           useValue: tenantServiceMock

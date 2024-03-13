@@ -13,7 +13,8 @@ const configSchema = z.object({
     url: z.string().startsWith('postgresql:')
   }),
   engine: z.object({
-    id: z.string()
+    id: z.string(),
+    masterKey: z.string().optional()
   }),
   keyring: z.union([
     z.object({
@@ -37,7 +38,8 @@ export const load = (): Config => {
       url: process.env.POLICY_ENGINE_DATABASE_URL
     },
     engine: {
-      id: process.env.ENGINE_UID
+      id: process.env.ENGINE_UID,
+      masterKey: process.env.MASTER_KEY
     },
     keyring: {
       type: process.env.KEYRING_TYPE,
