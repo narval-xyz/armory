@@ -1,12 +1,15 @@
+import { EncryptionModule } from '@narval/encryption-module'
 import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { load } from '../../../../../../../policy-engine.config'
+import { getTestRawAesKeyring } from '../../../../../../../shared/testing/encryption.testing'
 import { InMemoryKeyValueRepository } from '../../../../persistence/repository/in-memory-key-value.repository'
 import { KeyValueRepository } from '../../../repository/key-value.repository'
-import { KeyValueService } from '../../key-value.service'
+import { EncryptKeyValueService } from '../../encrypt-key-value.service'
 
-describe(KeyValueService.name, () => {
-  let service: KeyValueService
+describe(EncryptKeyValueService.name, () => {
+  let service: EncryptKeyValueService
+  let keyValueRepository: KeyValueRepository
   let inMemoryKeyValueRepository: InMemoryKeyValueRepository
 
   beforeEach(async () => {
@@ -17,10 +20,13 @@ describe(KeyValueService.name, () => {
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
+        }),
+        EncryptionModule.register({
+          keyring: getTestRawAesKeyring()
         })
       ],
       providers: [
-        KeyValueService,
+        EncryptKeyValueService,
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
@@ -28,16 +34,18 @@ describe(KeyValueService.name, () => {
       ]
     }).compile()
 
-    service = module.get<KeyValueService>(KeyValueService)
+    service = module.get<EncryptKeyValueService>(EncryptKeyValueService)
+    keyValueRepository = module.get<KeyValueRepository>(KeyValueRepository)
   })
 
   describe('set', () => {
-    it('sets dencrypted value in the key-value storage', async () => {
+    it('sets encrypt value in the key-value storage', async () => {
       const key = 'test-key'
       const value = 'plain value'
 
       await service.set(key, value)
 
+      expect(await keyValueRepository.get(key)).not.toEqual(value)
       expect(await service.get(key)).toEqual(value)
     })
   })

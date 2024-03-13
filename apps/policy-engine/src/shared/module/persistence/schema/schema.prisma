@@ -19,3 +19,12 @@ model Engine {
 
   @@map("engine")
 }
+
+// TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.
+// See https://www.postgresql.org/docs/9.1/hstore.html
+model KeyValue {
+  key   String @id
+  value String
+
+  @@map("key_value")
+}

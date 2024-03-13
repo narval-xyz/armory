@@ -1,5 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common'
-import { ApplicationException } from '../../../shared/exception/application.exception'
+import { Injectable } from '@nestjs/common'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
 import { engineSchema } from '../../../shared/schema/engine.schema'
 import { Engine } from '../../../shared/type/domain.type'
@@ -18,14 +17,7 @@ export class EngineRepository {
     return null
   }
 
-  async create(engine: Engine): Promise<Engine> {
-    if (await this.keyValueService.get(this.getKey(engine.id))) {
-      throw new ApplicationException({
-        message: 'Engine already exist',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
-      })
-    }
-
+  async save(engine: Engine): Promise<Engine> {
     await this.keyValueService.set(this.getKey(engine.id), this.encode(engine))
 
     return engine

@@ -1,3 +1,4 @@
+import { EncryptionModule } from '@narval/encryption-module'
 import {
   Action,
   Criterion,
@@ -8,13 +9,11 @@ import {
   Then
 } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
-import { mock } from 'jest-mock-extended'
-import { EncryptionService } from '../../../../../encryption/core/encryption.service'
-import { EncryptionModule } from '../../../../../encryption/encryption.module'
-import { EncryptionRepository } from '../../../../../encryption/persistence/repository/encryption.repository'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
+import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Tenant } from '../../../../../shared/type/domain.type'
 import { TenantRepository } from '../../../repository/tenant.repository'
 
@@ -27,35 +26,22 @@ describe(TenantRepository.name, () => {
   beforeEach(async () => {
     inMemoryKeyValueRepository = new InMemoryKeyValueRepository()
 
-    const encryptionRepository = mock<EncryptionRepository>()
-    encryptionRepository.getEngine.mockResolvedValue({
-      id: 'test-engine',
-      masterKey: 'unsafe-test-master-key',
-      adminApiKey: 'unsafe-test-api-key'
-    })
-
     const module = await Test.createTestingModule({
-      imports: [EncryptionModule],
+      imports: [
+        EncryptionModule.register({
+          keyring: getTestRawAesKeyring()
+        })
+      ],
       providers: [
         KeyValueService,
         TenantRepository,
-        {
-          provide: EncryptionRepository,
-          useValue: encryptionRepository
-        },
+        EncryptKeyValueService,
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
         }
       ]
     }).compile()
-
-    // IMPORTANT: The onApplicationBootstrap performs several side-effects to
-    // set up the encryption.
-    //
-    // TODO: Refactor the encryption service. It MUST be ready for usage given
-    // its arguments rather than depending on a set up step.
-    await module.get<EncryptionService>(EncryptionService).setup()
 
     repository = module.get<TenantRepository>(TenantRepository)
   })

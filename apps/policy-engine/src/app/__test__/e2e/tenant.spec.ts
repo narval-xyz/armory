@@ -1,15 +1,16 @@
+import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { AppModule } from '../../../app/app.module'
-import { EncryptionService } from '../../../encryption/core/encryption.service'
 import { Config, load } from '../../../policy-engine.config'
 import { REQUEST_HEADER_API_KEY } from '../../../policy-engine.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
+import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { EngineService } from '../../core/service/engine.service'
 import { CreateTenantDto } from '../../http/rest/dto/create-tenant.dto'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
@@ -19,7 +20,6 @@ describe('Tenant', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
   let tenantRepository: TenantRepository
-  let encryptionService: EncryptionService
   let engineService: EngineService
   let configService: ConfigService<Config, true>
 
@@ -37,6 +37,10 @@ describe('Tenant', () => {
     })
       .overrideProvider(KeyValueRepository)
       .useValue(new InMemoryKeyValueRepository())
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
       .compile()
 
     app = module.createNestApplication()
@@ -44,13 +48,11 @@ describe('Tenant', () => {
     engineService = module.get<EngineService>(EngineService)
     tenantRepository = module.get<TenantRepository>(TenantRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    encryptionService = module.get<EncryptionService>(EncryptionService)
     configService = module.get<ConfigService<Config, true>>(ConfigService)
 
     await testPrismaService.truncateAll()
-    await encryptionService.setup()
 
-    await engineService.create({
+    await engineService.save({
       id: configService.get('engine.id', { infer: true }),
       masterKey: 'unsafe-test-master-key',
       adminApiKey

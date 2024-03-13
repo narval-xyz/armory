@@ -1,9 +1,10 @@
+import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
-import { EncryptionModule } from '../encryption/encryption.module'
 import { load } from '../policy-engine.config'
+import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -11,6 +12,7 @@ import { DataStoreRepositoryFactory } from './core/factory/data-store-repository
 import { BootstrapService } from './core/service/bootstrap.service'
 import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
+import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
 import { TenantController } from './http/rest/controller/tenant.controller'
@@ -28,8 +30,12 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       isGlobal: true
     }),
     HttpModule,
-    EncryptionModule,
-    KeyValueModule
+    KeyValueModule,
+    EncryptionModule.registerAsync({
+      imports: [AppModule],
+      inject: [ConfigService, EngineService],
+      useClass: EncryptionModuleOptionFactory
+    })
   ],
   controllers: [AppController, TenantController],
   providers: [
@@ -39,18 +45,22 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     DataStoreService,
     EngineRepository,
     EngineService,
-    SigningService,
     EntityRepository,
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,
     OpaService,
+    ProvisionService,
+    SigningService,
     TenantRepository,
     TenantService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe
     }
-  ]
+  ],
+  // - The EngineService is required by the EncryptionModule async registration.
+  // - The ProvisionService is required by the CliModule.
+  exports: [EngineService, ProvisionService]
 })
 export class AppModule implements OnApplicationBootstrap {
   constructor(private bootstrapService: BootstrapService) {}

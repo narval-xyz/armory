@@ -14,6 +14,7 @@ policy-engine/setup:
 	make policy-engine/rego/build
 	make policy-engine/db/setup
 	make policy-engine/test/db/setup
+	make policy-engine/cli CMD=provision
 
 policy-engine/copy-default-env:
 	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.default ${POLICY_ENGINE_PROJECT_DIR}/.env
@@ -118,6 +119,14 @@ policy-engine/test:
 	make policy-engine/test/unit
 	make policy-engine/test/integration
 	make policy-engine/test/e2e
+
+# === CLI ===
+
+policy-engine/cli:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json \
+		${POLICY_ENGINE_PROJECT_DIR}/src/cli.ts ${CMD}
 
 # === Open Policy Agent & Rego ===
 
