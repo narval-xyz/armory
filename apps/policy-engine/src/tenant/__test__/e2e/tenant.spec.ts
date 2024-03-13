@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { EngineModule } from '../../../engine/app.module'
+import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
 import { REQUEST_HEADER_API_KEY } from '../../../policy-engine.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
@@ -12,8 +12,8 @@ import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/per
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { CreateTenantDto } from '../../../tenant/http/rest/dto/create-tenant.dto'
-import { EngineService } from '../../core/service/engine.service'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
+import { TenantModule } from '../../tenant.module'
 
 describe('Tenant', () => {
   let app: INestApplication
@@ -32,7 +32,7 @@ describe('Tenant', () => {
           load: [load],
           isGlobal: true
         }),
-        EngineModule
+        TenantModule
       ]
     })
       .overrideProvider(KeyValueRepository)
