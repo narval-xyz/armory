@@ -61,7 +61,11 @@ export type Hex = `0x${string}` // DOMAIN
 export type Header = {
   alg: SigningAlg
   kid: string // Key ID to identify the signing key
-  typ: 'JWT'
+  typ: 'JWT' | 'gnap-binding-jwsd' // see https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
+  htm?: string | undefined // HTTP Method
+  uri?: string | undefined // The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.
+  created?: number | undefined // The time the request was created.
+  ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
 }
 
 /**
@@ -78,10 +82,10 @@ export type Header = {
  *
  */
 export type Payload = {
-  sub: string
+  sub?: string
   iat?: number
   exp?: number
-  iss: string
+  iss?: string
   aud?: string
   jti?: string
   cnf?: JWK // The client-bound key

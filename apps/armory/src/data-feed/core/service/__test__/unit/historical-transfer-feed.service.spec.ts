@@ -1,4 +1,3 @@
-import { Alg } from '@narval/signature'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -70,12 +69,7 @@ describe(HistoricalTransferFeedService.name, () => {
       expect(feed).toMatchObject({
         data: HistoricalTransferFeedService.build(transfers),
         source: HistoricalTransferFeedService.SOURCE_ID,
-        sig: {
-          alg: Alg.ES256K,
-          pubKey:
-            '0x041a2a9746efacc23443530a75092ad75c6cd5dd10d2ccc1d9c866acf9545974bcacc6b755c3c241d6a35b9b27b00cd2df8f46525a751d6872360c3be3015bb563',
-          sig: expect.any(String)
-        }
+        sig: expect.any(String)
       })
     })
 

@@ -6,7 +6,6 @@ import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
 import { AuthorizationRequestDto } from '../../../http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '../../../http/rest/dto/authorization-response.dto'
-import { SignatureDto } from '../../../http/rest/dto/signature.dto'
 import { toCreateAuthorizationRequest } from '../../../http/rest/util'
 
 @Controller('/authorization-requests')
@@ -68,7 +67,7 @@ export class AuthorizationRequestController {
     status: HttpStatus.CREATED,
     type: AuthorizationResponseDto
   })
-  async approve(@Param('id') id: string, @Body() body: SignatureDto): Promise<AuthorizationResponseDto> {
+  async approve(@Param('id') id: string, @Body() body: string): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.approve(id, body)
 
     return new AuthorizationResponseDto(authzRequest)

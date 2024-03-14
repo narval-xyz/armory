@@ -1,13 +1,4 @@
-import {
-  AccessList,
-  AccountId,
-  Action,
-  Address,
-  BaseActionDto,
-  FiatCurrency,
-  Hex,
-  SignatureDto
-} from '@narval/policy-engine-shared'
+import { AccessList, AccountId, Action, Address, BaseActionDto, FiatCurrency, Hex } from '@narval/policy-engine-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEthereumAddress, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
@@ -131,17 +122,14 @@ export class HistoricalTransferDto {
 @ApiExtraModels(SignTransactionRequestDataDto, SignMessageRequestDataDto)
 export class EvaluationRequestDto {
   @IsDefined()
-  @ValidateNested()
   @ApiProperty()
-  authentication: SignatureDto
+  authentication: string
 
   @IsOptional()
-  @ValidateNested()
   @ApiProperty({
-    type: () => SignatureDto,
     isArray: true
   })
-  approvals?: SignatureDto[]
+  approvals?: string[]
 
   @ValidateNested()
   @Type((opts) => {

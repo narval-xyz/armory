@@ -17,4 +17,7 @@ export class EntityRepository {
   getCredentialForPubKey(pubKey: string): CredentialEntity | null {
     return FIXTURE.ENTITIES.credentials.find((cred) => cred.pubKey === pubKey) || null
   }
+  getCredential(id: string): CredentialEntity | null {
+    return FIXTURE.ENTITIES.credentials.find((cred) => cred.id === id) || null
+  }
 }

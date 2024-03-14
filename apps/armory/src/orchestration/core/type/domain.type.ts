@@ -1,4 +1,4 @@
-import { Action, Signature, TransactionRequest } from '@narval/policy-engine-shared'
+import { Action, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 
 export enum AuthorizationRequestStatus {
@@ -9,11 +9,6 @@ export enum AuthorizationRequestStatus {
   APPROVING = 'APPROVING',
   PERMITTED = 'PERMITTED',
   FORBIDDEN = 'FORBIDDEN'
-}
-
-export type Approval = Signature & {
-  id: string
-  createdAt: Date
 }
 
 export type Evaluation = {
@@ -51,21 +46,19 @@ export type AuthorizationRequest = {
   id: string
   orgId: string
   status: `${AuthorizationRequestStatus}`
-  authentication: Signature
+  authentication: JwtString
   request: Request
-  approvals: Approval[]
+  approvals: JwtString[]
   evaluations: Evaluation[]
   idempotencyKey?: string | null
   createdAt: Date
   updatedAt: Date
 }
 
-export type CreateApproval = SetOptional<Approval, 'id' | 'createdAt'>
-
 export type CreateAuthorizationRequest = OverrideProperties<
   SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
   {
-    approvals: CreateApproval[]
+    approvals: JwtString[]
   }
 >
 
