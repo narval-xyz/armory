@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
-import { EngineService } from '../../../../app/core/service/engine.service'
+import { EngineService } from '../../../../engine/core/service/engine.service'
 import { REQUEST_HEADER_API_KEY } from '../../../../policy-engine.constant'
 import { ApplicationException } from '../../../exception/application.exception'
 import { AdminApiKeyGuard } from '../../admin-api-key.guard'
