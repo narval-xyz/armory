@@ -1,6 +1,6 @@
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
-import { generateInboundRequest } from '../engine/persistence/repository/mock_data'
+import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
 import { AppService } from './app.service'
 import { EvaluationRequestDto } from './evaluation-request.dto'
 
@@ -45,7 +45,7 @@ export class AppController {
 
   @Post('/evaluation-demo')
   async evaluateDemo() {
-    const fakeRequest = await generateInboundRequest()
+    const fakeRequest = await generateInboundEvaluationRequest()
     this.logger.log({
       message: 'Received evaluation',
       body: fakeRequest
@@ -64,6 +64,6 @@ export class AppController {
 
   @Get('/generate-inbound-request')
   generateInboundRequest() {
-    return generateInboundRequest()
+    return generateInboundEvaluationRequest()
   }
 }

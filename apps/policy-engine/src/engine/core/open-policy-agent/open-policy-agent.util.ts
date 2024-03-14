@@ -1,4 +1,5 @@
 import { Action, EvaluationRequest } from '@narval/policy-engine-shared'
+import { Alg } from '@narval/signature'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { OpenPolicyAgentException } from './open-policy-agent.exception'
@@ -22,8 +23,22 @@ export const toInput = (evaluation: EvaluationRequest): Input => {
         action,
         intent: result.intent,
         transactionRequest: evaluation.request.transactionRequest,
-        principal: evaluation.authentication,
-        approvals: evaluation.approvals,
+        principal: {
+          id: 'test-cred-id',
+          pubKey: 'test-pub-key',
+          address: 'test-address',
+          alg: Alg.ES256K,
+          userId: 'test-user-id'
+        },
+        approvals: [
+          {
+            id: 'test-cred-id',
+            pubKey: 'test-pub-key',
+            address: 'test-address',
+            alg: Alg.ES256K,
+            userId: 'test-user-id'
+          }
+        ],
         transfers: evaluation.transfers
       }
     }
@@ -37,4 +52,10 @@ export const toInput = (evaluation: EvaluationRequest): Input => {
       }
     })
   }
+
+  throw new OpenPolicyAgentException({
+    message: 'Unsupported evaluation request action',
+    suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+    context: { action }
+  })
 }

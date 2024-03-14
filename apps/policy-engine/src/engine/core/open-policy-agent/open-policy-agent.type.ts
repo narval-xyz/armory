@@ -7,6 +7,7 @@ export type Input = {
   transactionRequest?: TransactionRequest
   principal: CredentialEntity
   resource?: { uid: string }
+  // TODO: Why is this a credential?
   approvals: CredentialEntity[]
   transfers?: HistoricalTransfer[]
 }

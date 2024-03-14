@@ -7,19 +7,6 @@ type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : 
 
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
 
-// When we say "build" it means compiling into a WASM.
-// When we say "generated" it means policies in Rego
-//
-// - We have base library called main with helper functions (all the criteria)
-// - We also need the generated policies
-// - We aslo need the data
-// - We build these into a WASM binary (criteria funcs + generated policies)
-// - Load the data into the OPA engine
-//
-// FAQ
-// - When we build the WASM, do I only need the .wasm file? Yes!
-// - Can we build without the CLI? Apparentely, no.
-
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[] = []
 

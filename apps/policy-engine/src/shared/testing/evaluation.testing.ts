@@ -1,11 +1,10 @@
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Payload, SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
-import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { toHex } from 'viem'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
-export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
+export const generateInboundEvaluationRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
     from: FIXTURE.WALLET.Engineering.address,
     to: FIXTURE.WALLET.Treasury.address,
@@ -31,21 +30,21 @@ export const generateInboundRequest = async (): Promise<EvaluationRequest> => {
   // const aliceSignature = await FIXTURE.ACCOUNT.Alice.signMessage({ message })
   const aliceSignature = await signJwt(
     payload,
-    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice),
+    privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice),
     { alg: SigningAlg.EIP191 },
-    buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
+    buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
   )
   const bobSignature = await signJwt(
     payload,
-    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob),
+    privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Bob),
     { alg: SigningAlg.EIP191 },
-    buildSignerEip191(UNSAFE_PRIVATE_KEY.Bob)
+    buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Bob)
   )
   const carolSignature = await signJwt(
     payload,
-    privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol),
+    privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Carol),
     { alg: SigningAlg.EIP191 },
-    buildSignerEip191(UNSAFE_PRIVATE_KEY.Carol)
+    buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Carol)
   )
   return {
     authentication: aliceSignature,
