@@ -4,9 +4,9 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
+import { PolicyEngineModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
-import { PolicyEngineModule } from './policy-engine.module'
 
 /**
  * Adds Swagger documentation to the application.
