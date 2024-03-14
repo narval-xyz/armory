@@ -80,7 +80,6 @@ policy-engine/db/seed:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
 		ts-node -r tsconfig-paths/register --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.ts
 
-
 # === Testing ===
 
 policy-engine/test/db/setup:
@@ -89,7 +88,6 @@ policy-engine/test/db/setup:
 		--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
 		--skip-seed \
 		--force
-
 
 policy-engine/test/type:
 	make policy-engine/db/generate-types

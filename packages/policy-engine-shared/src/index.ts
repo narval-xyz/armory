@@ -9,6 +9,7 @@ export * from './lib/dto'
 export * from './lib/type/action.type'
 export * from './lib/type/data-store.type'
 export * from './lib/type/domain.type'
+export * from './lib/type/engine.type'
 export * from './lib/type/entity.type'
 export * from './lib/type/policy.type'
 
