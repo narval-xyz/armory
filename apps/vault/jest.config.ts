@@ -13,7 +13,8 @@ const config: Config = {
         tsconfig: '<rootDir>/tsconfig.spec.json'
       }
     ]
-  }
+  },
+  workerThreads: true // EXPERIMENTAL; lets BigInt serialization work
 }
 
 export default config

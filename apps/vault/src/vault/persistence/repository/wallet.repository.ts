@@ -14,7 +14,7 @@ export class WalletRepository {
   }
 
   async findById(tenantId: string, id: string): Promise<Wallet | null> {
-    const value = await this.keyValueService.get(this.getKey(id, tenantId))
+    const value = await this.keyValueService.get(this.getKey(tenantId, id))
 
     if (value) {
       return this.decode(value)

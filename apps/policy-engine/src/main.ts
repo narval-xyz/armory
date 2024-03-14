@@ -32,7 +32,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
  * @returns The modified INestApplication instance.
  */
 const withGlobalPipes = (app: INestApplication): INestApplication => {
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   return app
 }
