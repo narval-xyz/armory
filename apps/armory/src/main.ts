@@ -6,6 +6,7 @@ import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
 import { ArmoryModule } from './armory.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
+import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
 /**
@@ -64,7 +65,11 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
 const withGlobalFilters =
   (configService: ConfigService<Config, true>) =>
   (app: INestApplication): INestApplication => {
-    app.useGlobalFilters(new ApplicationExceptionFilter(configService), new ZodExceptionFilter(configService))
+    app.useGlobalFilters(
+      new ApplicationExceptionFilter(configService),
+      new ZodExceptionFilter(configService),
+      new HttpExceptionFilter(configService)
+    )
 
     return app
   }

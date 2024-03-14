@@ -16,6 +16,7 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus()
     const isProduction = this.configService.get('env') === Env.PRODUCTION
 
+    console.log('### ApplicationExceptionFilter.catch() ###')
     this.log(exception)
 
     response.status(status).json(
