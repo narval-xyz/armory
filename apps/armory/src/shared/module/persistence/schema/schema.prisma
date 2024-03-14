@@ -44,8 +44,6 @@ model AuthorizationRequest {
   action         String
   request        Json
   idempotencyKey String?                    @unique @map("idempotency_key")
-  authnAlg       String                     @map("authn_alg")
-  authnPubKey    String                     @map("authn_pub_key")
   authnSig       String                     @map("authn_sig")
   createdAt      DateTime                   @default(now()) @map("created_at")
   updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
@@ -59,8 +57,6 @@ model AuthorizationRequest {
 model AuthorizationRequestApproval {
   id        String   @id @default(uuid()) @db.VarChar(255)
   requestId String   @map("request_id")
-  alg       String
-  pubKey    String   @map("pub_key")
   sig       String
   createdAt DateTime @default(now()) @map("created_at")
 

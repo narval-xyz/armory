@@ -1,6 +1,5 @@
-import { Signature } from '@narval/policy-engine-shared'
 import { plainToInstance } from 'class-transformer'
-import { CreateApproval, CreateAuthorizationRequest } from '../../core/type/domain.type'
+import { CreateAuthorizationRequest } from '../../core/type/domain.type'
 import { AuthorizationRequestDto } from '../../http/rest/dto/authorization-request.dto'
 
 // Not in love with the gymnastics required to bend a DTO to a domain object.
@@ -11,8 +10,8 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
-  const approvals: CreateApproval[] = dto.approvals
-  const authentication: Signature = dto.authentication
+  const approvals: string[] = dto.approvals
+  const authentication: string = dto.authentication
 
   return {
     orgId,

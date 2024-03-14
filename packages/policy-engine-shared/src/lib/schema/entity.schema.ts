@@ -24,6 +24,7 @@ export const accountClassificationSchema = z.nativeEnum({
 export const credentialEntitySchema = z.object({
   id: z.string(),
   pubKey: z.string(),
+  address: z.string().optional(),
   alg: z.nativeEnum(Alg),
   userId: z.string()
 })

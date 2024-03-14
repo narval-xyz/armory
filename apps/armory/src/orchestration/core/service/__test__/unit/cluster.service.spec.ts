@@ -1,12 +1,11 @@
 import { Decision, EvaluationResponse, Feed, Prices } from '@narval/policy-engine-shared'
-import { Alg, hash } from '@narval/signature'
+import { hash } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { PrivateKeyAccount, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   generateAuthorizationRequest,
   generateSignTransactionRequest,
-  generateSignature,
   generateTransactionRequest
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generatePrices } from '../../../../../__test__/fixture/price.fixture'
@@ -21,6 +20,9 @@ import { AuthorizationRequest } from '../../../../core/type/domain.type'
 import { AuthzApplicationClient } from '../../../../http/client/authz-application.client'
 
 describe(ClusterService.name, () => {
+  const jwt =
+    'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ.eyJyZXF1ZXN0SGFzaCI6IjYwOGFiZTkwOGNmZmVhYjFmYzMzZWRkZTZiNDQ1ODZmOWRhY2JjOWM2ZmU2ZjBhMTNmYTMwNzIzNzI5MGNlNWEiLCJzdWIiOiJ0ZXN0LXJvb3QtdXNlci11aWQiLCJpc3MiOiJodHRwczovL2FybW9yeS5uYXJ2YWwueHl6IiwiY25mIjp7Imt0eSI6IkVDIiwiY3J2Ijoic2VjcDI1NmsxIiwiYWxnIjoiRVMyNTZLIiwidXNlIjoic2lnIiwia2lkIjoiMHgwMDBjMGQxOTEzMDhBMzM2MzU2QkVlMzgxM0NDMTdGNjg2ODk3MkM0IiwieCI6IjA0YTlmM2JjZjY1MDUwNTk1OTdmNmYyN2FkOGMwZjAzYTNiZDdhMTc2MzUyMGIwYmZlYzIwNDQ4OGI4ZTU4NDAiLCJ5IjoiN2VlOTI4NDVhYjFjMzVhNzg0YjA1ZmRmYTU2NzcxNWM1M2JiMmYyOTk0OWIyNzcxNGUzYzE3NjBlMzcwOTAwOWE2In19.gFDywYsxY2-uT6H6hyxk51CtJhAZpI8WtcvoXHltiWsoBVOot1zMo3nHAhkWlYRmD3RuLtmOYzi6TwTUM8mFyBs'
+
   let service: ClusterService
   let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
 
@@ -51,7 +53,7 @@ describe(ClusterService.name, () => {
 
     const priceFeed: Feed<Prices> = {
       source: PriceFeedService.SOURCE_ID,
-      sig: generateSignature(),
+      sig: jwt,
       data: generatePrices()
     }
 
@@ -110,10 +112,8 @@ describe(ClusterService.name, () => {
           satisfied: [],
           missing: []
         },
-        attestation: {
-          sig: signature,
-          alg: Alg.ES256K,
-          pubKey: account.address
+        accessToken: {
+          value: signature
         },
         ...partial
       }
@@ -173,11 +173,7 @@ describe(ClusterService.name, () => {
 
       authzApplicationClientMock.evaluation.mockResolvedValue({
         ...permit,
-        attestation: {
-          alg: Alg.ES256K,
-          sig: signature,
-          pubKey: nodeAccount.address
-        }
+        accessToken: { value: signature }
       })
 
       await expect(service.evaluation(input)).rejects.toThrow(InvalidAttestationSignatureException)

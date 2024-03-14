@@ -1,11 +1,5 @@
 import { AssetId } from '../util/caip.util'
-import {
-  CreateOrganizationAction,
-  SignMessageAction,
-  SignTransactionAction,
-  SignTypedDataAction,
-  Signature
-} from './action.type'
+import { CreateOrganizationAction, SignMessageAction, SignTransactionAction, SignTypedDataAction } from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -48,6 +42,8 @@ export enum IdentityOperators {
   CONTAINS = 'contains',
   IN = 'in'
 }
+
+export type JwtString = string
 
 export type HistoricalTransfer = {
   /**
@@ -107,11 +103,12 @@ export type Feed<Data> = {
   source: string
   /**
    * The signature of the data acts as an attestation and prevents tampering.
+   * in the JWT format
    *
    * Null values are allowed because organizations have the option to not use
    * any trusted data sources if they prefer.
    */
-  sig: Signature | null
+  sig: JwtString | null
   data: Data
 }
 
@@ -122,19 +119,16 @@ export type Feed<Data> = {
  * being authorized. This is the data that will be hashed and signed.
  */
 export type EvaluationRequest = {
-  /**
-   * The initiator signature of the request using `hashRequest` method to ensure
-   * SHA256 format.
-   */
-  authentication: Signature
+  // JWT string signing the Request payload
+  authentication: JwtString
   /**
    * The authorization request of
    */
   request: Request
   /**
-   * List of approvals required by the policy.
+   * JWT strings signing the Request payload
    */
-  approvals?: Signature[]
+  approvals?: JwtString[]
   transfers?: HistoricalTransfer[]
   prices?: Prices
   /**
@@ -173,7 +167,6 @@ export type EvaluationResponse = {
     missing: ApprovalRequirement[]
     satisfied: ApprovalRequirement[]
   }
-  attestation?: Signature // @deprecated, use AccessToken
   accessToken?: AccessToken
   transactionRequestIntent?: unknown
 }
