@@ -21,6 +21,10 @@ export class AuthorizationRequestRepository {
     const request = createRequestSchema.parse(input.request)
     const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
 
+    const approvalsData = approvals.map((approval) => ({
+      sig: approval
+    }))
+
     const model = await this.prismaService.authorizationRequest.create({
       data: {
         id,
@@ -31,14 +35,14 @@ export class AuthorizationRequestRepository {
         createdAt,
         updatedAt,
         action: request.action,
-        authnAlg: authentication.alg,
-        authnSig: authentication.sig,
-        authnPubKey: authentication.pubKey,
-        approvals: {
-          createMany: {
-            data: approvals
-          }
-        },
+        authnSig: authentication,
+        approvals: approvals
+          ? {
+              createMany: {
+                data: approvalsData
+              }
+            }
+          : undefined,
         evaluationLog: {
           createMany: {
             data: evaluationLogs
@@ -77,7 +81,7 @@ export class AuthorizationRequestRepository {
         status,
         approvals: {
           createMany: {
-            data: approvals?.length ? approvals : [],
+            data: approvals?.length ? approvals.map((sig) => ({ sig })) : [],
             skipDuplicates: true
           }
         },
@@ -141,11 +145,7 @@ export class AuthorizationRequestRepository {
       status: input.status || AuthorizationRequestStatus.CREATED,
       createdAt: input.createdAt || now,
       updatedAt: input.updatedAt || now,
-      approvals: input.approvals.map((approval) => ({
-        ...approval,
-        id: approval.id || uuid(),
-        createdAt: approval.createdAt || now
-      }))
+      approvals: input.approvals
     }
   }
 

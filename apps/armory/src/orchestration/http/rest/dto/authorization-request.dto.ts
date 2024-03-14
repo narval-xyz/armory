@@ -1,27 +1,22 @@
 import { Action } from '@narval/policy-engine-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, ValidateNested } from 'class-validator'
+import { IsDefined, IsString, ValidateNested } from 'class-validator'
 import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
-import { SignatureDto } from '../../../http/rest/dto/signature.dto'
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto)
 export class AuthorizationRequestDto {
   @IsDefined()
-  @ValidateNested()
+  @IsString()
   @ApiProperty()
-  @Type(() => SignatureDto)
-  authentication: SignatureDto
+  authentication: string
 
   @IsDefined()
-  @ValidateNested()
-  @Type(() => SignatureDto)
   @ApiProperty({
-    type: () => SignatureDto,
     isArray: true
   })
-  approvals: SignatureDto[]
+  approvals: string[]
 
   // TODO (@wcalderipe, 22/01/24): Test the discrimination type option from
   // class-transformer instead of a custom function map.

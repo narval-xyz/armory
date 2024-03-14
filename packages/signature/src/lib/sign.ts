@@ -2,8 +2,8 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
-import { signatureToHex, toBytes, toHex } from 'viem'
-import { EcdsaSignature, Header, JWK, Payload, SigningAlg } from './types'
+import { isHex, signatureToHex, toBytes, toHex } from 'viem'
+import { EcdsaSignature, Header, Hex, JWK, Payload, SigningAlg } from './types'
 import { hexToBase64Url } from './utils'
 
 // WIP to replace `sign`
@@ -39,8 +39,9 @@ export async function signJwt(
   return jwt
 }
 
-export const signSecp256k1 = (hash: Uint8Array, privateKey: string, isEth?: boolean): EcdsaSignature => {
-  const { r, s, recovery } = secp256k1.sign(hash, privateKey)
+export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?: boolean): EcdsaSignature => {
+  const pk = isHex(privateKey) ? privateKey.slice(2) : privateKey
+  const { r, s, recovery } = secp256k1.sign(hash, pk)
   const rHex = toHex(r, { size: 32 })
   const sHex = toHex(s, { size: 32 })
   const recoveryBn = isEth ? 27n + BigInt(recovery) : BigInt(recovery)
@@ -75,10 +76,9 @@ export const eip191Hash = (message: string): Uint8Array => {
 }
 
 export const buildSignerEip191 =
-  (privateKey: string) =>
+  (privateKey: Hex | string) =>
   async (messageToSign: string): Promise<string> => {
     const hash = eip191Hash(messageToSign)
-
     const signature = signSecp256k1(hash, privateKey, true)
     const hexSignature = signatureToHex(signature)
     return hexToBase64Url(hexSignature)

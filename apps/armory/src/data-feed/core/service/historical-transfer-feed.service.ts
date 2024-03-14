@@ -1,5 +1,5 @@
-import { Feed, HistoricalTransfer, Signature } from '@narval/policy-engine-shared'
-import { Alg, hash } from '@narval/signature'
+import { Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-shared'
+import { Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'
@@ -27,17 +27,26 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
     return privateKeyToAccount(this.getPrivateKey()).publicKey
   }
 
-  async sign(data: HistoricalTransfer[]): Promise<Signature> {
+  async sign(data: HistoricalTransfer[]): Promise<JwtString> {
     const account = privateKeyToAccount(this.getPrivateKey())
-    const sig = await account.signMessage({
-      message: hash(data)
-    })
 
-    return {
-      alg: Alg.ES256K,
-      pubKey: account.publicKey,
-      sig
+    const jwtSigner = async (msg: string) => {
+      const jwtSig = await account.signMessage({ message: msg })
+
+      return hexToBase64Url(jwtSig)
     }
+
+    const now = Math.floor(Date.now() / 1000)
+    const jwk = privateKeyToJwk(this.getPrivateKey())
+    const payload: Payload = {
+      data: hash(data),
+      sub: account.address,
+      iss: 'https://armory.narval.xyz',
+      iat: now
+    }
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+
+    return jwt
   }
 
   private getPrivateKey(): `0x${string}` {
