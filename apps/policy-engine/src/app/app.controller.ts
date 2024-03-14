@@ -1,7 +1,6 @@
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
 import { generateInboundRequest } from '../app/persistence/repository/mock_data'
-import { ApplicationException } from '../shared/exception/application.exception'
 import { AppService } from './app.service'
 import { EvaluationRequestDto } from './evaluation-request.dto'
 
@@ -21,15 +20,6 @@ export class AppController {
     this.logger.log({
       message: 'Received ping'
     })
-
-    throw new ApplicationException({
-      message: 'Test error message',
-      context: {
-        foo: 'bar'
-      },
-      suggestedHttpStatusCode: 400
-    })
-    // throw new HttpException('THIS SHOULD SHOW SOMEHWERE', 500)
     return 'pong'
   }
 
