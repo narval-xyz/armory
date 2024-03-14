@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { EngineService } from '../../app/core/service/engine.service'
+import { EngineService } from '../../engine/core/service/engine.service'
 import { REQUEST_HEADER_API_KEY } from '../../policy-engine.constant'
 import { ApplicationException } from '../exception/application.exception'
 

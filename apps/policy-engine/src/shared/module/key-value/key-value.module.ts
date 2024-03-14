@@ -1,8 +1,8 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { Module, forwardRef } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AppModule } from '../../../app/app.module'
-import { EngineService } from '../../../app/core/service/engine.service'
+import { EngineService } from '../../../engine/core/service/engine.service'
+import { EngineModule } from '../../../engine/engine.module'
 import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'
 import { PersistenceModule } from '../persistence/persistence.module'
 import { KeyValueRepository } from './core/repository/key-value.repository'
@@ -15,7 +15,7 @@ import { PrismaKeyValueRepository } from './persistence/repository/prisma-key-va
   imports: [
     PersistenceModule,
     EncryptionModule.registerAsync({
-      imports: [forwardRef(() => AppModule)],
+      imports: [forwardRef(() => EngineModule)],
       inject: [ConfigService, EngineService],
       useClass: EncryptionModuleOptionFactory
     })
