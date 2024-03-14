@@ -5,17 +5,11 @@ import { ZodIssueCode, ZodSchema, z } from 'zod'
 import { AuthorizationRequest, Evaluation } from '../../core/type/domain.type'
 import { ACTION_REQUEST } from '../../orchestration.constant'
 import { DecodeAuthorizationRequestException } from '../../persistence/exception/decode-authorization-request.exception'
-import { signatureSchema } from '../../persistence/schema/signature.schema'
 import { AuthorizationRequestModel } from '../../persistence/type/model.type'
 
 type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 
 const actionSchema = z.nativeEnum(Action)
-
-const approvalSchema = signatureSchema.extend({
-  id: z.string().uuid(),
-  createdAt: z.date()
-})
 
 const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
   id,
@@ -29,12 +23,8 @@ const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action
   orgId: model.orgId,
   status: model.status,
   idempotencyKey: model.idempotencyKey,
-  authentication: signatureSchema.parse({
-    alg: model.authnAlg,
-    sig: model.authnSig,
-    pubKey: model.authnPubKey
-  }),
-  approvals: z.array(approvalSchema).parse(model.approvals),
+  authentication: model.authnSig,
+  approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
   evaluations: (model.evaluationLog || []).map(buildEvaluation),
   createdAt: model.createdAt,
   updatedAt: model.updatedAt

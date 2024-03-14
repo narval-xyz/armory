@@ -4,10 +4,8 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
 import {
-  generateApproval,
   generateAuthorizationRequest,
   generateSignTransactionRequest,
-  generateSignature,
   generateTransactionRequest
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
@@ -20,16 +18,14 @@ import { TransferTrackingService } from '../../../../../transfer-tracking/core/s
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
 import { ClusterService } from '../../../../core/service/cluster.service'
-import {
-  Approval,
-  AuthorizationRequest,
-  AuthorizationRequestStatus,
-  SignTransaction
-} from '../../../../core/type/domain.type'
+import { AuthorizationRequest, AuthorizationRequestStatus, SignTransaction } from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
 
 describe(AuthorizationRequestService.name, () => {
+  const jwt =
+    'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ.eyJyZXF1ZXN0SGFzaCI6IjYwOGFiZTkwOGNmZmVhYjFmYzMzZWRkZTZiNDQ1ODZmOWRhY2JjOWM2ZmU2ZjBhMTNmYTMwNzIzNzI5MGNlNWEiLCJzdWIiOiJ0ZXN0LXJvb3QtdXNlci11aWQiLCJpc3MiOiJodHRwczovL2FybW9yeS5uYXJ2YWwueHl6IiwiY25mIjp7Imt0eSI6IkVDIiwiY3J2Ijoic2VjcDI1NmsxIiwiYWxnIjoiRVMyNTZLIiwidXNlIjoic2lnIiwia2lkIjoiMHgwMDBjMGQxOTEzMDhBMzM2MzU2QkVlMzgxM0NDMTdGNjg2ODk3MkM0IiwieCI6IjA0YTlmM2JjZjY1MDUwNTk1OTdmNmYyN2FkOGMwZjAzYTNiZDdhMTc2MzUyMGIwYmZlYzIwNDQ4OGI4ZTU4NDAiLCJ5IjoiN2VlOTI4NDVhYjFjMzVhNzg0YjA1ZmRmYTU2NzcxNWM1M2JiMmYyOTk0OWIyNzcxNGUzYzE3NjBlMzcwOTAwOWE2In19.gFDywYsxY2-uT6H6hyxk51CtJhAZpI8WtcvoXHltiWsoBVOot1zMo3nHAhkWlYRmD3RuLtmOYzi6TwTUM8mFyBs'
+
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
@@ -90,11 +86,9 @@ describe(AuthorizationRequestService.name, () => {
   })
 
   describe('approve', () => {
-    const approval: Approval = generateApproval()
-
     const updatedAuthzRequest: AuthorizationRequest = {
       ...authzRequest,
-      approvals: [approval]
+      approvals: [jwt]
     }
 
     beforeEach(() => {
@@ -106,11 +100,11 @@ describe(AuthorizationRequestService.name, () => {
     it('creates a new approval and evaluates the authorization request', async () => {
       authzRequestRepositoryMock.update.mockResolvedValue(updatedAuthzRequest)
 
-      await service.approve(authzRequest.id, approval)
+      await service.approve(authzRequest.id, jwt)
 
       expect(authzRequestRepositoryMock.update).toHaveBeenCalledWith({
         id: authzRequest.id,
-        approvals: [approval]
+        approvals: [jwt]
       })
       expect(service.evaluate).toHaveBeenCalledWith(updatedAuthzRequest)
     })
@@ -120,7 +114,9 @@ describe(AuthorizationRequestService.name, () => {
     const evaluationResponse: EvaluationResponse = {
       decision: Decision.PERMIT,
       request: authzRequest.request,
-      attestation: generateSignature(),
+      accessToken: {
+        value: jwt
+      },
       transactionRequestIntent: {
         type: Intents.TRANSFER_NATIVE,
         amount: '1000000000000000000',
@@ -176,7 +172,7 @@ describe(AuthorizationRequestService.name, () => {
           expect.objectContaining({
             id: expect.any(String),
             decision: evaluationResponse.decision,
-            signature: evaluationResponse.attestation?.sig,
+            signature: evaluationResponse.accessToken?.value,
             createdAt: expect.any(Date)
           })
         ]
@@ -207,7 +203,7 @@ describe(AuthorizationRequestService.name, () => {
         chainId: request.transactionRequest.chainId,
         orgId: authzRequest.orgId,
         requestId: authzRequest.id,
-        initiatedBy: authzRequest.authentication.pubKey,
+        initiatedBy: authzRequest.authentication, // TODO: this will change when the underlying data is corrected.
         rates: {
           'fiat:usd': 0.99
         },

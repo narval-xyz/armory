@@ -1,7 +1,7 @@
+import { JwtString } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
-import { SetOptional } from 'type-fest'
 import { AuthorizationRequestService } from '../core/service/authorization-request.service'
-import { Approval, AuthorizationRequest, CreateAuthorizationRequest } from '../core/type/domain.type'
+import { AuthorizationRequest, CreateAuthorizationRequest } from '../core/type/domain.type'
 
 @Injectable()
 export class AuthorizationRequestGateway {
@@ -15,7 +15,7 @@ export class AuthorizationRequestGateway {
     return this.authorizationRequestService.findById(id)
   }
 
-  async approve(id: string, approval: SetOptional<Approval, 'id' | 'createdAt'>): Promise<AuthorizationRequest> {
+  async approve(id: string, approval: JwtString): Promise<AuthorizationRequest> {
     return this.authorizationRequestService.approve(id, approval)
   }
 }

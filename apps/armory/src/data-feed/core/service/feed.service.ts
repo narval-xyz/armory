@@ -46,9 +46,7 @@ export class FeedService {
         orgId,
         requestId,
         source: feed.source,
-        sig: feed.sig?.sig,
-        alg: feed.sig?.alg,
-        pubKey: feed.sig?.pubKey,
+        sig: feed.sig,
         data: this.getPersistableJson(feed.data),
         createdAt: new Date()
       }))

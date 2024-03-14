@@ -1,4 +1,5 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
+import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { toHex } from 'viem'
 import { getAddress, publicKeyToAddress } from 'viem/utils'
 import { Alg, Curves, Hex, JWK, KeyTypes } from './types'
@@ -33,6 +34,10 @@ export const algToJwk = (
   }
 }
 
+export const addressToKid = (address: string): string => {
+  return toHex(sha256Hash(address.toLowerCase()))
+}
+
 // ES256k
 export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
   // remove the 0x04 prefix -- 04 means it's an uncompressed ECDSA key, 02 or 03 means compressed -- these need to be removed in a JWK!
@@ -44,7 +49,7 @@ export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
     crv: Curves.SECP256K1,
     alg: Alg.ES256K,
     // use: Use.SIG,
-    kid: keyId || publicKeyToAddress(publicKey), // add an opaque prefix that indicates the key type
+    kid: keyId || addressToKid(publicKeyToAddress(publicKey)), // add an opaque prefix that indicates the key type
     x: hexToBase64Url(`0x${x}`),
     y: hexToBase64Url(`0x${y}`)
   }
@@ -66,7 +71,7 @@ export const addressToJwk = (address: string, keyId?: string): JWK => {
     kty: KeyTypes.EC,
     crv: Curves.SECP256K1,
     alg: Alg.ES256K,
-    kid: keyId || getAddress(address),
+    kid: keyId || addressToKid(address),
     addr: getAddress(address)
   }
 }

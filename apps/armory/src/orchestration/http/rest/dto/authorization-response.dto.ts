@@ -6,7 +6,6 @@ import { AuthorizationRequestStatus } from '../../../core/type/domain.type'
 import { EvaluationDto } from '../../../http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
-import { SignatureDto } from '../../../http/rest/dto/signature.dto'
 import { TransactionResponseDto } from '../../../http/rest/dto/transaction-request.dto'
 
 class SignTransactionResponseDto extends SignTransactionRequestDto {
@@ -44,10 +43,9 @@ export class AuthorizationResponseDto {
   idempotencyKey?: string | null
 
   @IsDefined()
-  @ValidateNested()
+  @IsString()
   @ApiProperty()
-  @Type(() => SignatureDto)
-  authentication: SignatureDto
+  authentication: string
 
   @ApiProperty({
     enum: AuthorizationRequestStatus
