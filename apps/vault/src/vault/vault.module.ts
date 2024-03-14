@@ -13,6 +13,7 @@ import { ImportService } from './core/service/import.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { ImportController } from './http/rest/controller/import.controller'
+import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { VaultController } from './vault.controller'
@@ -33,7 +34,7 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => TenantModule)
   ],
-  controllers: [VaultController, ImportController],
+  controllers: [VaultController, ImportController, SignController],
   providers: [
     AppService,
     AppRepository,
