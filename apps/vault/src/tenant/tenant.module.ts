@@ -22,7 +22,8 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       provide: APP_PIPE,
       useClass: ValidationPipe
     }
-  ]
+  ],
+  exports: [TenantService, TenantRepository]
 })
 export class TenantModule implements OnApplicationBootstrap {
   constructor(private bootstrapService: BootstrapService) {}
