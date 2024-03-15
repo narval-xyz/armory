@@ -1,34 +1,37 @@
 import { Action, Engine, Entities, EvaluationRequest, EvaluationResponse, Policy } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { resolve } from 'path'
+import { v4 } from 'uuid'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
+import { build } from './util/wasm-build.util'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 
 type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
-  private policies: Policy[] = []
+  private policies: Policy[]
 
-  private entities: Entities = {
-    addressBook: [],
-    credentials: [],
-    tokens: [],
-    userGroupMembers: [],
-    userGroups: [],
-    userWallets: [],
-    users: [],
-    walletGroupMembers: [],
-    walletGroups: [],
-    wallets: []
-  }
+  private entities: Entities
 
-  public opa?: OpaEngine
+  private opa?: OpaEngine
 
-  public wasm: Buffer
+  constructor(policies?: Policy[], entities?: Entities) {
+    this.entities = entities || {
+      addressBook: [],
+      credentials: [],
+      tokens: [],
+      userGroupMembers: [],
+      userGroups: [],
+      userWallets: [],
+      users: [],
+      walletGroupMembers: [],
+      walletGroups: [],
+      wallets: []
+    }
 
-  constructor(wasm: Buffer) {
-    this.wasm = wasm
+    this.policies = policies || []
   }
 
   setPolicies(policies: Policy[]): OpenPolicyAgentEngine {
@@ -53,13 +56,15 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   async load(): Promise<OpenPolicyAgentEngine> {
     try {
-      const opa = await loadPolicy(this.wasm, undefined, {
-        'time.now_ns': () => new Date().getTime() * 1000000
+      const wasm = await build({
+        path: `/tmp/armory-policy-bundle-${v4()}`,
+        regoCorePath: resolve(__dirname, '../core/rego'),
+        policies: this.getPolicies()
       })
 
-      // opa.setData(this.getData())
-
-      this.opa = opa
+      this.opa = await loadPolicy(wasm, undefined, {
+        'time.now_ns': () => new Date().getTime() * 1000000
+      })
 
       return this
     } catch (error) {
