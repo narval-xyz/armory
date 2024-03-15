@@ -46,7 +46,10 @@ import { VaultService } from './vault.service'
     WalletRepository,
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe
+      useFactory: () =>
+        new ValidationPipe({
+          transform: true
+        })
     }
   ],
   exports: [AppService, ProvisionService]
