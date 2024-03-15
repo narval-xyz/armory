@@ -44,6 +44,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     return this.policies
   }
 
+  getOpenPolicyAgentInstance(): OpaEngine | undefined {
+    return this.opa
+  }
+
   setEntities(entities: Entities): OpenPolicyAgentEngine {
     this.entities = entities
 
