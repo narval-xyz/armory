@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output into a separate subdirectory so multiple schemas can be used in a
+  // monorepo.
+  //
+  // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
+  output   = "../../../../../../../node_modules/@prisma/client/vault"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("APP_DATABASE_URL")
+}
+
+model Vault {
+  id          String @id
+  masterKey   String? @map("master_key")
+  adminApiKey String? @map("admin_api_key")
+
+  @@map("vault")
+}
+
+// TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.
+// See https://www.postgresql.org/docs/9.1/hstore.html
+model KeyValue {
+  key   String @id
+  value String
+
+  @@map("key_value")
+}
