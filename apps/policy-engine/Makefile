@@ -158,8 +158,7 @@ policy-engine/rego/evaluation:
 policy-engine/rego/test:
 	opa test \
 	--format="pretty" \
-	${POLICY_ENGINE_PROJECT_DIR}/src/opa/rego \
-	--ignore "generated" \
+	${POLICY_ENGINE_PROJECT_DIR}/src/open-policy-agent/core/rego \
 	--verbose \
 	${ARGS}
 

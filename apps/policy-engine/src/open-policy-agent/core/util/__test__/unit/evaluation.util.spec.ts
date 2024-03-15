@@ -1,10 +1,9 @@
-import { Action, EvaluationRequest, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
+import { Action, EvaluationRequest, SignTransactionAction } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { InputType, decode } from '@narval/transaction-request-intent'
-import { v4 as uuid } from 'uuid'
 import { generateInboundEvaluationRequest } from '../../../../../shared/testing/evaluation.testing'
-import { OpenPolicyAgentException } from '../../open-policy-agent.exception'
-import { buildWebAssembly, toInput, toRego } from '../../open-policy-agent.util'
+import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
+import { toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
   it('throws OpenPolicyAgentException when action is unsupported', () => {
@@ -83,28 +82,5 @@ describe('toInput', () => {
 
       expect(input.intent).toEqual(intent)
     })
-  })
-})
-
-describe('buildWebAssembly', () => {
-  it('foo', async () => {
-    const output = `/tmp/armory-policy-engine-test/${uuid()}`
-
-    const wasm = await buildWebAssembly({
-      output,
-      lib: '/Users/wcalderipe/dev/narval/armory/apps/policy-engine/src/opa/rego/lib',
-      policies: FIXTURE.POLICIES
-    })
-  })
-})
-
-describe('buildRegoRules', () => {
-  // NOTE: The details of how each policy translates to a rule are covered by
-  // reasonToString and criterionToString.
-  it('builds rego rules based on the given policies', async () => {
-    const rules = await toRego(FIXTURE.POLICIES)
-
-    expect(rules).toContain('permit')
-    expect(rules).toContain('forbid')
   })
 })
