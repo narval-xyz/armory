@@ -1,5 +1,5 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common'
+import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -61,10 +61,6 @@ describe('Sign', () => {
       .compile()
 
     app = module.createNestApplication()
-
-    // Use global pipes
-    // THIS IS NEEDED to make sure it parses/transforms properly.
-    app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
     await app.init()
   })
