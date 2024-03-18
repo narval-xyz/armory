@@ -4,18 +4,16 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { resolve } from 'path'
 import { v4 } from 'uuid'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
+import { OpenPolicyAgentPolicy } from './type/open-policy-agent.type'
+import { toData } from './util/evaluation.util'
 import { build } from './util/wasm-build.util'
-
-type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
-
-type OpaEngine = PromiseType<ReturnType<typeof loadPolicy>>
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]
 
   private entities: Entities
 
-  private opa?: OpaEngine
+  private opa?: OpenPolicyAgentPolicy
 
   constructor(policies?: Policy[], entities?: Entities) {
     this.entities = entities || {
@@ -44,7 +42,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     return this.policies
   }
 
-  getOpenPolicyAgentInstance(): OpaEngine | undefined {
+  getOpenPolicyAgentPolicy(): OpenPolicyAgentPolicy | undefined {
     return this.opa
   }
 
@@ -69,6 +67,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       this.opa = await loadPolicy(wasm, undefined, {
         'time.now_ns': () => new Date().getTime() * 1000000
       })
+
+      this.opa.setData(toData(this.getEntities()))
 
       return this
     } catch (error) {

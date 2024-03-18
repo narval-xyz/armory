@@ -9,6 +9,11 @@ import {
   UserRole
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
+import { loadPolicy } from '@open-policy-agent/opa-wasm'
+
+type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
+
+export type OpenPolicyAgentInstance = PromiseType<ReturnType<typeof loadPolicy>>
 
 export type Input = {
   action: Action
