@@ -6,6 +6,13 @@ export * from './lib/decorators/is-not-empty-array-string.decorator'
 
 export * from './lib/dto'
 
+export * from './lib/schema/address.schema'
+export * from './lib/schema/data-store.schema'
+export * from './lib/schema/domain.schema'
+export * from './lib/schema/entity.schema'
+export * from './lib/schema/hex.schema'
+export * from './lib/schema/policy.schema'
+
 export * from './lib/type/action.type'
 export * from './lib/type/data-store.type'
 export * from './lib/type/domain.type'
@@ -21,11 +28,5 @@ export * from './lib/util/enum.util'
 export * from './lib/util/evm.util'
 export * from './lib/util/json.util'
 export * from './lib/util/typeguards'
-
-export * from './lib/schema/address.schema'
-export * from './lib/schema/data-store.schema'
-export * from './lib/schema/entity.schema'
-export * from './lib/schema/hex.schema'
-export * from './lib/schema/policy.schema'
 
 export * as FIXTURE from './lib/dev.fixture'

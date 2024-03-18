@@ -3,7 +3,6 @@ import {
   AccountType,
   Action,
   Address,
-  ApprovalRequirement,
   CredentialEntity,
   HistoricalTransfer,
   TransactionRequest,
@@ -11,6 +10,8 @@ import {
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { z } from 'zod'
+import { resultSchema } from '../schema/open-policy-agent.schema'
 
 type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
 
@@ -78,18 +79,4 @@ export type Data = {
   }
 }
 
-type MatchedRule = {
-  policyName: string
-  policyId: string
-  // TODO: Check with @samteb why we're not using Decision constant. Can we use
-  // it?
-  type: 'permit' | 'forbid'
-  approvalsSatisfied: ApprovalRequirement[]
-  approvalsMissing: ApprovalRequirement[]
-}
-
-export type Result = {
-  default?: boolean
-  permit: boolean
-  reasons: MatchedRule[]
-}
+export type Result = z.infer<typeof resultSchema>

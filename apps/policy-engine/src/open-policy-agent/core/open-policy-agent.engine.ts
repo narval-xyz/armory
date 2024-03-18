@@ -11,8 +11,10 @@ import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { resolve } from 'path'
 import { v4 } from 'uuid'
+import { z } from 'zod'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
+import { resultSchema } from './schema/open-policy-agent.schema'
 import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
 import { build } from './util/wasm-build.util'
@@ -92,13 +94,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   async evaluate(request: EvaluationRequest): Promise<EvaluationResponse> {
-    if (!this.opa) {
-      throw new OpenPolicyAgentException({
-        message: 'Open Policy Agent engine not loaded',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
-    }
-
     const { action } = request.request
 
     if (action !== Action.SIGN_TRANSACTION) {
@@ -109,39 +104,58 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const results = (await this.opa.evaluate(toInput(request), POLICY_ENTRYPOINT)) as Result[]
-
-    // [ ] Finalize the decision
-    // [ ] Build the EvaluationResponse
-    // [ ] Maybe sign it? Must input the data somehow
-
+    const results = await this.opaEvaluate(request)
     const decision = this.decide(results)
 
     return {
       decision: decision.decision,
       request: request.request,
-      approvals: decision.totalApprovalsRequired?.length
-        ? {
-            required: decision.totalApprovalsRequired,
-            satisfied: decision.approvalsSatisfied,
-            missing: decision.approvalsMissing
-          }
-        : undefined
+      approvals: undefined
+      //approvals: decision.totalApprovalsRequired?.length
+      //  ? {
+      //      required: decision.totalApprovalsRequired,
+      //      satisfied: decision.approvalsSatisfied,
+      //      missing: decision.approvalsMissing
+      //    }
+      //  : undefined
     }
   }
 
+  private async opaEvaluate(evaluation: EvaluationRequest): Promise<Result[]> {
+    if (!this.opa) {
+      throw new OpenPolicyAgentException({
+        message: 'Open Policy Agent engine not loaded',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    }
+
+    // NOTE: When we evaluate an input against the Rego policy core, it returns
+    // an array of results with an inner result. We perform a typecast here to
+    // satisfy TypeScript compiler. Later, we parse the schema a few lines
+    // below to ensure type-safety for data coming from external sources.
+    const results = (await this.opa.evaluate(toInput(evaluation), POLICY_ENTRYPOINT)) as { result: unknown }[]
+
+    const parse = z.array(resultSchema).safeParse(results.map(({ result }) => result))
+
+    if (parse.success) {
+      return parse.data
+    }
+
+    throw new OpenPolicyAgentException({
+      message: 'Invalid Open Policy Agent result schema',
+      suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      context: {
+        results,
+        error: parse.error.errors
+      }
+    })
+  }
+
   decide(results: Result[]) {
-    // Implicit Forbid - not root user and no rules matching
-    const implicitForbid = results.some((r) => r?.default === true && r.permit === false && r.reasons?.length === 0)
-
-    // Explicit Forbid - a Forbid rule type that matches & decides Forbid
-    const anyExplicitForbid = results.some((r) => r.permit === false && r.reasons?.some((rr) => rr.type === 'forbid'))
-
-    const allPermit = results.every((r) => r.permit === true && r.reasons?.every((rr) => rr.type === 'permit'))
-
-    const anyPermitWithMissingApprovals = results.some((r) =>
-      r.reasons?.some((rr) => rr.type === 'permit' && rr.approvalsMissing.length > 0)
-    )
+    const implicitForbid = results.some(this.isImplictForbid)
+    const anyExplicitForbid = results.some(this.isExplictForbid)
+    const allPermit = results.every(this.isPermit)
+    const anyPermitWithMissingApprovals = results.some(this.isPermitMissingApproval)
 
     if (implicitForbid || anyExplicitForbid) {
       return {
@@ -155,9 +169,11 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     // Collect all the approvalsMissing & approvalsSatisfied using functional
     // map/flat operators
     const approvalsSatisfied = results
-      .flatMap((r) => r.reasons?.flatMap((rr) => rr.approvalsSatisfied))
+      .flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsSatisfied))
       .filter((v) => !!v)
-    const approvalsMissing = results.flatMap((r) => r.reasons?.flatMap((rr) => rr.approvalsMissing)).filter((v) => !!v)
+    const approvalsMissing = results
+      .flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsMissing))
+      .filter((v) => !!v)
     const totalApprovalsRequired = approvalsMissing.concat(approvalsSatisfied)
 
     const decision = allPermit && !anyPermitWithMissingApprovals ? Decision.PERMIT : Decision.CONFIRM
@@ -169,5 +185,21 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       approvalsMissing,
       approvalsSatisfied
     }
+  }
+
+  private isImplictForbid(result: Result): boolean {
+    return result.default === true && result.permit === false && result.reasons?.length === 0
+  }
+
+  private isExplictForbid(result: Result): boolean {
+    return Boolean(result.permit === false && result.reasons?.some((reason) => reason.type === 'forbid'))
+  }
+
+  private isPermit(result: Result): boolean {
+    return Boolean(result.permit === true && result.reasons?.every((reason) => reason.type === 'permit'))
+  }
+
+  private isPermitMissingApproval(result: Result): boolean {
+    return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
   }
 }
