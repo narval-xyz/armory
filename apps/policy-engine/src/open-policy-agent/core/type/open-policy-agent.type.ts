@@ -3,6 +3,7 @@ import {
   AccountType,
   Action,
   Address,
+  ApprovalRequirement,
   CredentialEntity,
   HistoricalTransfer,
   TransactionRequest,
@@ -75,4 +76,20 @@ export type Data = {
     addressBook: Record<string, AddressBookAccount>
     tokens: Record<string, Token>
   }
+}
+
+type MatchedRule = {
+  policyName: string
+  policyId: string
+  // TODO: Check with @samteb why we're not using Decision constant. Can we use
+  // it?
+  type: 'permit' | 'forbid'
+  approvalsSatisfied: ApprovalRequirement[]
+  approvalsMissing: ApprovalRequirement[]
+}
+
+export type Result = {
+  default?: boolean
+  permit: boolean
+  reasons: MatchedRule[]
 }

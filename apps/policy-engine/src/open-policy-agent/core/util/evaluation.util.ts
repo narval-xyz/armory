@@ -45,10 +45,7 @@ export const toInput = (evaluation: EvaluationRequest): Input => {
     throw new OpenPolicyAgentException({
       message: 'Invalid transaction request intent',
       suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-      context: {
-        error: result.error,
-        txRequest: evaluation.request.transactionRequest
-      }
+      context: { error: result.error }
     })
   }
 
