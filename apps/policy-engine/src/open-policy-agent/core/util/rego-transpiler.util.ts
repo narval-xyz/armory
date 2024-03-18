@@ -18,6 +18,8 @@ export const transpileCriterion = (item: PolicyCriterion) => {
       }
 
       if (criterion === Criterion.CHECK_APPROVALS) {
+        // TODO: (@wcalderipe, 18/03/24): Explore with team a threat model on
+        // string interpolation injection.
         return `approvals = ${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
       }
 

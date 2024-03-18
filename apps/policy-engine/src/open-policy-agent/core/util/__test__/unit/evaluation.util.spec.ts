@@ -1,9 +1,9 @@
-import { Action, EvaluationRequest, SignTransactionAction } from '@narval/policy-engine-shared'
+import { Action, EvaluationRequest, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import { generateInboundEvaluationRequest } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
-import { toInput } from '../../evaluation.util'
+import { toData, toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
   it('throws OpenPolicyAgentException when action is unsupported', () => {
@@ -81,6 +81,60 @@ describe('toInput', () => {
       })
 
       expect(input.intent).toEqual(intent)
+    })
+  })
+})
+
+describe('toData', () => {
+  describe('entities', () => {
+    it('indexes address book accounts by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const firstAccount = FIXTURE.ADDRESS_BOOK[0]
+
+      expect(entities.addressBook[firstAccount.id]).toEqual(firstAccount)
+    })
+
+    it('indexes tokens by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const usdc = FIXTURE.TOKEN.usdc1
+
+      expect(entities.tokens[usdc.id]).toEqual(usdc)
+    })
+
+    it('indexes users by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const alice = FIXTURE.USER.Alice
+
+      expect(entities.users[alice.id]).toEqual(alice)
+    })
+
+    it('indexes wallets by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const wallet = FIXTURE.WALLET.Testing
+
+      expect(entities.wallets[wallet.id]).toEqual(wallet)
+    })
+
+    it('indexes user groups with members by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const group = FIXTURE.USER_GROUP.Engineering
+
+      expect(entities.userGroups[group.id]).toEqual({
+        id: group.id,
+        users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) => userId)
+      })
+    })
+
+    it('indexes wallet groups with members by id', () => {
+      const { entities } = toData(FIXTURE.ENTITIES)
+      const group = FIXTURE.WALLET_GROUP.Treasury
+
+      expect(entities.walletGroups[group.id]).toEqual({
+        id: group.id,
+        wallets: FIXTURE.WALLET_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(
+          ({ walletId }) => walletId
+        )
+      })
     })
   })
 })

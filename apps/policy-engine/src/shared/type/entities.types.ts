@@ -1,8 +1,6 @@
 import { AccountClassification, AccountType, Address, UserRole } from '@narval/policy-engine-shared'
 
-export type Organization = {
-  uid: string
-}
+// TODO: GET RID OF THIS FILE BEFORE MERGE
 
 export type User = {
   id: string // Pubkey

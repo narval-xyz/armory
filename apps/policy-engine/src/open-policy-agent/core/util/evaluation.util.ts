@@ -1,9 +1,10 @@
-import { Action, EvaluationRequest } from '@narval/policy-engine-shared'
+import { Action, Entities, EvaluationRequest } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
+import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { Input } from '../type/open-policy-agent.type'
+import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
 export const toInput = (evaluation: EvaluationRequest): Input => {
   const { action } = evaluation.request
@@ -56,4 +57,43 @@ export const toInput = (evaluation: EvaluationRequest): Input => {
     suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
     context: { action }
   })
+}
+
+export const toData = (entities: Entities): Data => {
+  const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
+    const group = groups.get(groupId)
+
+    if (group) {
+      return groups.set(groupId, {
+        id: groupId,
+        users: group.users.concat(userId)
+      })
+    } else {
+      return groups.set(groupId, { id: groupId, users: [userId] })
+    }
+  }, new Map<string, UserGroup>())
+
+  const walletGroups = entities.walletGroupMembers.reduce((groups, { walletId, groupId }) => {
+    const group = groups.get(groupId)
+
+    if (group) {
+      return groups.set(groupId, {
+        id: groupId,
+        wallets: group.wallets.concat(walletId)
+      })
+    } else {
+      return groups.set(groupId, { id: groupId, wallets: [walletId] })
+    }
+  }, new Map<string, WalletGroup>())
+
+  return {
+    entities: {
+      addressBook: indexBy('id', entities.addressBook),
+      tokens: indexBy('id', entities.tokens),
+      users: indexBy('id', entities.users),
+      userGroups: Object.fromEntries(userGroups),
+      wallets: indexBy('id', entities.wallets),
+      walletGroups: Object.fromEntries(walletGroups)
+    }
+  }
 }
