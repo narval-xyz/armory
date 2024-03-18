@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
-import { PolicyEngineModule } from './policy-engine.module'
+import { MainModule } from './main.module'
 
 /**
  * Adds Swagger documentation to the application.
@@ -15,7 +15,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
-      .setTitle('Policy Engine')
+      .setTitle('Vault')
       .setDescription('The next generation of authorization for web3')
       .setVersion('1.0')
       .build()
@@ -38,8 +38,8 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 }
 
 async function bootstrap() {
-  const logger = new Logger('PolicyEngineBootstrap')
-  const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
+  const logger = new Logger('AppBootstrap')
+  const application = await NestFactory.create(MainModule, { bodyParser: true })
   const configService = application.get(ConfigService)
   const port = configService.get('PORT')
 
@@ -55,7 +55,7 @@ async function bootstrap() {
     )
   )
 
-  logger.log(`Policy Engine is running on port ${port}`)
+  logger.log(`App is running on port ${port}`)
 }
 
 bootstrap()

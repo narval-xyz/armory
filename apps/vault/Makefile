@@ -1,0 +1,129 @@
+VAULT_PROJECT_NAME := vault
+VAULT_PROJECT_DIR := ./apps/vault
+VAULT_DATABASE_SCHEMA := ${VAULT_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
+
+# === Start ===
+
+vault/start/dev:
+	npx nx serve ${VAULT_PROJECT_NAME}
+
+# === Setup ===
+
+vault/setup:
+	make vault/copy-default-env
+	make vault/db/setup
+	make vault/test/db/setup
+	make vault/cli CMD=provision
+
+vault/copy-default-env:
+	cp ${VAULT_PROJECT_DIR}/.env.default ${VAULT_PROJECT_DIR}/.env
+	cp ${VAULT_PROJECT_DIR}/.env.test.default ${VAULT_PROJECT_DIR}/.env.test
+
+# === Build ===
+
+vault/build/script:
+	npx tsc --project ${VAULT_PROJECT_DIR}/tsconfig.app.json
+	npx tsc-alias --project ${VAULT_PROJECT_DIR}/tsconfig.app.json
+
+# == Code format ==
+
+vault/format:
+	npx nx format:write --projects ${VAULT_PROJECT_NAME}
+
+vault/lint:
+	npx nx lint ${VAULT_PROJECT_NAME} -- --fix
+
+vault/format/check:
+	npx nx format:check --projects ${VAULT_PROJECT_NAME}
+
+vault/lint/check:
+	npx nx lint ${VAULT_PROJECT_NAME}
+
+# === Database ===
+
+vault/db/generate-types:
+	npx prisma generate \
+		--schema ${VAULT_DATABASE_SCHEMA}
+
+vault/db/migrate:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${VAULT_DATABASE_SCHEMA}
+
+vault/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Vault development database${TERM_NO_COLOR}"
+	@echo ""
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		prisma migrate reset \
+			--schema ${VAULT_DATABASE_SCHEMA} \
+			--force
+	make vault/db/seed
+
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Vault test database${TERM_NO_COLOR}"
+	@echo ""
+	make vault/test/db/setup
+
+vault/db/create-migration:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		prisma migrate dev \
+			--schema ${VAULT_DATABASE_SCHEMA} \
+			--name ${NAME}
+
+# To maintain seed data within their respective modules and then import them
+# into the main seed.ts file for execution, it's necessary to compile the
+# project and resolve its path aliases before running the vanilla JavaScript
+# seed entry point.
+vault/db/seed:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register --project ${VAULT_PROJECT_DIR}/tsconfig.app.json ${VAULT_PROJECT_DIR}/src/shared/module/persistence/seed.ts
+
+
+# === Testing ===
+
+vault/test/db/setup:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env.test --override -- \
+		prisma migrate reset \
+		--schema ${VAULT_DATABASE_SCHEMA} \
+		--skip-seed \
+		--force
+
+
+vault/test/type:
+	make vault/db/generate-types
+	npx tsc \
+		--project ${VAULT_PROJECT_DIR}/tsconfig.app.json \
+		--noEmit
+
+vault/test/unit:
+	npx nx test:unit ${VAULT_PROJECT_NAME} -- ${ARGS}
+
+vault/test/unit/watch:
+	make vault/test/unit ARGS=--watch
+
+vault/test/integration:
+	npx nx test:integration ${VAULT_PROJECT_NAME} -- ${ARGS}
+
+vault/test/integration/watch:
+	make vault/test/integration ARGS=--watch
+
+vault/test/e2e:
+	npx nx test:e2e ${VAULT_PROJECT_NAME} -- ${ARGS}
+
+vault/test/e2e/watch:
+	make vault/test/e2e ARGS=--watch
+
+vault/test:
+	make vault/test/unit
+	make vault/test/integration
+	make vault/test/e2e
+
+# === CLI ===
+
+vault/cli:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		ts-node -r tsconfig-paths/register \
+		--project ${VAULT_PROJECT_DIR}/tsconfig.app.json \
+		${VAULT_PROJECT_DIR}/src/cli.ts ${CMD}
+
