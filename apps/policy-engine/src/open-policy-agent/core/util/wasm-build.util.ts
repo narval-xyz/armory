@@ -2,6 +2,7 @@ import { Policy } from '@narval/policy-engine-shared'
 import { exec as execCommand } from 'child_process'
 import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { promisify } from 'util'
+import { POLICY_ENTRYPOINT } from '../../open-policy-agent.constant'
 import { transpile } from './rego-transpiler.util'
 
 type BuildWebAssemblyOption = {
@@ -52,7 +53,7 @@ export const buildOpaBundle = async (option: { regoSourceDirectory: string; dist
     'opa',
     'build',
     '--target wasm',
-    '--entrypoint main/evaluate',
+    `--entrypoint ${POLICY_ENTRYPOINT}`,
     `--bundle ${option.regoSourceDirectory}`,
     `--output ${bundleFile}`
   ]
