@@ -1,13 +1,16 @@
 import {
   Action,
   ApprovalRequirement,
+  CredentialEntity,
   Decision,
   Engine,
   Entities,
   EvaluationRequest,
   EvaluationResponse,
+  JwtString,
   Policy
 } from '@narval/policy-engine-shared'
+import { Hex, decode, hash, publicKeyToJwk, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -17,7 +20,7 @@ import { z } from 'zod'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
-import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
+import { Input, OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
 import { build } from './util/wasm-build.util'
 
@@ -32,8 +35,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     this.entities = entities || {
       addressBook: [],
       credentials: [],
-      // TODO: (@wcalderipe, 18/03/24) set the data is mission critical to the
-      // engine to work and it's not being tested. A possible way to test
       tokens: [],
       userGroupMembers: [],
       userGroups: [],
@@ -95,8 +96,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     }
   }
 
-  async evaluate(request: EvaluationRequest): Promise<EvaluationResponse> {
-    const { action } = request.request
+  async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
+    const { action } = evaluation.request
 
     if (action !== Action.SIGN_TRANSACTION) {
       throw new OpenPolicyAgentException({
@@ -106,17 +107,62 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const results = await this.opaEvaluate(request)
+    const signedMessage = hash(evaluation.request)
+    const principalCredential = await this.verifySignature(evaluation.authentication, signedMessage)
+
+    const approvalsCredential = await Promise.all(
+      (evaluation.approvals ? evaluation.approvals : []).map((signature) =>
+        this.verifySignature(signature, signedMessage)
+      )
+    )
+
+    const results = await this.opaEvaluate(evaluation, {
+      principal: principalCredential,
+      approvals: approvalsCredential
+    })
     const decision = this.decide(results)
 
     return {
       decision: decision.decision,
       approvals: decision.approvals,
-      request: request.request
+      request: evaluation.request
     }
   }
 
-  private async opaEvaluate(evaluation: EvaluationRequest): Promise<Result[]> {
+  private async verifySignature(signature: JwtString, message: string) {
+    const { header } = decode(signature)
+
+    const credential = this.getCredential(header.kid)
+
+    if (!credential) {
+      throw new OpenPolicyAgentException({
+        message: 'Signature credential not found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
+      })
+    }
+
+    const jwk = publicKeyToJwk(credential.pubKey as Hex)
+
+    const validJwt = await verifyJwt(signature, jwk)
+
+    if (validJwt.payload.requestHash !== message) {
+      throw new OpenPolicyAgentException({
+        message: 'Signature hash mismatch',
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN
+      })
+    }
+
+    return credential
+  }
+
+  private getCredential(id: string): CredentialEntity | null {
+    return this.getEntities().credentials.find((cred) => cred.id === id) || null
+  }
+
+  private async opaEvaluate(
+    evaluation: EvaluationRequest,
+    credentials: { principal: CredentialEntity; approvals?: CredentialEntity[] }
+  ): Promise<Result[]> {
     if (!this.opa) {
       throw new OpenPolicyAgentException({
         message: 'Open Policy Agent engine not loaded',
@@ -124,11 +170,19 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
+    const input: Input = {
+      ...toInput(evaluation),
+      principal: credentials.principal,
+      // TODO: Why the EvaluationRequest specifies approvals as optional but
+      // the OPA input doesn't?
+      approvals: credentials.approvals || []
+    }
+
     // NOTE: When we evaluate an input against the Rego policy core, it returns
     // an array of results with an inner result. We perform a typecast here to
     // satisfy TypeScript compiler. Later, we parse the schema a few lines
     // below to ensure type-safety for data coming from external sources.
-    const results = (await this.opa.evaluate(toInput(evaluation), POLICY_ENTRYPOINT)) as { result: unknown }[]
+    const results = (await this.opa.evaluate(input, POLICY_ENTRYPOINT)) as { result: unknown }[]
 
     const parse = z.array(resultSchema).safeParse(results.map(({ result }) => result))
 

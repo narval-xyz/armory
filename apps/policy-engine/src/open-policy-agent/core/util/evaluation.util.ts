@@ -1,12 +1,11 @@
 import { Action, Entities, EvaluationRequest } from '@narval/policy-engine-shared'
-import { Alg } from '@narval/signature'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
-export const toInput = (evaluation: EvaluationRequest): Input => {
+export const toInput = (evaluation: EvaluationRequest): Omit<Input, 'principal' | 'approvals'> => {
   const { action } = evaluation.request
 
   if (action === Action.SIGN_TRANSACTION) {
@@ -22,22 +21,6 @@ export const toInput = (evaluation: EvaluationRequest): Input => {
         action,
         intent: result.intent,
         transactionRequest: evaluation.request.transactionRequest,
-        principal: {
-          id: 'test-cred-id',
-          pubKey: 'test-pub-key',
-          address: 'test-address',
-          alg: Alg.ES256K,
-          userId: 'test-user-id'
-        },
-        approvals: [
-          {
-            id: 'test-cred-id',
-            pubKey: 'test-pub-key',
-            address: 'test-address',
-            alg: Alg.ES256K,
-            userId: 'test-user-id'
-          }
-        ],
         transfers: evaluation.transfers
       }
     }

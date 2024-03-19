@@ -9,6 +9,7 @@ import {
   Then,
   toHex
 } from '@narval/policy-engine-shared'
+import { SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { OpenPolicyAgentException } from '../../exception/open-policy-agent.exception'
 import { OpenPolicyAgentEngine } from '../../open-policy-agent.engine'
 import { Result } from '../../type/open-policy-agent.type'
@@ -94,19 +95,34 @@ describe('OpenPolicyAgentEngine', () => {
 
       const e = await new OpenPolicyAgentEngine(policies, FIXTURE.ENTITIES).load()
 
+      const request = {
+        action: Action.SIGN_TRANSACTION,
+        nonce: 'test-nonce',
+        transactionRequest: {
+          from: FIXTURE.WALLET.Engineering.address,
+          to: FIXTURE.WALLET.Testing.address,
+          value: ONE_ETH,
+          chainId: 1
+        },
+        resourceId: FIXTURE.WALLET.Engineering.id
+      }
+
+      const jwk = privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
+      const signer = buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
+
+      const jwt = await signJwt(
+        {
+          requestHash: hash(request),
+          sub: FIXTURE.USER.Alice.id
+        },
+        jwk,
+        { alg: SigningAlg.EIP191 },
+        signer
+      )
+
       const evaluation: EvaluationRequest = {
-        authentication: 'test-authentication',
-        request: {
-          action: Action.SIGN_TRANSACTION,
-          nonce: 'test-nonce',
-          transactionRequest: {
-            from: FIXTURE.WALLET.Engineering.address,
-            to: FIXTURE.WALLET.Testing.address,
-            value: ONE_ETH,
-            chainId: 1
-          },
-          resourceId: FIXTURE.WALLET.Engineering.id
-        }
+        authentication: jwt,
+        request
       }
 
       const response = await e.evaluate(evaluation)

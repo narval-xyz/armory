@@ -121,16 +121,19 @@ export type Feed<Data> = {
  * being authorized. This is the data that will be hashed and signed.
  */
 export type EvaluationRequest = {
-  // JWT string signing the Request payload
+  /**
+   * JWT signature of the request property.
+   */
   authentication: JwtString
   /**
-   * The authorization request of
+   * The authorization request.
    */
   request: Request
   /**
-   * JWT strings signing the Request payload
+   * JWT signatures of the request property.
    */
   approvals?: JwtString[]
+  // TODO: Delete transfers. It was replaced by `feeds`.
   transfers?: HistoricalTransfer[]
   prices?: Prices
   /**
