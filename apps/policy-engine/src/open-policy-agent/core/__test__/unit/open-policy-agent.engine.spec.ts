@@ -120,7 +120,7 @@ describe('OpenPolicyAgentEngine', () => {
 
   describe('decide', () => {
     it('returns forbid when any of the reasons is forbid', () => {
-      const response: Result[] = [
+      const results: Result[] = [
         {
           permit: false,
           reasons: [
@@ -142,13 +142,13 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      const result = engine.decide(response)
+      const result = engine.decide(results)
 
       expect(result.decision).toEqual(Decision.FORBID)
     })
 
     it('returns permit when all of the reasons are permit', () => {
-      const response: Result[] = [
+      const results: Result[] = [
         {
           permit: true,
           reasons: [
@@ -170,13 +170,13 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      const result = engine.decide(response)
+      const result = engine.decide(results)
 
       expect(result.decision).toEqual(Decision.PERMIT)
     })
 
     it('returns confirm when any of the reasons are forbid for a permit type rule where approvals are missing', () => {
-      const response: Result[] = [
+      const results: Result[] = [
         {
           permit: false,
           reasons: [
@@ -198,7 +198,7 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      const result = engine.decide(response)
+      const result = engine.decide(results)
 
       expect(result.decision).toEqual(Decision.CONFIRM)
     })
@@ -232,7 +232,7 @@ describe('OpenPolicyAgentEngine', () => {
         entityIds: ['user-id'],
         countPrincipal: true
       }
-      const response: Result[] = [
+      const results: Result[] = [
         {
           permit: false,
           reasons: [
@@ -258,14 +258,16 @@ describe('OpenPolicyAgentEngine', () => {
           ]
         }
       ]
-      const result = engine.decide(response)
+
+      const result = engine.decide(results)
 
       expect(result).toEqual({
-        originalResponse: response,
         decision: Decision.CONFIRM,
-        totalApprovalsRequired: [missingApproval, missingApproval2, satisfiedApproval, satisfiedApproval2],
-        approvalsMissing: [missingApproval, missingApproval2],
-        approvalsSatisfied: [satisfiedApproval, satisfiedApproval2]
+        approvals: {
+          required: [missingApproval, missingApproval2, satisfiedApproval, satisfiedApproval2],
+          missing: [missingApproval, missingApproval2],
+          satisfied: [satisfiedApproval, satisfiedApproval2]
+        }
       })
     })
   })

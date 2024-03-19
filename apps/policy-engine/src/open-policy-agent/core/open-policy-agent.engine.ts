@@ -1,5 +1,6 @@
 import {
   Action,
+  ApprovalRequirement,
   Decision,
   Engine,
   Entities,
@@ -9,6 +10,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { compact } from 'lodash/fp'
 import { resolve } from 'path'
 import { v4 } from 'uuid'
 import { z } from 'zod'
@@ -109,15 +111,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
     return {
       decision: decision.decision,
-      request: request.request,
-      approvals: undefined
-      //approvals: decision.totalApprovalsRequired?.length
-      //  ? {
-      //      required: decision.totalApprovalsRequired,
-      //      satisfied: decision.approvalsSatisfied,
-      //      missing: decision.approvalsMissing
-      //    }
-      //  : undefined
+      approvals: decision.approvals,
+      request: request.request
     }
   }
 
@@ -151,39 +146,44 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     })
   }
 
-  decide(results: Result[]) {
+  /**
+   * Computes OPA's query results into a final decision. This step is also
+   * known as "post-evaluation".
+   */
+  decide(results: Result[]): {
+    decision: Decision
+    approvals?: {
+      required: ApprovalRequirement[]
+      missing: ApprovalRequirement[]
+      satisfied: ApprovalRequirement[]
+    }
+  } {
     const implicitForbid = results.some(this.isImplictForbid)
     const anyExplicitForbid = results.some(this.isExplictForbid)
     const allPermit = results.every(this.isPermit)
-    const anyPermitWithMissingApprovals = results.some(this.isPermitMissingApproval)
+    const permitsMissingApproval = results.some(this.isPermitMissingApproval)
 
     if (implicitForbid || anyExplicitForbid) {
-      return {
-        originalResponse: results,
-        decision: Decision.FORBID,
-        approvalsMissing: [],
-        approvalsSatisfied: []
-      }
+      return { decision: Decision.FORBID }
     }
 
-    // Collect all the approvalsMissing & approvalsSatisfied using functional
-    // map/flat operators
-    const approvalsSatisfied = results
-      .flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsSatisfied))
-      .filter((v) => !!v)
-    const approvalsMissing = results
-      .flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsMissing))
-      .filter((v) => !!v)
-    const totalApprovalsRequired = approvalsMissing.concat(approvalsSatisfied)
+    const approvalsSatisfied = compact(
+      results.flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsSatisfied)).filter((v) => !!v)
+    )
+    const approvalsMissing = compact(
+      results.flatMap((result) => result.reasons?.flatMap((reason) => reason.approvalsMissing)).filter((v) => !!v)
+    )
+    const approvalsRequired = compact(approvalsMissing.concat(approvalsSatisfied))
 
-    const decision = allPermit && !anyPermitWithMissingApprovals ? Decision.PERMIT : Decision.CONFIRM
+    const decision = allPermit && !permitsMissingApproval ? Decision.PERMIT : Decision.CONFIRM
 
     return {
-      originalResponse: results,
       decision,
-      totalApprovalsRequired,
-      approvalsMissing,
-      approvalsSatisfied
+      approvals: {
+        missing: approvalsMissing,
+        required: approvalsRequired,
+        satisfied: approvalsSatisfied
+      }
     }
   }
 

@@ -158,7 +158,6 @@ export type EvaluationResponse = {
   accessToken?: AccessToken
   transactionRequestIntent?: unknown
 }
-// DOMAIN
 
 export type Hex = `0x${string}` // DOMAIN
 
