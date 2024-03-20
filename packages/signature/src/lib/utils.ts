@@ -1,8 +1,8 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { toHex } from 'viem'
-import { getAddress, publicKeyToAddress } from 'viem/utils'
-import { Alg, Curves, Hex, JWK, KeyTypes } from './types'
+import { publicKeyToAddress } from 'viem/utils'
+import { Alg, Curves, Hex, KeyTypes, Secp256k1KeySchema, Secp256k1PrivateKey, Secp256k1PublicKey } from './types'
 
 export const algToJwk = (
   alg: Alg
@@ -39,7 +39,7 @@ export const addressToKid = (address: string): string => {
 }
 
 // ES256k
-export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
+export const secp256k1PublicKeyToJwk = (publicKey: Hex, keyId?: string): Secp256k1PublicKey => {
   // remove the 0x04 prefix -- 04 means it's an uncompressed ECDSA key, 02 or 03 means compressed -- these need to be removed in a JWK!
   const hexPubKey = publicKey.slice(4)
   const x = hexPubKey.slice(0, 64)
@@ -56,39 +56,22 @@ export const publicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
 }
 
 // ES256k
-export const privateKeyToJwk = (privateKey: Hex, keyId?: string): JWK => {
+export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp256k1PrivateKey => {
   const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
-  const publicJwk = publicKeyToJwk(publicKey, keyId)
+  const publicJwk = secp256k1PublicKeyToJwk(publicKey, keyId)
   return {
     ...publicJwk,
     d: hexToBase64Url(privateKey)
   }
 }
 
-// Eth EOA
-export const addressToJwk = (address: string, keyId?: string): JWK => {
-  return {
-    kty: KeyTypes.EC,
-    crv: Curves.SECP256K1,
-    alg: Alg.ES256K,
-    kid: keyId || addressToKid(address),
-    addr: getAddress(address)
-  }
-}
-
-export const jwkToPublicKey = (jwk: JWK): Hex => {
-  if (!jwk.x || !jwk.y) {
-    throw new Error('Invalid JWK; missing x or y')
-  }
+export const secp256k1PublicKeyToHex = (jwk: Secp256k1KeySchema): Hex => {
   const x = base64UrlToHex(jwk.x)
   const y = base64UrlToHex(jwk.y)
   return `0x04${x.slice(2)}${y.slice(2)}`
 }
 
-export const jwkToPrivateKey = (jwk: JWK): Hex => {
-  if (!jwk.d) {
-    throw new Error('Invalid JWK; missing d')
-  }
+export const secp256k1PrivateKeyToHex = (jwk: Secp256k1PrivateKey): Hex => {
   return base64UrlToHex(jwk.d)
 }
 

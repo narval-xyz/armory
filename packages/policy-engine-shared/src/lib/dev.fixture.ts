@@ -1,4 +1,4 @@
-import { Alg, addressToKid } from '@narval/signature'
+import { Alg, Curves, KeyTypes, Use } from '@narval/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
@@ -81,39 +81,66 @@ export const USER: Record<Personas, UserEntity> = {
 
 export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    id: addressToKid(ACCOUNT.Root.address),
-    pubKey: ACCOUNT.Root.publicKey,
-    address: ACCOUNT.Root.address,
-    alg: Alg.ES256K,
-    userId: USER.Root.id
+    id: '0x20FB9603DC2C011aBFdFbf270bD627e94065cBb9',
+    userId: USER.Root.id,
+    key: {
+      kty: KeyTypes.EC,
+      use: Use.ENC,
+      crv: Curves.SECP256K1,
+      alg: Alg.ES256K,
+      kid: '0x20FB9603DC2C011aBFdFbf270bD627e94065cBb9',
+      x: 'crqZ2XkCBgl1XwxjlQ02PKm_JJ4wJAkANJ6DidZRzTw',
+      y: 'GyAbgM5_HOaPmAHNatWanWmhLgaznyNHUIw5YUe_yyw'
+    }
   },
   Alice: {
-    id: addressToKid(ACCOUNT.Alice.address),
-    pubKey: ACCOUNT.Alice.publicKey,
-    address: ACCOUNT.Alice.address,
-    alg: Alg.ES256K,
-    userId: USER.Alice.id
+    id: '0xcdE93dc1C6D8AF279c33069233aEE5542F308594',
+    userId: USER.Alice.id,
+    key: {
+      kty: KeyTypes.EC,
+      use: Use.SIG,
+      crv: Curves.SECP256K1,
+      alg: Alg.ES256K,
+      kid: '0xcdE93dc1C6D8AF279c33069233aEE5542F308594',
+      x: 'vjNVzbnLxdazY0M-2BDnX54JexB8Pa9n_fucDJli6Bo',
+      y: 'jOAwUCXcLz7nhvW2mSwPBCZwv856ybAGK7LS6hvfdFQ'
+    }
   },
   Bob: {
-    id: addressToKid(ACCOUNT.Bob.address),
-    pubKey: ACCOUNT.Bob.publicKey,
-    address: ACCOUNT.Bob.address,
-    alg: Alg.ES256K,
+    id: '0x9A5Bd18C902887DCc2D881a352010C15eea229d',
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: Alg.ES256K,
+      kid: '0xc7916Ee805440bB386a88d09AED8688eFb99CB0F',
+      x: 'MjsuvdMuxs1AoQ12BuARzzTyilJNh2jQmErMZwR2M-E',
+      y: 'axLms3pGEX0Xujho5welzcn9mx_oV0Bs3uVeG9-eCqU'
+    },
     userId: USER.Bob.id
   },
   Carol: {
-    id: addressToKid(ACCOUNT.Carol.address),
-    pubKey: ACCOUNT.Carol.publicKey,
-    address: ACCOUNT.Carol.address,
-    alg: Alg.ES256K,
-    userId: USER.Carol.id
+    id: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
+    userId: USER.Carol.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: Alg.ES256K,
+      kid: '0x9AA5Bd18C902887DCc2D881a352010C15eea229d',
+      x: '4n3yf5qUBU0sDH9yGjdfiVRFEnQndbd5yGEupSdG6R4',
+      y: 'FESQhctMSQOF2E79YbCE8q1JIQWltMbvoCVwSsO19ck'
+    }
   },
   Dave: {
-    id: addressToKid(ACCOUNT.Dave.address),
-    pubKey: ACCOUNT.Dave.publicKey,
-    address: ACCOUNT.Dave.address,
-    alg: Alg.ES256K,
-    userId: USER.Dave.id
+    id: '0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d',
+    userId: USER.Dave.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: Alg.ES256K,
+      kid: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
+      x: 'sdb8VZcfcI6t5i7BD3BTPoZPyYCxaVpw7H1BIUyPZ5M',
+      y: 'cIcYdzuWF7KqFKJrdQSmdjPpQzrk9_uzNycqtvtH1QI'
+    }
   }
 }
 

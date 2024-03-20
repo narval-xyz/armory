@@ -1,5 +1,5 @@
 import { Action, AssetId, Feed, JwtString } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Payload, SigningAlg, hash, hexToBase64Url, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -36,7 +36,7 @@ export class PriceFeedService implements DataFeed<Prices> {
     }
 
     const now = Math.floor(Date.now() / 1000)
-    const jwk = privateKeyToJwk(this.getPrivateKey())
+    const jwk = secp256k1PrivateKeyToJwk(this.getPrivateKey())
     const payload: Payload = {
       data: hash(data),
       sub: account.address,

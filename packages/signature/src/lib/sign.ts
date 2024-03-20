@@ -3,13 +3,13 @@ import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
-import { EcdsaSignature, Header, Hex, JWK, Payload, SigningAlg } from './types'
+import { EcdsaSignature, Header, Hex, Payload, PrivateKey, SigningAlg } from './types'
 import { hexToBase64Url } from './utils'
 
 // WIP to replace `sign`
 export async function signJwt(
   payload: Payload,
-  jwk: JWK,
+  jwk: PrivateKey,
   opts: { alg?: SigningAlg } = {},
   signer?: (payload: string) => Promise<string>
 ): Promise<string> {

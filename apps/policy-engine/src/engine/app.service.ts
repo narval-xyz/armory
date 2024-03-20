@@ -5,11 +5,10 @@ import {
   EvaluationRequest,
   EvaluationResponse,
   HistoricalTransfer,
-  JsonWebKey,
   JwtString,
   Request
 } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, decode, hash, privateKeyToJwk, publicKeyToJwk, verifyJwt } from '@narval/signature'
+import { Payload, SigningAlg, decode, hash, secp256k1PrivateKeyToJwk, verifyJwt } from '@narval/signature'
 import { safeDecode } from '@narval/transaction-request-intent'
 import {
   BadRequestException,
@@ -20,7 +19,6 @@ import {
 } from '@nestjs/common'
 import { InputType } from 'packages/transaction-request-intent/src/lib/domain'
 import { Intent } from 'packages/transaction-request-intent/src/lib/intent.types'
-import { Hex } from 'viem'
 import { OpaResult, RegoInput } from '../shared/type/domain.type'
 import { SigningService } from './core/service/signing.service'
 import { OpaService } from './opa/opa.service'
@@ -83,9 +81,7 @@ export class AppService {
       throw new NotFoundException('Credential not found')
     }
 
-    const jwk = publicKeyToJwk(credential.pubKey as Hex)
-
-    const validJwt = await verifyJwt(requestSignature, jwk)
+    const validJwt = await verifyJwt(requestSignature, credential.key)
     // Check the data is the same
     if (validJwt.payload.requestHash !== verificationMessage) {
       throw new BadRequestException('Invalid signature')
@@ -205,9 +201,9 @@ export class AppService {
 
     // If we are allowing, then the ENGINE signs the verification too
     if (finalDecision.decision === Decision.PERMIT) {
-      const tenantSigningKey: JsonWebKey = privateKeyToJwk(ENGINE_PRIVATE_KEY)
+      const tenantSigningKey = secp256k1PrivateKeyToJwk(ENGINE_PRIVATE_KEY)
 
-      const clientJwk = publicKeyToJwk(principalCredential.pubKey as Hex)
+      const { key: clientJwk } = principalCredential
 
       const jwtPayload: Payload = {
         requestHash: verificationMessage,

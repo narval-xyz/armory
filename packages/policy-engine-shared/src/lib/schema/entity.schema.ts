@@ -1,4 +1,4 @@
-import { Alg } from '@narval/signature'
+import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 import { addressSchema } from './address.schema'
 
@@ -23,10 +23,9 @@ export const accountClassificationSchema = z.nativeEnum({
 
 export const credentialEntitySchema = z.object({
   id: z.string(),
-  pubKey: z.string(),
-  address: z.string().optional(),
-  alg: z.nativeEnum(Alg),
-  userId: z.string()
+  userId: z.string(),
+  key: publicKeySchema
+  // TODO @ptroger: Should we be allowing a private key to be passed in entity data ?
 })
 
 export const organizationEntitySchema = z.object({
