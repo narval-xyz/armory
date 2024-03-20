@@ -1,5 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { Action, Request, UserRole } from '@narval/policy-engine-shared'
+import { Alg, Curves, KeyTypes } from '@narval/signature'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { readFileSync } from 'fs'
@@ -66,8 +67,14 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         principal: {
           id: initiator_user_id,
           userId: initiator_user_id,
-          alg: 'ES256K',
-          pubKey: ''
+          key: {
+            kty: KeyTypes.EC,
+            crv: Curves.SECP256K1,
+            alg: Alg.ES256K,
+            kid: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
+            x: 'sdb8VZcfcI6t5i7BD3BTPoZPyYCxaVpw7H1BIUyPZ5M',
+            y: 'cIcYdzuWF7KqFKJrdQSmdjPpQzrk9_uzNycqtvtH1QI'
+          }
         },
         resource: request.resourceId ? { uid: request.resourceId } : undefined,
         approvals: []
@@ -93,8 +100,14 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         principal: {
           id: initiator_user_id,
           userId: initiator_user_id,
-          alg: 'ES256K',
-          pubKey: ''
+          key: {
+            kty: KeyTypes.EC,
+            crv: Curves.SECP256K1,
+            alg: Alg.ES256K,
+            kid: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
+            x: 'sdb8VZcfcI6t5i7BD3BTPoZPyYCxaVpw7H1BIUyPZ5M',
+            y: 'cIcYdzuWF7KqFKJrdQSmdjPpQzrk9_uzNycqtvtH1QI'
+          }
         },
         resource: request.resourceId ? { uid: request.resourceId } : undefined,
         approvals: []
@@ -123,8 +136,14 @@ export const evaluate = async (users: any[], wallets: any[], legacyActivityReque
         principal: {
           id: initiator_user_id,
           userId: initiator_user_id,
-          alg: 'ES256K',
-          pubKey: ''
+          key: {
+            kty: KeyTypes.EC,
+            crv: Curves.SECP256K1,
+            alg: Alg.ES256K,
+            kid: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
+            x: 'sdb8VZcfcI6t5i7BD3BTPoZPyYCxaVpw7H1BIUyPZ5M',
+            y: 'cIcYdzuWF7KqFKJrdQSmdjPpQzrk9_uzNycqtvtH1QI'
+          }
         },
         resource: request.resourceId ? { uid: request.resourceId } : undefined,
         approvals: []
