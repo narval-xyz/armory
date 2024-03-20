@@ -1,12 +1,35 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
+import { ConfigModule, ConfigService, Path, PathValue } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { existsSync } from 'fs'
 import { readFile } from 'fs/promises'
-import { resolve } from 'path'
+import { Config, load } from '../../../../../policy-engine.config'
 import { withTempDirectory } from '../../../../../shared/testing/with-temp-directory.testing'
-import { build, buildOpaBundle, copyRegoCore, createDirectories, unzip, writeRegoPolicies } from '../../wasm-build.util'
+import { getRegoRuleTemplatePath } from '../../rego-transpiler.util'
+import {
+  build,
+  buildOpaBundle,
+  copyRegoCore,
+  createDirectories,
+  getRegoCorePath,
+  unzip,
+  writeRegoPolicies
+} from '../../wasm-build.util'
 
-const getRegoSourceCodePath = () => resolve(__dirname, '../../../rego/')
+const getConfig = async <P extends Path<Config>>(propertyPath: P): Promise<PathValue<Config, P>> => {
+  const module: TestingModule = await Test.createTestingModule({
+    imports: [ConfigModule.forRoot({ load: [load] })]
+  }).compile()
+
+  const service = module.get<ConfigService<Config, true>>(ConfigService)
+
+  return service.get(propertyPath, { infer: true })
+}
+
+const getTemplatePath = async () => getRegoRuleTemplatePath(await getConfig('resourcePath'))
+
+const getCorePath = async () => getRegoCorePath(await getConfig('resourcePath'))
 
 describe('createDirectories', () => {
   it('creates rego source, generated rego, and dist directories', async () => {
@@ -26,7 +49,8 @@ describe('writeRegoPolicies', () => {
       const { file } = await writeRegoPolicies({
         policies: FIXTURE.POLICIES,
         filename: 'policies.rego',
-        path
+        path,
+        regoRuleTemplatePath: await getTemplatePath()
       })
 
       const content = await readFile(file, 'utf-8')
@@ -45,7 +69,7 @@ describe('copyRegoCore', () => {
   it('copies the rego core files', async () => {
     await withTempDirectory(async (path) => {
       await copyRegoCore({
-        source: getRegoSourceCodePath(),
+        source: await getCorePath(),
         destination: path
       })
 
@@ -57,7 +81,7 @@ describe('copyRegoCore', () => {
   it('does not copy the rego tests', async () => {
     await withTempDirectory(async (path) => {
       await copyRegoCore({
-        source: getRegoSourceCodePath(),
+        source: await getCorePath(),
         destination: path
       })
 
@@ -72,7 +96,7 @@ describe('bundleOpaBundle', () => {
       const { regoSourceDirectory, distDirectory } = await createDirectories(path)
 
       await copyRegoCore({
-        source: getRegoSourceCodePath(),
+        source: await getCorePath(),
         destination: regoSourceDirectory
       })
 
@@ -89,7 +113,7 @@ describe('unzip', () => {
       const { regoSourceDirectory, distDirectory } = await createDirectories(path)
 
       await copyRegoCore({
-        source: getRegoSourceCodePath(),
+        source: await getCorePath(),
         destination: regoSourceDirectory
       })
 
@@ -114,7 +138,8 @@ describe('build', () => {
     await withTempDirectory(async (path) => {
       const wasm = await build({
         path,
-        regoCorePath: getRegoSourceCodePath(),
+        regoCorePath: await getCorePath(),
+        regoRuleTemplatePath: await getTemplatePath(),
         policies: FIXTURE.POLICIES,
         cleanAfter: false
       })

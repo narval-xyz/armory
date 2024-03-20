@@ -6,7 +6,6 @@ import { EngineService } from './engine/core/service/engine.service'
 import { EngineModule } from './engine/engine.module'
 import { load } from './policy-engine.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
-import { TenantModule } from './tenant/tenant.module'
 
 @Module({
   imports: [
@@ -22,8 +21,8 @@ import { TenantModule } from './tenant/tenant.module'
     }),
 
     // Domain
-    EngineModule,
-    TenantModule
+    EngineModule
+    // TenantModule
   ],
   providers: [
     {

@@ -10,11 +10,26 @@ import {
   ValueOperators,
   WalletAddressCriterion
 } from '@narval/policy-engine-shared'
-import { transpile, transpileCriterion, transpileReason } from '../../rego-transpiler.util'
+import { ConfigModule, ConfigService, Path, PathValue } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
+import { Config, load } from '../../../../../policy-engine.config'
+import { getRegoRuleTemplatePath, transpile, transpileCriterion, transpileReason } from '../../rego-transpiler.util'
+
+const getConfig = async <P extends Path<Config>>(propertyPath: P): Promise<PathValue<Config, P>> => {
+  const module: TestingModule = await Test.createTestingModule({
+    imports: [ConfigModule.forRoot({ load: [load] })]
+  }).compile()
+
+  const service = module.get<ConfigService<Config, true>>(ConfigService)
+
+  return service.get(propertyPath, { infer: true })
+}
+
+const getTemplatePath = async () => getRegoRuleTemplatePath(await getConfig('resourcePath'))
 
 describe('transpile', () => {
   it('transpiles rego rules based on the given policies', async () => {
-    const rules = await transpile(FIXTURE.POLICIES)
+    const rules = await transpile(FIXTURE.POLICIES, await getTemplatePath())
 
     expect(rules).toContain('permit')
     expect(rules).toContain('forbid')
@@ -27,7 +42,6 @@ describe('transpileCriterion', () => {
       criterion: Criterion.CHECK_NONCE_EXISTS,
       args: null
     }
-
     expect(transpileCriterion(item)).toEqual(Criterion.CHECK_NONCE_EXISTS)
   })
 

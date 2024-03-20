@@ -2,10 +2,11 @@ import { Criterion, Policy, PolicyCriterion, Then } from '@narval/policy-engine-
 import { readFile } from 'fs/promises'
 import Handlebars from 'handlebars'
 import { isEmpty } from 'lodash'
-import { resolve } from 'path'
 import { v4 as uuid } from 'uuid'
 
-const REGO_RULES_TEMPLATE_PATH = resolve(__dirname, '../../resource/rego-rules.template.hbs')
+export const getRegoRuleTemplatePath = (resourcePath: string) => {
+  return `${resourcePath}/open-policy-agent/rego/rules.template.hbs`
+}
 
 export const transpileCriterion = (item: PolicyCriterion) => {
   const criterion: Criterion = item.criterion
@@ -62,11 +63,11 @@ export const transpileReason = (item: Policy & { id: string }) => {
   return `reason = ${JSON.stringify(reason)}`
 }
 
-export const transpile = async (policies: Policy[]): Promise<string> => {
+export const transpile = async (policies: Policy[], templatePath: string): Promise<string> => {
   Handlebars.registerHelper('criterion', transpileCriterion)
   Handlebars.registerHelper('reason', transpileReason)
 
-  const template = Handlebars.compile(await readFile(REGO_RULES_TEMPLATE_PATH, 'utf-8'))
+  const template = Handlebars.compile(await readFile(templatePath, 'utf-8'))
 
   return template({
     // TODO: Here the policy must have an ID already.

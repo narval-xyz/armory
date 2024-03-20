@@ -5,28 +5,64 @@ import {
   EntityType,
   EvaluationRequest,
   FIXTURE,
+  Hex,
+  JwtString,
   Policy,
+  Request,
   Then,
   toHex
 } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { ConfigModule, ConfigService, Path, PathValue } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
+import { resolve } from 'path'
+import { Config, load } from '../../../../policy-engine.config'
 import { OpenPolicyAgentException } from '../../exception/open-policy-agent.exception'
 import { OpenPolicyAgentEngine } from '../../open-policy-agent.engine'
 import { Result } from '../../type/open-policy-agent.type'
 
 const ONE_ETH = toHex(BigInt('1000000000000000000'))
 
+const REGO_CORE_PATH = resolve(__dirname, '../../rego')
+
+const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Promise<JwtString> => {
+  const jwk = privateKeyToJwk(option.privateKey)
+  const signer = buildSignerEip191(option.privateKey)
+
+  return signJwt(
+    {
+      requestHash: hash(option.request),
+      sub: option.sub
+    },
+    jwk,
+    { alg: SigningAlg.EIP191 },
+    signer
+  )
+}
+
+const getConfig = async <P extends Path<Config>>(propertyPath: P): Promise<PathValue<Config, P>> => {
+  const module: TestingModule = await Test.createTestingModule({
+    imports: [ConfigModule.forRoot({ load: [load] })]
+  }).compile()
+
+  const service = module.get<ConfigService<Config, true>>(ConfigService)
+
+  return service.get(propertyPath, { infer: true })
+}
+
 describe('OpenPolicyAgentEngine', () => {
   let engine: OpenPolicyAgentEngine
 
   beforeEach(async () => {
-    engine = await new OpenPolicyAgentEngine().load()
+    engine = await OpenPolicyAgentEngine.empty(await getConfig('resourcePath')).load()
   })
 
-  describe('constructor', () => {
-    it('starts with an empty state', () => {
-      expect(engine.getPolicies()).toEqual([])
-      expect(engine.getEntities()).toEqual({
+  describe('empty', () => {
+    it('starts with an empty state', async () => {
+      const e = OpenPolicyAgentEngine.empty(await getConfig('resourcePath'))
+
+      expect(e.getPolicies()).toEqual([])
+      expect(e.getEntities()).toEqual({
         addressBook: [],
         credentials: [],
         tokens: [],
@@ -93,7 +129,11 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      const e = await new OpenPolicyAgentEngine(policies, FIXTURE.ENTITIES).load()
+      const e = await new OpenPolicyAgentEngine({
+        policies,
+        entities: FIXTURE.ENTITIES,
+        resourcePath: await getConfig('resourcePath')
+      }).load()
 
       const request = {
         action: Action.SIGN_TRANSACTION,
@@ -107,21 +147,12 @@ describe('OpenPolicyAgentEngine', () => {
         resourceId: FIXTURE.WALLET.Engineering.id
       }
 
-      const jwk = privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
-      const signer = buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
-
-      const jwt = await signJwt(
-        {
-          requestHash: hash(request),
-          sub: FIXTURE.USER.Alice.id
-        },
-        jwk,
-        { alg: SigningAlg.EIP191 },
-        signer
-      )
-
       const evaluation: EvaluationRequest = {
-        authentication: jwt,
+        authentication: await getJwt({
+          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE.USER.Alice.id,
+          request
+        }),
         request
       }
 

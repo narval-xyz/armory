@@ -1,5 +1,4 @@
 import { Action, EvaluationRequest, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
-import { Alg } from '@narval/signature'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import { generateInboundEvaluationRequest } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
@@ -43,32 +42,6 @@ describe('toInput', () => {
       const input = toInput(evaluation)
 
       expect(input.transfers).toEqual(evaluation.transfers)
-    })
-
-    it('maps the principal', () => {
-      const input = toInput(evaluation)
-
-      expect(input.principal).toEqual({
-        id: 'test-cred-id',
-        pubKey: 'test-pub-key',
-        address: 'test-address',
-        alg: Alg.ES256K,
-        userId: 'test-user-id'
-      })
-    })
-
-    it('maps the approvals', () => {
-      const input = toInput(evaluation)
-
-      expect(input.approvals).toEqual([
-        {
-          id: 'test-cred-id',
-          pubKey: 'test-pub-key',
-          address: 'test-address',
-          alg: Alg.ES256K,
-          userId: 'test-user-id'
-        }
-      ])
     })
 
     it('adds the transaction request intent', () => {

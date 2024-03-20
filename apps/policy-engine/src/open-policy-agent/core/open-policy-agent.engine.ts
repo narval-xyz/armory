@@ -14,38 +14,48 @@ import { Hex, decode, hash, publicKeyToJwk, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
-import { resolve } from 'path'
-import { v4 } from 'uuid'
+import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
 import { Input, OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
-import { build } from './util/wasm-build.util'
+import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
+import { build, getRegoCorePath } from './util/wasm-build.util'
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]
 
   private entities: Entities
 
+  private resourcePath: string
+
   private opa?: OpenPolicyAgentInstance
 
-  constructor(policies?: Policy[], entities?: Entities) {
-    this.entities = entities || {
-      addressBook: [],
-      credentials: [],
-      tokens: [],
-      userGroupMembers: [],
-      userGroups: [],
-      userWallets: [],
-      users: [],
-      walletGroupMembers: [],
-      walletGroups: [],
-      wallets: []
-    }
+  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string }) {
+    this.entities = params.entities
+    this.policies = params.policies
+    this.resourcePath = params.resourcePath
+  }
 
-    this.policies = policies || []
+  static empty(resourcePath: string): OpenPolicyAgentEngine {
+    return new OpenPolicyAgentEngine({
+      entities: {
+        addressBook: [],
+        credentials: [],
+        tokens: [],
+        userGroupMembers: [],
+        userGroups: [],
+        userWallets: [],
+        users: [],
+        walletGroupMembers: [],
+        walletGroups: [],
+        wallets: []
+      },
+      policies: [],
+      resourcePath: resourcePath
+    })
   }
 
   setPolicies(policies: Policy[]): OpenPolicyAgentEngine {
@@ -75,9 +85,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   async load(): Promise<OpenPolicyAgentEngine> {
     try {
       const wasm = await build({
-        path: `/tmp/armory-policy-bundle-${v4()}`,
-        regoCorePath: resolve(__dirname, '../core/rego'),
-        policies: this.getPolicies()
+        policies: this.getPolicies(),
+        path: `/tmp/armory-policy-bundle-${uuid()}`,
+        regoCorePath: getRegoCorePath(this.resourcePath),
+        regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath)
       })
 
       this.opa = await loadPolicy(wasm, undefined, {
@@ -88,6 +99,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
       return this
     } catch (error) {
+      console.log(error)
+
       throw new OpenPolicyAgentException({
         message: 'Fail to load Open Policy Agent engine',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,

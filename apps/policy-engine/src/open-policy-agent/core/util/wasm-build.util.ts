@@ -8,11 +8,16 @@ import { transpile } from './rego-transpiler.util'
 type BuildWebAssemblyOption = {
   path: string
   regoCorePath: string
+  regoRuleTemplatePath: string
   policies: Policy[]
   cleanAfter?: boolean
 }
 
 const exec = promisify(execCommand)
+
+export const getRegoCorePath = (resourcePath: string): string => {
+  return `${resourcePath}/open-policy-agent/rego`
+}
 
 export const createDirectories = async (path: string) => {
   await mkdir(path, { recursive: true })
@@ -30,8 +35,13 @@ export const createDirectories = async (path: string) => {
   }
 }
 
-export const writeRegoPolicies = async (option: { policies: Policy[]; filename: string; path: string }) => {
-  const policies = await transpile(option.policies)
+export const writeRegoPolicies = async (option: {
+  policies: Policy[]
+  filename: string
+  path: string
+  regoRuleTemplatePath: string
+}) => {
+  const policies = await transpile(option.policies, option.regoRuleTemplatePath)
   const file = `${option.path}/${option.filename}`
 
   await writeFile(file, policies, 'utf-8')
@@ -81,7 +91,8 @@ export const build = async (option: BuildWebAssemblyOption): Promise<Buffer> => 
     await writeRegoPolicies({
       policies: option.policies,
       path: generatedRegoDirectory,
-      filename: 'policies.rego'
+      filename: 'policies.rego',
+      regoRuleTemplatePath: option.regoRuleTemplatePath
     })
 
     const { bundleFile } = await buildOpaBundle({ regoSourceDirectory, distDirectory })
