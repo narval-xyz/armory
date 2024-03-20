@@ -15,7 +15,6 @@ import {
 import { SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { ConfigModule, ConfigService, Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { resolve } from 'path'
 import { Config, load } from '../../../../policy-engine.config'
 import { OpenPolicyAgentException } from '../../exception/open-policy-agent.exception'
 import { OpenPolicyAgentEngine } from '../../open-policy-agent.engine'
@@ -23,7 +22,7 @@ import { Result } from '../../type/open-policy-agent.type'
 
 const ONE_ETH = toHex(BigInt('1000000000000000000'))
 
-const REGO_CORE_PATH = resolve(__dirname, '../../rego')
+const UNSAFE_ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Promise<JwtString> => {
   const jwk = privateKeyToJwk(option.privateKey)
@@ -54,12 +53,18 @@ describe('OpenPolicyAgentEngine', () => {
   let engine: OpenPolicyAgentEngine
 
   beforeEach(async () => {
-    engine = await OpenPolicyAgentEngine.empty(await getConfig('resourcePath')).load()
+    engine = await OpenPolicyAgentEngine.empty({
+      resourcePath: await getConfig('resourcePath'),
+      privateKey: UNSAFE_ENGINE_PRIVATE_KEY
+    }).load()
   })
 
   describe('empty', () => {
     it('starts with an empty state', async () => {
-      const e = OpenPolicyAgentEngine.empty(await getConfig('resourcePath'))
+      const e = OpenPolicyAgentEngine.empty({
+        resourcePath: await getConfig('resourcePath'),
+        privateKey: UNSAFE_ENGINE_PRIVATE_KEY
+      })
 
       expect(e.getPolicies()).toEqual([])
       expect(e.getEntities()).toEqual({
@@ -120,10 +125,6 @@ describe('OpenPolicyAgentEngine', () => {
             {
               criterion: Criterion.CHECK_ACTION,
               args: [Action.SIGN_TRANSACTION]
-            },
-            {
-              criterion: Criterion.CHECK_PRINCIPAL_ID,
-              args: [FIXTURE.USER.Alice.id]
             }
           ]
         }
@@ -132,6 +133,7 @@ describe('OpenPolicyAgentEngine', () => {
       const e = await new OpenPolicyAgentEngine({
         policies,
         entities: FIXTURE.ENTITIES,
+        privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -161,6 +163,58 @@ describe('OpenPolicyAgentEngine', () => {
       expect(response).toEqual({
         decision: Decision.FORBID,
         request: evaluation.request
+      })
+    })
+
+    it('adds access token on permit responses', async () => {
+      const policies: Policy[] = [
+        {
+          then: Then.PERMIT,
+          name: 'test-policy',
+          when: [
+            {
+              criterion: Criterion.CHECK_ACTION,
+              args: [Action.SIGN_TRANSACTION]
+            }
+          ]
+        }
+      ]
+
+      const e = await new OpenPolicyAgentEngine({
+        policies,
+        entities: FIXTURE.ENTITIES,
+        privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
+        resourcePath: await getConfig('resourcePath')
+      }).load()
+
+      const request = {
+        action: Action.SIGN_TRANSACTION,
+        nonce: 'test-nonce',
+        transactionRequest: {
+          from: FIXTURE.WALLET.Engineering.address,
+          to: FIXTURE.WALLET.Testing.address,
+          value: ONE_ETH,
+          chainId: 1
+        },
+        resourceId: FIXTURE.WALLET.Engineering.id
+      }
+
+      const evaluation: EvaluationRequest = {
+        authentication: await getJwt({
+          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE.USER.Alice.id,
+          request
+        }),
+        request
+      }
+
+      const response = await e.evaluate(evaluation)
+
+      expect(response.decision).toEqual(Decision.PERMIT)
+      // TODO: (@wcalderipe, 20/03/24) Today we can't assert the signature
+      // because the function isn't pure due to the dependency on Date.now
+      expect(response.accessToken).toMatchObject({
+        value: expect.any(String)
       })
     })
   })
