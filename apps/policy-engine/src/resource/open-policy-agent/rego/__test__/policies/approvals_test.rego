@@ -61,3 +61,22 @@ test_approvalByUserRoles {
 		"type": "permit",
 	}
 }
+
+test_withoutApprovals {
+	withoutApprovalsReq = {
+		"action": "signTransaction",
+		"transactionRequest": transactionRequestReq,
+		"principal": {"userId": "test-alice-uid"}, "resource": resourceReq,
+		"intent": intentReq,
+		"feeds": feedsReq,
+	}
+
+	res = permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
+
+	res == {
+		"type": "permit",
+		"policyId": "withoutApprovals",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
+}
