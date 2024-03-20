@@ -6,19 +6,14 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/policy-engine",
         "main": "apps/policy-engine/src/main.ts",
-        "assets": [
-          "apps/policy-engine/src/open-policy-agent/resource",
-          "apps/policy-engine/src/open-policy-agent/core/rego"
-        ],
+        "assets": ["apps/policy-engine/src/resource"],
         "tsConfig": "apps/policy-engine/tsconfig.app.json",
         "isolatedConfig": true,
         "webpackConfig": "apps/policy-engine/webpack.config.js"
@@ -45,13 +40,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "apps/policy-engine/**/*.ts"
-        ]
+        "lintFilePatterns": ["apps/policy-engine/**/*.ts"]
       }
     },
     "test:type": {
@@ -62,9 +53,7 @@
     },
     "test:unit": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/policy-engine/jest.unit.ts",
         "verbose": true
@@ -72,9 +61,7 @@
     },
     "test:integration": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/policy-engine/jest.integration.ts",
         "verbose": true,
@@ -83,9 +70,7 @@
     },
     "test:e2e": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/policy-engine/jest.e2e.ts",
         "verbose": true,
