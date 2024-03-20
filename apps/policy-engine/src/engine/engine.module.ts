@@ -8,7 +8,6 @@ import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-modu
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
 import { BootstrapService } from './core/service/bootstrap.service'
 import { DataStoreService } from './core/service/data-store.service'
@@ -18,9 +17,7 @@ import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
 import { TenantController } from './http/rest/controller/tenant.controller'
-import { OpaService } from './opa/opa.service'
 import { EngineRepository } from './persistence/repository/engine.repository'
-import { EntityRepository } from './persistence/repository/entity.repository'
 import { FileSystemDataStoreRepository } from './persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from './persistence/repository/http-data-store.repository'
 import { TenantRepository } from './persistence/repository/tenant.repository'
@@ -42,11 +39,8 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
   controllers: [AppController, TenantController],
   providers: [
     AdminApiKeyGuard,
-    AppService,
     EngineRepository,
     EngineService,
-    EntityRepository,
-    OpaService,
     ProvisionService,
     SigningService,
     BootstrapService,

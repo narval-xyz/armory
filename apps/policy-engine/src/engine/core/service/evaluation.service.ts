@@ -7,6 +7,8 @@ import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TenantService } from './tenant.service'
 
+const UNSAFE_ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+
 @Injectable()
 export class EvaluationService {
   constructor(
@@ -41,6 +43,7 @@ export class EvaluationService {
     const engine = await new OpenPolicyAgentEngine({
       entities: entityStore.data,
       policies: policyStore.data,
+      privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
       resourcePath: resolve(this.configService.get('resourcePath', { infer: true }))
     }).load()
 

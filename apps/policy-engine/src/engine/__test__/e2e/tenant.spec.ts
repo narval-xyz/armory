@@ -11,8 +11,8 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { CreateTenantDto } from '../../../tenant/http/rest/dto/create-tenant.dto'
 import { EngineModule } from '../../engine.module'
+import { CreateTenantDto } from '../../http/rest/dto/create-tenant.dto'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
 
 describe('Tenant', () => {
