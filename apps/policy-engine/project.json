@@ -13,6 +13,7 @@
         "compiler": "tsc",
         "outputPath": "dist/apps/policy-engine",
         "main": "apps/policy-engine/src/main.ts",
+        "assets": ["apps/policy-engine/src/resource"],
         "tsConfig": "apps/policy-engine/tsconfig.app.json",
         "isolatedConfig": true,
         "webpackConfig": "apps/policy-engine/webpack.config.js"

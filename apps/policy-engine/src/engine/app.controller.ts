@@ -1,14 +1,14 @@
-import { EvaluationRequest } from '@narval/policy-engine-shared'
+import { FIXTURE } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
-import { generateInboundRequest } from '../engine/persistence/repository/mock_data'
-import { AppService } from './app.service'
+import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
+import { EvaluationService } from './core/service/evaluation.service'
 import { EvaluationRequestDto } from './evaluation-request.dto'
 
 @Controller()
 export class AppController {
   private logger = new Logger(AppController.name)
 
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly evaluationService: EvaluationService) {}
 
   @Get()
   healthcheck() {
@@ -30,39 +30,30 @@ export class AppController {
       body
     })
 
-    // Map the DTO into the TS type because it's nicer to deal with.
-    const payload: EvaluationRequest = body
-
-    const result = await this.appService.runEvaluation(payload)
-    this.logger.log({
-      message: 'Evaluation Result',
-      result
-    })
-
-    return result
+    return this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, body)
   }
 
   @Post('/evaluation-demo')
   async evaluateDemo() {
-    const fakeRequest = await generateInboundRequest()
-    this.logger.log({
-      message: 'Received evaluation',
-      body: fakeRequest
+    const evaluation = await generateInboundEvaluationRequest()
+    this.logger.log('Received evaluation', {
+      evaluation
     })
-    const result = await this.appService.runEvaluation(fakeRequest)
-    this.logger.log({
-      message: 'Evaluation Result',
-      result
+
+    const response = await this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, evaluation)
+
+    this.logger.log('Evaluation respone', {
+      response
     })
 
     return {
-      request: fakeRequest,
-      result
+      request: evaluation,
+      response
     }
   }
 
   @Get('/generate-inbound-request')
   generateInboundRequest() {
-    return generateInboundRequest()
+    return generateInboundEvaluationRequest()
   }
 }
