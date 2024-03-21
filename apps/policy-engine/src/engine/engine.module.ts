@@ -1,6 +1,6 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
-import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
+import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { load } from '../policy-engine.config'
@@ -56,12 +56,6 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       useClass: ValidationPipe
     }
   ],
-  exports: [EngineService, ProvisionService]
+  exports: [EngineService, ProvisionService, BootstrapService]
 })
-export class EngineModule implements OnApplicationBootstrap {
-  constructor(private bootstrapService: BootstrapService) {}
-
-  async onApplicationBootstrap() {
-    await this.bootstrapService.boot()
-  }
-}
+export class EngineModule {}

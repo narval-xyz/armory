@@ -1,3 +1,4 @@
+import { EncryptionService } from '@narval/encryption-module'
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { randomBytes } from 'crypto'
@@ -7,10 +8,15 @@ import { TenantService } from './tenant.service'
 export class BootstrapService {
   private logger = new Logger(BootstrapService.name)
 
-  constructor(private tenantService: TenantService) {}
+  constructor(
+    private tenantService: TenantService,
+    private encryptionService: EncryptionService
+  ) {}
 
   async boot(): Promise<void> {
     this.logger.log('Start engine bootstrap')
+
+    await this.checkEncryptionConfiguration()
 
     if (!(await this.tenantService.findByClientId(FIXTURE.ORGANIZATION.id))) {
       await this.tenantService.onboard({
@@ -34,6 +40,21 @@ export class BootstrapService {
     }
 
     await this.syncTenants()
+  }
+
+  private async checkEncryptionConfiguration(): Promise<void> {
+    this.logger.log('Check encryption configuration')
+
+    try {
+      this.encryptionService.getKeyring()
+      this.logger.log('Encryption keyring configured')
+    } catch (error) {
+      this.logger.error(
+        'Missing encryption keyring. Please provision the application with "make policy-engine/cli CMD=provision"'
+      )
+
+      throw error
+    }
   }
 
   private async syncTenants(): Promise<void> {
