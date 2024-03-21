@@ -21,11 +21,12 @@ export class ProvisionService {
 
     const isFirstTime = engine === null
 
-    // IMPORTANT: The order of internal methods call matters.
-
     if (isFirstTime) {
+      // IMPORTANT: The order of internal methods call matters.
       await this.createEngine()
       await this.maybeSetupEncryption()
+    } else {
+      this.logger.log('Skip engine provision')
     }
   }
 
