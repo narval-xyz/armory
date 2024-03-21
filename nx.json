@@ -4,7 +4,17 @@
     "build": {
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+      "inputs": ["production", "^production"],
+      "configurations": {
+        "development": {
+          "optimization": false,
+          "sourceMap": true,
+          "extractLicenses": false,
+          "vendorChunk": false,
+          "commonChunk": false,
+          "buildOptimizer": false
+        }
+      }
     },
     "lint": {
       "cache": true,
