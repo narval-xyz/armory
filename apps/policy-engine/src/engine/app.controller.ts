@@ -20,7 +20,6 @@ export class AppController {
     this.logger.log({
       message: 'Received ping'
     })
-
     return 'pong'
   }
 
