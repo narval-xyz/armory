@@ -188,7 +188,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
     const { key } = credential
 
-    console.log('### credential', credential)
     const validJwt = await verifyJwt(signature, key)
 
     if (validJwt.payload.requestHash !== message) {
