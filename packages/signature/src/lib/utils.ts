@@ -4,7 +4,22 @@ import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, generateKeyPair } from 'jose'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
-import { Alg, Curves, Hex, KeyTypes, Secp256k1KeySchema, Secp256k1PrivateKey, Secp256k1PublicKey } from './types'
+import { JwtError } from './error'
+import { rsaPrivateKeySchema } from './schemas'
+import {
+  Alg,
+  Curves,
+  Hex,
+  Jwk,
+  KeyTypes,
+  P256PrivateKey,
+  P256PublicKey,
+  RsaPrivateKey,
+  Secp256k1KeySchema,
+  Secp256k1PrivateKey,
+  Secp256k1PublicKey
+} from './types'
+import { validate } from './validate'
 
 export const algToJwk = (
   alg: Alg
@@ -57,7 +72,7 @@ export const secp256k1PublicKeyToJwk = (publicKey: Hex, keyId?: string): Secp256
   }
 }
 
-export const p256PublicKeyToJwk = (publicKey: Hex, keyId?: string): JWK => {
+export const p256PublicKeyToJwk = (publicKey: Hex, keyId?: string): P256PublicKey => {
   const hexPubKey = publicKey.slice(4)
   const x = hexPubKey.slice(0, 64)
   const y = hexPubKey.slice(64)
@@ -79,6 +94,19 @@ export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp2
     ...publicJwk,
     d: hexToBase64Url(privateKey)
   }
+}
+
+export const p256PrivateKeyToJwk = (privateKey: Hex, keyId?: string): P256PrivateKey => {
+  const publicKey = toHex(p256.getPublicKey(privateKey.slice(2), false))
+  const publicJwk = p256PublicKeyToJwk(publicKey, keyId)
+  return {
+    ...publicJwk,
+    d: hexToBase64Url(privateKey)
+  }
+}
+
+export const p256PrivateKeyToHex = (jwk: P256PrivateKey): Hex => {
+  return base64UrlToHex(jwk.d)
 }
 
 export const secp256k1PublicKeyToHex = (jwk: Secp256k1KeySchema): Hex => {
@@ -114,6 +142,21 @@ export const base64UrlToBytes = (base64Url: string): Buffer => {
   return Buffer.from(base64UrlToBase64(base64Url), 'base64')
 }
 
+const rsaKeyToKid = (jwk: Jwk) => {
+  // Concatenate the 'n' and 'e' values
+  const dataToHash = `${jwk.n}${jwk.e}`
+
+  // Convert base64url to regular base64
+  const base64 = dataToHash.replace(/-/g, '+').replace(/_/g, '/')
+
+  // Convert base64 to binary data
+  const binaryData = Buffer.from(base64, 'base64')
+
+  // Compute SHA-256 hash of the binary data
+  const hash = sha256Hash(binaryData)
+  return toHex(hash)
+}
+
 const generateRsaKeyPair = async (
   opts: {
     keyId?: string
@@ -134,7 +177,8 @@ const generateRsaKeyPair = async (
   const jwk = {
     ...partialJwk,
     alg: Alg.RS256,
-    kid: partialJwk.kid || `rsa-${keccak256(toBytes(partialJwk.n))}`
+    kid: opts.keyId || rsaKeyToKid(partialJwk),
+    kty: KeyTypes.RSA
   }
   if (!isJwk(jwk)) {
     throw new JwtError({ message: 'Invalid JWK', context: { jwk } })
@@ -148,17 +192,20 @@ export const generateJwk = async (
     keyId?: string
     modulusLength?: number
   }
-): Promise<JWK> => {
+): Promise<Jwk> => {
   switch (alg) {
-    case Alg.ES256K:
+    case Alg.ES256K: {
       const privateKeyK1 = toHex(secp256k1.utils.randomPrivateKey())
       return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId)
-    case Alg.ES256:
+    }
+    case Alg.ES256: {
       const privateKeyP256 = toHex(p256.utils.randomPrivateKey())
       return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId)
-    case Alg.RS256:
+    }
+    case Alg.RS256: {
       const jwk = await generateRsaKeyPair(opts)
       return jwk
+    }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
   }

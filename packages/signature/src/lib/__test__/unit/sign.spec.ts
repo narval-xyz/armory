@@ -5,7 +5,7 @@ import { createPublicKey } from 'node:crypto'
 import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
-import { Alg, Payload, PrivateKey, SigningAlg } from '../../types'
+import { Alg, Payload, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,
   base64UrlToHex,
@@ -38,7 +38,7 @@ describe('sign', () => {
   it('should sign build & sign es256 JWT correctly with a PEM', async () => {
     const key = await importPKCS8(PRIVATE_KEY_PEM, Alg.ES256)
     const jwk = await exportJWK(key)
-    const jwt = await signJwt(payload, { ...jwk, alg: Alg.ES256 } as PrivateKey)
+    const jwt = await signJwt(payload, { ...jwk, alg: Alg.ES256, crv: 'P-256', kty: 'EC', kid: 'somekid' })
 
     const verified = await jwtVerify(jwt, key)
     expect(verified.payload).toEqual(payload)

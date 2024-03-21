@@ -2,6 +2,8 @@ import { z } from 'zod'
 import {
   jwkEoaSchema,
   jwkSchema,
+  p256PrivateKeySchema,
+  p256PublicKeySchema,
   privateKeySchema,
   publicKeySchema,
   secp256k1KeySchema,
@@ -48,6 +50,9 @@ export const Use = {
 export type Use = (typeof Use)[keyof typeof Use]
 
 export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
+export type P256PrivateKey = z.infer<typeof p256PrivateKeySchema>
+export type P256PublicKey = z.infer<typeof p256PublicKeySchema>
+export type RsaPrivateKey = z.infer<typeof rsaPrivateKeySchema>
 export type EoaPublicKey = z.infer<typeof jwkEoaSchema>
 export type Secp256k1PublicKey = z.infer<typeof secp256k1PublicKeySchema>
 export type Secp256k1KeySchema = z.infer<typeof secp256k1KeySchema>
