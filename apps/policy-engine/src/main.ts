@@ -3,7 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { Config } from './policy-engine.config'
 import { PolicyEngineModule } from './policy-engine.module'
+import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
+import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 
 /**
  * Adds Swagger documentation to the application.
@@ -37,6 +40,21 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
   return app
 }
 
+/**
+ * Adds a global exception filter to the application.
+ *
+ * @param app - The Nest application instance.
+ * @param configService - The configuration service instance.
+ * @returns The modified Nest application instance.
+ */
+const withGlobalFilters =
+  (configService: ConfigService<Config, true>) =>
+  (app: INestApplication): INestApplication => {
+    app.useGlobalFilters(new HttpExceptionFilter(configService), new ApplicationExceptionFilter(configService))
+
+    return app
+  }
+
 async function bootstrap() {
   const logger = new Logger('PolicyEngineBootstrap')
   const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
@@ -51,6 +69,7 @@ async function bootstrap() {
     of(application).pipe(
       map(withSwagger),
       map(withGlobalPipes),
+      map(withGlobalFilters(configService)),
       switchMap((app) => app.listen(port))
     )
   )
