@@ -1,12 +1,12 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { Module, ValidationPipe } from '@nestjs/common'
+import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
+import { BootstrapService } from './engine/core/service/bootstrap.service'
 import { EngineService } from './engine/core/service/engine.service'
 import { EngineModule } from './engine/engine.module'
 import { load } from './policy-engine.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
-import { TenantModule } from './tenant/tenant.module'
 
 @Module({
   imports: [
@@ -22,8 +22,7 @@ import { TenantModule } from './tenant/tenant.module'
     }),
 
     // Domain
-    EngineModule,
-    TenantModule
+    EngineModule
   ],
   providers: [
     {
@@ -32,4 +31,10 @@ import { TenantModule } from './tenant/tenant.module'
     }
   ]
 })
-export class PolicyEngineModule {}
+export class PolicyEngineModule implements OnApplicationBootstrap {
+  constructor(private bootstrapService: BootstrapService) {}
+
+  async onApplicationBootstrap() {
+    await this.bootstrapService.boot()
+  }
+}

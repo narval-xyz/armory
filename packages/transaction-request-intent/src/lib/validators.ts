@@ -6,7 +6,7 @@ export const validateNativeTransferInput = (txRequest: TransactionRequest): Nati
   const { value, chainId, to, from, nonce } = txRequest
   if (!value || !chainId || !to || !from) {
     throw new DecoderError({
-      message: 'Malformed native transfer transaction request: missing value or chainId',
+      message: 'Malformed native transfer transaction request: missing value, chainId, to, or from',
       status: 400,
       context: {
         value,
@@ -22,7 +22,7 @@ export const validateContractInteractionInput = (txRequest: TransactionRequest, 
   const { data, to, chainId, from, nonce } = txRequest
   if (!data || !to || !chainId) {
     throw new DecoderError({
-      message: 'Malformed transfer transaction request: missing data || chainId || to',
+      message: 'Malformed transfer transaction request: missing data, chainId, or to',
       status: 400,
       context: {
         chainId,
@@ -42,7 +42,7 @@ export const validateContractDeploymentInput = (txRequest: TransactionRequest): 
   const { data, chainId, from, to } = txRequest
   if (!data || !chainId || to) {
     throw new DecoderError({
-      message: 'Malformed contract deployment transaction request: missing data || chainId',
+      message: 'Malformed contract deployment transaction request: missing data, chainId, or to',
       status: 400,
       context: {
         chainId,

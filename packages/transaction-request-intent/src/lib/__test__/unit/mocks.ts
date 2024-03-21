@@ -12,7 +12,6 @@ export const USDC_TOKEN = {
   decimals: 6
 }
 
-// ENTITIES: user, user group, wallet, wallet group, and address book.
 export type User = {
   uid: string // Pubkey
   role: UserRoles
@@ -48,17 +47,6 @@ export type AddressBookAccount = {
 export type RolePermission = {
   permit: boolean
   admin_quorum_threshold?: number
-}
-
-export type RegoData = {
-  entities: {
-    users: Record<string, User>
-    user_groups: Record<string, UserGroup>
-    wallets: Record<string, Wallet>
-    wallet_groups: Record<string, WalletGroup>
-    address_book: Record<string, AddressBookAccount>
-  }
-  permissions: Record<string, Record<string, RolePermission>>
 }
 
 export enum AccountType {
