@@ -3,10 +3,12 @@ import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
 import { decode } from './decode'
 import { JwtError } from './error'
+import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
 import { Alg, EoaPublicKey, Hex, Jwk, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
 import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
+import { validate } from './validate'
 
 const checkTokenExpiration = (payload: Payload): boolean => {
   const now = Math.floor(Date.now() / 1000)
@@ -77,9 +79,10 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
 
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
   const { header, payload, signature } = decode(jwt)
+  const key = validate<PublicKey>(publicKeySchema, jwk, 'Invalid Public Key JWK')
 
   if (header.alg === SigningAlg.EIP191) {
-    await verifyEip191(jwt, jwk)
+    await verifyEip191(jwt, key)
   } else {
     // TODO: Implement other algs individually without jose
     const joseJwk = await importJWK(jwk)

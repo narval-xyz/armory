@@ -73,4 +73,19 @@ export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateK
 
 export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1PrivateKeySchema])
 
-export const jwkSchema = z.union([publicKeySchema, privateKeySchema])
+export const supportedJwkSchema = z.union([publicKeySchema, privateKeySchema])
+
+const dynamicKeySchema = z.object({}).catchall(z.unknown())
+
+export const jwkSchema = dynamicKeySchema.extend({
+  kty: z.nativeEnum(KeyTypes).optional(),
+  crv: z.nativeEnum(Curves).optional(),
+  alg: z.nativeEnum(Alg).optional(),
+  use: z.nativeEnum(Use).optional(),
+  kid: z.string().optional(),
+  x: z.string().optional(),
+  y: z.string().optional(),
+  n: z.string().optional(),
+  e: z.string().optional(),
+  d: z.string().optional()
+})
