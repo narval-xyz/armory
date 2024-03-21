@@ -1,6 +1,6 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { BootstrapService } from './engine/core/service/bootstrap.service'
 import { EngineService } from './engine/core/service/engine.service'

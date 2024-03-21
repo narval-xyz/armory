@@ -1,4 +1,5 @@
 import { RawAesKeyringNode } from '@aws-crypto/client-node'
+import { ConfigService } from '@narval/config-module'
 import {
   EncryptionModuleOption,
   decryptMasterKey,
@@ -7,7 +8,6 @@ import {
 } from '@narval/encryption-module'
 import { toBytes } from '@narval/policy-engine-shared'
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { EngineService } from '../../engine/core/service/engine.service'
 import { Config } from '../../policy-engine.config'
 import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../policy-engine.constant'
@@ -18,11 +18,11 @@ export class EncryptionModuleOptionFactory {
 
   constructor(
     private engineService: EngineService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {}
 
   async create(): Promise<EncryptionModuleOption> {
-    const keyring = this.configService.get('keyring', { infer: true })
+    const keyring = this.configService.get('keyring')
     const engine = await this.engineService.getEngine()
 
     // NOTE: An undefined engine at boot time only happens during the

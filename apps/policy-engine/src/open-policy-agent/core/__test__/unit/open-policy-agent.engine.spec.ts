@@ -1,3 +1,4 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import {
   Action,
   Criterion,
@@ -13,7 +14,7 @@ import {
   toHex
 } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
-import { ConfigModule, ConfigService, Path, PathValue } from '@nestjs/config'
+import { Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Config, load } from '../../../../policy-engine.config'
 import { OpenPolicyAgentException } from '../../exception/open-policy-agent.exception'
@@ -44,9 +45,9 @@ const getConfig = async <P extends Path<Config>>(propertyPath: P): Promise<PathV
     imports: [ConfigModule.forRoot({ load: [load] })]
   }).compile()
 
-  const service = module.get<ConfigService<Config, true>>(ConfigService)
+  const service = module.get<ConfigService<Config>>(ConfigService)
 
-  return service.get(propertyPath, { infer: true })
+  return service.get(propertyPath)
 }
 
 describe('OpenPolicyAgentEngine', () => {

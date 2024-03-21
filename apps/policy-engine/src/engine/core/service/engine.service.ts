@@ -1,5 +1,5 @@
+import { ConfigService } from '@narval/config-module'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
 import { EngineRepository } from '../../persistence/repository/engine.repository'
@@ -8,7 +8,7 @@ import { EngineNotProvisionedException } from '../exception/engine-not-provision
 @Injectable()
 export class EngineService {
   constructor(
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private engineRepository: EngineRepository
   ) {}
 
@@ -37,6 +37,6 @@ export class EngineService {
   }
 
   private getId(): string {
-    return this.configService.get('engine.id', { infer: true })
+    return this.configService.get('engine.id')
   }
 }

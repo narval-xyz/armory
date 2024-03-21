@@ -1,6 +1,6 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -28,7 +28,7 @@ describe('Tenant', () => {
   let tenantRepository: TenantRepository
   let tenantService: TenantService
   let engineService: EngineService
-  let configService: ConfigService<Config, true>
+  let configService: ConfigService<Config>
 
   const adminApiKey = 'test-admin-api-key'
 
@@ -71,12 +71,12 @@ describe('Tenant', () => {
     tenantService = module.get<TenantService>(TenantService)
     tenantRepository = module.get<TenantRepository>(TenantRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    configService = module.get<ConfigService<Config, true>>(ConfigService)
+    configService = module.get<ConfigService<Config>>(ConfigService)
 
     await testPrismaService.truncateAll()
 
     await engineService.save({
-      id: configService.get('engine.id', { infer: true }),
+      id: configService.get('engine.id'),
       masterKey: 'unsafe-test-master-key',
       adminApiKey
     })
