@@ -41,6 +41,11 @@ jobs:
         with:
           node-version: '20.4.0'
 
+      - name: Install Open Policy Agent CLI
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+
       - name: Install dependencies
         run: |
           make install/ci
@@ -103,5 +108,5 @@ jobs:
         with:
           version: latest
 
-      - name: Run OPA Tests
+      - name: Test rego
         run: make policy-engine/rego/test

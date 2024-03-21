@@ -1,12 +1,10 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Tenant } from '../../../shared/type/domain.type'
 import { TenantRepository } from '../../persistence/repository/tenant.repository'
 
 @Injectable()
 export class TenantService {
-  private logger = new Logger(TenantService.name)
-
   constructor(private tenantRepository: TenantRepository) {}
 
   async findByClientId(clientId: string): Promise<Tenant | null> {

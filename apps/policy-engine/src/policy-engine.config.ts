@@ -16,6 +16,7 @@ const configSchema = z.object({
     id: z.string(),
     masterKey: z.string().optional()
   }),
+  resourcePath: z.string(),
   keyring: z.union([
     z.object({
       type: z.literal('raw'),
@@ -34,6 +35,7 @@ export const load = (): Config => {
   const result = configSchema.safeParse({
     env: process.env.NODE_ENV,
     port: process.env.PORT,
+    resourcePath: process.env.RESOURCE_PATH,
     database: {
       url: process.env.POLICY_ENGINE_DATABASE_URL
     },

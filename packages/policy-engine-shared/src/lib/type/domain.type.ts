@@ -1,3 +1,5 @@
+import { z } from 'zod'
+import { approvalRequirementSchema } from '../schema/domain.schema'
 import { AssetId } from '../util/caip.util'
 import { CreateOrganizationAction, SignMessageAction, SignTransactionAction, SignTypedDataAction } from './action.type'
 
@@ -119,16 +121,19 @@ export type Feed<Data> = {
  * being authorized. This is the data that will be hashed and signed.
  */
 export type EvaluationRequest = {
-  // JWT string signing the Request payload
+  /**
+   * JWT signature of the request property.
+   */
   authentication: JwtString
   /**
-   * The authorization request of
+   * The authorization request.
    */
   request: Request
   /**
-   * JWT strings signing the Request payload
+   * JWT signatures of the request property.
    */
   approvals?: JwtString[]
+  // TODO: Delete transfers. It was replaced by `feeds`.
   transfers?: HistoricalTransfer[]
   prices?: Prices
   /**
@@ -138,21 +143,7 @@ export type EvaluationRequest = {
   feeds?: Feed<unknown>[]
 }
 
-export type ApprovalRequirement = {
-  /**
-   * The number of requried approvals
-   */
-  approvalCount: number // Number approvals required
-  /**
-   * The entity type required to approve.
-   */
-  approvalEntityType: EntityType
-  /**
-   * List of entities IDs that must satisfy the requirements.
-   */
-  entityIds: string[]
-  countPrincipal: boolean
-}
+export type ApprovalRequirement = z.infer<typeof approvalRequirementSchema>
 
 export type AccessToken = {
   value: string // JWT
@@ -170,7 +161,6 @@ export type EvaluationResponse = {
   accessToken?: AccessToken
   transactionRequestIntent?: unknown
 }
-// DOMAIN
 
 export type Hex = `0x${string}` // DOMAIN
 
