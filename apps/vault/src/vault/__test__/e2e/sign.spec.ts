@@ -1,11 +1,25 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import {
+  JWK,
+  JwsdHeader,
+  Payload,
+  SigningAlg,
+  buildSignerEip191,
+  hash,
+  hexToBase64Url,
+  privateKeyToJwk,
+  publicKeyToJwk,
+  signJwsd,
+  signJwt
+} from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { load } from '../../../main.config'
-import { REQUEST_HEADER_API_KEY, REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
+import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
@@ -31,6 +45,45 @@ describe('Sign', () => {
     id: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157',
     address: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+  }
+  const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+  // Engine key used to sign the approval request
+  const enginePrivateJwk: JWK = privateKeyToJwk(PRIVATE_KEY)
+  // Engine public key registered w/ the Vault Tenant
+  const tenantPublicJWK: JWK = { ...enginePrivateJwk }
+  delete tenantPublicJWK.d
+
+  const defaultRequest = {
+    action: 'signTransaction',
+    nonce: 'random-nonce-111',
+    transactionRequest: {
+      from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+      to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
+      chainId: 137,
+      value: '0x5af3107a4000',
+      data: '0x',
+      nonce: 317,
+      type: '2',
+      gas: '21004',
+      maxFeePerGas: '291175227375',
+      maxPriorityFeePerGas: '81000000000'
+    },
+    resourceId: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157'
+  }
+
+  const getAccessToken = async (request?: unknown, opts: object = {}) => {
+    const payload: Payload = {
+      requestHash: hash(request || defaultRequest),
+      sub: 'test-root-user-uid',
+      iss: 'https://armory.narval.xyz',
+      iat: Math.floor(Date.now() / 1000),
+      ...opts
+    }
+
+    const signer = buildSignerEip191(PRIVATE_KEY)
+    const jwt = await signJwt(payload, enginePrivateJwk, { alg: SigningAlg.EIP191 }, signer)
+
+    return jwt
   }
 
   beforeAll(async () => {
@@ -60,7 +113,7 @@ describe('Sign', () => {
       })
       .compile()
 
-    app = module.createNestApplication()
+    app = module.createNestApplication({ logger: false })
 
     await app.init()
   })
@@ -75,11 +128,10 @@ describe('Sign', () => {
     it('has client secret guard', async () => {
       const { status } = await request(app.getHttpServer())
         .post('/sign')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
         // .set(REQUEST_HEADER_CLIENT_ID, clientId)  NO CLIENT SECRET
         .send({})
 
-      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+      expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 
     it('validates nested txn data', async () => {
@@ -105,10 +157,12 @@ describe('Sign', () => {
         }
       }
 
+      const accessToken = await getAccessToken(payload.request)
+
       const { status, body } = await request(app.getHttpServer())
         .post('/sign')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
 
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
@@ -121,37 +175,137 @@ describe('Sign', () => {
     })
 
     it('signs', async () => {
-      const payload = {
-        request: {
-          action: 'signTransaction',
-          nonce: 'random-nonce-111',
-          transactionRequest: {
-            from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
-            to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-            chainId: 137,
-            value: '0x5af3107a4000',
-            data: '0x',
-            nonce: 317,
-            type: '2',
-            gas: '21004',
-            maxFeePerGas: '291175227375',
-            maxPriorityFeePerGas: '81000000000'
-          },
-          resourceId: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157'
-        }
-      }
+      const bodyPayload = { request: defaultRequest }
+
+      const accessToken = await getAccessToken()
 
       const { status, body } = await request(app.getHttpServer())
         .post('/sign')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .send(payload)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send(bodyPayload)
 
       expect(status).toEqual(HttpStatus.CREATED)
 
       expect(body).toEqual({
         signature:
           '0x02f875818982013d8512dbf9ea008543cb655fef82520c9404b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba06f7648a9c9710b171d55e056c4abca268857f607a8a4a257d945fc44ace9f076'
+      })
+    })
+  })
+
+  describe('AuthorizationGuard', () => {
+    it('returns error when request does not match authorized request', async () => {
+      const bodyPayload = {
+        request: {
+          ...defaultRequest,
+          nonce: defaultRequest.nonce + 'x' // CHANGE THE NONCE SO IT DOES NOT MATCH ACCESS TOKEN
+        }
+      }
+
+      const accessToken = await getAccessToken(defaultRequest)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/sign')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send(bodyPayload)
+
+      expect(status).toEqual(HttpStatus.FORBIDDEN)
+      expect(body.statusCode).toEqual(HttpStatus.FORBIDDEN)
+      expect(body.message).toEqual('Request payload does not match the authorized request')
+    })
+
+    describe('jwsd', () => {
+      it('returns error when auth is client-bound but no jwsd header', async () => {
+        const bodyPayload = { request: defaultRequest }
+
+        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const accessToken = await getAccessToken(defaultRequest, { cnf: clientJwk })
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/sign')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set('authorization', `GNAP ${accessToken}`)
+          .send(bodyPayload)
+
+        expect(status).toEqual(HttpStatus.FORBIDDEN)
+        expect(body.statusCode).toEqual(HttpStatus.FORBIDDEN)
+        expect(body.message).toEqual(`Missing detached-jws header`)
+      })
+
+      it('verifies jwsd header in a client-bound request', async () => {
+        const now = Math.floor(Date.now() / 1000)
+        const bodyPayload = { request: defaultRequest }
+
+        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const accessToken = await getAccessToken(defaultRequest, { cnf: clientJwk })
+
+        const jwsdSigner = buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
+        const jwsdHeader: JwsdHeader = {
+          alg: SigningAlg.EIP191,
+          kid: clientJwk.kid,
+          typ: 'gnap-binding-jwsd',
+          htm: 'POST',
+          uri: 'https://armory.narval.xyz/sign',
+          created: now,
+          ath: hexToBase64Url(`0x${hash(accessToken)}`)
+        }
+        const jwsd = await signJwsd(bodyPayload, jwsdHeader, jwsdSigner).then((jws) => {
+          // Strip out the middle part for size
+          const parts = jws.split('.')
+          parts[1] = ''
+          return parts.join('.')
+        })
+        const { status, body } = await request(app.getHttpServer())
+          .post('/sign')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set('authorization', `GNAP ${accessToken}`)
+          .set('detached-jws', jwsd)
+          .send(bodyPayload)
+
+        expect(body.message).toBeUndefined() // no message on this response; we're asserting it so we get a nice message on why this failed if it does fail.
+        expect(status).toEqual(HttpStatus.CREATED)
+      })
+
+      it('returns error when auth is client-bound to a different key', async () => {
+        const now = Math.floor(Date.now() / 1000)
+        const bodyPayload = { request: defaultRequest }
+
+        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const boundClientJwk = publicKeyToJwk(ACCOUNT.Bob.publicKey)
+        // We bind BOB to the access token, but ALICe is the one signing the request, so she has
+        // a valid access token but it's not bound to her.
+        const accessToken = await getAccessToken(defaultRequest, { cnf: boundClientJwk })
+
+        const jwsdSigner = buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
+        const jwsdHeader: JwsdHeader = {
+          alg: SigningAlg.EIP191,
+          kid: clientJwk.kid,
+          typ: 'gnap-binding-jwsd',
+          htm: 'POST',
+          uri: 'https://armory.narval.xyz/sign',
+          created: now,
+          ath: ''
+        }
+
+        const jwsd = await signJwsd(bodyPayload, jwsdHeader, jwsdSigner).then((jws) => {
+          // Strip out the middle part for size
+          const parts = jws.split('.')
+          parts[1] = ''
+          return parts.join('.')
+        })
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/sign')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set('authorization', `GNAP ${accessToken}`)
+          .set('detached-jws', jwsd)
+          .send(bodyPayload)
+
+        expect(status).toEqual(HttpStatus.FORBIDDEN)
+        expect(body.statusCode).toEqual(HttpStatus.FORBIDDEN)
+        expect(body.message).toEqual('Invalid JWT signature')
       })
     })
   })

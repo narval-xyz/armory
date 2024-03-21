@@ -1,12 +1,12 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
-import { decode } from './decode'
+import { decode, decodeJwsd } from './decode'
 import { JwtError } from './error'
 import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
-import { Alg, EoaPublicKey, Hex, Jwk, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
+import { Alg, EoaPublicKey, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
 import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
 import { validate } from './validate'
 
@@ -98,4 +98,22 @@ export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
     payload,
     signature
   }
+}
+
+export async function verifyJwsd(jws: string, jwk: PublicKey): Promise<Jwsd> {
+    const { header, payload, signature } = decodeJwsd(jws)
+
+    if (header.alg === SigningAlg.EIP191) {
+      await verifyEip191(jws, jwk)
+    } else {
+      // TODO: Implement other algs individually without jose
+      const joseJwk = await importJWK(jwk)
+      await jwtVerify(jws, joseJwk)
+    }
+
+    return {
+      header,
+      payload,
+      signature
+    }
 }

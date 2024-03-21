@@ -4,11 +4,27 @@ import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
 import { privateKeySchema } from './schemas'
-import { EcdsaSignature, Header, Hex, Jwk, Payload, PrivateKey, SigningAlg } from './types'
+import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, Payload, PrivateKey, SigningAlg } from './types'
+import { hash } from './hash-request'
 import { hexToBase64Url } from './utils'
 import { validate } from './validate'
 
-// WIP to replace `sign`
+export async function signJwsd(
+  rawBody: string | object,
+  header: JwsdHeader,
+  signer: (payload: string) => Promise<string>
+): Promise<string> {
+  const encodedHeader = base64url.encode(JSON.stringify(header))
+  const encodedPayload = hexToBase64Url(`0x${hash(rawBody)}`)
+
+  const messageToSign = `${encodedHeader}.${encodedPayload}`
+
+  const signature = await signer(messageToSign)
+
+  const completeJWT = `${messageToSign}.${signature}`
+  return completeJWT
+}
+
 export async function signJwt(
   payload: Payload,
   jwk: Jwk,

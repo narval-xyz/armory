@@ -2,9 +2,11 @@ import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_PIPE } from '@nestjs/core'
 import { load } from '../main.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
+import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
+import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { TenantModule } from '../tenant/tenant.module'
@@ -50,6 +52,14 @@ import { VaultService } from './vault.service'
         new ValidationPipe({
           transform: true
         })
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ApplicationExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ZodExceptionFilter
     }
   ],
   exports: [AppService, ProvisionService]

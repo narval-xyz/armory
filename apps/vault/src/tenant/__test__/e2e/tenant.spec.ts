@@ -103,10 +103,8 @@ describe('Tenant', () => {
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(payload)
 
-      expect(body).toEqual({
-        message: 'Tenant already exist',
-        statusCode: HttpStatus.BAD_REQUEST
-      })
+      expect(body.statusCode).toEqual(HttpStatus.BAD_REQUEST)
+      expect(body.message).toEqual('Tenant already exist')
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
     })
 
