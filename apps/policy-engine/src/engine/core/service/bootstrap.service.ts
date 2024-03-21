@@ -24,13 +24,13 @@ export class BootstrapService {
         clientSecret: randomBytes(42).toString('hex'),
         dataStore: {
           entity: {
-            dataUrl: 'http://127.0.0.1:4200/api/data-store',
-            signatureUrl: 'http://127.0.0.1:4200/api/data-store',
+            dataUrl: 'http://127.0.0.1:3001/storage/2/entity',
+            signatureUrl: 'http://127.0.0.1:3001/storage/2/entity',
             keys: []
           },
           policy: {
-            dataUrl: 'http://127.0.0.1:4200/api/data-store',
-            signatureUrl: 'http://127.0.0.1:4200/api/data-store',
+            dataUrl: 'http://127.0.0.1:3001/storage/2/policy',
+            signatureUrl: 'http://127.0.0.1:3001/storage/2/policy',
             keys: []
           }
         },

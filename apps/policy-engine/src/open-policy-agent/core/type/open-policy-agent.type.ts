@@ -63,7 +63,7 @@ type AddressBookAccount = {
 type Token = {
   id: string
   address: Address
-  symbol: string
+  symbol: string | null
   chainId: number
   decimals: number
 }

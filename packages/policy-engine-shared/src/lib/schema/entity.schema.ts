@@ -78,7 +78,7 @@ export const addressBookAccountEntitySchema = z.object({
 export const tokenEntitySchema = z.object({
   id: z.string(),
   address: addressSchema,
-  symbol: z.string(),
+  symbol: z.string().nullable(),
   chainId: z.number(),
   decimals: z.number()
 })
