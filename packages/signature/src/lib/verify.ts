@@ -31,6 +31,7 @@ const verifyEip191WithRecovery = async (sig: Hex, hash: Uint8Array, address: Hex
 
 const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Promise<boolean> => {
   if (isSepc256k1PublicKeyJwk(jwk)) {
+    console.log('\n\n\n jwk', jwk, '\n\n\n')
     const pub = secp256k1PublicKeyToHex(jwk)
     // A eth sig has a `v` value of 27 or 28, so we need to remove that to get the signature
     // And we remove the 0x prefix. So that means we slice the first and last 2 bytes, leaving the 128 character signature

@@ -1,4 +1,4 @@
-import { Secp256k1PublicKey, secp256k1PrivateKeyToJwk, secp256k1PublicKeySchema } from '@narval/signature'
+import { Alg, Curves, KeyTypes, Secp256k1PrivateKey, Use, secp256k1PrivateKeyToJwk, secp256k1PublicKeyToJwk } from '@narval/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
@@ -48,12 +48,12 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
 }
 
-export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
-  Root: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Root)),
-  Alice: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)),
-  Bob: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob)),
-  Carol: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol)),
-  Dave: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave))
+export const PRIVATE_KEYS_JWK: Record<Personas, Secp256k1PrivateKey> = {
+  Root: secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Root),
+  Alice: secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice),
+  Bob: secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob),
+  Carol: secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol),
+  Dave: secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave)
 }
 
 export const ACCOUNT: Record<Personas, PrivateKeyAccount> = {
@@ -89,29 +89,29 @@ export const USER: Record<Personas, UserEntity> = {
 
 export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    id: PUBLIC_KEYS_JWK.Root.kid,
+    id: PRIVATE_KEYS_JWK.Root.kid,
     userId: USER.Root.id,
-    key: PUBLIC_KEYS_JWK.Root
+    key: secp256k1PublicKeyToJwk(UNSAFE_PRIVATE_KEY.Root)
   },
   Alice: {
     userId: USER.Alice.id,
-    id: PUBLIC_KEYS_JWK.Alice.kid,
-    key: PUBLIC_KEYS_JWK.Alice
+    id: PRIVATE_KEYS_JWK.Alice.kid,
+    key: secp256k1PublicKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)
   },
   Bob: {
     userId: USER.Bob.id,
-    id: PUBLIC_KEYS_JWK.Bob.kid,
-    key: PUBLIC_KEYS_JWK.Bob
+    id: PRIVATE_KEYS_JWK.Bob.kid,
+    key: secp256k1PublicKeyToJwk(UNSAFE_PRIVATE_KEY.Bob)
   },
   Carol: {
     userId: USER.Carol.id,
-    id: PUBLIC_KEYS_JWK.Carol.kid,
-    key: PUBLIC_KEYS_JWK.Carol
+    id: PRIVATE_KEYS_JWK.Carol.kid,
+    key: secp256k1PublicKeyToJwk(UNSAFE_PRIVATE_KEY.Carol)
   },
   Dave: {
     userId: USER.Dave.id,
-    id: PUBLIC_KEYS_JWK.Dave.kid,
-    key: PUBLIC_KEYS_JWK.Dave
+    id: PRIVATE_KEYS_JWK.Dave.kid,
+    key: secp256k1PublicKeyToJwk(UNSAFE_PRIVATE_KEY.Dave)
   }
 }
 
