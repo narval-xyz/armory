@@ -78,6 +78,17 @@ export class TenantRepository {
     return compact(tenants)
   }
 
+  async clear(): Promise<boolean> {
+    try {
+      const ids = await this.getTenantIndex()
+      await Promise.all(ids.map((id) => this.encryptKeyValueService.delete(id)))
+
+      return true
+    } catch {
+      return false
+    }
+  }
+
   getKey(clientId: string): string {
     return `tenant:${clientId}`
   }

@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { TenantService } from '../../../../engine/core/service/tenant.service'
-import { REQUEST_HEADER_API_KEY, REQUEST_HEADER_CLIENT_ID } from '../../../../policy-engine.constant'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../policy-engine.constant'
 import { ApplicationException } from '../../../exception/application.exception'
 import { Tenant } from '../../../type/domain.type'
 import { ClientSecretGuard } from '../../client-secret.guard'
@@ -11,7 +11,7 @@ describe(ClientSecretGuard.name, () => {
 
   const mockExecutionContext = ({ clientSecret, clientId }: { clientSecret?: string; clientId?: string }) => {
     const headers = {
-      [REQUEST_HEADER_API_KEY]: clientSecret,
+      [REQUEST_HEADER_CLIENT_SECRET]: clientSecret,
       [REQUEST_HEADER_CLIENT_ID]: clientId
     }
     const request = { headers }
@@ -49,7 +49,7 @@ describe(ClientSecretGuard.name, () => {
     return serviceMock
   }
 
-  it(`throws an error when ${REQUEST_HEADER_API_KEY} header is missing`, async () => {
+  it(`throws an error when ${REQUEST_HEADER_CLIENT_SECRET} header is missing`, async () => {
     const guard = new ClientSecretGuard(mockService())
 
     await expect(guard.canActivate(mockExecutionContext({ clientId: CLIENT_ID }))).rejects.toThrow(ApplicationException)
@@ -63,7 +63,7 @@ describe(ClientSecretGuard.name, () => {
     )
   })
 
-  it(`returns true when ${REQUEST_HEADER_API_KEY} matches the client secret key`, async () => {
+  it(`returns true when ${REQUEST_HEADER_CLIENT_SECRET} matches the client secret key`, async () => {
     const adminApiKey = 'test-client-api-key'
     const guard = new ClientSecretGuard(mockService(adminApiKey))
 
@@ -72,7 +72,7 @@ describe(ClientSecretGuard.name, () => {
     )
   })
 
-  it(`returns false when ${REQUEST_HEADER_API_KEY} does not matches the client secret key`, async () => {
+  it(`returns false when ${REQUEST_HEADER_CLIENT_SECRET} does not matches the client secret key`, async () => {
     const guard = new ClientSecretGuard(mockService('test-admin-api-key'))
 
     expect(
