@@ -1,4 +1,4 @@
-import { Alg, Curves, KeyTypes, Use } from '@narval/signature'
+import { Secp256k1PublicKey, secp256k1PrivateKeyToJwk, secp256k1PublicKeySchema } from '@narval/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
@@ -48,6 +48,14 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
 }
 
+export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
+  Root: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Root)),
+  Alice: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)),
+  Bob: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob)),
+  Carol: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol)),
+  Dave: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave))
+}
+
 export const ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Root: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Root),
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
@@ -81,66 +89,29 @@ export const USER: Record<Personas, UserEntity> = {
 
 export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    id: '0x20FB9603DC2C011aBFdFbf270bD627e94065cBb9',
+    id: PUBLIC_KEYS_JWK.Root.kid,
     userId: USER.Root.id,
-    key: {
-      kty: KeyTypes.EC,
-      use: Use.ENC,
-      crv: Curves.SECP256K1,
-      alg: Alg.ES256K,
-      kid: '0x20FB9603DC2C011aBFdFbf270bD627e94065cBb9',
-      x: 'crqZ2XkCBgl1XwxjlQ02PKm_JJ4wJAkANJ6DidZRzTw',
-      y: 'GyAbgM5_HOaPmAHNatWanWmhLgaznyNHUIw5YUe_yyw'
-    }
+    key: PUBLIC_KEYS_JWK.Root
   },
   Alice: {
-    id: '0xcdE93dc1C6D8AF279c33069233aEE5542F308594',
     userId: USER.Alice.id,
-    key: {
-      kty: KeyTypes.EC,
-      use: Use.SIG,
-      crv: Curves.SECP256K1,
-      alg: Alg.ES256K,
-      kid: '0xcdE93dc1C6D8AF279c33069233aEE5542F308594',
-      x: 'vjNVzbnLxdazY0M-2BDnX54JexB8Pa9n_fucDJli6Bo',
-      y: 'jOAwUCXcLz7nhvW2mSwPBCZwv856ybAGK7LS6hvfdFQ'
-    }
+    id: PUBLIC_KEYS_JWK.Alice.kid,
+    key: PUBLIC_KEYS_JWK.Alice
   },
   Bob: {
-    id: '0x9A5Bd18C902887DCc2D881a352010C15eea229d',
-    key: {
-      kty: KeyTypes.EC,
-      crv: Curves.SECP256K1,
-      alg: Alg.ES256K,
-      kid: '0xc7916Ee805440bB386a88d09AED8688eFb99CB0F',
-      x: 'MjsuvdMuxs1AoQ12BuARzzTyilJNh2jQmErMZwR2M-E',
-      y: 'axLms3pGEX0Xujho5welzcn9mx_oV0Bs3uVeG9-eCqU'
-    },
-    userId: USER.Bob.id
+    userId: USER.Bob.id,
+    id: PUBLIC_KEYS_JWK.Bob.kid,
+    key: PUBLIC_KEYS_JWK.Bob
   },
   Carol: {
-    id: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
     userId: USER.Carol.id,
-    key: {
-      kty: KeyTypes.EC,
-      crv: Curves.SECP256K1,
-      alg: Alg.ES256K,
-      kid: '0x9AA5Bd18C902887DCc2D881a352010C15eea229d',
-      x: '4n3yf5qUBU0sDH9yGjdfiVRFEnQndbd5yGEupSdG6R4',
-      y: 'FESQhctMSQOF2E79YbCE8q1JIQWltMbvoCVwSsO19ck'
-    }
+    id: PUBLIC_KEYS_JWK.Carol.kid,
+    key: PUBLIC_KEYS_JWK.Carol
   },
   Dave: {
-    id: '0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d',
     userId: USER.Dave.id,
-    key: {
-      kty: KeyTypes.EC,
-      crv: Curves.SECP256K1,
-      alg: Alg.ES256K,
-      kid: '0xe99c6FBb2eE939682AB8A216a893cBD21CC2f982',
-      x: 'sdb8VZcfcI6t5i7BD3BTPoZPyYCxaVpw7H1BIUyPZ5M',
-      y: 'cIcYdzuWF7KqFKJrdQSmdjPpQzrk9_uzNycqtvtH1QI'
-    }
+    id: PUBLIC_KEYS_JWK.Dave.kid,
+    key: PUBLIC_KEYS_JWK.Dave
   }
 }
 
