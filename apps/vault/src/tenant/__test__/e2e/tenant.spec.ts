@@ -95,6 +95,38 @@ describe('Tenant', () => {
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
+    it('creates a new tenant with Engine JWK', async () => {
+      const newPayload: CreateTenantDto = {
+        clientId: 'tenant-2',
+        engineJwk: {
+          kty: 'EC',
+          crv: 'secp256k1',
+          alg: 'ES256K',
+          kid: '0x73d3ed0e92ac09a45d9538980214abb1a36c4943d64ffa53a407683ddf567fc9',
+          x: 'sxT67JN5KJVnWYyy7xhFNUOk4buvPLrbElHBinuFwmY',
+          y: 'CzC7IHlsDg9wz-Gqhtc78eC0IEX75upMgrvmS3U6Ad4'
+        }
+      }
+      const { status, body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(newPayload)
+      const actualTenant = await tenantRepository.findByClientId('tenant-2')
+
+      expect(body).toMatchObject({
+        clientId: newPayload.clientId,
+        clientSecret: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
+      expect(body).toEqual({
+        ...actualTenant,
+        createdAt: actualTenant?.createdAt.toISOString(),
+        updatedAt: actualTenant?.updatedAt.toISOString()
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+
     it('responds with an error when clientId already exist', async () => {
       await request(app.getHttpServer()).post('/tenants').set(REQUEST_HEADER_API_KEY, adminApiKey).send(payload)
 

@@ -12,8 +12,9 @@ import {
 } from '@narval/policy-engine-shared'
 import {
   Hex,
-  Jwk,
   Payload,
+  PrivateKey,
+  PublicKey,
   SigningAlg,
   base64UrlToHex,
   buildSignerEip191,
@@ -304,8 +305,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
-    const engineJwk: Jwk = secp256k1PrivateKeyToJwk(this.privateKey)
-    const principalJwk: Jwk = params.principalCredential.key
+    const engineJwk: PrivateKey = secp256k1PrivateKeyToJwk(this.privateKey)
+    const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
       requestHash: params.message,

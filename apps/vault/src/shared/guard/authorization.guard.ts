@@ -1,4 +1,4 @@
-import { JWK, hash, hexToBase64Url, privateKeyToJwk, verifyJwsd, verifyJwt } from '@narval/signature'
+import { PublicKey, hash, hexToBase64Url, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { z } from 'zod'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
@@ -8,9 +8,6 @@ import { ApplicationException } from '../exception/application.exception'
 const AuthorizationHeaderSchema = z.object({
   authorization: z.string()
 })
-
-const tenantPublicJWK: JWK = privateKeyToJwk('0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5')
-delete tenantPublicJWK.d
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
@@ -37,13 +34,22 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    // const tenant = await this.tenantService.findByClientId(clientId)
-    const isAuthorized = await this.validateToken(context, accessToken, tenantPublicJWK)
+    const tenant = await this.tenantService.findByClientId(clientId)
+    if (!tenant?.engineJwk) {
+      throw new ApplicationException({
+        message: 'No engine key configured',
+        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED,
+        context: {
+          clientId
+        }
+      })
+    }
+    const isAuthorized = await this.validateToken(context, accessToken, tenant?.engineJwk)
 
     return isAuthorized
   }
 
-  async validateToken(context: ExecutionContext, token: string, tenantJwk: JWK): Promise<boolean> {
+  async validateToken(context: ExecutionContext, token: string, tenantJwk: PublicKey): Promise<boolean> {
     // 1. Validate the JWT has a valid signature for the expected tenant key
     const { payload } = await verifyJwt(token, tenantJwk)
     // console.log('Validated', { header, payload })

@@ -1,14 +1,13 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
-  JWK,
   JwsdHeader,
   Payload,
   SigningAlg,
   buildSignerEip191,
   hash,
   hexToBase64Url,
-  privateKeyToJwk,
-  publicKeyToJwk,
+  secp256k1PrivateKeyToJwk,
+  secp256k1PublicKeyToJwk,
   signJwsd,
   signJwt
 } from '@narval/signature'
@@ -34,9 +33,18 @@ describe('Sign', () => {
 
   const adminApiKey = 'test-admin-api-key'
   const clientId = uuid()
+
+  const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+  // Engine key used to sign the approval request
+  const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
+  // Engine public key registered w/ the Vault Tenant
+  // eslint-disable-next-line
+  const { d, ...tenantPublicJWK } = enginePrivateJwk
+
   const tenant: Tenant = {
     clientId,
     clientSecret: adminApiKey,
+    engineJwk: tenantPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -46,12 +54,6 @@ describe('Sign', () => {
     address: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   }
-  const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
-  // Engine key used to sign the approval request
-  const enginePrivateJwk: JWK = privateKeyToJwk(PRIVATE_KEY)
-  // Engine public key registered w/ the Vault Tenant
-  const tenantPublicJWK: JWK = { ...enginePrivateJwk }
-  delete tenantPublicJWK.d
 
   const defaultRequest = {
     action: 'signTransaction',
@@ -220,7 +222,7 @@ describe('Sign', () => {
       it('returns error when auth is client-bound but no jwsd header', async () => {
         const bodyPayload = { request: defaultRequest }
 
-        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
         const accessToken = await getAccessToken(defaultRequest, { cnf: clientJwk })
 
         const { status, body } = await request(app.getHttpServer())
@@ -238,7 +240,7 @@ describe('Sign', () => {
         const now = Math.floor(Date.now() / 1000)
         const bodyPayload = { request: defaultRequest }
 
-        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
         const accessToken = await getAccessToken(defaultRequest, { cnf: clientJwk })
 
         const jwsdSigner = buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
@@ -257,6 +259,7 @@ describe('Sign', () => {
           parts[1] = ''
           return parts.join('.')
         })
+
         const { status, body } = await request(app.getHttpServer())
           .post('/sign')
           .set(REQUEST_HEADER_CLIENT_ID, clientId)
@@ -272,8 +275,8 @@ describe('Sign', () => {
         const now = Math.floor(Date.now() / 1000)
         const bodyPayload = { request: defaultRequest }
 
-        const clientJwk = publicKeyToJwk(ACCOUNT.Alice.publicKey)
-        const boundClientJwk = publicKeyToJwk(ACCOUNT.Bob.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const boundClientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Bob.publicKey)
         // We bind BOB to the access token, but ALICe is the one signing the request, so she has
         // a valid access token but it's not bound to her.
         const accessToken = await getAccessToken(defaultRequest, { cnf: boundClientJwk })
