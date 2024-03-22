@@ -149,17 +149,12 @@ describe('OpenPolicyAgentEngine', () => {
         resourceId: FIXTURE.WALLET.Engineering.id
       }
 
-      const authentication = await signJwt(
-        {
-          requestHash: hash(request),
-          sub: FIXTURE.USER.Alice.id
-        },
-        secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice),
-        { alg: SigningAlg.EIP191 },
-        buildSignerEip191(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
-      )
       const evaluation: EvaluationRequest = {
-        authentication,
+        authentication: await getJwt({
+          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE.USER.Alice.id,
+          request
+        }),
         request
       }
 
