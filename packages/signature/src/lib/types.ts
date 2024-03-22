@@ -1,3 +1,14 @@
+import { z } from 'zod'
+import {
+  jwkEoaSchema,
+  jwkSchema,
+  privateKeySchema,
+  publicKeySchema,
+  secp256k1KeySchema,
+  secp256k1PrivateKeySchema,
+  secp256k1PublicKeySchema
+} from './schemas'
+
 export const KeyTypes = {
   EC: 'EC',
   RSA: 'RSA'
@@ -36,19 +47,14 @@ export const Use = {
 
 export type Use = (typeof Use)[keyof typeof Use]
 
-export type JWK = {
-  kty: 'EC' | 'RSA'
-  kid: string
-  alg: 'ES256K' | 'ES256' | 'RS256'
-  crv?: 'P-256' | 'secp256k1' | undefined
-  use?: 'sig' | 'enc' | undefined
-  n?: string | undefined
-  e?: string | undefined
-  x?: string | undefined
-  y?: string | undefined
-  d?: string | undefined
-  addr?: Hex | undefined
-}
+export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
+export type EoaPublicKey = z.infer<typeof jwkEoaSchema>
+export type Secp256k1PublicKey = z.infer<typeof secp256k1PublicKeySchema>
+export type Secp256k1KeySchema = z.infer<typeof secp256k1KeySchema>
+export type PublicKey = z.infer<typeof publicKeySchema>
+export type PrivateKey = z.infer<typeof privateKeySchema>
+export type Jwk = z.infer<typeof jwkSchema>
+
 export type Hex = `0x${string}` // DOMAIN
 
 /**
@@ -78,7 +84,7 @@ export type Header = {
  * @param {string} sub - The subject of the JWT.
  * @param {string} [aud] - The audience of the JWT.
  * @param {string} [jti] - The JWT ID.
- * @param {JWK} cnf - The client-bound key.
+ * @param {Jwk} cnf - The client-bound key.
  *
  */
 export type Payload = {
@@ -88,7 +94,7 @@ export type Payload = {
   iss?: string
   aud?: string
   jti?: string
-  cnf?: JWK // The client-bound key
+  cnf?: Jwk // The client-bound key
   requestHash?: string
   data?: string // hash of any data
 }

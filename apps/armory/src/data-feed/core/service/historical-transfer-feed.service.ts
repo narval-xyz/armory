@@ -1,5 +1,5 @@
 import { Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Payload, SigningAlg, hash, hexToBase64Url, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { mapValues, omit } from 'lodash/fp'
@@ -37,7 +37,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
     }
 
     const now = Math.floor(Date.now() / 1000)
-    const jwk = privateKeyToJwk(this.getPrivateKey())
+    const jwk = secp256k1PrivateKeyToJwk(this.getPrivateKey())
     const payload: Payload = {
       data: hash(data),
       sub: account.address,
