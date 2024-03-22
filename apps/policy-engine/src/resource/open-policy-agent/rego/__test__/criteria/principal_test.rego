@@ -4,7 +4,7 @@ test_principal {
 	user = principal with input as request
 		with data.entities as entities
 
-	user == {"uid": "test-bob-uid", "role": "root"}
+	user == {"id": "test-bob-uid", "role": "root"}
 
 	groups = principalGroups with input as request
 		with data.entities as entities

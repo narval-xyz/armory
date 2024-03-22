@@ -30,7 +30,7 @@ getApprovalsCount(possibleApprovers) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::User"
-	possibleApprovers = {entity | entity = approval.entityIds[_]} | {principal.uid}
+	possibleApprovers = {entity | entity = approval.entityIds[_]} | {principal.id}
 	result = getApprovalsCount(possibleApprovers)
 }
 
@@ -39,7 +39,7 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::User"
 	possibleApprovers = {entity |
 		entity = approval.entityIds[_]
-		entity != principal.uid
+		entity != principal.id
 	}
 	result = getApprovalsCount(possibleApprovers)
 }
@@ -53,7 +53,7 @@ checkApproval(approval) = result {
 		entity = approval.entityIds[_]
 		users = userGroupsEntities[entity].users
 		user = users[_]
-	} | {principal.uid}
+	} | {principal.id}
 
 	result = getApprovalsCount(possibleApprovers)
 }
@@ -65,7 +65,7 @@ checkApproval(approval) = result {
 		entity = approval.entityIds[_]
 		users = userGroupsEntities[entity].users
 		user = users[_]
-		user != principal.uid
+		user != principal.id
 	}
 
 	result = getApprovalsCount(possibleApprovers)
@@ -76,10 +76,10 @@ checkApproval(approval) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserRole"
-	possibleApprovers = {user.uid |
+	possibleApprovers = {user.id |
 		user = usersEntities[_]
 		user.role in approval.entityIds
-	} | {principal.uid}
+	} | {principal.id}
 
 	result = getApprovalsCount(possibleApprovers)
 }
@@ -87,10 +87,10 @@ checkApproval(approval) = result {
 checkApproval(approval) = result {
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserRole"
-	possibleApprovers = {user.uid |
+	possibleApprovers = {user.id |
 		user = usersEntities[_]
 		user.role in approval.entityIds
-		user.uid != principal.uid
+		user.id != principal.id
 	}
 
 	result = getApprovalsCount(possibleApprovers)

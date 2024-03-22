@@ -120,10 +120,10 @@ e2e_req = {
 
 e2e_entities = {
 	"users": {
-		"u:root_user": {"uid": "u:root_user", "role": "root"},
-		"matt@narval.xyz": {"uid": "matt@narval.xyz", "role": "admin"},
-		"aa@narval.xyz": {"uid": "aa@narval.xyz", "role": "admin"},
-		"bb@narval.xyz": {"uid": "bb@narval.xyz", "role": "admin"},
+		"u:root_user": {"id": "u:root_user", "role": "root"},
+		"matt@narval.xyz": {"id": "matt@narval.xyz", "role": "admin"},
+		"aa@narval.xyz": {"id": "aa@narval.xyz", "role": "admin"},
+		"bb@narval.xyz": {"id": "bb@narval.xyz", "role": "admin"},
 	},
 	"userGroups": {
 		"ug:dev-group": {"uid": "ug:dev-group", "name": "Dev", "users": ["matt@narval.xyz"]},
