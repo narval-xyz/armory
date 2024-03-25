@@ -1,7 +1,7 @@
 'use client'
 
 import Editor from '@monaco-editor/react'
-import { JWK, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
+import { Jwk, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
 import { getAccount, signMessage } from '@wagmi/core'
 import axios from 'axios'
 import Image from 'next/image'
@@ -46,8 +46,8 @@ const EditorComponent = () => {
     const address = getAccount(config).address
     if (!address) throw new Error('No address connected')
 
-    // Need real JWK
-    const jwk: JWK = {
+    // Need real Jwk
+    const jwk: Jwk = {
       kty: 'EC',
       crv: 'secp256k1',
       alg: SigningAlg.ES256K,

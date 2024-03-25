@@ -1,11 +1,11 @@
-import { ArgumentsHost, HttpStatus, Logger } from '@nestjs/common'
+import { ArgumentsHost, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { mock } from 'jest-mock-extended'
-import { Config, Env } from '../../../../policy-engine.config'
-import { ApplicationException } from '../../../exception/application.exception'
-import { ApplicationExceptionFilter } from '../../application-exception.filter'
+import { Config, Env } from '../../../../main.config'
+import { ApplicationException } from '../../../../shared/exception/application.exception'
+import { ApplicationExceptionFilter } from '../../../../shared/filter/application-exception.filter'
 
 describe(ApplicationExceptionFilter.name, () => {
   const exception = new ApplicationException({
@@ -46,8 +46,6 @@ describe(ApplicationExceptionFilter.name, () => {
     })
 
   describe('catch', () => {
-    Logger.overrideLogger([])
-
     describe('when environment is production', () => {
       it('responds with exception status and short message', () => {
         const filter = new ApplicationExceptionFilter(buildConfigServiceMock(Env.PRODUCTION))

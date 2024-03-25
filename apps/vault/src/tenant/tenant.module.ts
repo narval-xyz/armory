@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios'
-import { Module, OnApplicationBootstrap, ValidationPipe } from '@nestjs/common'
+import { Module, OnApplicationBootstrap, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
@@ -11,7 +11,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
 
 @Module({
   // NOTE: The AdminApiKeyGuard is the only reason we need the VaultModule.
-  imports: [HttpModule, KeyValueModule, VaultModule],
+  imports: [HttpModule, KeyValueModule, forwardRef(() => VaultModule)],
   controllers: [TenantController],
   providers: [
     AdminApiKeyGuard,

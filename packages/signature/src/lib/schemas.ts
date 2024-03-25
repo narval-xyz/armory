@@ -76,14 +76,14 @@ export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1Pr
 const dynamicKeySchema = z.object({}).catchall(z.unknown())
 
 export const jwkSchema = dynamicKeySchema.extend({
-  kty: z.nativeEnum(KeyTypes).optional(),
-  crv: z.nativeEnum(Curves).optional(),
-  alg: z.nativeEnum(Alg).optional(),
-  use: z.nativeEnum(Use).optional(),
-  kid: z.string().optional(),
-  x: z.string().optional(),
-  y: z.string().optional(),
-  n: z.string().optional(),
-  e: z.string().optional(),
-  d: z.string().optional()
+  kty: z.nativeEnum(KeyTypes).optional().describe('Key Type (e.g. RSA or EC'),
+  crv: z.nativeEnum(Curves).optional().describe('Curve name'),
+  alg: z.nativeEnum(Alg).optional().describe('Algorithm'),
+  use: z.nativeEnum(Use).optional().describe('Public Key Use'),
+  kid: z.string().optional().describe('Unique key ID'),
+  n: z.string().optional().describe('(RSA) Key modulus'),
+  e: z.string().optional().describe('(RSA) Key exponent'),
+  x: z.string().optional().describe('(EC) X Coordinate'),
+  y: z.string().optional().describe('(EC) Y Coordinate'),
+  d: z.string().optional().describe('(EC) Private Key')
 })
