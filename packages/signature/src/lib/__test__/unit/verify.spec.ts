@@ -1,13 +1,13 @@
 import { hash } from '../../hash-request'
 import { Payload } from '../../types'
-import { privateKeyToJwk } from '../../utils'
+import { secp256k1PrivateKeyToJwk } from '../../utils'
 import { verifyJwt } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
   it('should verify a EIP191-signed JWT', async () => {
-    const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
 
     const header = {
       kid: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',

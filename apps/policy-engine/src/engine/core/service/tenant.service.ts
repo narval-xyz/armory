@@ -71,7 +71,7 @@ export class TenantService {
           this.tenantRepository.savePolicyStore(clientId, stores.policy)
         ])
 
-        this.logger.log('Tenant data stores synced', { clientId, stores })
+        this.logger.log('Tenant data stores synced', { clientId })
 
         return true
       }

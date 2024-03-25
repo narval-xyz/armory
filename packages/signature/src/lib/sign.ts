@@ -3,19 +3,38 @@ import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
-import { EcdsaSignature, Header, Hex, JWK, Payload, SigningAlg } from './types'
+import { hash } from './hash-request'
+import { privateKeySchema } from './schemas'
+import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, Payload, PrivateKey, SigningAlg } from './types'
 import { hexToBase64Url } from './utils'
+import { validate } from './validate'
 
-// WIP to replace `sign`
+export async function signJwsd(
+  rawBody: string | object,
+  header: JwsdHeader,
+  signer: (payload: string) => Promise<string>
+): Promise<string> {
+  const encodedHeader = base64url.encode(JSON.stringify(header))
+  const encodedPayload = hexToBase64Url(`0x${hash(rawBody)}`)
+
+  const messageToSign = `${encodedHeader}.${encodedPayload}`
+
+  const signature = await signer(messageToSign)
+
+  const completeJWT = `${messageToSign}.${signature}`
+  return completeJWT
+}
+
 export async function signJwt(
   payload: Payload,
-  jwk: JWK,
+  jwk: Jwk,
   opts: { alg?: SigningAlg } = {},
   signer?: (payload: string) => Promise<string>
 ): Promise<string> {
+  const pk = validate<PrivateKey>(privateKeySchema, jwk, 'Invalid Private Key JWK')
   const header: Header = {
-    kid: jwk.kid,
-    alg: opts.alg || jwk.alg, // TODO: add separate type for `ES256k-KECCAK`
+    kid: pk.kid,
+    alg: opts.alg || pk.alg, // TODO: add separate type for `ES256k-KECCAK`
     typ: 'JWT'
   }
 

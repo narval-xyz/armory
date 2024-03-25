@@ -5,14 +5,11 @@ import {
   entityJsonWebKeysSchema,
   entitySignatureSchema,
   entityStoreSchema,
-  jsonWebKeySchema,
   policyDataSchema,
   policyJsonWebKeysSchema,
   policySignatureSchema,
   policyStoreSchema
 } from '../schema/data-store.schema'
-
-export type JsonWebKey = z.infer<typeof jsonWebKeySchema>
 
 export type DataStoreConfiguration = z.infer<typeof dataStoreConfigurationSchema>
 

@@ -115,23 +115,23 @@ request = {
 entities = {
 	"users": {
 		"test-bob-uid": {
-			"uid": "test-bob-uid",
+			"id": "test-bob-uid",
 			"role": "root",
 		},
 		"test-alice-uid": {
-			"uid": "test-alice-uid",
+			"id": "test-alice-uid",
 			"role": "member",
 		},
 		"test-bar-uid": {
-			"uid": "test-bar-uid",
+			"id": "test-bar-uid",
 			"role": "admin",
 		},
 		"test-foo-uid": {
-			"uid": "test-foo-uid",
+			"id": "test-foo-uid",
 			"role": "admin",
 		},
 		"0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43": {
-			"uid": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+			"id": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
 			"role": "admin",
 		},
 	},

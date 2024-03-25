@@ -7,20 +7,20 @@ import {
   Entities,
   EvaluationRequest,
   EvaluationResponse,
-  JsonWebKey,
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
 import {
   Hex,
   Payload,
+  PrivateKey,
+  PublicKey,
   SigningAlg,
   base64UrlToHex,
   buildSignerEip191,
   decode,
   hash,
-  privateKeyToJwk,
-  publicKeyToJwk,
+  secp256k1PrivateKeyToJwk,
   signJwt,
   verifyJwt
 } from '@narval/signature'
@@ -187,9 +187,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const jwk = publicKeyToJwk(credential.pubKey as Hex)
+    const { key } = credential
 
-    const validJwt = await verifyJwt(signature, jwk)
+    console.log('### credential', credential)
+    const validJwt = await verifyJwt(signature, key)
 
     if (validJwt.payload.requestHash !== message) {
       throw new OpenPolicyAgentException({
@@ -304,8 +305,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
-    const engineJwk: JsonWebKey = privateKeyToJwk(this.privateKey)
-    const principalJwk = publicKeyToJwk(params.principalCredential.pubKey as Hex)
+    const engineJwk: PrivateKey = secp256k1PrivateKeyToJwk(this.privateKey)
+    const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
       requestHash: params.message,

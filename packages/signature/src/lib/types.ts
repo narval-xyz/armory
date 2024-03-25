@@ -1,3 +1,17 @@
+import { z } from 'zod'
+import {
+  jwkEoaSchema,
+  jwkSchema,
+  p256PrivateKeySchema,
+  p256PublicKeySchema,
+  privateKeySchema,
+  publicKeySchema,
+  rsaPrivateKeySchema,
+  secp256k1KeySchema,
+  secp256k1PrivateKeySchema,
+  secp256k1PublicKeySchema
+} from './schemas'
+
 export const KeyTypes = {
   EC: 'EC',
   RSA: 'RSA'
@@ -36,19 +50,17 @@ export const Use = {
 
 export type Use = (typeof Use)[keyof typeof Use]
 
-export type JWK = {
-  kty: 'EC' | 'RSA'
-  kid: string
-  alg: 'ES256K' | 'ES256' | 'RS256'
-  crv?: 'P-256' | 'secp256k1' | undefined
-  use?: 'sig' | 'enc' | undefined
-  n?: string | undefined
-  e?: string | undefined
-  x?: string | undefined
-  y?: string | undefined
-  d?: string | undefined
-  addr?: Hex | undefined
-}
+export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
+export type P256PrivateKey = z.infer<typeof p256PrivateKeySchema>
+export type P256PublicKey = z.infer<typeof p256PublicKeySchema>
+export type RsaPrivateKey = z.infer<typeof rsaPrivateKeySchema>
+export type EoaPublicKey = z.infer<typeof jwkEoaSchema>
+export type Secp256k1PublicKey = z.infer<typeof secp256k1PublicKeySchema>
+export type Secp256k1KeySchema = z.infer<typeof secp256k1KeySchema>
+export type PublicKey = z.infer<typeof publicKeySchema>
+export type PrivateKey = z.infer<typeof privateKeySchema>
+export type Jwk = z.infer<typeof jwkSchema>
+
 export type Hex = `0x${string}` // DOMAIN
 
 /**
@@ -68,6 +80,19 @@ export type Header = {
   ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
 }
 
+// https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
+// For GNAP JWSD header, the fields are required.
+// `ath` is also required IF it's a bound-request, otherwise it's optional
+export type JwsdHeader = {
+  alg: SigningAlg
+  kid: string // Key ID to identify the signing key
+  typ: 'gnap-binding-jwsd' // see https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
+  htm: string // HTTP Method
+  uri: string // The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.
+  created: number // The time the request was created.
+  ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
+}
+
 /**
  * Defines the payload of JWT.
  *
@@ -78,7 +103,7 @@ export type Header = {
  * @param {string} sub - The subject of the JWT.
  * @param {string} [aud] - The audience of the JWT.
  * @param {string} [jti] - The JWT ID.
- * @param {JWK} cnf - The client-bound key.
+ * @param {Jwk} cnf - The client-bound key.
  *
  */
 export type Payload = {
@@ -88,7 +113,7 @@ export type Payload = {
   iss?: string
   aud?: string
   jti?: string
-  cnf?: JWK // The client-bound key
+  cnf?: PublicKey // The client-bound key
   requestHash?: string
   data?: string // hash of any data
 }
@@ -96,6 +121,12 @@ export type Payload = {
 export type Jwt = {
   header: Header
   payload: Payload
+  signature: string
+}
+
+export type Jwsd = {
+  header: Header
+  payload: string
   signature: string
 }
 

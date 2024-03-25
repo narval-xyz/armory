@@ -30,7 +30,12 @@ export class AppController {
       body
     })
 
-    return this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, body)
+    const result = await this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, body)
+
+    this.logger.log({
+      message: 'Evaluation result',
+      body: result
+    })
   }
 
   @Post('/evaluation-demo')

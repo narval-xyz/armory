@@ -13,7 +13,7 @@ import {
   Then,
   toHex
 } from '@narval/policy-engine-shared'
-import { SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { SigningAlg, buildSignerEip191, hash, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
 import { Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Config, load } from '../../../../policy-engine.config'
@@ -26,7 +26,7 @@ const ONE_ETH = toHex(BigInt('1000000000000000000'))
 const UNSAFE_ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Promise<JwtString> => {
-  const jwk = privateKeyToJwk(option.privateKey)
+  const jwk = secp256k1PrivateKeyToJwk(option.privateKey)
   const signer = buildSignerEip191(option.privateKey)
 
   return signJwt(

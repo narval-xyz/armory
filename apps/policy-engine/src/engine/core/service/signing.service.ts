@@ -1,11 +1,13 @@
-import { JsonWebKey, toHex } from '@narval/policy-engine-shared'
+import { toHex } from '@narval/policy-engine-shared'
 import {
   Alg,
   Payload,
+  PrivateKey,
+  PublicKey,
   SigningAlg,
   buildSignerEip191,
   buildSignerEs256k,
-  privateKeyToJwk,
+  secp256k1PrivateKeyToJwk,
   signJwt
 } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
@@ -17,8 +19,8 @@ type KeyGenerationOptions = {
 }
 
 type KeyGenerationResponse = {
-  publicKey: JsonWebKey
-  privateKey?: JsonWebKey
+  publicKey: PublicKey
+  privateKey?: PrivateKey
 }
 
 type SignOptions = {
@@ -32,7 +34,7 @@ export class SigningService {
   async generateSigningKey(alg: Alg, options?: KeyGenerationOptions): Promise<KeyGenerationResponse> {
     if (alg === Alg.ES256K) {
       const privateKey = toHex(secp256k1.utils.randomPrivateKey())
-      const privateJwk = privateKeyToJwk(privateKey, options?.keyId)
+      const privateJwk = secp256k1PrivateKeyToJwk(privateKey, options?.keyId)
 
       // Remove the privateKey from the public jwk
       const publicJwk = {
@@ -49,21 +51,14 @@ export class SigningService {
     throw new Error('Unsupported algorithm')
   }
 
-  async sign(payload: Payload, jwk: JsonWebKey, opts: SignOptions = {}): Promise<string> {
+  async sign(payload: Payload, jwk: PrivateKey, opts: SignOptions = {}): Promise<string> {
     const alg: SigningAlg = opts.alg || jwk.alg
     if (alg === SigningAlg.ES256K) {
-      if (!jwk.d) {
-        throw new Error('Missing private key')
-      }
       const pk = jwk.d
-
       const jwt = await signJwt(payload, jwk, opts, buildSignerEs256k(pk))
 
       return jwt
     } else if (alg === SigningAlg.EIP191) {
-      if (!jwk.d) {
-        throw new Error('Missing private key')
-      }
       const pk = jwk.d
 
       const jwt = await signJwt(payload, jwk, opts, buildSignerEip191(pk))
