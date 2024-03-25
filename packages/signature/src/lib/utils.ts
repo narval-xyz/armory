@@ -5,7 +5,7 @@ import { exportJWK, generateKeyPair } from 'jose'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
-import { rsaPrivateKeySchema } from './schemas'
+import { rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
 import {
   Alg,
   Curves,
@@ -15,6 +15,7 @@ import {
   P256PrivateKey,
   P256PublicKey,
   RsaPrivateKey,
+  RsaPublicKey,
   Secp256k1KeySchema,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
@@ -152,7 +153,7 @@ const rsaKeyToKid = (jwk: Jwk) => {
   return toHex(hash)
 }
 
-const generateRsaKeyPair = async (
+const generateRsaPrivateKey = async (
   opts: {
     keyId?: string
     modulusLength?: number
@@ -167,6 +168,7 @@ const generateRsaKeyPair = async (
   })
 
   const partialJwk = await exportJWK(privateKey)
+
   if (!partialJwk.n) {
     throw new JwtError({ message: 'Invalid JWK; missing n', context: { partialJwk } })
   }
@@ -183,26 +185,31 @@ const generateRsaKeyPair = async (
   return pk
 }
 
-export const generateJwk = async (
+export const rsaPrivateKeyToPublicKey = (jwk: RsaPrivateKey) => {
+  const publicKey: RsaPublicKey = rsaPublicKeySchema.parse(jwk)
+  return publicKey
+}
+
+export const generateJwk = async <T = Jwk>(
   alg: Alg,
   opts?: {
     keyId?: string
     modulusLength?: number
     use?: Use
   }
-): Promise<Jwk> => {
+): Promise<T> => {
   switch (alg) {
     case Alg.ES256K: {
       const privateKeyK1 = toHex(secp256k1.utils.randomPrivateKey())
-      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId)
+      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId) as T
     }
     case Alg.ES256: {
       const privateKeyP256 = toHex(p256.utils.randomPrivateKey())
-      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId)
+      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId) as T
     }
     case Alg.RS256: {
-      const jwk = await generateRsaKeyPair(opts)
-      return jwk
+      const jwk = await generateRsaPrivateKey(opts)
+      return jwk as T
     }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)

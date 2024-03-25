@@ -1,8 +1,8 @@
 import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
 import { isHeader, isPayload } from '../../typeguards'
-import { Alg, Secp256k1PrivateKey, SigningAlg } from '../../types'
-import { generateJwk, secp256k1PrivateKeyToHex } from '../../utils'
+import { Alg, RsaPrivateKey, Secp256k1PrivateKey, SigningAlg } from '../../types'
+import { generateJwk, rsaPrivateKeyToPublicKey, secp256k1PrivateKeyToHex } from '../../utils'
 import { validate } from '../../validate'
 import { verifyJwt } from '../../verify'
 
@@ -98,5 +98,20 @@ describe('generateKeys', () => {
     const signature = await signJwt(payload, key, { alg: SigningAlg.EIP191 }, signer)
     const isValid = await verifyJwt(signature, key)
     expect(isValid).not.toEqual(false)
+  })
+
+  describe('rsaPrivateKeyToPublicKey', () => {
+    it('converts private to public', async () => {
+      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
+      const publicKey = rsaPrivateKeyToPublicKey(privateKey)
+      expect(publicKey).toEqual({
+        alg: Alg.RS256,
+        e: expect.any(String),
+        kid: expect.any(String),
+        kty: 'RSA',
+        n: expect.any(String),
+        use: 'enc'
+      })
+    })
   })
 })
