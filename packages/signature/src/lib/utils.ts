@@ -155,8 +155,8 @@ const rsaKeyToKid = (jwk: Jwk) => {
 const generateRsaKeyPair = async (
   opts: {
     keyId?: string
-    modulusLength?: number,
-    use?: Use,
+    modulusLength?: number
+    use?: Use
   } = {
     modulusLength: 2048
   }
@@ -175,9 +175,9 @@ const generateRsaKeyPair = async (
     alg: Alg.RS256,
     kty: KeyTypes.RSA,
     crv: undefined,
-    use: opts.use || undefined,
+    use: opts.use || undefined
   }
-  jwk.kid = opts.keyId || rsaKeyToKid(jwk);
+  jwk.kid = opts.keyId || rsaKeyToKid(jwk)
 
   const pk = validate<RsaPrivateKey>(rsaPrivateKeySchema, jwk, 'Invalid RSA Private Key JWK')
   return pk
@@ -187,8 +187,8 @@ export const generateJwk = async (
   alg: Alg,
   opts?: {
     keyId?: string
-    modulusLength?: number,
-    use?: Use,
+    modulusLength?: number
+    use?: Use
   }
 ): Promise<Jwk> => {
   switch (alg) {

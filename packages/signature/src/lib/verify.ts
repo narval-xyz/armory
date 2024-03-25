@@ -101,19 +101,19 @@ export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
 }
 
 export async function verifyJwsd(jws: string, jwk: PublicKey): Promise<Jwsd> {
-    const { header, payload, signature } = decodeJwsd(jws)
+  const { header, payload, signature } = decodeJwsd(jws)
 
-    if (header.alg === SigningAlg.EIP191) {
-      await verifyEip191(jws, jwk)
-    } else {
-      // TODO: Implement other algs individually without jose
-      const joseJwk = await importJWK(jwk)
-      await jwtVerify(jws, joseJwk)
-    }
+  if (header.alg === SigningAlg.EIP191) {
+    await verifyEip191(jws, jwk)
+  } else {
+    // TODO: Implement other algs individually without jose
+    const joseJwk = await importJWK(jwk)
+    await jwtVerify(jws, joseJwk)
+  }
 
-    return {
-      header,
-      payload,
-      signature
-    }
+  return {
+    header,
+    payload,
+    signature
+  }
 }
