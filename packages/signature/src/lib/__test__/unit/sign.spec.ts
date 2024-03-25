@@ -5,7 +5,7 @@ import { createPublicKey } from 'node:crypto'
 import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
-import { Alg, Payload, SigningAlg } from '../../types'
+import { Alg, Payload, PrivateKey, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,
   base64UrlToHex,
