@@ -5,19 +5,6 @@ function isAlg(alg: unknown): alg is SigningAlg {
   return typeof alg === 'string' && Object.values(SigningAlg).includes(alg as SigningAlg)
 }
 
-export function isJwk(jwk: unknown): jwk is JWK {
-  return (
-    typeof jwk === 'object' &&
-    jwk !== null &&
-    'kty' in jwk &&
-    'kid' in jwk &&
-    'alg' in jwk &&
-    isStringNonNull(jwk.kty) &&
-    isStringNonNull(jwk.kid) &&
-    isAlg(jwk.alg)
-  )
-}
-
 function isStringNonNull(kid: unknown): kid is string {
   return typeof kid === 'string' && kid.length > 0
 }

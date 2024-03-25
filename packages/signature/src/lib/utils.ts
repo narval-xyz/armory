@@ -17,7 +17,8 @@ import {
   RsaPrivateKey,
   Secp256k1KeySchema,
   Secp256k1PrivateKey,
-  Secp256k1PublicKey
+  Secp256k1PublicKey,
+  Use
 } from './types'
 import { validate } from './validate'
 
@@ -143,16 +144,10 @@ export const base64UrlToBytes = (base64Url: string): Buffer => {
 }
 
 const rsaKeyToKid = (jwk: Jwk) => {
-  // Concatenate the 'n' and 'e' values
-  const dataToHash = `${jwk.n}${jwk.e}`
+  // Concatenate the 'n' and 'e' values, splitted by ':'
+  const dataToHash = `${jwk.n}:${jwk.e}`
 
-  // Convert base64url to regular base64
-  const base64 = dataToHash.replace(/-/g, '+').replace(/_/g, '/')
-
-  // Convert base64 to binary data
-  const binaryData = Buffer.from(base64, 'base64')
-
-  // Compute SHA-256 hash of the binary data
+  const binaryData = base64UrlToBytes(dataToHash)
   const hash = sha256Hash(binaryData)
   return toHex(hash)
 }
@@ -160,11 +155,12 @@ const rsaKeyToKid = (jwk: Jwk) => {
 const generateRsaKeyPair = async (
   opts: {
     keyId?: string
-    modulusLength?: number
+    modulusLength?: number,
+    use?: Use,
   } = {
     modulusLength: 2048
   }
-) => {
+): Promise<RsaPrivateKey> => {
   const { privateKey } = await generateKeyPair(Alg.RS256, {
     modulusLength: opts.modulusLength,
     extractable: true
@@ -174,23 +170,25 @@ const generateRsaKeyPair = async (
   if (!partialJwk.n) {
     throw new JwtError({ message: 'Invalid JWK; missing n', context: { partialJwk } })
   }
-  const jwk = {
+  const jwk: Jwk = {
     ...partialJwk,
     alg: Alg.RS256,
-    kid: opts.keyId || rsaKeyToKid(partialJwk),
-    kty: KeyTypes.RSA
+    kty: KeyTypes.RSA,
+    crv: undefined,
+    use: opts.use || undefined,
   }
-  if (!isJwk(jwk)) {
-    throw new JwtError({ message: 'Invalid JWK', context: { jwk } })
-  }
-  return jwk
+  jwk.kid = opts.keyId || rsaKeyToKid(jwk);
+
+  const pk = validate<RsaPrivateKey>(rsaPrivateKeySchema, jwk, 'Invalid RSA Private Key JWK')
+  return pk
 }
 
 export const generateJwk = async (
   alg: Alg,
   opts?: {
     keyId?: string
-    modulusLength?: number
+    modulusLength?: number,
+    use?: Use,
   }
 ): Promise<Jwk> => {
   switch (alg) {

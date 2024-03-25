@@ -6,6 +6,7 @@ import {
   p256PublicKeySchema,
   privateKeySchema,
   publicKeySchema,
+  rsaPrivateKeySchema,
   secp256k1KeySchema,
   secp256k1PrivateKeySchema,
   secp256k1PublicKeySchema
