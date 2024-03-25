@@ -59,7 +59,12 @@ export const p256PrivateKeySchema = p256PublicKeySchema.extend({
 })
 
 export const rsaPrivateKeySchema = rsaPublicKeySchema.extend({
-  d: z.string()
+  d: z.string(),
+  p: z.string(),
+  q: z.string(),
+  dp: z.string(),
+  dq: z.string(),
+  qi: z.string()
 })
 
 export const publicKeySchema = z.union([
