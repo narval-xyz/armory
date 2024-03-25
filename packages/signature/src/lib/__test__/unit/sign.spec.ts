@@ -38,7 +38,14 @@ describe('sign', () => {
   it('should sign build & sign es256 JWT correctly with a PEM', async () => {
     const key = await importPKCS8(PRIVATE_KEY_PEM, Alg.ES256)
     const jwk = await exportJWK(key)
-    const jwt = await signJwt(payload, { ...jwk, alg: Alg.ES256, crv: 'P-256', kty: 'EC', kid: 'somekid' })
+    const jwt = await signJwt(payload, {
+      ...jwk,
+      alg: Alg.ES256,
+      crv: 'P-256',
+      kty: 'EC',
+      kid: 'somekid',
+      use: undefined
+    })
 
     const verified = await jwtVerify(jwt, key)
     expect(verified.payload).toEqual(payload)
