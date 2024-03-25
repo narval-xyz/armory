@@ -1,5 +1,5 @@
+import { ConfigService } from '@narval/config-module'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -48,7 +48,7 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
  * @returns The modified Nest application instance.
  */
 const withGlobalFilters =
-  (configService: ConfigService<Config, true>) =>
+  (configService: ConfigService<Config>) =>
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(new HttpExceptionFilter(configService), new ApplicationExceptionFilter(configService))
 
@@ -58,8 +58,8 @@ const withGlobalFilters =
 async function bootstrap() {
   const logger = new Logger('PolicyEngineBootstrap')
   const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
-  const configService = application.get(ConfigService)
-  const port = configService.get('PORT')
+  const configService = application.get(ConfigService<Config>)
+  const port = configService.get('port')
 
   if (!port) {
     throw new Error('Missing PORT environment variable')

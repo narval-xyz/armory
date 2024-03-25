@@ -1,5 +1,5 @@
+import { ConfigService } from '@narval/config-module'
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { Config, Env } from '../../policy-engine.config'
 
@@ -7,7 +7,7 @@ import { Config, Env } from '../../policy-engine.config'
 export class HttpExceptionFilter implements ExceptionFilter {
   private logger = new Logger(HttpExceptionFilter.name)
 
-  constructor(private configService: ConfigService<Config, true>) {}
+  constructor(private configService: ConfigService<Config>) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

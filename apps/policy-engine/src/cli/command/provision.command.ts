@@ -1,4 +1,4 @@
-import { ConfigService } from '@nestjs/config'
+import { ConfigService } from '@narval/config-module'
 import { Command, CommandRunner } from 'nest-commander'
 import { EngineService } from '../../engine/core/service/engine.service'
 import { ProvisionService } from '../../engine/core/service/provision.service'
@@ -12,7 +12,7 @@ export class ProvisionCommand extends CommandRunner {
   constructor(
     private provisionService: ProvisionService,
     private engineService: EngineService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {
     super()
   }
@@ -27,7 +27,7 @@ export class ProvisionCommand extends CommandRunner {
     await this.provisionService.provision()
 
     try {
-      const keyring = this.configService.get('keyring', { infer: true })
+      const keyring = this.configService.get('keyring')
       const engine = await this.engineService.getEngineOrThrow()
 
       console.log('Engine ID:', engine.id)

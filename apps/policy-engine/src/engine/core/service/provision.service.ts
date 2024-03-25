@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { randomBytes } from 'crypto'
 import { Config } from '../../../policy-engine.config'
 import { EngineService } from './engine.service'
@@ -10,7 +10,7 @@ export class ProvisionService {
   private logger = new Logger(ProvisionService.name)
 
   constructor(
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private engineService: EngineService
   ) {}
 
@@ -21,11 +21,12 @@ export class ProvisionService {
 
     const isFirstTime = engine === null
 
-    // IMPORTANT: The order of internal methods call matters.
-
     if (isFirstTime) {
+      // IMPORTANT: The order of internal methods call matters.
       await this.createEngine()
       await this.maybeSetupEncryption()
+    } else {
+      this.logger.log('Skip engine provision')
     }
   }
 
@@ -46,7 +47,7 @@ export class ProvisionService {
       return this.logger.log('Skip master key set up because it already exists')
     }
 
-    const keyring = this.configService.get('keyring', { infer: true })
+    const keyring = this.configService.get('keyring')
 
     if (keyring.type === 'raw') {
       this.logger.log('Generate and save engine master key')
@@ -60,6 +61,6 @@ export class ProvisionService {
   }
 
   private getEngineId(): string {
-    return this.configService.get('engine.id', { infer: true })
+    return this.configService.get('engine.id')
   }
 }

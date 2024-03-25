@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
 import { Config } from '../../../policy-engine.config'
@@ -12,7 +12,7 @@ const UNSAFE_ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f
 @Injectable()
 export class EvaluationService {
   constructor(
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private tenantService: TenantService
   ) {}
 
@@ -44,7 +44,7 @@ export class EvaluationService {
       entities: entityStore.data,
       policies: policyStore.data,
       privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
-      resourcePath: resolve(this.configService.get('resourcePath', { infer: true }))
+      resourcePath: resolve(this.configService.get('resourcePath'))
     }).load()
 
     return engine.evaluate(evaluation)
