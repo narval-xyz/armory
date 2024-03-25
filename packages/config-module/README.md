@@ -1,7 +1,7 @@
-# config-module
+# Config Module 
 
-This library was generated with [Nx](https://nx.dev).
+A custom config module built on top of Nest's, better utilizing its options to
+achieve more satisfying results in terms of user experience, tailored
+specifically for Narval's usage.
 
-## Running unit tests
-
-Run `nx test config-module` to execute the unit tests via [Jest](https://jestjs.io).
+See demo: https://github.com/narval-xyz/armory/pull/184
