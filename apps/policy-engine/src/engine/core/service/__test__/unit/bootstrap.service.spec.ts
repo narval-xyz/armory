@@ -1,5 +1,5 @@
+import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
-import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { EngineService } from '../../../../../engine/core/service/engine.service'
