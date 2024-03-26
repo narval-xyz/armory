@@ -2,6 +2,7 @@ include ./apps/armory/Makefile
 include ./apps/devtool/Makefile
 include ./apps/policy-engine/Makefile
 include ./apps/vault/Makefile
+include ./packages/nestjs-shared/Makefile
 include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 include ./packages/signature/Makefile

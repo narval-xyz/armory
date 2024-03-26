@@ -1,10 +1,5 @@
-import {
-  AccountId,
-  Action,
-  FiatCurrency,
-  SignMessageRequestDataDto,
-  SignTransactionRequestDataDto
-} from '@narval/policy-engine-shared'
+import { SignMessageRequestDataDto, SignTransactionRequestDataDto } from '@narval/nestjs-shared'
+import { AccountId, Action, FiatCurrency } from '@narval/policy-engine-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsOptional, ValidateNested } from 'class-validator'
