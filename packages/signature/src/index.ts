@@ -1,4 +1,5 @@
 export * from './lib/decode'
+export * from './lib/encrypt'
 export * from './lib/hash-request'
 export * from './lib/schemas'
 export * from './lib/sign'

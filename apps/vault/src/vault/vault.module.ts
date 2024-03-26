@@ -17,6 +17,7 @@ import { SigningService } from './core/service/signing.service'
 import { ImportController } from './http/rest/controller/import.controller'
 import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
+import { ImportRepository } from './persistence/repository/import.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
@@ -46,6 +47,7 @@ import { VaultService } from './vault.service'
     ProvisionService,
     SigningService,
     WalletRepository,
+    ImportRepository,
     {
       provide: APP_PIPE,
       useFactory: () =>
