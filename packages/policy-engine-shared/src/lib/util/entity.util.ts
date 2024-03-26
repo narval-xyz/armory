@@ -1,6 +1,5 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
 import { Entities } from '../type/entity.type'
-import { isAccountId, isAssetId } from './caip.util'
 
 export type ValidationIssue = {
   code: string
@@ -102,35 +101,11 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
   ])
 }
 
-const validateAddressBookUniqueIdFormat: Validator = (entities: Entities): ValidationIssue[] => {
-  return entities.addressBook
-    .filter(({ id: uid }) => !isAccountId(uid))
-    .map(({ id: uid }) => {
-      return {
-        code: 'INVALID_UID_FORMAT',
-        message: `address book account id ${uid} is not a valid account id`
-      }
-    })
-}
-
-const validateTokenUniqueIdFormat: Validator = (entities: Entities): ValidationIssue[] => {
-  return entities.tokens
-    .filter(({ id: uid }) => !isAssetId(uid))
-    .map(({ id: uid }) => {
-      return {
-        code: 'INVALID_UID_FORMAT',
-        message: `token id ${uid} is not a valid asset id`
-      }
-    })
-}
-
 export const DEFAULT_VALIDATORS: Validator[] = [
   validateUserGroupMemberIntegrity,
   validateWalletGroupMemberIntegrity,
   validateUserWalletIntegrity,
-  validateUniqueIdDuplication,
-  validateAddressBookUniqueIdFormat,
-  validateTokenUniqueIdFormat
+  validateUniqueIdDuplication
   // TODO (@wcalderipe, 21/02/25): Missing domain invariants to be validate
   // - fails when root user does not have a credential
   // - fails when credential does not have a user

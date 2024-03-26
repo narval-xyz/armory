@@ -1,6 +1,7 @@
 import {
   DataStoreConfiguration,
   EntityStore,
+  EntityUtil,
   PolicyStore,
   entityDataSchema,
   entitySignatureSchema,
@@ -20,22 +21,51 @@ export class DataStoreService {
     entity: EntityStore
     policy: PolicyStore
   }> {
-    const [entityData, entitySignature, policyData, policySignature] = await Promise.all([
-      this.fetchByUrl(store.entity.dataUrl, entityDataSchema),
-      this.fetchByUrl(store.entity.signatureUrl, entitySignatureSchema),
-      this.fetchByUrl(store.policy.dataUrl, policyDataSchema),
-      this.fetchByUrl(store.policy.signatureUrl, policySignatureSchema)
+    const [entityStore, policyStore] = await Promise.all([
+      this.fetchEntity(store.entity),
+      this.fetchPolicy(store.policy)
     ])
 
     return {
-      entity: {
+      entity: entityStore,
+      policy: policyStore
+    }
+  }
+
+  async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
+    const [entityData, entitySignature] = await Promise.all([
+      this.fetchByUrl(store.dataUrl, entityDataSchema),
+      this.fetchByUrl(store.signatureUrl, entitySignatureSchema)
+    ])
+
+    const validation = EntityUtil.validate(entityData.entity.data)
+
+    if (validation.success) {
+      return {
         data: entityData.entity.data,
         signature: entitySignature.entity.signature
-      },
-      policy: {
-        data: policyData.policy.data,
-        signature: policySignature.policy.signature
       }
+    }
+
+    throw new DataStoreException({
+      message: 'Invalid entity domain invariant',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: {
+        url: store.dataUrl,
+        errors: validation.issues
+      }
+    })
+  }
+
+  async fetchPolicy(store: DataStoreConfiguration): Promise<PolicyStore> {
+    const [policyData, policySignature] = await Promise.all([
+      this.fetchByUrl(store.dataUrl, policyDataSchema),
+      this.fetchByUrl(store.signatureUrl, policySignatureSchema)
+    ])
+
+    return {
+      data: policyData.policy.data,
+      signature: policySignature.policy.signature
     }
   }
 

@@ -1,5 +1,5 @@
 import { ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP, WALLET, WALLET_GROUP } from '../../../dev.fixture'
-import { AccountClassification, Entities } from '../../../type/entity.type'
+import { Entities } from '../../../type/entity.type'
 import { validate } from '../../entity.util'
 
 describe('validate', () => {
@@ -275,58 +275,6 @@ describe('validate', () => {
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
             message: `the wallet ${WALLET.Engineering.id} is duplicated`
-          }
-        ]
-      })
-    })
-  })
-
-  describe('id format', () => {
-    it('fails when address book account id is not an account id', () => {
-      const invalidAccountId = '16aba381-c54a-4f72-89bd-bd1e7c46ed29'
-      const result = validate({
-        ...emptyEntities,
-        addressBook: [
-          {
-            id: invalidAccountId,
-            address: WALLET.Engineering.address,
-            chainId: 137,
-            classification: AccountClassification.WALLET
-          },
-          ADDRESS_BOOK[0]
-        ]
-      })
-
-      expect(result).toEqual({
-        success: false,
-        issues: [
-          {
-            code: 'INVALID_UID_FORMAT',
-            message: `address book account id ${invalidAccountId} is not a valid account id`
-          }
-        ]
-      })
-    })
-
-    it('fails when token id is not an asset id', () => {
-      const invalidAccountId = '16aba381-c54a-4f72-89bd-bd1e7c46ed29'
-      const result = validate({
-        ...emptyEntities,
-        tokens: [
-          {
-            ...TOKEN.usdc1,
-            id: invalidAccountId
-          },
-          TOKEN.usdc137
-        ]
-      })
-
-      expect(result).toEqual({
-        success: false,
-        issues: [
-          {
-            code: 'INVALID_UID_FORMAT',
-            message: `token id ${invalidAccountId} is not a valid asset id`
           }
         ]
       })

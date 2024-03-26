@@ -15,6 +15,7 @@ import nock from 'nock'
 import { withTempJsonFile } from '../../../../../shared/testing/with-temp-json-file.testing'
 import { FileSystemDataStoreRepository } from '../../../../persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from '../../../../persistence/repository/http-data-store.repository'
+import { DataStoreException } from '../../../exception/data-store.exception'
 import { DataStoreRepositoryFactory } from '../../../factory/data-store-repository.factory'
 import { DataStoreService } from '../../data-store.service'
 
@@ -94,6 +95,113 @@ describe(DataStoreService.name, () => {
           data: policyData.policy.data,
           signature: signatureStore.policy.signature
         })
+      })
+    })
+
+    const testThrowDataStoreException = async (params: {
+      store: unknown
+      expect: { message: string; status: HttpStatus }
+    }): Promise<void> => {
+      await withTempJsonFile(JSON.stringify(params.store), async (path) => {
+        const url = `file://${path}`
+
+        expect.assertions(3)
+
+        try {
+          await service.fetch({
+            entity: {
+              dataUrl: url,
+              signatureUrl: url,
+              keys: []
+            },
+            policy: {
+              dataUrl: url,
+              signatureUrl: url,
+              keys: []
+            }
+          })
+        } catch (error) {
+          expect(error).toBeInstanceOf(DataStoreException)
+          expect(error.message).toEqual(params.expect.message)
+          expect(error.status).toEqual(params.expect.status)
+        }
+      })
+    }
+
+    it('throws DataStoreException when entity schema is invalid', async () => {
+      await testThrowDataStoreException({
+        store: {
+          entity: {
+            data: ['invalid', 'schema'],
+            signature: 'test-signature'
+          },
+          policy: {
+            data: policyData.policy.data,
+            signature: 'test-signature'
+          }
+        },
+        expect: {
+          message: 'Invalid store schema',
+          status: HttpStatus.UNPROCESSABLE_ENTITY
+        }
+      })
+    })
+
+    it('throws DataStoreException when entity domain is invalid', async () => {
+      const duplicateUserGroups = [
+        {
+          id: '1'
+        },
+        {
+          id: '1'
+        }
+      ]
+
+      await testThrowDataStoreException({
+        store: {
+          entity: {
+            data: {
+              userGroups: duplicateUserGroups,
+              addressBook: [],
+              credentials: [],
+              tokens: [],
+              userGroupMembers: [],
+              userWallets: [],
+              users: [],
+              walletGroupMembers: [],
+              walletGroups: [],
+              wallets: []
+            },
+            signature: 'test-signature'
+          },
+          policy: {
+            data: policyData.policy.data,
+            signature: 'test-signature'
+          }
+        },
+        expect: {
+          message: 'Invalid entity domain invariant',
+          status: HttpStatus.UNPROCESSABLE_ENTITY
+        }
+      })
+    })
+
+    it('throws DataStoreException when policy schema is invalid', async () => {
+      await testThrowDataStoreException({
+        store: {
+          policy: {
+            data: { invalid: 'schema' },
+            signature: 'test-signature'
+          },
+          entity: {
+            data: FIXTURE.ENTITIES,
+            signature: 'test-signature'
+          }
+        },
+        expect: {
+          message: 'Invalid store schema',
+          status: HttpStatus.UNPROCESSABLE_ENTITY
+        }
       })
     })
   })
