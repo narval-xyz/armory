@@ -1,4 +1,4 @@
-import { RsaPublicKeyDto } from '@narval/policy-engine-shared'
+import { RsaPublicKeyDto } from '@narval/nestjs-shared'
 import { RsaPublicKey } from '@narval/signature'
 import { ApiProperty } from '@nestjs/swagger'
 
