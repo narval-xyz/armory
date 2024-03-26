@@ -48,7 +48,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc --noEmit --project apps/policy-engine/tsconfig.app.json"
+        "command": "make policy-engine/test/type"
       }
     },
     "test:unit": {

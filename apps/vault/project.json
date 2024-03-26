@@ -47,7 +47,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc --noEmit --project apps/vault/tsconfig.app.json"
+        "command": "make vault/test/type"
       }
     },
     "test:unit": {

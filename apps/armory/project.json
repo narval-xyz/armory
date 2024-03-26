@@ -61,7 +61,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc --noEmit --project apps/armory/tsconfig.app.json"
+        "command": "make armory/test/type"
       }
     },
     "test:unit": {
