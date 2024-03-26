@@ -1,3 +1,4 @@
+import { Hex } from 'viem'
 import { Address, JwtString, TransactionRequest } from './domain.type'
 import {
   AccountClassification,
@@ -72,10 +73,13 @@ export type SignTransactionAction = BaseAction & {
   transactionRequest: TransactionRequest
 }
 
+// Matching viem's SignableMessage options https://viem.sh/docs/actions/wallet/signMessage#message
+export type SignableMessage = string | { raw: Hex }
+
 export type SignMessageAction = BaseAction & {
   action: typeof Action.SIGN_MESSAGE
   resourceId: string
-  message: string
+  message: SignableMessage
 }
 
 export type SignTypedDataAction = BaseAction & {

@@ -1,4 +1,5 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { Action } from '@narval/policy-engine-shared'
 import {
   JwsdHeader,
   Payload,
@@ -17,6 +18,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { verifyMessage } from 'viem'
 import { load } from '../../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
@@ -50,8 +52,8 @@ describe('Sign', () => {
   }
 
   const wallet: Wallet = {
-    id: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157',
-    address: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+    id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+    address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   }
 
@@ -59,7 +61,7 @@ describe('Sign', () => {
     action: 'signTransaction',
     nonce: 'random-nonce-111',
     transactionRequest: {
-      from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+      from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
       to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
       chainId: 137,
       value: '0x5af3107a4000',
@@ -70,7 +72,7 @@ describe('Sign', () => {
       maxFeePerGas: '291175227375',
       maxPriorityFeePerGas: '81000000000'
     },
-    resourceId: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157'
+    resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
   }
 
   const getAccessToken = async (request?: unknown, opts: object = {}) => {
@@ -144,7 +146,7 @@ describe('Sign', () => {
           action: 'signTransaction',
           nonce: 'random-nonce-111',
           transactionRequest: {
-            from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+            from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
             to: '04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B', // INVALID
             chainId: 137,
             value: '0x5af3107a4000',
@@ -155,7 +157,7 @@ describe('Sign', () => {
             maxFeePerGas: '291175227375',
             maxPriorityFeePerGas: '81000000000'
           },
-          resourceId: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157'
+          resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
         }
       }
 
@@ -193,6 +195,37 @@ describe('Sign', () => {
         signature:
           '0x02f875818982013d8512dbf9ea008543cb655fef82520c9404b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba06f7648a9c9710b171d55e056c4abca268857f607a8a4a257d945fc44ace9f076'
       })
+    })
+
+    it('signs Message', async () => {
+      const messageRequest = {
+        action: Action.SIGN_MESSAGE,
+        nonce: 'random-nonce-111',
+        message: 'My ASCII message',
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      }
+
+      const accessToken = await getAccessToken(messageRequest)
+      const { status, body } = await request(app.getHttpServer())
+        .post('/sign')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({ request: messageRequest })
+
+      const isVerified = await verifyMessage({
+        address: wallet.address,
+        message: messageRequest.message,
+        signature: body.signature
+      })
+
+      expect(body).toEqual({
+        signature:
+          '0x65071b7126abd24fe6b8fa396529e21d22448d23ff1a6c5a0e043a4f641cd11b2a21958127d1b91db4d991f8b33ad6b201637799a95eadbe3a7cf5cee26bd9521b'
+      })
+
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      expect(isVerified).toEqual(true)
     })
   })
 

@@ -1,6 +1,14 @@
-import { Request } from '@narval/policy-engine-shared'
+import { Action, Request } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
-import { Hex, TransactionSerializable, hexToBigInt, parseTransaction, serializeTransaction } from 'viem'
+import {
+  Hex,
+  TransactionSerializable,
+  hexToBigInt,
+  parseTransaction,
+  serializeTransaction,
+  toHex,
+  verifyMessage
+} from 'viem'
 import { Wallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { SigningService } from '../../signing.service'
@@ -9,8 +17,8 @@ describe('SigningService', () => {
   let signingService: SigningService
 
   const wallet: Wallet = {
-    id: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157',
-    address: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+    id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+    address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   }
 
@@ -37,9 +45,9 @@ describe('SigningService', () => {
       const request: Request = {
         action: 'signTransaction',
         nonce: 'random-nonce-111',
-        resourceId: 'eip155:eoa:0xc3bdcdb4f593aa5a5d81cd425f6fc3265d962157',
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
         transactionRequest: {
-          from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+          from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
           to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
           chainId: 137,
           value: '0x5af3107a4000',
@@ -65,7 +73,7 @@ describe('SigningService', () => {
     // Just for testing formatting & stuff
     it('should serialize/deserialize', async () => {
       const txRequest: TransactionSerializable = {
-        // from: '0xc3bdcdb4F593AA5A5D81cD425f6Fc3265D962157',
+        // from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
         to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B'.toLowerCase() as Hex,
         chainId: 137,
         value: hexToBigInt('0x5af3107a4000'),
@@ -76,6 +84,60 @@ describe('SigningService', () => {
       const deserialized = parseTransaction(serialized)
 
       expect(deserialized).toEqual(txRequest)
+    })
+
+    it('signs EIP191 Message string', async () => {
+      const tenantId = 'tenantId'
+      const messageRequest: Request = {
+        action: Action.SIGN_MESSAGE,
+        nonce: 'random-nonce-111',
+        message: 'My ASCII message',
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      }
+
+      const expectedSignature =
+        '0x65071b7126abd24fe6b8fa396529e21d22448d23ff1a6c5a0e043a4f641cd11b2a21958127d1b91db4d991f8b33ad6b201637799a95eadbe3a7cf5cee26bd9521b'
+
+      // Call the sign method
+      const result = await signingService.sign(tenantId, messageRequest)
+
+      const isVerified = await verifyMessage({
+        address: wallet.address,
+        message: messageRequest.message,
+        signature: result
+      })
+
+      // Assert the result
+      expect(result).toEqual(expectedSignature)
+      expect(isVerified).toEqual(true)
+    })
+
+    it('signs EIP191 Message Hex', async () => {
+      const tenantId = 'tenantId'
+      const messageRequest: Request = {
+        action: Action.SIGN_MESSAGE,
+        nonce: 'random-nonce-111',
+        message: {
+          raw: toHex('My ASCII message')
+        },
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      }
+
+      const expectedSignature =
+        '0x65071b7126abd24fe6b8fa396529e21d22448d23ff1a6c5a0e043a4f641cd11b2a21958127d1b91db4d991f8b33ad6b201637799a95eadbe3a7cf5cee26bd9521b'
+
+      // Call the sign method
+      const result = await signingService.sign(tenantId, messageRequest)
+
+      const isVerified = await verifyMessage({
+        address: wallet.address,
+        message: messageRequest.message,
+        signature: result
+      })
+
+      // Assert the result
+      expect(result).toEqual(expectedSignature)
+      expect(isVerified).toEqual(true)
     })
   })
 })
