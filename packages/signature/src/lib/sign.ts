@@ -4,10 +4,8 @@ import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
 import { hash } from './hash-request'
-import { privateKeySchema } from './schemas'
-import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, Payload, PrivateKey, SigningAlg } from './types'
+import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, Payload, SigningAlg } from './types'
 import { hexToBase64Url } from './utils'
-import { validate } from './validate'
 
 export async function signJwsd(
   rawBody: string | object,
@@ -31,10 +29,12 @@ export async function signJwt(
   opts: { alg?: SigningAlg } = {},
   signer?: (payload: string) => Promise<string>
 ): Promise<string> {
-  const pk = validate<PrivateKey>(privateKeySchema, jwk, 'Invalid Private Key JWK')
+  if (!jwk.kid || !jwk.alg) {
+    throw new Error('JWK must have a kid and alg')
+  }
   const header: Header = {
-    kid: pk.kid,
-    alg: opts.alg || pk.alg, // TODO: add separate type for `ES256k-KECCAK`
+    kid: jwk.kid,
+    alg: opts.alg || jwk.alg, // TODO: add separate type for `ES256k-KECCAK`
     typ: 'JWT'
   }
 
