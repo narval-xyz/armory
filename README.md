@@ -17,7 +17,6 @@
 | [@narval/policy-engine-shared](./packages/policy-engine-shared/README.md)             | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine-shared.yml/badge.svg?branch=main" alt="@narval/policy-engine-shared CI status" /></a> |
 
 | [@narval/signature](./packages/signature/README.md) | <a href="https://github.com/narval-xyz/narval/actions/workflows/signature.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/signature.yml/badge.svg?branch=main" alt="@narval/signature CI status" /></a> |
-                                                                                                 
 | [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md) | <a href="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/transaction-request-intent.yml/badge.svg?branch=main" alt="@narval/transaction-request-intent CI status" /></a> |
 
 ## Getting started
