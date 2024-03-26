@@ -5,8 +5,18 @@ import { IsOptional, IsString } from 'class-validator'
 
 export class ImportPrivateKeyDto {
   @IsHexString()
-  @ApiProperty()
-  privateKey: Hex
+  @IsOptional()
+  @ApiProperty({
+    description: 'Wallet Private Key, unencrypted'
+  })
+  privateKey?: Hex
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Wallet Private Key encrypted with JWE. Header MUST include `kid`'
+  })
+  encryptedPrivateKey?: string
 
   @IsString()
   @IsOptional()

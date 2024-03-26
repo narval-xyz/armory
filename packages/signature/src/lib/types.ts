@@ -7,6 +7,7 @@ import {
   privateKeySchema,
   publicKeySchema,
   rsaPrivateKeySchema,
+  rsaPublicKeySchema,
   secp256k1KeySchema,
   secp256k1PrivateKeySchema,
   secp256k1PublicKeySchema
@@ -54,6 +55,7 @@ export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
 export type P256PrivateKey = z.infer<typeof p256PrivateKeySchema>
 export type P256PublicKey = z.infer<typeof p256PublicKeySchema>
 export type RsaPrivateKey = z.infer<typeof rsaPrivateKeySchema>
+export type RsaPublicKey = z.infer<typeof rsaPublicKeySchema>
 export type EoaPublicKey = z.infer<typeof jwkEoaSchema>
 export type Secp256k1PublicKey = z.infer<typeof secp256k1PublicKeySchema>
 export type Secp256k1KeySchema = z.infer<typeof secp256k1KeySchema>
