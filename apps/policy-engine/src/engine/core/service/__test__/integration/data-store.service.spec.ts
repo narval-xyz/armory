@@ -1,17 +1,19 @@
 import {
-  Action,
-  Criterion,
   EntityData,
   EntitySignature,
+  EntityStore,
+  EntityUtil,
   FIXTURE,
   PolicyData,
   PolicySignature,
-  Then
+  PolicyStore
 } from '@narval/policy-engine-shared'
+import { Jwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
+import { getEntityStore, getPolicyStore, signData } from '../../../../../shared/testing/data-store.testing'
 import { withTempJsonFile } from '../../../../../shared/testing/with-temp-json-file.testing'
 import { FileSystemDataStoreRepository } from '../../../../persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from '../../../../persistence/repository/http-data-store.repository'
@@ -19,42 +21,18 @@ import { DataStoreException } from '../../../exception/data-store.exception'
 import { DataStoreRepositoryFactory } from '../../../factory/data-store-repository.factory'
 import { DataStoreService } from '../../data-store.service'
 
+const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+
 describe(DataStoreService.name, () => {
   let service: DataStoreService
+  let jwk: Jwk
+  let entityStore: EntityStore
+  let policyStore: PolicyStore
+  let entityData: EntityData
+  let policyData: PolicyData
+  let signatureStore: EntitySignature & PolicySignature
 
   const remoteDataStoreUrl = 'http://9.9.9.9:9000'
-
-  const entityData: EntityData = {
-    entity: {
-      data: FIXTURE.ENTITIES
-    }
-  }
-
-  const policyData: PolicyData = {
-    policy: {
-      data: [
-        {
-          then: Then.PERMIT,
-          name: 'test-policy',
-          when: [
-            {
-              criterion: Criterion.CHECK_ACTION,
-              args: [Action.SIGN_TRANSACTION]
-            }
-          ]
-        }
-      ]
-    }
-  }
-
-  const signatureStore: EntitySignature & PolicySignature = {
-    entity: {
-      signature: 'test-entity-signature'
-    },
-    policy: {
-      signature: 'test-policy-signature'
-    }
-  }
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -63,6 +41,32 @@ describe(DataStoreService.name, () => {
     }).compile()
 
     service = module.get<DataStoreService>(DataStoreService)
+
+    jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+
+    entityStore = await getEntityStore(FIXTURE.ENTITIES, jwk)
+    policyStore = await getPolicyStore(FIXTURE.POLICIES, jwk)
+
+    entityData = {
+      entity: {
+        data: entityStore.data
+      }
+    }
+
+    policyData = {
+      policy: {
+        data: policyStore.data
+      }
+    }
+
+    signatureStore = {
+      entity: {
+        signature: entityStore.signature
+      },
+      policy: {
+        signature: policyStore.signature
+      }
+    }
   })
 
   describe('fetch', () => {
@@ -76,12 +80,12 @@ describe(DataStoreService.name, () => {
           entity: {
             dataUrl: `${remoteDataStoreUrl}/entity`,
             signatureUrl: url,
-            keys: []
+            keys: [jwk]
           },
           policy: {
             dataUrl: `${remoteDataStoreUrl}/policy`,
             signatureUrl: url,
-            keys: []
+            keys: [jwk]
           }
         }
 
@@ -99,10 +103,10 @@ describe(DataStoreService.name, () => {
     })
 
     const testThrowDataStoreException = async (params: {
-      store: unknown
+      stores: unknown
       expect: { message: string; status: HttpStatus }
     }): Promise<void> => {
-      await withTempJsonFile(JSON.stringify(params.store), async (path) => {
+      await withTempJsonFile(JSON.stringify(params.stores), async (path) => {
         const url = `file://${path}`
 
         expect.assertions(3)
@@ -112,12 +116,12 @@ describe(DataStoreService.name, () => {
             entity: {
               dataUrl: url,
               signatureUrl: url,
-              keys: []
+              keys: [jwk]
             },
             policy: {
               dataUrl: url,
               signatureUrl: url,
-              keys: []
+              keys: [jwk]
             }
           })
         } catch (error) {
@@ -130,15 +134,12 @@ describe(DataStoreService.name, () => {
 
     it('throws DataStoreException when entity schema is invalid', async () => {
       await testThrowDataStoreException({
-        store: {
+        stores: {
           entity: {
             data: ['invalid', 'schema'],
-            signature: 'test-signature'
+            signature: entityStore.signature
           },
-          policy: {
-            data: policyData.policy.data,
-            signature: 'test-signature'
-          }
+          policy: policyStore
         },
         expect: {
           message: 'Invalid store schema',
@@ -156,28 +157,26 @@ describe(DataStoreService.name, () => {
           id: '1'
         }
       ]
+      const entities = {
+        userGroups: duplicateUserGroups,
+        addressBook: [],
+        credentials: [],
+        tokens: [],
+        userGroupMembers: [],
+        userWallets: [],
+        users: [],
+        walletGroupMembers: [],
+        walletGroups: [],
+        wallets: []
+      }
 
       await testThrowDataStoreException({
-        store: {
+        stores: {
           entity: {
-            data: {
-              userGroups: duplicateUserGroups,
-              addressBook: [],
-              credentials: [],
-              tokens: [],
-              userGroupMembers: [],
-              userWallets: [],
-              users: [],
-              walletGroupMembers: [],
-              walletGroups: [],
-              wallets: []
-            },
-            signature: 'test-signature'
+            data: entities,
+            signature: await signData(entities, jwk)
           },
-          policy: {
-            data: policyData.policy.data,
-            signature: 'test-signature'
-          }
+          policy: policyStore
         },
         expect: {
           message: 'Invalid entity domain invariant',
@@ -188,21 +187,122 @@ describe(DataStoreService.name, () => {
 
     it('throws DataStoreException when policy schema is invalid', async () => {
       await testThrowDataStoreException({
-        store: {
+        stores: {
           policy: {
             data: { invalid: 'schema' },
-            signature: 'test-signature'
+            signature: policyStore.signature
           },
-          entity: {
-            data: FIXTURE.ENTITIES,
-            signature: 'test-signature'
-          }
+          entity: entityStore
         },
         expect: {
           message: 'Invalid store schema',
           status: HttpStatus.UNPROCESSABLE_ENTITY
         }
       })
+    })
+
+    it('throws DataStoreException when entity signature is invalid', async () => {
+      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, jwk)
+      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), jwk)
+
+      await testThrowDataStoreException({
+        stores: {
+          entity: {
+            data: entityStoreOne.data,
+            signature: entityStoreTwo.signature
+          },
+          policy: policyStore
+        },
+        expect: {
+          message: 'Data signature mismatch',
+          status: HttpStatus.UNAUTHORIZED
+        }
+      })
+    })
+
+    it('throws DataStoreException when policy signature is invalid', async () => {
+      const policyStoreOne = await getPolicyStore(FIXTURE.POLICIES, jwk)
+      const policyStoreTwo = await getPolicyStore([], jwk)
+
+      await testThrowDataStoreException({
+        stores: {
+          policy: {
+            data: policyStoreOne.data,
+            signature: policyStoreTwo.signature
+          },
+          entity: entityStore
+        },
+        expect: {
+          message: 'Data signature mismatch',
+          status: HttpStatus.UNAUTHORIZED
+        }
+      })
+    })
+  })
+
+  describe('verifySignature', () => {
+    // WARN: The Jest error equality doesn't check custom properties of errors
+    // like `suggestedHttpStatusCode` from ApplicationException.
+
+    it('returns error when jwk is not found', async () => {
+      const verification = await service.verifySignature({
+        data: entityStore.data,
+        signature: entityStore.signature,
+        keys: []
+      })
+
+      expect(verification).toEqual({
+        success: false,
+        error: new DataStoreException({
+          message: 'JWK not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND
+        })
+      })
+    })
+
+    it('returns error when signature mismatch', async () => {
+      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, jwk)
+      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), jwk)
+
+      const verification = await service.verifySignature({
+        data: entityStoreOne.data,
+        signature: entityStoreTwo.signature,
+        keys: [jwk]
+      })
+
+      expect(verification).toEqual({
+        success: false,
+        error: new DataStoreException({
+          message: 'Data signature mismatch',
+          suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+        })
+      })
+    })
+
+    it('returns error when jwt verification fails', async () => {
+      const verification = await service.verifySignature({
+        data: entityStore.data,
+        signature: 'invalid-signature',
+        keys: [jwk]
+      })
+
+      expect(verification).toEqual({
+        success: false,
+        error: new DataStoreException({
+          message: 'Invalid signature',
+          suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+        })
+      })
+    })
+
+    it('returns success when signature is valid', async () => {
+      const verification = await service.verifySignature({
+        data: entityStore.data,
+        signature: entityStore.signature,
+        keys: [jwk]
+      })
+
+      expect(verification).toEqual({ success: true })
     })
   })
 })

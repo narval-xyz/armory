@@ -127,3 +127,16 @@ export const validate = (entities: Entities, options?: ValidationOption): Valida
     success: true
   }
 }
+
+export const empty = (): Entities => ({
+  addressBook: [],
+  credentials: [],
+  tokens: [],
+  userGroupMembers: [],
+  userGroups: [],
+  userWallets: [],
+  users: [],
+  walletGroupMembers: [],
+  walletGroups: [],
+  wallets: []
+})
