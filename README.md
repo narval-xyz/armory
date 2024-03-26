@@ -62,7 +62,7 @@ npx nx g @nrwl/workspace:lib
 # Generate an NestJS library.
 npx nx g @nx/nest:library
 # Generate an NestJS application.
-npx nx g @nx/nest:application
+npx nx g @nx/nest:application --tags type:application
 ```
 
 For more information about code generation, please refer to the [NX

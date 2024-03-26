@@ -43,23 +43,23 @@ jobs:
 
       - name: Code format
         run: |
-          npx nx affected --target format:check lint:check
+          npx nx affected --target format:check lint:check --exclude tag:type:application
 
       - name: Test types
         run: |
-          npx nx affected --target test:type
+          npx nx affected --target test:type --exclude tag:type:application
 
       - name: Test unit
         run: |
-          npx nx affected --target test:unit
+          npx nx affected --target test:unit --exclude tag:type:application
 
       - name: Test integration
         run: |
-          npx nx affected --target test:integration
+          npx nx affected --target test:integration --exclude tag:type:application
 
       - name: Test end-to-end
         run: |
-          npx nx affected --target test:e2e
+          npx nx affected --target test:e2e --exclude tag:type:application
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
