@@ -18,7 +18,7 @@ import { verifyJwt } from '../../verify'
 import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
 
 describe('sign', () => {
-  const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+  const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
   const payload: Payload = {
     requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
@@ -52,8 +52,8 @@ describe('sign', () => {
   })
 
   it('should build & sign a EIP191 JWT', async () => {
-    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
-    const signer = buildSignerEip191(ENGINE_PRIVATE_KEY)
+    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+    const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
 
     const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
 
@@ -78,9 +78,9 @@ describe('sign', () => {
   })
 
   it('should sign ES256k correctly', async () => {
-    const pubkey = secp256k1.getPublicKey(Buffer.from(ENGINE_PRIVATE_KEY, 'hex'), false)
+    const pubkey = secp256k1.getPublicKey(Buffer.from(UNSAFE_PRIVATE_KEY, 'hex'), false)
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
-    const signer = buildSignerEs256k(ENGINE_PRIVATE_KEY)
+    const signer = buildSignerEs256k(UNSAFE_PRIVATE_KEY)
     const signature = await signer(message)
     const msgHash = sha256Hash(message)
 
@@ -92,7 +92,7 @@ describe('sign', () => {
 
   it('should sign EIP191 correctly', async () => {
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
-    const signer = buildSignerEip191(ENGINE_PRIVATE_KEY)
+    const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
     const signature = await signer(message)
 
     expect(signature).toBe('afu_-8eYXRpHAt_nTVRksRmiwVZpq7iC2rBVhGQT5YcJlViKV9wD3OIlRYAxa7JkNd1Yqzf_x2ohLzqGjmlb2hs')
@@ -101,12 +101,12 @@ describe('sign', () => {
   it('should sign EIP191 the same as viem', async () => {
     // Just double-check that we're building a signature & base64url encoding the same thing we'd get from Viem.
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
-    const signer = buildSignerEip191(ENGINE_PRIVATE_KEY)
+    const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
     const signature = await signer(message)
 
     const viemSig = await signMessage({
       message,
-      privateKey: `0x${ENGINE_PRIVATE_KEY}`
+      privateKey: `0x${UNSAFE_PRIVATE_KEY}`
     })
 
     const sigHex = base64UrlToHex(signature)
@@ -149,11 +149,11 @@ describe('sign', () => {
 
   // This is testing that we can turn a private key into a JWK, and the way we know it's a "correct" JWK is by using the `createPublicKey` function from node's crypto module. If it throws an error, that means it's not a valid JWK
   it('should make keyobject', async () => {
-    const publicKey = secp256k1.getPublicKey(ENGINE_PRIVATE_KEY, false)
-    const viemPubKey = privateKeyToAccount(`0x${ENGINE_PRIVATE_KEY}`).publicKey
+    const publicKey = secp256k1.getPublicKey(UNSAFE_PRIVATE_KEY, false)
+    const viemPubKey = privateKeyToAccount(`0x${UNSAFE_PRIVATE_KEY}`).publicKey
     expect(toHex(publicKey)).toBe(viemPubKey) // Confirm that our key is in fact the same as what viem would give.
 
-    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
 
     const k = await createPublicKey({
       format: 'jwk',
@@ -164,13 +164,13 @@ describe('sign', () => {
   })
 
   it('should convert to and from jwk', async () => {
-    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const pk = secp256k1PrivateKeyToHex(jwk)
-    expect(pk).toBe(`0x${ENGINE_PRIVATE_KEY}`)
+    expect(pk).toBe(`0x${UNSAFE_PRIVATE_KEY}`)
   })
 
   it('should convert to and from public jwk', async () => {
-    const publicKey = secp256k1.getPublicKey(ENGINE_PRIVATE_KEY, false)
+    const publicKey = secp256k1.getPublicKey(UNSAFE_PRIVATE_KEY, false)
     const jwk = secp256k1PublicKeyToJwk(toHex(publicKey))
     const pk = secp256k1PublicKeyToHex(jwk)
     expect(pk).toBe(toHex(publicKey))

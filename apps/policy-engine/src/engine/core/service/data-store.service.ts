@@ -1,14 +1,18 @@
 import {
   DataStoreConfiguration,
+  Entities,
   EntityStore,
   EntityUtil,
+  Policy,
   PolicyStore,
   entityDataSchema,
   entitySignatureSchema,
   policyDataSchema,
   policySignatureSchema
 } from '@narval/policy-engine-shared'
+import { Jwk, decode, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { JwtError } from 'packages/signature/src/lib/error'
 import { ZodObject, z } from 'zod'
 import { DataStoreException } from '../exception/data-store.exception'
 import { DataStoreRepositoryFactory } from '../factory/data-store-repository.factory'
@@ -41,10 +45,20 @@ export class DataStoreService {
     const validation = EntityUtil.validate(entityData.entity.data)
 
     if (validation.success) {
-      return {
+      const signatureVerification = await this.verifySignature({
         data: entityData.entity.data,
-        signature: entitySignature.entity.signature
+        signature: entitySignature.entity.signature,
+        keys: store.keys
+      })
+
+      if (signatureVerification.success) {
+        return {
+          data: entityData.entity.data,
+          signature: entitySignature.entity.signature
+        }
       }
+
+      throw signatureVerification.error
     }
 
     throw new DataStoreException({
@@ -52,7 +66,7 @@ export class DataStoreService {
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: {
         url: store.dataUrl,
-        errors: validation.issues
+        errors: validation.success ? {} : validation.issues
       }
     })
   }
@@ -63,10 +77,20 @@ export class DataStoreService {
       this.fetchByUrl(store.signatureUrl, policySignatureSchema)
     ])
 
-    return {
+    const signatureVerification = await this.verifySignature({
       data: policyData.policy.data,
-      signature: policySignature.policy.signature
+      signature: policySignature.policy.signature,
+      keys: store.keys
+    })
+
+    if (signatureVerification.success) {
+      return {
+        data: policyData.policy.data,
+        signature: policySignature.policy.signature
+      }
     }
+
+    throw signatureVerification.error
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,5 +118,65 @@ export class DataStoreService {
         }))
       }
     })
+  }
+
+  async verifySignature(params: {
+    data: Entities | Policy[]
+    signature: string
+    keys: Jwk[]
+  }): Promise<{ success: true } | { success: false; error: DataStoreException }> {
+    try {
+      const jwt = decode(params.signature)
+      const jwk = params.keys.find(({ kid }) => kid === jwt.header.kid)
+
+      if (!jwk) {
+        return {
+          success: false,
+          error: new DataStoreException({
+            message: 'JWK not found',
+            suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+            context: {
+              kid: jwt.header.kid
+            }
+          })
+        }
+      }
+
+      const verification = await verifyJwt(params.signature, jwk)
+
+      if (verification.payload.requestHash !== hash(params.data)) {
+        return {
+          success: false,
+          error: new DataStoreException({
+            message: 'Data signature mismatch',
+            suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+          })
+        }
+      }
+    } catch (error) {
+      if (error instanceof JwtError) {
+        return {
+          success: false,
+          error: new DataStoreException({
+            message: 'Invalid signature',
+            suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED,
+            origin: error
+          })
+        }
+      }
+
+      return {
+        success: false,
+        error: new DataStoreException({
+          message: 'Unknown error',
+          suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          origin: error
+        })
+      }
+    }
+
+    return {
+      success: true
+    }
   }
 }
