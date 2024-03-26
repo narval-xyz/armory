@@ -31,6 +31,14 @@ jobs:
         run: |
           make install/ci
 
+      - name: Set base and head SHAs for nx affected
+        uses: nrwl/nx-set-shas@v3
+
+      # Needed for nx affected to work when CI is running on a PR.
+      - name: Track git main branch
+        run: |
+          git branch --track main origin/main
+
       #       - name: Code format
       #         shell: bash
       #         run: |
