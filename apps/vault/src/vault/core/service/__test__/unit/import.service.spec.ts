@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Wallet } from '../../../../../shared/type/domain.type'
+import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
 
@@ -24,6 +25,10 @@ describe('ImportService', () => {
               privateKey: PRIVATE_KEY
             })
           }
+        },
+        {
+          provide: ImportRepository,
+          useValue: {}
         }
       ]
     }).compile()
