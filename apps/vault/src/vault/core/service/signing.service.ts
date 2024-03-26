@@ -1,4 +1,4 @@
-import { Action, Hex, Request, SignTransactionAction } from '@narval/policy-engine-shared'
+import { Action, Hex, Request, SignMessageAction, SignTransactionAction } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import {
   TransactionRequest,
@@ -18,9 +18,11 @@ import { WalletRepository } from '../../persistence/repository/wallet.repository
 export class SigningService {
   constructor(private walletRepository: WalletRepository) {}
 
-  async sign(tenantId: string, request: Request): Promise<string> {
+  async sign(tenantId: string, request: Request): Promise<Hex> {
     if (request.action === Action.SIGN_TRANSACTION) {
       return this.signTransaction(tenantId, request)
+    } else if (request.action === Action.SIGN_MESSAGE) {
+      return this.signMessage(tenantId, request)
     }
 
     throw new Error('Action not supported')
@@ -76,6 +78,29 @@ export class SigningService {
     // const hash = await c2.sendRawTransaction({ serializedTransaction: signature })
     // console.log('sent transaction', hash)
 
+    return signature
+  }
+
+  async signMessage(tenantId: string, action: SignMessageAction): Promise<Hex> {
+    const { message, resourceId } = action
+    const wallet = await this.walletRepository.findById(tenantId, resourceId)
+    if (!wallet) {
+      throw new ApplicationException({
+        message: 'Wallet not found',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+        context: { clientId: tenantId, resourceId }
+      })
+    }
+
+    const account = privateKeyToAccount(wallet.privateKey)
+
+    const client = createWalletClient({
+      account,
+      chain: chains.mainnet,
+      transport: http('') // clear the RPC so we don't call any chain stuff here.
+    })
+
+    const signature = await client.signMessage({ message })
     return signature
   }
 }
