@@ -20,7 +20,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -39,12 +41,10 @@ jobs:
         run: |
           git branch --track main origin/main
 
-      #       - name: Code format
-      #         shell: bash
-      #         run: |
-      #           make signature/format/check
-      #           make signature/lint/check
-      #
+      - name: Code format
+        run: |
+          npx nx affected --target format:check lint:check
+
       #       - name: Test types
       #         shell: bash
       #         run: |
