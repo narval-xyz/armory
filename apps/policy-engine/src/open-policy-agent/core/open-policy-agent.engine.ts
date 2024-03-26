@@ -5,6 +5,7 @@ import {
   Decision,
   Engine,
   Entities,
+  EntityUtil,
   EvaluationRequest,
   EvaluationResponse,
   JwtString,
@@ -61,18 +62,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   static empty(params: { resourcePath: string; privateKey: Hex }): OpenPolicyAgentEngine {
     return new OpenPolicyAgentEngine({
-      entities: {
-        addressBook: [],
-        credentials: [],
-        tokens: [],
-        userGroupMembers: [],
-        userGroups: [],
-        userWallets: [],
-        users: [],
-        walletGroupMembers: [],
-        walletGroups: [],
-        wallets: []
-      },
+      entities: EntityUtil.empty(),
       policies: [],
       resourcePath: params.resourcePath,
       privateKey: params.privateKey
