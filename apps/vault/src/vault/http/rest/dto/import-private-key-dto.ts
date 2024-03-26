@@ -1,4 +1,5 @@
-import { Hex, IsHexString } from '@narval/policy-engine-shared'
+import { IsHexString } from '@narval/nestjs-shared'
+import { Hex } from '@narval/policy-engine-shared'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsOptional, IsString } from 'class-validator'
 
