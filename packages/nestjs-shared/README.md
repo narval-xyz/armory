@@ -1,7 +1,20 @@
-# nestjs-shared
+# NestJS Shared
 
-This library was generated with [Nx](https://nx.dev).
+This library contains the shared nestjs utilities such as validators, DTOs and decorators.
 
-## Running unit tests
+## Testing
 
-Run `nx test nestjs-shared` to execute the unit tests via [Jest](https://jestjs.io).
+```bash
+ make nestjs-shared/test/unit
+ make nestjs-shared/test/unit/watch
+```
+
+## Formatting
+
+```bash
+make nestjs-shared/format
+make nestjs-shared/lint
+
+make nestjs-shared/format/check
+make nestjs-shared/lint/check
+```
