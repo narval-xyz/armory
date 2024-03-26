@@ -1,6 +1,7 @@
 'use client'
 
 import Editor from '@monaco-editor/react'
+import { EntityUtil, entityDataSchema, policyDataSchema } from '@narval/policy-engine-shared'
 import { Jwk, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
 import { getAccount, signMessage } from '@wagmi/core'
 import axios from 'axios'
@@ -36,6 +37,23 @@ const EditorComponent = () => {
     if (!data) return
 
     const { entity, policy } = JSON.parse(data)
+
+    const validation = EntityUtil.validate(entity)
+
+    if (!validation.success) {
+      console.log(validation.issues)
+    }
+
+    const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entity } })
+    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policy } })
+
+    if (!entityValidationResult.success) {
+      console.log('Invalid entity', entityValidationResult.error.errors)
+    }
+
+    if (!policyValidationResult.success) {
+      console.log('Invalid policy', policyValidationResult.error.errors)
+    }
 
     const jwtSigner = async (msg: string) => {
       const jwtSig = await signMessage(config, { message: msg })
