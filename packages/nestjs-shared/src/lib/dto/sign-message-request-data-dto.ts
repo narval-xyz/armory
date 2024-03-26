@@ -1,6 +1,6 @@
+import { Action } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDefined, IsIn, IsString } from 'class-validator'
-import { Action } from '../type/action.type'
 import { BaseActionDto } from './'
 
 export class SignMessageRequestDataDto extends BaseActionDto {

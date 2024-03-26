@@ -1,16 +1,16 @@
+import { isAssetId } from '@narval/policy-engine-shared'
 import { ValidationOptions, registerDecorator } from 'class-validator'
-import { isHexString } from '../util/typeguards'
 
-export function IsHexString(validationOptions?: ValidationOptions) {
+export function IsAssetId(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isHexString',
+      name: 'isAssetId',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
         validate(value: unknown) {
-          return typeof value === 'string' && isHexString(value)
+          return typeof value === 'string' && isAssetId(value)
         }
       }
     })

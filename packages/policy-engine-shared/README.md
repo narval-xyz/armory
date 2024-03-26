@@ -1,32 +1,32 @@
-# AuthZ Shared
+# Policy Engine Shared
 
 This library contains the shared kernel like types and utility functions of the
-AuthZ application.
+Policy Engine application.
 
 ## Testing
 
 ```bash
- make authz-shared/test/unit
- make authz-shared/test/unit/watch
+ make policy-engine-shared/test/unit
+ make policy-engine-shared/test/unit/watch
 ```
 
 ## Formatting
 
 ```bash
-make authz-shared/format
-make authz-shared/lint
+make policy-engine-shared/format
+make policy-engine-shared/lint
 
-make authz-shared/format/check
-make authz-shared/lint/check
+make policy-engine-shared/format/check
+make policy-engine-shared/lint/check
 ```
 
 ## Account & Asset ID API (CAIP-10/19)
 
 You can find a CAIP-10/19 implementation to what concerns Narval domain at
-[caip.util.ts](packages/authz-shared/src/lib/util/caip.util.ts).
+[caip.util.ts](packages/policy-engine-shared/src/lib/util/caip.util.ts).
 
 > For more complete examples, please check
-> [caip.util.spec.ts](packages/authz-shared/src/lib/util/__test__/unit/caip.util.spec.ts).
+> [caip.util.spec.ts](packages/policy-engine-shared/src/lib/util/__test__/unit/caip.util.spec.ts).
 
 API for [CAIP-10 Account ID
 Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md).

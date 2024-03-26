@@ -1,4 +1,5 @@
-import { Address, Hex, IsHexString } from '@narval/policy-engine-shared'
+import { IsHexString } from '@narval/nestjs-shared'
+import { Address, Hex } from '@narval/policy-engine-shared'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import {
