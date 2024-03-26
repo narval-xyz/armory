@@ -45,28 +45,29 @@ jobs:
         run: |
           npx nx affected --target format:check lint:check
 
-      #       - name: Test types
-      #         shell: bash
-      #         run: |
-      #           make signature/test/type
-      #
-      #       - name: Test upstream application types
-      #         shell: bash
-      #         run: |
-      #           make policy-engine/test/type
-      #
-      #       - name: Test unit
-      #         shell: bash
-      #         run: |
-      #           make signature/test/unit
-      #
-      #       - name: Send Slack notification on failure
-      #         if: failure() && github.ref == 'refs/heads/main'
-      #         uses: 8398a7/action-slack@v3
-      #         with:
-      #           username: GitHub
-      #           author_name: '@narval/signature CI failed'
-      #           status: ${{ job.status }}
-      #           fields: message,commit,author
-      #         env:
-      #           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Test types
+        run: |
+          npx nx affected --target test:type
+
+      - name: Test unit
+        run: |
+          npx nx affected --target test:unit
+
+      - name: Test integration
+        run: |
+          npx nx affected --target test:integration
+
+      - name: Test end-to-end
+        run: |
+          npx nx affected --target test:e2e
+
+      - name: Send Slack notification on failure
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: '@narval/signature CI failed'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
