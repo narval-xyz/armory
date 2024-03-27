@@ -1,5 +1,7 @@
-import { Hex } from 'viem'
-import { Address, JwtString, TransactionRequest } from './domain.type'
+import { z } from 'zod'
+import { addressSchema } from '../schema/address.schema'
+import { hexSchema } from '../schema/hex.schema'
+import { Address, JwtString } from './domain.type'
 import {
   AccountClassification,
   AccountType,
@@ -67,26 +69,75 @@ export type BaseAdminRequest = {
   approvals: JwtString[]
 }
 
-export type SignTransactionAction = BaseAction & {
-  action: typeof Action.SIGN_TRANSACTION
-  resourceId: string
-  transactionRequest: TransactionRequest
-}
+export const AccessList = z.array(
+  z.object({
+    address: addressSchema,
+    storageKeys: z.array(hexSchema)
+  })
+)
+export type AccessList = z.infer<typeof AccessList>
+
+export const ActionSchema = z.nativeEnum(Action)
+
+export const BaseActionSchema = z.object({
+  action: ActionSchema,
+  nonce: z.string()
+})
+export type BaseActionSchema = z.infer<typeof BaseActionSchema>
+
+export const TransactionRequest = z.object({
+  chainId: z.number(),
+  from: addressSchema,
+  nonce: z.number().optional(),
+  accessList: AccessList.optional(),
+  data: hexSchema.optional(),
+  gas: z.coerce.bigint().optional(),
+  maxFeePerGas: z.coerce.bigint().optional(),
+  maxPriorityFeePerGas: z.coerce.bigint().optional(),
+  to: addressSchema.nullable().optional(),
+  type: z.literal('2').optional(),
+  value: hexSchema.optional()
+})
+export type TransactionRequest = z.infer<typeof TransactionRequest>
+
+export const SignTransactionAction = z.intersection(
+  BaseActionSchema,
+  z.object({
+    action: z.literal(Action.SIGN_TRANSACTION),
+    resourceId: z.string(),
+    transactionRequest: TransactionRequest
+  })
+)
+export type SignTransactionAction = z.infer<typeof SignTransactionAction>
 
 // Matching viem's SignableMessage options https://viem.sh/docs/actions/wallet/signMessage#message
-export type SignableMessage = string | { raw: Hex }
+export const SignableMessage = z.union([
+  z.string(),
+  z.object({
+    raw: hexSchema
+  })
+])
+export type SignableMessage = z.infer<typeof SignableMessage>
 
-export type SignMessageAction = BaseAction & {
-  action: typeof Action.SIGN_MESSAGE
-  resourceId: string
-  message: SignableMessage
-}
+export const SignMessageAction = z.intersection(
+  BaseActionSchema,
+  z.object({
+    action: z.literal(Action.SIGN_MESSAGE),
+    resourceId: z.string(),
+    message: SignableMessage
+  })
+)
+export type SignMessageAction = z.infer<typeof SignMessageAction>
 
-export type SignTypedDataAction = BaseAction & {
-  action: typeof Action.SIGN_TYPED_DATA
-  resourceId: string
-  typedData: string
-}
+export const SignTypedDataAction = z.intersection(
+  BaseActionSchema,
+  z.object({
+    action: z.literal(Action.SIGN_TYPED_DATA),
+    resourceId: z.string(),
+    typedData: z.string()
+  })
+)
+export type SignTypedDataAction = z.infer<typeof SignTypedDataAction>
 
 export type CreateOrganizationAction = BaseAction & {
   action: typeof Action.CREATE_ORGANIZATION
