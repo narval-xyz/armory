@@ -36,11 +36,6 @@ jobs:
       - name: Set base and head SHAs for nx affected
         uses: nrwl/nx-set-shas@v3
 
-      # Needed for nx affected to work when CI is running on a PR.
-      - name: Track git main branch
-        run: |
-          git branch --track main origin/main
-
       - name: Code format
         run: |
           npx nx affected --target format:check lint:check --exclude tag:type:application
@@ -66,7 +61,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@narval/signature CI failed'
+          author_name: 'Packages CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
