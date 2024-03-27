@@ -2,7 +2,7 @@ import { Action, Address, Hex } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import { IsDefined, IsEthereumAddress, IsIn, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator'
-import { IsHexString } from '../decorators/is-hex-string.decorator'
+import { IsHexString } from '../decorator/is-hex-string.decorator'
 import { BaseActionDto } from './'
 
 class AccessListDto {
