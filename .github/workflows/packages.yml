@@ -1,10 +1,10 @@
-name: '@narval/signature CI'
+name: Packages CI
 
 on:
   push:
     paths:
-      - packages/signature/**
-      - .github/workflows/signature.yml
+      - packages/**
+      - .github/workflows/packages.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -20,7 +20,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -31,26 +33,33 @@ jobs:
         run: |
           make install/ci
 
-      - name: Code format
-        shell: bash
+      - name: Set base and head SHAs for nx affected
+        uses: nrwl/nx-set-shas@v3
+
+      # Needed for nx affected to work when CI is running on a PR.
+      - name: Track git main branch
         run: |
-          make signature/format/check
-          make signature/lint/check
+          git branch --track main origin/main
+
+      - name: Code format
+        run: |
+          npx nx affected --target format:check lint:check --exclude tag:type:application
 
       - name: Test types
-        shell: bash
         run: |
-          make signature/test/type
-
-      - name: Test upstream application types
-        shell: bash
-        run: |
-          make policy-engine/test/type
+          npx nx affected --target test:type --exclude tag:type:application
 
       - name: Test unit
-        shell: bash
         run: |
-          make signature/test/unit
+          npx nx affected --target test:unit --exclude tag:type:application
+
+      - name: Test integration
+        run: |
+          npx nx affected --target test:integration --exclude tag:type:application
+
+      - name: Test end-to-end
+        run: |
+          npx nx affected --target test:e2e --exclude tag:type:application
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
