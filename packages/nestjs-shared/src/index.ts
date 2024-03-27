@@ -1,2 +1,2 @@
-export * from './lib/decorators'
+export * from './lib/decorator'
 export * from './lib/dto'
