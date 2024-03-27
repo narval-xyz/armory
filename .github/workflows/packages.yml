@@ -61,7 +61,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@narval/signature CI failed'
+          author_name: 'Packages CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
