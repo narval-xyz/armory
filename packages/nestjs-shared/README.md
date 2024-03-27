@@ -1,6 +1,7 @@
 # NestJS Shared
 
-This library contains the shared nestjs utilities such as validators, DTOs and decorators.
+This library contains the shared NestJS utilities such as validators, DTOs and
+decorators.
 
 ## Testing
 
