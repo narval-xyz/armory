@@ -3,6 +3,7 @@ import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
+import { ZodValidationPipe } from 'nestjs-zod'
 import { load } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
@@ -52,8 +53,13 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     TenantService,
     EvaluationService,
     {
+      // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,
       useClass: ValidationPipe
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe
     }
   ],
   exports: [EngineService, ProvisionService, BootstrapService]

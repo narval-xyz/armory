@@ -1,10 +1,10 @@
-name: '@narval/transaction-request-intent CI'
+name: Packages CI
 
 on:
   push:
     paths:
-      - packages/transaction-request-intent/**
-      - .github/workflows/transaction-request-intent.yml
+      - packages/**
+      - .github/workflows/packages.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -20,7 +20,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -31,33 +33,35 @@ jobs:
         run: |
           make install/ci
 
+      - name: Set base and head SHAs for nx affected
+        uses: nrwl/nx-set-shas@v3
+
       - name: Code format
-        shell: bash
         run: |
-          make transaction-request-intent/format/check
-          make transaction-request-intent/lint/check
+          npx nx affected --target format:check lint:check --exclude tag:type:application
 
       - name: Test types
-        shell: bash
         run: |
-          make transaction-request-intent/test/type
-
-      - name: Test upstream application types
-        shell: bash
-        run: |
-          make policy-engine/test/type
+          npx nx affected --target test:type --exclude tag:type:application
 
       - name: Test unit
-        shell: bash
         run: |
-          make transaction-request-intent/test/unit
+          npx nx affected --target test:unit --exclude tag:type:application
+
+      - name: Test integration
+        run: |
+          npx nx affected --target test:integration --exclude tag:type:application
+
+      - name: Test end-to-end
+        run: |
+          npx nx affected --target test:e2e --exclude tag:type:application
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@narval/transaction-request-intent CI failed'
+          author_name: 'Packages CI failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
