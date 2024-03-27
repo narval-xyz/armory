@@ -1,3 +1,4 @@
+export * from './lib/schema/action.schema'
 export * from './lib/schema/address.schema'
 export * from './lib/schema/data-store.schema'
 export * from './lib/schema/domain.schema'
