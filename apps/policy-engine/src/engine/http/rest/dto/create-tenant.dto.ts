@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 
 const createTenantSchema = z.object({
-  clientId: z.string().optional().describe('foo'),
+  clientId: z.string().optional(),
   entityDataStore: dataStoreConfigurationSchema,
   policyDataStore: dataStoreConfigurationSchema
 })
