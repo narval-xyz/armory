@@ -1,9 +1,12 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { DataStoreConfiguration } from '@narval/policy-engine-shared'
+import { secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { generatePrivateKey } from 'viem/accounts'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
 import {
@@ -29,23 +32,14 @@ describe('Tenant', () => {
   let tenantService: TenantService
   let engineService: EngineService
   let configService: ConfigService<Config>
+  let dataStoreConfiguration: DataStoreConfiguration
+  let createTenantPayload: CreateTenantDto
 
   const adminApiKey = 'test-admin-api-key'
 
   const clientId = uuid()
 
   const dataStoreUrl = 'http://127.0.0.1:9999/test-data-store'
-
-  const dataStoreConfiguration = {
-    dataUrl: dataStoreUrl,
-    signatureUrl: dataStoreUrl
-  }
-
-  const createTenantPayload: CreateTenantDto = {
-    clientId,
-    entityDataStore: dataStoreConfiguration,
-    policyDataStore: dataStoreConfiguration
-  }
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -72,6 +66,20 @@ describe('Tenant', () => {
     tenantRepository = module.get<TenantRepository>(TenantRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     configService = module.get<ConfigService<Config>>(ConfigService)
+
+    const jwk = secp256k1PrivateKeyToJwk(generatePrivateKey())
+
+    dataStoreConfiguration = {
+      dataUrl: dataStoreUrl,
+      signatureUrl: dataStoreUrl,
+      keys: [jwk]
+    }
+
+    createTenantPayload = {
+      clientId,
+      entityDataStore: dataStoreConfiguration,
+      policyDataStore: dataStoreConfiguration
+    }
 
     await testPrismaService.truncateAll()
 
@@ -108,14 +116,8 @@ describe('Tenant', () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         dataStore: {
-          policy: {
-            ...dataStoreConfiguration,
-            keys: []
-          },
-          entity: {
-            ...dataStoreConfiguration,
-            keys: []
-          }
+          policy: dataStoreConfiguration,
+          entity: dataStoreConfiguration
         }
       })
       expect(body).toEqual({

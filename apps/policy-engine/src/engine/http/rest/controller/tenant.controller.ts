@@ -20,14 +20,8 @@ export class TenantController {
       clientId: body.clientId || uuid(),
       clientSecret: randomBytes(42).toString('hex'),
       dataStore: {
-        entity: {
-          ...body.entityDataStore,
-          keys: []
-        },
-        policy: {
-          ...body.policyDataStore,
-          keys: []
-        }
+        entity: body.entityDataStore,
+        policy: body.policyDataStore
       },
       createdAt: now,
       updatedAt: now
