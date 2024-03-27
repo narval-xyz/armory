@@ -3,7 +3,7 @@ import './global.css'
 
 export default async function Index() {
   return (
-    <div className="h-screen w-screen p-10">
+    <div className="h-screen w-screen p-20">
       <Home />
     </div>
   )

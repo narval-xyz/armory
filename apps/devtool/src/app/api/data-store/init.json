@@ -5,7 +5,7 @@
       "addressBook": [],
       "credentials": [],
       "tokens": [],
-      "userGroupMembers": [],
+      "userGroupMembers": [{ "userId": "user-id", "groupId": "user-group-id" }],
       "userGroups": [],
       "userWallets": [],
       "users": [],

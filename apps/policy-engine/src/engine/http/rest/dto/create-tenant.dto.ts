@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsDefined, IsString } from 'class-validator'
+import { IsDefined, IsOptional, IsString } from 'class-validator'
 
 class DataStoreConfigurationDto {
   dataUrl: string
@@ -9,6 +9,7 @@ class DataStoreConfigurationDto {
 
 export class CreateTenantDto {
   @IsString()
+  @IsOptional()
   @ApiPropertyOptional()
   clientId?: string
 

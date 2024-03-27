@@ -58,6 +58,9 @@ const withGlobalFilters =
 async function bootstrap() {
   const logger = new Logger('PolicyEngineBootstrap')
   const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
+  application.enableCors({
+    origin: ['http://localhost:4200']
+  })
   const configService = application.get(ConfigService<Config>)
   const port = configService.get('port')
 
