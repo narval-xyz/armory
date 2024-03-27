@@ -30,6 +30,10 @@ describe('evm', () => {
       expect(isAddress('foo')).toEqual(false)
       expect(isAddress(address.toUpperCase())).toEqual(false)
     })
+
+    it('requires 0x prefix', () => {
+      expect(isAddress(address.slice(2))).toEqual(false)
+    })
   })
 
   describe('getAddress', () => {
