@@ -177,11 +177,13 @@ const CodeEditor = () => {
         ...(engineClientId && { clientId: engineClientId }),
         entityDataStore: {
           dataUrl: entityDataStoreUrl,
-          signatureUrl: entitySignatureUrl
+          signatureUrl: entitySignatureUrl,
+          keys: [jwk]
         },
         policyDataStore: {
           dataUrl: policyDataStoreUrl,
-          signatureUrl: policySignatureUrl
+          signatureUrl: policySignatureUrl,
+          keys: [jwk]
         }
       },
       {
