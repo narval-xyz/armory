@@ -1,39 +1,12 @@
 import { ConfigService } from '@narval/config-module'
+import { withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { patchNestJsSwagger } from 'nestjs-zod'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
 import { PolicyEngineModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
-
-/**
- * Adds Swagger documentation to the application.
- *
- * @param app - The INestApplication instance.
- * @returns The modified INestApplication instance.
- */
-const withSwagger = (app: INestApplication): INestApplication => {
-  // IMPORTANT: This modifies the Nest Swagger module to be compatible with
-  // DTOs created by Zod schemas. The patch MUST be done before the
-  // configuration process.
-  patchNestJsSwagger()
-
-  const document = SwaggerModule.createDocument(
-    app,
-    new DocumentBuilder()
-      .setTitle('Policy Engine')
-      .setDescription('The next generation of authorization for web3')
-      .setVersion('1.0')
-      .build()
-  )
-
-  SwaggerModule.setup('docs', app, document)
-
-  return app
-}
 
 /**
  * Adds global pipes to the application.
@@ -74,7 +47,13 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
-      map(withSwagger),
+      map(
+        withSwagger({
+          title: 'Policy Engine',
+          description: 'The next generation of authorization for web3',
+          version: '1.0'
+        })
+      ),
       map(withGlobalPipes),
       map(withGlobalFilters(configService)),
       switchMap((app) => app.listen(port))
