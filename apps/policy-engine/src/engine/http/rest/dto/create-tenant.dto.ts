@@ -1,24 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsDefined, IsString } from 'class-validator'
+import { dataStoreConfigurationSchema } from '@narval/policy-engine-shared'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
 
-class DataStoreConfigurationDto {
-  dataUrl: string
-  signatureUrl: string
-}
+const createTenantSchema = z.object({
+  clientId: z.string().optional(),
+  entityDataStore: dataStoreConfigurationSchema,
+  policyDataStore: dataStoreConfigurationSchema
+})
 
-export class CreateTenantDto {
-  @IsString()
-  @ApiPropertyOptional()
-  clientId?: string
-
-  @IsDefined()
-  @Type(() => DataStoreConfigurationDto)
-  @ApiProperty()
-  entityDataStore: DataStoreConfigurationDto
-
-  @IsDefined()
-  @Type(() => DataStoreConfigurationDto)
-  @ApiProperty()
-  policyDataStore: DataStoreConfigurationDto
-}
+export class CreateTenantDto extends createZodDto(createTenantSchema) {}
