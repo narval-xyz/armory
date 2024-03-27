@@ -1,8 +1,7 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common'
+import { Controller, Get, Logger, Post } from '@nestjs/common'
 import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
 import { EvaluationService } from './core/service/evaluation.service'
-import { EvaluationRequestDto } from './evaluation-request.dto'
 
 @Controller()
 export class AppController {
@@ -21,21 +20,6 @@ export class AppController {
       message: 'Received ping'
     })
     return 'pong'
-  }
-
-  @Post('/evaluation')
-  async evaluate(@Body() body: EvaluationRequestDto) {
-    this.logger.log({
-      message: 'Received evaluation',
-      body
-    })
-
-    const result = await this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, body)
-
-    this.logger.log({
-      message: 'Evaluation result',
-      body: result
-    })
   }
 
   @Post('/evaluation-demo')
