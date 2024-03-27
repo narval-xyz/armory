@@ -36,11 +36,6 @@ jobs:
       - name: Set base and head SHAs for nx affected
         uses: nrwl/nx-set-shas@v3
 
-      # Needed for nx affected to work when CI is running on a PR.
-      - name: Track git main branch
-        run: |
-          git branch --track main origin/main
-
       - name: Code format
         run: |
           npx nx affected --target format:check lint:check --exclude tag:type:application
