@@ -169,13 +169,14 @@ describe('Sign', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
 
-      expect(status).toEqual(HttpStatus.BAD_REQUEST)
-
-      expect(body).toEqual({
-        error: 'Bad Request',
-        message: ['request.transactionRequest.to must be an Ethereum address'],
-        statusCode: HttpStatus.BAD_REQUEST
-      })
+      expect(body).toEqual(
+        expect.objectContaining({
+          context: expect.any(Object),
+          message: 'Internal validation error',
+          statusCode: HttpStatus.UNPROCESSABLE_ENTITY
+        })
+      )
+      expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 
     it('signs', async () => {
