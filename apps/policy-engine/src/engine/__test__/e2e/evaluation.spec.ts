@@ -103,7 +103,7 @@ describe('Evaluation', () => {
   })
 
   describe('POST /evaluations', () => {
-    it('respnds with forbid', async () => {
+    it('evaluates a forbid', async () => {
       const payload = await generateInboundEvaluationRequest()
 
       const { status, body } = await request(app.getHttpServer())
@@ -119,7 +119,7 @@ describe('Evaluation', () => {
       expect(status).toEqual(HttpStatus.OK)
     })
 
-    it('respnds with permit', async () => {
+    it('evaluates a permit', async () => {
       await tenantService.savePolicyStore(
         tenant.clientId,
         await getPolicyStore(
@@ -160,6 +160,21 @@ describe('Evaluation', () => {
         }
       })
       expect(status).toEqual(HttpStatus.OK)
+    })
+
+    it('responds with forbid when client secret is missing', async () => {
+      const payload = await generateInboundEvaluationRequest()
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/evaluations')
+        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
+        .send(payload)
+
+      expect(body).toEqual({
+        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
+        statusCode: HttpStatus.UNAUTHORIZED
+      })
+      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
     })
   })
 })
