@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module, OnApplicationBootstrap, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
+import { ZodValidationPipe } from 'nestjs-zod'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { VaultModule } from '../vault/vault.module'
@@ -19,8 +20,13 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     TenantRepository,
     TenantService,
     {
+      // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,
       useClass: ValidationPipe
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe
     }
   ],
   exports: [TenantService, TenantRepository]

@@ -2,6 +2,7 @@ import { ConfigService } from '@narval/config-module'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { patchNestJsSwagger } from 'nestjs-zod'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
 import { PolicyEngineModule } from './policy-engine.module'
@@ -15,6 +16,11 @@ import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
  * @returns The modified INestApplication instance.
  */
 const withSwagger = (app: INestApplication): INestApplication => {
+  // IMPORTANT: This modifies the Nest Swagger module to be compatible with
+  // DTOs created by Zod schemas. The patch MUST be done before the
+  // configuration process.
+  patchNestJsSwagger()
+
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
@@ -23,6 +29,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
       .setVersion('1.0')
       .build()
   )
+
   SwaggerModule.setup('docs', app, document)
 
   return app

@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } 
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { patchNestJsSwagger } from 'nestjs-zod'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
 import { ArmoryModule } from './armory.module'
@@ -16,6 +17,11 @@ import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
  * @returns The modified INestApplication instance.
  */
 const withSwagger = (app: INestApplication): INestApplication => {
+  // IMPORTANT: This modifies the Nest Swagger module to be compatible with
+  // DTOs created by Zod schemas. The patch MUST be done before the
+  // configuration process.
+  patchNestJsSwagger()
+
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
@@ -24,6 +30,7 @@ const withSwagger = (app: INestApplication): INestApplication => {
       .setVersion('1.0')
       .build()
   )
+
   SwaggerModule.setup('docs', app, document, {
     customSiteTitle: 'Armory API'
   })

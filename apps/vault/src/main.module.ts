@@ -2,6 +2,7 @@ import { EncryptionModule } from '@narval/encryption-module'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
+import { ZodValidationPipe } from 'nestjs-zod'
 import { load } from './main.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
 import { TenantModule } from './tenant/tenant.module'
@@ -27,8 +28,13 @@ import { VaultModule } from './vault/vault.module'
   ],
   providers: [
     {
+      // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,
       useClass: ValidationPipe
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe
     }
   ]
 })
