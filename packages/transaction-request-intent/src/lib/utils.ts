@@ -12,7 +12,8 @@ import {
   isAddress,
   isString,
   toAccountId,
-  toAssetId
+  toAssetId,
+  type Eip712TypedData
 } from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
@@ -34,7 +35,6 @@ import {
   TransactionKey,
   TransactionRegistry,
   TransactionStatus,
-  TypedData,
   WalletType
 } from './domain'
 import { DecoderError } from './error'
@@ -173,7 +173,7 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
   return registry
 }
 
-export const decodeTypedData = (typedData: TypedData): SignTypedData => ({
+export const decodeTypedData = (typedData: Eip712TypedData): SignTypedData => ({
   type: Intents.SIGN_TYPED_DATA,
   domain: typedData.domain
 })
@@ -188,9 +188,9 @@ export const decodeMessage = (message: MessageInput): SignMessage => {
   }
 }
 
-export const decodePermit = (typedData: TypedData): Permit | null => {
+export const decodePermit = (typedData: Eip712TypedData): Permit | null => {
   const { chainId, verifyingContract } = typedData.domain
-  if (!isPermit(typedData.message)) {
+  if (!isPermit(typedData.message) || !chainId || !verifyingContract) {
     return null
   }
   const { spender, value, deadline, owner } = typedData.message
@@ -213,12 +213,12 @@ export const decodePermit = (typedData: TypedData): Permit | null => {
   }
 }
 
-export const decodePermit2 = (typedData: TypedData): Permit2 | null => {
+export const decodePermit2 = (typedData: Eip712TypedData): Permit2 | null => {
   const { domain, message } = typedData
   if (domain.name !== PERMIT2_DOMAIN.name || domain.verifyingContract !== PERMIT2_DOMAIN.verifyingContract) {
     return null
   }
-  if (!isPermit2(message)) {
+  if (!isPermit2(message) || !domain.chainId || !domain.verifyingContract) {
     return null
   }
   return {
