@@ -176,6 +176,16 @@ export const SignTypedDataAction = z.intersection(
 )
 export type SignTypedDataAction = z.infer<typeof SignTypedDataAction>
 
+export const SignRawAction = z.intersection(
+  BaseActionSchema,
+  z.object({
+    action: z.literal(Action.SIGN_RAW),
+    resourceId: z.string(),
+    rawMessage: hexSchema
+  })
+)
+export type SignRawAction = z.infer<typeof SignRawAction>
+
 export type CreateOrganizationAction = BaseAction & {
   action: typeof Action.CREATE_ORGANIZATION
   organization: {

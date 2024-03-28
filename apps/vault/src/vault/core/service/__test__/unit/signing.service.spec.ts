@@ -1,11 +1,14 @@
 import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
+import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySepc256k1 } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import {
   Hex,
   TransactionSerializable,
+  bytesToHex,
   hexToBigInt,
   parseTransaction,
   serializeTransaction,
+  stringToBytes,
   toHex,
   verifyMessage,
   verifyTypedData
@@ -22,6 +25,7 @@ describe('SigningService', () => {
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   }
+  const privateKey: Jwk = secp256k1PrivateKeyToJwk(wallet.privateKey)
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -208,6 +212,25 @@ describe('SigningService', () => {
       // Assert the result
       expect(isVerified).toEqual(true)
       expect(result).toEqual(expectedSignature)
+    })
+
+    it('signs raw payload', async () => {
+      const stringMessage = 'My ASCII message'
+      const byteMessage = stringToBytes(stringMessage)
+      const hexMessage = bytesToHex(byteMessage)
+
+      const tenantId = 'tenantId'
+      const rawRequest: Request = {
+        action: Action.SIGN_RAW,
+        nonce: 'random-nonce-111',
+        rawMessage: hexMessage,
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      }
+
+      const result = await signingService.sign(tenantId, rawRequest)
+
+      const isVerified = await verifySepc256k1(result, byteMessage, privateKey as Secp256k1PublicKey)
+      expect(isVerified).toEqual(true)
     })
   })
 })

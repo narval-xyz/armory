@@ -3,9 +3,11 @@ import {
   Hex,
   Request,
   SignMessageAction,
+  SignRawAction,
   SignTransactionAction,
   SignTypedDataAction
 } from '@narval/policy-engine-shared'
+import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import {
   TransactionRequest,
@@ -13,7 +15,9 @@ import {
   createWalletClient,
   extractChain,
   hexToBigInt,
+  hexToBytes,
   http,
+  signatureToHex,
   transactionType
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -32,12 +36,14 @@ export class SigningService {
       return this.signMessage(tenantId, request)
     } else if (request.action === Action.SIGN_TYPED_DATA) {
       return this.signTypedData(tenantId, request)
+    } else if (request.action === Action.SIGN_RAW) {
+      return this.signRaw(tenantId, request)
     }
 
     throw new Error('Action not supported')
   }
 
-  async #buildClient(tenantId: string, resourceId: string, chainId?: number) {
+  async #getWallet(tenantId: string, resourceId: string) {
     const wallet = await this.walletRepository.findById(tenantId, resourceId)
     if (!wallet) {
       throw new ApplicationException({
@@ -46,6 +52,12 @@ export class SigningService {
         context: { clientId: tenantId, resourceId }
       })
     }
+
+    return wallet
+  }
+
+  async #buildClient(tenantId: string, resourceId: string, chainId?: number) {
+    const wallet = await this.#getWallet(tenantId, resourceId)
 
     const account = privateKeyToAccount(wallet.privateKey)
     const chain = extractChain<chains.Chain[], number>({
@@ -110,5 +122,17 @@ export class SigningService {
 
     const signature = await client.signTypedData(typedData)
     return signature
+  }
+
+  // Sign a raw message; nothing ETH or chain-specific, simply performs an ecdsa signature on the byte representation of the hex-encoded raw message
+  async signRaw(tenantId: string, action: SignRawAction): Promise<Hex> {
+    const { rawMessage, resourceId } = action
+
+    const wallet = await this.#getWallet(tenantId, resourceId)
+    const message = hexToBytes(rawMessage)
+    const signature = await signSecp256k1(message, wallet.privateKey, true)
+
+    const hexSignature = signatureToHex(signature)
+    return hexSignature
   }
 }
