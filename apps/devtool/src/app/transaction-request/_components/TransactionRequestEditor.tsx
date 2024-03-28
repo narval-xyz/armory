@@ -1,14 +1,56 @@
 'use client'
 
 import { Editor } from '@monaco-editor/react'
+import axios from 'axios'
 import { useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
+import useStore from '../../_hooks/useStore'
+import example from './example.json'
 
 const TransactionRequestEditor = () => {
-  const [data, setData] = useState<string>()
+  const { engineUrl, engineClientId, engineClientSecret } = useStore()
+  const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
+
+  const sendEvaluation = async () => {
+    if (!data) return
+
+    const transactionRequest = JSON.parse(data)
+
+    // const jwk: Jwk = {
+    //   kty: 'EC',
+    //   crv: 'secp256k1',
+    //   alg: 'ES256K',
+    //   kid: '0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037',
+    //   x: 'PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4',
+    //   y: 'CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc',
+    //   d: 'NSlaSDg8LEzCYP8goPXV11X6S6oiolaqt6M6fplDxoM'
+    // }
+
+    // const pk = base64UrlToHex(jwk.d as string)
+    // const signer = buildSignerEip191(pk)
+
+    // const payload = {
+    //   iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
+    //   sub: 'f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a',
+    //   requestHash: hash(transactionRequest.request)
+    // }
+
+    // const authentication = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
+
+    // console.log(authentication)
+
+    const evaluationResult = await axios.post(`${engineUrl}/evaluation`, transactionRequest, {
+      headers: {
+        'x-client-id': engineClientId,
+        'x-client-secret': engineClientSecret
+      }
+    })
+
+    console.log(evaluationResult.data)
+  }
 
   return (
     <div className="flex gap-12">
@@ -24,7 +66,7 @@ const TransactionRequestEditor = () => {
           }}
         />
       </div>
-      <NarButton label="Send" />
+      <NarButton label="Send" onClick={sendEvaluation} />
     </div>
   )
 }

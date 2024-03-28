@@ -1,0 +1,74 @@
+{
+  "entity": {
+    "signature": "",
+    "data": {
+      "addressBook": [],
+      "credentials": [
+        {
+          "id": "0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037",
+          "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "key": {
+            "kty": "EC",
+            "crv": "secp256k1",
+            "alg": "ES256K",
+            "kid": "0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037",
+            "x": "PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4",
+            "y": "CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc"
+          }
+        }
+      ],
+      "tokens": [],
+      "userGroupMembers": [],
+      "userGroups": [],
+      "userWallets": [
+        {
+          "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "walletId": "f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a"
+        }
+      ],
+      "users": [
+        {
+          "id": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "role": "admin"
+        }
+      ],
+      "walletGroupMembers": [],
+      "walletGroups": [],
+      "wallets": [
+        {
+          "id": "f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a",
+          "address": "0x24f0914062f66d487dc082802aac53cd10328d96",
+          "accountType": "eoa"
+        }
+      ]
+    }
+  },
+  "policy": {
+    "signature": "",
+    "data": [
+      {
+        "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+        "name": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
+        "when": [
+          {
+            "criterion": "checkResourceIntegrity",
+            "args": null
+          },
+          {
+            "criterion": "checkPrincipalRole",
+            "args": ["admin"]
+          },
+          {
+            "criterion": "checkAction",
+            "args": ["signTransaction"]
+          },
+          {
+            "criterion": "checkIntentType",
+            "args": ["transferErc721", "transferErc1155"]
+          }
+        ],
+        "then": "permit"
+      }
+    ]
+  }
+}

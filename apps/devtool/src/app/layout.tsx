@@ -3,7 +3,7 @@ import MainLayout from './_components/MainLayout'
 import './global.css'
 
 export const metadata = {
-  title: 'Welcome to Narval Policy DevTool',
+  title: 'Narval Policy DevTool',
   description: 'Narval Policy DevTool'
 }
 
