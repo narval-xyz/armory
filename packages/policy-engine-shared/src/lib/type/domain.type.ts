@@ -165,22 +165,3 @@ export type EvaluationResponse = {
 export type Hex = `0x${string}` // DOMAIN
 
 export type Address = `0x${string}` // DOMAIN
-
-export type AccessList = {
-  address: Address
-  storageKeys: Hex[]
-}[] // DOMAIN
-
-export type TransactionRequest = {
-  chainId: number
-  from: Address
-  nonce?: number
-  accessList?: AccessList
-  data?: Hex
-  gas?: bigint
-  maxFeePerGas?: bigint
-  maxPriorityFeePerGas?: bigint
-  to?: Address | null
-  type?: '2'
-  value?: Hex
-}
