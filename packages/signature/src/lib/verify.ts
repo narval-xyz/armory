@@ -6,7 +6,7 @@ import { JwtError } from './error'
 import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
-import { Alg, EoaPublicKey, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
+import { Alg, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
 import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
 import { validate } from './validate'
 
@@ -46,17 +46,10 @@ const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: Public
   })
 }
 
-const verifySepc256k1 = async (
-  sig: Hex,
-  hash: Uint8Array,
-  jwk: Secp256k1PublicKey | EoaPublicKey
-): Promise<boolean> => {
-  if (isSepc256k1PublicKeyJwk(jwk)) {
-    await verifyEip191WithPublicKey(sig, hash, jwk)
-  } else {
-    await verifyEip191WithRecovery(sig, hash, jwk.addr)
-  }
-  return true
+export const verifySepc256k1 = async (sig: Hex, hash: Uint8Array, jwk: Secp256k1PublicKey): Promise<boolean> => {
+  const pubKey = secp256k1PublicKeyToHex(jwk)
+  const isValid = secp256k1.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
+  return isValid
 }
 
 export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean> => {
@@ -66,7 +59,11 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
   const sig = base64UrlToHex(jwtSig)
 
   if (jwk.alg === Alg.ES256K) {
-    await verifySepc256k1(sig, msg, jwk)
+    if (isSepc256k1PublicKeyJwk(jwk)) {
+      await verifyEip191WithPublicKey(sig, msg, jwk)
+    } else {
+      await verifyEip191WithRecovery(sig, msg, jwk.addr)
+    }
   } else {
     throw new JwtError({
       message: 'Validation error: unsupported algorithm',

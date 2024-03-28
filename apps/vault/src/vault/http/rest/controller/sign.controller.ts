@@ -2,20 +2,21 @@ import { Request } from '@narval/policy-engine-shared'
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { createZodDto } from 'nestjs-zod'
 import {
-  SignMessageActionSchema,
-  SignTransactionActionSchema,
-  SignTypedDataActionSchema
-} from 'packages/policy-engine-shared/src/lib/schema/action.schema'
+  SignMessageAction,
+  SignRawAction,
+  SignTransactionAction,
+  SignTypedDataAction
+} from 'packages/policy-engine-shared/src/lib/type/action.type'
 import { z } from 'zod'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { SigningService } from '../../../core/service/signing.service'
 
-const SignRequestSchema = z.object({
-  request: z.union([SignTransactionActionSchema, SignMessageActionSchema, SignTypedDataActionSchema])
+const SignRequest = z.object({
+  request: z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignRawAction])
 })
 
-class SignRequestDto extends createZodDto(SignRequestSchema) {}
+class SignRequestDto extends createZodDto(SignRequest) {}
 @Controller('/sign')
 @UseGuards(AuthorizationGuard)
 export class SignController {

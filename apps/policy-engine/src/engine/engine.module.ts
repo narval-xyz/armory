@@ -17,6 +17,7 @@ import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
+import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { EngineRepository } from './persistence/repository/engine.repository'
 import { FileSystemDataStoreRepository } from './persistence/repository/file-system-data-store.repository'
@@ -37,7 +38,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       useClass: EncryptionModuleOptionFactory
     })
   ],
-  controllers: [AppController, TenantController],
+  controllers: [AppController, TenantController, EvaluationController],
   providers: [
     AdminApiKeyGuard,
     EngineRepository,

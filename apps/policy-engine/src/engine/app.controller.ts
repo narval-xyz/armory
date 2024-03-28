@@ -1,10 +1,9 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, UseGuards } from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Logger, Post, UseGuards } from '@nestjs/common'
 import { ClientId } from '../shared/decorator/client-id.decorator'
 import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
 import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
 import { EvaluationService } from './core/service/evaluation.service'
-import { EvaluationRequestDto } from './evaluation-request.dto'
 
 @Controller()
 export class AppController {
