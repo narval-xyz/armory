@@ -67,8 +67,8 @@ export class TenantService {
         const stores = await this.dataStoreService.fetch(tenant.dataStore)
 
         await Promise.all([
-          this.tenantRepository.saveEntityStore(clientId, stores.entity),
-          this.tenantRepository.savePolicyStore(clientId, stores.policy)
+          this.saveEntityStore(clientId, stores.entity),
+          this.savePolicyStore(clientId, stores.policy)
         ])
 
         this.logger.log('Tenant data stores synced', { clientId })
@@ -85,6 +85,34 @@ export class TenantService {
 
       return false
     }
+  }
+
+  async saveEntityStore(clientId: string, store: EntityStore): Promise<EntityStore> {
+    const result = await this.tenantRepository.saveEntityStore(clientId, store)
+
+    if (result) {
+      return store
+    }
+
+    throw new ApplicationException({
+      message: 'Fail to save client entity store',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { clientId }
+    })
+  }
+
+  async savePolicyStore(clientId: string, store: PolicyStore): Promise<PolicyStore> {
+    const result = await this.tenantRepository.savePolicyStore(clientId, store)
+
+    if (result) {
+      return store
+    }
+
+    throw new ApplicationException({
+      message: 'Fail to save client policy store',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { clientId }
+    })
   }
 
   async findEntityStore(clientId: string): Promise<EntityStore | null> {
