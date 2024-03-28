@@ -1,7 +1,13 @@
 import { z } from 'zod'
 import { approvalRequirementSchema } from '../schema/domain.schema'
 import { AssetId } from '../util/caip.util'
-import { CreateOrganizationAction, SignMessageAction, SignTransactionAction, SignTypedDataAction } from './action.type'
+import {
+  CreateOrganizationAction,
+  type SignMessageAction,
+  type SignRawAction,
+  type SignTransactionAction,
+  type SignTypedDataAction
+} from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -92,7 +98,12 @@ export type HistoricalTransfer = {
  */
 export type Prices = Record<AssetId, Record<string, number>>
 
-export type Request = SignTransactionAction | SignMessageAction | SignTypedDataAction | CreateOrganizationAction
+export type Request =
+  | SignTransactionAction
+  | SignMessageAction
+  | SignTypedDataAction
+  | SignRawAction
+  | CreateOrganizationAction
 
 /**
  * The feeds represent arbitrary data collected by the Armory and
