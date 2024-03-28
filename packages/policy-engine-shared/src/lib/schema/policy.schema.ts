@@ -345,6 +345,7 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
 ])
 
 export const policySchema = z.object({
+  id: z.string().min(1),
   name: z.string().min(1),
   when: z.array(policyCriterionSchema).min(1),
   then: thenSchema

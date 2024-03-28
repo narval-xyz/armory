@@ -112,7 +112,8 @@ const DataStoreEditor = () => {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: account.address
+      kid: account.address,
+      addr: account.address
     }
 
     const entitySig = await signJwt(entityPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)

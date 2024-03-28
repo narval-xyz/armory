@@ -270,6 +270,7 @@ export const ENTITIES: Entities = {
 
 export const POLICIES: Policy[] = [
   {
+    id: 'test-permit-policy-uid',
     then: Then.PERMIT,
     name: 'Example of permit policy',
     when: [
@@ -329,6 +330,7 @@ export const POLICIES: Policy[] = [
     ]
   },
   {
+    id: 'test-forbid-policy-uid',
     then: Then.FORBID,
     name: 'Example of forbid policy',
     when: [

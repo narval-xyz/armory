@@ -40,6 +40,8 @@ export class AppController {
       message: 'Evaluation result',
       body: result
     })
+
+    return result
   }
 
   @Post('/evaluation-demo')

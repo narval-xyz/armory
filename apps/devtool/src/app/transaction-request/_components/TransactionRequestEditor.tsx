@@ -1,7 +1,7 @@
 'use client'
 
 import { Editor } from '@monaco-editor/react'
-import { Jwk, SigningAlg, base64UrlToHex, buildSignerEip191, hash, signJwt } from '@narval/signature'
+import { Curves, Jwk, KeyTypes, SigningAlg, base64UrlToHex, buildSignerEip191, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import { useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
@@ -21,9 +21,9 @@ const TransactionRequestEditor = () => {
     const transactionRequest = JSON.parse(data)
 
     const jwk: Jwk = {
-      kty: 'EC',
-      crv: 'secp256k1',
-      alg: 'ES256K',
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
       kid: '0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037',
       x: 'PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4',
       y: 'CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc',
