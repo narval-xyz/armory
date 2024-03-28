@@ -4,7 +4,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
-import { PolicyEngineModule } from './policy-engine.module'
+import { PolicyEngineModule, ProvisionModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 
@@ -35,7 +35,17 @@ const withGlobalFilters =
     return app
   }
 
+const provision = async () => {
+  const application = await NestFactory.createApplicationContext(ProvisionModule)
+
+  await application.close()
+}
+
 async function bootstrap() {
+  // NOTE: Refer to the comment in the ProvisionModule to understand why we use
+  // a temporary application for the provision step.
+  await provision()
+
   const logger = new Logger('PolicyEngineBootstrap')
   const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
   const configService = application.get(ConfigService<Config>)
