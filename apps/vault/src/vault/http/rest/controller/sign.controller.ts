@@ -3,6 +3,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { createZodDto } from 'nestjs-zod'
 import {
   SignMessageAction,
+  SignRawAction,
   SignTransactionAction,
   SignTypedDataAction
 } from 'packages/policy-engine-shared/src/lib/type/action.type'
@@ -12,7 +13,7 @@ import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard
 import { SigningService } from '../../../core/service/signing.service'
 
 const SignRequest = z.object({
-  request: z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction])
+  request: z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignRawAction])
 })
 
 class SignRequestDto extends createZodDto(SignRequest) {}

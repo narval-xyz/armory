@@ -1,7 +1,9 @@
+import { signatureToHex, toBytes } from 'viem'
 import { hash } from '../../hash-request'
+import { signSecp256k1 } from '../../sign'
 import { Payload } from '../../types'
 import { secp256k1PrivateKeyToJwk } from '../../utils'
-import { verifyJwt } from '../../verify'
+import { verifyJwt, verifySepc256k1 } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -87,5 +89,15 @@ describe('verify', () => {
 
     expect(res).toBeDefined()
     expect(res.payload.data).toEqual(policyHash)
+  })
+
+  it('verifies raw secp256k1 signatures', async () => {
+    const msg = toBytes('My ASCII message')
+    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+
+    const signature = await signSecp256k1(msg, ENGINE_PRIVATE_KEY, true)
+    const hexSignature = signatureToHex(signature)
+    const isVerified = await verifySepc256k1(hexSignature, msg, jwk)
+    expect(isVerified).toEqual(true)
   })
 })
