@@ -110,8 +110,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
       return this
     } catch (error) {
-      console.log(error)
-
       throw new OpenPolicyAgentException({
         message: 'Fail to load Open Policy Agent engine',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -177,10 +175,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const { key } = credential
-
-    console.log('### credential', credential)
-    const validJwt = await verifyJwt(signature, key)
+    const validJwt = await verifyJwt(signature, credential.key)
 
     if (validJwt.payload.requestHash !== message) {
       throw new OpenPolicyAgentException({
