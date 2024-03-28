@@ -1,26 +1,18 @@
-import { AccountId, Address, AssetType, Hex, TransactionRequest } from '@narval/policy-engine-shared'
+import {
+  AccountId,
+  Address,
+  AssetType,
+  Hex,
+  TransactionRequest,
+  type Eip712TypedData
+} from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
-import { TypedData as TypedDataParams } from 'viem'
 import { Intent } from './intent.types'
 import { MethodsMapping } from './supported-methods'
-
-export type Eip712Domain = {
-  version: string
-  chainId: number
-  name: string
-  verifyingContract: Address
-}
 
 export type Raw = {
   payload: string
   algorithm: Alg
-}
-
-export type TypedData = {
-  types: TypedDataParams
-  primaryType: string
-  domain: Eip712Domain
-  message: Record<string, unknown>
 }
 
 export type MessageInput = {
@@ -35,7 +27,7 @@ export type RawInput = {
 
 export type TypedDataInput = {
   type: InputType.TYPED_DATA
-  typedData: TypedData
+  typedData: Eip712TypedData
 }
 
 export type ContractInformation = {

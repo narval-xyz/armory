@@ -1,4 +1,4 @@
-import { ArgumentsHost, HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, HttpStatus, Logger } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
@@ -46,6 +46,15 @@ describe(ApplicationExceptionFilter.name, () => {
     })
 
   describe('catch', () => {
+    // Silence the logger in these tests so we don't spam our console w/ errors that are "expected"
+    beforeAll(() => {
+      Logger.overrideLogger([])
+    })
+
+    afterAll(() => {
+      Logger.overrideLogger(new Logger())
+    })
+
     describe('when environment is production', () => {
       it('responds with exception status and short message', () => {
         const filter = new ApplicationExceptionFilter(buildConfigServiceMock(Env.PRODUCTION))

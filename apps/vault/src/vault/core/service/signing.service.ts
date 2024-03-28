@@ -1,4 +1,11 @@
-import { Action, Hex, Request, SignMessageAction, SignTransactionAction } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Hex,
+  Request,
+  SignMessageAction,
+  SignTransactionAction,
+  SignTypedDataAction
+} from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import {
   TransactionRequest,
@@ -23,13 +30,14 @@ export class SigningService {
       return this.signTransaction(tenantId, request)
     } else if (request.action === Action.SIGN_MESSAGE) {
       return this.signMessage(tenantId, request)
+    } else if (request.action === Action.SIGN_TYPED_DATA) {
+      return this.signTypedData(tenantId, request)
     }
 
     throw new Error('Action not supported')
   }
 
-  async signTransaction(tenantId: string, action: SignTransactionAction): Promise<Hex> {
-    const { transactionRequest, resourceId } = action
+  async #buildClient(tenantId: string, resourceId: string, chainId?: number) {
     const wallet = await this.walletRepository.findById(tenantId, resourceId)
     if (!wallet) {
       throw new ApplicationException({
@@ -42,7 +50,7 @@ export class SigningService {
     const account = privateKeyToAccount(wallet.privateKey)
     const chain = extractChain<chains.Chain[], number>({
       chains: Object.values(chains),
-      id: transactionRequest.chainId
+      id: chainId || 1
     })
 
     const client = createWalletClient({
@@ -51,8 +59,15 @@ export class SigningService {
       transport: http('') // clear the RPC so we don't call any chain stuff here.
     })
 
+    return client
+  }
+
+  async signTransaction(tenantId: string, action: SignTransactionAction): Promise<Hex> {
+    const { transactionRequest, resourceId } = action
+    const client = await this.#buildClient(tenantId, resourceId, transactionRequest.chainId)
+
     const txRequest: TransactionRequest = {
-      from: checksumAddress(account.address),
+      from: checksumAddress(client.account.address),
       to: transactionRequest.to,
       nonce: transactionRequest.nonce,
       data: transactionRequest.data,
@@ -83,24 +98,17 @@ export class SigningService {
 
   async signMessage(tenantId: string, action: SignMessageAction): Promise<Hex> {
     const { message, resourceId } = action
-    const wallet = await this.walletRepository.findById(tenantId, resourceId)
-    if (!wallet) {
-      throw new ApplicationException({
-        message: 'Wallet not found',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { clientId: tenantId, resourceId }
-      })
-    }
-
-    const account = privateKeyToAccount(wallet.privateKey)
-
-    const client = createWalletClient({
-      account,
-      chain: chains.mainnet,
-      transport: http('') // clear the RPC so we don't call any chain stuff here.
-    })
+    const client = await this.#buildClient(tenantId, resourceId)
 
     const signature = await client.signMessage({ message })
+    return signature
+  }
+
+  async signTypedData(tenantId: string, action: SignTypedDataAction): Promise<Hex> {
+    const { typedData, resourceId } = action
+    const client = await this.#buildClient(tenantId, resourceId)
+
+    const signature = await client.signTypedData(typedData)
     return signature
   }
 }
