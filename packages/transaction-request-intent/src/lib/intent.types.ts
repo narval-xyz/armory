@@ -1,7 +1,7 @@
-import { AccountId, AssetId, Hex } from '@narval/policy-engine-shared'
+import { AccountId, AssetId, Eip712Domain, Hex } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { Address } from 'viem'
-import { Eip712Domain, Intents } from './domain'
+import { Intents } from './domain'
 
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
