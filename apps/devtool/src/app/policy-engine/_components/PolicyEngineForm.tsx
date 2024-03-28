@@ -31,7 +31,8 @@ const PolicyEngineForm = () => {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: account.address
+      kid: account.address,
+      addr: account.address
     }
 
     const { data: tenant } = await axios.post(

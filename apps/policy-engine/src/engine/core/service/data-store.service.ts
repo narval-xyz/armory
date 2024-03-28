@@ -45,20 +45,20 @@ export class DataStoreService {
     const validation = EntityUtil.validate(entityData.entity.data)
 
     if (validation.success) {
-      // const signatureVerification = await this.verifySignature({
-      //   data: entityData.entity.data,
-      //   signature: entitySignature.entity.signature,
-      //   keys: store.keys
-      // })
-
-      // if (signatureVerification.success) {
-      return {
+      const signatureVerification = await this.verifySignature({
         data: entityData.entity.data,
-        signature: entitySignature.entity.signature
-      }
-      // }
+        signature: entitySignature.entity.signature,
+        keys: store.keys
+      })
 
-      // throw signatureVerification.error
+      if (signatureVerification.success) {
+        return {
+          data: entityData.entity.data,
+          signature: entitySignature.entity.signature
+        }
+      }
+
+      throw signatureVerification.error
     }
 
     throw new DataStoreException({
@@ -77,20 +77,20 @@ export class DataStoreService {
       this.fetchByUrl(store.signatureUrl, policySignatureSchema)
     ])
 
-    // const signatureVerification = await this.verifySignature({
-    //   data: policyData.policy.data,
-    //   signature: policySignature.policy.signature,
-    //   keys: store.keys
-    // })
-
-    // if (signatureVerification.success) {
-    return {
+    const signatureVerification = await this.verifySignature({
       data: policyData.policy.data,
-      signature: policySignature.policy.signature
-    }
-    // }
+      signature: policySignature.policy.signature,
+      keys: store.keys
+    })
 
-    // throw signatureVerification.error
+    if (signatureVerification.success) {
+      return {
+        data: policyData.policy.data,
+        signature: policySignature.policy.signature
+      }
+    }
+
+    throw signatureVerification.error
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
