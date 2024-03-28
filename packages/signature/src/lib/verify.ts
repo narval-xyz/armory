@@ -1,12 +1,12 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
-import { decode, decodeJwsd } from './decode'
+import { decode } from './decode'
 import { JwtError } from './error'
 import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
-import { Alg, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
+import { Alg, EoaPublicKey, Hex, Jwk, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
 import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
 import { validate } from './validate'
 
@@ -76,7 +76,11 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
 
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
   const { header, payload, signature } = decode(jwt)
-  const key = validate<PublicKey>(publicKeySchema, jwk, 'Invalid Public Key JWK')
+  const key = validate<PublicKey>({
+    schema: publicKeySchema,
+    jwk,
+    errorMessage: 'Invalid public key'
+  })
 
   if (header.alg === SigningAlg.EIP191) {
     await verifyEip191(jwt, key)
@@ -89,24 +93,6 @@ export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
   // Payload validity checks
   checkTokenExpiration(payload)
   // TODO: Check for any other fields that might be relevant
-
-  return {
-    header,
-    payload,
-    signature
-  }
-}
-
-export async function verifyJwsd(jws: string, jwk: PublicKey): Promise<Jwsd> {
-  const { header, payload, signature } = decodeJwsd(jws)
-
-  if (header.alg === SigningAlg.EIP191) {
-    await verifyEip191(jws, jwk)
-  } else {
-    // TODO: Implement other algs individually without jose
-    const joseJwk = await importJWK(jwk)
-    await jwtVerify(jws, joseJwk)
-  }
 
   return {
     header,

@@ -181,7 +181,11 @@ const generateRsaPrivateKey = async (
   }
   jwk.kid = opts.keyId || rsaKeyToKid(jwk)
 
-  const pk = validate<RsaPrivateKey>(rsaPrivateKeySchema, jwk, 'Invalid RSA Private Key JWK')
+  const pk = validate<RsaPrivateKey>({
+    schema: rsaPrivateKeySchema,
+    jwk,
+    errorMessage: 'Invalid RSA Private Key'
+  })
   return pk
 }
 
