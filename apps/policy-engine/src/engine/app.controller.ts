@@ -1,7 +1,5 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
-import { Controller, Get, HttpCode, HttpStatus, Logger, Post, UseGuards } from '@nestjs/common'
-import { ClientId } from '../shared/decorator/client-id.decorator'
-import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
+import { Controller, Get, Logger, Post } from '@nestjs/common'
 import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
 import { EvaluationService } from './core/service/evaluation.service'
 
@@ -22,25 +20,6 @@ export class AppController {
       message: 'Received ping'
     })
     return 'pong'
-  }
-
-  @Post('/evaluation')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(ClientSecretGuard)
-  async evaluate(@Body() body: EvaluationRequestDto, @ClientId() clientId: string) {
-    this.logger.log({
-      message: 'Received evaluation',
-      body
-    })
-
-    const result = await this.evaluationService.evaluate(clientId, body)
-
-    this.logger.log({
-      message: 'Evaluation result',
-      body: result
-    })
-
-    return result
   }
 
   @Post('/evaluation-demo')

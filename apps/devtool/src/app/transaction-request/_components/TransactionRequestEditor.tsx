@@ -42,7 +42,7 @@ const TransactionRequestEditor = () => {
     const authentication = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
 
     const evaluationResult = await axios.post(
-      `${engineUrl}/evaluation`,
+      `${engineUrl}/evaluations`,
       { ...transactionRequest, authentication },
       {
         headers: {
