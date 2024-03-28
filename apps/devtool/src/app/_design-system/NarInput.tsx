@@ -1,7 +1,7 @@
 import { IconDefinition } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, KeyboardEvent, useState } from 'react'
-import { classNames } from '../lib/utils'
+import { classNames } from '../_lib/utils'
 
 interface NarInputProps {
   id?: string

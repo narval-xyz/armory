@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import MainLayout from './components/MainLayout'
+import MainLayout from './_components/MainLayout'
 import './global.css'
 
 export const metadata = {

@@ -3,9 +3,9 @@
 import { Curves, Jwk, KeyTypes, SigningAlg } from '@narval/signature'
 import axios from 'axios'
 import { useAccount } from 'wagmi'
-import NarButton from '../../design-system/NarButton'
-import NarInput from '../../design-system/NarInput'
-import useStore from '../../hooks/useStore'
+import NarButton from '../../_design-system/NarButton'
+import NarInput from '../../_design-system/NarInput'
+import useStore from '../../_hooks/useStore'
 
 const PolicyEngineForm = () => {
   const account = useAccount()

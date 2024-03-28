@@ -2,7 +2,7 @@ import { faSpinner, faXmark } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as Dialog from '@radix-ui/react-dialog'
 import { FC, ReactNode } from 'react'
-import { classNames } from '../lib/utils'
+import { classNames } from '../_lib/utils'
 import NarButton from './NarButton'
 
 interface NarDialogProps {

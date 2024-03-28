@@ -1,5 +1,5 @@
 import { BaseSyntheticEvent, ForwardedRef, forwardRef, ReactElement, ReactNode } from 'react'
-import { classNames } from '../lib/utils'
+import { classNames } from '../_lib/utils'
 
 interface ButtonProps {
   label?: string

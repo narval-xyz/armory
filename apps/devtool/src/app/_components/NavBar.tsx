@@ -2,10 +2,12 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import NarButton from '../design-system/NarButton'
+import NarButton from '../_design-system/NarButton'
 
 const NavBar = () => {
+  const currentPath = usePathname()
   const account = useAccount()
   const { connectors, connect } = useConnect()
   const { disconnect } = useDisconnect()
@@ -17,10 +19,18 @@ const NavBar = () => {
           <Image src="/narval-wordmark-white.png" width="150" height="50" alt="Narval Logo" priority />
         </Link>
         <div className="flex gap-8 ml-10 text-nv-lg">
-          <Link href="/policy-engine">Policy Engine</Link>
-          <Link href="/data-store">Data Store</Link>
-          <Link href="/transaction-request">Transaction Request</Link>
-          <Link href="/vault">Vault</Link>
+          <Link href="/policy-engine" className={`${currentPath === '/policy-engine' ? 'underline' : ''}`}>
+            Policy Engine
+          </Link>
+          <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
+            Data Store
+          </Link>
+          <Link href="/transaction-request" className={`${currentPath === '/transaction-request' ? 'underline' : ''}`}>
+            Transaction Request
+          </Link>
+          <Link href="/vault" className={`${currentPath === '/vault' ? 'underline' : ''}`}>
+            Vault
+          </Link>
         </div>
       </div>
       <div className="flex flex-row-reverse gap-2 flex-1">

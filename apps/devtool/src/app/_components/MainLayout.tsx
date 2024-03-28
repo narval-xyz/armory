@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { WagmiProvider } from 'wagmi'
-import { config } from '../lib/config'
+import { config } from '../_lib/config'
 import NavBar from './NavBar'
 
 const MainLayout = ({ children }: { children: ReactNode }) => {

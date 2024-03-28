@@ -7,11 +7,11 @@ import { signMessage } from '@wagmi/core'
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
-import NarButton from '../../design-system/NarButton'
-import NarDialog from '../../design-system/NarDialog'
-import NarInput from '../../design-system/NarInput'
-import useStore from '../../hooks/useStore'
-import { config } from '../../lib/config'
+import NarButton from '../../_design-system/NarButton'
+import NarDialog from '../../_design-system/NarDialog'
+import NarInput from '../../_design-system/NarInput'
+import useStore from '../../_hooks/useStore'
+import { config } from '../../_lib/config'
 
 const DataStoreEditor = () => {
   const account = useAccount()

@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS } from '../lib/constants'
+import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS } from '../_lib/constants'
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
