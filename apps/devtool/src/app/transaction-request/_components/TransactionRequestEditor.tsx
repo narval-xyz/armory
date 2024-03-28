@@ -1,6 +1,7 @@
 'use client'
 
 import { Editor } from '@monaco-editor/react'
+import { Jwk, SigningAlg, base64UrlToHex, buildSignerEip191, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import { useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
@@ -19,35 +20,37 @@ const TransactionRequestEditor = () => {
 
     const transactionRequest = JSON.parse(data)
 
-    // const jwk: Jwk = {
-    //   kty: 'EC',
-    //   crv: 'secp256k1',
-    //   alg: 'ES256K',
-    //   kid: '0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037',
-    //   x: 'PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4',
-    //   y: 'CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc',
-    //   d: 'NSlaSDg8LEzCYP8goPXV11X6S6oiolaqt6M6fplDxoM'
-    // }
+    const jwk: Jwk = {
+      kty: 'EC',
+      crv: 'secp256k1',
+      alg: 'ES256K',
+      kid: '0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037',
+      x: 'PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4',
+      y: 'CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc',
+      d: 'NSlaSDg8LEzCYP8goPXV11X6S6oiolaqt6M6fplDxoM'
+    }
 
-    // const pk = base64UrlToHex(jwk.d as string)
-    // const signer = buildSignerEip191(pk)
+    const pk = base64UrlToHex(jwk.d as string)
+    const signer = buildSignerEip191(pk)
 
-    // const payload = {
-    //   iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
-    //   sub: 'f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a',
-    //   requestHash: hash(transactionRequest.request)
-    // }
+    const payload = {
+      iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
+      sub: transactionRequest.request.resourceId,
+      requestHash: hash(transactionRequest.request)
+    }
 
-    // const authentication = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
+    const authentication = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
 
-    // console.log(authentication)
-
-    const evaluationResult = await axios.post(`${engineUrl}/evaluation`, transactionRequest, {
-      headers: {
-        'x-client-id': engineClientId,
-        'x-client-secret': engineClientSecret
+    const evaluationResult = await axios.post(
+      `${engineUrl}/evaluation`,
+      { ...transactionRequest, authentication },
+      {
+        headers: {
+          'x-client-id': engineClientId,
+          'x-client-secret': engineClientSecret
+        }
       }
-    })
+    )
 
     console.log(evaluationResult.data)
   }
