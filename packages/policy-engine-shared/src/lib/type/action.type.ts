@@ -1,6 +1,8 @@
+import { fromHex } from 'viem'
 import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
 import { hexSchema } from '../schema/hex.schema'
+import { isHexString } from '../util/typeguards'
 import { Address, JwtString } from './domain.type'
 import {
   AccountClassification,
@@ -100,6 +102,30 @@ export const TransactionRequest = z.object({
 })
 export type TransactionRequest = z.infer<typeof TransactionRequest>
 
+export const Eip712Domain = z.object({
+  name: z.string().optional(),
+  version: z.string().optional(),
+  chainId: z.number().optional(),
+  verifyingContract: addressSchema.optional(),
+  salt: hexSchema.optional()
+})
+export type Eip712Domain = z.infer<typeof Eip712Domain>
+
+export const Eip712TypedData = z.object({
+  domain: Eip712Domain,
+  types: z.record(
+    z.array(
+      z.object({
+        name: z.string(), //
+        type: z.string() // TODO: make this more specific to the solidity types allowed
+      })
+    )
+  ),
+  primaryType: z.string(),
+  message: z.record(z.unknown())
+})
+export type Eip712TypedData = z.infer<typeof Eip712TypedData>
+
 export const SignTransactionAction = z.intersection(
   BaseActionSchema,
   z.object({
@@ -134,7 +160,18 @@ export const SignTypedDataAction = z.intersection(
   z.object({
     action: z.literal(Action.SIGN_TYPED_DATA),
     resourceId: z.string(),
-    typedData: z.string()
+    // Accept typedData as a JSON object, or a Stringified JSON object, or a hex-encoded stringified json object
+    typedData: z.preprocess((val) => {
+      if (typeof val === 'string') {
+        try {
+          const decoded = isHexString(val) ? fromHex(val, 'string') : val
+          return JSON.parse(decoded)
+        } catch (error) {
+          return val
+        }
+      }
+      return val
+    }, Eip712TypedData)
   })
 )
 export type SignTypedDataAction = z.infer<typeof SignTypedDataAction>

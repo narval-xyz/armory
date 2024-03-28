@@ -1,4 +1,4 @@
-import { Action, Request } from '@narval/policy-engine-shared'
+import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
 import {
   Hex,
@@ -7,7 +7,8 @@ import {
   parseTransaction,
   serializeTransaction,
   toHex,
-  verifyMessage
+  verifyMessage,
+  verifyTypedData
 } from 'viem'
 import { Wallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
@@ -138,6 +139,75 @@ describe('SigningService', () => {
       // Assert the result
       expect(result).toEqual(expectedSignature)
       expect(isVerified).toEqual(true)
+    })
+
+    it('signs EIP712 Typed Data', async () => {
+      const typedData: Eip712TypedData = {
+        domain: {
+          chainId: 137,
+          name: 'Crypto Unicorns Authentication',
+          version: '1'
+        },
+        message: {
+          contents: 'UNICOOOORN :)',
+          wallet: '0xdd4d43575a5eff17ec814da6ea810a0cc39ff23e',
+          nonce: '0e01c9bd-94a0-4ba1-925d-ab02688e65de'
+        },
+        primaryType: 'Validator',
+        types: {
+          EIP712Domain: [
+            {
+              name: 'name',
+              type: 'string'
+            },
+            {
+              name: 'version',
+              type: 'string'
+            },
+            {
+              name: 'chainId',
+              type: 'uint256'
+            }
+          ],
+          Validator: [
+            {
+              name: 'contents',
+              type: 'string'
+            },
+            {
+              name: 'wallet',
+              type: 'address'
+            },
+            {
+              name: 'nonce',
+              type: 'string'
+            }
+          ]
+        }
+      }
+      const tenantId = 'tenantId'
+      const typedDataRequest: Request = {
+        action: Action.SIGN_TYPED_DATA,
+        nonce: 'random-nonce-111',
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+        typedData
+      }
+
+      const expectedSignature =
+        '0x1f6b8ebbd066c5a849e37fc890c1f2f1b6b0a91e3dd3e8279c646948e8f14b030a13a532fd04c6b5d92e11e008558b0b60b6d061c8f34483af7deab0591317da1b'
+
+      // Call the sign method
+      const result = await signingService.sign(tenantId, typedDataRequest)
+
+      const isVerified = await verifyTypedData({
+        address: wallet.address,
+        signature: result,
+        ...typedData
+      })
+
+      // Assert the result
+      expect(isVerified).toEqual(true)
+      expect(result).toEqual(expectedSignature)
     })
   })
 })

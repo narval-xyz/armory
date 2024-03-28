@@ -61,7 +61,7 @@ export type SignRaw = {
 
 export type SignTypedData = {
   type: Intents.SIGN_TYPED_DATA
-  domain: Eip712Domain
+  domain?: Eip712Domain
 }
 
 export type DeployContract = {
