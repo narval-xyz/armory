@@ -120,6 +120,7 @@ describe('OpenPolicyAgentEngine', () => {
     it('evaluates a forbid rule', async () => {
       const policies: Policy[] = [
         {
+          id: 'test-forbid-policy-uid',
           then: Then.FORBID,
           name: 'test-policy',
           when: [
@@ -170,6 +171,7 @@ describe('OpenPolicyAgentEngine', () => {
     it('adds access token on permit responses', async () => {
       const policies: Policy[] = [
         {
+          id: 'test-permit-policy-uid',
           then: Then.PERMIT,
           name: 'test-policy',
           when: [
