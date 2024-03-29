@@ -1,12 +1,14 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
-import { decode } from './decode'
+import { decode, decodeJwsd } from './decode'
 import { JwtError } from './error'
+import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
-import { Alg, Hex, Jwk, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
-import { base64UrlToHex, ellipticPublicKeyToHex, publicKeyToHex } from './utils'
+import { Alg, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
+import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
+import { validate } from './validate'
 
 const checkTokenExpiration = (payload: Payload): boolean => {
   const now = Math.floor(Date.now() / 1000)
@@ -29,7 +31,7 @@ const verifyEip191WithRecovery = async (sig: Hex, hash: Uint8Array, address: Hex
 
 const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Promise<boolean> => {
   if (isSepc256k1PublicKeyJwk(jwk)) {
-    const pub = publicKeyToHex(jwk)
+    const pub = secp256k1PublicKeyToHex(jwk)
     // A eth sig has a `v` value of 27 or 28, so we need to remove that to get the signature
     // And we remove the 0x prefix. So that means we slice the first and last 2 bytes, leaving the 128 character signature
     const isValid = secp256k1.verify(sig.slice(2, 130), hash, pub.slice(2)) === true
@@ -45,7 +47,7 @@ const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: Public
 }
 
 export const verifySepc256k1 = async (sig: Hex, hash: Uint8Array, jwk: Secp256k1PublicKey): Promise<boolean> => {
-  const pubKey = ellipticPublicKeyToHex(jwk)
+  const pubKey = secp256k1PublicKeyToHex(jwk)
   const isValid = secp256k1.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
   return isValid
 }
@@ -74,28 +76,41 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
 
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
   const { header, payload, signature } = decode(jwt)
-  // const key = validate<PublicKey>({
-  //   schema: publicKeySchema,
-  //   jwk,
-  //   errorMessage: 'Invalid public key'
-  // })
+  const key = validate<PublicKey>({
+    schema: publicKeySchema,
+    jwk,
+    errorMessage: 'Invalid JWK: failed to validate public key'
+  })
+
   if (header.alg === SigningAlg.EIP191) {
-    await verifyEip191(jwt, jwk as PublicKey)
+    await verifyEip191(jwt, key)
   } else {
     // TODO: Implement other algs individually without jose
-    try {
-      const joseJwk = await importJWK(jwk)
-      await jwtVerify<Payload>(jwt, joseJwk)
-    } catch (e) {
-      console.log('Error verifying JWT with jose', e)
-      console.log('jwk', jwk)
-      console.log('typeof jwk', typeof jwk)
-    }
+    const joseJwk = await importJWK(jwk)
+    await jwtVerify<Payload>(jwt, joseJwk)
   }
 
   // Payload validity checks
   checkTokenExpiration(payload)
   // TODO: Check for any other fields that might be relevant
+
+  return {
+    header,
+    payload,
+    signature
+  }
+}
+
+export async function verifyJwsd(jws: string, jwk: PublicKey): Promise<Jwsd> {
+  const { header, payload, signature } = decodeJwsd(jws)
+
+  if (header.alg === SigningAlg.EIP191) {
+    await verifyEip191(jws, jwk)
+  } else {
+    // TODO: Implement other algs individually without jose
+    const joseJwk = await importJWK(jwk)
+    await jwtVerify(jws, joseJwk)
+  }
 
   return {
     header,
