@@ -1,12 +1,11 @@
 import { signatureToHex, toBytes } from 'viem'
 import { hash } from '../../hash-request'
+import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
-import { Alg, Payload, Secp256k1PrivateKey, Secp256k1PublicKey } from '../../types'
-import { privateKeyToJwk } from '../../utils'
-import { verifyJwt, verifySepc256k1 } from '../../verify'
-import { ellipticPrivateKeyToJwk } from '../../utils'
+import { Alg, Payload, Secp256k1PublicKey } from '../../types'
+import { ellipticPrivateKeyToJwk, privateKeyToJwk } from '../../utils'
 import { validate } from '../../validate'
-import { secp256k1PrivateKeySchema, secp256k1PublicKeySchema } from '../../schemas'
+import { verifyJwt, verifySepc256k1 } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -99,7 +98,7 @@ describe('verify', () => {
     const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`, Alg.ES256K)
     const pubKey = validate<Secp256k1PublicKey>({
       schema: secp256k1PublicKeySchema,
-      jwk,
+      jwk
     })
 
     const signature = await signSecp256k1(msg, ENGINE_PRIVATE_KEY, true)
