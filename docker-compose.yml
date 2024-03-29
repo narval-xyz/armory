@@ -10,20 +10,12 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  redis:
-    image: 'bitnami/redis:7.0'
+  vault:
+    build:
+      context: .
+      dockerfile: vault.dockerfile
     ports:
-      - '6379:6379'
-    expose:
-      - '6379'
-    environment:
-      ALLOW_EMPTY_PASSWORD: 'true'
-    logging:
-      driver: none
-    volumes:
-      - redis_data:/data
+      - '3011:3011'
 volumes:
   postgres_data:
-    driver: local
-  redis_data:
     driver: local
