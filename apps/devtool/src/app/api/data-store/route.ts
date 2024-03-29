@@ -15,7 +15,15 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
     policy: { signature: '', data: [] }
   })
 
-  return new Response(JSON.stringify({ ...db.data }))
+  // TODO @samteb: Refactor CORS headers
+  return new Response(JSON.stringify({ ...db.data }), {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
+  })
 }
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
