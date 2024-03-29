@@ -2,20 +2,22 @@ import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
 import { Injectable, Logger } from '@nestjs/common'
 import { randomBytes } from 'crypto'
-import { generatePrivateKey } from 'viem/accounts'
 import { Config } from '../../../policy-engine.config'
 import { ProvisionException } from '../exception/provision.exception'
-import { EngineSignerConfigService } from './engine-signer-config.service'
 import { EngineService } from './engine.service'
 
 @Injectable()
 export class ProvisionService {
   private logger = new Logger(ProvisionService.name)
 
+  // IMPORTANT: The provision service establishes encryption. Therefore, you
+  // cannot have dependencies that rely on encryption to function. If you do,
+  // you'll ran into an error due to a missing keyring.
+  // Any process that requires encryption should be handled in the
+  // BootstrapService.
   constructor(
     private configService: ConfigService<Config>,
-    private engineService: EngineService,
-    private engineSignerConfigService: EngineSignerConfigService
+    private engineService: EngineService
   ) {}
 
   async provision(): Promise<void> {
@@ -29,7 +31,6 @@ export class ProvisionService {
       // IMPORTANT: The order of internal methods call matters.
       await this.createEngine()
       await this.maybeSetupEncryption()
-      await this.maybeSetupSigningPrivateKey()
     } else {
       this.logger.log('Skip engine provision')
     }
@@ -64,25 +65,6 @@ export class ProvisionService {
       await this.engineService.save({ ...engine, masterKey })
     } else {
       throw new ProvisionException('Unsupported keyring type', { type: keyring.type })
-    }
-  }
-
-  private async maybeSetupSigningPrivateKey(): Promise<void> {
-    const signerConfig = await this.engineSignerConfigService.getSignerConfig()
-
-    if (signerConfig) {
-      return this.logger.log('Skip SECP256K signer set up')
-    }
-
-    this.logger.log('Generate and save engine signer private key')
-
-    const result = await this.engineSignerConfigService.save({
-      type: 'PRIVATE_KEY',
-      privateKey: generatePrivateKey()
-    })
-
-    if (!result) {
-      throw new ProvisionException('Failed to save engine signer configuration')
     }
   }
 

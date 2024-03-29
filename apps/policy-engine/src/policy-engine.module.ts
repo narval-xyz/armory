@@ -53,7 +53,7 @@ export class PolicyEngineModule implements OnApplicationBootstrap {
 // We set the encryption keyring during the module configuration phase (before
 // module initialization). If we provision it within the same application
 // context, dependencies requiring encryption will fail because the keyring was
-// already as undefined set.
+// already set as undefined.
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, EngineModule]
 })

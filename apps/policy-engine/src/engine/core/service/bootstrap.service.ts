@@ -1,5 +1,9 @@
 import { EncryptionService } from '@narval/encryption-module'
+import { secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
+import { generatePrivateKey } from 'viem/accounts'
+import { BootstrapException } from '../exception/bootstrap.exception'
+import { EngineSignerConfigService } from './engine-signer-config.service'
 import { TenantService } from './tenant.service'
 
 @Injectable()
@@ -8,14 +12,18 @@ export class BootstrapService {
 
   constructor(
     private tenantService: TenantService,
-    private encryptionService: EncryptionService
+    private encryptionService: EncryptionService,
+    private engineSignerConfigService: EngineSignerConfigService
   ) {}
 
   async boot(): Promise<void> {
-    this.logger.log('Start engine bootstrap')
+    this.logger.log('Start bootstrap')
 
+    await this.maybeSetupSigningPrivateKey()
     await this.checkEncryptionConfiguration()
     await this.syncTenants()
+
+    this.logger.log('Bootstrap end')
   }
 
   private async checkEncryptionConfiguration(): Promise<void> {
@@ -25,11 +33,7 @@ export class BootstrapService {
       this.encryptionService.getKeyring()
       this.logger.log('Encryption keyring configured')
     } catch (error) {
-      this.logger.error(
-        'Missing encryption keyring. Please provision the application with "make policy-engine/cli CMD=provision"'
-      )
-
-      throw error
+      throw new BootstrapException('Encryption keyring not found', { origin: error })
     }
   }
 
@@ -43,6 +47,25 @@ export class BootstrapService {
     // TODO: (@wcalderipe, 07/03/24) maybe change the execution to parallel?
     for (const tenant of tenants) {
       await this.tenantService.syncDataStore(tenant.clientId)
+    }
+  }
+
+  private async maybeSetupSigningPrivateKey(): Promise<void> {
+    const signerConfig = await this.engineSignerConfigService.getSignerConfig()
+
+    if (signerConfig) {
+      return this.logger.log('Skip SECP256K signer set up')
+    }
+
+    this.logger.log('Generate and save engine signer private key')
+
+    const result = await this.engineSignerConfigService.save({
+      type: 'PRIVATE_KEY',
+      key: secp256k1PrivateKeyToJwk(generatePrivateKey())
+    })
+
+    if (!result) {
+      throw new BootstrapException('Failed to save engine signer configuration')
     }
   }
 }

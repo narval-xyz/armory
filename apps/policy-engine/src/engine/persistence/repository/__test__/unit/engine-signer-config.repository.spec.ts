@@ -1,4 +1,5 @@
 import { EncryptionModule } from '@narval/encryption-module'
+import { secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
@@ -39,7 +40,7 @@ describe(EngineSignerConfigRepository.name, () => {
     it('saves encrypted signer configuration', async () => {
       const signerConfig: EngineSignerConfig = {
         type: 'PRIVATE_KEY',
-        privateKey: '0x44c75d8485a564a3c8d60ed23e7524f77bba719372f1c05807d88af6d3c09f55'
+        key: secp256k1PrivateKeyToJwk('0x44c75d8485a564a3c8d60ed23e7524f77bba719372f1c05807d88af6d3c09f55')
       }
 
       await repository.save(engineId, signerConfig)

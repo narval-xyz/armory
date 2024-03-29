@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
+import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
 import { EngineSignerConfig } from '../../../shared/type/domain.type'
 import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
 
@@ -39,10 +40,10 @@ export class EngineSignerConfigRepository {
   }
 
   private encode(engine: EngineSignerConfig): string {
-    return JSON.stringify(engine)
+    return encode(EngineSignerConfig, engine)
   }
 
   private decode(value: string): EngineSignerConfig {
-    return EngineSignerConfig.parse(JSON.parse(value))
+    return decode(EngineSignerConfig, value)
   }
 }
