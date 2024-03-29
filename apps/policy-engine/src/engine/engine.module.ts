@@ -16,7 +16,6 @@ import { EngineSignerConfigService } from './core/service/engine-signer-config.s
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
-import { SigningService } from './core/service/signing.service'
 import { TenantService } from './core/service/tenant.service'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { TenantController } from './http/rest/controller/tenant.controller'
@@ -54,7 +53,6 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,
     ProvisionService,
-    SigningService,
     TenantRepository,
     TenantService,
     {
