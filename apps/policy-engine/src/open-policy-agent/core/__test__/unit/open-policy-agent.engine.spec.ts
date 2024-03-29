@@ -23,7 +23,9 @@ import { Result } from '../../type/open-policy-agent.type'
 
 const ONE_ETH = toHex(BigInt('1000000000000000000'))
 
-const UNSAFE_ENGINE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+const UNSAFE_PRIVATE_KEY = secp256k1PrivateKeyToJwk(
+  '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+)
 
 const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Promise<JwtString> => {
   const jwk = secp256k1PrivateKeyToJwk(option.privateKey)
@@ -56,7 +58,7 @@ describe('OpenPolicyAgentEngine', () => {
   beforeEach(async () => {
     engine = await OpenPolicyAgentEngine.empty({
       resourcePath: await getConfig('resourcePath'),
-      privateKey: UNSAFE_ENGINE_PRIVATE_KEY
+      privateKey: UNSAFE_PRIVATE_KEY
     }).load()
   })
 
@@ -64,7 +66,7 @@ describe('OpenPolicyAgentEngine', () => {
     it('starts with an empty state', async () => {
       const e = OpenPolicyAgentEngine.empty({
         resourcePath: await getConfig('resourcePath'),
-        privateKey: UNSAFE_ENGINE_PRIVATE_KEY
+        privateKey: UNSAFE_PRIVATE_KEY
       })
 
       expect(e.getPolicies()).toEqual([])
@@ -134,7 +136,7 @@ describe('OpenPolicyAgentEngine', () => {
       const e = await new OpenPolicyAgentEngine({
         policies,
         entities: FIXTURE.ENTITIES,
-        privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
+        privateKey: UNSAFE_PRIVATE_KEY,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -184,7 +186,7 @@ describe('OpenPolicyAgentEngine', () => {
       const e = await new OpenPolicyAgentEngine({
         policies,
         entities: FIXTURE.ENTITIES,
-        privateKey: UNSAFE_ENGINE_PRIVATE_KEY,
+        privateKey: UNSAFE_PRIVATE_KEY,
         resourcePath: await getConfig('resourcePath')
       }).load()
 

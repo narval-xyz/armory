@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { Action, Criterion, Decision, FIXTURE, Then } from '@narval/policy-engine-shared'
-import { Jwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { PrivateKey, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
@@ -18,12 +18,13 @@ import { getEntityStore, getPolicyStore } from '../../../shared/testing/data-sto
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { generateInboundEvaluationRequest } from '../../../shared/testing/evaluation.testing'
 import { Tenant } from '../../../shared/type/domain.type'
+import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
 import { TenantService } from '../../core/service/tenant.service'
 import { EngineModule } from '../../engine.module'
 
 describe('Evaluation', () => {
   let app: INestApplication
-  let jwk: Jwk
+  let privateKey: PrivateKey
   let module: TestingModule
   let tenant: Tenant
   let tenantService: TenantService
@@ -56,24 +57,30 @@ describe('Evaluation', () => {
     app = module.createNestApplication()
 
     const engineService = module.get<EngineService>(EngineService)
+    const engineSignerConfigService = module.get<EngineSignerConfigService>(EngineSignerConfigService)
     const configService = module.get<ConfigService<Config>>(ConfigService)
     tenantService = module.get<TenantService>(TenantService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
     await testPrismaService.truncateAll()
 
-    jwk = secp256k1PrivateKeyToJwk(generatePrivateKey())
+    privateKey = secp256k1PrivateKeyToJwk(generatePrivateKey())
 
     const dataStoreConfiguration = {
       dataUrl: dataStoreUrl,
       signatureUrl: dataStoreUrl,
-      keys: [jwk]
+      keys: [privateKey]
     }
 
     await engineService.save({
       id: configService.get('engine.id'),
       masterKey: 'unsafe-test-master-key',
       adminApiKey
+    })
+
+    await engineSignerConfigService.save({
+      type: 'PRIVATE_KEY',
+      key: privateKey
     })
 
     tenant = await tenantService.onboard(
@@ -90,8 +97,8 @@ describe('Evaluation', () => {
       { syncAfter: false }
     )
 
-    await tenantService.savePolicyStore(tenant.clientId, await getPolicyStore([], jwk))
-    await tenantService.saveEntityStore(tenant.clientId, await getEntityStore(FIXTURE.ENTITIES, jwk))
+    await tenantService.savePolicyStore(tenant.clientId, await getPolicyStore([], privateKey))
+    await tenantService.saveEntityStore(tenant.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
 
     await app.init()
   })
@@ -135,7 +142,7 @@ describe('Evaluation', () => {
               ]
             }
           ],
-          jwk
+          privateKey
         )
       )
 
