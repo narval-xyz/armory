@@ -14,7 +14,9 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <NavBar />
-          <div className="p-20">{children}</div>
+          <div className="h-full w-full pt-[72px]">
+            <div className="px-[48px] py-[36px]">{children}</div>
+          </div>
         </QueryClientProvider>
       </WagmiProvider>
     </div>
