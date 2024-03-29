@@ -1,5 +1,7 @@
 'use client'
 
+import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Editor from '@monaco-editor/react'
 import { EntityUtil, entityDataSchema, policyDataSchema } from '@narval/policy-engine-shared'
 import { Curves, Jwk, KeyTypes, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
@@ -13,7 +15,25 @@ import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
 import { config } from '../../_lib/config'
 
-const DataStoreEditor = () => {
+const ActionStatus = (isDone: boolean, label: string) => {
+  if (!isDone) {
+    return (
+      <div className="flex items-center gap-4">
+        <FontAwesomeIcon icon={faSpinner} spin />
+        <div className="text-nv-white">{label}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
+      <div className="text-nv-white">{label}</div>
+    </div>
+  )
+}
+
+const DataStoreConfig = () => {
   const account = useAccount()
   const {
     engineUrl,
@@ -32,6 +52,13 @@ const DataStoreEditor = () => {
   const [data, setData] = useState<string>()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [savingStatus, setSavingStatus] = useState({
+    entitySigned: false,
+    policySigned: false,
+    dataSaved: false,
+    engineSynced: false
+  })
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
@@ -82,14 +109,12 @@ const DataStoreEditor = () => {
       return
     }
 
+    setIsSaving(true)
+
     const jwtSigner = async (message: string) => {
       const jwtSig = await signMessage(config, { message })
 
       return hexToBase64Url(jwtSig)
-    }
-
-    if (!account.address) {
-      throw new Error('No address connected')
     }
 
     const now = Math.floor(Date.now() / 1000)
@@ -117,7 +142,10 @@ const DataStoreEditor = () => {
     }
 
     const entitySig = await signJwt(entityPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    setSavingStatus((prev) => ({ ...prev, entitySigned: true }))
+
     const policySig = await signJwt(policyPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    setSavingStatus((prev) => ({ ...prev, policySigned: true }))
 
     await axios.post('/api/data-store', {
       entity: {
@@ -129,8 +157,7 @@ const DataStoreEditor = () => {
         data: policy
       }
     })
-
-    console.log('Data signed and stored!')
+    setSavingStatus((prev) => ({ ...prev, dataSaved: true }))
 
     await axios.post(`${engineUrl}/tenants/sync`, null, {
       headers: {
@@ -138,20 +165,50 @@ const DataStoreEditor = () => {
         'x-client-secret': engineClientSecret
       }
     })
+    setSavingStatus((prev) => ({ ...prev, engineSynced: true }))
 
-    console.log('Data store synced with engine!')
+    setTimeout(() => {
+      setIsSaving(false)
+      setSavingStatus({
+        entitySigned: false,
+        policySigned: false,
+        dataSaved: false,
+        engineSynced: false
+      })
+    }, 5000)
   }
 
   return (
     <>
       <div className="flex gap-12">
-        <div className="flex flex-col gap-6 w-1/3">
-          <NarInput label="Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
-          <NarInput label="Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
-          <NarInput label="Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
-          <NarInput label="Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
-          <div className="flex flex-row-reverse">
-            <NarButton label="Sign Data" onClick={signData} />
+        <div className="flex flex-col gap-10 w-1/3">
+          <div className="text-nv-2xl">Configuration</div>
+          <div className="flex flex-col gap-6 ">
+            <NarInput label="Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
+            <NarInput label="Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
+            <NarInput label="Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
+            <NarInput label="Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
+            <div className="flex flex-row-reverse">
+              {!isSaving ? (
+                <NarButton label="Sign Data" onClick={signData} />
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {ActionStatus(
+                    savingStatus.entitySigned,
+                    savingStatus.entitySigned ? 'Entity Data Signed!' : 'Signing Entity Data...'
+                  )}
+                  {ActionStatus(
+                    savingStatus.policySigned,
+                    savingStatus.policySigned ? 'Policy Data Signed!' : 'Signing Policy Data...'
+                  )}
+                  {ActionStatus(savingStatus.dataSaved, savingStatus.dataSaved ? 'Data Saved!' : 'Saving Data...')}
+                  {ActionStatus(
+                    savingStatus.engineSynced,
+                    savingStatus.engineSynced ? 'Engine Synced!' : 'Syncing Engine...'
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="border-2 border-white rounded-xl p-4 w-2/3">
@@ -190,4 +247,4 @@ const DataStoreEditor = () => {
   )
 }
 
-export default DataStoreEditor
+export default DataStoreConfig

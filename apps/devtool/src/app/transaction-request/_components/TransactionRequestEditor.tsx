@@ -1,5 +1,7 @@
 'use client'
 
+import { faCheckCircle, faSpinner, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
 import { Curves, Jwk, KeyTypes, SigningAlg, base64UrlToHex, buildSignerEip191, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
@@ -11,12 +13,16 @@ import example from './example.json'
 const TransactionRequestEditor = () => {
   const { engineUrl, engineClientId, engineClientSecret } = useStore()
   const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const [evaluationResult, setEvaluationResult] = useState<string>()
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
 
   const sendEvaluation = async () => {
     if (!data) return
+
+    setIsProcessing(true)
 
     const transactionRequest = JSON.parse(data)
 
@@ -41,7 +47,7 @@ const TransactionRequestEditor = () => {
 
     const authentication = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
 
-    const evaluationResult = await axios.post(
+    const evaluation = await axios.post(
       `${engineUrl}/evaluations`,
       { ...transactionRequest, authentication },
       {
@@ -52,11 +58,16 @@ const TransactionRequestEditor = () => {
       }
     )
 
-    console.log(evaluationResult.data)
+    setEvaluationResult(evaluation.data.decision)
+    setIsProcessing(false)
+
+    setTimeout(() => {
+      setEvaluationResult(undefined)
+    }, 5000)
   }
 
   return (
-    <div className="flex gap-12">
+    <div className="flex items-start gap-12">
       <div className="border-2 border-white rounded-xl p-4 w-2/3">
         <Editor
           height="70vh"
@@ -69,7 +80,24 @@ const TransactionRequestEditor = () => {
           }}
         />
       </div>
-      <NarButton label="Send" onClick={sendEvaluation} />
+      <div className="flex items-center gap-4">
+        {!evaluationResult ? (
+          <NarButton
+            label="Send"
+            rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
+            onClick={sendEvaluation}
+            disabled={isProcessing}
+          />
+        ) : (
+          <div className="flex items-center gap-2">
+            <FontAwesomeIcon
+              icon={evaluationResult === 'Permit' ? faCheckCircle : faXmarkCircle}
+              className={evaluationResult === 'Permit' ? 'text-nv-green-500' : 'text-nv-red-500'}
+            />
+            <div className="text-nv-white">{evaluationResult}</div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

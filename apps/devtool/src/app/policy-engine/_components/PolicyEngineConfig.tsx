@@ -7,7 +7,7 @@ import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
 
-const PolicyEngineForm = () => {
+const PolicyEngineConfig = () => {
   const account = useAccount()
   const {
     engineUrl,
@@ -62,16 +62,19 @@ const PolicyEngineForm = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-1/3">
-      <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
-      <NarInput label="Admin API Key" value={engineApiKey} onChange={setEngineApiKey} />
-      <NarInput label="Tenant Client ID" value={engineClientId} onChange={() => null} disabled />
-      <NarInput label="Tenant Client Secret" value={engineClientSecret} onChange={() => null} disabled />
-      <div className="flex flex-row-reverse">
-        {engineUrl && engineApiKey && !engineClientId && <NarButton label="Onboard Tenant" onClick={onboardTenant} />}
+    <div className="flex flex-col gap-10">
+      <div className="text-nv-2xl">Configuration</div>
+      <div className="flex flex-col gap-6 w-1/3">
+        <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
+        <NarInput label="Admin API Key" value={engineApiKey} onChange={setEngineApiKey} />
+        <NarInput label="Tenant Client ID" value={engineClientId} onChange={() => null} disabled />
+        <NarInput label="Tenant Client Secret" value={engineClientSecret} onChange={() => null} disabled />
+        <div className="flex flex-row-reverse">
+          {engineUrl && engineApiKey && !engineClientId && <NarButton label="Onboard Tenant" onClick={onboardTenant} />}
+        </div>
       </div>
     </div>
   )
 }
 
-export default PolicyEngineForm
+export default PolicyEngineConfig

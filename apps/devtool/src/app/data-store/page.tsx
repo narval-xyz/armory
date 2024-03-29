@@ -1,10 +1,5 @@
-import DataStoreEditor from './_components/DataStoreEditor'
+import DataStoreConfig from './_components/DataStoreConfig'
 
 export default async function DataStore() {
-  return (
-    <>
-      <div className="text-nv-2xl mb-10">Configuration</div>
-      <DataStoreEditor />
-    </>
-  )
+  return <DataStoreConfig />
 }
