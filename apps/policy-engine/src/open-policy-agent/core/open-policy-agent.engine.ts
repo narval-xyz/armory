@@ -11,19 +11,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import {
-  Alg,
-  Hex,
-  Payload,
-  PrivateKey,
-  PublicKey,
-  SigningAlg,
-  decode,
-  hash,
-  privateKeyToJwk,
-  signJwt,
-  verifyJwt
-} from '@narval/signature'
+import { Payload, PrivateKey, PublicKey, SigningAlg, decode, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
