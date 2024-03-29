@@ -83,7 +83,7 @@ const TransactionRequestEditor = () => {
       <div className="flex items-center gap-4">
         {!evaluationResult ? (
           <NarButton
-            label="Send"
+            label={isProcessing ? 'Processing...' : 'Send'}
             rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
             onClick={sendEvaluation}
             disabled={isProcessing}

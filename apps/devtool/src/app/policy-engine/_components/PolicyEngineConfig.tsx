@@ -1,7 +1,10 @@
 'use client'
 
+import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Curves, Jwk, KeyTypes, SigningAlg } from '@narval/signature'
 import axios from 'axios'
+import { useState } from 'react'
 import { useAccount } from 'wagmi'
 import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
@@ -24,8 +27,13 @@ const PolicyEngineConfig = () => {
     policySignatureUrl
   } = useStore()
 
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const [tenantOnboarded, setTenantOnboarded] = useState<boolean>(false)
+
   const onboardTenant = async () => {
     if (!account.address) return
+
+    setIsProcessing(true)
 
     const jwk: Jwk = {
       kty: KeyTypes.EC,
@@ -59,6 +67,12 @@ const PolicyEngineConfig = () => {
 
     setEngineClientId(tenant.clientId)
     setEngineClientSecret(tenant.clientSecret)
+    setIsProcessing(false)
+    setTenantOnboarded(true)
+
+    setTimeout(() => {
+      setTenantOnboarded(false)
+    }, 5000)
   }
 
   return (
@@ -70,7 +84,20 @@ const PolicyEngineConfig = () => {
         <NarInput label="Tenant Client ID" value={engineClientId} onChange={() => null} disabled />
         <NarInput label="Tenant Client Secret" value={engineClientSecret} onChange={() => null} disabled />
         <div className="flex flex-row-reverse">
-          {engineUrl && engineApiKey && !engineClientId && <NarButton label="Onboard Tenant" onClick={onboardTenant} />}
+          {engineUrl && engineApiKey && !engineClientId && (
+            <NarButton
+              label={isProcessing ? 'Processing...' : 'Onboard Tenant'}
+              rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
+              onClick={onboardTenant}
+              disabled={isProcessing}
+            />
+          )}
+          {tenantOnboarded && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
+              <div className="text-nv-white">Tenant Onboarded!</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
