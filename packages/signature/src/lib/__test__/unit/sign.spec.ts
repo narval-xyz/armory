@@ -48,12 +48,10 @@ describe('sign', () => {
       use: undefined,
       x: jwk.x,
       y: jwk.y,
-      n: jwk.n,
-      e: jwk.e,
       d: jwk.d
     }
     const jwt = await signJwt(payload, maybeJwk, { alg: SigningAlg.ES256 })
-    const verified = await verifyJwt(jwt, key)
+    const verified = await verifyJwt(jwt, maybeJwk)
     expect(verified.payload).toEqual(payload)
   })
 

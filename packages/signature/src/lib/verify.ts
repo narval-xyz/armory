@@ -81,7 +81,6 @@ export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
     jwk,
     errorMessage: 'Invalid JWK: failed to validate public key'
   })
-
   if (header.alg === SigningAlg.EIP191) {
     await verifyEip191(jwt, key)
   } else {
