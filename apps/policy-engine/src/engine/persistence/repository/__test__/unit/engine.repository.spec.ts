@@ -1,9 +1,7 @@
-import { EncryptionModule } from '@narval/encryption-module'
 import { Test } from '@nestjs/testing'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
-import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Engine } from '../../../../../shared/type/domain.type'
 import { EngineRepository } from '../../engine.repository'
 
@@ -15,11 +13,6 @@ describe(EngineRepository.name, () => {
     inMemoryKeyValueRepository = new InMemoryKeyValueRepository()
 
     const module = await Test.createTestingModule({
-      imports: [
-        EncryptionModule.register({
-          keyring: getTestRawAesKeyring()
-        })
-      ],
       providers: [
         KeyValueService,
         EngineRepository,
@@ -33,17 +26,17 @@ describe(EngineRepository.name, () => {
     repository = module.get<EngineRepository>(EngineRepository)
   })
 
-  describe('save', () => {
-    const engine: Engine = {
-      id: 'test-engine-id',
-      adminApiKey: 'unsafe-test-admin-api-key',
-      masterKey: 'unsafe-test-master-key'
-    }
+  const engine: Engine = {
+    id: 'test-engine-id',
+    adminApiKey: 'unsafe-test-admin-api-key',
+    masterKey: 'unsafe-test-master-key'
+  }
 
+  describe('save', () => {
     it('saves a new engine', async () => {
       await repository.save(engine)
 
-      const value = await inMemoryKeyValueRepository.get(repository.getKey(engine.id))
+      const value = await inMemoryKeyValueRepository.get(repository.getEngineKey(engine.id))
       const actualEngine = await repository.findById(engine.id)
 
       expect(value).not.toEqual(null)
