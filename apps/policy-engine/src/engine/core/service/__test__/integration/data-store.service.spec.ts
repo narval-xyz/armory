@@ -21,7 +21,7 @@ import { DataStoreException } from '../../../exception/data-store.exception'
 import { DataStoreRepositoryFactory } from '../../../factory/data-store-repository.factory'
 import { DataStoreService } from '../../data-store.service'
 
-const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+const UNSAFE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 describe(DataStoreService.name, () => {
   let service: DataStoreService
@@ -42,7 +42,7 @@ describe(DataStoreService.name, () => {
 
     service = module.get<DataStoreService>(DataStoreService)
 
-    jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+    jwk = secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY)
 
     entityStore = await getEntityStore(FIXTURE.ENTITIES, jwk)
     policyStore = await getPolicyStore(FIXTURE.POLICIES, jwk)
