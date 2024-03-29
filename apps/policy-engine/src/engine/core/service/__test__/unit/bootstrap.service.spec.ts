@@ -1,7 +1,9 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
+import { secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { generatePrivateKey } from 'viem/accounts'
 import { EngineService } from '../../../../../engine/core/service/engine.service'
 import { EngineRepository } from '../../../../../engine/persistence/repository/engine.repository'
 import { load } from '../../../../../policy-engine.config'
@@ -9,13 +11,16 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
+import { BootstrapException } from '../../../exception/bootstrap.exception'
 import { BootstrapService } from '../../bootstrap.service'
+import { EngineSignerConfigService } from '../../engine-signer-config.service'
 import { TenantService } from '../../tenant.service'
 
 describe(BootstrapService.name, () => {
   let bootstrapService: BootstrapService
   let tenantServiceMock: MockProxy<TenantService>
   let encryptionServiceMock: MockProxy<EncryptionService>
+  let engineSignerConfigServiceMock: MockProxy<EngineSignerConfigService>
 
   const dataStore = {
     entity: {
@@ -53,6 +58,13 @@ describe(BootstrapService.name, () => {
     encryptionServiceMock = mock<EncryptionService>()
     encryptionServiceMock.getKeyring.mockReturnValue(getTestRawAesKeyring())
 
+    engineSignerConfigServiceMock = mock<EngineSignerConfigService>()
+    engineSignerConfigServiceMock.save.mockResolvedValue(true)
+    engineSignerConfigServiceMock.getSignerConfigOrThrow.mockResolvedValue({
+      type: 'PRIVATE_KEY',
+      key: secp256k1PrivateKeyToJwk(generatePrivateKey())
+    })
+
     const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -62,8 +74,8 @@ describe(BootstrapService.name, () => {
       ],
       providers: [
         BootstrapService,
-        EngineService,
         EngineRepository,
+        EngineService,
         KeyValueService,
         {
           provide: KeyValueRepository,
@@ -76,6 +88,10 @@ describe(BootstrapService.name, () => {
         {
           provide: EncryptionService,
           useValue: encryptionServiceMock
+        },
+        {
+          provide: EngineSignerConfigService,
+          useValue: engineSignerConfigServiceMock
         }
       ]
     }).compile()
@@ -102,7 +118,8 @@ describe(BootstrapService.name, () => {
         throw new EncryptionException('Something went wrong')
       })
 
-      await expect(() => bootstrapService.boot()).rejects.toThrow('Something went wrong')
+      await expect(() => bootstrapService.boot()).rejects.toThrow(BootstrapException)
+      await expect(() => bootstrapService.boot()).rejects.toThrow('Encryption keyring not found')
     })
   })
 })

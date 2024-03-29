@@ -10,3 +10,8 @@ export interface Engine<Implementation> {
   getEntities(): Entities
   load(): Promise<Implementation>
 }
+
+export interface Signer {
+  getPublicKey(): Promise<string>
+  sign(message: string): Promise<string>
+}
