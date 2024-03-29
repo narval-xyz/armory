@@ -12,6 +12,8 @@ import {
   Policy
 } from '@narval/policy-engine-shared'
 import {
+  Alg,
+  Hex,
   Payload,
   PrivateKey,
   PublicKey,
@@ -20,6 +22,7 @@ import {
   buildSignerEip191,
   decode,
   hash,
+  privateKeyToJwk,
   signJwt,
   verifyJwt
 } from '@narval/signature'
@@ -108,6 +111,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
       return this
     } catch (error) {
+      console.log(error)
+
       throw new OpenPolicyAgentException({
         message: 'Fail to load Open Policy Agent engine',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -173,7 +178,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const validJwt = await verifyJwt(signature, credential.key)
+    const { key } = credential
+
+    console.log('### credential', credential)
+    const validJwt = await verifyJwt(signature, key)
 
     if (validJwt.payload.requestHash !== message) {
       throw new OpenPolicyAgentException({
@@ -288,6 +296,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
+    const engineJwk: PrivateKey = privateKeyToJwk(this.privateKey, Alg.ES256K)
     const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {

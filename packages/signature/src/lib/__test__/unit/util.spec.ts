@@ -2,7 +2,7 @@ import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } 
 import { buildSignerEip191, signJwt } from '../../sign'
 import { isHeader, isPayload } from '../../typeguards'
 import { Alg, RsaPrivateKey, Secp256k1PrivateKey, SigningAlg } from '../../types'
-import { generateJwk, rsaPrivateKeyToPublicKey, secp256k1PrivateKeyToHex } from '../../utils'
+import { ellipticPrivateKeyToHex, generateJwk, rsaPrivateKeyToPublicKey } from '../../utils'
 import { validate } from '../../validate'
 import { verifyJwt } from '../../verify'
 
@@ -88,13 +88,13 @@ describe('generateKeys', () => {
     const payload = {
       requestHash: message
     }
-    const validatedKey = validate<Secp256k1PrivateKey>(
-      secp256k1PrivateKeySchema,
-      key,
-      'Invalid secp256k1 Private Key JWK'
-    )
+    const validatedKey = validate<Secp256k1PrivateKey>({
+      schema: secp256k1PrivateKeySchema,
+      jwk: key,
+      errorMessage: 'Invalid secp256k1 private key'
+    })
 
-    const signer = buildSignerEip191(secp256k1PrivateKeyToHex(validatedKey))
+    const signer = buildSignerEip191(ellipticPrivateKeyToHex(validatedKey))
     const signature = await signJwt(payload, key, { alg: SigningAlg.EIP191 }, signer)
     const isValid = await verifyJwt(signature, key)
     expect(isValid).not.toEqual(false)

@@ -1,17 +1,17 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
-import { exportJWK, importPKCS8, jwtVerify } from 'jose'
+import { exportJWK, importPKCS8 } from 'jose'
 import { createPublicKey } from 'node:crypto'
 import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt } from '../../sign'
-import { Alg, Payload, SigningAlg } from '../../types'
+import { Alg, Curves, Jwk, KeyTypes, Payload, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,
   base64UrlToHex,
-  secp256k1PrivateKeyToHex,
-  secp256k1PrivateKeyToJwk,
-  secp256k1PublicKeyToHex,
+  ellicpticPublicKeyToHex,
+  ellipticPrivateKeyToHex,
+  ellipticPrivateKeyToJwk,
   secp256k1PublicKeyToJwk
 } from '../../utils'
 import { verifyJwt } from '../../verify'
@@ -38,21 +38,25 @@ describe('sign', () => {
   it('should sign build & sign es256 JWT correctly with a PEM', async () => {
     const key = await importPKCS8(PRIVATE_KEY_PEM, Alg.ES256)
     const jwk = await exportJWK(key)
-    const jwt = await signJwt(payload, {
-      ...jwk,
+    const maybeJwk: Jwk = {
       alg: Alg.ES256,
-      crv: 'P-256',
-      kty: 'EC',
+      crv: Curves.P256,
+      kty: KeyTypes.EC,
       kid: 'somekid',
-      use: undefined
-    })
-
-    const verified = await jwtVerify(jwt, key)
+      use: undefined,
+      x: jwk.x,
+      y: jwk.y,
+      n: jwk.n,
+      e: jwk.e,
+      d: jwk.d
+    }
+    const jwt = await signJwt(payload, maybeJwk, { alg: SigningAlg.ES256 })
+    const verified = await verifyJwt(jwt, key)
     expect(verified.payload).toEqual(payload)
   })
 
   it('should build & sign a EIP191 JWT', async () => {
-    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+    const jwk = ellipticPrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
 
     const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
@@ -153,7 +157,7 @@ describe('sign', () => {
     const viemPubKey = privateKeyToAccount(`0x${UNSAFE_PRIVATE_KEY}`).publicKey
     expect(toHex(publicKey)).toBe(viemPubKey) // Confirm that our key is in fact the same as what viem would give.
 
-    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+    const jwk = ellipticPrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
 
     const k = await createPublicKey({
       format: 'jwk',
@@ -164,15 +168,15 @@ describe('sign', () => {
   })
 
   it('should convert to and from jwk', async () => {
-    const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
-    const pk = secp256k1PrivateKeyToHex(jwk)
+    const jwk = ellipticPrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
+    const pk = ellipticPrivateKeyToHex(jwk)
     expect(pk).toBe(`0x${UNSAFE_PRIVATE_KEY}`)
   })
 
   it('should convert to and from public jwk', async () => {
     const publicKey = secp256k1.getPublicKey(UNSAFE_PRIVATE_KEY, false)
     const jwk = secp256k1PublicKeyToJwk(toHex(publicKey))
-    const pk = secp256k1PublicKeyToHex(jwk)
+    const pk = ellicpticPublicKeyToHex(jwk)
     expect(pk).toBe(toHex(publicKey))
   })
 })

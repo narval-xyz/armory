@@ -1,5 +1,5 @@
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
-import { Payload, hash, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
+import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { toHex } from 'viem'
 
@@ -28,9 +28,9 @@ export const generateInboundEvaluationRequest = async (): Promise<EvaluationRequ
     requestHash: message
   }
 
-  const aliceSignature = await signJwt(payload, secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice))
-  const bobSignature = await signJwt(payload, secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob))
-  const carolSignature = await signJwt(payload, secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol))
+  const aliceSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K), {})
+  const bobSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K), {})
+  const carolSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K), {})
 
   return {
     authentication: aliceSignature,
