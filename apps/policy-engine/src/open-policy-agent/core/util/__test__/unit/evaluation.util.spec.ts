@@ -6,12 +6,9 @@ import { toData, toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
   it('throws OpenPolicyAgentException when action is unsupported', () => {
-    const evaluation: Partial<EvaluationRequest> = {
+    const evaluation = {
       request: {
-        action: Action.SIGN_TYPED_DATA,
-        nonce: 'test-nonce',
-        resourceId: 'test-resource-id',
-        typedData: 'test-typed-data'
+        action: 'UNSUPPORTED ACTION'
       }
     }
 
