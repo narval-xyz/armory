@@ -3,6 +3,7 @@
 import { faCheckCircle, faSpinner, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
+import { EvaluationResponse } from '@narval/policy-engine-shared'
 import { Curves, Jwk, KeyTypes, SigningAlg, base64UrlToHex, buildSignerEip191, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import { useRef, useState } from 'react'
@@ -14,7 +15,7 @@ const TransactionRequestEditor = () => {
   const { engineUrl, engineClientId, engineClientSecret } = useStore()
   const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
-  const [evaluationResult, setEvaluationResult] = useState<string>()
+  const [evaluationResult, setEvaluationResult] = useState<EvaluationResponse>()
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
@@ -58,12 +59,8 @@ const TransactionRequestEditor = () => {
       }
     )
 
-    setEvaluationResult(evaluation.data.decision)
+    setEvaluationResult(evaluation.data)
     setIsProcessing(false)
-
-    setTimeout(() => {
-      setEvaluationResult(undefined)
-    }, 5000)
   }
 
   return (
@@ -80,21 +77,27 @@ const TransactionRequestEditor = () => {
           }}
         />
       </div>
-      <div className="flex items-center gap-4">
-        {!evaluationResult ? (
+      <div className="flex flex-col gap-5 w-1/3">
+        <div className="flex items-center gap-4">
           <NarButton
             label={isProcessing ? 'Processing...' : 'Send'}
             rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
             onClick={sendEvaluation}
             disabled={isProcessing}
           />
-        ) : (
-          <div className="flex items-center gap-2">
-            <FontAwesomeIcon
-              icon={evaluationResult === 'Permit' ? faCheckCircle : faXmarkCircle}
-              className={evaluationResult === 'Permit' ? 'text-nv-green-500' : 'text-nv-red-500'}
-            />
-            <div className="text-nv-white">{evaluationResult}</div>
+          {!isProcessing && evaluationResult && (
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon
+                icon={evaluationResult.decision === 'Permit' ? faCheckCircle : faXmarkCircle}
+                className={evaluationResult.decision === 'Permit' ? 'text-nv-green-500' : 'text-nv-red-500'}
+              />
+              <div className="text-nv-white">{evaluationResult.decision}</div>
+            </div>
+          )}
+        </div>
+        {!isProcessing && evaluationResult && (
+          <div className="border-2 border-white rounded-t-xl p-4 overflow-auto">
+            <pre>{JSON.stringify(evaluationResult, null, 3)}</pre>
           </div>
         )}
       </div>

@@ -1,11 +1,16 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS } from '../_lib/constants'
+import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
   const [engineApiKey, setEngineApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.engineApiKey, '')
   const [engineClientId, setEngineClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientId, '')
   const [engineClientSecret, setEngineClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSecret, '')
+
+  const [vaultUrl, setVaultUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultUrl, VAULT_URL)
+  const [vaultApiKey, setVaultApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultApiKey, '')
+  const [vaultClientId, setVaultClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientId, '')
+  const [vaultClientSecret, setVaultClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientSecret, '')
 
   const [entityDataStoreUrl, setEntityDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.entityDataStoreUrl,
@@ -33,6 +38,14 @@ const useStore = () => {
     setEngineClientId,
     engineClientSecret,
     setEngineClientSecret,
+    vaultUrl,
+    setVaultUrl,
+    vaultApiKey,
+    setVaultApiKey,
+    vaultClientId,
+    setVaultClientId,
+    vaultClientSecret,
+    setVaultClientSecret,
     entityDataStoreUrl,
     setEntityDataStoreUrl,
     entitySignatureUrl,

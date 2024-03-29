@@ -3,7 +3,7 @@
 import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Editor from '@monaco-editor/react'
-import { EntityUtil, entityDataSchema, policyDataSchema } from '@narval/policy-engine-shared'
+import { EntityStore, EntityUtil, PolicyStore, entityDataSchema, policyDataSchema } from '@narval/policy-engine-shared'
 import { Curves, Jwk, KeyTypes, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
 import { signMessage } from '@wagmi/core'
 import axios from 'axios'
@@ -50,10 +50,12 @@ const DataStoreConfig = () => {
   } = useStore()
 
   const [data, setData] = useState<string>()
+  const [dataStore, setDataStore] = useState<{ entity: EntityStore; policy: PolicyStore }>()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
-  const [isSaving, setIsSaving] = useState(false)
-  const [savingStatus, setSavingStatus] = useState({
+  const [isEntitySigning, setIsEntitySigning] = useState(false)
+  const [isPolicySigning, setIsPolicySigning] = useState(false)
+  const [processingStatus, setProcessingStatus] = useState({
     entitySigned: false,
     policySigned: false,
     dataSaved: false,
@@ -70,32 +72,23 @@ const DataStoreConfig = () => {
       const dataStore = await axios.get('/api/data-store')
       const { entity, policy } = dataStore.data
       setData(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
+      setDataStore(dataStore.data)
     }
 
     getData()
   }, [data])
 
-  const signData = async () => {
-    if (!data) return
+  const signEntityData = async () => {
+    if (!data || !dataStore) return
     if (!account.address) return
 
-    const { entity, policy } = JSON.parse(data)
+    const { entity } = JSON.parse(data)
 
     const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entity } })
 
     if (!entityValidationResult.success) {
       setValidationErrors(
         entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`)
-      )
-      setIsDialogOpen(true)
-      return
-    }
-
-    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policy } })
-
-    if (!policyValidationResult.success) {
-      setValidationErrors(
-        policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`)
       )
       setIsDialogOpen(true)
       return
@@ -109,7 +102,7 @@ const DataStoreConfig = () => {
       return
     }
 
-    setIsSaving(true)
+    setIsEntitySigning(true)
 
     const jwtSigner = async (message: string) => {
       const jwtSig = await signMessage(config, { message })
@@ -117,20 +110,11 @@ const DataStoreConfig = () => {
       return hexToBase64Url(jwtSig)
     }
 
-    const now = Math.floor(Date.now() / 1000)
-
     const entityPayload: Payload = {
       data: hash(entity),
       sub: account.address,
       iss: 'https://devtool.narval.xyz',
-      iat: now
-    }
-
-    const policyPayload: Payload = {
-      data: hash(policy),
-      sub: account.address,
-      iss: 'https://devtool.narval.xyz',
-      iat: now
+      iat: Math.floor(Date.now() / 1000)
     }
 
     const jwk: Jwk = {
@@ -142,22 +126,16 @@ const DataStoreConfig = () => {
     }
 
     const entitySig = await signJwt(entityPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
-    setSavingStatus((prev) => ({ ...prev, entitySigned: true }))
-
-    const policySig = await signJwt(policyPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
-    setSavingStatus((prev) => ({ ...prev, policySigned: true }))
+    setProcessingStatus((prev) => ({ ...prev, entitySigned: true }))
 
     await axios.post('/api/data-store', {
       entity: {
         signature: entitySig,
         data: entity
       },
-      policy: {
-        signature: policySig,
-        data: policy
-      }
+      policy: dataStore.policy
     })
-    setSavingStatus((prev) => ({ ...prev, dataSaved: true }))
+    setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
 
     await axios.post(`${engineUrl}/tenants/sync`, null, {
       headers: {
@@ -165,11 +143,81 @@ const DataStoreConfig = () => {
         'x-client-secret': engineClientSecret
       }
     })
-    setSavingStatus((prev) => ({ ...prev, engineSynced: true }))
+    setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
 
     setTimeout(() => {
-      setIsSaving(false)
-      setSavingStatus({
+      setIsEntitySigning(false)
+      setProcessingStatus({
+        entitySigned: false,
+        policySigned: false,
+        dataSaved: false,
+        engineSynced: false
+      })
+    }, 5000)
+  }
+
+  const signPolicyData = async () => {
+    if (!data || !dataStore) return
+    if (!account.address) return
+
+    const { policy } = JSON.parse(data)
+
+    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policy } })
+
+    if (!policyValidationResult.success) {
+      setValidationErrors(
+        policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`)
+      )
+      setIsDialogOpen(true)
+      return
+    }
+
+    setIsPolicySigning(true)
+
+    const jwtSigner = async (message: string) => {
+      const jwtSig = await signMessage(config, { message })
+
+      return hexToBase64Url(jwtSig)
+    }
+
+    const policyPayload: Payload = {
+      data: hash(policy),
+      sub: account.address,
+      iss: 'https://devtool.narval.xyz',
+      iat: Math.floor(Date.now() / 1000)
+    }
+
+    const jwk: Jwk = {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: account.address,
+      addr: account.address
+    }
+
+    const policySig = await signJwt(policyPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    setProcessingStatus((prev) => ({ ...prev, policySigned: true }))
+
+    await axios.post('/api/data-store', {
+      entity: dataStore.entity,
+      policy: {
+        signature: policySig,
+        data: policy
+      }
+    })
+    setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
+
+    await axios.post(`${engineUrl}/tenants/sync`, null, {
+      headers: {
+        'x-client-id': engineClientId,
+        'x-client-secret': engineClientSecret
+      }
+    })
+    setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
+
+    setTimeout(() => {
+      setIsPolicySigning(false)
+      setProcessingStatus({
         entitySigned: false,
         policySigned: false,
         dataSaved: false,
@@ -189,22 +237,30 @@ const DataStoreConfig = () => {
             <NarInput label="Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
             <NarInput label="Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
             <div className="flex flex-row-reverse">
-              {!isSaving ? (
-                <NarButton label="Sign Data" onClick={signData} />
+              {!isEntitySigning && !isPolicySigning ? (
+                <div className="flex items-center gap-5">
+                  <NarButton label="Sign Entity" onClick={signEntityData} />
+                  <NarButton label="Sign Policy" onClick={signPolicyData} />
+                </div>
               ) : (
                 <div className="flex flex-col gap-4">
+                  {isEntitySigning &&
+                    ActionStatus(
+                      processingStatus.entitySigned,
+                      processingStatus.entitySigned ? 'Entity Data Signed!' : 'Signing Entity Data...'
+                    )}
+                  {isPolicySigning &&
+                    ActionStatus(
+                      processingStatus.policySigned,
+                      processingStatus.policySigned ? 'Policy Data Signed!' : 'Signing Policy Data...'
+                    )}
                   {ActionStatus(
-                    savingStatus.entitySigned,
-                    savingStatus.entitySigned ? 'Entity Data Signed!' : 'Signing Entity Data...'
+                    processingStatus.dataSaved,
+                    processingStatus.dataSaved ? 'Data Saved!' : 'Saving Data...'
                   )}
                   {ActionStatus(
-                    savingStatus.policySigned,
-                    savingStatus.policySigned ? 'Policy Data Signed!' : 'Signing Policy Data...'
-                  )}
-                  {ActionStatus(savingStatus.dataSaved, savingStatus.dataSaved ? 'Data Saved!' : 'Saving Data...')}
-                  {ActionStatus(
-                    savingStatus.engineSynced,
-                    savingStatus.engineSynced ? 'Engine Synced!' : 'Syncing Engine...'
+                    processingStatus.engineSynced,
+                    processingStatus.engineSynced ? 'Engine Synced!' : 'Syncing Engine...'
                   )}
                 </div>
               )}

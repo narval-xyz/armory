@@ -12,7 +12,8 @@ const HealthcheckStatus = () => {
     entityDataUrl: false,
     policyDataUrl: false,
     entitySignatureUrl: false,
-    policySignatureUrl: false
+    policySignatureUrl: false,
+    vaultConnection: false
   })
   const {
     engineUrl,
@@ -21,7 +22,8 @@ const HealthcheckStatus = () => {
     entityDataStoreUrl,
     policyDataStoreUrl,
     entitySignatureUrl,
-    policySignatureUrl
+    policySignatureUrl,
+    vaultUrl
   } = useStore()
 
   const checkPolicyDataConnection = async () => {
@@ -83,6 +85,15 @@ const HealthcheckStatus = () => {
     }
   }
 
+  const checkVaultConnection = async () => {
+    try {
+      await axios.get(vaultUrl)
+      setStatus((prev) => ({ ...prev, vaultConnection: true }))
+    } catch (e) {
+      setStatus((prev) => ({ ...prev, vaultConnection: false }))
+    }
+  }
+
   useEffect(() => {
     checkPolicyDataConnection()
     checkPolicySignatureConnection()
@@ -90,6 +101,7 @@ const HealthcheckStatus = () => {
     checkEntitySignatureConnection()
     checkEngineConnection()
     checkEngineDataStore()
+    checkVaultConnection()
   }, [])
 
   return (
@@ -171,6 +183,21 @@ const HealthcheckStatus = () => {
                 )}
               ></div>
               <div>{status.engineDataStore ? 'Synced' : 'Unsynced'}</div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="text-nv-xl">Vault</div>
+          <div className="flex flex-col gap-2">
+            <div className="text-nv-md underline">Connection</div>
+            <div className="flex items-center gap-4">
+              <div
+                className={classNames(
+                  'h-3 w-3 rounded-full',
+                  status.vaultConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                )}
+              ></div>
+              <div>{status.vaultConnection ? 'Connected' : 'Disconnected'}</div>
             </div>
           </div>
         </div>
