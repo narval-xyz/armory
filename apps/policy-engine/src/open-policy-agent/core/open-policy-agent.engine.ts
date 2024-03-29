@@ -294,7 +294,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
-    const engineJwk: PrivateKey = privateKeyToJwk(this.privateKey, Alg.ES256K)
     const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
@@ -318,6 +317,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    return signJwt(payload, engineJwk, { alg: SigningAlg.EIP191 })
+    return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }
