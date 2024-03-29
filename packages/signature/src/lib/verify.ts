@@ -6,7 +6,7 @@ import { JwtError } from './error'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
 import { Alg, Hex, Jwk, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
-import { base64UrlToHex, ellicpticPublicKeyToHex, publicKeyToHex } from './utils'
+import { base64UrlToHex, ellipticPublicKeyToHex, publicKeyToHex } from './utils'
 
 const checkTokenExpiration = (payload: Payload): boolean => {
   const now = Math.floor(Date.now() / 1000)
@@ -45,7 +45,7 @@ const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: Public
 }
 
 export const verifySepc256k1 = async (sig: Hex, hash: Uint8Array, jwk: Secp256k1PublicKey): Promise<boolean> => {
-  const pubKey = ellicpticPublicKeyToHex(jwk)
+  const pubKey = ellipticPublicKeyToHex(jwk)
   const isValid = secp256k1.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
   return isValid
 }

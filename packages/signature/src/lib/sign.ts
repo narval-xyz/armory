@@ -69,22 +69,40 @@ export async function signJwt(
  */
 export async function signJwt(payload: Payload, jwk: Jwk, opts: { alg?: SigningAlg }): Promise<string>
 
+/**
+ * Signs using default signers per algorithm. Key private material is required.
+ * opts are not provided
+ * @param payload
+ * @param jwk
+ * @returns
+ */
+export async function signJwt(payload: Payload, jwk: Jwk): Promise<string>
+
 export async function signJwt(
   payload: Payload,
   jwk: Jwk,
-  opts: { alg?: SigningAlg } = {},
+  optsOrSigner?: { alg?: SigningAlg } | ((payload: string) => Promise<string>),
   signer?: (payload: string) => Promise<string>
 ): Promise<string> {
+  let opts: { alg?: SigningAlg } = {}
+  let actualSigner: ((payload: string) => Promise<string>) | undefined = undefined
+
+  if (typeof optsOrSigner === 'function') {
+    actualSigner = optsOrSigner
+  } else {
+    opts = optsOrSigner || {}
+    actualSigner = signer
+  }
+
   const header = buildHeader(jwk, opts.alg)
   const encodedHeader = base64url.encode(JSON.stringify(header))
   const encodedPayload = base64url.encode(JSON.stringify(payload))
   const messageToSign = `${encodedHeader}.${encodedPayload}`
 
-  // Signature logic based on the presence of a custom signer
+  // Determine the signing logic based on the presence of a custom signer
   let signature: string
-  if (signer) {
-    // Custom signer provided
-    signature = await signer(messageToSign)
+  if (actualSigner) {
+    signature = await actualSigner(messageToSign)
   } else {
     // Default signer logic
     // Validate JWK as a private key for default signing
@@ -105,6 +123,7 @@ export async function signJwt(
         return fallbackSigner(privateKey, payload, header)
     }
   }
+
   return `${messageToSign}.${signature}`
 }
 

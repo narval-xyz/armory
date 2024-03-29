@@ -18,8 +18,6 @@ import {
   PrivateKey,
   PublicKey,
   SigningAlg,
-  base64UrlToHex,
-  buildSignerEip191,
   decode,
   hash,
   privateKeyToJwk,
@@ -320,11 +318,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    return signJwt(
-      payload,
-      this.privateKey,
-      { alg: SigningAlg.EIP191 },
-      buildSignerEip191(base64UrlToHex(this.privateKey.d))
-    )
+    return signJwt(payload, engineJwk, { alg: SigningAlg.EIP191 })
   }
 }

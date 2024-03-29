@@ -3,7 +3,7 @@ import { hash } from '../../hash-request'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
 import { Alg, Payload, Secp256k1PublicKey } from '../../types'
-import { ellipticPrivateKeyToJwk, privateKeyToJwk } from '../../utils'
+import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validate } from '../../validate'
 import { verifyJwt, verifySepc256k1 } from '../../verify'
 
@@ -11,7 +11,7 @@ describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
   it('should verify a EIP191-signed JWT', async () => {
-    const jwk = ellipticPrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
+    const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
 
     const header = {
       kid: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',

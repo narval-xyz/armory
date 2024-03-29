@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+  ellipticKeySchema,
   jwkBaseSchema,
   jwkEoaSchema,
   jwkSchema,
@@ -63,6 +64,7 @@ export type RsaKey = RsaPrivateKey | RsaPublicKey
 export type EoaPublicKey = z.infer<typeof jwkEoaSchema>
 export type Secp256k1PublicKey = z.infer<typeof secp256k1PublicKeySchema>
 export type Secp256k1Key = z.infer<typeof secp256k1KeySchema>
+export type EllipticKey = z.infer<typeof ellipticKeySchema>
 export type PublicKey = z.infer<typeof publicKeySchema>
 export type PrivateKey = z.infer<typeof privateKeySchema>
 export type PartialJwk = z.infer<typeof jwkBaseSchema>
