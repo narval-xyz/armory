@@ -7,7 +7,7 @@ import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
 import { Alg, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
-import { base64UrlToHex, secp256k1PublicKeyToHex } from './utils'
+import { base64UrlToHex, publicKeyToHex } from './utils'
 import { validate } from './validate'
 
 const checkTokenExpiration = (payload: Payload): boolean => {
@@ -31,7 +31,7 @@ const verifyEip191WithRecovery = async (sig: Hex, hash: Uint8Array, address: Hex
 
 const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Promise<boolean> => {
   if (isSepc256k1PublicKeyJwk(jwk)) {
-    const pub = secp256k1PublicKeyToHex(jwk)
+    const pub = publicKeyToHex(jwk)
     // A eth sig has a `v` value of 27 or 28, so we need to remove that to get the signature
     // And we remove the 0x prefix. So that means we slice the first and last 2 bytes, leaving the 128 character signature
     const isValid = secp256k1.verify(sig.slice(2, 130), hash, pub.slice(2)) === true
@@ -47,7 +47,7 @@ const verifyEip191WithPublicKey = async (sig: Hex, hash: Uint8Array, jwk: Public
 }
 
 export const verifySepc256k1 = async (sig: Hex, hash: Uint8Array, jwk: Secp256k1PublicKey): Promise<boolean> => {
-  const pubKey = secp256k1PublicKeyToHex(jwk)
+  const pubKey = publicKeyToHex(jwk)
   const isValid = secp256k1.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
   return isValid
 }
@@ -76,8 +76,11 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
 
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
   const { header, payload, signature } = decode(jwt)
-  const key = validate<PublicKey>(publicKeySchema, jwk, 'Invalid Public Key JWK')
-
+  const key = validate<PublicKey>({
+    schema: publicKeySchema,
+    jwk,
+    errorMessage: 'Invalid JWK: failed to validate public key'
+  })
   if (header.alg === SigningAlg.EIP191) {
     await verifyEip191(jwt, key)
   } else {

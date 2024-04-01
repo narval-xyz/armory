@@ -11,18 +11,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import {
-  Payload,
-  PrivateKey,
-  PublicKey,
-  SigningAlg,
-  base64UrlToHex,
-  buildSignerEip191,
-  decode,
-  hash,
-  signJwt,
-  verifyJwt
-} from '@narval/signature'
+import { Payload, PrivateKey, PublicKey, SigningAlg, decode, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -173,7 +162,9 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const validJwt = await verifyJwt(signature, credential.key)
+    const { key } = credential
+
+    const validJwt = await verifyJwt(signature, key)
 
     if (validJwt.payload.requestHash !== message) {
       throw new OpenPolicyAgentException({
@@ -311,11 +302,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    return signJwt(
-      payload,
-      this.privateKey,
-      { alg: SigningAlg.EIP191 },
-      buildSignerEip191(base64UrlToHex(this.privateKey.d))
-    )
+    return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }
