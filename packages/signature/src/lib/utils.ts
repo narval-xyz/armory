@@ -99,6 +99,11 @@ export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp2
   }
 }
 
+export const secp256k1PrivateKeyToPublicJwk = (privateKey: Hex, keyId?: string): Secp256k1PublicKey => {
+  const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
+  return secp256k1PublicKeyToJwk(publicKey, keyId)
+}
+
 export const p256PrivateKeyToJwk = (privateKey: Hex, keyId?: string): P256PrivateKey => {
   const publicKey = toHex(p256.getPublicKey(privateKey.slice(2), false))
   const publicJwk = p256PublicKeyToJwk(publicKey, keyId)
@@ -134,16 +139,16 @@ export const ellipticPublicKeyToHex = (jwk: Jwk): Hex => {
   return `0x04${x.slice(2)}${y.slice(2)}`
 }
 
-export const publicKeyToJwk = (jwk: Hex, alg: Alg): Jwk => {
+export const publicKeyToJwk = (key: Hex, alg: Alg): Jwk => {
   switch (alg) {
     case Alg.ES256K:
-      return secp256k1PublicKeyToJwk(jwk)
+      return secp256k1PublicKeyToJwk(key)
     case Alg.ES256:
-      return p256PublicKeyToJwk(jwk)
+      return p256PublicKeyToJwk(key)
     case Alg.RS256:
       throw new JwtError({
         message: 'Conversion from Hex to JWK not supported for RSA keys',
-        context: { jwk }
+        context: { key }
       })
   }
 }
