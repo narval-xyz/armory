@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   Header,
   Jwsd,
+  JwsdHeader,
   Jwt,
   Payload,
   ellipticKeySchema,
@@ -77,20 +78,7 @@ export type Jwk = z.infer<typeof jwkSchema>
 export type Hex = `0x${string}` // DOMAIN
 
 export type Header = z.infer<typeof Header>
-
-// https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
-// For GNAP JWSD header, the fields are required.
-// `ath` is also required IF it's a bound-request, otherwise it's optional
-export type JwsdHeader = {
-  alg: SigningAlg
-  kid: string // Key ID to identify the signing key
-  typ: 'gnap-binding-jwsd' // see https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
-  htm: string // HTTP Method
-  uri: string // The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.
-  created: number // The time the request was created.
-  ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
-}
-
+export type JwsdHeader = z.infer<typeof JwsdHeader>
 export type Payload = z.infer<typeof Payload>
 
 export type Jwt = z.infer<typeof Jwt>

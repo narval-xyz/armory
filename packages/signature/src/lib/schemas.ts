@@ -109,29 +109,53 @@ export const jwkSchema = dynamicKeySchema.extend({
  * @param {string} [kid] - The key ID to identify the signing key.
  */
 
-export const Header = z.object({
+export const Header = z.intersection(
+  z.record(z.string(), z.unknown()),
+  z.object({
+    alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+    kid: z.string().min(1).describe('The key ID to identify the signing key.'),
+    typ: z
+      .union([z.literal('JWT'), z.literal('gnap-binding-jwsd')])
+      .describe(
+        'The type of the token. It is set to JWT by default. For GNAP JWSD, it is set to gnap-binding-jwsd https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws.'
+      ),
+    htm: z.string().optional().describe('HTTP Method'),
+    uri: z
+      .string()
+      .optional()
+      .describe(
+        'The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.'
+      ),
+    created: z.number().optional().describe('The time the request was created.'),
+    ath: z
+      .string()
+      .optional()
+      .describe(
+        "The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value."
+      ),
+    crit: z.array(z.string().min(1)).optional().describe('The list of headers that are critical for the request')
+  })
+)
+
+export const JwsdHeader = z.object({
   alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
   kid: z.string().min(1).describe('The key ID to identify the signing key.'),
   typ: z
-    .union([z.literal('JWT'), z.literal('gnap-binding-jwsd')])
-    .describe(
-      'The type of the token. It is set to JWT by default. For GNAP JWSD, it is set to gnap-binding-jwsd https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws.'
-    ),
-  htm: z.string().optional().describe('HTTP Method'),
+    .literal('gnap-binding-jwsd')
+    .describe('https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws.'),
+  htm: z.string().describe('HTTP Method'),
   uri: z
     .string()
-    .optional()
     .describe(
       'The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.'
     ),
-  created: z.number().optional().describe('The time the request was created.'),
+  created: z.number().describe('The time the request was created.'),
   ath: z
     .string()
     .optional()
     .describe(
       "The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value."
-    ),
-  crit: z.array(z.string()).optional().describe('The list of headers that are critical for the request')
+    )
 })
 
 /**

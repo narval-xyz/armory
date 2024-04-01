@@ -2,9 +2,9 @@ import { ZodSchema } from 'zod'
 import { JwtError } from './error'
 import { Jwk } from './types'
 
-export function validate<T>({ schema, jwk, errorMessage }: { schema: ZodSchema<T>; jwk: Jwk; errorMessage?: string }) {
-  return (function validate(input: Jwk): T {
-    const result = schema.safeParse(input)
+export function buildValidator<T>({ schema, errorMessage }: { schema: ZodSchema<T>; errorMessage?: string }) {
+  return (jwk: Jwk): T => {
+    const result = schema.safeParse(jwk)
     if (!result.success) {
       throw new JwtError({
         message: errorMessage || 'Invalid JWK',
@@ -12,5 +12,9 @@ export function validate<T>({ schema, jwk, errorMessage }: { schema: ZodSchema<T
       })
     }
     return result.data
-  })(jwk)
+  }
+}
+
+export function validate<T>({ schema, jwk, errorMessage }: { schema: ZodSchema<T>; jwk: Jwk; errorMessage?: string }) {
+  return buildValidator({ schema, errorMessage })(jwk)
 }

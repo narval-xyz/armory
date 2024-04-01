@@ -315,3 +315,5 @@ export const generateJwk = async <T = Jwk>(
       throw new Error(`Unsupported algorithm: ${alg}`)
   }
 }
+
+export const nowSeconds = (): number => Math.floor(Date.now() / 1000)

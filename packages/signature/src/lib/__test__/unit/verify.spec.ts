@@ -1,11 +1,12 @@
 import { signatureToHex, toBytes } from 'viem'
+import { JwtError } from '../../error'
 import { hash } from '../../hash-request'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
-import { Alg, Payload, Secp256k1PublicKey } from '../../types'
+import { Alg, Header, Payload, Secp256k1PublicKey } from '../../types'
 import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validate } from '../../validate'
-import { verifyJwt, verifySepc256k1 } from '../../verify'
+import { verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySepc256k1 } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -105,5 +106,190 @@ describe('verify', () => {
     const hexSignature = signatureToHex(signature)
     const isVerified = await verifySepc256k1(hexSignature, msg, pubKey)
     expect(isVerified).toEqual(true)
+  })
+})
+
+describe('verifyJwtHeader', () => {
+  it('should return true when all recognized crit parameters are present in the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['b64'],
+      b64: false
+    }
+
+    const result = verifyJwtHeader(header as Header)
+
+    expect(result).toBe(true)
+  })
+
+  it('should throw JwtError when unrecognized crit parameter is present in the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['unknown']
+    }
+
+    expect(() => verifyJwtHeader(header as Header)).toThrow(JwtError)
+  })
+
+  it('should throw JwtError when crit parameter is missing from the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['unknown']
+    }
+
+    expect(() =>
+      verifyJwtHeader(header as Header, {
+        crit: ['unknown']
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('does not throw when custom crit param is recognized', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['custom'],
+      custom: 'value' // This is a custom claim that is recognized
+    }
+
+    expect(() =>
+      verifyJwtHeader(header as Header, {
+        crit: ['custom']
+      })
+    ).not.toThrow()
+  })
+})
+
+describe('verifyJwsdHeader', () => {
+  it('should verify the JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: Math.floor(Date.now() / 1000),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).not.toThrow()
+  })
+
+  it('should throw for missing standard header fields', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      htm: 'invalid-htm',
+      uri: 'example-uri',
+      created: Math.floor(Date.now() / 1000),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('should throw an error for invalid htm field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'invalid-htm',
+      uri: 'example-uri',
+      created: Math.floor(Date.now() / 1000),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('should throw an error for invalid uri field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'invalid-uri',
+      created: Math.floor(Date.now() / 1000),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('should throw an error for JWS that is too old', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('should throw an error for invalid ath field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: Math.floor(Date.now() / 1000),
+      ath: 'invalid-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
   })
 })

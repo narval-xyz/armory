@@ -3,12 +3,12 @@ import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
 import { decodeJwsd, decodeJwt } from './decode'
 import { JwtError } from './error'
-import { publicKeySchema } from './schemas'
+import { JwsdHeader, publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSepc256k1PublicKeyJwk } from './typeguards'
-import { Alg, Hex, Jwk, Jwsd, Jwt, Payload, PublicKey, Secp256k1PublicKey, SigningAlg } from './types'
-import { base64UrlToHex, publicKeyToHex } from './utils'
-import { validate } from './validate'
+import { Alg, Header, Hex, Jwk, Jwsd, Payload, PublicKey, Secp256k1PublicKey, SigningAlg, type Jwt } from './types'
+import { base64UrlToHex, nowSeconds, publicKeyToHex } from './utils'
+import { buildValidator } from './validate'
 
 const checkTokenExpiration = (payload: Payload): boolean => {
   const now = Math.floor(Date.now() / 1000)
@@ -74,18 +74,101 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
   return true
 }
 
+const validatePublicKey = buildValidator<PublicKey>({
+  schema: publicKeySchema,
+  errorMessage: 'Invalid JWK: failed to validate public key'
+})
+
+export function verifyJwtHeader(header: Header, opts?: { crit?: string[] }): boolean {
+  const recognized = new Map([...(opts?.crit || []), 'b64'].map((key) => [key, true]))
+
+  if (header.crit) {
+    for (const parameter of header.crit) {
+      // Check that the parameter in `crit` is recognized by our system
+      if (!recognized.has(parameter)) {
+        throw new JwtError({
+          message: `Extension Header Parameter "${parameter}" is not recognized`,
+          context: { header }
+        })
+      }
+
+      // Check that the header actually includes the crit param
+      if (header[parameter] === undefined) {
+        throw new JwtError({
+          message: `Extension Header Parameter "${parameter}" is missing`,
+          context: { header }
+        })
+      }
+    }
+  }
+
+  return true
+}
+
+// https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
+export function verifyJwsdHeader(
+  header: Header,
+  opts?: {
+    htm: string
+    uri: string
+    maxTokenAge: number // seconds since creation
+    ath?: string
+  }
+): boolean {
+  // Ensure we have all the required jwsd header fields
+  const parsed = JwsdHeader.safeParse(header)
+  if (!parsed.success) {
+    throw new JwtError({
+      message: 'Invalid Jwsd header',
+      context: { header, errors: parsed.error }
+    })
+  }
+  const jwsdHeader = parsed.data
+  // If we don't have opts, then we'll accept any values as long as the required values exist
+  // this is not recommended for production use
+  if (!opts) return true
+
+  if (jwsdHeader.htm !== opts.htm) {
+    throw new JwtError({
+      message: 'Invalid htm field in jws header',
+      context: { header, opts }
+    })
+  }
+  if (jwsdHeader.uri !== opts.uri) {
+    throw new JwtError({
+      message: 'Invalid uri field in jws header',
+      context: { header, opts }
+    })
+  }
+  const now = nowSeconds()
+  if (jwsdHeader.created && now - jwsdHeader.created > opts.maxTokenAge) {
+    throw new JwtError({
+      message: 'JWS is too old, created field is too far in the past',
+      context: { header, opts }
+    })
+  }
+
+  if (opts.ath && jwsdHeader.ath !== opts.ath) {
+    throw new JwtError({
+      message: 'Invalid ath field in jws header',
+      context: { header, opts }
+    })
+  }
+
+  return true
+}
+
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
+  const key = validatePublicKey(jwk)
   const { header, payload, signature } = decodeJwt(jwt)
-  const key = validate<PublicKey>({
-    schema: publicKeySchema,
-    jwk,
-    errorMessage: 'Invalid JWK: failed to validate public key'
-  })
+
+  verifyJwtHeader(header)
+
   if (header.alg === SigningAlg.EIP191) {
     await verifyEip191(jwt, key)
   } else {
     // TODO: Implement other algs individually without jose
-    const joseJwk = await importJWK(jwk)
+    const joseJwk = await importJWK(key)
     await jwtVerify<Payload>(jwt, joseJwk)
   }
 
@@ -101,13 +184,16 @@ export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
 }
 
 export async function verifyJwsd(jws: string, jwk: PublicKey): Promise<Jwsd> {
+  const key = validatePublicKey(jwk)
   const { header, payload, signature } = decodeJwsd(jws)
 
+  verifyJwsdHeader(header)
+
   if (header.alg === SigningAlg.EIP191) {
-    await verifyEip191(jws, jwk)
+    await verifyEip191(jws, key)
   } else {
     // TODO: Implement other algs individually without jose
-    const joseJwk = await importJWK(jwk)
+    const joseJwk = await importJWK(key)
     await jwtVerify(jws, joseJwk)
   }
 
