@@ -4,7 +4,7 @@ import { Alg, Curves, KeyTypes, Use } from './types'
 
 // Base JWK Schema
 export const jwkBaseSchema = z.object({
-  kty: z.nativeEnum(KeyTypes),
+  kty: z.nativeEnum(KeyTypes).optional(),
   alg: z.nativeEnum(Alg),
   use: z.nativeEnum(Use).optional(),
   kid: z.string(),
@@ -51,20 +51,24 @@ export const rsaPublicKeySchema = rsaBaseSchema
 
 // Specific Schemas for Private Keys
 export const secp256k1PrivateKeySchema = secp256k1PublicKeySchema.extend({
-  d: z.string()
+  d: z.string(),
+  x: z.string().optional(),
+  y: z.string().optional()
 })
 
 export const p256PrivateKeySchema = p256PublicKeySchema.extend({
-  d: z.string()
+  d: z.string(),
+  x: z.string().optional(),
+  y: z.string().optional()
 })
 
 export const rsaPrivateKeySchema = rsaPublicKeySchema.extend({
   d: z.string(),
-  p: z.string(),
-  q: z.string(),
-  dp: z.string(),
-  dq: z.string(),
-  qi: z.string()
+  p: z.string().optional(),
+  q: z.string().optional(),
+  dp: z.string().optional(),
+  dq: z.string().optional(),
+  qi: z.string().optional()
 })
 
 export const publicKeySchema = z.union([
@@ -77,6 +81,10 @@ export const publicKeySchema = z.union([
 export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateKeySchema, rsaPrivateKeySchema])
 
 export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1PrivateKeySchema])
+
+export const p256KeySchema = z.union([p256PublicKeySchema, p256PrivateKeySchema])
+
+export const ellipticKeySchema = z.union([secp256k1KeySchema, p256KeySchema])
 
 const dynamicKeySchema = z.object({}).catchall(z.unknown())
 

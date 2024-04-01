@@ -4,8 +4,29 @@ import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { SignJWT, base64url, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
 import { hash } from './hash-request'
-import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, Payload, SigningAlg } from './types'
-import { hexToBase64Url } from './utils'
+import { jwkBaseSchema, privateKeySchema } from './schemas'
+import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
+import { hexToBase64Url, privateKeyToHex } from './utils'
+import { validate } from './validate'
+
+const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
+  const key = validate<PartialJwk>({
+    schema: jwkBaseSchema,
+    jwk,
+    errorMessage: 'Invalid JWK: failed to validate basic fields'
+  })
+  return {
+    alg: alg || key.alg,
+    kid: key.kid,
+    typ: 'JWT'
+  }
+}
+
+const fallbackSigner = async (jwk: PrivateKey, payload: Payload, header: Header) => {
+  const pk = await importJWK(jwk)
+  const signature = await new SignJWT(payload).setProtectedHeader(header).sign(pk)
+  return signature
+}
 
 export async function signJwsd(
   rawBody: string | object,
@@ -23,39 +44,87 @@ export async function signJwsd(
   return completeJWT
 }
 
+/**
+ * Sign using a custom signer. It means signer may be responsible of getting key private material.
+ * MetaMask wallets signing / MPC signing services are examples of this.
+ * @param payload
+ * @param jwk
+ * @param opts
+ * @param signer
+ * @returns
+ */
 export async function signJwt(
   payload: Payload,
   jwk: Jwk,
-  opts: { alg?: SigningAlg } = {},
+  opts: { alg?: SigningAlg },
+  signer: (payload: string) => Promise<string>
+): Promise<string>
+
+/**
+ * Signs using default signers per algorithm. Key private material is required.
+ * @param payload
+ * @param jwk
+ * @param opts
+ * @returns
+ */
+export async function signJwt(payload: Payload, jwk: Jwk, opts: { alg?: SigningAlg }): Promise<string>
+
+/**
+ * Signs using default signers per algorithm. Key private material is required.
+ * opts are not provided
+ * @param payload
+ * @param jwk
+ * @returns
+ */
+export async function signJwt(payload: Payload, jwk: Jwk): Promise<string>
+
+export async function signJwt(
+  payload: Payload,
+  jwk: Jwk,
+  optsOrSigner?: { alg?: SigningAlg } | ((payload: string) => Promise<string>),
   signer?: (payload: string) => Promise<string>
 ): Promise<string> {
-  if (!jwk.kid || !jwk.alg) {
-    throw new Error('JWK must have a kid and alg')
-  }
-  const header: Header = {
-    kid: jwk.kid,
-    alg: opts.alg || jwk.alg, // TODO: add separate type for `ES256k-KECCAK`
-    typ: 'JWT'
+  let opts: { alg?: SigningAlg } = {}
+  let actualSigner: ((payload: string) => Promise<string>) | undefined = undefined
+
+  if (typeof optsOrSigner === 'function') {
+    actualSigner = optsOrSigner
+  } else {
+    opts = optsOrSigner || {}
+    actualSigner = signer
   }
 
-  if (header.alg === SigningAlg.EIP191) {
-    if (!signer) {
-      throw new Error('Missing signer')
+  const header = buildHeader(jwk, opts.alg)
+  const encodedHeader = base64url.encode(JSON.stringify(header))
+  const encodedPayload = base64url.encode(JSON.stringify(payload))
+  const messageToSign = `${encodedHeader}.${encodedPayload}`
+
+  // Determine the signing logic based on the presence of a custom signer
+  let signature: string
+  if (actualSigner) {
+    signature = await actualSigner(messageToSign)
+  } else {
+    // Default signer logic
+    // Validate JWK as a private key for default signing
+    const privateKey = validate<PrivateKey>({
+      schema: privateKeySchema,
+      jwk,
+      errorMessage: 'Invalid JWK: failed to validate private key'
+    })
+    const privateKeyHex = privateKeyToHex(privateKey)
+    switch (header.alg) {
+      case SigningAlg.ES256K:
+        signature = await buildSignerEs256k(privateKeyHex)(messageToSign)
+        break
+      case SigningAlg.EIP191:
+        signature = await buildSignerEip191(privateKeyHex)(messageToSign)
+        break
+      default:
+        return fallbackSigner(privateKey, payload, header)
     }
-    const encodedHeader = base64url.encode(JSON.stringify(header))
-    const encodedPayload = base64url.encode(JSON.stringify(payload))
-
-    const messageToSign = `${encodedHeader}.${encodedPayload}`
-
-    const signature = await signer(messageToSign)
-
-    const completeJWT = `${messageToSign}.${signature}`
-    return completeJWT
   }
 
-  const privateKey = await importJWK(jwk)
-  const jwt = await new SignJWT(payload).setProtectedHeader(header).sign(privateKey)
-  return jwt
+  return `${messageToSign}.${signature}`
 }
 
 export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?: boolean): EcdsaSignature => {
@@ -73,7 +142,7 @@ export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?
 }
 
 export const buildSignerEs256k =
-  (privateKey: string) =>
+  (privateKey: Hex | string) =>
   async (messageToSign: string): Promise<string> => {
     const hash = sha256Hash(messageToSign)
 

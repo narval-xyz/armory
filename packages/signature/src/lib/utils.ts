@@ -5,18 +5,19 @@ import { exportJWK, generateKeyPair } from 'jose'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
-import { rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
+import { ellipticKeySchema, privateKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
 import {
   Alg,
   Curves,
+  EllipticKey,
   Hex,
   Jwk,
   KeyTypes,
   P256PrivateKey,
   P256PublicKey,
+  PrivateKey,
   RsaPrivateKey,
   RsaPublicKey,
-  Secp256k1KeySchema,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
   Use
@@ -89,7 +90,7 @@ export const p256PublicKeyToJwk = (publicKey: Hex, keyId?: string): P256PublicKe
 }
 
 // ES256k
-export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp256k1PrivateKey => {
+export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp256k1PrivateKey | P256PrivateKey => {
   const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
   const publicJwk = secp256k1PublicKeyToJwk(publicKey, keyId)
   return {
@@ -107,17 +108,47 @@ export const p256PrivateKeyToJwk = (privateKey: Hex, keyId?: string): P256Privat
   }
 }
 
-export const p256PrivateKeyToHex = (jwk: P256PrivateKey): Hex => {
-  return base64UrlToHex(jwk.d)
-}
+export const ellipticPublicKeyToHex = (jwk: Jwk): Hex => {
+  const key = validate<EllipticKey>({
+    schema: ellipticKeySchema,
+    jwk: jwk,
+    errorMessage: 'Invalid Public Key'
+  })
+  if (key.x && key.y) {
+    const x = base64UrlToHex(key.x)
+    const y = base64UrlToHex(key.y)
+    return `0x04${x.slice(2)}${y.slice(2)}`
+  }
 
-export const secp256k1PublicKeyToHex = (jwk: Secp256k1KeySchema): Hex => {
-  const x = base64UrlToHex(jwk.x)
-  const y = base64UrlToHex(jwk.y)
+  if (!('d' in key)) {
+    throw new JwtError({
+      message: 'Invalid JWK: missing x, y, or d',
+      context: { jwk: key }
+    })
+  }
+
+  const publicKeyUncompressed = secp256k1.getPublicKey(key.d, false)
+  const publicKeyHex = toHex(publicKeyUncompressed)
+  const x = publicKeyHex.substring(2, 66) // Get x part
+  const y = publicKeyHex.substring(66) // Get y part
   return `0x04${x.slice(2)}${y.slice(2)}`
 }
 
-export const secp256k1PrivateKeyToHex = (jwk: Secp256k1PrivateKey): Hex => {
+export const publicKeyToJwk = (jwk: Hex, alg: Alg): Jwk => {
+  switch (alg) {
+    case Alg.ES256K:
+      return secp256k1PublicKeyToJwk(jwk)
+    case Alg.ES256:
+      return p256PublicKeyToJwk(jwk)
+    case Alg.RS256:
+      throw new JwtError({
+        message: 'Conversion from Hex to JWK not supported for RSA keys',
+        context: { jwk }
+      })
+  }
+}
+
+export const ellipticPrivateKeyToHex = (jwk: P256PrivateKey | Secp256k1PrivateKey): Hex => {
   return base64UrlToHex(jwk.d)
 }
 
@@ -153,6 +184,66 @@ const rsaKeyToKid = (jwk: Jwk) => {
   return toHex(hash)
 }
 
+// TODO: Define if this function is necessary, what should be the behavior when passing a RSA key to be hexified
+const rsaPubKeyToHex = (jwk: Jwk): Hex => {
+  const key = validate<RsaPublicKey>({
+    schema: rsaPublicKeySchema,
+    jwk,
+    errorMessage: 'Invalid RSA Public Key'
+  })
+  const dataToHash = `${key.n}:${key.e}`
+
+  const binaryData = base64UrlToBytes(dataToHash)
+  const hash = sha256Hash(binaryData)
+  return toHex(hash)
+}
+
+const rsaPrivateKeyToHex = (jwk: Jwk): Hex => {
+  const key = validate<RsaPrivateKey>({
+    schema: rsaPrivateKeySchema,
+    jwk,
+    errorMessage: 'Invalid RSA Private Key'
+  })
+  const dataToHash = `${key.n}:${key.e}:${key.d}`
+
+  const binaryData = base64UrlToBytes(dataToHash)
+  const hash = sha256Hash(binaryData)
+  return toHex(hash)
+}
+
+export const publicKeyToHex = (jwk: Jwk): Hex => {
+  if (jwk.kty === KeyTypes.EC) {
+    return ellipticPublicKeyToHex(jwk)
+  }
+  return rsaPubKeyToHex(jwk)
+}
+
+export const privateKeyToHex = (jwk: Jwk): Hex => {
+  const key = validate<PrivateKey>({
+    schema: privateKeySchema,
+    jwk,
+    errorMessage: 'Invalid Private Key'
+  })
+  if (key.kty === KeyTypes.EC) {
+    return ellipticPrivateKeyToHex(key)
+  }
+  return rsaPrivateKeyToHex(jwk)
+}
+
+export const privateKeyToJwk = (jwk: Hex, alg: Alg): PrivateKey => {
+  switch (alg) {
+    case Alg.ES256K:
+      return secp256k1PrivateKeyToJwk(jwk)
+    case Alg.ES256:
+      return p256PrivateKeyToJwk(jwk)
+    case Alg.RS256:
+      throw new JwtError({
+        message: 'Conversion from Hex to JWK not supported for RSA keys',
+        context: { jwk }
+      })
+  }
+}
+
 const generateRsaPrivateKey = async (
   opts: {
     keyId?: string
@@ -181,7 +272,11 @@ const generateRsaPrivateKey = async (
   }
   jwk.kid = opts.keyId || rsaKeyToKid(jwk)
 
-  const pk = validate<RsaPrivateKey>(rsaPrivateKeySchema, jwk, 'Invalid RSA Private Key JWK')
+  const pk = validate<RsaPrivateKey>({
+    schema: rsaPrivateKeySchema,
+    jwk,
+    errorMessage: 'Invalid RSA Private Key'
+  })
   return pk
 }
 
