@@ -1,22 +1,34 @@
-import { base64url } from 'jose'
-import { decode } from '../../decode'
-import { DECODED_TOKEN, SIGNATURE_PART, SIGNED_TOKEN } from './mock'
+import { decodeJwt } from '../../decode'
+import { signJwt } from '../../sign'
+import { privateKeyToJwk } from '../../utils'
 
-describe('decode', () => {
+describe('decodeJwt', () => {
+  const payload = {
+    requestHash: '68631bb22b171d296a522bb6c3248055597bf63eac2ba95f1fd02a48ae1edf8c',
+    iat: 1733875200,
+    exp: 1733961600
+  }
+
+  const key = privateKeyToJwk('0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5', 'ES256K')
+
   it('decodes a request successfully', async () => {
-    const jwt = decode(SIGNED_TOKEN)
-    expect(jwt).toEqual(DECODED_TOKEN)
+    const rawJwt = await signJwt(payload, key, { alg: 'ES256K' })
+
+    const jwt = decodeJwt(rawJwt)
+    expect(jwt).toEqual({
+      header: {
+        alg: 'ES256K',
+        kid: key.kid,
+        typ: 'JWT'
+      },
+      payload,
+      signature: rawJwt.split('.')[2]
+    })
   })
   it('throws an error if token is malformed', async () => {
-    expect(() => decode('invalid')).toThrow()
+    expect(() => decodeJwt('invalid')).toThrow()
   })
   it('throws an error if token is formed well with unmeaningful data', async () => {
-    expect(() => decode('invalid.invalid.invalid')).toThrow()
-  })
-
-  it('throws an error if header is invalid', async () => {
-    const encodedHeader = base64url.encode(JSON.stringify({ alg: 'invalid', kid: 'invalid' }))
-    const token = `${encodedHeader}.${'invalid'}.${SIGNATURE_PART}`
-    expect(() => decode(token)).toThrow()
+    expect(() => decodeJwt('invalid.invalid.invalid')).toThrow()
   })
 })

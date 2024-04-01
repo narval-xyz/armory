@@ -1,7 +1,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { importJWK, jwtVerify } from 'jose'
 import { isAddressEqual, recoverAddress } from 'viem'
-import { decode, decodeJwsd } from './decode'
+import { decodeJwsd, decodeJwt } from './decode'
 import { JwtError } from './error'
 import { publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
@@ -75,7 +75,7 @@ export const verifyEip191 = async (jwt: string, jwk: PublicKey): Promise<boolean
 }
 
 export async function verifyJwt(jwt: string, jwk: Jwk): Promise<Jwt> {
-  const { header, payload, signature } = decode(jwt)
+  const { header, payload, signature } = decodeJwt(jwt)
   const key = validate<PublicKey>({
     schema: publicKeySchema,
     jwk,
