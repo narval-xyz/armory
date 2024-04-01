@@ -1,16 +1,17 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
-import { SignJWT, base64url, importJWK } from 'jose'
+import { SignJWT, importJWK } from 'jose'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
 import { hash } from './hash-request'
+import { canonicalize } from './json.util'
 import { jwkBaseSchema, privateKeySchema } from './schemas'
 import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
-import { hexToBase64Url, privateKeyToHex } from './utils'
-import { validate } from './validate'
+import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
+import { validateJwk } from './validate'
 
 const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
-  const key = validate<PartialJwk>({
+  const key = validateJwk<PartialJwk>({
     schema: jwkBaseSchema,
     jwk,
     errorMessage: 'Invalid JWK: failed to validate basic fields'
@@ -33,8 +34,8 @@ export async function signJwsd(
   header: JwsdHeader,
   signer: (payload: string) => Promise<string>
 ): Promise<string> {
-  const encodedHeader = base64url.encode(JSON.stringify(header))
-  const encodedPayload = hexToBase64Url(`0x${hash(rawBody)}`)
+  const encodedHeader = stringToBase64Url(canonicalize(header))
+  const encodedPayload = hexToBase64Url(hash(rawBody))
 
   const messageToSign = `${encodedHeader}.${encodedPayload}`
 
@@ -95,8 +96,8 @@ export async function signJwt(
   }
 
   const header = buildHeader(jwk, opts.alg)
-  const encodedHeader = base64url.encode(JSON.stringify(header))
-  const encodedPayload = base64url.encode(JSON.stringify(payload))
+  const encodedHeader = stringToBase64Url(canonicalize(header))
+  const encodedPayload = stringToBase64Url(canonicalize(payload))
   const messageToSign = `${encodedHeader}.${encodedPayload}`
 
   // Determine the signing logic based on the presence of a custom signer
@@ -106,7 +107,7 @@ export async function signJwt(
   } else {
     // Default signer logic
     // Validate JWK as a private key for default signing
-    const privateKey = validate<PrivateKey>({
+    const privateKey = validateJwk<PrivateKey>({
       schema: privateKeySchema,
       jwk,
       errorMessage: 'Invalid JWK: failed to validate private key'

@@ -38,7 +38,7 @@ function decode(rawToken: string) {
 export function decodeJwt(rawToken: string): Jwt {
   const decoded = decode(rawToken)
   if (decoded.header.typ.toLowerCase() !== 'jwt') {
-    throw new JwtError({ message: 'Invalid header', context: { rawToken, decoded } })
+    throw new JwtError({ message: 'Invalid header. Must be jwt.', context: { rawToken, decoded } })
   }
 
   const parsedPayload = Payload.parse(JSON.parse(decoded.payload))
@@ -60,8 +60,8 @@ export function decodeJwt(rawToken: string): Jwt {
  */
 export function decodeJwsd(rawToken: string): Jwsd {
   const decoded = decode(rawToken)
-  if (decoded.header.typ.toLowerCase() !== 'jwsd') {
-    throw new JwtError({ message: 'Invalid header', context: { rawToken, decoded } })
+  if (decoded.header.typ.toLowerCase() !== 'gnap-binding-jwsd') {
+    throw new JwtError({ message: 'Invalid header type. Must be gnap-binding-jwsd.', context: { rawToken, decoded } })
   }
 
   return decoded

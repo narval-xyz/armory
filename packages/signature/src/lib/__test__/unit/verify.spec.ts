@@ -5,8 +5,8 @@ import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
 import { Alg, Header, Payload, Secp256k1PublicKey } from '../../types'
 import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
-import { validate } from '../../validate'
-import { verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySepc256k1 } from '../../verify'
+import { validateJwk } from '../../validate'
+import { verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySecp256k1 } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -91,20 +91,21 @@ describe('verify', () => {
     const policyHash = hash(policy)
 
     expect(res).toBeDefined()
-    expect(res.payload.data).toEqual(policyHash)
+    // Remove the 0x because we're lazy and don't want to manually regenerate the above jwt to include the 0x from the updated hash function
+    expect(res.payload.data).toEqual(policyHash.slice(2))
   })
 
   it('verifies raw secp256k1 signatures', async () => {
     const msg = toBytes('My ASCII message')
     const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`, Alg.ES256K)
-    const pubKey = validate<Secp256k1PublicKey>({
+    const pubKey = validateJwk<Secp256k1PublicKey>({
       schema: secp256k1PublicKeySchema,
       jwk
     })
 
     const signature = await signSecp256k1(msg, ENGINE_PRIVATE_KEY, true)
     const hexSignature = signatureToHex(signature)
-    const isVerified = await verifySepc256k1(hexSignature, msg, pubKey)
+    const isVerified = await verifySecp256k1(hexSignature, msg, pubKey)
     expect(isVerified).toEqual(true)
   })
 })

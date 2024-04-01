@@ -1,35 +1,16 @@
-import { createHash } from 'crypto'
-import { stringify } from './json.util'
-
-const sort = (value: unknown): unknown => {
-  if (typeof value !== 'object' || value === null || value === undefined) {
-    return value
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(sort)
-  }
-
-  return Object.keys(value)
-    .sort()
-    .reduce((acc, key) => {
-      return {
-        ...acc,
-        [key]: sort((value as Record<string, unknown>)[key])
-      }
-    }, {})
-}
+import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { toHex } from 'viem'
+import { canonicalize } from './json.util'
+import { Hex } from './types'
 
 /**
  * Returns the hexadecimal of the given value SHA256 hash.
  *
- * Works with BigInt primitives.
+ * Works with BigInt primitives & canonicalizes json objects
  *
  * @param value an object
  * @returns object's hash
  */
-export const hash = (value: unknown): string => {
-  return createHash('sha256')
-    .update(stringify(sort(value)))
-    .digest('hex')
+export const hash = (value: unknown): Hex => {
+  return toHex(sha256Hash(canonicalize(value)))
 }
