@@ -11,7 +11,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import { Payload, PrivateKey, PublicKey, SigningAlg, decode, hash, signJwt, verifyJwt } from '@narval/signature'
+import { Payload, PrivateKey, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -151,7 +151,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async verifySignature(signature: JwtString, message: string) {
-    const { header } = decode(signature)
+    const { header } = decodeJwt(signature)
 
     const credential = this.getCredential(header.kid)
 
