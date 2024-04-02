@@ -1,6 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
-import { secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { Alg, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
@@ -11,6 +11,7 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
+import { Tenant } from '../../../../../shared/type/domain.type'
 import { BootstrapException } from '../../../exception/bootstrap.exception'
 import { BootstrapService } from '../../bootstrap.service'
 import { EngineSignerConfigService } from '../../engine-signer-config.service'
@@ -35,18 +36,26 @@ describe(BootstrapService.name, () => {
     }
   }
 
-  const tenantOne = {
+  const tenantOne: Tenant = {
     dataStore,
     clientId: 'test-tenant-one-id',
     clientSecret: 'unsafe-client-secret',
+    signer: {
+      type: 'PRIVATE_KEY',
+      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+    },
     createdAt: new Date(),
     updatedAt: new Date()
   }
 
-  const tenantTwo = {
+  const tenantTwo: Tenant = {
     dataStore,
     clientId: 'test-tenant-two-id',
     clientSecret: 'unsafe-client-secret',
+    signer: {
+      type: 'PRIVATE_KEY',
+      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+    },
     createdAt: new Date(),
     updatedAt: new Date()
   }

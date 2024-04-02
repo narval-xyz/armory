@@ -8,7 +8,9 @@ import {
   PolicyStore,
   Then
 } from '@narval/policy-engine-shared'
+import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
+import { generatePrivateKey } from 'viem/accounts'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
@@ -58,6 +60,10 @@ describe(TenantRepository.name, () => {
     const tenant: Tenant = {
       clientId,
       clientSecret: 'test-client-secret',
+      signer: {
+        type: 'PRIVATE_KEY',
+        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      },
       dataStore: {
         entity: dataStoreConfiguration,
         policy: dataStoreConfiguration

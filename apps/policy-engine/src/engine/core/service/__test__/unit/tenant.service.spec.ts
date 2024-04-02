@@ -1,7 +1,9 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { DataStoreConfiguration, FIXTURE } from '@narval/policy-engine-shared'
+import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { generatePrivateKey } from 'viem/accounts'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
@@ -30,6 +32,10 @@ describe(TenantService.name, () => {
     dataStore: {
       entity: dataStoreConfiguration,
       policy: dataStoreConfiguration
+    },
+    signer: {
+      type: 'PRIVATE_KEY',
+      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
     },
     createdAt: new Date(),
     updatedAt: new Date()

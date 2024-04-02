@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { Action, Criterion, Decision, FIXTURE, Then } from '@narval/policy-engine-shared'
-import { PrivateKey, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { Alg, PrivateKey, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
@@ -90,6 +90,10 @@ describe('Evaluation', () => {
         dataStore: {
           entity: dataStoreConfiguration,
           policy: dataStoreConfiguration
+        },
+        signer: {
+          type: 'PRIVATE_KEY',
+          key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
         },
         createdAt: new Date(),
         updatedAt: new Date()

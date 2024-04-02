@@ -1,5 +1,7 @@
+import { Alg, privateKeyToJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
+import { generatePrivateKey } from 'viem/accounts'
 import { TenantService } from '../../../../engine/core/service/tenant.service'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../policy-engine.constant'
 import { ApplicationException } from '../../../exception/application.exception'
@@ -38,6 +40,10 @@ describe(ClientSecretGuard.name, () => {
           signatureUrl: 'http://9.9.9.9:99/test-data-store',
           keys: []
         }
+      },
+      signer: {
+        type: 'PRIVATE_KEY',
+        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
       },
       updatedAt: new Date(),
       createdAt: new Date()

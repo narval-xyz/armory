@@ -1,6 +1,8 @@
+import { Alg, privateKeyToHex, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 import { v4 as uuid } from 'uuid'
+import { generatePrivateKey } from 'viem/accounts'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AdminApiKeyGuard } from '../../../../shared/guard/admin-api-key.guard'
 import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
@@ -23,11 +25,20 @@ export class TenantController {
         entity: body.entityDataStore,
         policy: body.policyDataStore
       },
+      signer: {
+        type: 'PRIVATE_KEY',
+        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      },
       createdAt: now,
       updatedAt: now
     })
 
-    return tenant
+    const publicKey = secp256k1PrivateKeyToPublicJwk(privateKeyToHex(tenant.signer.key))
+
+    return {
+      ...tenant,
+      signer: { publicKey }
+    }
   }
 
   @Post('/sync')
