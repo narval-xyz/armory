@@ -4,11 +4,13 @@ import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
 import { EngineRepository } from '../../persistence/repository/engine.repository'
 import { EngineNotProvisionedException } from '../exception/engine-not-provisioned.exception'
+import { EngineSignerConfigService } from './engine-signer-config.service'
 
 @Injectable()
 export class EngineService {
   constructor(
     private configService: ConfigService<Config>,
+    private engineSignerConfigService: EngineSignerConfigService,
     private engineRepository: EngineRepository
   ) {}
 
@@ -26,7 +28,8 @@ export class EngineService {
     const engine = await this.engineRepository.findById(this.getId())
 
     if (engine) {
-      return engine
+      const enginePublicJwk = await this.engineSignerConfigService.getEnginePublicJwk()
+      return { ...engine, publicJwk: enginePublicJwk || undefined }
     }
 
     return null
