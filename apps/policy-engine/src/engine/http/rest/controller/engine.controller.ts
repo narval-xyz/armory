@@ -1,17 +1,19 @@
 import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common'
 import { ClientSecretGuard } from 'apps/policy-engine/src/shared/guard/client-secret.guard'
-import { EngineService } from '../../../core/service/engine.service'
+import { EngineSignerConfigService } from '../../../core/service/engine-signer-config.service'
 
 @Controller('/engine')
 export class EngineController {
-  constructor(private engineService: EngineService) {}
+  constructor(private engineSignerConfigService: EngineSignerConfigService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(ClientSecretGuard)
   async getPublicJwk() {
     try {
-      return this.engineService.getEngineOrThrow()
+      const engineData = await this.engineSignerConfigService.getEnginePublicJwkOrThrow()
+
+      return engineData
     } catch (error) {
       return { ok: false }
     }
