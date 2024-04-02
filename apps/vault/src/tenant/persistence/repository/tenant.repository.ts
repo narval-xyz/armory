@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
-import { z } from 'zod'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
+import { tenantIndexSchema, tenantSchema } from '../../../shared/schema/tenant.schema'
 import { Tenant } from '../../../shared/type/domain.type'
-
-const tenantIndexSchema = z.array(z.string())
 
 @Injectable()
 export class TenantRepository {
@@ -68,7 +66,7 @@ export class TenantRepository {
   }
 
   private encode(tenant: Tenant): string {
-    return encode
+    return EncryptKeyValueService.encode(tenantSchema.parse(tenant))
   }
 
   private decode(value: string): Tenant {
