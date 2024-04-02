@@ -17,10 +17,10 @@ export class EngineSignerConfigService {
     return this.engineSignerConfigRepository.save(this.getEngineId(), signerConfig)
   }
 
-  async getEnginePublicJwkOrThrow(): Promise<{ id: string; publicJwk: PublicKey }> {
+  async getPublicJwkOrThrow(): Promise<PublicKey> {
     const signerConfig = await this.getSignerConfigOrThrow()
 
-    return { id: this.getEngineId(), publicJwk: secp256k1PrivateKeyToPublicJwk(privateKeyToHex(signerConfig.key)) }
+    return secp256k1PrivateKeyToPublicJwk(privateKeyToHex(signerConfig.key))
   }
 
   async getSignerConfigOrThrow(): Promise<EngineSignerConfig> {

@@ -11,9 +11,9 @@ export class EngineController {
   @UseGuards(ClientSecretGuard)
   async getPublicJwk() {
     try {
-      const engineData = await this.engineSignerConfigService.getEnginePublicJwkOrThrow()
+      const publicJwk = await this.engineSignerConfigService.getPublicJwkOrThrow()
 
-      return engineData
+      return publicJwk
     } catch (error) {
       return { ok: false }
     }

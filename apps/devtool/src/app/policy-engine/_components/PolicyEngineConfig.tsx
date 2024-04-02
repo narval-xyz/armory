@@ -10,13 +10,22 @@ import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
 
+const ReadOnlyDataRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-[8px]">
+    <div className="text-nv-xs text-nv-white">{label}</div>
+    <div className="truncate">{value}</div>
+  </div>
+)
+
 const PolicyEngineConfig = () => {
   const account = useAccount()
   const {
     engineUrl,
     setEngineUrl,
-    engineApiKey,
-    setEngineApiKey,
+    enginePublicJwk,
+    setEnginePublicJwk,
+    engineAdminApiKey,
+    setEngineAdminApiKey,
     engineClientId,
     setEngineClientId,
     engineClientSecret,
@@ -30,22 +39,21 @@ const PolicyEngineConfig = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isOnboarded, setIsOnboarded] = useState<boolean>(false)
 
-  useEffect(() => {
-    const getEngineJwk = async () => {
-      const { data } = await axios.get(`${engineUrl}/engine`, {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      })
+  const getEngineJwk = async () => {
+    if (!engineClientId || !engineClientSecret) return
 
-      console.log(data)
-    }
-    getEngineJwk()
-  }, [])
+    const { data } = await axios.get(`${engineUrl}/engine`, {
+      headers: {
+        'x-client-id': engineClientId,
+        'x-client-secret': engineClientSecret
+      }
+    })
+
+    setEnginePublicJwk(data)
+  }
 
   const onboard = async () => {
-    if (!account.address) return
+    if (!account.address || !engineAdminApiKey) return
 
     setIsProcessing(true)
 
@@ -74,10 +82,12 @@ const PolicyEngineConfig = () => {
       },
       {
         headers: {
-          'x-api-key': engineApiKey
+          'x-api-key': engineAdminApiKey
         }
       }
     )
+
+    await getEngineJwk()
 
     setEngineClientId(tenant.clientId)
     setEngineClientSecret(tenant.clientSecret)
@@ -89,32 +99,54 @@ const PolicyEngineConfig = () => {
     }, 5000)
   }
 
+  useEffect(() => {
+    getEngineJwk()
+  }, [])
+
   return (
-    <div className="flex flex-col gap-10">
-      <div className="text-nv-2xl">Configuration</div>
-      <div className="flex flex-col gap-6 w-1/3">
-        <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
-        <NarInput label="Admin API Key" value={engineApiKey} onChange={setEngineApiKey} />
-        <NarInput label="Tenant Client ID" value={engineClientId} onChange={() => null} disabled />
-        <NarInput label="Tenant Client Secret" value={engineClientSecret} onChange={() => null} disabled />
-        <div className="flex flex-row-reverse">
-          {engineUrl && engineApiKey && !engineClientId && (
-            <NarButton
-              label={isProcessing ? 'Processing...' : 'Onboard Tenant'}
-              rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-              onClick={onboard}
-              disabled={isProcessing}
-            />
-          )}
-          {isOnboarded && (
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
-              <div className="text-nv-white">Tenant Onboarded!</div>
+    <>
+      <div className="flex flex-col gap-10">
+        <div className="text-nv-2xl">Configuration</div>
+        <div className="flex gap-20">
+          <div className="flex flex-col gap-6 w-1/3">
+            <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
+            <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
+            <div className="flex flex-row-reverse">
+              {engineUrl && engineAdminApiKey && !engineClientId && (
+                <NarButton
+                  label={isProcessing ? 'Processing...' : 'Onboard Tenant'}
+                  rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
+                  onClick={onboard}
+                  disabled={isProcessing}
+                />
+              )}
+              {isOnboarded && (
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
+                  <div className="text-nv-white">Tenant Onboarded!</div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+          <div className="flex flex-col gap-6 w-2/3">
+            {engineClientId && (
+              <NarInput label="Tenant Client ID" value={engineClientId} onChange={() => null} disabled />
+            )}
+            {engineClientSecret && (
+              <NarInput label="Tenant Client Secret" value={engineClientSecret} onChange={() => null} disabled />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      {enginePublicJwk && (
+        <div className="flex flex-col gap-10">
+          <div className="text-nv-2xl">Public JWK</div>
+          <div className="border-2 border-white rounded-t-xl p-4 overflow-auto">
+            <pre>{JSON.stringify(enginePublicJwk, null, 3)}</pre>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

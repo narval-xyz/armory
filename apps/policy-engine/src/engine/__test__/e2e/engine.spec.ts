@@ -26,7 +26,7 @@ describe('Engine', () => {
   let privateKey: PrivateKey
   let module: TestingModule
   let tenant: Tenant
-  let engineData: { id: string; publicJwk: PublicKey }
+  let enginePublicJwk: PublicKey
   let tenantService: TenantService
   let testPrismaService: TestPrismaService
   let configService: ConfigService<Config>
@@ -98,7 +98,7 @@ describe('Engine', () => {
       { syncAfter: false }
     )
 
-    engineData = await engineSignerConfigService.getEnginePublicJwkOrThrow()
+    enginePublicJwk = await engineSignerConfigService.getPublicJwkOrThrow()
 
     await tenantService.savePolicyStore(tenant.clientId, await getPolicyStore([], privateKey))
     await tenantService.saveEntityStore(tenant.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
@@ -119,7 +119,7 @@ describe('Engine', () => {
         .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
         .set(REQUEST_HEADER_CLIENT_SECRET, tenant.clientSecret)
 
-      expect(body).toEqual(engineData)
+      expect(body).toEqual(enginePublicJwk)
       expect(status).toEqual(HttpStatus.OK)
     })
   })
