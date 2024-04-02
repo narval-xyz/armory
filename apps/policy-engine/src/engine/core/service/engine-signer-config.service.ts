@@ -1,7 +1,7 @@
 import { ConfigService } from '@narval/config-module'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
-import { EngineSignerConfig } from '../../../shared/type/domain.type'
+import { SignerConfig } from '../../../shared/type/domain.type'
 import { EngineSignerConfigRepository } from '../../persistence/repository/engine-signer-config.repository'
 import { EngineSignerNotFoundException } from '../exception/engine-signer-not-found.exception'
 
@@ -12,11 +12,11 @@ export class EngineSignerConfigService {
     private engineSignerConfigRepository: EngineSignerConfigRepository
   ) {}
 
-  async save(signerConfig: EngineSignerConfig): Promise<boolean> {
+  async save(signerConfig: SignerConfig): Promise<boolean> {
     return this.engineSignerConfigRepository.save(this.getEngineId(), signerConfig)
   }
 
-  async getSignerConfigOrThrow(): Promise<EngineSignerConfig> {
+  async getSignerConfigOrThrow(): Promise<SignerConfig> {
     const signerConfig = await this.getSignerConfig()
 
     if (signerConfig) {
@@ -26,7 +26,7 @@ export class EngineSignerConfigService {
     throw new EngineSignerNotFoundException()
   }
 
-  async getSignerConfig(): Promise<EngineSignerConfig | null> {
+  async getSignerConfig(): Promise<SignerConfig | null> {
     return this.engineSignerConfigRepository.findByEngineId(this.getEngineId())
   }
 
