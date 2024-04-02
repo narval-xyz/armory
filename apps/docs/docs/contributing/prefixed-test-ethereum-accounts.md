@@ -12,7 +12,6 @@ See Alice's address below:
 --^^^
 ```
 
-> [!IMPORTANT]
 > These are testing accounts ment for signing transactions in local & test
 > environments. **DO NOT USE THEM IN PRODUCTION**.
 

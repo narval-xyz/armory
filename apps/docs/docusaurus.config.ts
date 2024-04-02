@@ -21,6 +21,12 @@ const config: Config = {
     locales: ['en']
   },
 
+  themes: ['@docusaurus/theme-mermaid'],
+
+  markdown: {
+    mermaid: true
+  },
+
   presets: [
     [
       'classic',
