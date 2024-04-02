@@ -1,5 +1,5 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { RsaPublicKey, rsaEncrypt, rsaPublicKeySchema, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { RsaPublicKey, rsaEncrypt, rsaPublicKeySchema, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -25,10 +25,7 @@ describe('Import', () => {
 
   const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   // Engine key used to sign the approval request
-  const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
-  // Engine public key registered w/ the Vault Tenant
-  // eslint-disable-next-line
-  const { d, ...tenantPublicJWK } = enginePrivateJwk
+  const tenantPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
 
   const tenant: Tenant = {
     clientId,

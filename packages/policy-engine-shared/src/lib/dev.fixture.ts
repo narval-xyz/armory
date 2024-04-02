@@ -1,4 +1,4 @@
-import { Secp256k1PublicKey, secp256k1PrivateKeyToJwk, secp256k1PublicKeySchema } from '@narval/signature'
+import { Alg, Secp256k1PublicKey, privateKeyToJwk, secp256k1PublicKeySchema } from '@narval/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
@@ -49,11 +49,11 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
 }
 
 export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
-  Root: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Root)),
-  Alice: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)),
-  Bob: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob)),
-  Carol: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol)),
-  Dave: secp256k1PublicKeySchema.parse(secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave))
+  Root: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Root, Alg.ES256K)),
+  Alice: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K)),
+  Bob: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K)),
+  Carol: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K)),
+  Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K))
 }
 
 export const ACCOUNT: Record<Personas, PrivateKeyAccount> = {

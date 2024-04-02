@@ -11,20 +11,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import {
-  Hex,
-  Payload,
-  PrivateKey,
-  PublicKey,
-  SigningAlg,
-  base64UrlToHex,
-  buildSignerEip191,
-  decode,
-  hash,
-  secp256k1PrivateKeyToJwk,
-  signJwt,
-  verifyJwt
-} from '@narval/signature'
+import { Payload, PrivateKey, PublicKey, SigningAlg, decode, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -49,18 +36,18 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   // change very soon because we need to support MPC signing.
   // This code is here just for feature parity with the existing proof of
   // concept.
-  private privateKey: Hex
+  private privateKey: PrivateKey
 
   private opa?: OpenPolicyAgentInstance
 
-  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string; privateKey: Hex }) {
+  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string; privateKey: PrivateKey }) {
     this.entities = params.entities
     this.policies = params.policies
     this.privateKey = params.privateKey
     this.resourcePath = params.resourcePath
   }
 
-  static empty(params: { resourcePath: string; privateKey: Hex }): OpenPolicyAgentEngine {
+  static empty(params: { resourcePath: string; privateKey: PrivateKey }): OpenPolicyAgentEngine {
     return new OpenPolicyAgentEngine({
       entities: EntityUtil.empty(),
       policies: [],
@@ -175,7 +162,9 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const validJwt = await verifyJwt(signature, credential.key)
+    const { key } = credential
+
+    const validJwt = await verifyJwt(signature, key)
 
     if (validJwt.payload.requestHash !== message) {
       throw new OpenPolicyAgentException({
@@ -290,7 +279,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
-    const engineJwk: PrivateKey = secp256k1PrivateKeyToJwk(this.privateKey)
     const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
@@ -307,13 +295,13 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       cnf: principalJwk
     }
 
-    if (!engineJwk.d) {
+    if (!this.privateKey.d) {
       throw new OpenPolicyAgentException({
         message: 'Missing signing private key',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
       })
     }
 
-    return signJwt(payload, engineJwk, { alg: SigningAlg.EIP191 }, buildSignerEip191(base64UrlToHex(engineJwk.d)))
+    return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }

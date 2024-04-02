@@ -8,6 +8,7 @@ import {
   hash,
   hexToBase64Url,
   secp256k1PrivateKeyToJwk,
+  secp256k1PrivateKeyToPublicJwk,
   secp256k1PublicKeyToJwk,
   signJwsd,
   signJwt
@@ -39,9 +40,7 @@ describe('Sign', () => {
   const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
-  // Engine public key registered w/ the Vault Tenant
-  // eslint-disable-next-line
-  const { d, ...tenantPublicJWK } = enginePrivateJwk
+  const tenantPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
 
   const tenant: Tenant = {
     clientId,
