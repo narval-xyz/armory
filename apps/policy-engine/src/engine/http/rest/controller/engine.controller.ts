@@ -10,12 +10,6 @@ export class EngineController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ClientSecretGuard)
   async getPublicJwk() {
-    try {
-      const publicJwk = await this.engineSignerConfigService.getPublicJwkOrThrow()
-
-      return publicJwk
-    } catch (error) {
-      return { ok: false }
-    }
+    return this.engineSignerConfigService.getPublicJwkOrThrow()
   }
 }
