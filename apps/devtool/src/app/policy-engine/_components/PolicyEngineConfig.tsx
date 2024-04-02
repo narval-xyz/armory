@@ -32,7 +32,7 @@ const PolicyEngineConfig = () => {
 
   useEffect(() => {
     const getEngineJwk = async () => {
-      const { data } = await axios.get(`${engineUrl}/jwk`, {
+      const { data } = await axios.get(`${engineUrl}/engine`, {
         headers: {
           'x-client-id': engineClientId,
           'x-client-secret': engineClientSecret
