@@ -1,7 +1,5 @@
 import { EntityStore, PolicyStore, entityStoreSchema, policyStoreSchema } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { Config } from 'apps/policy-engine/src/policy-engine.config'
 import { compact } from 'lodash/fp'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { tenantIndexSchema, tenantSchema } from '../../../shared/schema/tenant.schema'
@@ -9,10 +7,7 @@ import { Tenant } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class TenantRepository {
-  constructor(
-    private encryptKeyValueService: EncryptKeyValueService,
-    private configService: ConfigService<Config>
-  ) {}
+  constructor(private encryptKeyValueService: EncryptKeyValueService) {}
 
   async findByClientId(clientId: string): Promise<Tenant | null> {
     const value = await this.encryptKeyValueService.get(this.getKey(clientId))
