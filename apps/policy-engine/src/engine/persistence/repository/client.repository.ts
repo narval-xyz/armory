@@ -4,36 +4,36 @@ import { compact } from 'lodash/fp'
 import { z } from 'zod'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
-import { Tenant } from '../../../shared/type/domain.type'
+import { Client } from '../../../shared/type/domain.type'
 
-const TenantIndex = z.array(z.string())
+const ClientListIndex = z.array(z.string())
 
 @Injectable()
-export class TenantRepository {
+export class ClientRepository {
   constructor(private encryptKeyValueService: EncryptKeyValueService) {}
 
-  async findByClientId(clientId: string): Promise<Tenant | null> {
+  async findByClientId(clientId: string): Promise<Client | null> {
     const value = await this.encryptKeyValueService.get(this.getKey(clientId))
 
     if (value) {
-      return decode(Tenant, value)
+      return decode(Client, value)
     }
 
     return null
   }
 
-  async save(tenant: Tenant): Promise<Tenant> {
-    await this.encryptKeyValueService.set(this.getKey(tenant.clientId), encode(Tenant, tenant))
-    await this.index(tenant)
+  async save(client: Client): Promise<Client> {
+    await this.encryptKeyValueService.set(this.getKey(client.clientId), encode(Client, client))
+    await this.index(client)
 
-    return tenant
+    return client
   }
 
-  async getTenantIndex(): Promise<string[]> {
+  async getClientListIndex(): Promise<string[]> {
     const index = await this.encryptKeyValueService.get(this.getIndexKey())
 
     if (index) {
-      return decode(TenantIndex, index)
+      return decode(ClientListIndex, index)
     }
 
     return []
@@ -74,16 +74,16 @@ export class TenantRepository {
   // An option is to move these general queries `findBy`, findAll`, etc to the
   // KeyValeuRepository implementation letting each implementation pick the best
   // strategy to solve the problem (e.g. where query in SQL)
-  async findAll(): Promise<Tenant[]> {
-    const ids = await this.getTenantIndex()
-    const tenants = await Promise.all(ids.map((id) => this.findByClientId(id)))
+  async findAll(): Promise<Client[]> {
+    const ids = await this.getClientListIndex()
+    const clients = await Promise.all(ids.map((id) => this.findByClientId(id)))
 
-    return compact(tenants)
+    return compact(clients)
   }
 
   async clear(): Promise<boolean> {
     try {
-      const ids = await this.getTenantIndex()
+      const ids = await this.getClientListIndex()
       await Promise.all(ids.map((id) => this.encryptKeyValueService.delete(id)))
 
       return true
@@ -93,25 +93,28 @@ export class TenantRepository {
   }
 
   getKey(clientId: string): string {
-    return `tenant:${clientId}`
+    return `client:${clientId}`
   }
 
   getIndexKey(): string {
-    return 'tenant:index'
+    return 'client:list-index'
   }
 
   getEntityStoreKey(clientId: string): string {
-    return `tenant:${clientId}:entity-store`
+    return `client:${clientId}:entity-store`
   }
 
   getPolicyStoreKey(clientId: string): string {
-    return `tenant:${clientId}:policy-store`
+    return `client:${clientId}:policy-store`
   }
 
-  private async index(tenant: Tenant): Promise<boolean> {
-    const currentIndex = await this.getTenantIndex()
+  private async index(client: Client): Promise<boolean> {
+    const currentIndex = await this.getClientListIndex()
 
-    await this.encryptKeyValueService.set(this.getIndexKey(), encode(TenantIndex, [...currentIndex, tenant.clientId]))
+    await this.encryptKeyValueService.set(
+      this.getIndexKey(),
+      encode(ClientListIndex, [...currentIndex, client.clientId])
+    )
 
     return true
   }

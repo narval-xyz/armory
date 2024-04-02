@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { TenantService } from '../../engine/core/service/tenant.service'
+import { ClientService } from '../../engine/core/service/client.service'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../policy-engine.constant'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()
 export class ClientSecretGuard implements CanActivate {
-  constructor(private tenantService: TenantService) {}
+  constructor(private clientService: ClientService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
@@ -24,8 +24,8 @@ export class ClientSecretGuard implements CanActivate {
       })
     }
 
-    const tenant = await this.tenantService.findByClientId(clientId)
+    const client = await this.clientService.findByClientId(clientId)
 
-    return tenant?.clientSecret?.toLowerCase() === clientSecret.toLowerCase()
+    return client?.clientSecret?.toLowerCase() === clientSecret.toLowerCase()
   }
 }

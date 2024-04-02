@@ -17,17 +17,17 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { getEntityStore, getPolicyStore } from '../../../shared/testing/data-store.testing'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { generateInboundEvaluationRequest } from '../../../shared/testing/evaluation.testing'
-import { Tenant } from '../../../shared/type/domain.type'
+import { Client } from '../../../shared/type/domain.type'
+import { ClientService } from '../../core/service/client.service'
 import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
-import { TenantService } from '../../core/service/tenant.service'
 import { EngineModule } from '../../engine.module'
 
 describe('Evaluation', () => {
   let app: INestApplication
   let privateKey: PrivateKey
   let module: TestingModule
-  let tenant: Tenant
-  let tenantService: TenantService
+  let client: Client
+  let clientService: ClientService
   let testPrismaService: TestPrismaService
 
   const adminApiKey = 'test-admin-api-key'
@@ -59,7 +59,7 @@ describe('Evaluation', () => {
     const engineService = module.get<EngineService>(EngineService)
     const engineSignerConfigService = module.get<EngineSignerConfigService>(EngineSignerConfigService)
     const configService = module.get<ConfigService<Config>>(ConfigService)
-    tenantService = module.get<TenantService>(TenantService)
+    clientService = module.get<ClientService>(ClientService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
     await testPrismaService.truncateAll()
@@ -83,7 +83,7 @@ describe('Evaluation', () => {
       key: privateKey
     })
 
-    tenant = await tenantService.onboard(
+    client = await clientService.onboard(
       {
         clientId,
         clientSecret: randomBytes(42).toString('hex'),
@@ -101,8 +101,8 @@ describe('Evaluation', () => {
       { syncAfter: false }
     )
 
-    await tenantService.savePolicyStore(tenant.clientId, await getPolicyStore([], privateKey))
-    await tenantService.saveEntityStore(tenant.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
+    await clientService.savePolicyStore(client.clientId, await getPolicyStore([], privateKey))
+    await clientService.saveEntityStore(client.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
 
     await app.init()
   })
@@ -119,8 +119,8 @@ describe('Evaluation', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/evaluations')
-        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
-        .set(REQUEST_HEADER_CLIENT_SECRET, tenant.clientSecret)
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
         .send(payload)
 
       expect(body).toEqual({
@@ -131,8 +131,8 @@ describe('Evaluation', () => {
     })
 
     it('evaluates a permit', async () => {
-      await tenantService.savePolicyStore(
-        tenant.clientId,
+      await clientService.savePolicyStore(
+        client.clientId,
         await getPolicyStore(
           [
             {
@@ -154,8 +154,8 @@ describe('Evaluation', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/evaluations')
-        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
-        .set(REQUEST_HEADER_CLIENT_SECRET, tenant.clientSecret)
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
         .send(payload)
 
       expect(body).toMatchObject({
@@ -178,7 +178,7 @@ describe('Evaluation', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/evaluations')
-        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
         .send(payload)
 
       expect(body).toEqual({

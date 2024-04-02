@@ -26,7 +26,7 @@ battle-tested multi purpose engine trusted by many organizations. The OPA core
 bunlded with the policy engine's artifact and it's considered a trusted
 component.
 
-The policy engine layer, is responsible for encrypting and decrypting tenant
+The policy engine layer, is responsible for encrypting and decrypting client
 data it stores. When the engine server starts, it writes data to its storage
 backend. Since the storage backend lives outside the engine, it's considered
 untrusted so the engine will encrypt the data before it sends them to the
@@ -39,6 +39,6 @@ instances.
 Similar to the storage backend, the policy store and the entity store also live
 outside and are considered untrusted. The key difference is that the engine
 never writes to these stores, it only reads from them. The data in these stores
-are hashed and signed by the tenant's private key. The engine uses the tenant's
+are hashed and signed by the client's private key. The engine uses the client's
 public key to verify the signature and hash. This mechanism ensures that the
 data is authentic and has not been tampered with.

@@ -8,14 +8,14 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Tenant } from '../../../../../shared/type/domain.type'
-import { TenantRepository } from '../../../../persistence/repository/tenant.repository'
+import { Client } from '../../../../../shared/type/domain.type'
+import { ClientRepository } from '../../../../persistence/repository/client.repository'
+import { ClientService } from '../../client.service'
 import { DataStoreService } from '../../data-store.service'
-import { TenantService } from '../../tenant.service'
 
-describe(TenantService.name, () => {
-  let tenantService: TenantService
-  let tenantRepository: TenantRepository
+describe(ClientService.name, () => {
+  let clientService: ClientService
+  let clientRepository: ClientRepository
   let dataStoreServiceMock: MockProxy<DataStoreService>
 
   const clientId = 'test-client-id'
@@ -26,7 +26,7 @@ describe(TenantService.name, () => {
     keys: []
   }
 
-  const tenant: Tenant = {
+  const client: Client = {
     clientId,
     clientSecret: 'test-client-secret',
     dataStore: {
@@ -63,8 +63,8 @@ describe(TenantService.name, () => {
         })
       ],
       providers: [
-        TenantService,
-        TenantRepository,
+        ClientService,
+        ClientRepository,
         EncryptKeyValueService,
         {
           provide: DataStoreService,
@@ -77,30 +77,30 @@ describe(TenantService.name, () => {
       ]
     }).compile()
 
-    tenantService = module.get<TenantService>(TenantService)
-    tenantRepository = module.get<TenantRepository>(TenantRepository)
+    clientService = module.get<ClientService>(ClientService)
+    clientRepository = module.get<ClientRepository>(ClientRepository)
   })
 
   describe('syncDataStore', () => {
     beforeEach(async () => {
-      await tenantRepository.save(tenant)
+      await clientRepository.save(client)
     })
 
     it('saves entity and policy stores', async () => {
-      expect(await tenantRepository.findEntityStore(clientId)).toEqual(null)
-      expect(await tenantRepository.findPolicyStore(clientId)).toEqual(null)
+      expect(await clientRepository.findEntityStore(clientId)).toEqual(null)
+      expect(await clientRepository.findPolicyStore(clientId)).toEqual(null)
 
-      await tenantService.syncDataStore(clientId)
+      await clientService.syncDataStore(clientId)
 
-      expect(await tenantRepository.findEntityStore(clientId)).toEqual(stores.entity)
-      expect(await tenantRepository.findPolicyStore(clientId)).toEqual(stores.policy)
+      expect(await clientRepository.findEntityStore(clientId)).toEqual(stores.entity)
+      expect(await clientRepository.findPolicyStore(clientId)).toEqual(stores.policy)
     })
 
     it('fetches the data stores once', async () => {
-      await tenantService.syncDataStore(clientId)
+      await clientService.syncDataStore(clientId)
 
       expect(dataStoreServiceMock.fetch).toHaveBeenCalledTimes(1)
-      expect(dataStoreServiceMock.fetch).toHaveBeenCalledWith(tenant.dataStore)
+      expect(dataStoreServiceMock.fetch).toHaveBeenCalledWith(client.dataStore)
     })
   })
 })

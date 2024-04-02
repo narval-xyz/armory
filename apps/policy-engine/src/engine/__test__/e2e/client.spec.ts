@@ -12,7 +12,6 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
-import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
 import {
   REQUEST_HEADER_API_KEY,
@@ -21,22 +20,23 @@ import {
 } from '../../../policy-engine.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Tenant } from '../../../shared/type/domain.type'
-import { TenantService } from '../../core/service/tenant.service'
+import { Client } from '../../../shared/type/domain.type'
+import { ClientService } from '../../core/service/client.service'
+import { EngineService } from '../../core/service/engine.service'
 import { EngineModule } from '../../engine.module'
-import { CreateTenantDto } from '../../http/rest/dto/create-tenant.dto'
-import { TenantRepository } from '../../persistence/repository/tenant.repository'
+import { CreateClientDto } from '../../http/rest/dto/create-client.dto'
+import { ClientRepository } from '../../persistence/repository/client.repository'
 
-describe('Tenant', () => {
+describe('Client', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let tenantRepository: TenantRepository
-  let tenantService: TenantService
+  let clientRepository: ClientRepository
+  let clientService: ClientService
   let engineService: EngineService
   let configService: ConfigService<Config>
   let dataStoreConfiguration: DataStoreConfiguration
-  let createTenantPayload: CreateTenantDto
+  let createClientPayload: CreateClientDto
 
   const adminApiKey = 'test-admin-api-key'
 
@@ -63,8 +63,8 @@ describe('Tenant', () => {
     app = module.createNestApplication()
 
     engineService = module.get<EngineService>(EngineService)
-    tenantService = module.get<TenantService>(TenantService)
-    tenantRepository = module.get<TenantRepository>(TenantRepository)
+    clientService = module.get<ClientService>(ClientService)
+    clientRepository = module.get<ClientRepository>(ClientRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     configService = module.get<ConfigService<Config>>(ConfigService)
 
@@ -76,7 +76,7 @@ describe('Tenant', () => {
       keys: [jwk]
     }
 
-    createTenantPayload = {
+    createClientPayload = {
       clientId,
       entityDataStore: dataStoreConfiguration,
       policyDataStore: dataStoreConfiguration
@@ -100,33 +100,33 @@ describe('Tenant', () => {
       adminApiKey
     })
 
-    jest.spyOn(tenantService, 'syncDataStore').mockResolvedValue(true)
+    jest.spyOn(clientService, 'syncDataStore').mockResolvedValue(true)
   })
 
-  describe('POST /tenants', () => {
-    it('creates a new tenant', async () => {
+  describe('POST /clients', () => {
+    it('creates a new client', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
-        .send(createTenantPayload)
+        .send(createClientPayload)
 
-      const actualTenant = await tenantRepository.findByClientId(clientId)
-      const actualPublicKey = secp256k1PrivateKeyToPublicJwk(privateKeyToHex(actualTenant?.signer.key as PrivateKey))
+      const actualClient = await clientRepository.findByClientId(clientId)
+      const actualPublicKey = secp256k1PrivateKeyToPublicJwk(privateKeyToHex(actualClient?.signer.key as PrivateKey))
 
       expect(body).toEqual({
-        ...actualTenant,
+        ...actualClient,
         signer: { publicKey: actualPublicKey },
-        createdAt: actualTenant?.createdAt.toISOString(),
-        updatedAt: actualTenant?.updatedAt.toISOString()
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
     it('does not expose the signer private key', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
-        .send(createTenantPayload)
+        .send(createClientPayload)
 
       expect(body.signer.key).not.toBeDefined()
       expect(body.signer.type).not.toBeDefined()
@@ -137,17 +137,17 @@ describe('Tenant', () => {
 
     it('responds with an error when clientId already exist', async () => {
       await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
-        .send(createTenantPayload)
+        .send(createClientPayload)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
-        .send(createTenantPayload)
+        .send(createClientPayload)
 
       expect(body).toEqual({
-        message: 'Tenant already exist',
+        message: 'Client already exist',
         statusCode: HttpStatus.BAD_REQUEST
       })
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
@@ -155,9 +155,9 @@ describe('Tenant', () => {
 
     it('responds with forbidden when admin api key is invalid', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, 'invalid-api-key')
-        .send(createTenantPayload)
+        .send(createClientPayload)
 
       expect(body).toMatchObject({
         message: 'Forbidden resource',
@@ -167,29 +167,29 @@ describe('Tenant', () => {
     })
   })
 
-  describe('POST /tenants/sync', () => {
-    let tenant: Tenant
+  describe('POST /clients/sync', () => {
+    let client: Client
 
     beforeEach(async () => {
-      jest.spyOn(tenantService, 'syncDataStore').mockResolvedValue(true)
+      jest.spyOn(clientService, 'syncDataStore').mockResolvedValue(true)
 
       const { body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send({
-          ...createTenantPayload,
+          ...createClientPayload,
           clientId: uuid()
         })
 
-      tenant = body
+      client = body
     })
 
-    it('calls the tenant data store sync', async () => {
+    it('calls the client data store sync', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants/sync')
-        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
-        .set(REQUEST_HEADER_CLIENT_SECRET, tenant.clientSecret)
-        .send(createTenantPayload)
+        .post('/clients/sync')
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+        .send(createClientPayload)
 
       expect(body).toEqual({ ok: true })
       expect(status).toEqual(HttpStatus.OK)

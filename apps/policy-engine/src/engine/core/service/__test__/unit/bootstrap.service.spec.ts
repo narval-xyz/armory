@@ -11,15 +11,15 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Tenant } from '../../../../../shared/type/domain.type'
+import { Client } from '../../../../../shared/type/domain.type'
 import { BootstrapException } from '../../../exception/bootstrap.exception'
 import { BootstrapService } from '../../bootstrap.service'
+import { ClientService } from '../../client.service'
 import { EngineSignerConfigService } from '../../engine-signer-config.service'
-import { TenantService } from '../../tenant.service'
 
 describe(BootstrapService.name, () => {
   let bootstrapService: BootstrapService
-  let tenantServiceMock: MockProxy<TenantService>
+  let clientServiceMock: MockProxy<ClientService>
   let encryptionServiceMock: MockProxy<EncryptionService>
   let engineSignerConfigServiceMock: MockProxy<EngineSignerConfigService>
 
@@ -36,9 +36,9 @@ describe(BootstrapService.name, () => {
     }
   }
 
-  const tenantOne: Tenant = {
+  const clientOne: Client = {
     dataStore,
-    clientId: 'test-tenant-one-id',
+    clientId: 'test-client-one-id',
     clientSecret: 'unsafe-client-secret',
     signer: {
       type: 'PRIVATE_KEY',
@@ -48,9 +48,9 @@ describe(BootstrapService.name, () => {
     updatedAt: new Date()
   }
 
-  const tenantTwo: Tenant = {
+  const clientTwo: Client = {
     dataStore,
-    clientId: 'test-tenant-two-id',
+    clientId: 'test-client-two-id',
     clientSecret: 'unsafe-client-secret',
     signer: {
       type: 'PRIVATE_KEY',
@@ -61,8 +61,8 @@ describe(BootstrapService.name, () => {
   }
 
   beforeEach(async () => {
-    tenantServiceMock = mock<TenantService>()
-    tenantServiceMock.findAll.mockResolvedValue([tenantOne, tenantTwo])
+    clientServiceMock = mock<ClientService>()
+    clientServiceMock.findAll.mockResolvedValue([clientOne, clientTwo])
 
     encryptionServiceMock = mock<EncryptionService>()
     encryptionServiceMock.getKeyring.mockReturnValue(getTestRawAesKeyring())
@@ -91,8 +91,8 @@ describe(BootstrapService.name, () => {
           useClass: InMemoryKeyValueRepository
         },
         {
-          provide: TenantService,
-          useValue: tenantServiceMock
+          provide: ClientService,
+          useValue: clientServiceMock
         },
         {
           provide: EncryptionService,
@@ -109,11 +109,11 @@ describe(BootstrapService.name, () => {
   })
 
   describe('boot', () => {
-    it('syncs tenants data stores', async () => {
+    it('syncs clients data stores', async () => {
       await bootstrapService.boot()
 
-      expect(tenantServiceMock.syncDataStore).toHaveBeenNthCalledWith(1, tenantOne.clientId)
-      expect(tenantServiceMock.syncDataStore).toHaveBeenNthCalledWith(2, tenantTwo.clientId)
+      expect(clientServiceMock.syncDataStore).toHaveBeenNthCalledWith(1, clientOne.clientId)
+      expect(clientServiceMock.syncDataStore).toHaveBeenNthCalledWith(2, clientTwo.clientId)
     })
 
     it('checks if the encryption keyring is configured', async () => {

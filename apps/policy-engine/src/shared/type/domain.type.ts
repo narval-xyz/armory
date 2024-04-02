@@ -10,7 +10,7 @@ export const EngineSignerConfig = z.object({
 
 export type EngineSignerConfig = z.infer<typeof EngineSignerConfig>
 
-export const Tenant = z.object({
+export const Client = z.object({
   clientId: z.string(),
   clientSecret: z.string(),
   dataStore: z.object({
@@ -22,6 +22,6 @@ export const Tenant = z.object({
   updatedAt: z.coerce.date()
 })
 
-export type Tenant = z.infer<typeof Tenant>
+export type Client = z.infer<typeof Client>
 
 export type Engine = z.infer<typeof engineSchema>

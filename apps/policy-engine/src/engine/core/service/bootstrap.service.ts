@@ -3,15 +3,15 @@ import { secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
 import { generatePrivateKey } from 'viem/accounts'
 import { BootstrapException } from '../exception/bootstrap.exception'
+import { ClientService } from './client.service'
 import { EngineSignerConfigService } from './engine-signer-config.service'
-import { TenantService } from './tenant.service'
 
 @Injectable()
 export class BootstrapService {
   private logger = new Logger(BootstrapService.name)
 
   constructor(
-    private tenantService: TenantService,
+    private clientService: ClientService,
     private encryptionService: EncryptionService,
     private engineSignerConfigService: EngineSignerConfigService
   ) {}
@@ -21,7 +21,7 @@ export class BootstrapService {
 
     await this.maybeSetupSigningPrivateKey()
     await this.checkEncryptionConfiguration()
-    await this.syncTenants()
+    await this.syncClients()
 
     this.logger.log('Bootstrap end')
   }
@@ -37,16 +37,16 @@ export class BootstrapService {
     }
   }
 
-  private async syncTenants(): Promise<void> {
-    const tenants = await this.tenantService.findAll()
+  private async syncClients(): Promise<void> {
+    const clients = await this.clientService.findAll()
 
-    this.logger.log('Start syncing tenants data stores', {
-      tenantsCount: tenants.length
+    this.logger.log('Start syncing clients data stores', {
+      clientsCount: clients.length
     })
 
     // TODO: (@wcalderipe, 07/03/24) maybe change the execution to parallel?
-    for (const tenant of tenants) {
-      await this.tenantService.syncDataStore(tenant.clientId)
+    for (const client of clients) {
+      await this.clientService.syncDataStore(client.clientId)
     }
   }
 
