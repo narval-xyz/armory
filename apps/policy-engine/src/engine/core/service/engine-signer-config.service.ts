@@ -17,7 +17,7 @@ export class EngineSignerConfigService {
     return this.engineSignerConfigRepository.save(this.getEngineId(), signerConfig)
   }
 
-  async getEnginePublicJwk(): Promise<{ id: string; publicJwk: Jwk } | null> {
+  async getEngineData(): Promise<{ id: string; publicJwk: Jwk } | null> {
     const signerConfig = await this.getSignerConfig()
 
     if (signerConfig?.key) {

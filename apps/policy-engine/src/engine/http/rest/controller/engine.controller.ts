@@ -11,7 +11,7 @@ export class EngineController {
   @UseGuards(ClientSecretGuard)
   async getJwk() {
     try {
-      return this.engineSignerConfigService.getEnginePublicJwk()
+      return this.engineSignerConfigService.getEngineData()
     } catch (error) {
       return { ok: false }
     }
