@@ -1,84 +1,84 @@
 import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Tenant } from '../../../shared/type/domain.type'
-import { TenantRepository } from '../../persistence/repository/tenant.repository'
+import { Client } from '../../../shared/type/domain.type'
+import { ClientRepository } from '../../persistence/repository/client.repository'
 import { DataStoreService } from './data-store.service'
 
 @Injectable()
-export class TenantService {
-  private logger = new Logger(TenantService.name)
+export class ClientService {
+  private logger = new Logger(ClientService.name)
 
   constructor(
-    private tenantRepository: TenantRepository,
+    private clientRepository: ClientRepository,
     private dataStoreService: DataStoreService
   ) {}
 
-  async findByClientId(clientId: string): Promise<Tenant | null> {
-    return this.tenantRepository.findByClientId(clientId)
+  async findByClientId(clientId: string): Promise<Client | null> {
+    return this.clientRepository.findByClientId(clientId)
   }
 
-  async onboard(tenant: Tenant, options?: { syncAfter?: boolean }): Promise<Tenant> {
+  async onboard(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
     const syncAfter = options?.syncAfter ?? true
 
-    const exists = await this.tenantRepository.findByClientId(tenant.clientId)
+    const exists = await this.clientRepository.findByClientId(client.clientId)
 
     if (exists) {
       throw new ApplicationException({
-        message: 'Tenant already exist',
+        message: 'Client already exist',
         suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { clientId: tenant.clientId }
+        context: { clientId: client.clientId }
       })
     }
 
     try {
-      await this.tenantRepository.save(tenant)
+      await this.clientRepository.save(client)
 
       if (syncAfter) {
-        const hasSynced = await this.syncDataStore(tenant.clientId)
+        const hasSynced = await this.syncDataStore(client.clientId)
 
         if (!hasSynced) {
-          this.logger.warn('Failed to sync new tenant data store during the onboard')
+          this.logger.warn('Failed to sync new client data store during the onboard')
         }
       }
 
-      return tenant
+      return client
     } catch (error) {
       throw new ApplicationException({
-        message: 'Failed to onboard new tenant',
+        message: 'Failed to onboard new client',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         origin: error,
-        context: { tenant }
+        context: { client }
       })
     }
   }
 
   async syncDataStore(clientId: string): Promise<boolean> {
-    this.logger.log('Start syncing tenant data stores', { clientId })
+    this.logger.log('Start syncing client data stores', { clientId })
 
     try {
-      const tenant = await this.findByClientId(clientId)
+      const client = await this.findByClientId(clientId)
 
-      if (tenant) {
-        this.logger.log('Sync tenant data stores', {
-          dataStore: tenant.dataStore
+      if (client) {
+        this.logger.log('Sync client data stores', {
+          dataStore: client.dataStore
         })
 
-        const stores = await this.dataStoreService.fetch(tenant.dataStore)
+        const stores = await this.dataStoreService.fetch(client.dataStore)
 
         await Promise.all([
           this.saveEntityStore(clientId, stores.entity),
           this.savePolicyStore(clientId, stores.policy)
         ])
 
-        this.logger.log('Tenant data stores synced', { clientId })
+        this.logger.log('Client data stores synced', { clientId })
 
         return true
       }
 
       return false
     } catch (error) {
-      this.logger.error('Failed to sync tenant data store', {
+      this.logger.error('Failed to sync client data store', {
         message: error.message,
         stack: error.stack
       })
@@ -88,7 +88,7 @@ export class TenantService {
   }
 
   async saveEntityStore(clientId: string, store: EntityStore): Promise<EntityStore> {
-    const result = await this.tenantRepository.saveEntityStore(clientId, store)
+    const result = await this.clientRepository.saveEntityStore(clientId, store)
 
     if (result) {
       return store
@@ -102,7 +102,7 @@ export class TenantService {
   }
 
   async savePolicyStore(clientId: string, store: PolicyStore): Promise<PolicyStore> {
-    const result = await this.tenantRepository.savePolicyStore(clientId, store)
+    const result = await this.clientRepository.savePolicyStore(clientId, store)
 
     if (result) {
       return store
@@ -116,14 +116,14 @@ export class TenantService {
   }
 
   async findEntityStore(clientId: string): Promise<EntityStore | null> {
-    return this.tenantRepository.findEntityStore(clientId)
+    return this.clientRepository.findEntityStore(clientId)
   }
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
-    return this.tenantRepository.findPolicyStore(clientId)
+    return this.clientRepository.findPolicyStore(clientId)
   }
 
-  async findAll(): Promise<Tenant[]> {
-    return this.tenantRepository.findAll()
+  async findAll(): Promise<Client[]> {
+    return this.clientRepository.findAll()
   }
 }

@@ -11,19 +11,19 @@ import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
 import { BootstrapService } from './core/service/bootstrap.service'
+import { ClientService } from './core/service/client.service'
 import { DataStoreService } from './core/service/data-store.service'
 import { EngineSignerConfigService } from './core/service/engine-signer-config.service'
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
-import { TenantService } from './core/service/tenant.service'
+import { ClientController } from './http/rest/controller/client.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
-import { TenantController } from './http/rest/controller/tenant.controller'
+import { ClientRepository } from './persistence/repository/client.repository'
 import { EngineSignerConfigRepository } from './persistence/repository/engine-signer-config.repository'
 import { EngineRepository } from './persistence/repository/engine.repository'
 import { FileSystemDataStoreRepository } from './persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from './persistence/repository/http-data-store.repository'
-import { TenantRepository } from './persistence/repository/tenant.repository'
 
 @Module({
   imports: [
@@ -39,7 +39,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       useClass: EncryptionModuleOptionFactory
     })
   ],
-  controllers: [AppController, TenantController, EvaluationController],
+  controllers: [AppController, ClientController, EvaluationController],
   providers: [
     AdminApiKeyGuard,
     BootstrapService,
@@ -53,8 +53,8 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,
     ProvisionService,
-    TenantRepository,
-    TenantService,
+    ClientRepository,
+    ClientService,
     {
       // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,

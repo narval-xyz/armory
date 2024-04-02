@@ -5,22 +5,29 @@ import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { EngineSignerConfigService } from './engine-signer-config.service'
-import { TenantService } from './tenant.service'
+import { ClientService } from './client.service'
 
 @Injectable()
 export class EvaluationService {
   constructor(
     private configService: ConfigService<Config>,
-    private tenantService: TenantService,
-    private engineSignerConfigService: EngineSignerConfigService
+    private clientService: ClientService
   ) {}
 
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
-    const signerConfig = await this.engineSignerConfigService.getSignerConfigOrThrow()
+    const client = await this.clientService.findByClientId(clientId)
+
+    if (!client) {
+      throw new ApplicationException({
+        message: 'Client not found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+        context: { clientId }
+      })
+    }
+
     const [entityStore, policyStore] = await Promise.all([
-      this.tenantService.findEntityStore(clientId),
-      this.tenantService.findPolicyStore(clientId)
+      this.clientService.findEntityStore(clientId),
+      this.clientService.findPolicyStore(clientId)
     ])
 
     if (!entityStore) {
@@ -44,7 +51,7 @@ export class EvaluationService {
     const engine = await new OpenPolicyAgentEngine({
       entities: entityStore.data,
       policies: policyStore.data,
-      privateKey: signerConfig.key,
+      privateKey: client.signer.key,
       resourcePath: resolve(this.configService.get('resourcePath'))
     }).load()
 

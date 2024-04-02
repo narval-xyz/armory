@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
-import { engineSchema } from '../../../shared/schema/engine.schema'
-import { Engine, EngineSignerConfig } from '../../../shared/type/domain.type'
+import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
+import { Engine } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class EngineRepository {
@@ -11,27 +11,19 @@ export class EngineRepository {
     const value = await this.keyValueService.get(this.getEngineKey(id))
 
     if (value) {
-      return this.decode(value)
+      return decode(Engine, value)
     }
 
     return null
   }
 
   async save(engine: Engine): Promise<Engine> {
-    await this.keyValueService.set(this.getEngineKey(engine.id), this.encode(engine))
+    await this.keyValueService.set(this.getEngineKey(engine.id), encode(Engine, engine))
 
     return engine
   }
 
   getEngineKey(id: string): string {
     return `engine:${id}`
-  }
-
-  private decode(value: string): Engine {
-    return engineSchema.parse(JSON.parse(value))
-  }
-
-  private encode(engine: Engine | EngineSignerConfig): string {
-    return JSON.stringify(engine)
   }
 }
