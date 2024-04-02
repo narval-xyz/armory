@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { tenantIndexSchema, tenantSchema } from '../../../shared/schema/tenant.schema'
-import { Tenant } from '../../../shared/type/domain.type'
+import { EngineSignerConfig, Tenant } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class TenantRepository {
@@ -64,6 +64,16 @@ export class TenantRepository {
     return null
   }
 
+  async findSignerConfigKey(): Promise<EngineSignerConfig | null> {
+    const value = await this.encryptKeyValueService.get(this.getSignerConfigKey())
+
+    if (value) {
+      return JSON.parse(value)
+    }
+
+    return null
+  }
+
   // TODO: (@wcalderipe, 07/03/24) we need to rethink this strategy. If we use a
   // SQL database, this could generate a massive amount of queries; thus,
   // degrading the performance.
@@ -103,6 +113,10 @@ export class TenantRepository {
 
   getPolicyStoreKey(clientId: string): string {
     return `tenant:${clientId}:policy-store`
+  }
+
+  getSignerConfigKey(): string {
+    return `engine:${process.env.ENGINE_UID}:signer-config`
   }
 
   private async index(tenant: Tenant): Promise<boolean> {

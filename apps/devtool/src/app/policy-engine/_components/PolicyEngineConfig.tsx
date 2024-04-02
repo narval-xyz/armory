@@ -4,7 +4,7 @@ import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Curves, Jwk, KeyTypes, SigningAlg } from '@narval/signature'
 import axios from 'axios'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
@@ -29,6 +29,20 @@ const PolicyEngineConfig = () => {
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isOnboarded, setIsOnboarded] = useState<boolean>(false)
+
+  useEffect(() => {
+    const getEngineJwk = async () => {
+      const { data } = await axios.get(`${engineUrl}/jwk`, {
+        headers: {
+          'x-client-id': engineClientId,
+          'x-client-secret': engineClientSecret
+        }
+      })
+
+      console.log(data)
+    }
+    getEngineJwk()
+  }, [])
 
   const onboard = async () => {
     if (!account.address) return

@@ -1,4 +1,5 @@
 import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
+import { Jwk, privateKeyToHex, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Tenant } from '../../../shared/type/domain.type'
@@ -121,6 +122,17 @@ export class TenantService {
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
     return this.tenantRepository.findPolicyStore(clientId)
+  }
+
+  async findEngineJwk(): Promise<Jwk | null> {
+    const signerConfig = await this.tenantRepository.findSignerConfigKey()
+
+    if (signerConfig?.key) {
+      const hexPrivateKey = privateKeyToHex(signerConfig.key)
+      return secp256k1PrivateKeyToPublicJwk(hexPrivateKey)
+    }
+
+    return null
   }
 
   async findAll(): Promise<Tenant[]> {
