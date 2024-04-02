@@ -11,7 +11,6 @@ Docker image, and can be used to inspect the contents of your Redis database.
 
 You can then access Redis Insight at http://localhost:8001.
 
-> [!IMPORTANT]
 > When adding a new connection, use the hostname of the host machine, not
 > `localhost`.
 > If you're on macOS, use `host.docker.internal`.

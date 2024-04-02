@@ -27,7 +27,7 @@ policy-engine/build/script:
 	npx tsc --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
 	npx tsc-alias --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
 
-# == Code format ==
+# === Code format ===
 
 policy-engine/format:
 	npx nx format:write --projects ${POLICY_ENGINE_PROJECT_NAME}
