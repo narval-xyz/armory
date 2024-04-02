@@ -1,5 +1,6 @@
 include ./apps/armory/Makefile
 include ./apps/devtool/Makefile
+include ./apps/docs/Makefile
 include ./apps/policy-engine/Makefile
 include ./apps/vault/Makefile
 include ./packages/nestjs-shared/Makefile
