@@ -1,3 +1,7 @@
+---
+title: Idempotency Key vs Nonce
+---
+
 # Idempotency Key vs Nonce — they are DIFFERENT concepts actually
 
 ## TL;DR
