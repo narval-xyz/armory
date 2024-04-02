@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { z, ZodObject } from 'zod'
+import { ZodArray, ZodObject, z } from 'zod'
 
-export const encode = <Schema extends ZodObject<any>>(schema: Schema, value: unknown): string => {
+type JsonCompatibleSchema = ZodObject<any> | ZodArray<any>
+
+export const encode = <Schema extends JsonCompatibleSchema>(schema: Schema, value: unknown): string => {
   return JSON.stringify(schema.parse(value))
 }
 
-export const decode = <Schema extends ZodObject<any>>(schema: Schema, value: string): z.infer<typeof schema> => {
+export const decode = <Schema extends JsonCompatibleSchema>(schema: Schema, value: string): z.infer<typeof schema> => {
   return schema.parse(JSON.parse(value))
 }
