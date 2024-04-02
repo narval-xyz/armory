@@ -4,7 +4,7 @@ import { themes as prismThemes } from 'prism-react-renderer'
 
 const config: Config = {
   title: 'Armory - Documentation',
-  tagline: 'Whales are cool',
+  tagline: 'Unicorn whales are cool',
   favicon: 'img/favicon.ico',
 
   url: 'https://docs.narval.xyz',
@@ -28,8 +28,6 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts'
-          // sidebarCollapsible: false,
-          // editUrl: 'https://github.com/narval-xyz/armory/tree/main/apps/documentation/docs'
         },
         blog: false,
         theme: {
