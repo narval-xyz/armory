@@ -60,7 +60,7 @@ export const checkTokenExpiration = (payload: Payload, opts: JwtVerifyOptions): 
   return true
 }
 
-const checkNbf = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkNbf = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   const checkTime = opts.now || nowSeconds()
   if (payload.nbf && payload.nbf > checkTime) {
     throw new JwtError({ message: 'Token is not yet valid', context: { payload } })

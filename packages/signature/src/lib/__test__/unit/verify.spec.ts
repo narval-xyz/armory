@@ -7,6 +7,7 @@ import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../.
 import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
+  checkNbf,
   checkRequiredClaims,
   checkTokenExpiration,
   verifyJwsdHeader,
@@ -461,5 +462,25 @@ describe('checkTokenExpiration', () => {
     const result = checkTokenExpiration(payload, opts)
 
     expect(result).toBe(true)
+  })
+})
+
+describe('checkNbf', () => {
+  it('returns true when the token is valid', () => {
+    const payload: Payload = {
+      nbf: nowSeconds() - 3600 // 1 hour ago
+    }
+
+    const result = checkNbf(payload, {})
+
+    expect(result).toBe(true)
+  })
+
+  it('throws JwtError when the token is not yet valid', () => {
+    const payload: Payload = {
+      nbf: nowSeconds() + 3600 // 1 hour from now
+    }
+
+    expect(() => checkNbf(payload, {})).toThrow(JwtError)
   })
 })
