@@ -4,16 +4,14 @@ import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Editor from '@monaco-editor/react'
 import { EntityStore, EntityUtil, PolicyStore, entityDataSchema, policyDataSchema } from '@narval/policy-engine-shared'
-import { Curves, Jwk, KeyTypes, Payload, SigningAlg, hash, hexToBase64Url, signJwt } from '@narval/signature'
-import { signMessage } from '@wagmi/core'
+import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
-import { useAccount } from 'wagmi'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
+import useAccountSignature from '../../_hooks/useAccountSignature'
 import useStore from '../../_hooks/useStore'
-import { config } from '../../_lib/config'
 
 const ActionStatus = (isDone: boolean, label: string) => {
   if (!isDone) {
@@ -34,7 +32,6 @@ const ActionStatus = (isDone: boolean, label: string) => {
 }
 
 const DataStoreConfig = () => {
-  const account = useAccount()
   const {
     engineUrl,
     engineClientId,
@@ -48,6 +45,7 @@ const DataStoreConfig = () => {
     policySignatureUrl,
     setPolicySignatureUrl
   } = useStore()
+  const { jwk, signAccountJwt } = useAccountSignature()
 
   const [data, setData] = useState<string>()
   const [dataStore, setDataStore] = useState<{ entity: EntityStore; policy: PolicyStore }>()
@@ -65,22 +63,8 @@ const DataStoreConfig = () => {
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
 
-  useEffect(() => {
-    if (data) return
-
-    const getData = async () => {
-      const dataStore = await axios.get('/api/data-store')
-      const { entity, policy } = dataStore.data
-      setData(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
-      setDataStore(dataStore.data)
-    }
-
-    getData()
-  }, [data])
-
   const signEntityData = async () => {
-    if (!data || !dataStore) return
-    if (!account.address) return
+    if (!data || !dataStore || !jwk) return
 
     const { entity } = JSON.parse(data)
 
@@ -104,28 +88,14 @@ const DataStoreConfig = () => {
 
     setIsEntitySigning(true)
 
-    const jwtSigner = async (message: string) => {
-      const jwtSig = await signMessage(config, { message })
-
-      return hexToBase64Url(jwtSig)
-    }
-
     const entityPayload: Payload = {
       data: hash(entity),
-      sub: account.address,
+      sub: jwk.addr,
       iss: 'https://devtool.narval.xyz',
       iat: Math.floor(Date.now() / 1000)
     }
 
-    const jwk: Jwk = {
-      kty: KeyTypes.EC,
-      crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
-      kid: account.address,
-      addr: account.address
-    }
-
-    const entitySig = await signJwt(entityPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    const entitySig = await signAccountJwt(entityPayload)
     setProcessingStatus((prev) => ({ ...prev, entitySigned: true }))
 
     await axios.post('/api/data-store', {
@@ -135,6 +105,7 @@ const DataStoreConfig = () => {
       },
       policy: dataStore.policy
     })
+    await getData()
     setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
 
     await axios.post(`${engineUrl}/tenants/sync`, null, {
@@ -157,8 +128,7 @@ const DataStoreConfig = () => {
   }
 
   const signPolicyData = async () => {
-    if (!data || !dataStore) return
-    if (!account.address) return
+    if (!data || !dataStore || !jwk) return
 
     const { policy } = JSON.parse(data)
 
@@ -174,28 +144,14 @@ const DataStoreConfig = () => {
 
     setIsPolicySigning(true)
 
-    const jwtSigner = async (message: string) => {
-      const jwtSig = await signMessage(config, { message })
-
-      return hexToBase64Url(jwtSig)
-    }
-
     const policyPayload: Payload = {
       data: hash(policy),
-      sub: account.address,
+      sub: jwk.addr,
       iss: 'https://devtool.narval.xyz',
       iat: Math.floor(Date.now() / 1000)
     }
 
-    const jwk: Jwk = {
-      kty: KeyTypes.EC,
-      crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
-      kid: account.address,
-      addr: account.address
-    }
-
-    const policySig = await signJwt(policyPayload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    const policySig = await signAccountJwt(policyPayload)
     setProcessingStatus((prev) => ({ ...prev, policySigned: true }))
 
     await axios.post('/api/data-store', {
@@ -205,6 +161,7 @@ const DataStoreConfig = () => {
         data: policy
       }
     })
+    await getData()
     setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
 
     await axios.post(`${engineUrl}/tenants/sync`, null, {
@@ -225,6 +182,17 @@ const DataStoreConfig = () => {
       })
     }, 5000)
   }
+
+  const getData = async () => {
+    const { data: dataStore } = await axios.get('/api/data-store')
+    const { entity, policy } = dataStore
+    setData(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
+    setDataStore(dataStore)
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   return (
     <>

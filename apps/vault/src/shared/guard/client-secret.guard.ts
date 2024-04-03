@@ -9,8 +9,8 @@ export class ClientSecretGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
-    const clientSecret = req.headers[REQUEST_HEADER_API_KEY]
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
+    const clientSecret = req.headers[REQUEST_HEADER_API_KEY]
 
     if (!clientSecret) {
       throw new ApplicationException({

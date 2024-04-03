@@ -17,6 +17,7 @@ import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
 import { TenantService } from './core/service/tenant.service'
+import { EngineController } from './http/rest/controller/engine.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { TenantController } from './http/rest/controller/tenant.controller'
 import { EngineSignerConfigRepository } from './persistence/repository/engine-signer-config.repository'
@@ -39,7 +40,7 @@ import { TenantRepository } from './persistence/repository/tenant.repository'
       useClass: EncryptionModuleOptionFactory
     })
   ],
-  controllers: [AppController, TenantController, EvaluationController],
+  controllers: [AppController, EngineController, TenantController, EvaluationController],
   providers: [
     AdminApiKeyGuard,
     BootstrapService,
