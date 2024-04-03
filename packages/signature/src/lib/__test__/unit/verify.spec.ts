@@ -4,9 +4,16 @@ import { hash } from '../../hash-request'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
 import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../../types'
-import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
+import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
-import { checkRequiredClaims, verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySecp256k1 } from '../../verify'
+import {
+  checkRequiredClaims,
+  checkTokenExpiration,
+  verifyJwsdHeader,
+  verifyJwt,
+  verifyJwtHeader,
+  verifySecp256k1
+} from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -125,7 +132,7 @@ describe('verifyJwtHeader', () => {
     expect(result).toBe(true)
   })
 
-  it('should throw JwtError when unrecognized crit parameter is present in the header', () => {
+  it('throws JwtError when unrecognized crit parameter is present in the header', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
@@ -136,7 +143,7 @@ describe('verifyJwtHeader', () => {
     expect(() => verifyJwtHeader(header as Header)).toThrow(JwtError)
   })
 
-  it('should throw JwtError when crit parameter is missing from the header', () => {
+  it('throws JwtError when crit parameter is missing from the header', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
@@ -176,7 +183,7 @@ describe('verifyJwsdHeader', () => {
       typ: 'gnap-binding-jwsd',
       htm: 'example-htm',
       uri: 'example-uri',
-      created: Math.floor(Date.now() / 1000),
+      created: nowSeconds(),
       ath: 'example-ath'
     }
 
@@ -190,13 +197,13 @@ describe('verifyJwsdHeader', () => {
     expect(() => verifyJwsdHeader(header as Header, opts)).not.toThrow()
   })
 
-  it('should throw for missing standard header fields', () => {
+  it('throws for missing standard header fields', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
       htm: 'invalid-htm',
       uri: 'example-uri',
-      created: Math.floor(Date.now() / 1000),
+      created: nowSeconds(),
       ath: 'example-ath'
     }
 
@@ -210,14 +217,14 @@ describe('verifyJwsdHeader', () => {
     expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
   })
 
-  it('should throw an error for invalid htm field in JwsdHeader', () => {
+  it('throws an error for invalid htm field in JwsdHeader', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
       typ: 'gnap-binding-jwsd',
       htm: 'invalid-htm',
       uri: 'example-uri',
-      created: Math.floor(Date.now() / 1000),
+      created: nowSeconds(),
       ath: 'example-ath'
     }
 
@@ -231,14 +238,14 @@ describe('verifyJwsdHeader', () => {
     expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
   })
 
-  it('should throw an error for invalid uri field in JwsdHeader', () => {
+  it('throws an error for invalid uri field in JwsdHeader', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
       typ: 'gnap-binding-jwsd',
       htm: 'example-htm',
       uri: 'invalid-uri',
-      created: Math.floor(Date.now() / 1000),
+      created: nowSeconds(),
       ath: 'example-ath'
     }
 
@@ -252,14 +259,14 @@ describe('verifyJwsdHeader', () => {
     expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
   })
 
-  it('should throw an error for JWS that is too old', () => {
+  it('throws an error for JWS that is too old', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
       typ: 'gnap-binding-jwsd',
       htm: 'example-htm',
       uri: 'example-uri',
-      created: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
+      created: nowSeconds() - 7200, // 2 hours ago
       ath: 'example-ath'
     }
 
@@ -273,14 +280,14 @@ describe('verifyJwsdHeader', () => {
     expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
   })
 
-  it('should throw an error for invalid ath field in JwsdHeader', () => {
+  it('throws an error for invalid ath field in JwsdHeader', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',
       typ: 'gnap-binding-jwsd',
       htm: 'example-htm',
       uri: 'example-uri',
-      created: Math.floor(Date.now() / 1000),
+      created: nowSeconds(),
       ath: 'invalid-ath'
     }
 
@@ -403,5 +410,56 @@ describe('checkRequiredClaims', () => {
     }
 
     expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkTokenExpiration', () => {
+  it('throws JwtError when token has expired', () => {
+    const payload = {
+      exp: nowSeconds() - 3600 // Expired 1 hour ago
+    }
+    const opts = {
+      now: nowSeconds()
+    }
+
+    expect(() => checkTokenExpiration(payload, opts)).toThrow(JwtError)
+  })
+
+  it('throws JwtError when token has exceeded maxTokenAge', () => {
+    const payload = {
+      iat: nowSeconds() - 7200 // Issued 2 hours ago
+    }
+    const opts = {
+      now: nowSeconds(),
+      maxTokenAge: 3600
+    }
+
+    expect(() => checkTokenExpiration(payload, opts)).toThrow(JwtError)
+  })
+
+  it('returns true when token has not expired', () => {
+    const payload = {
+      exp: nowSeconds() + 3600 // Expires in 1 hour
+    }
+    const opts = {
+      now: nowSeconds()
+    }
+
+    const result = checkTokenExpiration(payload, opts)
+
+    expect(result).toBe(true)
+  })
+
+  it('allows overwriting `now` with a custom value', () => {
+    const payload = {
+      exp: nowSeconds() - 3600 // 1 hour ago
+    }
+    const opts = {
+      now: nowSeconds() - 7200 // 2 hours ago
+    }
+
+    const result = checkTokenExpiration(payload, opts)
+
+    expect(result).toBe(true)
   })
 })

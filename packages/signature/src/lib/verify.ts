@@ -45,7 +45,7 @@ export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): b
   }
   return true
 }
-const checkTokenExpiration = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkTokenExpiration = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   const checkTime = opts.now || nowSeconds()
   if (payload.exp && payload.exp < checkTime) {
     throw new JwtError({ message: 'Token has expired', context: { payload } })
