@@ -7,6 +7,7 @@ import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../.
 import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
+  checkAudience,
   checkIssuer,
   checkNbf,
   checkRequiredClaims,
@@ -515,5 +516,37 @@ describe('checkIssuer', () => {
     }
 
     expect(() => checkIssuer(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkAudience', () => {
+  it('returns true when the audience is valid', () => {
+    const payload: Payload = {
+      aud: 'https://api.example.com'
+    }
+
+    expect(
+      checkAudience(payload, {
+        audience: 'https://api.example.com'
+      })
+    ).toBe(true)
+
+    expect(
+      checkAudience(payload, {
+        audience: ['https://api.other.com', 'https://api.example.com']
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the audience is invalid', () => {
+    const payload: Payload = {
+      aud: 'https://api.example.com'
+    }
+
+    const opts = {
+      audience: 'https://invalid.com'
+    }
+
+    expect(() => checkAudience(payload, opts)).toThrow(JwtError)
   })
 })

@@ -80,7 +80,7 @@ export const checkIssuer = (payload: Payload, opts: JwtVerifyOptions): boolean =
   return true
 }
 
-const checkAudience = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkAudience = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.audience) {
     if (
       !payload.aud ||
