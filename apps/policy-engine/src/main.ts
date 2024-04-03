@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withSwagger } from '@narval/nestjs-shared'
+import { withCors, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -35,18 +35,6 @@ const withGlobalFilters =
     return app
   }
 
-const withCors =
-  (configService: ConfigService<Config>) =>
-  (app: INestApplication): INestApplication => {
-    const origin = configService.get('cors')
-
-    if (origin.length > 0) {
-      app.enableCors({ origin })
-    }
-
-    return app
-  }
-
 const provision = async () => {
   const application = await NestFactory.createApplicationContext(ProvisionModule)
 
@@ -78,7 +66,7 @@ async function bootstrap() {
       ),
       map(withGlobalPipes),
       map(withGlobalFilters(configService)),
-      map(withCors(configService)),
+      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )
