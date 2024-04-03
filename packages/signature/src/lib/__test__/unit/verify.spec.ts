@@ -2,9 +2,9 @@ import { signatureToHex, toBytes } from 'viem'
 import { JwtError } from '../../error'
 import { hash } from '../../hash-request'
 import { secp256k1PublicKeySchema } from '../../schemas'
-import { signSecp256k1 } from '../../sign'
-import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../../types'
-import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
+import { signJwt, signSecp256k1 } from '../../sign'
+import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey, SigningAlg } from '../../types'
+import { generateJwk, nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
   checkAudience,
@@ -21,31 +21,31 @@ import {
   verifySecp256k1
 } from '../../verify'
 
-describe('verify', () => {
-  const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-  it('should verify a EIP191-signed JWT', async () => {
+describe('verifyJwt', () => {
+  const payload: Payload = {
+    requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+    sub: 'test-root-user-uid',
+    iss: 'https://armory.narval.xyz',
+    cnf: {
+      kty: 'EC',
+      crv: 'secp256k1',
+      alg: 'ES256K',
+      use: 'sig',
+      kid: '0x000c0d191308A336356BEe3813CC17F6868972C4',
+      x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
+      y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
+    }
+  }
+
+  it('should verify a EIP191 JWT', async () => {
     const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
 
     const header = {
       kid: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
       alg: 'EIP191',
       typ: 'JWT'
-    }
-
-    const payload: Payload = {
-      requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
-      sub: 'test-root-user-uid',
-      iss: 'https://armory.narval.xyz',
-      cnf: {
-        kty: 'EC',
-        crv: 'secp256k1',
-        alg: 'ES256K',
-        use: 'sig',
-        kid: '0x000c0d191308A336356BEe3813CC17F6868972C4',
-        x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
-        y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
-      }
     }
     // jwt can be re-created with `signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, buildSignerEip191(ENGINE_PRIVATE_KEY))`
     const jwt =
@@ -60,7 +60,7 @@ describe('verify', () => {
     })
   })
 
-  it('verifies a JWT signed by wagmi on client', async () => {
+  it('verifies a EIP191 JWT signed by wagmi on client', async () => {
     // Example data from devtool ui
     const policy = [
       {
@@ -108,6 +108,83 @@ describe('verify', () => {
     expect(res.payload.data).toEqual(policyHash.slice(2))
   })
 
+  it('verifies ES256k JWT', async () => {
+    const keyId = 'es256k-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.ES256K,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.ES256K, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256K })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('verifies ES256 JWT', async () => {
+    const keyId = 'es256-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.ES256,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.ES256, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256 })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('verifies RS256 JWT', async () => {
+    const keyId = 'rs256-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.RS256,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.RS256, { keyId, use: 'sig' })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.RS256 })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('throws on invalid signature', async () => {
+    expect.assertions(1)
+    const keyId = 'es256k-kid'
+
+    const jwk = await generateJwk(Alg.ES256K, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256K })
+    // replace the jwt header
+    const parts = jwt.split('.')
+    parts[0] =
+      'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ'
+    const invalidJwt = parts.join('.')
+
+    await expect(verifyJwt(invalidJwt, jwk)).rejects.toThrow(JwtError)
+  })
+})
+
+describe('verifySecp256k1', () => {
   it('verifies raw secp256k1 signatures', async () => {
     const msg = toBytes('My ASCII message')
     const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`, Alg.ES256K)

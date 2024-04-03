@@ -25,6 +25,7 @@ import {
 } from './types'
 import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex } from './utils'
 import { buildJwkValidator } from './validate'
+
 const cryptoVerify = promisify(crypto.verify)
 
 export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
@@ -164,11 +165,15 @@ export const verifyEip191 = async (sig: Hex, msg: string, jwk: PublicKey): Promi
   return isValid
 }
 
-export const verifyRs256 = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Promise<boolean> => {
-  const rs = publicKeyToHex(jwk)
+export const verifyRs256 = async (sig: Hex, msg: string, jwk: PublicKey): Promise<boolean> => {
+  const key = crypto.createPublicKey({
+    format: 'jwk',
+    key: jwk
+  })
 
-  const isValid = await cryptoVerify('sha256', hash, Buffer.from(hexToBytes(rs)), hexToBytes(sig))
-  return isValid
+  const msgBuffer = Buffer.from(msg)
+  const isValid = await cryptoVerify('sha256', msgBuffer, key, hexToBytes(sig))
+  return !!isValid
 }
 
 async function verifySignature(jws: string, jwk: PublicKey, alg: SigningAlg): Promise<boolean> {
@@ -186,8 +191,8 @@ async function verifySignature(jws: string, jwk: PublicKey, alg: SigningAlg): Pr
     const hash = sha256Hash(verificationMsg)
     isValid = await verifyP256(sig, hash, jwk)
   } else if (alg === SigningAlg.RS256) {
-    const hash = sha256Hash(verificationMsg)
-    isValid = await verifyRs256(sig, hash, jwk)
+    // in RS256, the verification does the hashing internally, so pass the data itself not the hash
+    isValid = await verifyRs256(sig, verificationMsg, jwk)
   }
 
   if (!isValid) {
