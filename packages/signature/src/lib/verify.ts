@@ -194,7 +194,7 @@ const validatePublicKey = buildJwkValidator<PublicKey>({
   errorMessage: 'Invalid JWK: failed to validate public key'
 })
 
-export function verifyJwtHeader(header: Header, opts?: { crit?: string[] }): boolean {
+export function verifyJwtHeader(header: Header, opts?: JwtVerifyOptions): boolean {
   const recognized = new Map([...(opts?.crit || []), 'b64'].map((key) => [key, true]))
 
   if (header.crit) {
@@ -286,7 +286,7 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   const key = validatePublicKey(jwk)
   const { header, payload, signature } = decodeJwt(jwt)
 
-  verifyJwtHeader(header)
+  verifyJwtHeader(header, opts)
 
   await verifySignature(jwt, key, header.alg)
 

@@ -269,10 +269,19 @@ export type JwtVerifyOptions = {
    */
   requiredClaims?: string[]
 
-  // Hash of the request body, or the body itself which will be hashed then compared
+  /**
+   * Array of critical headers that are recognized
+   */
+  crit?: string[]
+
+  /**
+   * Hash of the request body, or the body itself which will be hashed then compared
+   */
   requestHash?: Hex | object
 
-  // hash of data, or the dat itself which will be hashed then compared
+  /**
+   * Hash of the data, or the data itself which will be hashed then compared
+   */
   data?: Hex | object
 }
 
