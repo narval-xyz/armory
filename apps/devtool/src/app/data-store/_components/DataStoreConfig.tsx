@@ -88,33 +88,37 @@ const DataStoreConfig = () => {
 
     setIsEntitySigning(true)
 
-    const entityPayload: Payload = {
-      data: hash(entity),
-      sub: jwk.addr,
-      iss: 'https://devtool.narval.xyz',
-      iat: Math.floor(Date.now() / 1000)
-    }
-
-    const entitySig = await signAccountJwt(entityPayload)
-    setProcessingStatus((prev) => ({ ...prev, entitySigned: true }))
-
-    await axios.post('/api/data-store', {
-      entity: {
-        signature: entitySig,
-        data: entity
-      },
-      policy: dataStore.policy
-    })
-    await getData()
-    setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
-
-    await axios.post(`${engineUrl}/clients/sync`, null, {
-      headers: {
-        'x-client-id': engineClientId,
-        'x-client-secret': engineClientSecret
+    try {
+      const entityPayload: Payload = {
+        data: hash(entity),
+        sub: jwk.addr,
+        iss: 'https://devtool.narval.xyz',
+        iat: Math.floor(Date.now() / 1000)
       }
-    })
-    setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
+
+      const entitySig = await signAccountJwt(entityPayload)
+      setProcessingStatus((prev) => ({ ...prev, entitySigned: true }))
+
+      await axios.post('/api/data-store', {
+        entity: {
+          signature: entitySig,
+          data: entity
+        },
+        policy: dataStore.policy
+      })
+      await getData()
+      setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
+
+      await axios.post(`${engineUrl}/clients/sync`, null, {
+        headers: {
+          'x-client-id': engineClientId,
+          'x-client-secret': engineClientSecret
+        }
+      })
+      setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
+    } catch (error) {
+      console.log(error)
+    }
 
     setTimeout(() => {
       setIsEntitySigning(false)
@@ -144,33 +148,37 @@ const DataStoreConfig = () => {
 
     setIsPolicySigning(true)
 
-    const policyPayload: Payload = {
-      data: hash(policy),
-      sub: jwk.addr,
-      iss: 'https://devtool.narval.xyz',
-      iat: Math.floor(Date.now() / 1000)
+    try {
+      const policyPayload: Payload = {
+        data: hash(policy),
+        sub: jwk.addr,
+        iss: 'https://devtool.narval.xyz',
+        iat: Math.floor(Date.now() / 1000)
+      }
+
+      const policySig = await signAccountJwt(policyPayload)
+      setProcessingStatus((prev) => ({ ...prev, policySigned: true }))
+
+      await axios.post('/api/data-store', {
+        entity: dataStore.entity,
+        policy: {
+          signature: policySig,
+          data: policy
+        }
+      })
+      await getData()
+      setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
+
+      await axios.post(`${engineUrl}/clients/sync`, null, {
+        headers: {
+          'x-client-id': engineClientId,
+          'x-client-secret': engineClientSecret
+        }
+      })
+      setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
+    } catch (error) {
+      console.log(error)
     }
-
-    const policySig = await signAccountJwt(policyPayload)
-    setProcessingStatus((prev) => ({ ...prev, policySigned: true }))
-
-    await axios.post('/api/data-store', {
-      entity: dataStore.entity,
-      policy: {
-        signature: policySig,
-        data: policy
-      }
-    })
-    await getData()
-    setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
-
-    await axios.post(`${engineUrl}/clients/sync`, null, {
-      headers: {
-        'x-client-id': engineClientId,
-        'x-client-secret': engineClientSecret
-      }
-    })
-    setProcessingStatus((prev) => ({ ...prev, engineSynced: true }))
 
     setTimeout(() => {
       setIsPolicySigning(false)

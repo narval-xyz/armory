@@ -28,28 +28,33 @@ const TransactionRequestEditor = () => {
 
     setIsProcessing(true)
 
-    const transactionRequest = JSON.parse(data)
+    try {
+      const transactionRequest = JSON.parse(data)
 
-    const payload = {
-      iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
-      sub: transactionRequest.request.resourceId,
-      requestHash: hash(transactionRequest.request)
+      const payload = {
+        iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
+        sub: transactionRequest.request.resourceId,
+        requestHash: hash(transactionRequest.request)
+      }
+
+      const authentication = await signAccountJwt(payload)
+
+      const evaluation = await axios.post(
+        `${engineUrl}/evaluations`,
+        { ...transactionRequest, authentication },
+        {
+          headers: {
+            'x-client-id': engineClientId,
+            'x-client-secret': engineClientSecret
+          }
+        }
+      )
+
+      setEvaluationResponse(evaluation.data)
+    } catch (error) {
+      console.log(error)
     }
 
-    const authentication = await signAccountJwt(payload)
-
-    const evaluation = await axios.post(
-      `${engineUrl}/evaluations`,
-      { ...transactionRequest, authentication },
-      {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      }
-    )
-
-    setEvaluationResponse(evaluation.data)
     setIsProcessing(false)
   }
 
@@ -60,20 +65,25 @@ const TransactionRequestEditor = () => {
 
     if (!accessToken?.value || !request) return
 
-    const bodyPayload = { request }
+    try {
+      const bodyPayload = { request }
 
-    const detachedJws = await signAccountJwsd(bodyPayload, accessToken.value)
+      const detachedJws = await signAccountJwsd(bodyPayload, accessToken.value)
 
-    const { data } = await axios.post(`${vaultUrl}/sign`, bodyPayload, {
-      headers: {
-        'x-client-id': vaultClientId,
-        'detached-jws': detachedJws,
-        authorization: `GNAP ${accessToken.value}`
-      }
-    })
+      const { data } = await axios.post(`${vaultUrl}/sign`, bodyPayload, {
+        headers: {
+          'x-client-id': vaultClientId,
+          'detached-jws': detachedJws,
+          authorization: `GNAP ${accessToken.value}`
+        }
+      })
 
-    setSignature(data.signature)
-    setEvaluationResponse(undefined)
+      setSignature(data.signature)
+      setEvaluationResponse(undefined)
+    } catch (error) {
+      console.log(error)
+    }
+
     setIsProcessing(false)
   }
 

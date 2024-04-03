@@ -35,29 +35,34 @@ const VaultConfig = () => {
 
     setIsProcessing(true)
 
-    const { data: client } = await axios.post(
-      `${vaultUrl}/tenants`,
-      {
-        ...(vaultClientId && { clientId: vaultClientId }),
-        ...(engineClientSigner && { engineJwk: engineClientSigner })
-      },
-      {
-        headers: {
-          'x-api-key': vaultApiKey
+    try {
+      const { data: client } = await axios.post(
+        `${vaultUrl}/tenants`,
+        {
+          ...(vaultClientId && { clientId: vaultClientId }),
+          ...(engineClientSigner && { engineJwk: engineClientSigner })
+        },
+        {
+          headers: {
+            'x-api-key': vaultApiKey
+          }
         }
-      }
-    )
+      )
 
-    setVaultClientId(client.clientId)
-    setVaultClientSecret(client.clientSecret)
-    setEngineClientSigner(client.engineJwk)
+      setVaultClientId(client.clientId)
+      setVaultClientSecret(client.clientSecret)
+      setEngineClientSigner(client.engineJwk)
+
+      setIsOnboarded(true)
+
+      setTimeout(() => {
+        setIsOnboarded(false)
+      }, 5000)
+    } catch (error) {
+      console.log(error)
+    }
 
     setIsProcessing(false)
-    setIsOnboarded(true)
-
-    setTimeout(() => {
-      setIsOnboarded(false)
-    }, 5000)
   }
 
   const importPrivateKey = async () => {
@@ -65,19 +70,24 @@ const VaultConfig = () => {
 
     setIsProcessing(true)
 
-    const { data: wallet } = await axios.post(
-      `${vaultUrl}/import/private-key`,
-      { privateKey },
-      {
-        headers: {
-          'x-client-id': vaultClientId,
-          'x-api-key': vaultClientSecret
+    try {
+      const { data: wallet } = await axios.post(
+        `${vaultUrl}/import/private-key`,
+        { privateKey },
+        {
+          headers: {
+            'x-client-id': vaultClientId,
+            'x-api-key': vaultClientSecret
+          }
         }
-      }
-    )
+      )
 
-    setWalletData(wallet)
-    setPrivateKey('')
+      setWalletData(wallet)
+      setPrivateKey('')
+    } catch (error) {
+      console.log(error)
+    }
+
     setIsProcessing(false)
   }
 
