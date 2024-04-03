@@ -27,9 +27,17 @@ import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex } from './ut
 import { buildJwkValidator } from './validate'
 const cryptoVerify = promisify(crypto.verify)
 
-const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
-  if (opts.requiredClaims) {
-    for (const claim of opts.requiredClaims) {
+export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+  const requiredClaims = [
+    ...(opts.issuer ? ['iss'] : []),
+    ...(opts.audience ? ['aud'] : []),
+    ...(opts.subject ? ['sub'] : []),
+    ...(opts.requestHash ? ['requestHash'] : []),
+    ...(opts.data ? ['data'] : []),
+    ...(opts.requiredClaims || [])
+  ]
+  if (requiredClaims.length) {
+    for (const claim of requiredClaims) {
       if (payload[claim] === undefined) {
         throw new JwtError({ message: `Missing required claim: ${claim}`, context: { payload } })
       }

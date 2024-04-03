@@ -3,10 +3,10 @@ import { JwtError } from '../../error'
 import { hash } from '../../hash-request'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signSecp256k1 } from '../../sign'
-import { Alg, Header, Payload, Secp256k1PublicKey } from '../../types'
+import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../../types'
 import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
-import { verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySecp256k1 } from '../../verify'
+import { checkRequiredClaims, verifyJwsdHeader, verifyJwt, verifyJwtHeader, verifySecp256k1 } from '../../verify'
 
 describe('verify', () => {
   const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -292,5 +292,116 @@ describe('verifyJwsdHeader', () => {
     }
 
     expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkRequiredClaims', () => {
+  it('throws JwtError when a required claim is missing', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400 // Expiration time in Unix timestamp format
+    }
+
+    const opts = {
+      requiredClaims: ['sub', 'iss', 'exp', 'aud'] // 'aud' claim is missing in the payload
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('returns true when all required claims are present', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400, // Expiration time in Unix timestamp format
+      aud: 'https://api.example.com'
+    }
+
+    const opts = {
+      requiredClaims: ['sub', 'iss', 'exp', 'aud']
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).not.toThrow()
+  })
+
+  it('returns true when no required claims are specified', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400 // Expiration time in Unix timestamp format
+    }
+
+    const opts = {
+      requiredClaims: []
+    }
+
+    const result = checkRequiredClaims(payload, opts)
+
+    expect(result).toBe(true)
+  })
+
+  it('requires iss if Issuer verify option is passed', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      issuer: 'https://example.com'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires aud if audience verify option is passed', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      audience: 'https://api.example.com'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+  it('requires sub if subject verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      subject: 'test-subject'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires requesthash if requestHash verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: '0x1234567890'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires data if data verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      data: '0x1234567890'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
   })
 })
