@@ -1,6 +1,7 @@
 import { JwtError } from './error'
-import { isHeader } from './typeguards'
-import { Jwsd, Jwt } from './types'
+import { Header, Payload } from './schemas'
+import { type Jwsd, type Jwt } from './types'
+
 import { base64UrlToBytes } from './utils'
 
 /**
@@ -11,28 +12,22 @@ import { base64UrlToBytes } from './utils'
  * @throws {Error} If the payload does not match the expected structure.
  * @throws {Error} If the header does not match the expected structure.
  */
-export function decode(rawToken: string): Jwt {
+function decode(rawToken: string) {
+  const parts = rawToken.split('.')
+  if (parts.length !== 3) {
+    throw new JwtError({ message: 'Invalid JWT: The token must have three parts', context: { rawToken } })
+  }
   try {
-    const parts = rawToken.split('.')
-    if (parts.length !== 3) {
-      throw new Error('Invalid JWT: The token must have three parts')
-    }
     const [headerStr, payloadStr, jwtSig] = parts
-    const header = JSON.parse(base64UrlToBytes(headerStr).toString('utf-8'))
-    if (!isHeader(header)) {
-      throw new JwtError({ message: 'Invalid header', context: { rawToken, header } })
-    }
+    const headerDecoded = base64UrlToBytes(headerStr).toString('utf-8')
+    const header = Header.parse(JSON.parse(headerDecoded))
 
-    const payload = JSON.parse(base64UrlToBytes(payloadStr).toString('utf-8'))
-
-    // TODO: Switch these to zod parsers
-    // if (!isPayload(payload)) {
-    //   throw new JwtError({ message: 'Invalid payload', context: { rawToken, payload } })
-    // }
+    // Return the String representation of the payload because JWT and JWSD have different payload types
+    const payloadDecoded = base64UrlToBytes(payloadStr).toString('utf-8')
 
     return {
       header,
-      payload,
+      payload: payloadDecoded,
       signature: jwtSig
     }
   } catch (error) {
@@ -40,34 +35,34 @@ export function decode(rawToken: string): Jwt {
   }
 }
 
+export function decodeJwt(rawToken: string): Jwt {
+  const decoded = decode(rawToken)
+  if (decoded.header.typ.toLowerCase() !== 'jwt') {
+    throw new JwtError({ message: 'Invalid header. Must be jwt.', context: { rawToken, decoded } })
+  }
+
+  const parsedPayload = Payload.parse(JSON.parse(decoded.payload))
+
+  return {
+    header: decoded.header,
+    payload: parsedPayload,
+    signature: decoded.signature
+  }
+}
+
 /**
- * Decodes a JWT without verifying its signature.
+ * Decodes a JWSd without verifying its signature.
  *
- * @param {string} rawToken - The JWT to decode.
+ * @param {string} rawToken - The JWS to decode.
  * @returns {Jwsd} A promise that resolves with the decoded payload.
  * @throws {Error} If the payload does not match the expected structure.
  * @throws {Error} If the header does not match the expected structure.
  */
 export function decodeJwsd(rawToken: string): Jwsd {
-  try {
-    const parts = rawToken.split('.')
-    if (parts.length !== 3) {
-      throw new Error('Invalid JWT: The token must have three parts')
-    }
-    const [headerStr, payloadStr, jwtSig] = parts
-    const header = JSON.parse(base64UrlToBytes(headerStr).toString('utf-8'))
-    if (!isHeader(header)) {
-      throw new JwtError({ message: 'Invalid header', context: { rawToken, header } })
-    }
-
-    const payload = base64UrlToBytes(payloadStr).toString('utf-8') // Should be a sha256hash
-
-    return {
-      header,
-      payload,
-      signature: jwtSig
-    }
-  } catch (error) {
-    throw new JwtError({ message: 'Malformed token', context: { rawToken, error } })
+  const decoded = decode(rawToken)
+  if (decoded.header.typ.toLowerCase() !== 'gnap-binding-jwsd') {
+    throw new JwtError({ message: 'Invalid header type. Must be gnap-binding-jwsd.', context: { rawToken, decoded } })
   }
+
+  return decoded
 }

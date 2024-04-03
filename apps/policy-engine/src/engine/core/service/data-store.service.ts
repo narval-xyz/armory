@@ -10,7 +10,7 @@ import {
   policyDataSchema,
   policySignatureSchema
 } from '@narval/policy-engine-shared'
-import { Jwk, decode, hash, verifyJwt } from '@narval/signature'
+import { Jwk, decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { JwtError } from 'packages/signature/src/lib/error'
 import { ZodObject, z } from 'zod'
@@ -126,7 +126,7 @@ export class DataStoreService {
     keys: Jwk[]
   }): Promise<{ success: true } | { success: false; error: DataStoreException }> {
     try {
-      const jwt = decode(params.signature)
+      const jwt = decodeJwt(params.signature)
       const jwk = params.keys.find(({ kid }) => kid === jwt.header.kid)
 
       if (!jwk) {

@@ -1,5 +1,5 @@
 import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
-import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySepc256k1 } from '@narval/signature'
+import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySecp256k1 } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import {
   Hex,
@@ -229,7 +229,7 @@ describe('SigningService', () => {
 
       const result = await signingService.sign(tenantId, rawRequest)
 
-      const isVerified = await verifySepc256k1(result, byteMessage, privateKey as Secp256k1PublicKey)
+      const isVerified = await verifySecp256k1(result, byteMessage, privateKey as Secp256k1PublicKey)
       expect(isVerified).toEqual(true)
     })
   })
