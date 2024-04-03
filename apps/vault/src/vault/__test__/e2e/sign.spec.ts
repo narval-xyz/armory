@@ -1,8 +1,6 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { Action } from '@narval/policy-engine-shared'
 import {
-  JwsdHeader,
-  Payload,
   SigningAlg,
   buildSignerEip191,
   hash,
@@ -11,7 +9,9 @@ import {
   secp256k1PrivateKeyToPublicJwk,
   secp256k1PublicKeyToJwk,
   signJwsd,
-  signJwt
+  signJwt,
+  type JwsdHeader,
+  type Payload
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -246,9 +246,13 @@ describe('Sign', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send(bodyPayload)
 
+      expect(body).toEqual({
+        message: 'Invalid request hash',
+        statusCode: HttpStatus.FORBIDDEN,
+        stack: expect.any(String),
+        origin: expect.any(Object)
+      })
       expect(status).toEqual(HttpStatus.FORBIDDEN)
-      expect(body.statusCode).toEqual(HttpStatus.FORBIDDEN)
-      expect(body.message).toEqual('Request payload does not match the authorized request')
     })
 
     describe('jwsd', () => {
@@ -284,7 +288,7 @@ describe('Sign', () => {
           htm: 'POST',
           uri: 'https://armory.narval.xyz/sign',
           created: now,
-          ath: hexToBase64Url(`0x${hash(accessToken)}`)
+          ath: hexToBase64Url(hash(accessToken))
         }
         const jwsd = await signJwsd(bodyPayload, jwsdHeader, jwsdSigner).then((jws) => {
           // Strip out the middle part for size
@@ -300,7 +304,9 @@ describe('Sign', () => {
           .set('detached-jws', jwsd)
           .send(bodyPayload)
 
-        expect(body.message).toBeUndefined() // no message on this response; we're asserting it so we get a nice message on why this failed if it does fail.
+        expect(body).toEqual({
+          signature: expect.any(String)
+        }) // no message on this response; we're asserting it so we get a nice message on why this failed if it does fail.
         expect(status).toEqual(HttpStatus.CREATED)
       })
 
@@ -341,7 +347,7 @@ describe('Sign', () => {
 
         expect(status).toEqual(HttpStatus.FORBIDDEN)
         expect(body.statusCode).toEqual(HttpStatus.FORBIDDEN)
-        expect(body.message).toEqual('Invalid JWT signature')
+        expect(body.message).toEqual('Invalid ath field in jws header')
       })
     })
   })

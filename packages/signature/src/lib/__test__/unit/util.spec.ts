@@ -1,7 +1,6 @@
 import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
-import { isHeader } from '../../typeguards'
-import { Alg, Jwk, RsaPrivateKey, Secp256k1PrivateKey, SigningAlg } from '../../types'
+import { Alg, Header, Jwk, RsaPrivateKey, Secp256k1PrivateKey, SigningAlg } from '../../types'
 import {
   ellipticPrivateKeyToHex,
   generateJwk,
@@ -11,7 +10,7 @@ import {
   publicKeyToJwk,
   rsaPrivateKeyToPublicKey
 } from '../../utils'
-import { validate } from '../../validate'
+import { validateJwk } from '../../validate'
 import { verifyJwt } from '../../verify'
 
 const p256Jwk: Jwk = {
@@ -46,31 +45,31 @@ const p256HexPrivateKey = '0xd9cf695be325ab8d849fc60a5eb92bf45c8b0c81527d5e3926a
 
 describe('isHeader', () => {
   it('returns true for a valid header object', () => {
-    const validHeader = { alg: 'ES256', kid: 'test-kid' }
-    expect(isHeader(validHeader)).toBe(true)
+    const validHeader = { alg: 'ES256', kid: 'test-kid', typ: 'JWT' }
+    expect(Header.safeParse(validHeader).success).toBe(true)
   })
 
   it('returns false for an object missing the alg property', () => {
     const invalidHeader = { kid: 'test-kid' }
-    expect(isHeader(invalidHeader)).toBe(false)
+    expect(Header.safeParse(invalidHeader).success).toBe(false)
   })
 
   it('returns false for an object with an invalid alg property', () => {
     const invalidHeader = { alg: 'invalid-alg', kid: 'test-kid' }
-    expect(isHeader(invalidHeader)).toBe(false)
+    expect(Header.safeParse(invalidHeader).success).toBe(false)
   })
 
   it('returns false for an object missing the kid property', () => {
     const invalidHeader = { alg: 'ES256' }
-    expect(isHeader(invalidHeader)).toBe(false)
+    expect(Header.safeParse(invalidHeader).success).toBe(false)
   })
 
   it('returns false for null', () => {
-    expect(isHeader(null)).toBe(false)
+    expect(Header.safeParse(null).success).toBe(false)
   })
 
   it('returns false for a non-object', () => {
-    expect(isHeader('string')).toBe(false)
+    expect(Header.safeParse('string').success).toBe(false)
   })
 })
 
@@ -96,7 +95,7 @@ describe('generateKeys', () => {
     const payload = {
       requestHash: message
     }
-    const validatedKey = validate<Secp256k1PrivateKey>({
+    const validatedKey = validateJwk<Secp256k1PrivateKey>({
       schema: secp256k1PrivateKeySchema,
       jwk: key,
       errorMessage: 'Invalid secp256k1 private key'

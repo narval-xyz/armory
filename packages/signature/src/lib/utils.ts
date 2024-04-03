@@ -22,7 +22,7 @@ import {
   Secp256k1PublicKey,
   Use
 } from './types'
-import { validate } from './validate'
+import { validateJwk } from './validate'
 
 export const algToJwk = (
   alg: Alg
@@ -114,7 +114,7 @@ export const p256PrivateKeyToJwk = (privateKey: Hex, keyId?: string): P256Privat
 }
 
 export const ellipticPublicKeyToHex = (jwk: Jwk): Hex => {
-  const key = validate<EllipticKey>({
+  const key = validateJwk<EllipticKey>({
     schema: ellipticKeySchema,
     jwk: jwk,
     errorMessage: 'Invalid Public Key'
@@ -180,6 +180,10 @@ export const base64UrlToBytes = (base64Url: string): Buffer => {
   return Buffer.from(base64UrlToBase64(base64Url), 'base64')
 }
 
+export const stringToBase64Url = (str: string): string => {
+  return base64ToBase64Url(Buffer.from(str).toString('base64'))
+}
+
 const rsaKeyToKid = (jwk: Jwk) => {
   // Concatenate the 'n' and 'e' values, splitted by ':'
   const dataToHash = `${jwk.n}:${jwk.e}`
@@ -191,7 +195,7 @@ const rsaKeyToKid = (jwk: Jwk) => {
 
 // TODO: Define if this function is necessary, what should be the behavior when passing a RSA key to be hexified
 const rsaPubKeyToHex = (jwk: Jwk): Hex => {
-  const key = validate<RsaPublicKey>({
+  const key = validateJwk<RsaPublicKey>({
     schema: rsaPublicKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Public Key'
@@ -204,7 +208,7 @@ const rsaPubKeyToHex = (jwk: Jwk): Hex => {
 }
 
 const rsaPrivateKeyToHex = (jwk: Jwk): Hex => {
-  const key = validate<RsaPrivateKey>({
+  const key = validateJwk<RsaPrivateKey>({
     schema: rsaPrivateKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Private Key'
@@ -224,7 +228,7 @@ export const publicKeyToHex = (jwk: Jwk): Hex => {
 }
 
 export const privateKeyToHex = (jwk: Jwk): Hex => {
-  const key = validate<PrivateKey>({
+  const key = validateJwk<PrivateKey>({
     schema: privateKeySchema,
     jwk,
     errorMessage: 'Invalid Private Key'
@@ -277,7 +281,7 @@ const generateRsaPrivateKey = async (
   }
   jwk.kid = opts.keyId || rsaKeyToKid(jwk)
 
-  const pk = validate<RsaPrivateKey>({
+  const pk = validateJwk<RsaPrivateKey>({
     schema: rsaPrivateKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Private Key'
@@ -315,3 +319,5 @@ export const generateJwk = async <T = Jwk>(
       throw new Error(`Unsupported algorithm: ${alg}`)
   }
 }
+
+export const nowSeconds = (): number => Math.floor(Date.now() / 1000)

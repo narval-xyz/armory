@@ -1,37 +1,51 @@
 import { signatureToHex, toBytes } from 'viem'
-import { hash } from '../../hash-request'
+import { JwtError } from '../../error'
+import { hash } from '../../hash'
 import { secp256k1PublicKeySchema } from '../../schemas'
-import { signSecp256k1 } from '../../sign'
-import { Alg, Payload, Secp256k1PublicKey } from '../../types'
-import { privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
-import { validate } from '../../validate'
-import { verifyJwt, verifySepc256k1 } from '../../verify'
+import { signJwt, signSecp256k1 } from '../../sign'
+import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey, SigningAlg } from '../../types'
+import { generateJwk, nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
+import { validateJwk } from '../../validate'
+import {
+  checkAudience,
+  checkDataHash,
+  checkIssuer,
+  checkNbf,
+  checkRequestHash,
+  checkRequiredClaims,
+  checkSubject,
+  checkTokenExpiration,
+  verifyJwsdHeader,
+  verifyJwt,
+  verifyJwtHeader,
+  verifySecp256k1
+} from '../../verify'
 
-describe('verify', () => {
-  const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-  it('should verify a EIP191-signed JWT', async () => {
+describe('verifyJwt', () => {
+  const payload: Payload = {
+    requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+    sub: 'test-root-user-uid',
+    iss: 'https://armory.narval.xyz',
+    cnf: {
+      kty: 'EC',
+      crv: 'secp256k1',
+      alg: 'ES256K',
+      use: 'sig',
+      kid: '0x000c0d191308A336356BEe3813CC17F6868972C4',
+      x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
+      y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
+    }
+  }
+
+  it('should verify a EIP191 JWT', async () => {
     const jwk = secp256k1PrivateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`)
 
     const header = {
       kid: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
       alg: 'EIP191',
       typ: 'JWT'
-    }
-
-    const payload: Payload = {
-      requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
-      sub: 'test-root-user-uid',
-      iss: 'https://armory.narval.xyz',
-      cnf: {
-        kty: 'EC',
-        crv: 'secp256k1',
-        alg: 'ES256K',
-        use: 'sig',
-        kid: '0x000c0d191308A336356BEe3813CC17F6868972C4',
-        x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
-        y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
-      }
     }
     // jwt can be re-created with `signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, buildSignerEip191(ENGINE_PRIVATE_KEY))`
     const jwt =
@@ -46,7 +60,7 @@ describe('verify', () => {
     })
   })
 
-  it('verifies a JWT signed by wagmi on client', async () => {
+  it('verifies a EIP191 JWT signed by wagmi on client', async () => {
     // Example data from devtool ui
     const policy = [
       {
@@ -90,20 +104,645 @@ describe('verify', () => {
     const policyHash = hash(policy)
 
     expect(res).toBeDefined()
-    expect(res.payload.data).toEqual(policyHash)
+    // Remove the 0x because we're lazy and don't want to manually regenerate the above jwt to include the 0x from the updated hash function
+    expect(res.payload.data).toEqual(policyHash.slice(2))
   })
 
+  it('verifies ES256k JWT', async () => {
+    const keyId = 'es256k-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.ES256K,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.ES256K, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256K })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('verifies ES256 JWT', async () => {
+    const keyId = 'es256-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.ES256,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.ES256, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256 })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('verifies RS256 JWT', async () => {
+    const keyId = 'rs256-kid'
+    const header: Header = {
+      kid: keyId,
+      alg: SigningAlg.RS256,
+      typ: 'JWT'
+    }
+
+    const jwk = await generateJwk(Alg.RS256, { keyId, use: 'sig' })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.RS256 })
+
+    const res = await verifyJwt(jwt, jwk)
+
+    expect(res).toEqual({
+      header,
+      payload,
+      signature: expect.any(String)
+    })
+  })
+
+  it('throws on invalid signature', async () => {
+    expect.assertions(1)
+    const keyId = 'es256k-kid'
+
+    const jwk = await generateJwk(Alg.ES256K, { keyId })
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.ES256K })
+    // replace the jwt header
+    const parts = jwt.split('.')
+    parts[0] =
+      'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ'
+    const invalidJwt = parts.join('.')
+
+    await expect(verifyJwt(invalidJwt, jwk)).rejects.toThrow(JwtError)
+  })
+})
+
+describe('verifySecp256k1', () => {
   it('verifies raw secp256k1 signatures', async () => {
     const msg = toBytes('My ASCII message')
     const jwk = privateKeyToJwk(`0x${ENGINE_PRIVATE_KEY}`, Alg.ES256K)
-    const pubKey = validate<Secp256k1PublicKey>({
+    const pubKey = validateJwk<Secp256k1PublicKey>({
       schema: secp256k1PublicKeySchema,
       jwk
     })
 
     const signature = await signSecp256k1(msg, ENGINE_PRIVATE_KEY, true)
     const hexSignature = signatureToHex(signature)
-    const isVerified = await verifySepc256k1(hexSignature, msg, pubKey)
+    const isVerified = await verifySecp256k1(hexSignature, msg, pubKey)
     expect(isVerified).toEqual(true)
+  })
+})
+
+describe('verifyJwtHeader', () => {
+  it('returns true when all recognized crit parameters are present in the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['b64'],
+      b64: false
+    }
+
+    const result = verifyJwtHeader(header as Header)
+
+    expect(result).toBe(true)
+  })
+
+  it('throws JwtError when unrecognized crit parameter is present in the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['unknown']
+    }
+
+    expect(() => verifyJwtHeader(header as Header)).toThrow(JwtError)
+  })
+
+  it('throws JwtError when crit parameter is missing from the header', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['unknown']
+    }
+
+    expect(() =>
+      verifyJwtHeader(header as Header, {
+        crit: ['unknown']
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('does not throw when custom crit param is recognized', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'JWT',
+      crit: ['custom'],
+      custom: 'value' // This is a custom claim that is recognized
+    }
+
+    expect(() =>
+      verifyJwtHeader(header as Header, {
+        crit: ['custom']
+      })
+    ).not.toThrow()
+  })
+})
+
+describe('verifyJwsdHeader', () => {
+  it('should verify the JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: nowSeconds(),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).not.toThrow()
+  })
+
+  it('throws for missing standard header fields', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      htm: 'invalid-htm',
+      uri: 'example-uri',
+      created: nowSeconds(),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('throws an error for invalid htm field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'invalid-htm',
+      uri: 'example-uri',
+      created: nowSeconds(),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('throws an error for invalid uri field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'invalid-uri',
+      created: nowSeconds(),
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('throws an error for JWS that is too old', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: nowSeconds() - 7200, // 2 hours ago
+      ath: 'example-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+
+  it('throws an error for invalid ath field in JwsdHeader', () => {
+    const header = {
+      kid: 'kid1',
+      alg: 'ES256K',
+      typ: 'gnap-binding-jwsd',
+      htm: 'example-htm',
+      uri: 'example-uri',
+      created: nowSeconds(),
+      ath: 'invalid-ath'
+    }
+
+    const opts = {
+      htm: 'example-htm',
+      uri: 'example-uri',
+      maxTokenAge: 3600,
+      ath: 'example-ath'
+    }
+
+    expect(() => verifyJwsdHeader(header as Header, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkRequiredClaims', () => {
+  it('throws JwtError when a required claim is missing', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400 // Expiration time in Unix timestamp format
+    }
+
+    const opts = {
+      requiredClaims: ['sub', 'iss', 'exp', 'aud'] // 'aud' claim is missing in the payload
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('returns true when all required claims are present', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400, // Expiration time in Unix timestamp format
+      aud: 'https://api.example.com'
+    }
+
+    const opts = {
+      requiredClaims: ['sub', 'iss', 'exp', 'aud']
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).not.toThrow()
+  })
+
+  it('returns true when no required claims are specified', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      iss: 'https://example.com',
+      exp: 1635638400 // Expiration time in Unix timestamp format
+    }
+
+    const opts = {
+      requiredClaims: []
+    }
+
+    const result = checkRequiredClaims(payload, opts)
+
+    expect(result).toBe(true)
+  })
+
+  it('requires iss if Issuer verify option is passed', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      issuer: 'https://example.com'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires aud if audience verify option is passed', () => {
+    const payload: Payload = {
+      sub: 'test-subject',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      audience: 'https://api.example.com'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+  it('requires sub if subject verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      subject: 'test-subject'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires requesthash if requestHash verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: '0x1234567890'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+
+  it('requires data if data verify option is passed', () => {
+    const payload: Payload = {
+      iss: 'https://example.com',
+      exp: 1635638400
+    }
+
+    const opts: JwtVerifyOptions = {
+      data: '0x1234567890'
+    }
+
+    expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkTokenExpiration', () => {
+  it('throws JwtError when token has expired', () => {
+    const payload = {
+      exp: nowSeconds() - 3600 // Expired 1 hour ago
+    }
+    const opts = {
+      now: nowSeconds()
+    }
+
+    expect(() => checkTokenExpiration(payload, opts)).toThrow(JwtError)
+  })
+
+  it('throws JwtError when token has exceeded maxTokenAge', () => {
+    const payload = {
+      iat: nowSeconds() - 7200 // Issued 2 hours ago
+    }
+    const opts = {
+      now: nowSeconds(),
+      maxTokenAge: 3600
+    }
+
+    expect(() => checkTokenExpiration(payload, opts)).toThrow(JwtError)
+  })
+
+  it('returns true when token has not expired', () => {
+    const payload = {
+      exp: nowSeconds() + 3600 // Expires in 1 hour
+    }
+    const opts = {
+      now: nowSeconds()
+    }
+
+    const result = checkTokenExpiration(payload, opts)
+
+    expect(result).toBe(true)
+  })
+
+  it('allows overwriting `now` with a custom value', () => {
+    const payload = {
+      exp: nowSeconds() - 3600 // 1 hour ago
+    }
+    const opts = {
+      now: nowSeconds() - 7200 // 2 hours ago
+    }
+
+    const result = checkTokenExpiration(payload, opts)
+
+    expect(result).toBe(true)
+  })
+})
+
+describe('checkNbf', () => {
+  it('returns true when the token is valid', () => {
+    const payload: Payload = {
+      nbf: nowSeconds() - 3600 // 1 hour ago
+    }
+
+    const result = checkNbf(payload, {})
+
+    expect(result).toBe(true)
+  })
+
+  it('throws JwtError when the token is not yet valid', () => {
+    const payload: Payload = {
+      nbf: nowSeconds() + 3600 // 1 hour from now
+    }
+
+    expect(() => checkNbf(payload, {})).toThrow(JwtError)
+  })
+})
+
+describe('checkIssuer', () => {
+  it('returns true when the issuer is valid', () => {
+    const payload: Payload = {
+      iss: 'https://example.com'
+    }
+
+    expect(
+      checkIssuer(payload, {
+        issuer: 'https://example.com'
+      })
+    ).toBe(true)
+
+    expect(
+      checkIssuer(payload, {
+        issuer: ['https://other.com', 'https://example.com']
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the issuer is invalid', () => {
+    const payload: Payload = {
+      iss: 'https://example.com'
+    }
+
+    const opts = {
+      issuer: 'https://invalid.com'
+    }
+
+    expect(() => checkIssuer(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkAudience', () => {
+  it('returns true when the audience is valid', () => {
+    const payload: Payload = {
+      aud: 'https://api.example.com'
+    }
+
+    expect(
+      checkAudience(payload, {
+        audience: 'https://api.example.com'
+      })
+    ).toBe(true)
+
+    expect(
+      checkAudience(payload, {
+        audience: ['https://api.other.com', 'https://api.example.com']
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the audience is invalid', () => {
+    const payload: Payload = {
+      aud: 'https://api.example.com'
+    }
+
+    const opts = {
+      audience: 'https://invalid.com'
+    }
+
+    expect(() => checkAudience(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkSubject', () => {
+  it('returns true when the subject is valid', () => {
+    const payload: Payload = {
+      sub: 'test-subject'
+    }
+
+    expect(
+      checkSubject(payload, {
+        subject: 'test-subject'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the subject is invalid', () => {
+    const payload: Payload = {
+      sub: 'test-subject'
+    }
+
+    const opts = {
+      subject: 'invalid-subject'
+    }
+
+    expect(() => checkSubject(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkRequestHash', () => {
+  it('returns true when the requestHash is a string & matches', () => {
+    const payload: Payload = {
+      requestHash: '0x1234567890'
+    }
+
+    expect(
+      checkRequestHash(payload, {
+        requestHash: '0x1234567890'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the requestHash does not match', () => {
+    const payload: Payload = {
+      requestHash: '0x1234567890'
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: '0x0987654321'
+    }
+
+    expect(() => checkRequestHash(payload, opts)).toThrow(JwtError)
+  })
+
+  it('hashes a request object and compares it to the requestHash', () => {
+    const request = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const requestHash = hash(request)
+
+    const payload: Payload = {
+      requestHash
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: request
+    }
+    const result = checkRequestHash(payload, opts)
+    expect(result).toEqual(true)
+  })
+})
+
+describe('checkDataHash', () => {
+  it('returns true when the data is a string & matches', () => {
+    const payload: Payload = {
+      data: '0x1234567890'
+    }
+
+    expect(
+      checkDataHash(payload, {
+        data: '0x1234567890'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the data does not match', () => {
+    const payload: Payload = {
+      data: '0x1234567890'
+    }
+
+    const opts: JwtVerifyOptions = {
+      data: '0x0987654321'
+    }
+
+    expect(() => checkDataHash(payload, opts)).toThrow(JwtError)
+  })
+
+  it('hashes a request object and compares it to the data', () => {
+    const data = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const dataHash = hash(data)
+
+    const payload: Payload = {
+      data: dataHash
+    }
+
+    const opts: JwtVerifyOptions = {
+      data
+    }
+    const result = checkDataHash(payload, opts)
+    expect(result).toEqual(true)
   })
 })

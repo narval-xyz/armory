@@ -1,4 +1,4 @@
-import { PublicKey, hash, hexToBase64Url, verifyJwsd, verifyJwt } from '@narval/signature'
+import { PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { z } from 'zod'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
@@ -50,27 +50,20 @@ export class AuthorizationGuard implements CanActivate {
   }
 
   async validateToken(context: ExecutionContext, token: string, tenantJwk: PublicKey): Promise<boolean> {
-    // 1. Validate the JWT has a valid signature for the expected tenant key
-    const { payload } = await verifyJwt(token, tenantJwk)
-    // console.log('Validated', { header, payload })
-
-    // 2. Validate the TX Request sent is the same as the one in the JWT
     const req = context.switchToHttp().getRequest()
     const request = req.body.request
-    const verificationMsg = hash(request)
-    const requestMatches = payload.requestHash === verificationMsg
-    if (!requestMatches) {
+
+    // Validate the JWT has a valid signature for the expected tenant key & the request matches
+    const { payload } = await verifyJwt(token, tenantJwk, {
+      maxTokenAge: 60, // Verify the token is not older than 60s
+      requestHash: request
+    }).catch((err) => {
       throw new ApplicationException({
-        message: `Request payload does not match the authorized request`,
+        message: err.message,
+        origin: err,
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN
       })
-    }
-
-    // 3. Validate that the JWT has all the corerct properties, claims, etc.
-    // This belongs in the signature lib, but needs to accept a options obj like jose does.
-    // We probs have to roll our own simply so we can support EIP191
-    // const v = await jwtVerify(token, await importJWK(tenantJwk))
-    // console.log('JWT Verified', v)
+    })
 
     // We want to also check the client key in cnf so we can optionally do bound requests
     if (payload.cnf) {
@@ -83,31 +76,22 @@ export class AuthorizationGuard implements CanActivate {
         })
       }
 
-      const parts = jwsdHeader.split('.')
-      const deepCopyBody = JSON.parse(JSON.stringify(req.body))
-      // This is the GNAP spec; base64URL the sha256 of the whole request body (not just our tx body.request part)
-      const jwsdPayload = hexToBase64Url(`0x${hash(deepCopyBody)}`)
-      // Replace the payload part; this lets the JWT be compacted with `header..signature` to be shorter.
-      parts[1] = jwsdPayload
-      const jwsdToVerify = parts.join('.')
       // Will throw if not valid
       try {
-        const decodedJwsd = await verifyJwsd(jwsdToVerify, boundKey)
-        // Verify the ATH matches our accessToken
-        const tokenHash = hexToBase64Url(`0x${hash(token)}`)
-        if (decodedJwsd.header.ath !== tokenHash) {
-          throw new ApplicationException({
-            message: `Request ath does not match the access token`,
-            suggestedHttpStatusCode: HttpStatus.FORBIDDEN
-          })
-        }
+        await verifyJwsd(jwsdHeader, boundKey, {
+          requestBody: req.body, // Verify the request body
+          accessToken: token, // Verify that the ATH matches the access token
+          uri: `https://armory.narval.xyz${req.url}`, // Verify the request URI // TODO: base url should be dynamic
+          htm: req.method, // Verify the request method
+          maxTokenAge: 60 // Verify the token is not older than 60 seconds
+        })
       } catch (err) {
         throw new ApplicationException({
           message: err.message,
+          origin: err,
           suggestedHttpStatusCode: HttpStatus.FORBIDDEN
         })
       }
-      // TODO: verify the request URI & such in the jwsd header
     }
 
     // Then we sign.

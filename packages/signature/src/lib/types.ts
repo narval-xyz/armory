@@ -1,20 +1,5 @@
 import { z } from 'zod'
-import {
-  ellipticKeySchema,
-  jwkBaseSchema,
-  jwkEoaSchema,
-  jwkSchema,
-  p256KeySchema,
-  p256PrivateKeySchema,
-  p256PublicKeySchema,
-  privateKeySchema,
-  publicKeySchema,
-  rsaPrivateKeySchema,
-  rsaPublicKeySchema,
-  secp256k1KeySchema,
-  secp256k1PrivateKeySchema,
-  secp256k1PublicKeySchema
-} from './schemas'
+import { addressSchema } from './address.schema'
 
 export const KeyTypes = {
   EC: 'EC',
@@ -54,6 +39,260 @@ export const Use = {
 
 export type Use = (typeof Use)[keyof typeof Use]
 
+// Base JWK Schema
+export const jwkBaseSchema = z.object({
+  kty: z.nativeEnum(KeyTypes).optional(),
+  alg: z.nativeEnum(Alg),
+  use: z.nativeEnum(Use).optional(),
+  kid: z.string(),
+  addr: z.string().optional()
+})
+
+export const jwkEoaSchema = z.object({
+  kty: z.literal(KeyTypes.EC),
+  crv: z.enum([Curves.SECP256K1]),
+  alg: z.literal(Alg.ES256K),
+  use: z.nativeEnum(Use).optional(),
+  kid: z.string(),
+  addr: addressSchema
+})
+
+// EC Base Schema
+export const ecBaseSchema = jwkBaseSchema.extend({
+  kty: z.literal(KeyTypes.EC),
+  crv: z.enum([Curves.SECP256K1, Curves.P256]),
+  x: z.string(),
+  y: z.string()
+})
+
+// RSA Base Schema
+export const rsaBaseSchema = jwkBaseSchema.extend({
+  kty: z.literal(KeyTypes.RSA),
+  alg: z.literal(Alg.RS256),
+  n: z.string(),
+  e: z.string()
+})
+
+// Specific Schemas for Public Keys
+export const secp256k1PublicKeySchema = ecBaseSchema.extend({
+  crv: z.literal(Curves.SECP256K1),
+  alg: z.literal(Alg.ES256K)
+})
+
+export const p256PublicKeySchema = ecBaseSchema.extend({
+  crv: z.literal(Curves.P256),
+  alg: z.literal(Alg.ES256)
+})
+
+export const rsaPublicKeySchema = rsaBaseSchema
+
+// Specific Schemas for Private Keys
+export const secp256k1PrivateKeySchema = secp256k1PublicKeySchema.extend({
+  d: z.string(),
+  x: z.string().optional(),
+  y: z.string().optional()
+})
+
+export const p256PrivateKeySchema = p256PublicKeySchema.extend({
+  d: z.string(),
+  x: z.string().optional(),
+  y: z.string().optional()
+})
+
+export const rsaPrivateKeySchema = rsaPublicKeySchema.extend({
+  d: z.string(),
+  p: z.string().optional(),
+  q: z.string().optional(),
+  dp: z.string().optional(),
+  dq: z.string().optional(),
+  qi: z.string().optional()
+})
+
+export const publicKeySchema = z.union([
+  secp256k1PublicKeySchema,
+  p256PublicKeySchema,
+  rsaPublicKeySchema,
+  jwkEoaSchema
+])
+
+export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateKeySchema, rsaPrivateKeySchema])
+
+export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1PrivateKeySchema])
+
+export const p256KeySchema = z.union([p256PublicKeySchema, p256PrivateKeySchema])
+
+export const ellipticKeySchema = z.union([secp256k1KeySchema, p256KeySchema])
+
+const dynamicKeySchema = z.object({}).catchall(z.unknown())
+
+export const jwkSchema = dynamicKeySchema.extend({
+  kty: z.nativeEnum(KeyTypes).optional().describe('Key Type (e.g. RSA or EC'),
+  crv: z.nativeEnum(Curves).optional().describe('Curve name'),
+  alg: z.nativeEnum(Alg).optional().describe('Algorithm'),
+  use: z.nativeEnum(Use).optional().describe('Public Key Use'),
+  kid: z.string().optional().describe('Unique key ID'),
+  n: z.string().optional().describe('(RSA) Key modulus'),
+  e: z.string().optional().describe('(RSA) Key exponent'),
+  x: z.string().optional().describe('(EC) X Coordinate'),
+  y: z.string().optional().describe('(EC) Y Coordinate'),
+  d: z.string().optional().describe('(EC) Private Key')
+})
+
+/**
+ * Defines the header of JWT.
+ *
+ * @param {Alg} alg - The algorithm used to sign the JWT. It contains ES256K which is not natively supported
+ * by the jsonwebtoken package
+ * @param {string} [kid] - The key ID to identify the signing key.
+ */
+
+export const Header = z.intersection(
+  z.record(z.string(), z.unknown()),
+  z.object({
+    alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+    kid: z.string().min(1).describe('The key ID to identify the signing key.'),
+    typ: z
+      .union([z.literal('JWT'), z.literal('gnap-binding-jwsd')])
+      .describe(
+        'The type of the token. It is set to JWT by default. For GNAP JWSD, it is set to gnap-binding-jwsd https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws.'
+      ),
+    htm: z.string().optional().describe('HTTP Method'),
+    uri: z
+      .string()
+      .optional()
+      .describe(
+        'The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.'
+      ),
+    created: z.number().optional().describe('The time the request was created.'),
+    ath: z
+      .string()
+      .optional()
+      .describe(
+        "The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value."
+      ),
+    crit: z.array(z.string().min(1)).optional().describe('The list of headers that are critical for the request')
+  })
+)
+export type Header = z.infer<typeof Header>
+
+export const JwsdHeader = z.object({
+  alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+  kid: z.string().min(1).describe('The key ID to identify the signing key.'),
+  typ: z
+    .literal('gnap-binding-jwsd')
+    .describe('https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws.'),
+  htm: z.string().describe('HTTP Method'),
+  uri: z
+    .string()
+    .describe(
+      'The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.'
+    ),
+  created: z.number().describe('The time the request was created.'),
+  ath: z
+    .string()
+    .optional()
+    .describe(
+      "The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value."
+    )
+})
+export type JwsdHeader = z.infer<typeof JwsdHeader>
+
+/**
+ * Defines the payload of JWT.
+ *
+ * @param {string} requestHash - The hashed request.
+ * @param {string} [iss] - The issuer of the JWT.
+ * @param {number} [iat] - The time the JWT was issued.
+ * @param {number} [exp] - The time the JWT expires.
+ * @param {number} [nbf] - The time the JWT becomes valid.
+ * @param {string} sub - The subject of the JWT.
+ * @param {string} [aud] - The audience of the JWT.
+ * @param {string} [jti] - The JWT ID.
+ * @param {Jwk} cnf - The client-bound key.
+ *
+ */
+export const Payload = z.intersection(
+  z.record(z.string(), z.unknown()),
+  z.object({
+    sub: z.string().optional(),
+    iat: z.number().optional(),
+    exp: z.number().optional(),
+    nbf: z.number().optional(),
+    iss: z.string().optional(),
+    aud: z.string().optional(),
+    jti: z.string().optional(),
+    cnf: publicKeySchema.optional(),
+    requestHash: z.string().optional(),
+    data: z.string().optional()
+  })
+)
+export type Payload = z.infer<typeof Payload>
+
+export const Jwt = z.object({
+  header: Header,
+  payload: Payload,
+  signature: z.string()
+})
+export type Jwt = z.infer<typeof Jwt>
+
+export const Jwsd = z.object({
+  header: Header,
+  payload: z.string(),
+  signature: z.string()
+})
+export type Jwsd = z.infer<typeof Jwsd>
+
+export type JwtVerifyOptions = {
+  /** Expected JWT "aud" (Audience) Claim value(s). */
+  audience?: string | string[]
+
+  /** Expected JWT "iss" (Issuer) Claim value(s). */
+  issuer?: string | string[]
+
+  /**
+   * Time to expiration (in seconds) from the JWT "iat" (Issued At) Claim value.
+   */
+  maxTokenAge?: number
+
+  /** Expected JWT "sub" (Subject) Claim value. */
+  subject?: string
+
+  /** Expected JWT "typ" (Type) Header Parameter value. */
+  typ?: string
+
+  /** Date to use for "now", in seconds since epoch, defaults to Math.floor(Date.now() / 1000) */
+  now?: number
+
+  /**
+   * Array of required Claims that much exist in the payload
+   * Defaults to require any claims that correspond to the Verify options set (e.g. if Issuer option is set, then the iss claim must be too)
+   */
+  requiredClaims?: string[]
+
+  /**
+   * Array of critical headers that are recognized
+   */
+  crit?: string[]
+
+  /**
+   * Hash of the request body, or the body itself which will be hashed then compared
+   */
+  requestHash?: Hex | object
+
+  /**
+   * Hash of the data, or the data itself which will be hashed then compared
+   */
+  data?: Hex | object
+}
+
+export type JwsdVerifyOptions = {
+  requestBody: object
+  accessToken: string
+  uri: string
+  htm: string
+  maxTokenAge: number
+}
+
 export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
 export type P256PrivateKey = z.infer<typeof p256PrivateKeySchema>
 export type P256PublicKey = z.infer<typeof p256PublicKeySchema>
@@ -71,73 +310,6 @@ export type PartialJwk = z.infer<typeof jwkBaseSchema>
 export type Jwk = z.infer<typeof jwkSchema>
 
 export type Hex = `0x${string}` // DOMAIN
-
-/**
- * Defines the header of JWT.
- *
- * @param {Alg} alg - The algorithm used to sign the JWT. It contains ES256K which is not natively supported
- * by the jsonwebtoken package
- * @param {string} [kid] - The key ID to identify the signing key.
- */
-export type Header = {
-  alg: SigningAlg
-  kid: string // Key ID to identify the signing key
-  typ: 'JWT' | 'gnap-binding-jwsd' // see https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
-  htm?: string | undefined // HTTP Method
-  uri?: string | undefined // The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.
-  created?: number | undefined // The time the request was created.
-  ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
-}
-
-// https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
-// For GNAP JWSD header, the fields are required.
-// `ath` is also required IF it's a bound-request, otherwise it's optional
-export type JwsdHeader = {
-  alg: SigningAlg
-  kid: string // Key ID to identify the signing key
-  typ: 'gnap-binding-jwsd' // see https://www.ietf.org/archive/id/draft-ietf-gnap-core-protocol-19.html#name-detached-jws
-  htm: string // HTTP Method
-  uri: string // The HTTP URI used for this request. This value MUST be an absolute URI, including all path and query components and no fragment component.
-  created: number // The time the request was created.
-  ath?: string | undefined // The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value.
-}
-
-/**
- * Defines the payload of JWT.
- *
- * @param {string} requestHash - The hashed request.
- * @param {string} [iss] - The issuer of the JWT.
- * @param {number} [iat] - The time the JWT was issued.
- * @param {number} [exp] - The time the JWT expires.
- * @param {string} sub - The subject of the JWT.
- * @param {string} [aud] - The audience of the JWT.
- * @param {string} [jti] - The JWT ID.
- * @param {Jwk} cnf - The client-bound key.
- *
- */
-export type Payload = {
-  sub?: string
-  iat?: number
-  exp?: number
-  iss?: string
-  aud?: string
-  jti?: string
-  cnf?: PublicKey // The client-bound key
-  requestHash?: string
-  data?: string // hash of any data
-}
-
-export type Jwt = {
-  header: Header
-  payload: Payload
-  signature: string
-}
-
-export type Jwsd = {
-  header: Header
-  payload: string
-  signature: string
-}
 
 /**
  * Defines the input required to generate a JWT signature for a request.
