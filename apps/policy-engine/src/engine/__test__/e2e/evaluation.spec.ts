@@ -138,7 +138,7 @@ describe('Evaluation', () => {
             {
               id: 'test-permit-policy',
               then: Then.PERMIT,
-              name: 'test permit policy',
+              description: 'test permit policy',
               when: [
                 {
                   criterion: Criterion.CHECK_ACTION,

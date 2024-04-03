@@ -124,7 +124,7 @@ describe('OpenPolicyAgentEngine', () => {
         {
           id: 'test-forbid-policy-uid',
           then: Then.FORBID,
-          name: 'test-policy',
+          description: 'test-policy',
           when: [
             {
               criterion: Criterion.CHECK_ACTION,
@@ -175,7 +175,7 @@ describe('OpenPolicyAgentEngine', () => {
         {
           id: 'test-permit-policy-uid',
           then: Then.PERMIT,
-          name: 'test-policy',
+          description: 'test-policy',
           when: [
             {
               criterion: Criterion.CHECK_ACTION,
