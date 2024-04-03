@@ -199,7 +199,7 @@ describe('sign', () => {
           throw new Error(`Key material for kid ${kid} not found.`)
         }
         const hash = sha256Hash(message)
-        const key = privateKeyToHex(privateKeyMaterial)
+        const key = await privateKeyToHex(privateKeyMaterial)
 
         const signature = signSecp256k1(hash, key)
         const hexSignature = signatureToHex(signature)

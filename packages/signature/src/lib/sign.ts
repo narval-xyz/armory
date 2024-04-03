@@ -2,8 +2,7 @@ import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
-import * as crypto from 'node:crypto'
-import { promisify } from 'node:util'
+import { subtle } from 'crypto'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
 import { JwtError } from './error'
 import { hash } from './hash'
@@ -12,7 +11,6 @@ import { jwkBaseSchema, privateKeySchema } from './schemas'
 import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
 import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
 import { validateJwk } from './validate'
-const cryptoSign = promisify(crypto.sign)
 
 const SigningAlgToKey = {
   [SigningAlg.EIP191]: Alg.ES256K,
@@ -129,7 +127,7 @@ export async function signJwt(
       jwk,
       errorMessage: 'Invalid JWK: failed to validate private key'
     })
-    const privateKeyHex = privateKeyToHex(privateKey)
+    const privateKeyHex = await privateKeyToHex(privateKey)
     switch (header.alg) {
       case SigningAlg.ES256K:
         signature = await buildSignerEs256k(privateKeyHex)(messageToSign)
@@ -229,13 +227,19 @@ export const buildSignerEs256 =
 export const buildSignerRs256 =
   (jwk: Jwk) =>
   async (messageToSign: string): Promise<string> => {
-    const key = crypto.createPrivateKey({
-      key: jwk,
-      format: 'jwk',
-      type: 'pkcs8'
-    })
-    const signature = await cryptoSign('sha256', Buffer.from(messageToSign), key)
+    const key = await subtle.importKey(
+      'jwk',
+      jwk,
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        hash: 'SHA-256'
+      },
+      false,
+      ['sign']
+    )
 
-    const hexSignature = toHex(signature)
+    const signature = await subtle.sign('RSASSA-PKCS1-v1_5', key, Buffer.from(messageToSign))
+
+    const hexSignature = toHex(new Uint8Array(signature))
     return hexToBase64Url(hexSignature)
   }

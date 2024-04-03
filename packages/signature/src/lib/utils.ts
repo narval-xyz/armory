@@ -1,8 +1,8 @@
 import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
-import * as crypto from 'node:crypto'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
@@ -194,44 +194,59 @@ const rsaKeyToKid = (jwk: Jwk) => {
   return toHex(hash)
 }
 
-const rsaPubKeyToHex = (jwk: Jwk): Hex => {
+const rsaPubKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   const key = validateJwk<RsaPublicKey>({
     schema: rsaPublicKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Public Key'
   })
-  const imported = crypto.createPublicKey({
-    format: 'jwk',
-    key
-  })
-  const keyData = imported.export({ format: 'pem', type: 'spki' })
-  return toHex(keyData)
+
+  const imported = await subtle.importKey(
+    'jwk',
+    key,
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256'
+    },
+    true,
+    ['verify']
+  )
+
+  const keyData = await subtle.exportKey('spki', imported)
+
+  return toHex(new Uint8Array(keyData))
 }
 
-const rsaPrivateKeyToHex = (jwk: Jwk): Hex => {
+const rsaPrivateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   const key = validateJwk<RsaPrivateKey>({
     schema: rsaPrivateKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Private Key'
   })
-  const imported = crypto.createPrivateKey({
+  const imported = await subtle.importKey(
+    'jwk',
     key,
-    format: 'jwk',
-    type: 'pkcs8'
-  })
-  const keyData = imported.export({ format: 'pem', type: 'pkcs8' })
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256'
+    },
+    true,
+    ['sign']
+  )
 
-  return toHex(keyData)
+  const keyData = await subtle.exportKey('pkcs8', imported)
+
+  return toHex(new Uint8Array(keyData))
 }
 
-export const publicKeyToHex = (jwk: Jwk): Hex => {
+export const publicKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   if (jwk.kty === KeyTypes.EC) {
     return ellipticPublicKeyToHex(jwk)
   }
   return rsaPubKeyToHex(jwk)
 }
 
-export const privateKeyToHex = (jwk: Jwk): Hex => {
+export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   const key = validateJwk<PrivateKey>({
     schema: privateKeySchema,
     jwk,
