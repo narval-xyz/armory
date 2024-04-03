@@ -44,7 +44,7 @@ export const transpileReason = (item: Policy & { id: string }) => {
     const reason = [
       `"type":"${item.then}"`,
       `"policyId":"${item.id}"`,
-      `"policyName":"${item.name}"`,
+      `"policyName":"${item.description}"`,
       approvalsSatisfied,
       approvalsMissing
     ]
@@ -55,7 +55,7 @@ export const transpileReason = (item: Policy & { id: string }) => {
   const reason = {
     type: item.then,
     policyId: item.id,
-    policyName: item.name,
+    policyName: item.description,
     approvalsSatisfied: [],
     approvalsMissing: []
   }

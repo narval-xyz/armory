@@ -103,7 +103,7 @@ describe('transpileReason', () => {
     const item = {
       id: '12345',
       then: Then.PERMIT,
-      name: 'policyName',
+      description: 'policyName',
       when: [
         {
           criterion: Criterion.CHECK_APPROVALS,
@@ -121,7 +121,7 @@ describe('transpileReason', () => {
     const item = {
       id: '12345',
       then: Then.PERMIT,
-      name: 'policyName',
+      description: 'policyName',
       when: []
     }
 
@@ -134,7 +134,7 @@ describe('transpileReason', () => {
     const item = {
       id: '12345',
       then: Then.FORBID,
-      name: 'policyName',
+      description: 'policyName',
       when: []
     }
 

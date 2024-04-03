@@ -115,8 +115,9 @@ describe(ClientRepository.name, () => {
     const store: PolicyStore = {
       data: [
         {
+          id: 'test-permit-policy-uid',
           then: Then.PERMIT,
-          name: 'test-policy',
+          description: 'test-policy',
           when: [
             {
               criterion: Criterion.CHECK_ACTION,

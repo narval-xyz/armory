@@ -1,10 +1,5 @@
-import Home from './components/Home'
-import './global.css'
+import HealthcheckStatus from './_components/HealthcheckStatus'
 
-export default async function Index() {
-  return (
-    <div className="h-screen w-screen p-10">
-      <Home />
-    </div>
-  )
+export default async function Home() {
+  return <HealthcheckStatus />
 }

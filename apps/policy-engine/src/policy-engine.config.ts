@@ -9,6 +9,7 @@ export enum Env {
 const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
+  cors: z.array(z.string()),
   database: z.object({
     url: z.string().startsWith('postgresql:')
   }),
@@ -35,6 +36,7 @@ export const load = (): Config => {
   const result = configSchema.safeParse({
     env: process.env.NODE_ENV,
     port: process.env.PORT,
+    cors: process.env.CORS ? process.env.CORS.split(',') : [],
     resourcePath: process.env.RESOURCE_PATH,
     database: {
       url: process.env.POLICY_ENGINE_DATABASE_URL

@@ -1,4 +1,5 @@
 import { ConfigService } from '@narval/config-module'
+import { PublicKey, privateKeyToHex, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { SignerConfig } from '../../../shared/type/domain.type'
@@ -14,6 +15,12 @@ export class EngineSignerConfigService {
 
   async save(signerConfig: SignerConfig): Promise<boolean> {
     return this.engineSignerConfigRepository.save(this.getEngineId(), signerConfig)
+  }
+
+  async getPublicJwkOrThrow(): Promise<PublicKey> {
+    const signerConfig = await this.getSignerConfigOrThrow()
+
+    return secp256k1PrivateKeyToPublicJwk(privateKeyToHex(signerConfig.key))
   }
 
   async getSignerConfigOrThrow(): Promise<SignerConfig> {

@@ -3,6 +3,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { Config } from './main.config'
 import { MainModule } from './main.module'
 
 /**
@@ -16,6 +17,18 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 
   return app
 }
+
+const withCors =
+  (configService: ConfigService<Config>) =>
+  (app: INestApplication): INestApplication => {
+    const origin = configService.get('cors')
+
+    if (origin.length > 0) {
+      app.enableCors({ origin })
+    }
+
+    return app
+  }
 
 async function bootstrap() {
   const logger = new Logger('AppBootstrap')
@@ -37,6 +50,7 @@ async function bootstrap() {
         })
       ),
       map(withGlobalPipes),
+      map(withCors(configService)),
       switchMap((app) => app.listen(port))
     )
   )
