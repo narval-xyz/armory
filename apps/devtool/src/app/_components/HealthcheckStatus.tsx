@@ -73,7 +73,7 @@ const HealthcheckStatus = () => {
 
   const checkEngineDataStore = async () => {
     try {
-      await axios.post(`${engineUrl}/tenants/sync`, null, {
+      await axios.post(`${engineUrl}/clients/sync`, null, {
         headers: {
           'x-client-id': engineClientId,
           'x-client-secret': engineClientSecret

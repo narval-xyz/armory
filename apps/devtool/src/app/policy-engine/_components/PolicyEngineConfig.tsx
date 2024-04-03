@@ -3,7 +3,7 @@
 import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useAccountSignature from '../../_hooks/useAccountSignature'
@@ -20,8 +20,8 @@ const PolicyEngineConfig = () => {
   const {
     engineUrl,
     setEngineUrl,
-    enginePublicJwk,
-    setEnginePublicJwk,
+    engineClientSigner,
+    setEngineClientSigner,
     engineAdminApiKey,
     setEngineAdminApiKey,
     engineClientId,
@@ -38,60 +38,48 @@ const PolicyEngineConfig = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isOnboarded, setIsOnboarded] = useState<boolean>(false)
 
-  const getEnginePublicJwk = async (clientId: string, clientSecret: string) => {
-    const { data } = await axios.get(`${engineUrl}/engine`, {
-      headers: {
-        'x-client-id': clientId,
-        'x-client-secret': clientSecret
-      }
-    })
-
-    setEnginePublicJwk(data)
-  }
-
   const onboard = async () => {
     if (!engineAdminApiKey || !jwk) return
 
     setIsProcessing(true)
 
-    const { data: client } = await axios.post(
-      `${engineUrl}/tenants`,
-      {
-        ...(engineClientId && { clientId: engineClientId }),
-        entityDataStore: {
-          dataUrl: entityDataStoreUrl,
-          signatureUrl: entitySignatureUrl,
-          keys: [jwk]
+    try {
+      const { data: client } = await axios.post(
+        `${engineUrl}/clients`,
+        {
+          ...(engineClientId && { clientId: engineClientId }),
+          entityDataStore: {
+            dataUrl: entityDataStoreUrl,
+            signatureUrl: entitySignatureUrl,
+            keys: [jwk]
+          },
+          policyDataStore: {
+            dataUrl: policyDataStoreUrl,
+            signatureUrl: policySignatureUrl,
+            keys: [jwk]
+          }
         },
-        policyDataStore: {
-          dataUrl: policyDataStoreUrl,
-          signatureUrl: policySignatureUrl,
-          keys: [jwk]
+        {
+          headers: {
+            'x-api-key': engineAdminApiKey
+          }
         }
-      },
-      {
-        headers: {
-          'x-api-key': engineAdminApiKey
-        }
-      }
-    )
+      )
 
-    setEngineClientId(client.clientId)
-    setEngineClientSecret(client.clientSecret)
-    await getEnginePublicJwk(client.clientId, client.clientSecret)
+      setEngineClientId(client.clientId)
+      setEngineClientSecret(client.clientSecret)
+      setEngineClientSigner(client.signer.publicKey)
+
+      setIsOnboarded(true)
+      setTimeout(() => {
+        setIsOnboarded(false)
+      }, 5000)
+    } catch (error) {
+      console.error(error)
+    }
+
     setIsProcessing(false)
-    setIsOnboarded(true)
-
-    setTimeout(() => {
-      setIsOnboarded(false)
-    }, 5000)
   }
-
-  useEffect(() => {
-    if (!engineClientId || !engineClientSecret) return
-
-    getEnginePublicJwk(engineClientId, engineClientSecret)
-  }, [engineClientId, engineClientSecret])
 
   return (
     <div className="flex flex-col gap-10">
@@ -118,17 +106,10 @@ const PolicyEngineConfig = () => {
           </div>
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          {enginePublicJwk && (
-            <NarInput
-              label="Engine Public JWK"
-              value={JSON.stringify(enginePublicJwk)}
-              onChange={() => null}
-              disabled
-            />
+          {engineClientSigner && (
+            <NarInput label="Client Signer" value={JSON.stringify(engineClientSigner)} onChange={() => null} disabled />
           )}
-          {engineClientId && (
-            <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />
-          )}
+          {engineClientId && <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />}
           {engineClientSecret && (
             <NarInput label="Client Secret" value={engineClientSecret} onChange={() => null} disabled />
           )}

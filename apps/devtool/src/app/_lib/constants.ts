@@ -4,10 +4,10 @@ export const VAULT_URL = 'http://127.0.0.1:3011'
 
 export const LOCAL_STORAGE_KEYS = {
   engineUrl: 'narvalEngineUrl',
-  enginePublicJwk: 'narvalEnginePublicJwk',
   engineAdminApiKey: 'narvalEngineAdminApiKey',
   engineClientId: 'narvalEngineClientId',
   engineClientSecret: 'narvalEngineClientSecret',
+  engineClientSigner: 'narvalEngineClientSigner',
   vaultUrl: 'narvalVaultUrl',
   vaultApiKey: 'narvalVaultApiKey',
   vaultClientId: 'narvalVaultClientId',

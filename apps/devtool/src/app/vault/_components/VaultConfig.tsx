@@ -13,8 +13,8 @@ import useStore from '../../_hooks/useStore'
 const VaultConfig = () => {
   const account = useAccount()
   const {
-    enginePublicJwk,
-    setEnginePublicJwk,
+    engineClientSigner,
+    setEngineClientSigner,
     vaultUrl,
     setVaultUrl,
     vaultApiKey,
@@ -39,7 +39,7 @@ const VaultConfig = () => {
       `${vaultUrl}/tenants`,
       {
         ...(vaultClientId && { clientId: vaultClientId }),
-        ...(enginePublicJwk && { engineJwk: enginePublicJwk })
+        ...(engineClientSigner && { engineJwk: engineClientSigner })
       },
       {
         headers: {
@@ -50,7 +50,7 @@ const VaultConfig = () => {
 
     setVaultClientId(client.clientId)
     setVaultClientSecret(client.clientSecret)
-    setEnginePublicJwk(client.engineJwk)
+    setEngineClientSigner(client.engineJwk)
 
     setIsProcessing(false)
     setIsOnboarded(true)
@@ -107,10 +107,10 @@ const VaultConfig = () => {
             </div>
           </div>
           <div className="flex flex-col gap-6 w-2/3">
-            {enginePublicJwk && (
+            {engineClientSigner && (
               <NarInput
-                label="Engine Public JWK"
-                value={JSON.stringify(enginePublicJwk)}
+                label="Client Signer"
+                value={JSON.stringify(engineClientSigner)}
                 onChange={() => null}
                 disabled
               />
@@ -122,7 +122,7 @@ const VaultConfig = () => {
           </div>
         </div>
       </div>
-      {vaultClientId && vaultApiKey && enginePublicJwk && (
+      {vaultClientId && vaultApiKey && engineClientSigner && (
         <div className="flex flex-col gap-10 w-1/3">
           <div className="text-nv-2xl">Import Private Key</div>
           <div className="flex flex-col gap-6">

@@ -108,7 +108,7 @@ const DataStoreConfig = () => {
     await getData()
     setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
 
-    await axios.post(`${engineUrl}/tenants/sync`, null, {
+    await axios.post(`${engineUrl}/clients/sync`, null, {
       headers: {
         'x-client-id': engineClientId,
         'x-client-secret': engineClientSecret
@@ -164,7 +164,7 @@ const DataStoreConfig = () => {
     await getData()
     setProcessingStatus((prev) => ({ ...prev, dataSaved: true }))
 
-    await axios.post(`${engineUrl}/tenants/sync`, null, {
+    await axios.post(`${engineUrl}/clients/sync`, null, {
       headers: {
         'x-client-id': engineClientId,
         'x-client-secret': engineClientSecret

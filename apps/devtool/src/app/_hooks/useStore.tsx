@@ -4,8 +4,8 @@ import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_l
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
-  const [enginePublicJwk, setEnginePublicJwk] = useLocalStorage<PublicKey | undefined>(
-    LOCAL_STORAGE_KEYS.enginePublicJwk,
+  const [engineClientSigner, setEngineClientSigner] = useLocalStorage<PublicKey | undefined>(
+    LOCAL_STORAGE_KEYS.engineClientSigner,
     undefined
   )
   const [engineAdminApiKey, setEngineAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.engineAdminApiKey, '')
@@ -37,8 +37,8 @@ const useStore = () => {
   return {
     engineUrl,
     setEngineUrl,
-    enginePublicJwk,
-    setEnginePublicJwk,
+    engineClientSigner,
+    setEngineClientSigner,
     engineAdminApiKey,
     setEngineAdminApiKey,
     engineClientId,
