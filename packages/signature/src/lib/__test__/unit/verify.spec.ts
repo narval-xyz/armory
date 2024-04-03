@@ -8,9 +8,12 @@ import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../uti
 import { validateJwk } from '../../validate'
 import {
   checkAudience,
+  checkDataHash,
   checkIssuer,
   checkNbf,
+  checkRequestHash,
   checkRequiredClaims,
+  checkSubject,
   checkTokenExpiration,
   verifyJwsdHeader,
   verifyJwt,
@@ -548,5 +551,121 @@ describe('checkAudience', () => {
     }
 
     expect(() => checkAudience(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkSubject', () => {
+  it('returns true when the subject is valid', () => {
+    const payload: Payload = {
+      sub: 'test-subject'
+    }
+
+    expect(
+      checkSubject(payload, {
+        subject: 'test-subject'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the subject is invalid', () => {
+    const payload: Payload = {
+      sub: 'test-subject'
+    }
+
+    const opts = {
+      subject: 'invalid-subject'
+    }
+
+    expect(() => checkSubject(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkRequestHash', () => {
+  it('returns true when the requestHash is a string & matches', () => {
+    const payload: Payload = {
+      requestHash: '0x1234567890'
+    }
+
+    expect(
+      checkRequestHash(payload, {
+        requestHash: '0x1234567890'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the requestHash does not match', () => {
+    const payload: Payload = {
+      requestHash: '0x1234567890'
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: '0x0987654321'
+    }
+
+    expect(() => checkRequestHash(payload, opts)).toThrow(JwtError)
+  })
+
+  it('hashes a request object and compares it to the requestHash', () => {
+    const request = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const requestHash = hash(request)
+
+    const payload: Payload = {
+      requestHash
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: request
+    }
+    const result = checkRequestHash(payload, opts)
+    expect(result).toEqual(true)
+  })
+})
+
+describe('checkDataHash', () => {
+  it('returns true when the data is a string & matches', () => {
+    const payload: Payload = {
+      data: '0x1234567890'
+    }
+
+    expect(
+      checkDataHash(payload, {
+        data: '0x1234567890'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the data does not match', () => {
+    const payload: Payload = {
+      data: '0x1234567890'
+    }
+
+    const opts: JwtVerifyOptions = {
+      data: '0x0987654321'
+    }
+
+    expect(() => checkDataHash(payload, opts)).toThrow(JwtError)
+  })
+
+  it('hashes a request object and compares it to the data', () => {
+    const data = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const dataHash = hash(data)
+
+    const payload: Payload = {
+      data: dataHash
+    }
+
+    const opts: JwtVerifyOptions = {
+      data
+    }
+    const result = checkDataHash(payload, opts)
+    expect(result).toEqual(true)
   })
 })

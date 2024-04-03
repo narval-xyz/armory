@@ -92,7 +92,7 @@ export const checkAudience = (payload: Payload, opts: JwtVerifyOptions): boolean
   return true
 }
 
-const checkSubject = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkSubject = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.subject) {
     if (!payload.sub || opts.subject !== payload.sub) {
       throw new JwtError({ message: 'Invalid subject', context: { payload } })
@@ -101,7 +101,7 @@ const checkSubject = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   return true
 }
 
-const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.requestHash) {
     const requestHash = typeof opts.requestHash === 'string' ? opts.requestHash : hash(opts.requestHash)
     if (!payload.requestHash || requestHash !== payload.requestHash) {
@@ -111,7 +111,7 @@ const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => 
   return true
 }
 
-const checkDataHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkDataHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.data) {
     const data = typeof opts.data === 'string' ? opts.data : hash(opts.data)
     if (!payload.data || data !== payload.data) {
