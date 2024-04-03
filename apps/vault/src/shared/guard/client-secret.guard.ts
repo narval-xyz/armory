@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_API_KEY, REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../main.constant'
 import { TenantService } from '../../tenant/core/service/tenant.service'
 import { ApplicationException } from '../exception/application.exception'
 
@@ -9,12 +9,12 @@ export class ClientSecretGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
-    const clientSecret = req.headers[REQUEST_HEADER_API_KEY]
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
+    const clientSecret = req.headers[REQUEST_HEADER_CLIENT_SECRET]
 
     if (!clientSecret) {
       throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_API_KEY} header`,
+        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     } else if (!clientId) {

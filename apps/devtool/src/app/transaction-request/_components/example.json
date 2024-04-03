@@ -1,6 +1,6 @@
 {
   "request": {
-    "resourceId": "f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a",
+    "resourceId": "eip155:eoa:0x33507dcb6bc682d8e417b741f03c6f79fc20e89b",
     "action": "signTransaction",
     "nonce": "6bb2b3e9-fa8a-4081-a837-575184ceb3a5",
     "transactionRequest": {

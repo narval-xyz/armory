@@ -5,15 +5,14 @@
       "addressBook": [],
       "credentials": [
         {
-          "id": "0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037",
+          "id": "0x000c0d191308A336356BEe3813CC17F6868972C4",
           "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
           "key": {
             "kty": "EC",
             "crv": "secp256k1",
             "alg": "ES256K",
-            "kid": "0xE7349Bf47e09d3aa047FC4cDE514DaafAfc97037",
-            "x": "PQ1ekiQFSp6UN3-RGQDUwzUuZC7jjaDY_vIOhuGI_f4",
-            "y": "CNiOEfEhjvPfIFaz7CzIgyST_tHtQDhNqak9CDDIwRc"
+            "kid": "0x000c0d191308A336356BEe3813CC17F6868972C4",
+            "addr": "0x000c0d191308A336356BEe3813CC17F6868972C4"
           }
         }
       ],
@@ -23,7 +22,7 @@
       "userWallets": [
         {
           "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
-          "walletId": "f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a"
+          "walletId": "eip155:eoa:0x56085a7d2e308ec8ce6fd707cdc5282431d025db"
         }
       ],
       "users": [
@@ -36,8 +35,8 @@
       "walletGroups": [],
       "wallets": [
         {
-          "id": "f5b63a0f5072a336a5c56158fe74d06ab4abc7fcf583fdbf5604a6341c73405a",
-          "address": "0x24f0914062f66d487dc082802aac53cd10328d96",
+          "id": "eip155:eoa:0x56085a7d2e308ec8ce6fd707cdc5282431d025db",
+          "address": "0x56085a7d2e308ec8ce6fd707cdc5282431d025db",
           "accountType": "eoa"
         }
       ]
