@@ -2,6 +2,7 @@ import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, generateKeyPair } from 'jose'
+import * as crypto from 'node:crypto'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
@@ -193,18 +194,18 @@ const rsaKeyToKid = (jwk: Jwk) => {
   return toHex(hash)
 }
 
-// TODO: Define if this function is necessary, what should be the behavior when passing a RSA key to be hexified
 const rsaPubKeyToHex = (jwk: Jwk): Hex => {
   const key = validateJwk<RsaPublicKey>({
     schema: rsaPublicKeySchema,
     jwk,
     errorMessage: 'Invalid RSA Public Key'
   })
-  const dataToHash = `${key.n}:${key.e}`
-
-  const binaryData = base64UrlToBytes(dataToHash)
-  const hash = sha256Hash(binaryData)
-  return toHex(hash)
+  const imported = crypto.createPublicKey({
+    format: 'jwk',
+    key
+  })
+  const keyData = imported.export({ format: 'pem', type: 'spki' })
+  return toHex(keyData)
 }
 
 const rsaPrivateKeyToHex = (jwk: Jwk): Hex => {
@@ -213,11 +214,14 @@ const rsaPrivateKeyToHex = (jwk: Jwk): Hex => {
     jwk,
     errorMessage: 'Invalid RSA Private Key'
   })
-  const dataToHash = `${key.n}:${key.e}:${key.d}`
+  const imported = crypto.createPrivateKey({
+    key,
+    format: 'jwk',
+    type: 'pkcs8'
+  })
+  const keyData = imported.export({ format: 'pem', type: 'pkcs8' })
 
-  const binaryData = base64UrlToBytes(dataToHash)
-  const hash = sha256Hash(binaryData)
-  return toHex(hash)
+  return toHex(keyData)
 }
 
 export const publicKeyToHex = (jwk: Jwk): Hex => {
@@ -239,16 +243,15 @@ export const privateKeyToHex = (jwk: Jwk): Hex => {
   return rsaPrivateKeyToHex(jwk)
 }
 
-export const privateKeyToJwk = (jwk: Hex, alg: Alg): PrivateKey => {
+export const privateKeyToJwk = (key: Hex, alg: Alg): PrivateKey => {
   switch (alg) {
     case Alg.ES256K:
-      return secp256k1PrivateKeyToJwk(jwk)
+      return secp256k1PrivateKeyToJwk(key)
     case Alg.ES256:
-      return p256PrivateKeyToJwk(jwk)
+      return p256PrivateKeyToJwk(key)
     case Alg.RS256:
       throw new JwtError({
-        message: 'Conversion from Hex to JWK not supported for RSA keys',
-        context: { jwk }
+        message: 'Conversion from Hex to JWK not supported for RSA keys'
       })
   }
 }

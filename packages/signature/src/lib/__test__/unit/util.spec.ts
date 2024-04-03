@@ -187,4 +187,12 @@ describe('privateKeyToJwk', () => {
   it('throws an error for RS256 alg', () => {
     expect(() => privateKeyToJwk(p256HexPrivateKey, Alg.RS256)).toThrow()
   })
+
+  // TODO: Implement this test & functionality. Not direct need today, but should be done.
+  // it('converts a valid rs256 hex private key to JWK', async () => {
+  //   const key = await generateJwk(Alg.RS256)
+  //   const hex = privateKeyToHex(key)
+  //   const jwk = privateKeyToJwk(hex, Alg.RS256)
+  //   expect(rsaPrivateKeySchema.safeParse(jwk).success).toBe(true)
+  // })
 })

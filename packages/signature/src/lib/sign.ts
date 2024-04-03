@@ -1,14 +1,25 @@
+import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
-import { SignJWT, importJWK } from 'jose'
+import * as crypto from 'node:crypto'
+import { promisify } from 'node:util'
 import { isHex, signatureToHex, toBytes, toHex } from 'viem'
+import { JwtError } from './error'
 import { hash } from './hash'
 import { canonicalize } from './json.util'
 import { jwkBaseSchema, privateKeySchema } from './schemas'
-import { EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
+import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
 import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
 import { validateJwk } from './validate'
+const cryptoSign = promisify(crypto.sign)
+
+const SigningAlgToKey = {
+  [SigningAlg.EIP191]: Alg.ES256K,
+  [SigningAlg.ES256K]: Alg.ES256K,
+  [SigningAlg.ES256]: Alg.ES256,
+  [SigningAlg.RS256]: Alg.RS256
+}
 
 const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
   const key = validateJwk<PartialJwk>({
@@ -16,17 +27,23 @@ const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
     jwk,
     errorMessage: 'Invalid JWK: failed to validate basic fields'
   })
+  // Validate that the alg & the key alg are compatible
+  const headerAlg = alg || key.alg
+  const validKeyAlg = SigningAlgToKey[headerAlg]
+  if (key.alg !== validKeyAlg) {
+    throw new JwtError({
+      message: 'Mismatch between jwk & signing alg',
+      context: {
+        jwkAlg: key.alg,
+        signingAlg: headerAlg
+      }
+    })
+  }
   return {
     alg: alg || key.alg,
     kid: key.kid,
     typ: 'JWT'
   }
-}
-
-const fallbackSigner = async (jwk: PrivateKey, payload: Payload, header: Header) => {
-  const pk = await importJWK(jwk)
-  const signature = await new SignJWT(payload).setProtectedHeader(header).sign(pk)
-  return signature
 }
 
 export async function signJwsd(
@@ -120,8 +137,18 @@ export async function signJwt(
       case SigningAlg.EIP191:
         signature = await buildSignerEip191(privateKeyHex)(messageToSign)
         break
-      default:
-        return fallbackSigner(privateKey, payload, header)
+      case SigningAlg.ES256:
+        signature = await buildSignerEs256(privateKeyHex)(messageToSign)
+        break
+      case SigningAlg.RS256:
+        signature = await buildSignerRs256(jwk)(messageToSign)
+        break
+      default: {
+        throw new JwtError({
+          message: 'Unsupported signing algorithm',
+          context: { alg: header.alg }
+        })
+      }
     }
   }
 
@@ -134,6 +161,21 @@ export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?
   const rHex = toHex(r, { size: 32 })
   const sHex = toHex(s, { size: 32 })
   const recoveryBn = isEth ? 27n + BigInt(recovery) : BigInt(recovery)
+
+  return {
+    r: rHex,
+    s: sHex,
+    v: recoveryBn
+  }
+}
+
+export const signP256 = (hash: Uint8Array, privateKey: Hex | string): EcdsaSignature => {
+  const pk = isHex(privateKey) ? privateKey.slice(2) : privateKey
+  const sig = p256.sign(hash, pk)
+  const { r, s, recovery } = sig
+  const rHex = toHex(r, { size: 32 })
+  const sHex = toHex(s, { size: 32 })
+  const recoveryBn = BigInt(recovery)
 
   return {
     r: rHex,
@@ -170,5 +212,30 @@ export const buildSignerEip191 =
     const hash = eip191Hash(messageToSign)
     const signature = signSecp256k1(hash, privateKey, true)
     const hexSignature = signatureToHex(signature)
+    return hexToBase64Url(hexSignature)
+  }
+
+export const buildSignerEs256 =
+  (privateKey: Hex | string) =>
+  async (messageToSign: string): Promise<string> => {
+    const hash = sha256Hash(messageToSign)
+
+    const signature = signP256(hash, privateKey)
+
+    const hexSignature = signatureToHex(signature)
+    return hexToBase64Url(hexSignature)
+  }
+
+export const buildSignerRs256 =
+  (jwk: Jwk) =>
+  async (messageToSign: string): Promise<string> => {
+    const key = crypto.createPrivateKey({
+      key: jwk,
+      format: 'jwk',
+      type: 'pkcs8'
+    })
+    const signature = await cryptoSign('sha256', Buffer.from(messageToSign), key)
+
+    const hexSignature = toHex(signature)
     return hexToBase64Url(hexSignature)
   }
