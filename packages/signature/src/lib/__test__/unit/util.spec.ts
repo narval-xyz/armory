@@ -142,34 +142,34 @@ describe('publicKeyToJwk', () => {
 })
 
 describe('publicKeyToHex', () => {
-  it('converts a valid secp256k1 JWK to hex string', () => {
-    const hex = publicKeyToHex(k1Jwk)
+  it('converts a valid secp256k1 JWK to hex string', async () => {
+    const hex = await publicKeyToHex(k1Jwk)
     expect(hex).toBe(k1HexPublicKey)
   })
 
-  it('converts a valid p256 JWK to hex string', () => {
-    const hex = publicKeyToHex(p256Jwk)
+  it('converts a valid p256 JWK to hex string', async () => {
+    const hex = await publicKeyToHex(p256Jwk)
     expect(hex).toBe(p256HexPublicKey)
   })
 })
 
 describe('privateKeyToHex', () => {
-  it('converts a valid secp256k1 private JWK to hex string', () => {
-    const hex = privateKeyToHex(k1Jwk)
+  it('converts a valid secp256k1 private JWK to hex string', async () => {
+    const hex = await privateKeyToHex(k1Jwk)
     expect(hex).toBe(k1HexPrivateKey)
   })
 
-  it('converts a valid p256 private JWK to hex string', () => {
-    const hex = privateKeyToHex(p256Jwk)
+  it('converts a valid p256 private JWK to hex string', async () => {
+    const hex = await privateKeyToHex(p256Jwk)
     expect(hex).toBe(p256HexPrivateKey)
   })
 
-  it('throws an error for invalid private key', () => {
+  it('throws an error for invalid private key', async () => {
     const jwk: Jwk = {
       kty: 'EC',
       crv: 'secp256k1'
     }
-    expect(() => privateKeyToHex(jwk)).toThrow('Invalid Private Key')
+    await expect(privateKeyToHex(jwk)).rejects.toThrow('Invalid Private Key')
   })
 })
 

@@ -1,8 +1,7 @@
 import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
-import * as crypto from 'node:crypto'
-import { promisify } from 'node:util'
+import { subtle } from 'crypto'
 import { hexToBytes, isAddressEqual, recoverAddress } from 'viem'
 import { decodeJwsd, decodeJwt } from './decode'
 import { JwtError } from './error'
@@ -25,8 +24,6 @@ import {
 } from './types'
 import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex } from './utils'
 import { buildJwkValidator } from './validate'
-
-const cryptoVerify = promisify(crypto.verify)
 
 export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   const requiredClaims = [
@@ -126,7 +123,7 @@ export const verifySecp256k1 = async (sig: Hex, hash: Uint8Array, jwk: PublicKey
   if (jwk.alg !== Alg.ES256K) {
     throw new JwtError({ message: 'Invalid JWK: signature requres ES256K', context: { jwk } })
   }
-  const pubKey = publicKeyToHex(jwk)
+  const pubKey = await publicKeyToHex(jwk)
   // A eth sig has a `v` value of 27 or 28, so we need to remove that to get the signature
   // And we remove the 0x prefix. So that means we slice the first and last 2 bytes, leaving the 128 character signature
   const isValid = secp256k1.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
@@ -138,7 +135,7 @@ export const verifyP256 = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Pr
     throw new JwtError({ message: 'Invalid JWK: signature requires ES256', context: { jwk } })
   }
 
-  const pubKey = publicKeyToHex(jwk)
+  const pubKey = await publicKeyToHex(jwk)
   const isValid = p256.verify(sig.slice(2, 130), hash, pubKey.slice(2)) === true
   return isValid
 }
@@ -166,13 +163,21 @@ export const verifyEip191 = async (sig: Hex, msg: string, jwk: PublicKey): Promi
 }
 
 export const verifyRs256 = async (sig: Hex, msg: string, jwk: PublicKey): Promise<boolean> => {
-  const key = crypto.createPublicKey({
-    format: 'jwk',
-    key: jwk
-  })
-
   const msgBuffer = Buffer.from(msg)
-  const isValid = await cryptoVerify('sha256', msgBuffer, key, hexToBytes(sig))
+
+  const key = await subtle.importKey(
+    'jwk',
+    jwk,
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256'
+    },
+    true,
+    ['verify']
+  )
+
+  const isValid = await subtle.verify('RSASSA-PKCS1-v1_5', key, hexToBytes(sig), msgBuffer)
+
   return !!isValid
 }
 
