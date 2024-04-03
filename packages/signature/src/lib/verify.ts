@@ -68,7 +68,7 @@ export const checkNbf = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   return true
 }
 
-const checkIssuer = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+export const checkIssuer = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.issuer) {
     if (
       !payload.iss ||

@@ -7,6 +7,7 @@ import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey } from '../.
 import { nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
+  checkIssuer,
   checkNbf,
   checkRequiredClaims,
   checkTokenExpiration,
@@ -482,5 +483,37 @@ describe('checkNbf', () => {
     }
 
     expect(() => checkNbf(payload, {})).toThrow(JwtError)
+  })
+})
+
+describe('checkIssuer', () => {
+  it('returns true when the issuer is valid', () => {
+    const payload: Payload = {
+      iss: 'https://example.com'
+    }
+
+    expect(
+      checkIssuer(payload, {
+        issuer: 'https://example.com'
+      })
+    ).toBe(true)
+
+    expect(
+      checkIssuer(payload, {
+        issuer: ['https://other.com', 'https://example.com']
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the issuer is invalid', () => {
+    const payload: Payload = {
+      iss: 'https://example.com'
+    }
+
+    const opts = {
+      issuer: 'https://invalid.com'
+    }
+
+    expect(() => checkIssuer(payload, opts)).toThrow(JwtError)
   })
 })
