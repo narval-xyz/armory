@@ -11,6 +11,7 @@ import {
   base64UrlToHex,
   ellipticPrivateKeyToHex,
   ellipticPublicKeyToHex,
+  generateJwk,
   hexToBase64Url,
   privateKeyToHex,
   secp256k1PrivateKeyToJwk,
@@ -92,6 +93,13 @@ describe('sign', () => {
     expect(isVerified).toBe(true)
 
     expect(signature).toBe('FFI6M5oFpbQqq0-xhe5DgPVHj4CKoVF4F3K3cg1MRY1COqWatQNsSn2MrqJ10BbGLe7i76KRMDj4biqnZkxwsw')
+  })
+
+  it('should sign RS256 correctly', async () => {
+    const key = await generateJwk(Alg.RS256)
+    const jwt = await signJwt(payload, key)
+    const verifiedJwt = await verifyJwt(jwt, key)
+    expect(verifiedJwt.payload).toEqual(payload)
   })
 
   it('should sign EIP191 correctly', async () => {
