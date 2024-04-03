@@ -16,18 +16,18 @@ import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/per
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getEntityStore, getPolicyStore } from '../../../shared/testing/data-store.testing'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Tenant } from '../../../shared/type/domain.type'
+import { Client } from '../../../shared/type/domain.type'
+import { ClientService } from '../../core/service/client.service'
 import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
-import { TenantService } from '../../core/service/tenant.service'
 import { EngineModule } from '../../engine.module'
 
 describe('Engine', () => {
   let app: INestApplication
   let privateKey: PrivateKey
   let module: TestingModule
-  let tenant: Tenant
+  let client: Client
   let enginePublicJwk: PublicKey
-  let tenantService: TenantService
+  let clientService: ClientService
   let testPrismaService: TestPrismaService
   let configService: ConfigService<Config>
 
@@ -60,7 +60,7 @@ describe('Engine', () => {
     const engineService = module.get<EngineService>(EngineService)
     const engineSignerConfigService = module.get<EngineSignerConfigService>(EngineSignerConfigService)
     configService = module.get<ConfigService<Config>>(ConfigService)
-    tenantService = module.get<TenantService>(TenantService)
+    clientService = module.get<ClientService>(ClientService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
     await testPrismaService.truncateAll()
@@ -84,7 +84,7 @@ describe('Engine', () => {
       key: privateKey
     })
 
-    tenant = await tenantService.onboard(
+    client = await clientService.onboard(
       {
         clientId,
         clientSecret: randomBytes(42).toString('hex'),
@@ -100,8 +100,8 @@ describe('Engine', () => {
 
     enginePublicJwk = await engineSignerConfigService.getPublicJwkOrThrow()
 
-    await tenantService.savePolicyStore(tenant.clientId, await getPolicyStore([], privateKey))
-    await tenantService.saveEntityStore(tenant.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
+    await clientService.savePolicyStore(client.clientId, await getPolicyStore([], privateKey))
+    await clientService.saveEntityStore(client.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
 
     await app.init()
   })
@@ -116,8 +116,8 @@ describe('Engine', () => {
     it('returns engine id + public jwk', async () => {
       const { status, body } = await request(app.getHttpServer())
         .get('/engine')
-        .set(REQUEST_HEADER_CLIENT_ID, tenant.clientId)
-        .set(REQUEST_HEADER_CLIENT_SECRET, tenant.clientSecret)
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
 
       expect(body).toEqual(enginePublicJwk)
       expect(status).toEqual(HttpStatus.OK)
