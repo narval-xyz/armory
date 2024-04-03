@@ -249,7 +249,8 @@ describe('Sign', () => {
       expect(body).toEqual({
         message: 'Invalid request hash',
         statusCode: HttpStatus.FORBIDDEN,
-        stack: expect.any(String)
+        stack: expect.any(String),
+        origin: expect.any(Object)
       })
       expect(status).toEqual(HttpStatus.FORBIDDEN)
     })
