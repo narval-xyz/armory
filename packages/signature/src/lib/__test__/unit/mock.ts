@@ -1,4 +1,4 @@
-import { hash } from '../../hash-request'
+import { hash } from '../../hash'
 import { Alg } from '../../types'
 
 export const ALGORITHM = Alg.ES256

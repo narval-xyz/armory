@@ -1,6 +1,6 @@
 import { signatureToHex, toBytes } from 'viem'
 import { JwtError } from '../../error'
-import { hash } from '../../hash-request'
+import { hash } from '../../hash'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signJwt, signSecp256k1 } from '../../sign'
 import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey, SigningAlg } from '../../types'
@@ -201,7 +201,7 @@ describe('verifySecp256k1', () => {
 })
 
 describe('verifyJwtHeader', () => {
-  it('should return true when all recognized crit parameters are present in the header', () => {
+  it('returns true when all recognized crit parameters are present in the header', () => {
     const header = {
       kid: 'kid1',
       alg: 'ES256K',

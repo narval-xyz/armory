@@ -1,4 +1,5 @@
 import { decodeJwt } from '../../decode'
+import { JwtError } from '../../error'
 import { signJwt } from '../../sign'
 import { privateKeyToJwk } from '../../utils'
 
@@ -25,10 +26,12 @@ describe('decodeJwt', () => {
       signature: rawJwt.split('.')[2]
     })
   })
+
   it('throws an error if token is malformed', async () => {
-    expect(() => decodeJwt('invalid')).toThrow()
+    expect(() => decodeJwt('invalid')).toThrow(JwtError)
   })
-  it('throws an error if token is formed well with unmeaningful data', async () => {
-    expect(() => decodeJwt('invalid.invalid.invalid')).toThrow()
+
+  it('throws an error if token is in correct format but not valid base64url encoded data', async () => {
+    expect(() => decodeJwt('invalid.invalid.invalid')).toThrow(JwtError)
   })
 })

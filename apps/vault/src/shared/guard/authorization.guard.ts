@@ -60,6 +60,7 @@ export class AuthorizationGuard implements CanActivate {
     }).catch((err) => {
       throw new ApplicationException({
         message: err.message,
+        origin: err,
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN
       })
     })
