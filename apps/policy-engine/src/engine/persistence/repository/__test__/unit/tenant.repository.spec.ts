@@ -8,17 +8,19 @@ import {
   PolicyStore,
   Then
 } from '@narval/policy-engine-shared'
+import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
+import { generatePrivateKey } from 'viem/accounts'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Tenant } from '../../../../../shared/type/domain.type'
-import { TenantRepository } from '../../../repository/tenant.repository'
+import { Client } from '../../../../../shared/type/domain.type'
+import { ClientRepository } from '../../client.repository'
 
-describe(TenantRepository.name, () => {
-  let repository: TenantRepository
+describe(ClientRepository.name, () => {
+  let repository: ClientRepository
   let inMemoryKeyValueRepository: InMemoryKeyValueRepository
 
   const clientId = 'test-client-id'
@@ -34,7 +36,7 @@ describe(TenantRepository.name, () => {
       ],
       providers: [
         KeyValueService,
-        TenantRepository,
+        ClientRepository,
         EncryptKeyValueService,
         {
           provide: KeyValueRepository,
@@ -43,7 +45,7 @@ describe(TenantRepository.name, () => {
       ]
     }).compile()
 
-    repository = module.get<TenantRepository>(TenantRepository)
+    repository = module.get<ClientRepository>(ClientRepository)
   })
 
   describe('save', () => {
@@ -55,9 +57,13 @@ describe(TenantRepository.name, () => {
       keys: []
     }
 
-    const tenant: Tenant = {
+    const client: Client = {
       clientId,
       clientSecret: 'test-client-secret',
+      signer: {
+        type: 'PRIVATE_KEY',
+        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      },
       dataStore: {
         entity: dataStoreConfiguration,
         policy: dataStoreConfiguration
@@ -66,20 +72,20 @@ describe(TenantRepository.name, () => {
       updatedAt: now
     }
 
-    it('saves a new tenant', async () => {
-      await repository.save(tenant)
+    it('saves a new client', async () => {
+      await repository.save(client)
 
-      const value = await inMemoryKeyValueRepository.get(repository.getKey(tenant.clientId))
-      const actualTenant = await repository.findByClientId(tenant.clientId)
+      const value = await inMemoryKeyValueRepository.get(repository.getKey(client.clientId))
+      const actualClient = await repository.findByClientId(client.clientId)
 
       expect(value).not.toEqual(null)
-      expect(tenant).toEqual(actualTenant)
+      expect(client).toEqual(actualClient)
     })
 
-    it('indexes the new tenant', async () => {
-      await repository.save(tenant)
+    it('indexes the new client', async () => {
+      await repository.save(client)
 
-      expect(await repository.getTenantIndex()).toEqual([tenant.clientId])
+      expect(await repository.getClientListIndex()).toEqual([client.clientId])
     })
   })
 

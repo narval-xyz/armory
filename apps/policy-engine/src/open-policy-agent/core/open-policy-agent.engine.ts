@@ -295,13 +295,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       cnf: principalJwk
     }
 
-    if (!this.privateKey.d) {
-      throw new OpenPolicyAgentException({
-        message: 'Missing signing private key',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
-      })
-    }
-
     return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }

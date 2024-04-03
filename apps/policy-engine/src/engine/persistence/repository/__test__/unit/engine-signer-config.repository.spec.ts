@@ -5,7 +5,7 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { EngineSignerConfig } from '../../../../../shared/type/domain.type'
+import { SignerConfig } from '../../../../../shared/type/domain.type'
 import { EngineSignerConfigRepository } from '../../engine-signer-config.repository'
 
 describe(EngineSignerConfigRepository.name, () => {
@@ -38,7 +38,7 @@ describe(EngineSignerConfigRepository.name, () => {
 
   describe('save', () => {
     it('saves encrypted signer configuration', async () => {
-      const signerConfig: EngineSignerConfig = {
+      const signerConfig: SignerConfig = {
         type: 'PRIVATE_KEY',
         key: secp256k1PrivateKeyToJwk('0x44c75d8485a564a3c8d60ed23e7524f77bba719372f1c05807d88af6d3c09f55')
       }
