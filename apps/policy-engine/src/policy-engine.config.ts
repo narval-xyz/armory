@@ -9,7 +9,7 @@ export enum Env {
 const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
-  cors: z.array(z.string()),
+  cors: z.array(z.string()).optional(),
   database: z.object({
     url: z.string().startsWith('postgresql:')
   }),
