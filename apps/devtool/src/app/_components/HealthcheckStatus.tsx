@@ -109,6 +109,48 @@ const HealthcheckStatus = () => {
       <div className="text-nv-2xl">Healthcheck Status</div>
       <div className="flex gap-24">
         <div className="flex flex-col gap-4">
+          <div className="text-nv-xl">Policy Engine</div>
+          <div className="flex flex-col gap-2">
+            <div className="text-nv-md underline">Connection</div>
+            <div className="flex items-center gap-4">
+              <div
+                className={classNames(
+                  'h-3 w-3 rounded-full',
+                  status.engineConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                )}
+              ></div>
+              <div>{status.engineConnection ? 'Connected' : 'Disconnected'}</div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="text-nv-md underline">Data Store</div>
+            <div className="flex items-center gap-4">
+              <div
+                className={classNames(
+                  'h-3 w-3 rounded-full',
+                  status.engineDataStore ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                )}
+              ></div>
+              <div>{status.engineDataStore ? 'Synced' : 'Unsynced'}</div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="text-nv-xl">Vault</div>
+          <div className="flex flex-col gap-2">
+            <div className="text-nv-md underline">Connection</div>
+            <div className="flex items-center gap-4">
+              <div
+                className={classNames(
+                  'h-3 w-3 rounded-full',
+                  status.vaultConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                )}
+              ></div>
+              <div>{status.vaultConnection ? 'Connected' : 'Disconnected'}</div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
           <div className="text-nv-xl">Data Store</div>
           <div className="flex flex-col gap-2">
             <div className="text-nv-md underline">Entity Data URL</div>
@@ -156,48 +198,6 @@ const HealthcheckStatus = () => {
                 )}
               ></div>
               <div>{status.policySignatureUrl ? 'Connected' : 'Disconnected'}</div>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="text-nv-xl">Policy Engine</div>
-          <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Connection</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.engineConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.engineConnection ? 'Connected' : 'Disconnected'}</div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Data Store</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.engineDataStore ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.engineDataStore ? 'Synced' : 'Unsynced'}</div>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="text-nv-xl">Vault</div>
-          <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Connection</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.vaultConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.vaultConnection ? 'Connected' : 'Disconnected'}</div>
             </div>
           </div>
         </div>
