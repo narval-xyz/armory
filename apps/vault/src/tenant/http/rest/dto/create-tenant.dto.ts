@@ -4,6 +4,7 @@ import { IsOptional, IsString } from 'class-validator'
 
 export class CreateTenantDto {
   @IsString()
+  @IsOptional()
   @ApiPropertyOptional()
   clientId?: string
 

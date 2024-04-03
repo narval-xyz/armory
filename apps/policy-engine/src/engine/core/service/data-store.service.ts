@@ -144,7 +144,7 @@ export class DataStoreService {
 
       const verification = await verifyJwt(params.signature, jwk)
 
-      if (verification.payload.requestHash !== hash(params.data)) {
+      if (verification.payload.data !== hash(params.data)) {
         return {
           success: false,
           error: new DataStoreException({

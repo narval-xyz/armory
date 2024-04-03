@@ -35,6 +35,18 @@ const withGlobalFilters =
     return app
   }
 
+const withCors =
+  (configService: ConfigService<Config>) =>
+  (app: INestApplication): INestApplication => {
+    const origin = configService.get('cors')
+
+    if (origin.length > 0) {
+      app.enableCors({ origin })
+    }
+
+    return app
+  }
+
 const provision = async () => {
   const application = await NestFactory.createApplicationContext(ProvisionModule)
 
@@ -66,6 +78,7 @@ async function bootstrap() {
       ),
       map(withGlobalPipes),
       map(withGlobalFilters(configService)),
+      map(withCors(configService)),
       switchMap((app) => app.listen(port))
     )
   )

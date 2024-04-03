@@ -5,7 +5,7 @@ import { getUnixTime } from 'date-fns'
 export const signData = (data: Entities | Policy[], jwk: Jwk) =>
   signJwt(
     {
-      requestHash: hash(data),
+      data: hash(data),
       iat: getUnixTime(new Date())
     },
     jwk

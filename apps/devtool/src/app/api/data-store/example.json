@@ -1,0 +1,69 @@
+{
+  "entity": {
+    "signature": "",
+    "data": {
+      "addressBook": [],
+      "credentials": [
+        {
+          "id": "0x000c0d191308A336356BEe3813CC17F6868972C4",
+          "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "key": {
+            "kty": "EC",
+            "crv": "secp256k1",
+            "alg": "ES256K",
+            "kid": "0x000c0d191308A336356BEe3813CC17F6868972C4",
+            "addr": "0x000c0d191308A336356BEe3813CC17F6868972C4"
+          }
+        }
+      ],
+      "tokens": [],
+      "userGroupMembers": [],
+      "userGroups": [],
+      "userWallets": [
+        {
+          "userId": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "walletId": "eip155:eoa:0x56085a7d2e308ec8ce6fd707cdc5282431d025db"
+        }
+      ],
+      "users": [
+        {
+          "id": "fe723044-35df-4e99-9739-122a48d4ab96",
+          "role": "admin"
+        }
+      ],
+      "walletGroupMembers": [],
+      "walletGroups": [],
+      "wallets": [
+        {
+          "id": "eip155:eoa:0x56085a7d2e308ec8ce6fd707cdc5282431d025db",
+          "address": "0x56085a7d2e308ec8ce6fd707cdc5282431d025db",
+          "accountType": "eoa"
+        }
+      ]
+    }
+  },
+  "policy": {
+    "signature": "",
+    "data": [
+      {
+        "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+        "description": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
+        "when": [
+          {
+            "criterion": "checkPrincipalRole",
+            "args": ["admin"]
+          },
+          {
+            "criterion": "checkAction",
+            "args": ["signTransaction"]
+          },
+          {
+            "criterion": "checkIntentType",
+            "args": ["transferErc721", "transferErc1155"]
+          }
+        ],
+        "then": "permit"
+      }
+    ]
+  }
+}

@@ -270,8 +270,9 @@ export const ENTITIES: Entities = {
 
 export const POLICIES: Policy[] = [
   {
+    id: 'test-permit-policy-uid',
     then: Then.PERMIT,
-    name: 'Example of permit policy',
+    description: 'Example of permit policy',
     when: [
       {
         criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
@@ -329,8 +330,9 @@ export const POLICIES: Policy[] = [
     ]
   },
   {
+    id: 'test-forbid-policy-uid',
     then: Then.FORBID,
-    name: 'Example of forbid policy',
+    description: 'Example of forbid policy',
     when: [
       {
         criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
