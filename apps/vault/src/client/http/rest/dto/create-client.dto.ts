@@ -1,6 +1,6 @@
 import { Jwk } from '@narval/signature'
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString } from 'class-validator'
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateClientDto {
   @IsString()
@@ -10,4 +10,24 @@ export class CreateClientDto {
 
   @IsOptional()
   engineJwk?: Jwk
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  audience?: string
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  issuer?: string
+
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional()
+  maxTokenAge?: number
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  baseUrl?: string
 }

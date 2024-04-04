@@ -98,6 +98,15 @@ export const checkSubject = (payload: Payload, opts: JwtVerifyOptions): boolean 
   return true
 }
 
+export const checkAuthorizedParty = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+  if (opts.authorizedParty) {
+    if (!payload.azp || opts.authorizedParty !== payload.azp) {
+      throw new JwtError({ message: 'Invalid authorized party', context: { payload } })
+    }
+  }
+  return true
+}
+
 export const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.requestHash) {
     const requestHash = typeof opts.requestHash === 'string' ? opts.requestHash : hash(opts.requestHash)
@@ -318,6 +327,8 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   checkAudience(payload, opts)
 
   checkSubject(payload, opts)
+
+  checkAuthorizedParty(payload, opts)
 
   checkRequestHash(payload, opts)
 

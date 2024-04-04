@@ -71,7 +71,11 @@ describe('Client', () => {
     const clientId = uuid()
 
     const payload: CreateClientDto = {
-      clientId
+      clientId,
+      audience: 'https://vault.narval.xyz',
+      issuer: 'https://auth.narval.xyz',
+      maxTokenAge: 30,
+      baseUrl: 'https://vault.narval.xyz'
     }
 
     it('creates a new client', async () => {
@@ -82,7 +86,7 @@ describe('Client', () => {
       const actualClient = await clientRepository.findByClientId(clientId)
 
       expect(body).toMatchObject({
-        clientId,
+        ...payload,
         clientSecret: expect.any(String),
         createdAt: expect.any(String),
         updatedAt: expect.any(String)

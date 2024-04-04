@@ -286,7 +286,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://armory.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/sign',
           created: now,
           ath: hexToBase64Url(hash(accessToken))
         }
@@ -326,7 +326,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://armory.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/sign',
           created: now,
           ath: ''
         }

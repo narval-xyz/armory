@@ -20,6 +20,10 @@ export class ClientController {
       clientId: body.clientId || uuid(),
       clientSecret: randomBytes(42).toString('hex'),
       engineJwk,
+      audience: body.audience,
+      issuer: body.issuer,
+      maxTokenAge: body.maxTokenAge,
+      baseUrl: body.baseUrl,
       createdAt: now,
       updatedAt: now
     })
