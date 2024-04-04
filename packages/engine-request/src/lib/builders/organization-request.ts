@@ -1,9 +1,8 @@
 import { OrganizationAction } from '../domain'
-import EvaluationRequestBuilder from './evaluation-request'
 
-export default class OrganizationBuilder extends EvaluationRequestBuilder {
-  action: OrganizationAction | null = null
-  nonce: string
+export default class OrganizationBuilder {
+  private action: OrganizationAction | null = null
+  private nonce: string
 
   setAction(action: OrganizationAction) {
     this.action = action

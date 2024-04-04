@@ -1,8 +1,5 @@
 // builders.test.ts
-import {
-  Eip712TypedData,
-  TransactionRequest
-} from '@narval/policy-engine-shared'
+import { Eip712TypedData, TransactionRequest } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import { buildRequest } from '../request-builder'
 
