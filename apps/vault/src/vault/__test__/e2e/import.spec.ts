@@ -6,7 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { load } from '../../../main.config'
-import { REQUEST_HEADER_API_KEY, REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -20,8 +20,8 @@ describe('Import', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
 
-  const adminApiKey = 'test-admin-api-key'
   const clientId = uuid()
+  const clientSecret = 'test-client-secret'
 
   const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   // Engine key used to sign the approval request
@@ -29,7 +29,7 @@ describe('Import', () => {
 
   const tenant: Tenant = {
     clientId,
-    clientSecret: adminApiKey,
+    clientSecret,
     engineJwk: tenantPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
@@ -85,7 +85,7 @@ describe('Import', () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/import/encryption-key')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
         .send({})
 
       expect(status).toEqual(HttpStatus.CREATED)
@@ -108,7 +108,7 @@ describe('Import', () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/import/private-key')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
         .send({
           privateKey: PRIVATE_KEY
         })
@@ -124,7 +124,7 @@ describe('Import', () => {
       const { body: keygenBody } = await request(app.getHttpServer())
         .post('/import/encryption-key')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
         .send({})
       const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
 
@@ -133,7 +133,7 @@ describe('Import', () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/import/private-key')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
         .send({
           encryptedPrivateKey: jwe
         })
