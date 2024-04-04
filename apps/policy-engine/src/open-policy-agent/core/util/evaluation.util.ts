@@ -1,11 +1,16 @@
-import { Action, Entities, EvaluationRequest } from '@narval/policy-engine-shared'
+import { Action, CredentialEntity, Entities, EvaluationRequest } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
-export const toInput = (evaluation: EvaluationRequest): Omit<Input, 'principal' | 'approvals'> => {
+export const toInput = (params: {
+  evaluation: EvaluationRequest
+  principal: CredentialEntity
+  approvals?: CredentialEntity[]
+}): Input => {
+  const { evaluation, principal, approvals } = params
   const { action } = evaluation.request
 
   if (action === Action.SIGN_TRANSACTION) {
@@ -19,9 +24,11 @@ export const toInput = (evaluation: EvaluationRequest): Omit<Input, 'principal' 
     if (result.success) {
       return {
         action,
+        principal,
+        approvals,
         intent: result.intent,
         transactionRequest: evaluation.request.transactionRequest,
-        transfers: evaluation.transfers
+        resource: { uid: evaluation.request.resourceId }
       }
     }
 
@@ -30,6 +37,15 @@ export const toInput = (evaluation: EvaluationRequest): Omit<Input, 'principal' 
       suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
       context: { error: result.error }
     })
+  }
+
+  if (action === Action.SIGN_MESSAGE) {
+    return {
+      action,
+      principal,
+      approvals,
+      resource: { uid: evaluation.request.resourceId }
+    }
   }
 
   throw new OpenPolicyAgentException({
