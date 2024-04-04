@@ -20,11 +20,8 @@ const NavBar = () => {
             <Image src="/narval-wordmark-white.png" width="150" height="50" alt="Narval Logo" priority />
           </Link>
           <div className="flex gap-8 ml-10 text-nv-lg">
-            <Link href="/policy-engine" className={`${currentPath === '/policy-engine' ? 'underline' : ''}`}>
-              Policy Engine
-            </Link>
-            <Link href="/vault" className={`${currentPath === '/vault' ? 'underline' : ''}`}>
-              Vault
+            <Link href="/config" className={`${currentPath === '/config' ? 'underline' : ''}`}>
+              Config
             </Link>
             <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
               Data Store
