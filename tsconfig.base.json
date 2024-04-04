@@ -13,9 +13,9 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "paths": {
-      "@narval/engine-request": ["packages/engine-request/src/index.ts"],
       "@narval/config-module": ["packages/config-module/src/index.ts"],
       "@narval/encryption-module": ["packages/encryption-module/src/index.ts"],
+      "@narval/engine-request": ["packages/engine-request/src/index.ts"],
       "@narval/nestjs-shared": ["packages/nestjs-shared/src/index.ts"],
       "@narval/policy-engine-shared": ["packages/policy-engine-shared/src/index.ts"],
       "@narval/signature": ["packages/signature/src/index.ts"],

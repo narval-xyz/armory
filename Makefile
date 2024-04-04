@@ -7,6 +7,7 @@ include ./packages/nestjs-shared/Makefile
 include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 include ./packages/signature/Makefile
+include ./packages/engine-request/Makefile
 
 # For more terminal color codes, head over to
 # https://opensource.com/article/19/9/linux-terminal-colors

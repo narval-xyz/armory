@@ -1,4 +1,5 @@
 import { Action } from '@narval/policy-engine-shared'
+import { ZodError } from 'zod'
 
 export const Category = {
   WALLET: 'wallet',
@@ -18,3 +19,5 @@ export const OrganizationAction = {
   CREATE_ORGANIZATION: Action.CREATE_ORGANIZATION
 } as const
 export type OrganizationAction = (typeof OrganizationAction)[keyof typeof OrganizationAction]
+
+export type BuildResponse<T> = { success: true; request: T } | { success: false; error: ZodError }

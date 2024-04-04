@@ -7,8 +7,7 @@ import {
   TransactionRequest
 } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import { ZodError } from 'zod'
-import { WalletAction } from '../domain'
+import { BuildResponse, WalletAction } from '../domain'
 import EvaluationRequestBuilder from './evaluation-request'
 
 export default class WalletRequestBuilder extends EvaluationRequestBuilder {
@@ -30,6 +29,8 @@ export default class WalletRequestBuilder extends EvaluationRequestBuilder {
         return new SignMessageBuilder()
       case WalletAction.SIGN_TYPED_DATA:
         return new SignTypedDataBuilder()
+      default:
+        throw new Error(`Invalid action: ${action}`)
     }
   }
 
@@ -52,7 +53,7 @@ class SignTransactionBuilder extends WalletRequestBuilder {
     return this
   }
 
-  build(): SignTransactionAction | ZodError {
+  build(): BuildResponse<SignTransactionAction> {
     const nonce = this.nonce || v4()
     const request = {
       action: WalletAction.SIGN_TRANSACTION,
@@ -61,7 +62,15 @@ class SignTransactionBuilder extends WalletRequestBuilder {
       transactionRequest: this.transactionRequest
     }
     const res = SignTransactionAction.safeParse(request)
-    return res.success ? res.data : res.error
+    return res.success
+      ? {
+          success: true,
+          request: res.data
+        }
+      : {
+          success: false,
+          error: res.error
+        }
   }
 }
 
@@ -79,7 +88,7 @@ class SignRawBuilder extends WalletRequestBuilder {
     return this
   }
 
-  build(): SignRawAction | ZodError {
+  build(): BuildResponse<SignRawAction> {
     const nonce = this.nonce || v4()
     const request = {
       action: WalletAction.SIGN_RAW,
@@ -88,7 +97,15 @@ class SignRawBuilder extends WalletRequestBuilder {
       rawMessage: this.rawMessage
     }
     const res = SignRawAction.safeParse(request)
-    return res.success ? res.data : res.error
+    return res.success
+      ? {
+          success: true,
+          request: res.data
+        }
+      : {
+          success: false,
+          error: res.error
+        }
   }
 }
 
@@ -100,7 +117,7 @@ class SignMessageBuilder extends WalletRequestBuilder {
     return this
   }
 
-  build(): SignMessageAction | ZodError {
+  build(): BuildResponse<SignMessageAction> {
     const nonce = this.nonce || v4()
     const request = {
       action: WalletAction.SIGN_MESSAGE,
@@ -109,7 +126,15 @@ class SignMessageBuilder extends WalletRequestBuilder {
       message: this.message
     }
     const res = SignMessageAction.safeParse(request)
-    return res.success ? res.data : res.error
+    return res.success
+      ? {
+          success: true,
+          request: res.data
+        }
+      : {
+          success: false,
+          error: res.error
+        }
   }
 }
 
@@ -121,7 +146,7 @@ class SignTypedDataBuilder extends WalletRequestBuilder {
     return this
   }
 
-  build(): SignTypedDataAction | ZodError {
+  build(): BuildResponse<SignTypedDataAction> {
     const nonce = this.nonce || v4()
     const request = {
       action: WalletAction.SIGN_TYPED_DATA,
@@ -130,6 +155,14 @@ class SignTypedDataBuilder extends WalletRequestBuilder {
       typedData: this.typedData
     }
     const res = SignTypedDataAction.safeParse(request)
-    return res.success ? res.data : res.error
+    return res.success
+      ? {
+          success: true,
+          request: res.data
+        }
+      : {
+          success: false,
+          error: res.error
+        }
   }
 }
