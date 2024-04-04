@@ -3,9 +3,9 @@ import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
+import { ClientModule } from './client/client.module'
 import { load } from './main.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
-import { TenantModule } from './tenant/tenant.module'
 import { AppService } from './vault/core/service/app.service'
 import { VaultModule } from './vault/vault.module'
 
@@ -24,7 +24,7 @@ import { VaultModule } from './vault/vault.module'
 
     // Domain
     VaultModule,
-    TenantModule
+    ClientModule
   ],
   providers: [
     {

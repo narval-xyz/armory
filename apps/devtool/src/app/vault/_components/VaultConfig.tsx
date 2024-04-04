@@ -37,7 +37,7 @@ const VaultConfig = () => {
 
     try {
       const { data: client } = await axios.post(
-        `${vaultUrl}/tenants`,
+        `${vaultUrl}/clients`,
         {
           ...(vaultClientId && { clientId: vaultClientId }),
           ...(engineClientSigner && { engineJwk: engineClientSigner })

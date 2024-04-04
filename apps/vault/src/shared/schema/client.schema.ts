@@ -1,7 +1,7 @@
 import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
-export const tenantSchema = z.object({
+export const clientSchema = z.object({
   clientId: z.string(),
   clientSecret: z.string(),
   engineJwk: publicKeySchema.optional(),
@@ -9,4 +9,4 @@ export const tenantSchema = z.object({
   updatedAt: z.coerce.date()
 })
 
-export const tenantIndexSchema = z.array(z.string())
+export const clientIndexSchema = z.array(z.string())

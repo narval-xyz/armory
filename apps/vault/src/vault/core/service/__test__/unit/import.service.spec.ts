@@ -39,14 +39,14 @@ describe('ImportService', () => {
 
   describe('importPrivateKey', () => {
     it('should import private key and return a wallet', async () => {
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const privateKey = PRIVATE_KEY
       const walletId = 'walletId'
 
-      const wallet: Wallet = await importService.importPrivateKey(tenantId, privateKey, walletId)
+      const wallet: Wallet = await importService.importPrivateKey(clientId, privateKey, walletId)
 
       expect(wallet).toEqual({ id: 'walletId', address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1', privateKey })
-      expect(walletRepository.save).toHaveBeenCalledWith(tenantId, {
+      expect(walletRepository.save).toHaveBeenCalledWith(clientId, {
         id: walletId,
         privateKey,
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
