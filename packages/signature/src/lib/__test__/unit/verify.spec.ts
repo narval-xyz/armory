@@ -629,6 +629,29 @@ describe('checkAudience', () => {
 
     expect(() => checkAudience(payload, opts)).toThrow(JwtError)
   })
+
+  it('throws JwtError when the payload aud is empty', () => {
+    const payload: Payload = {}
+
+    const opts = {
+      audience: 'https://invalid.com'
+    }
+
+    expect(() => checkAudience(payload, opts)).toThrow(JwtError)
+    expect(() => checkAudience({ aud: '' }, opts)).toThrow(JwtError)
+  })
+
+  it('supports an aud as an array', () => {
+    const payload: Payload = {
+      aud: ['https://api.other.com', 'https://api.example.com']
+    }
+
+    expect(
+      checkAudience(payload, {
+        audience: 'https://api.example.com'
+      })
+    ).toBe(true)
+  })
 })
 
 describe('checkSubject', () => {
