@@ -77,7 +77,7 @@ const VaultConfig = () => {
         {
           headers: {
             'x-client-id': vaultClientId,
-            'x-api-key': vaultClientSecret
+            'x-client-secret': vaultClientSecret
           }
         }
       )
