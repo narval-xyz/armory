@@ -4,6 +4,19 @@
   "sourceRoot": "packages/signature/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/packages/signature"],
+      "options": {
+        "project": "packages/signature/package.json"
+      },
+      "configurations": {
+        "development": {
+          "tsConfig": "packages/signature/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
