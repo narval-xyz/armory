@@ -3,13 +3,13 @@ import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
+import { ClientModule } from '../client/client.module'
 import { load } from '../main.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
-import { TenantModule } from '../tenant/tenant.module'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
 import { ProvisionService } from './core/service/provision.service'
@@ -35,7 +35,7 @@ import { VaultService } from './vault.service'
       inject: [ConfigService, AppService],
       useClass: EncryptionModuleOptionFactory
     }),
-    forwardRef(() => TenantModule)
+    forwardRef(() => ClientModule)
   ],
   controllers: [VaultController, ImportController, SignController],
   providers: [

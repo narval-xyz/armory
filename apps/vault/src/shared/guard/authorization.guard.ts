@@ -1,8 +1,8 @@
 import { PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { z } from 'zod'
+import { ClientService } from '../../client/core/service/client.service'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
-import { TenantService } from '../../tenant/core/service/tenant.service'
 import { ApplicationException } from '../exception/application.exception'
 
 const AuthorizationHeaderSchema = z.object({
@@ -11,7 +11,7 @@ const AuthorizationHeaderSchema = z.object({
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
-  constructor(private tenantService: TenantService) {}
+  constructor(private clientService: ClientService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
@@ -34,8 +34,8 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const tenant = await this.tenantService.findByClientId(clientId)
-    if (!tenant?.engineJwk) {
+    const client = await this.clientService.findByClientId(clientId)
+    if (!client?.engineJwk) {
       throw new ApplicationException({
         message: 'No engine key configured',
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED,
@@ -44,17 +44,17 @@ export class AuthorizationGuard implements CanActivate {
         }
       })
     }
-    const isAuthorized = await this.validateToken(context, accessToken, tenant?.engineJwk)
+    const isAuthorized = await this.validateToken(context, accessToken, client?.engineJwk)
 
     return isAuthorized
   }
 
-  async validateToken(context: ExecutionContext, token: string, tenantJwk: PublicKey): Promise<boolean> {
+  async validateToken(context: ExecutionContext, token: string, clientJwk: PublicKey): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
     const request = req.body.request
 
-    // Validate the JWT has a valid signature for the expected tenant key & the request matches
-    const { payload } = await verifyJwt(token, tenantJwk, {
+    // Validate the JWT has a valid signature for the expected client key & the request matches
+    const { payload } = await verifyJwt(token, clientJwk, {
       maxTokenAge: 60, // Verify the token is not older than 60s
       requestHash: request
     }).catch((err) => {

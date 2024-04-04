@@ -1,13 +1,13 @@
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
+import { ClientService } from '../../../../client/core/service/client.service'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../main.constant'
-import { TenantService } from '../../../../tenant/core/service/tenant.service'
 import { ApplicationException } from '../../../exception/application.exception'
-import { Tenant } from '../../../type/domain.type'
+import { Client } from '../../../type/domain.type'
 import { ClientSecretGuard } from '../../client-secret.guard'
 
 describe(ClientSecretGuard.name, () => {
-  const CLIENT_ID = 'tenant-a'
+  const CLIENT_ID = 'client-a'
 
   const mockExecutionContext = ({ clientSecret, clientId }: { clientSecret?: string; clientId?: string }) => {
     const headers = {
@@ -23,16 +23,16 @@ describe(ClientSecretGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockService = (clientSecret: string = 'tenant-a-secret-key') => {
-    const tenant: Tenant = {
+  const mockService = (clientSecret: string = 'client-a-secret-key') => {
+    const client: Client = {
       clientId: CLIENT_ID,
       clientSecret: clientSecret,
       updatedAt: new Date(),
       createdAt: new Date()
     }
 
-    const serviceMock = mock<TenantService>()
-    serviceMock.findByClientId.mockResolvedValue(tenant)
+    const serviceMock = mock<ClientService>()
+    serviceMock.findByClientId.mockResolvedValue(client)
 
     return serviceMock
   }
