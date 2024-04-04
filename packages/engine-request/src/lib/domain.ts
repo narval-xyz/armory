@@ -1,4 +1,5 @@
 import { Action } from '@narval/policy-engine-shared'
+import { Jwk, SignConfig } from '@narval/signature'
 import { ZodError } from 'zod'
 
 export const Category = {
@@ -21,3 +22,26 @@ export const OrganizationAction = {
 export type OrganizationAction = (typeof OrganizationAction)[keyof typeof OrganizationAction]
 
 export type BuildResponse<T> = { success: true; request: T } | { success: false; error: ZodError }
+
+export type PolicyEngineConfig = {
+  url: string
+}
+
+export type ClientConfig = {
+  id: string
+  secret: string
+  credential?: Jwk
+  defaultSigning?: SignConfig
+}
+
+export type NarvalSdkConfig = {
+  engine: PolicyEngineConfig
+  client: ClientConfig
+}
+
+export const Endpoints = {
+  engine: {
+    evaluations: '/evaluations'
+  }
+} as const
+export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
