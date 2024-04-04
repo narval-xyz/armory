@@ -8,6 +8,7 @@ import { generateJwk, nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } fr
 import { validateJwk } from '../../validate'
 import {
   checkAudience,
+  checkAuthorizedParty,
   checkDataHash,
   checkIssuer,
   checkNbf,
@@ -677,6 +678,32 @@ describe('checkSubject', () => {
     }
 
     expect(() => checkSubject(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkAuthorizedParty', () => {
+  it('returns true when the azp is valid', () => {
+    const payload: Payload = {
+      azp: 'my-client-id'
+    }
+
+    expect(
+      checkAuthorizedParty(payload, {
+        authorizedParty: 'my-client-id'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the azp is invalid', () => {
+    const payload: Payload = {
+      azp: 'my-client-id'
+    }
+
+    const opts = {
+      authorizedParty: 'invalid-client'
+    }
+
+    expect(() => checkAuthorizedParty(payload, opts)).toThrow(JwtError)
   })
 })
 
