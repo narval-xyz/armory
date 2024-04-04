@@ -10,6 +10,7 @@ import {
   JwtString,
   Policy,
   Request,
+  SignMessageAction,
   Then,
   toHex
 } from '@narval/policy-engine-shared'
@@ -107,16 +108,22 @@ describe('OpenPolicyAgentEngine', () => {
 
   describe('evaluate', () => {
     it('throws OpenPolicyAgentException when action is unsupported', async () => {
-      const request: Partial<EvaluationRequest> = {
-        request: {
-          action: Action.SIGN_MESSAGE,
-          nonce: 'test-nonce',
-          resourceId: 'test-resource-id',
-          message: 'test-message'
-        }
+      const request = {
+        action: 'UNSUPPORTED ACTION',
+        nonce: 'test-nonce',
+        resourceId: 'test-resource-id',
+        message: 'test-message'
+      }
+      const evaluation = {
+        request,
+        authentication: await getJwt({
+          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE.USER.Alice.id,
+          request: request as SignMessageAction
+        })
       }
 
-      await expect(() => engine.evaluate(request as EvaluationRequest)).rejects.toThrow(OpenPolicyAgentException)
+      await expect(() => engine.evaluate(evaluation as EvaluationRequest)).rejects.toThrow(OpenPolicyAgentException)
     })
 
     it('evaluates a forbid rule', async () => {
@@ -154,12 +161,12 @@ describe('OpenPolicyAgentEngine', () => {
       }
 
       const evaluation: EvaluationRequest = {
+        request,
         authentication: await getJwt({
           privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
           sub: FIXTURE.USER.Alice.id,
           request
-        }),
-        request
+        })
       }
 
       const response = await e.evaluate(evaluation)
