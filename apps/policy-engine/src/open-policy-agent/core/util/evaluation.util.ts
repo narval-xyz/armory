@@ -60,6 +60,9 @@ const toSignMessageOrSignRaw = (params: {
 const toSignMessage: Mapping<SignMessageAction> = (request, principal, approvals): Input =>
   toSignMessageOrSignRaw({ action: Action.SIGN_MESSAGE, request, principal, approvals })
 
+const toSignRaw: Mapping<SignMessageAction> = (request, principal, approvals): Input =>
+  toSignMessageOrSignRaw({ action: Action.SIGN_RAW, request, principal, approvals })
+
 export const toInput = (params: {
   evaluation: EvaluationRequest
   principal: CredentialEntity
@@ -70,7 +73,8 @@ export const toInput = (params: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mappers = new Map<Action, Mapping<any>>([
     [Action.SIGN_TRANSACTION, toSignTransaction],
-    [Action.SIGN_MESSAGE, toSignMessage]
+    [Action.SIGN_MESSAGE, toSignMessage],
+    [Action.SIGN_RAW, toSignRaw]
   ])
   const mapper = mappers.get(action)
 

@@ -1,4 +1,4 @@
-import { approvalRequirementSchema } from '@narval/policy-engine-shared'
+import { ApprovalRequirement } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const resultSchema = z.object({
@@ -10,8 +10,8 @@ export const resultSchema = z.object({
         policyName: z.string(),
         policyId: z.string(),
         type: z.enum(['permit', 'forbid']),
-        approvalsSatisfied: z.array(approvalRequirementSchema),
-        approvalsMissing: z.array(approvalRequirementSchema)
+        approvalsSatisfied: z.array(ApprovalRequirement),
+        approvalsMissing: z.array(ApprovalRequirement)
       })
     )
     .optional()
