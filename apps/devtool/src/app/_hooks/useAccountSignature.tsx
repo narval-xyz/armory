@@ -54,7 +54,7 @@ const useAccountSignature = () => {
       htm: 'POST',
       uri: 'https://armory.narval.xyz/sign',
       created: new Date().getTime(),
-      ath: hexToBase64Url(`0x${hash(accessToken)}`)
+      ath: hexToBase64Url(hash(accessToken))
     }
 
     const signature = await signJwsd(payload, jwsdHeader, signer).then((jws) => {
