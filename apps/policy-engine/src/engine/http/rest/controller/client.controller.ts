@@ -33,7 +33,9 @@ export class ClientController {
       updatedAt: now
     })
 
-    const publicKey = secp256k1PrivateKeyToPublicJwk(privateKeyToHex(client.signer.key))
+    const hex = await privateKeyToHex(client.signer.key)
+
+    const publicKey = secp256k1PrivateKeyToPublicJwk(hex)
 
     return {
       ...client,
