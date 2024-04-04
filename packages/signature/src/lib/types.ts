@@ -219,7 +219,7 @@ export const Payload = z.intersection(
     exp: z.number().optional(),
     nbf: z.number().optional(),
     iss: z.string().optional(),
-    aud: z.string().optional(),
+    aud: z.union([z.string(), z.array(z.string())]).optional(),
     jti: z.string().optional(),
     cnf: publicKeySchema.optional(),
     requestHash: z.string().optional(),

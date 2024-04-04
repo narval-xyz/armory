@@ -80,10 +80,9 @@ export const checkIssuer = (payload: Payload, opts: JwtVerifyOptions): boolean =
 
 export const checkAudience = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.audience) {
-    if (
-      !payload.aud ||
-      !(typeof opts.audience === 'string' ? opts.audience === payload.aud : opts.audience.includes(payload.aud))
-    ) {
+    const audiences = Array.isArray(opts.audience) ? opts.audience : [opts.audience]
+    const payloadAuds = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
+    if (!payload.aud || !audiences.some((aud) => payloadAuds.includes(aud))) {
       throw new JwtError({ message: 'Invalid audience', context: { payload } })
     }
   }
