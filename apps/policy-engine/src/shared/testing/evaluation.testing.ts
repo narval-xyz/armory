@@ -80,3 +80,50 @@ export const generateSignRawRequest = async (): Promise<EvaluationRequest> => {
     approvals: [bobSignature, carolSignature]
   }
 }
+
+export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest> => {
+  const request: Request = {
+    action: Action.SIGN_TYPED_DATA,
+    nonce: uuid(),
+    resourceId: FIXTURE.WALLET.Engineering.id,
+    typedData: {
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+      },
+      primaryType: 'Mail',
+      types: {
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' }
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' }
+        ]
+      },
+      message: {
+        from: {
+          name: 'Alice',
+          wallet: FIXTURE.ACCOUNT.Alice.address
+        },
+        to: {
+          name: 'Bob',
+          wallet: FIXTURE.ACCOUNT.Bob.address
+        },
+        contents: "Dear Bob, today we're going to the moon"
+      }
+    }
+  }
+
+  const { aliceSignature, bobSignature, carolSignature } = await sign(request)
+
+  return {
+    authentication: aliceSignature,
+    request,
+    approvals: [bobSignature, carolSignature]
+  }
+}
