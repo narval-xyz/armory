@@ -114,7 +114,7 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
         {
           headers: {
             'x-client-id': vaultClientId,
-            'x-api-key': vaultClientSecret
+            'x-client-secret': vaultClientSecret
           }
         }
       )
