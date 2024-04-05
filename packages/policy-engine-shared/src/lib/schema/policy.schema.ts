@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Action } from '../type/action.type'
 import { EntityType, FiatCurrency, IdentityOperators, ValueOperators } from '../type/domain.type'
 import { AccountType, UserRole } from '../type/entity.type'
-import { accountIdSchema, assetIdSchema } from '../util/caip.util'
+import { AccountId, AssetId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 import { hexSchema } from './hex.schema'
 
@@ -84,7 +84,7 @@ export const amountConditionSchema = z.object({
 })
 
 export const erc1155AmountConditionSchema = z.object({
-  tokenId: assetIdSchema,
+  tokenId: AssetId,
   operator: z.nativeEnum(ValueOperators),
   value: z.string()
 })
@@ -121,9 +121,9 @@ export const spendingLimitTimeWindowSchema = z.object({
 })
 
 export const spendingLimitFiltersSchema = z.object({
-  tokens: z.array(assetIdSchema).min(1).optional(),
+  tokens: z.array(AssetId).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
-  resources: z.array(accountIdSchema).min(1).optional(),
+  resources: z.array(AccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
   userGroups: z.array(z.string().min(1)).min(1).optional(),
   walletGroups: z.array(z.string().min(1)).min(1).optional()
@@ -194,7 +194,7 @@ export const intentTypeCriterionSchema = z.object({
 
 export const destinationIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_DESTINATION_ID),
-  args: z.array(accountIdSchema).min(1)
+  args: z.array(AccountId).min(1)
 })
 
 export const destinationAddressCriterionSchema = z.object({
@@ -214,17 +214,17 @@ export const destinationClassificationCriterionSchema = z.object({
 
 export const intentContractCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_CONTRACT),
-  args: z.array(accountIdSchema).min(1)
+  args: z.array(AccountId).min(1)
 })
 
 export const intentTokenCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_TOKEN),
-  args: z.array(assetIdSchema).min(1)
+  args: z.array(AssetId).min(1)
 })
 
 export const intentSpenderCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_SPENDER),
-  args: z.array(accountIdSchema).min(1)
+  args: z.array(AccountId).min(1)
 })
 
 export const intentChainIdCriterionSchema = z.object({
@@ -244,12 +244,12 @@ export const intentAmountCriterionSchema = z.object({
 
 export const erc721TokenIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ERC721_TOKEN_ID),
-  args: z.array(assetIdSchema).min(1)
+  args: z.array(AssetId).min(1)
 })
 
 export const erc1155TokenIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ERC1155_TOKEN_ID),
-  args: z.array(assetIdSchema).min(1)
+  args: z.array(AssetId).min(1)
 })
 
 export const erc1155TransfersCriterionSchema = z.object({

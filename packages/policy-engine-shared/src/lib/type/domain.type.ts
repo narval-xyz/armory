@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { assetIdSchema } from '../util/caip.util'
+import { ZodTypeAny, z } from 'zod'
+import { AccountId } from '../util/caip.util'
 import { SignMessageAction, SignRawAction, SignTransactionAction, SignTypedDataAction } from './action.type'
 
 export enum Decision {
@@ -63,8 +63,10 @@ export const HistoricalTransfer = z.object({
 })
 export type HistoricalTransfer = z.infer<typeof HistoricalTransfer>
 
+const Price = z.record(z.string(), z.number())
+
 export const Prices = z
-  .record(assetIdSchema, z.record(z.string(), z.number()))
+  .record(AccountId, Price)
   .describe('Represents a collection of prices for different assets present in the authorization request')
 
 /**
@@ -89,6 +91,13 @@ export const Request = z.discriminatedUnion('action', [
   SignRawAction
 ])
 export type Request = z.infer<typeof Request>
+
+export const Feed = <Data extends ZodTypeAny>(dataSchema: Data) =>
+  z.object({
+    source: z.string(),
+    sig: JwtString.nullable(),
+    data: dataSchema
+  })
 
 /**
  * The feeds represent arbitrary data collected by the Armory and
@@ -118,13 +127,7 @@ export const EvaluationRequest = z
     prices: Prices.optional(),
     transfers: z.array(HistoricalTransfer).optional(),
     feeds: z
-      .array(
-        z.object({
-          source: z.string(),
-          sig: JwtString.nullable(),
-          data: z.unknown()
-        })
-      )
+      .array(Feed(z.unknown()))
       .optional()
       .describe(
         'Arbitrary data feeds that are necessary for some policies. These may include, for instance, prices and approved transfers'

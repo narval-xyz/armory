@@ -60,7 +60,7 @@ describe(TransferTrackingService.name, () => {
       expect(first(models)).toEqual({
         ...transfer,
         amount: transfer.amount.toString(),
-        rates: mapValues((value) => value.toString(), transfer.rates)
+        rates: mapValues((value) => value?.toString(), transfer.rates)
       })
     })
 
