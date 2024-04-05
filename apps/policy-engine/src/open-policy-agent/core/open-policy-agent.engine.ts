@@ -1,5 +1,4 @@
 import {
-  Action,
   ApprovalRequirement,
   CredentialEntity,
   Decision,
@@ -24,8 +23,6 @@ import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
 import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
 import { build, getRegoCorePath } from './util/wasm-build.util'
-
-const SUPPORTED_ACTIONS: Action[] = [Action.SIGN_MESSAGE, Action.SIGN_TRANSACTION, Action.SIGN_RAW]
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]
@@ -108,16 +105,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
-    const { action } = evaluation.request
-
-    if (!SUPPORTED_ACTIONS.includes(action)) {
-      throw new OpenPolicyAgentException({
-        message: 'Open Policy Agent engine unsupported action',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        context: { action }
-      })
-    }
-
     const message = hash(evaluation.request)
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
 

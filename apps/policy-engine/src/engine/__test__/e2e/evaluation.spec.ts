@@ -19,7 +19,8 @@ import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing
 import {
   generateSignMessageRequest,
   generateSignRawRequest,
-  generateSignTransactionRequest
+  generateSignTransactionRequest,
+  generateSignTypedDataRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientService } from '../../core/service/client.service'
@@ -118,196 +119,6 @@ describe('Evaluation', () => {
   })
 
   describe('POST /evaluations', () => {
-    describe('when sign transaction', () => {
-      it('evaluates a forbid', async () => {
-        const payload = await generateSignTransactionRequest()
-
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toEqual({
-          decision: Decision.FORBID,
-          request: payload.request
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-
-      it('evaluates a permit', async () => {
-        await clientService.savePolicyStore(
-          client.clientId,
-          await getPolicyStore(
-            [
-              {
-                id: 'test-permit-policy',
-                then: Then.PERMIT,
-                description: 'test permit policy',
-                when: [
-                  {
-                    criterion: Criterion.CHECK_ACTION,
-                    args: [Action.SIGN_TRANSACTION]
-                  }
-                ]
-              }
-            ],
-            privateKey
-          )
-        )
-
-        const payload = await generateSignTransactionRequest()
-
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toMatchObject({
-          decision: Decision.PERMIT,
-          request: payload.request,
-          accessToken: {
-            value: expect.any(String)
-          },
-          approvals: {
-            missing: [],
-            required: [],
-            satisfied: []
-          }
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-    })
-
-    describe('when sign message ', () => {
-      let payload: EvaluationRequest
-
-      beforeEach(async () => {
-        payload = await generateSignMessageRequest()
-      })
-
-      it('evaluates a forbid', async () => {
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toEqual({
-          decision: Decision.FORBID,
-          request: payload.request
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-
-      it('evaluates a permit', async () => {
-        await clientService.savePolicyStore(
-          client.clientId,
-          await getPolicyStore(
-            [
-              {
-                id: 'test-permit-policy',
-                then: Then.PERMIT,
-                description: 'test permit policy',
-                when: [
-                  {
-                    criterion: Criterion.CHECK_ACTION,
-                    args: [Action.SIGN_MESSAGE]
-                  }
-                ]
-              }
-            ],
-            privateKey
-          )
-        )
-
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toMatchObject({
-          decision: Decision.PERMIT,
-          request: payload.request,
-          accessToken: {
-            value: expect.any(String)
-          },
-          approvals: {
-            missing: [],
-            required: [],
-            satisfied: []
-          }
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-    })
-
-    describe('when sign raw', () => {
-      let payload: EvaluationRequest
-
-      beforeEach(async () => {
-        payload = await generateSignRawRequest()
-      })
-
-      it('evaluates a forbid', async () => {
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toEqual({
-          decision: Decision.FORBID,
-          request: payload.request
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-
-      it('evaluates a permit', async () => {
-        await clientService.savePolicyStore(
-          client.clientId,
-          await getPolicyStore(
-            [
-              {
-                id: 'test-permit-policy',
-                then: Then.PERMIT,
-                description: 'test permit policy',
-                when: [
-                  {
-                    criterion: Criterion.CHECK_ACTION,
-                    args: [Action.SIGN_RAW]
-                  }
-                ]
-              }
-            ],
-            privateKey
-          )
-        )
-
-        const { status, body } = await request(app.getHttpServer())
-          .post('/evaluations')
-          .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-          .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
-          .send(payload)
-
-        expect(body).toMatchObject({
-          decision: Decision.PERMIT,
-          request: payload.request,
-          accessToken: {
-            value: expect.any(String)
-          },
-          approvals: {
-            missing: [],
-            required: [],
-            satisfied: []
-          }
-        })
-        expect(status).toEqual(HttpStatus.OK)
-      })
-    })
-
     it('responds with forbid when client secret is missing', async () => {
       const payload = await generateSignTransactionRequest()
 
@@ -321,6 +132,91 @@ describe('Evaluation', () => {
         statusCode: HttpStatus.UNAUTHORIZED
       })
       expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+    })
+
+    const useCases = [
+      {
+        action: Action.SIGN_TRANSACTION,
+        getPayload: () => generateSignTransactionRequest()
+      },
+      {
+        action: Action.SIGN_TYPED_DATA,
+        getPayload: () => generateSignTypedDataRequest()
+      },
+      {
+        action: Action.SIGN_MESSAGE,
+        getPayload: () => generateSignMessageRequest()
+      },
+      {
+        action: Action.SIGN_RAW,
+        getPayload: () => generateSignRawRequest()
+      }
+    ]
+
+    useCases.forEach(({ action, getPayload }) => {
+      describe(`when action is ${action}`, () => {
+        let payload: EvaluationRequest
+
+        beforeEach(async () => {
+          payload = await getPayload()
+        })
+
+        it('evaluates a forbid', async () => {
+          const { status, body } = await request(app.getHttpServer())
+            .post('/evaluations')
+            .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+            .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+            .send(payload)
+
+          expect(body).toEqual({
+            decision: Decision.FORBID,
+            request: payload.request
+          })
+          expect(status).toEqual(HttpStatus.OK)
+        })
+
+        it('evaluates a permit', async () => {
+          await clientService.savePolicyStore(
+            client.clientId,
+            await getPolicyStore(
+              [
+                {
+                  id: 'test-permit-policy',
+                  then: Then.PERMIT,
+                  description: 'test permit policy',
+                  when: [
+                    {
+                      criterion: Criterion.CHECK_ACTION,
+                      args: [action]
+                    }
+                  ]
+                }
+              ],
+              privateKey
+            )
+          )
+
+          const { status, body } = await request(app.getHttpServer())
+            .post('/evaluations')
+            .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+            .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+            .send(payload)
+
+          expect(body).toMatchObject({
+            decision: Decision.PERMIT,
+            request: payload.request,
+            accessToken: {
+              value: expect.any(String)
+            },
+            approvals: {
+              missing: [],
+              required: [],
+              satisfied: []
+            }
+          })
+          expect(status).toEqual(HttpStatus.OK)
+        })
+      })
     })
   })
 })
