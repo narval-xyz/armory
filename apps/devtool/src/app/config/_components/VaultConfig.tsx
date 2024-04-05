@@ -51,9 +51,7 @@ const VaultConfig = () => {
 
       setIsOnboarded(true)
 
-      setTimeout(() => {
-        setIsOnboarded(false)
-      }, 5000)
+      setTimeout(() => setIsOnboarded(false), 5000)
     } catch (error) {
       console.log(error)
     }

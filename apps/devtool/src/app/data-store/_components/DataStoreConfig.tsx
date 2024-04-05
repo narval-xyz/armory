@@ -100,13 +100,12 @@ const DataStoreConfig = () => {
       })
 
       setIsEngineSynced(true)
+      setTimeout(() => setIsEngineSynced(false), 5000)
     } catch (error) {
       console.log(error)
     }
 
     setIsEntitySigning(false)
-
-    setTimeout(() => setIsEngineSynced(false), 5000)
   }
 
   const signPolicyData = async () => {
@@ -154,13 +153,12 @@ const DataStoreConfig = () => {
       })
 
       setIsEngineSynced(true)
+      setTimeout(() => setIsEngineSynced(false), 5000)
     } catch (error) {
       console.log(error)
     }
 
     setIsPolicySigning(false)
-
-    setTimeout(() => setIsEngineSynced(false), 5000)
   }
 
   const getData = async () => {

@@ -26,11 +26,8 @@ const NavBar = () => {
             <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
               Data Store
             </Link>
-            <Link
-              href="/transaction-request"
-              className={`${currentPath === '/transaction-request' ? 'underline' : ''}`}
-            >
-              Transaction Request
+            <Link href="/request-playground" className={`${currentPath === '/request-playground' ? 'underline' : ''}`}>
+              Request Playground
             </Link>
           </div>
         </div>
