@@ -19,6 +19,9 @@ make vault/start/dev
 ## Testing
 
 ```bash
+# Run all tests
+make vault/test
+
 make vault/test/type
 make vault/test/unit
 make vault/test/integration

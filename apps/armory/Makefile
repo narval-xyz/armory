@@ -113,6 +113,7 @@ armory/test/e2e/watch:
 	make armory/test/e2e ARGS=--watch
 
 armory/test:
+	make armory/test/type
 	make armory/test/unit
 	make armory/test/integration
 	make armory/test/e2e

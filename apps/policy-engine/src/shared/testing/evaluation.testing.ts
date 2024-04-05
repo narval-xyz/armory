@@ -1,5 +1,6 @@
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { randomBytes } from 'crypto'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { v4 as uuid } from 'uuid'
 import { toHex } from 'viem'
@@ -32,7 +33,7 @@ export const generateSignTransactionRequest = async (): Promise<EvaluationReques
 
   const request: Request = {
     action: Action.SIGN_TRANSACTION,
-    nonce: 'random-nonce-111',
+    nonce: uuid(),
     transactionRequest: txRequest,
     resourceId: FIXTURE.WALLET.Engineering.id
   }
@@ -52,6 +53,23 @@ export const generateSignMessageRequest = async (): Promise<EvaluationRequest> =
     nonce: uuid(),
     resourceId: FIXTURE.WALLET.Engineering.id,
     message: 'generated sign message request'
+  }
+
+  const { aliceSignature, bobSignature, carolSignature } = await sign(request)
+
+  return {
+    authentication: aliceSignature,
+    request,
+    approvals: [bobSignature, carolSignature]
+  }
+}
+
+export const generateSignRawRequest = async (): Promise<EvaluationRequest> => {
+  const request: Request = {
+    action: Action.SIGN_RAW,
+    nonce: uuid(),
+    resourceId: FIXTURE.WALLET.Engineering.id,
+    rawMessage: toHex(randomBytes(42))
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)

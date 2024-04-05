@@ -115,6 +115,7 @@ policy-engine/test/e2e/watch:
 	make policy-engine/test/e2e ARGS=--watch
 
 policy-engine/test:
+	make policy-engine/test/type
 	make policy-engine/test/unit
 	make policy-engine/test/integration
 	make policy-engine/test/e2e

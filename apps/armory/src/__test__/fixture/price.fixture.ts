@@ -1,4 +1,4 @@
-import { AssetType, Namespace, Prices, assetIdSchema } from '@narval/policy-engine-shared'
+import { AssetId, AssetType, Namespace, Prices } from '@narval/policy-engine-shared'
 import { sample } from 'lodash'
 import { times } from 'lodash/fp'
 import { z } from 'zod'
@@ -15,7 +15,7 @@ export const fiatIdSchema = z.custom<`fiat:${string}`>((value) => {
 
 export const priceSchema = z.record(fiatIdSchema, z.number().min(0))
 
-export const pricesSchema = z.record(assetIdSchema, priceSchema)
+export const pricesSchema = z.record(AssetId, priceSchema)
 
 const fiatIdGenerator = Generator({
   schema: fiatIdSchema,
@@ -23,7 +23,7 @@ const fiatIdGenerator = Generator({
 })
 
 const assetIdGenerator = Generator({
-  schema: assetIdSchema,
+  schema: AssetId,
   output: () =>
     sample([
       ...Array.from(CHAINS.values()).map(({ coin }) => coin.id),

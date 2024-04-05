@@ -37,6 +37,23 @@ make docker/up
 make docker/stop
 ```
 
+## Testing
+
+To run tests across all existing projects, you can use the following commands:
+
+```bash
+# Run all tests
+make test
+
+make test/type
+make test/unit
+make test/integration
+make test/e2e
+```
+
+These commands utilize the NX CLI's run-many feature to execute the specified
+targets (test or test:type) across all projects in the monorepo. 
+
 ## Formatting
 
 We use [Prettier](https://prettier.io/) and [ESLint](https://eslint.org/) to

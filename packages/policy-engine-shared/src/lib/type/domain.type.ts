@@ -1,13 +1,6 @@
-import { z } from 'zod'
-import { approvalRequirementSchema } from '../schema/domain.schema'
-import { AssetId } from '../util/caip.util'
-import {
-  CreateOrganizationAction,
-  type SignMessageAction,
-  type SignRawAction,
-  type SignTransactionAction,
-  type SignTypedDataAction
-} from './action.type'
+import { ZodTypeAny, z } from 'zod'
+import { AccountId } from '../util/caip.util'
+import { SignMessageAction, SignRawAction, SignTransactionAction, SignTypedDataAction } from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -51,39 +44,32 @@ export enum IdentityOperators {
   IN = 'in'
 }
 
-export type JwtString = string
+export const JwtString = z.string().min(1)
+export type JwtString = z.infer<typeof JwtString>
 
-export type HistoricalTransfer = {
-  /**
-   * Amount in the smallest unit of the token (eg. wei for ETH).
-   */
-  amount: string
-  from: string
-  /**
-   * In case we want spending limit per destination address
-   */
-  to: string
-  chainId: number
-  token: string
+export const HistoricalTransfer = z.object({
+  amount: z.string().describe('Amount in the smallest unit of the token (eg. wei for ETH)'),
+  from: z.string().min(1),
+  to: z.string().min(1).describe('In case we want spending limit per destination address'),
+  chainId: z.number().min(1),
+  token: z.string().min(1),
   /**
    * @example
    * { fiat:usd: '0.01', fiat:eur: '0.02' }
    */
-  rates: Record<string, string>
-  /**
-   * UID of the user who initiated the transfer.
-   */
-  initiatedBy: string
-  /**
-   * Unix timestamp in milliseconds.
-   */
-  timestamp: number
-}
+  rates: z.record(z.string()),
+  initiatedBy: z.string().min(1).describe('ID of the user who initiated the transfer'),
+  timestamp: z.number().describe('Unix timestamp in milliseconds')
+})
+export type HistoricalTransfer = z.infer<typeof HistoricalTransfer>
+
+const Price = z.record(z.string(), z.number())
+
+export const Prices = z
+  .record(AccountId, Price)
+  .describe('Represents a collection of prices for different assets present in the authorization request')
 
 /**
- * Represents a collection of prices for different assets present in the
- * authorization request.
- *
  * @example The price of USDC and MATIC in USD and ETH.
  * {
  *   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': {
@@ -96,14 +82,22 @@ export type HistoricalTransfer = {
  *   }
  * }
  */
-export type Prices = Record<AssetId, Record<string, number>>
+export type Prices = z.infer<typeof Prices>
 
-export type Request =
-  | SignTransactionAction
-  | SignMessageAction
-  | SignTypedDataAction
-  | SignRawAction
-  | CreateOrganizationAction
+export const Request = z.discriminatedUnion('action', [
+  SignTransactionAction,
+  SignMessageAction,
+  SignTypedDataAction,
+  SignRawAction
+])
+export type Request = z.infer<typeof Request>
+
+export const Feed = <Data extends ZodTypeAny>(dataSchema: Data) =>
+  z.object({
+    source: z.string(),
+    sig: JwtString.nullable(),
+    data: dataSchema
+  })
 
 /**
  * The feeds represent arbitrary data collected by the Armory and
@@ -125,36 +119,30 @@ export type Feed<Data> = {
   data: Data
 }
 
-/**
- * The action being authorized.
- *
- * This must include all the data being authorized, and nothing except the data
- * being authorized. This is the data that will be hashed and signed.
- */
-export type EvaluationRequest = {
-  /**
-   * JWT signature of the request property.
-   */
-  authentication: JwtString
-  /**
-   * The authorization request.
-   */
-  request: Request
-  /**
-   * JWT signatures of the request property.
-   */
-  approvals?: JwtString[]
-  // TODO: Delete transfers. It was replaced by `feeds`.
-  transfers?: HistoricalTransfer[]
-  prices?: Prices
-  /**
-   * Arbitrary data feeds that are necessary for some policies. These may
-   * include, for instance, prices and approved transfers.
-   */
-  feeds?: Feed<unknown>[]
-}
+export const EvaluationRequest = z
+  .object({
+    authentication: JwtString.describe('JWT signature of the request property'),
+    request: Request.describe('The request to be authorized'),
+    approvals: z.array(JwtString).optional(),
+    prices: Prices.optional(),
+    transfers: z.array(HistoricalTransfer).optional(),
+    feeds: z
+      .array(Feed(z.unknown()))
+      .optional()
+      .describe(
+        'Arbitrary data feeds that are necessary for some policies. These may include, for instance, prices and approved transfers'
+      )
+  })
+  .describe('The action being authorized')
+export type EvaluationRequest = z.infer<typeof EvaluationRequest>
 
-export type ApprovalRequirement = z.infer<typeof approvalRequirementSchema>
+export const ApprovalRequirement = z.object({
+  approvalCount: z.number().min(0),
+  approvalEntityType: z.nativeEnum(EntityType).describe('The number of requried approvals'),
+  entityIds: z.array(z.string()).describe('List of entities IDs that must satisfy the requirements'),
+  countPrincipal: z.boolean()
+})
+export type ApprovalRequirement = z.infer<typeof ApprovalRequirement>
 
 export type AccessToken = {
   value: string // JWT
@@ -173,6 +161,6 @@ export type EvaluationResponse = {
   transactionRequestIntent?: unknown
 }
 
-export type Hex = `0x${string}` // DOMAIN
+export type Hex = `0x${string}`
 
-export type Address = `0x${string}` // DOMAIN
+export type Address = `0x${string}`
