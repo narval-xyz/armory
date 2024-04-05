@@ -8,6 +8,11 @@ import UserForm from '../forms/UserForm'
 import DataCard from '../layouts/DataCard'
 import DataSection from '../layouts/DataSection'
 
+const initUserFormState = {
+  id: '',
+  role: ''
+} as unknown as UserEntity
+
 interface UserProps {
   users: UserEntity[] | undefined
   onChange: (users: UserEntity[]) => void
@@ -15,32 +20,35 @@ interface UserProps {
 
 const Users: FC<UserProps> = ({ users, onChange }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [userForm, setUserForm] = useState<UserEntity>()
+  const [userData, setUserData] = useState<UserEntity>(initUserFormState)
 
   const openDialog = (user?: UserEntity) => {
     if (user) {
-      setUserForm(user)
+      setUserData(user)
     }
     setIsDialogOpen(true)
   }
 
-  const handleSave = () => {
-    if (!userForm) return
-    const newUsers = users ? [...users] : []
-    newUsers.push({ ...userForm, id: uuid() })
-    onChange(newUsers)
-    setUserForm(undefined)
+  const closeDialog = () => {
     setIsDialogOpen(false)
+    setUserData(initUserFormState)
+  }
+
+  const handleSave = () => {
+    if (!userData) return
+    const newUsers = users ? [...users] : []
+    newUsers.push({ ...userData, id: uuid() })
+    onChange(newUsers)
+    closeDialog()
   }
 
   const handleEdit = () => {
-    if (!users || !userForm) return
-    const index = users.findIndex((w) => w.id === userForm.id)
+    if (!users || !userData) return
+    const index = users.findIndex((w) => w.id === userData.id)
     if (index === -1) return
-    users[index] = userForm
+    users[index] = userData
     onChange(users)
-    setUserForm(undefined)
-    setIsDialogOpen(false)
+    closeDialog()
   }
 
   const handleDelete = (id: string) => {
@@ -50,25 +58,26 @@ const Users: FC<UserProps> = ({ users, onChange }) => {
 
   return (
     <>
-      <DataSection name="users" data={users} onClick={() => openDialog()}>
+      <DataSection name="users" data={users} onCreate={() => openDialog()}>
         {users?.map((user) => (
           <DataCard key={user.id} onEdit={() => openDialog(user)} onDelete={() => handleDelete(user.id)}>
             <p>{user.id}</p>
+            <p>{user.role}</p>
           </DataCard>
         ))}
       </DataSection>
       {isDialogOpen && (
         <NarDialog
           triggerButton={null}
-          title={userForm?.id ? 'Edit User' : 'Create User'}
-          primaryButtonLabel="Create"
+          title={userData?.id ? 'Edit User' : 'Create User'}
+          primaryButtonLabel={userData?.id ? 'Edit' : 'Create'}
           isOpen={isDialogOpen}
-          onOpenChange={(open) => setIsDialogOpen(open)}
-          onDismiss={() => setIsDialogOpen(false)}
-          onSave={userForm?.id ? handleEdit : handleSave}
+          onOpenChange={(val) => (val ? setIsDialogOpen(val) : closeDialog())}
+          onDismiss={closeDialog}
+          onSave={userData?.id ? handleEdit : handleSave}
         >
           <div className="w-[650px] px-12 py-4">
-            <UserForm user={userForm} onChange={setUserForm} />
+            <UserForm user={userData} setUser={setUserData} />
           </div>
         </NarDialog>
       )}

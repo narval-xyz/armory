@@ -228,6 +228,7 @@ const DataStoreConfig = () => {
               />
               <Wallets
                 wallets={data ? JSON.parse(data).entity.wallets : undefined}
+                userWallets={data ? JSON.parse(data).entity.userWallets : undefined}
                 onChange={(wallets) => updateEntityStore({ wallets })}
               />
             </>
