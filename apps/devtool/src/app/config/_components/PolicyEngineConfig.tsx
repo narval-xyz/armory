@@ -1,9 +1,10 @@
 'use client'
 
-import { faCheckCircle, faSpinner } from '@fortawesome/pro-regular-svg-icons'
+import { faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios from 'axios'
 import { useState } from 'react'
+import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useAccountSignature from '../../_hooks/useAccountSignature'
@@ -33,12 +34,13 @@ const PolicyEngineConfig = () => {
     policyDataStoreUrl,
     policySignatureUrl
   } = useStore()
+
   const { jwk } = useAccountSignature()
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isOnboarded, setIsOnboarded] = useState<boolean>(false)
 
-  const onboard = async () => {
+  const onboardClient = async () => {
     if (!engineAdminApiKey || !jwk) return
 
     setIsProcessing(true)
@@ -47,7 +49,6 @@ const PolicyEngineConfig = () => {
       const { data: client } = await axios.post(
         `${engineUrl}/clients`,
         {
-          ...(engineClientId && { clientId: engineClientId }),
           entityDataStore: {
             dataUrl: entityDataStoreUrl,
             signatureUrl: entitySignatureUrl,
@@ -71,9 +72,8 @@ const PolicyEngineConfig = () => {
       setEngineClientSigner(client.signer.publicKey)
 
       setIsOnboarded(true)
-      setTimeout(() => {
-        setIsOnboarded(false)
-      }, 5000)
+
+      setTimeout(() => setIsOnboarded(false), 5000)
     } catch (error) {
       console.log(error)
     }
@@ -83,36 +83,33 @@ const PolicyEngineConfig = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="text-nv-2xl">Configuration</div>
+      <div className="flex items-center">
+        <div className="text-nv-2xl grow">Policy Engine</div>
+        <div className="flex items-center gap-4">
+          <GreenCheckStatus isChecked={isOnboarded} label={isOnboarded ? 'Client Onboarded!' : 'Onboarding...'} />
+          <NarButton
+            label={isProcessing ? 'Processing...' : 'Add client'}
+            leftIcon={
+              isProcessing ? (
+                <FontAwesomeIcon icon={faSpinner} spin />
+              ) : (
+                <FontAwesomeIcon icon={faPlus} spin={isProcessing} />
+              )
+            }
+            onClick={onboardClient}
+            disabled={isProcessing}
+          />
+        </div>
+      </div>
       <div className="flex gap-20">
         <div className="flex flex-col gap-6 w-1/3">
           <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
           <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
-          <div className="flex flex-row-reverse">
-            {engineUrl && engineAdminApiKey && !engineClientId && (
-              <NarButton
-                label={isProcessing ? 'Processing...' : 'Onboard'}
-                rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-                onClick={onboard}
-                disabled={isProcessing}
-              />
-            )}
-            {isOnboarded && (
-              <div className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
-                <div className="text-nv-white">Client Onboarded!</div>
-              </div>
-            )}
-          </div>
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          {engineClientSigner && (
-            <NarInput label="Client Signer" value={JSON.stringify(engineClientSigner)} onChange={() => null} disabled />
-          )}
-          {engineClientId && <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />}
-          {engineClientSecret && (
-            <NarInput label="Client Secret" value={engineClientSecret} onChange={() => null} disabled />
-          )}
+          <NarInput label="Client Signer" value={JSON.stringify(engineClientSigner)} onChange={() => null} disabled />
+          <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />
+          <NarInput label="Client Secret" value={engineClientSecret} onChange={() => null} disabled />
         </div>
       </div>
     </div>

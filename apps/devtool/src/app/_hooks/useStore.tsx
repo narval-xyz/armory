@@ -13,7 +13,7 @@ const useStore = () => {
   const [engineClientSecret, setEngineClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSecret, '')
 
   const [vaultUrl, setVaultUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultUrl, VAULT_URL)
-  const [vaultApiKey, setVaultApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultApiKey, '')
+  const [vaultAdminApiKey, setVaultAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultAdminApiKey, '')
   const [vaultClientId, setVaultClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientId, '')
   const [vaultClientSecret, setVaultClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientSecret, '')
 
@@ -47,8 +47,8 @@ const useStore = () => {
     setEngineClientSecret,
     vaultUrl,
     setVaultUrl,
-    vaultApiKey,
-    setVaultApiKey,
+    vaultAdminApiKey,
+    setVaultAdminApiKey,
     vaultClientId,
     setVaultClientId,
     vaultClientSecret,

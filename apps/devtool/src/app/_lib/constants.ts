@@ -9,7 +9,7 @@ export const LOCAL_STORAGE_KEYS = {
   engineClientSecret: 'narvalEngineClientSecret',
   engineClientSigner: 'narvalEngineClientSigner',
   vaultUrl: 'narvalVaultUrl',
-  vaultApiKey: 'narvalVaultApiKey',
+  vaultAdminApiKey: 'narvalVaultAdminApiKey',
   vaultClientId: 'narvalVaultClientId',
   vaultClientSecret: 'narvalVaultClientSecret',
   entityDataStoreUrl: 'narvalEntityDataStoreUrl',
