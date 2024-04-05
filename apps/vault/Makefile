@@ -115,6 +115,7 @@ vault/test/e2e/watch:
 	make vault/test/e2e ARGS=--watch
 
 vault/test:
+	make vault/test/type
 	make vault/test/unit
 	make vault/test/integration
 	make vault/test/e2e

@@ -23,6 +23,9 @@ make policy-engine/start/dev
 ## Testing
 
 ```bash
+# Run all tests
+make policy-engine/test
+
 make policy-engine/test/type
 make policy-engine/test/unit
 make policy-engine/test/integration

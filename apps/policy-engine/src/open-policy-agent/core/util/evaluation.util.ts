@@ -1,51 +1,85 @@
-import { Action, CredentialEntity, Entities, EvaluationRequest } from '@narval/policy-engine-shared'
+import {
+  Action,
+  CredentialEntity,
+  Entities,
+  EvaluationRequest,
+  Request,
+  SignMessageAction,
+  SignRawAction,
+  SignTransactionAction
+} from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
+type Mapping<R extends Request> = (request: R, principal: CredentialEntity, approvals?: CredentialEntity[]) => Input
+
+const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals): Input => {
+  const result = safeDecode({
+    input: {
+      type: InputType.TRANSACTION_REQUEST,
+      txRequest: request.transactionRequest
+    }
+  })
+
+  if (result.success) {
+    return {
+      action: Action.SIGN_TRANSACTION,
+      principal,
+      approvals,
+      intent: result.intent,
+      transactionRequest: request.transactionRequest,
+      resource: { uid: request.resourceId }
+    }
+  }
+
+  throw new OpenPolicyAgentException({
+    message: 'Invalid transaction request intent',
+    suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+    context: { error: result.error }
+  })
+}
+
+const toSignMessageOrSignRaw = (params: {
+  action: Action
+  request: SignMessageAction | SignRawAction
+  principal: CredentialEntity
+  approvals?: CredentialEntity[]
+}): Input => {
+  const { action, request, principal, approvals } = params
+  return {
+    action,
+    principal,
+    approvals,
+    resource: { uid: request.resourceId }
+  }
+}
+
+const toSignMessage: Mapping<SignMessageAction> = (request, principal, approvals): Input =>
+  toSignMessageOrSignRaw({ action: Action.SIGN_MESSAGE, request, principal, approvals })
+
+const toSignRaw: Mapping<SignMessageAction> = (request, principal, approvals): Input =>
+  toSignMessageOrSignRaw({ action: Action.SIGN_RAW, request, principal, approvals })
+
 export const toInput = (params: {
   evaluation: EvaluationRequest
   principal: CredentialEntity
   approvals?: CredentialEntity[]
 }): Input => {
-  const { evaluation, principal, approvals } = params
+  const { evaluation } = params
   const { action } = evaluation.request
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mappers = new Map<Action, Mapping<any>>([
+    [Action.SIGN_TRANSACTION, toSignTransaction],
+    [Action.SIGN_MESSAGE, toSignMessage],
+    [Action.SIGN_RAW, toSignRaw]
+  ])
+  const mapper = mappers.get(action)
 
-  if (action === Action.SIGN_TRANSACTION) {
-    const result = safeDecode({
-      input: {
-        type: InputType.TRANSACTION_REQUEST,
-        txRequest: evaluation.request.transactionRequest
-      }
-    })
-
-    if (result.success) {
-      return {
-        action,
-        principal,
-        approvals,
-        intent: result.intent,
-        transactionRequest: evaluation.request.transactionRequest,
-        resource: { uid: evaluation.request.resourceId }
-      }
-    }
-
-    throw new OpenPolicyAgentException({
-      message: 'Invalid transaction request intent',
-      suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-      context: { error: result.error }
-    })
-  }
-
-  if (action === Action.SIGN_MESSAGE) {
-    return {
-      action,
-      principal,
-      approvals,
-      resource: { uid: evaluation.request.resourceId }
-    }
+  if (mapper) {
+    return mapper(evaluation.request, params.principal, params.approvals)
   }
 
   throw new OpenPolicyAgentException({

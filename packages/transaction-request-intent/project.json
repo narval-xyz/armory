@@ -11,6 +11,12 @@
         "lintFilePatterns": ["packages/transaction-request-intent/**/*.ts"]
       }
     },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make transaction-request-intent/test/type"
+      }
+    },
     "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

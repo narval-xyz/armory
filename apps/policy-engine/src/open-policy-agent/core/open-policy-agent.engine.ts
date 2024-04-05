@@ -25,7 +25,7 @@ import { toData, toInput } from './util/evaluation.util'
 import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
 import { build, getRegoCorePath } from './util/wasm-build.util'
 
-const SUPPORTED_ACTIONS: Action[] = [Action.SIGN_MESSAGE, Action.SIGN_TRANSACTION]
+const SUPPORTED_ACTIONS: Action[] = [Action.SIGN_MESSAGE, Action.SIGN_TRANSACTION, Action.SIGN_RAW]
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]

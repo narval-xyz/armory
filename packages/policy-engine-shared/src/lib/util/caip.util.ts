@@ -35,10 +35,52 @@ export enum AssetType {
   SLIP44 = 'slip44'
 }
 
+const NonCollectableAssetId = z.custom<`${Namespace}:${number}/${AssetType}:${string}`>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+const CollectableAssetId = z.custom<`${Namespace}:${number}/${AssetType}:${string}/${string}`>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+const CoinAssetId = z.custom<`${Namespace}:${number}/${AssetType.SLIP44}:${number}`>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAssetId(parse.data)
+  }
+
+  return false
+})
+
+export const AssetId = z.union([NonCollectableAssetId, CollectableAssetId, CoinAssetId])
+
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
  */
-export type AccountId = `${Namespace}:${number}:${string}`
+export const AccountId = z.custom<`${Namespace}:${number}:${string}`>((value) => {
+  const parse = z.string().safeParse(value)
+
+  if (parse.success) {
+    return isAccountId(parse.data)
+  }
+
+  return false
+})
+
+export type AccountId = z.infer<typeof AccountId>
 
 export type Account = {
   chainId: number
@@ -46,16 +88,12 @@ export type Account = {
   namespace: Namespace
 }
 
-type NonCollectableAssetId = `${Namespace}:${number}/${AssetType}:${string}`
-type CollectableAssetId = `${Namespace}:${number}/${AssetType}:${string}/${string}`
-type CoinAssetId = `${Namespace}:${number}/${AssetType.SLIP44}:${number}`
-
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-19.md
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-20.md
  * @see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
  */
-export type AssetId = NonCollectableAssetId | CollectableAssetId | CoinAssetId
+export type AssetId = z.infer<typeof AssetId>
 
 export type Token = Account & {
   assetType: AssetType
@@ -470,45 +508,3 @@ export const getAssetId = (value: string): AssetId => unsafeParse<AssetId>(safeG
 //
 // Zod Schema
 //
-
-const nonCollectableAssetIdSchema = z.custom<NonCollectableAssetId>((value) => {
-  const parse = z.string().safeParse(value)
-
-  if (parse.success) {
-    return isAssetId(parse.data)
-  }
-
-  return false
-})
-
-const collectableAssetIdSchema = z.custom<CollectableAssetId>((value) => {
-  const parse = z.string().safeParse(value)
-
-  if (parse.success) {
-    return isAssetId(parse.data)
-  }
-
-  return false
-})
-
-const coinAssetIdSchema = z.custom<CoinAssetId>((value) => {
-  const parse = z.string().safeParse(value)
-
-  if (parse.success) {
-    return isAssetId(parse.data)
-  }
-
-  return false
-})
-
-export const assetIdSchema = z.union([nonCollectableAssetIdSchema, collectableAssetIdSchema, coinAssetIdSchema])
-
-export const accountIdSchema = z.custom<AccountId>((value) => {
-  const parse = z.string().safeParse(value)
-
-  if (parse.success) {
-    return isAccountId(parse.data)
-  }
-
-  return false
-})

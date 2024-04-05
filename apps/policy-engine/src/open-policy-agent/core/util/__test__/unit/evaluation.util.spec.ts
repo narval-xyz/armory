@@ -3,11 +3,13 @@ import {
   EvaluationRequest,
   FIXTURE,
   SignMessageAction,
+  SignRawAction,
   SignTransactionAction
 } from '@narval/policy-engine-shared'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import {
   generateSignMessageRequest,
+  generateSignRawRequest,
   generateSignTransactionRequest
 } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
@@ -45,7 +47,7 @@ describe('toInput', () => {
     it('maps action', () => {
       const input = toInput({ evaluation, principal, approvals })
 
-      expect(input.action).toEqual(evaluation.request.action)
+      expect(input.action).toEqual(Action.SIGN_TRANSACTION)
     })
 
     it('maps principal', () => {
@@ -97,7 +99,7 @@ describe('toInput', () => {
     it('maps action', () => {
       const input = toInput({ evaluation, principal, approvals })
 
-      expect(input.action).toEqual(evaluation.request.action)
+      expect(input.action).toEqual(Action.SIGN_MESSAGE)
     })
 
     it('maps principal', () => {
@@ -109,6 +111,39 @@ describe('toInput', () => {
     it('maps resource', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignMessageAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+  })
+
+  describe(`when action is ${Action.SIGN_RAW}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateSignRawRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.SIGN_RAW)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignRawAction
 
       expect(input.resource).toEqual({ uid: request.resourceId })
     })

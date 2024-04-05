@@ -152,10 +152,12 @@ export class AuthorizationRequestService {
           to: intent.to,
           token: intent.token,
           chainId: authzRequest.request.transactionRequest.chainId,
-          initiatedBy: authzRequest.authentication, // TODO: Get real initiator? -- this used to reference publicKey but should actually pull data out of a decoded JWT
+          // TODO: (@mattschoch) Get real initiator? -- this used to reference publicKey but
+          // should actually pull data out of a decoded JWT
+          initiatedBy: authzRequest.authentication,
           createdAt: new Date(),
           amount: BigInt(intent.amount),
-          rates: transferPrices[intent.token]
+          rates: transferPrices[intent.token] || {}
         }
 
         await this.transferTrackingService.track(transfer)
