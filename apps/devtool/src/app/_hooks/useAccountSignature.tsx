@@ -52,7 +52,7 @@ const useAccountSignature = () => {
       kid: jwk.kid,
       typ: 'gnap-binding-jwsd',
       htm: 'POST',
-      uri: 'https://armory.narval.xyz/sign',
+      uri: 'http://localhost:3011/sign',
       created: new Date().getTime(),
       ath: hexToBase64Url(hash(accessToken))
     }
