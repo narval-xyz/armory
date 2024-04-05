@@ -24,7 +24,7 @@ const WalletForm: FC<WalletFormProps> = ({ wallet, onChange }) => {
   return (
     <div className="flex flex-col gap-6">
       {form.id && (
-        <NarInput label="Wallet ID" value={form.id} onChange={(id) => setForm((prev) => ({ ...prev, id }))} disabled />
+        <NarInput label="Id" value={form.id} onChange={(id) => setForm((prev) => ({ ...prev, id }))} disabled />
       )}
       <NarInput
         label="Address"
@@ -39,7 +39,7 @@ const WalletForm: FC<WalletFormProps> = ({ wallet, onChange }) => {
         onChange={(accountType) => setForm((prev) => ({ ...prev, accountType }) as WalletEntity)}
       />
       <NarInput
-        label="Chain ID"
+        label="Chain Id"
         value={`${form.chainId || ''}`}
         onChange={(chainId) => setForm((prev) => ({ ...prev, chainId: Number(chainId) }) as WalletEntity)}
       />
