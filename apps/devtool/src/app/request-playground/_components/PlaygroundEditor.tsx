@@ -1,18 +1,18 @@
 'use client'
 
-import { faCheckCircle, faSpinner, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowsRotate, faCheckCircle, faFileSignature, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
-import { EvaluationResponse } from '@narval/policy-engine-shared'
+import { Decision, EvaluationResponse } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
 import axios from 'axios'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
 import useStore from '../../_hooks/useStore'
 import example from './example.json'
 
-const TransactionRequestEditor = () => {
+const PlaygroundEditor = () => {
   const { engineUrl, engineClientId, engineClientSecret, vaultUrl, vaultClientId } = useStore()
   const { jwk, signAccountJwsd, signAccountJwt } = useAccountSignature()
   const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
@@ -22,6 +22,15 @@ const TransactionRequestEditor = () => {
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
+
+  const canBeSigned = useMemo(() => {
+    try {
+      const transactionRequest = JSON.parse(data || '{}')
+      return transactionRequest?.authentication && evaluationResponse?.decision === Decision.PERMIT
+    } catch (error) {
+      return false
+    }
+  }, [data, evaluationResponse])
 
   const sendEvaluation = async () => {
     if (!data || !jwk) return
@@ -50,6 +59,7 @@ const TransactionRequestEditor = () => {
         }
       )
 
+      setData(JSON.stringify({ ...transactionRequest, authentication }, null, 2))
       setEvaluationResponse(evaluation.data)
     } catch (error) {
       console.log(error)
@@ -103,27 +113,23 @@ const TransactionRequestEditor = () => {
       </div>
       <div className="flex flex-col gap-5 w-1/3">
         <div className="flex items-center gap-4">
-          {!evaluationResponse && (
-            <NarButton
-              label={isProcessing ? 'Processing...' : 'Evaluate'}
-              rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-              onClick={sendEvaluation}
-              disabled={isProcessing}
-            />
-          )}
-          {evaluationResponse && (
-            <NarButton
-              label={isProcessing ? 'Processing...' : 'Sign'}
-              rightIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-              onClick={signRequest}
-              disabled={isProcessing}
-            />
-          )}
+          <NarButton
+            label="Evaluate"
+            leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
+            onClick={sendEvaluation}
+            disabled={isProcessing}
+          />
+          <NarButton
+            label="Sign"
+            leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
+            onClick={signRequest}
+            disabled={isProcessing || !canBeSigned}
+          />
           {!isProcessing && evaluationResponse && (
             <div className="flex items-center gap-2">
               <FontAwesomeIcon
-                icon={evaluationResponse.decision === 'Permit' ? faCheckCircle : faXmarkCircle}
-                className={evaluationResponse.decision === 'Permit' ? 'text-nv-green-500' : 'text-nv-red-500'}
+                icon={evaluationResponse.decision === Decision.PERMIT ? faCheckCircle : faXmarkCircle}
+                className={evaluationResponse.decision === Decision.PERMIT ? 'text-nv-green-500' : 'text-nv-red-500'}
               />
               <div className="text-nv-white">{evaluationResponse.decision}</div>
             </div>
@@ -134,10 +140,10 @@ const TransactionRequestEditor = () => {
             <pre>{JSON.stringify(evaluationResponse, null, 3)}</pre>
           </div>
         )}
-        {!isProcessing && signature && <div className="text-nv-white truncate">Signature: {signature}</div>}
+        {!isProcessing && signature && <div className="text-nv-white truncate">{signature}</div>}
       </div>
     </div>
   )
 }
 
-export default TransactionRequestEditor
+export default PlaygroundEditor
