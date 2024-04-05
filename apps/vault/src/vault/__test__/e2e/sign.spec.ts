@@ -20,14 +20,14 @@ import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/l
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
+import { ClientModule } from '../../../client/client.module'
+import { ClientService } from '../../../client/core/service/client.service'
 import { load } from '../../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Tenant, Wallet } from '../../../shared/type/domain.type'
-import { TenantService } from '../../../tenant/core/service/tenant.service'
-import { TenantModule } from '../../../tenant/tenant.module'
+import { Client, Wallet } from '../../../shared/type/domain.type'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 
 describe('Sign', () => {
@@ -40,12 +40,12 @@ describe('Sign', () => {
   const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
-  const tenantPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
+  const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
 
-  const tenant: Tenant = {
+  const client: Client = {
     clientId,
     clientSecret: adminApiKey,
-    engineJwk: tenantPublicJWK,
+    engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -96,7 +96,7 @@ describe('Sign', () => {
           load: [load],
           isGlobal: true
         }),
-        TenantModule
+        ClientModule
       ]
     })
       .overrideProvider(KeyValueRepository)
@@ -105,10 +105,10 @@ describe('Sign', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
-      .overrideProvider(TenantService)
+      .overrideProvider(ClientService)
       .useValue({
-        findAll: jest.fn().mockResolvedValue([tenant]),
-        findByClientId: jest.fn().mockResolvedValue(tenant)
+        findAll: jest.fn().mockResolvedValue([client]),
+        findByClientId: jest.fn().mockResolvedValue(client)
       })
       .overrideProvider(WalletRepository)
       .useValue({
@@ -286,7 +286,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://armory.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/sign',
           created: now,
           ath: hexToBase64Url(hash(accessToken))
         }
@@ -326,7 +326,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://armory.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/sign',
           created: now,
           ath: ''
         }

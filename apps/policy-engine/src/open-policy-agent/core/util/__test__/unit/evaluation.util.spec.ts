@@ -1,48 +1,83 @@
-import { Action, EvaluationRequest, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
+import {
+  Action,
+  EvaluationRequest,
+  FIXTURE,
+  SignMessageAction,
+  SignRawAction,
+  SignTransactionAction
+} from '@narval/policy-engine-shared'
 import { InputType, decode } from '@narval/transaction-request-intent'
-import { generateInboundEvaluationRequest } from '../../../../../shared/testing/evaluation.testing'
+import {
+  generateSignMessageRequest,
+  generateSignRawRequest,
+  generateSignTransactionRequest
+} from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
 import { toData, toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
-  it('throws OpenPolicyAgentException when action is unsupported', () => {
-    const evaluation = {
+  const principal = FIXTURE.CREDENTIAL.Alice
+  const approvals = [FIXTURE.CREDENTIAL.Alice, FIXTURE.CREDENTIAL.Bob, FIXTURE.CREDENTIAL.Carol]
+
+  it('throws OpenPolicyAgentException when action is unsupported', async () => {
+    const evaluation = await generateSignTransactionRequest()
+    const unsupportedEvaluationRequest = {
+      ...evaluation,
       request: {
+        ...evaluation.request,
         action: 'UNSUPPORTED ACTION'
       }
     }
 
-    expect(() => toInput(evaluation as EvaluationRequest)).toThrow(OpenPolicyAgentException)
+    expect(() =>
+      toInput({ evaluation: unsupportedEvaluationRequest as EvaluationRequest, principal, approvals })
+    ).toThrow(OpenPolicyAgentException)
+    expect(() =>
+      toInput({ evaluation: unsupportedEvaluationRequest as EvaluationRequest, principal, approvals })
+    ).toThrow('Unsupported evaluation request action')
   })
 
   describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
     let evaluation: EvaluationRequest
 
     beforeEach(async () => {
-      evaluation = await generateInboundEvaluationRequest()
+      evaluation = await generateSignTransactionRequest()
     })
 
-    it('maps the request action', () => {
-      const input = toInput(evaluation)
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
 
-      expect(input.action).toEqual(evaluation.request.action)
+      expect(input.action).toEqual(Action.SIGN_TRANSACTION)
     })
 
-    it('maps the transaction request', () => {
-      const input = toInput(evaluation)
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignTransactionAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+
+    it('maps transaction request', () => {
+      const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
       expect(input.transactionRequest).toEqual(request.transactionRequest)
     })
 
-    it('maps the transfers', () => {
-      const input = toInput(evaluation)
-
-      expect(input.transfers).toEqual(evaluation.transfers)
-    })
-
-    it('adds the transaction request intent', () => {
-      const input = toInput(evaluation)
+    it('adds transaction request intent', () => {
+      const input = toInput({ evaluation, principal, approvals })
       const intent = decode({
         input: {
           type: InputType.TRANSACTION_REQUEST,
@@ -51,6 +86,72 @@ describe('toInput', () => {
       })
 
       expect(input.intent).toEqual(intent)
+    })
+  })
+
+  describe(`when action is ${Action.SIGN_MESSAGE}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateSignMessageRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.SIGN_MESSAGE)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignMessageAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+  })
+
+  describe(`when action is ${Action.SIGN_RAW}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateSignRawRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.SIGN_RAW)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignRawAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
     })
   })
 })

@@ -46,7 +46,7 @@ describe('SigningService', () => {
   describe('sign', () => {
     it('should sign the request and return a string', async () => {
       // Mock the dependencies and setup the test data
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const request: Request = {
         action: 'signTransaction',
         nonce: 'random-nonce-111',
@@ -69,7 +69,7 @@ describe('SigningService', () => {
         '0x02f875818982013d8512dbf9ea008543cb655fef82520c9404b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba06f7648a9c9710b171d55e056c4abca268857f607a8a4a257d945fc44ace9f076'
 
       // Call the sign method
-      const result = await signingService.sign(tenantId, request)
+      const result = await signingService.sign(clientId, request)
 
       // Assert the result
       expect(result).toEqual(expectedSignature)
@@ -92,7 +92,7 @@ describe('SigningService', () => {
     })
 
     it('signs EIP191 Message string', async () => {
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const messageRequest: Request = {
         action: Action.SIGN_MESSAGE,
         nonce: 'random-nonce-111',
@@ -104,7 +104,7 @@ describe('SigningService', () => {
         '0x65071b7126abd24fe6b8fa396529e21d22448d23ff1a6c5a0e043a4f641cd11b2a21958127d1b91db4d991f8b33ad6b201637799a95eadbe3a7cf5cee26bd9521b'
 
       // Call the sign method
-      const result = await signingService.sign(tenantId, messageRequest)
+      const result = await signingService.sign(clientId, messageRequest)
 
       const isVerified = await verifyMessage({
         address: wallet.address,
@@ -118,7 +118,7 @@ describe('SigningService', () => {
     })
 
     it('signs EIP191 Message Hex', async () => {
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const messageRequest: Request = {
         action: Action.SIGN_MESSAGE,
         nonce: 'random-nonce-111',
@@ -132,7 +132,7 @@ describe('SigningService', () => {
         '0x65071b7126abd24fe6b8fa396529e21d22448d23ff1a6c5a0e043a4f641cd11b2a21958127d1b91db4d991f8b33ad6b201637799a95eadbe3a7cf5cee26bd9521b'
 
       // Call the sign method
-      const result = await signingService.sign(tenantId, messageRequest)
+      const result = await signingService.sign(clientId, messageRequest)
 
       const isVerified = await verifyMessage({
         address: wallet.address,
@@ -189,7 +189,7 @@ describe('SigningService', () => {
           ]
         }
       }
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const typedDataRequest: Request = {
         action: Action.SIGN_TYPED_DATA,
         nonce: 'random-nonce-111',
@@ -201,7 +201,7 @@ describe('SigningService', () => {
         '0x1f6b8ebbd066c5a849e37fc890c1f2f1b6b0a91e3dd3e8279c646948e8f14b030a13a532fd04c6b5d92e11e008558b0b60b6d061c8f34483af7deab0591317da1b'
 
       // Call the sign method
-      const result = await signingService.sign(tenantId, typedDataRequest)
+      const result = await signingService.sign(clientId, typedDataRequest)
 
       const isVerified = await verifyTypedData({
         address: wallet.address,
@@ -219,7 +219,7 @@ describe('SigningService', () => {
       const byteMessage = stringToBytes(stringMessage)
       const hexMessage = bytesToHex(byteMessage)
 
-      const tenantId = 'tenantId'
+      const clientId = 'clientId'
       const rawRequest: Request = {
         action: Action.SIGN_RAW,
         nonce: 'random-nonce-111',
@@ -227,7 +227,7 @@ describe('SigningService', () => {
         resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
       }
 
-      const result = await signingService.sign(tenantId, rawRequest)
+      const result = await signingService.sign(clientId, rawRequest)
 
       const isVerified = await verifySecp256k1(result, byteMessage, privateKey as Secp256k1PublicKey)
       expect(isVerified).toEqual(true)

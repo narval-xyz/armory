@@ -29,35 +29,35 @@ import { WalletRepository } from '../../persistence/repository/wallet.repository
 export class SigningService {
   constructor(private walletRepository: WalletRepository) {}
 
-  async sign(tenantId: string, request: Request): Promise<Hex> {
+  async sign(clientId: string, request: Request): Promise<Hex> {
     if (request.action === Action.SIGN_TRANSACTION) {
-      return this.signTransaction(tenantId, request)
+      return this.signTransaction(clientId, request)
     } else if (request.action === Action.SIGN_MESSAGE) {
-      return this.signMessage(tenantId, request)
+      return this.signMessage(clientId, request)
     } else if (request.action === Action.SIGN_TYPED_DATA) {
-      return this.signTypedData(tenantId, request)
+      return this.signTypedData(clientId, request)
     } else if (request.action === Action.SIGN_RAW) {
-      return this.signRaw(tenantId, request)
+      return this.signRaw(clientId, request)
     }
 
     throw new Error('Action not supported')
   }
 
-  async #getWallet(tenantId: string, resourceId: string) {
-    const wallet = await this.walletRepository.findById(tenantId, resourceId)
+  async #getWallet(clientId: string, resourceId: string) {
+    const wallet = await this.walletRepository.findById(clientId, resourceId)
     if (!wallet) {
       throw new ApplicationException({
         message: 'Wallet not found',
         suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { clientId: tenantId, resourceId }
+        context: { clientId: clientId, resourceId }
       })
     }
 
     return wallet
   }
 
-  async #buildClient(tenantId: string, resourceId: string, chainId?: number) {
-    const wallet = await this.#getWallet(tenantId, resourceId)
+  async #buildClient(clientId: string, resourceId: string, chainId?: number) {
+    const wallet = await this.#getWallet(clientId, resourceId)
 
     const account = privateKeyToAccount(wallet.privateKey)
     const chain = extractChain<chains.Chain[], number>({
@@ -74,9 +74,9 @@ export class SigningService {
     return client
   }
 
-  async signTransaction(tenantId: string, action: SignTransactionAction): Promise<Hex> {
+  async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
-    const client = await this.#buildClient(tenantId, resourceId, transactionRequest.chainId)
+    const client = await this.#buildClient(clientId, resourceId, transactionRequest.chainId)
 
     const txRequest: TransactionRequest = {
       from: checksumAddress(client.account.address),
@@ -108,27 +108,27 @@ export class SigningService {
     return signature
   }
 
-  async signMessage(tenantId: string, action: SignMessageAction): Promise<Hex> {
+  async signMessage(clientId: string, action: SignMessageAction): Promise<Hex> {
     const { message, resourceId } = action
-    const client = await this.#buildClient(tenantId, resourceId)
+    const client = await this.#buildClient(clientId, resourceId)
 
     const signature = await client.signMessage({ message })
     return signature
   }
 
-  async signTypedData(tenantId: string, action: SignTypedDataAction): Promise<Hex> {
+  async signTypedData(clientId: string, action: SignTypedDataAction): Promise<Hex> {
     const { typedData, resourceId } = action
-    const client = await this.#buildClient(tenantId, resourceId)
+    const client = await this.#buildClient(clientId, resourceId)
 
     const signature = await client.signTypedData(typedData)
     return signature
   }
 
   // Sign a raw message; nothing ETH or chain-specific, simply performs an ecdsa signature on the byte representation of the hex-encoded raw message
-  async signRaw(tenantId: string, action: SignRawAction): Promise<Hex> {
+  async signRaw(clientId: string, action: SignRawAction): Promise<Hex> {
     const { rawMessage, resourceId } = action
 
-    const wallet = await this.#getWallet(tenantId, resourceId)
+    const wallet = await this.#getWallet(clientId, resourceId)
     const message = hexToBytes(rawMessage)
     const signature = await signSecp256k1(message, wallet.privateKey, true)
 

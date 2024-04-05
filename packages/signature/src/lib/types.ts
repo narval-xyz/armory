@@ -206,7 +206,8 @@ export type JwsdHeader = z.infer<typeof JwsdHeader>
  * @param {number} [exp] - The time the JWT expires.
  * @param {number} [nbf] - The time the JWT becomes valid.
  * @param {string} sub - The subject of the JWT.
- * @param {string} [aud] - The audience of the JWT.
+ * @param {string | string[]} [aud] - The audience of the JWT.
+ * @param {string} [azp] - The authorized party of the JWT. Typically a client-id.
  * @param {string} [jti] - The JWT ID.
  * @param {Jwk} cnf - The client-bound key.
  *
@@ -219,8 +220,9 @@ export const Payload = z.intersection(
     exp: z.number().optional(),
     nbf: z.number().optional(),
     iss: z.string().optional(),
-    aud: z.string().optional(),
+    aud: z.union([z.string(), z.array(z.string())]).optional(),
     jti: z.string().optional(),
+    azp: z.string().optional(),
     cnf: publicKeySchema.optional(),
     requestHash: z.string().optional(),
     data: z.string().optional()
@@ -256,6 +258,9 @@ export type JwtVerifyOptions = {
 
   /** Expected JWT "sub" (Subject) Claim value. */
   subject?: string
+
+  /** Expected JWT "azp" (Authorized Party) Claim value. */
+  authorizedParty?: string
 
   /** Expected JWT "typ" (Type) Header Parameter value. */
   typ?: string

@@ -26,7 +26,8 @@ const configSchema = z.object({
       type: z.literal('awskms'),
       masterAwsKmsArn: z.string()
     })
-  ])
+  ]),
+  baseUrl: z.string().optional()
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -47,7 +48,8 @@ export const load = (): Config => {
       type: process.env.KEYRING_TYPE,
       masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
-    }
+    },
+    baseUrl: process.env.BASE_URL // Such as "https://vault.narval.xyz"
   })
 
   if (result.success) {

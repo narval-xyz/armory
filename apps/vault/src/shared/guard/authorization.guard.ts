@@ -1,22 +1,40 @@
-import { PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
+import { JwtVerifyOptions, PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { z } from 'zod'
+import { ClientService } from '../../client/core/service/client.service'
+import { Config } from '../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
-import { TenantService } from '../../tenant/core/service/tenant.service'
 import { ApplicationException } from '../exception/application.exception'
+import { Client } from '../type/domain.type'
 
 const AuthorizationHeaderSchema = z.object({
   authorization: z.string()
 })
 
+const DEFAULT_MAX_TOKEN_AGE = 60
+
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
-  constructor(private tenantService: TenantService) {}
+  constructor(
+    private clientService: ClientService,
+    private configService: ConfigService<Config, true>
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
     const headers = AuthorizationHeaderSchema.parse(req.headers)
+
+    if (!clientId) {
+      throw new ApplicationException({
+        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_ID} header`,
+        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+      })
+    }
+
+    const client = await this.clientService.findByClientId(clientId)
+
     // Expect the header in the format "GNAP <token>"
     const accessToken: string | undefined = headers.authorization.split('GNAP ')[1]
 
@@ -26,36 +44,30 @@ export class AuthorizationGuard implements CanActivate {
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
-
-    if (!clientId) {
-      throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_ID} header`,
-        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
-      })
-    }
-
-    const tenant = await this.tenantService.findByClientId(clientId)
-    if (!tenant?.engineJwk) {
-      throw new ApplicationException({
-        message: 'No engine key configured',
-        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED,
-        context: {
-          clientId
-        }
-      })
-    }
-    const isAuthorized = await this.validateToken(context, accessToken, tenant?.engineJwk)
+    const isAuthorized = await this.validateToken(context, accessToken, client)
 
     return isAuthorized
   }
 
-  async validateToken(context: ExecutionContext, token: string, tenantJwk: PublicKey): Promise<boolean> {
+  async validateToken(context: ExecutionContext, token: string, client: Client | null): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
     const request = req.body.request
+    if (!client?.engineJwk) {
+      throw new ApplicationException({
+        message: 'No engine key configured',
+        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+      })
+    }
+    const clientJwk: PublicKey = client?.engineJwk
+    const opts: JwtVerifyOptions = {
+      audience: client?.audience,
+      issuer: client?.issuer,
+      maxTokenAge: client?.maxTokenAge || DEFAULT_MAX_TOKEN_AGE
+    }
 
-    // Validate the JWT has a valid signature for the expected tenant key & the request matches
-    const { payload } = await verifyJwt(token, tenantJwk, {
-      maxTokenAge: 60, // Verify the token is not older than 60s
+    // Validate the JWT has a valid signature for the expected client key & the request matches
+    const { payload } = await verifyJwt(token, clientJwk, {
+      ...opts,
       requestHash: request
     }).catch((err) => {
       throw new ApplicationException({
@@ -78,12 +90,13 @@ export class AuthorizationGuard implements CanActivate {
 
       // Will throw if not valid
       try {
+        const defaultBaseUrl = this.configService.get('baseUrl', { infer: true })
         await verifyJwsd(jwsdHeader, boundKey, {
           requestBody: req.body, // Verify the request body
           accessToken: token, // Verify that the ATH matches the access token
-          uri: `https://armory.narval.xyz${req.url}`, // Verify the request URI // TODO: base url should be dynamic
+          uri: `${client.baseUrl || defaultBaseUrl}${req.url}`, // Verify the request URI
           htm: req.method, // Verify the request method
-          maxTokenAge: 60 // Verify the token is not older than 60 seconds
+          maxTokenAge: DEFAULT_MAX_TOKEN_AGE
         })
       } catch (err) {
         throw new ApplicationException({

@@ -9,12 +9,12 @@ export class WalletRepository {
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
-  getKey(tenantId: string, id: string): string {
-    return `${this.KEY_PREFIX}:${tenantId}:${id}`
+  getKey(clientId: string, id: string): string {
+    return `${this.KEY_PREFIX}:${clientId}:${id}`
   }
 
-  async findById(tenantId: string, id: string): Promise<Wallet | null> {
-    const value = await this.keyValueService.get(this.getKey(tenantId, id))
+  async findById(clientId: string, id: string): Promise<Wallet | null> {
+    const value = await this.keyValueService.get(this.getKey(clientId, id))
 
     if (value) {
       return this.decode(value)
@@ -23,8 +23,8 @@ export class WalletRepository {
     return null
   }
 
-  async save(tenantId: string, wallet: Wallet): Promise<Wallet> {
-    await this.keyValueService.set(this.getKey(tenantId, wallet.id), this.encode(wallet))
+  async save(clientId: string, wallet: Wallet): Promise<Wallet> {
+    await this.keyValueService.set(this.getKey(clientId, wallet.id), this.encode(wallet))
 
     return wallet
   }

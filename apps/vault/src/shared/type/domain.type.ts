@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { appSchema } from '../schema/app.schema'
-import { tenantSchema } from '../schema/tenant.schema'
+import { clientSchema } from '../schema/client.schema'
 import { walletSchema } from '../schema/wallet.schema'
 
-export type Tenant = z.infer<typeof tenantSchema>
+export type Client = z.infer<typeof clientSchema>
 
 export type App = z.infer<typeof appSchema>
 

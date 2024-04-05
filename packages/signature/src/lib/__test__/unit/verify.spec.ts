@@ -8,6 +8,7 @@ import { generateJwk, nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } fr
 import { validateJwk } from '../../validate'
 import {
   checkAudience,
+  checkAuthorizedParty,
   checkDataHash,
   checkIssuer,
   checkNbf,
@@ -629,6 +630,29 @@ describe('checkAudience', () => {
 
     expect(() => checkAudience(payload, opts)).toThrow(JwtError)
   })
+
+  it('throws JwtError when the payload aud is empty', () => {
+    const payload: Payload = {}
+
+    const opts = {
+      audience: 'https://invalid.com'
+    }
+
+    expect(() => checkAudience(payload, opts)).toThrow(JwtError)
+    expect(() => checkAudience({ aud: '' }, opts)).toThrow(JwtError)
+  })
+
+  it('supports an aud as an array', () => {
+    const payload: Payload = {
+      aud: ['https://api.other.com', 'https://api.example.com']
+    }
+
+    expect(
+      checkAudience(payload, {
+        audience: 'https://api.example.com'
+      })
+    ).toBe(true)
+  })
 })
 
 describe('checkSubject', () => {
@@ -654,6 +678,32 @@ describe('checkSubject', () => {
     }
 
     expect(() => checkSubject(payload, opts)).toThrow(JwtError)
+  })
+})
+
+describe('checkAuthorizedParty', () => {
+  it('returns true when the azp is valid', () => {
+    const payload: Payload = {
+      azp: 'my-client-id'
+    }
+
+    expect(
+      checkAuthorizedParty(payload, {
+        authorizedParty: 'my-client-id'
+      })
+    ).toBe(true)
+  })
+
+  it('throws JwtError when the azp is invalid', () => {
+    const payload: Payload = {
+      azp: 'my-client-id'
+    }
+
+    const opts = {
+      authorizedParty: 'invalid-client'
+    }
+
+    expect(() => checkAuthorizedParty(payload, opts)).toThrow(JwtError)
   })
 })
 

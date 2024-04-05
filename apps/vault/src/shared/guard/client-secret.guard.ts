@@ -1,20 +1,20 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_API_KEY, REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
-import { TenantService } from '../../tenant/core/service/tenant.service'
+import { ClientService } from '../../client/core/service/client.service'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../main.constant'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()
 export class ClientSecretGuard implements CanActivate {
-  constructor(private tenantService: TenantService) {}
+  constructor(private clientService: ClientService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
+    const clientSecret = req.headers[REQUEST_HEADER_CLIENT_SECRET]
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
-    const clientSecret = req.headers[REQUEST_HEADER_API_KEY]
 
     if (!clientSecret) {
       throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_API_KEY} header`,
+        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     } else if (!clientId) {
@@ -23,8 +23,8 @@ export class ClientSecretGuard implements CanActivate {
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
-    const tenant = await this.tenantService.findByClientId(clientId)
+    const client = await this.clientService.findByClientId(clientId)
 
-    return tenant?.clientSecret?.toLowerCase() === clientSecret.toLowerCase()
+    return client?.clientSecret?.toLowerCase() === clientSecret.toLowerCase()
   }
 }

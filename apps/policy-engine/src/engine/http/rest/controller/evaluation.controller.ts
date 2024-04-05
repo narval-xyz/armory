@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
 import { EvaluationService } from '../../../core/service/evaluation.service'
-import { EvaluationRequestDto } from '../../../evaluation-request.dto'
+import { EvaluationRequestDto } from '../dto/evaluation-request.dto'
 
 @Controller('/evaluations')
 @UseGuards(ClientSecretGuard)

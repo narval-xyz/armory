@@ -1,6 +1,6 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Controller, Get, Logger, Post } from '@nestjs/common'
-import { generateInboundEvaluationRequest } from '../shared/testing/evaluation.testing'
+import { generateSignTransactionRequest } from '../shared/testing/evaluation.testing'
 import { EvaluationService } from './core/service/evaluation.service'
 
 @Controller()
@@ -24,7 +24,7 @@ export class AppController {
 
   @Post('/evaluation-demo')
   async evaluateDemo() {
-    const evaluation = await generateInboundEvaluationRequest()
+    const evaluation = await generateSignTransactionRequest()
     this.logger.log('Received evaluation', {
       evaluation
     })
@@ -43,6 +43,6 @@ export class AppController {
 
   @Get('/generate-inbound-request')
   generateInboundRequest() {
-    return generateInboundEvaluationRequest()
+    return generateSignTransactionRequest()
   }
 }

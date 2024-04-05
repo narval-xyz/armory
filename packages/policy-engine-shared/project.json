@@ -11,6 +11,12 @@
         "lintFilePatterns": ["packages/policy-engine-shared/**/*.ts"]
       }
     },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make policy-engine-shared/test/type"
+      }
+    },
     "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

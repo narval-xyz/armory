@@ -8,11 +8,12 @@ include ./packages/policy-engine-shared/Makefile
 include ./packages/transaction-request-intent/Makefile
 include ./packages/signature/Makefile
 
-# For more terminal color codes, head over to https://opensource.com/article/19/9/linux-terminal-colors
+# For more terminal color codes, head over to
+# https://opensource.com/article/19/9/linux-terminal-colors
 TERM_NO_COLOR := \033[0m
 TERM_GREEN := \033[0;32m
 
-# == Install ==
+# === Install ===
 
 install:
 	npm install
@@ -20,7 +21,7 @@ install:
 install/ci:
 	npm ci
 
-# == Setup ==
+# === Setup ===
 
 setup:
 	make install
@@ -32,7 +33,7 @@ setup:
 	@echo ""
 	@echo "${TERM_GREEN}Run 'make armory/start/dev' or/and 'make policy-engine/start/dev' to get them running.${TERM_NO_COLOR}"
 
-# == Docker ==
+# === Docker ===
 
 docker/stop:
 	docker-compose stop
@@ -40,7 +41,7 @@ docker/stop:
 docker/up:
 	docker-compose up --detach
 
-# == Code format ==
+# === Code format ===
 
 format:
 	npx nx format:write --all
@@ -55,3 +56,23 @@ lint:
 
 lint/check:
 	npx nx run-many --target lint
+
+# === Testing ===
+
+test/type:
+	npx nx run-many --target test:type --all
+
+test/unit:
+	npx nx run-many --target test:unit --all
+
+test/integration:
+	npx nx run-many --target test:integration --all
+
+test/e2e:
+	npx nx run-many --target test:e2e --all
+
+test:
+	make test/type
+	make test/unit
+	make test/integration
+	make test/e2e

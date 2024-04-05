@@ -10,16 +10,16 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { CreateTenantDto } from '../../../tenant/http/rest/dto/create-tenant.dto'
 import { AppService } from '../../../vault/core/service/app.service'
-import { TenantRepository } from '../../persistence/repository/tenant.repository'
-import { TenantModule } from '../../tenant.module'
+import { ClientModule } from '../../client.module'
+import { CreateClientDto } from '../../http/rest/dto/create-client.dto'
+import { ClientRepository } from '../../persistence/repository/client.repository'
 
-describe('Tenant', () => {
+describe('Client', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let tenantRepository: TenantRepository
+  let clientRepository: ClientRepository
   let appService: AppService
   let configService: ConfigService<Config, true>
 
@@ -32,7 +32,7 @@ describe('Tenant', () => {
           load: [load],
           isGlobal: true
         }),
-        TenantModule
+        ClientModule
       ]
     })
       .overrideProvider(KeyValueRepository)
@@ -46,7 +46,7 @@ describe('Tenant', () => {
     app = module.createNestApplication()
 
     appService = module.get<AppService>(AppService)
-    tenantRepository = module.get<TenantRepository>(TenantRepository)
+    clientRepository = module.get<ClientRepository>(ClientRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     configService = module.get<ConfigService<Config, true>>(ConfigService)
 
@@ -67,37 +67,41 @@ describe('Tenant', () => {
     await app.close()
   })
 
-  describe('POST /tenants', () => {
+  describe('POST /clients', () => {
     const clientId = uuid()
 
-    const payload: CreateTenantDto = {
-      clientId
+    const payload: CreateClientDto = {
+      clientId,
+      audience: 'https://vault.narval.xyz',
+      issuer: 'https://auth.narval.xyz',
+      maxTokenAge: 30,
+      baseUrl: 'https://vault.narval.xyz'
     }
 
-    it('creates a new tenant', async () => {
+    it('creates a new client', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(payload)
-      const actualTenant = await tenantRepository.findByClientId(clientId)
+      const actualClient = await clientRepository.findByClientId(clientId)
 
       expect(body).toMatchObject({
-        clientId,
+        ...payload,
         clientSecret: expect.any(String),
         createdAt: expect.any(String),
         updatedAt: expect.any(String)
       })
       expect(body).toEqual({
-        ...actualTenant,
-        createdAt: actualTenant?.createdAt.toISOString(),
-        updatedAt: actualTenant?.updatedAt.toISOString()
+        ...actualClient,
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
-    it('creates a new tenant with Engine JWK', async () => {
-      const newPayload: CreateTenantDto = {
-        clientId: 'tenant-2',
+    it('creates a new client with Engine JWK', async () => {
+      const newPayload: CreateClientDto = {
+        clientId: 'client-2',
         engineJwk: {
           kty: 'EC',
           crv: 'secp256k1',
@@ -108,10 +112,10 @@ describe('Tenant', () => {
         }
       }
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(newPayload)
-      const actualTenant = await tenantRepository.findByClientId('tenant-2')
+      const actualClient = await clientRepository.findByClientId('client-2')
 
       expect(body).toMatchObject({
         clientId: newPayload.clientId,
@@ -120,29 +124,29 @@ describe('Tenant', () => {
         updatedAt: expect.any(String)
       })
       expect(body).toEqual({
-        ...actualTenant,
-        createdAt: actualTenant?.createdAt.toISOString(),
-        updatedAt: actualTenant?.updatedAt.toISOString()
+        ...actualClient,
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
     it('responds with an error when clientId already exist', async () => {
-      await request(app.getHttpServer()).post('/tenants').set(REQUEST_HEADER_API_KEY, adminApiKey).send(payload)
+      await request(app.getHttpServer()).post('/clients').set(REQUEST_HEADER_API_KEY, adminApiKey).send(payload)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(payload)
 
       expect(body.statusCode).toEqual(HttpStatus.BAD_REQUEST)
-      expect(body.message).toEqual('Tenant already exist')
+      expect(body.message).toEqual('client already exist')
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
     })
 
     it('responds with forbidden when admin api key is invalid', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/tenants')
+        .post('/clients')
         .set(REQUEST_HEADER_API_KEY, 'invalid-api-key')
         .send(payload)
 

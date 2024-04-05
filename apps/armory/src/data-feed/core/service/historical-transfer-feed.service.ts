@@ -2,13 +2,29 @@ import { Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-share
 import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { mapValues, omit } from 'lodash/fp'
+import { omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
 import { DataFeed } from '../../../data-feed/core/type/data-feed.type'
 import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
+import { FiatId, Price } from '../../../shared/core/type/price.type'
 import { Transfer } from '../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
+
+const buildHistoricalTranferRates = (rates: Price): Record<string, string> => {
+  return Object.keys(rates).reduce(
+    (acc, currency) => {
+      const price = rates[currency as FiatId]
+
+      if (price) {
+        acc[currency] = price.toString()
+      }
+
+      return acc
+    },
+    {} as Record<string, string>
+  )
+}
 
 @Injectable()
 export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfer[]> {
@@ -74,7 +90,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
       ...omit('orgId', transfer),
       amount: transfer.amount.toString(),
       timestamp: transfer.createdAt.getTime(),
-      rates: mapValues((value) => value.toString(), transfer.rates)
+      rates: buildHistoricalTranferRates(transfer.rates)
     }))
   }
 }

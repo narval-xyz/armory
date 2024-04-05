@@ -20,10 +20,12 @@ import { z } from 'zod'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
-import { Input, OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
+import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
 import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
 import { build, getRegoCorePath } from './util/wasm-build.util'
+
+const SUPPORTED_ACTIONS: Action[] = [Action.SIGN_MESSAGE, Action.SIGN_TRANSACTION, Action.SIGN_RAW]
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]
@@ -108,7 +110,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const { action } = evaluation.request
 
-    if (action !== Action.SIGN_TRANSACTION) {
+    if (!SUPPORTED_ACTIONS.includes(action)) {
       throw new OpenPolicyAgentException({
         message: 'Open Policy Agent engine unsupported action',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -191,13 +193,11 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
     }
 
-    const input: Input = {
-      ...toInput(evaluation),
+    const input = toInput({
+      evaluation,
       principal: credentials.principal,
-      // TODO: Why the EvaluationRequest specifies approvals as optional but
-      // the OPA input doesn't?
-      approvals: credentials.approvals || []
-    }
+      approvals: credentials.approvals
+    })
 
     // NOTE: When we evaluate an input against the Rego policy core, it returns
     // an array of results with an inner result. We perform a typecast here to

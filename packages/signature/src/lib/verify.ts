@@ -80,10 +80,9 @@ export const checkIssuer = (payload: Payload, opts: JwtVerifyOptions): boolean =
 
 export const checkAudience = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.audience) {
-    if (
-      !payload.aud ||
-      !(typeof opts.audience === 'string' ? opts.audience === payload.aud : opts.audience.includes(payload.aud))
-    ) {
+    const audiences = Array.isArray(opts.audience) ? opts.audience : [opts.audience]
+    const payloadAuds = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
+    if (!payload.aud || !audiences.some((aud) => payloadAuds.includes(aud))) {
       throw new JwtError({ message: 'Invalid audience', context: { payload } })
     }
   }
@@ -94,6 +93,15 @@ export const checkSubject = (payload: Payload, opts: JwtVerifyOptions): boolean 
   if (opts.subject) {
     if (!payload.sub || opts.subject !== payload.sub) {
       throw new JwtError({ message: 'Invalid subject', context: { payload } })
+    }
+  }
+  return true
+}
+
+export const checkAuthorizedParty = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+  if (opts.authorizedParty) {
+    if (!payload.azp || opts.authorizedParty !== payload.azp) {
+      throw new JwtError({ message: 'Invalid authorized party', context: { payload } })
     }
   }
   return true
@@ -319,6 +327,8 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   checkAudience(payload, opts)
 
   checkSubject(payload, opts)
+
+  checkAuthorizedParty(payload, opts)
 
   checkRequestHash(payload, opts)
 
