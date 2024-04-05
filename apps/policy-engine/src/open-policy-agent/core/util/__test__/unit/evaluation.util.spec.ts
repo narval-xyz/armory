@@ -4,13 +4,15 @@ import {
   FIXTURE,
   SignMessageAction,
   SignRawAction,
-  SignTransactionAction
+  SignTransactionAction,
+  SignTypedDataAction
 } from '@narval/policy-engine-shared'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import {
   generateSignMessageRequest,
   generateSignRawRequest,
-  generateSignTransactionRequest
+  generateSignTransactionRequest,
+  generateSignTypedDataRequest
 } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
 import { toData, toInput } from '../../evaluation.util'
@@ -76,12 +78,57 @@ describe('toInput', () => {
       expect(input.transactionRequest).toEqual(request.transactionRequest)
     })
 
-    it('adds transaction request intent', () => {
+    it('adds decoded intent', () => {
       const input = toInput({ evaluation, principal, approvals })
       const intent = decode({
         input: {
           type: InputType.TRANSACTION_REQUEST,
           txRequest: (evaluation.request as SignTransactionAction).transactionRequest
+        }
+      })
+
+      expect(input.intent).toEqual(intent)
+    })
+  })
+
+  describe(`when action is ${Action.SIGN_TYPED_DATA}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateSignTypedDataRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.SIGN_TYPED_DATA)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignTransactionAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+
+    it('adds decoded intent', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const intent = decode({
+        input: {
+          type: InputType.TYPED_DATA,
+          typedData: (evaluation.request as SignTypedDataAction).typedData
         }
       })
 

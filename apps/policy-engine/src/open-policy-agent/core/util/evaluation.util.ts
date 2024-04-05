@@ -6,7 +6,8 @@ import {
   Request,
   SignMessageAction,
   SignRawAction,
-  SignTransactionAction
+  SignTransactionAction,
+  SignTypedDataAction
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
@@ -31,6 +32,31 @@ const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, a
       approvals,
       intent: result.intent,
       transactionRequest: request.transactionRequest,
+      resource: { uid: request.resourceId }
+    }
+  }
+
+  throw new OpenPolicyAgentException({
+    message: 'Invalid transaction request intent',
+    suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+    context: { error: result.error }
+  })
+}
+
+const toSignTypedData: Mapping<SignTypedDataAction> = (request, principal, approvals): Input => {
+  const result = safeDecode({
+    input: {
+      type: InputType.TYPED_DATA,
+      typedData: request.typedData
+    }
+  })
+
+  if (result.success) {
+    return {
+      action: Action.SIGN_TYPED_DATA,
+      principal,
+      approvals,
+      intent: result.intent,
       resource: { uid: request.resourceId }
     }
   }
@@ -72,9 +98,10 @@ export const toInput = (params: {
   const { action } = evaluation.request
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mappers = new Map<Action, Mapping<any>>([
-    [Action.SIGN_TRANSACTION, toSignTransaction],
     [Action.SIGN_MESSAGE, toSignMessage],
-    [Action.SIGN_RAW, toSignRaw]
+    [Action.SIGN_RAW, toSignRaw],
+    [Action.SIGN_TRANSACTION, toSignTransaction],
+    [Action.SIGN_TYPED_DATA, toSignTypedData]
   ])
   const mapper = mappers.get(action)
 
