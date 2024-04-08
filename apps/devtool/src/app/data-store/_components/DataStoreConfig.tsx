@@ -2,22 +2,14 @@
 
 import { faArrowRightArrowLeft, faPipe, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  Entities,
-  EntityStore,
-  EntityUtil,
-  PolicyStore,
-  entityDataSchema,
-  policyDataSchema
-} from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
-import axios from 'axios'
+import { Entities } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
 import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
-import useAccountSignature from '../../_hooks/useAccountSignature'
+import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import CodeEditor from './CodeEditor'
 import Users from './sections/Users'
@@ -25,155 +17,58 @@ import Wallets from './sections/Wallets'
 
 const DataStoreConfig = () => {
   const {
-    engineUrl,
-    engineClientId,
-    engineClientSecret,
     entityDataStoreUrl,
-    setEntityDataStoreUrl,
     entitySignatureUrl,
-    setEntitySignatureUrl,
     policyDataStoreUrl,
-    setPolicyDataStoreUrl,
     policySignatureUrl,
+    setEntityDataStoreUrl,
+    setEntitySignatureUrl,
+    setPolicyDataStoreUrl,
     setPolicySignatureUrl
   } = useStore()
-  const { jwk, signAccountJwt } = useAccountSignature()
 
-  const [data, setData] = useState<string>()
-  const [dataStore, setDataStore] = useState<{ entity: EntityStore; policy: PolicyStore }>()
+  const { isSynced, syncEngine } = useEngineApi()
+
+  const { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore } =
+    useDataStoreApi()
+
+  const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
-  const [isEntitySigning, setIsEntitySigning] = useState(false)
-  const [isPolicySigning, setIsPolicySigning] = useState(false)
-  const [isEngineSynced, setIsEngineSynced] = useState(false)
+
+  useEffect(() => {
+    if (!dataStore) return
+
+    const { entity, policy } = dataStore
+    setCodeEditor(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
+  }, [dataStore])
+
+  useEffect(() => {
+    if (errors && (errors as string[]).length > 0) {
+      setIsDialogOpen(true)
+    } else {
+      setIsDialogOpen(false)
+    }
+  }, [errors])
 
   const signEntityData = async () => {
-    if (!data || !dataStore || !jwk) return
+    if (!codeEditor) return
 
-    const { entity } = JSON.parse(data)
-
-    const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entity } })
-
-    if (!entityValidationResult.success) {
-      setValidationErrors(
-        entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`)
-      )
-      setIsDialogOpen(true)
-      return
-    }
-
-    const validation = EntityUtil.validate(entity)
-
-    if (!validation.success) {
-      setValidationErrors(validation.issues.map((issue) => issue.message))
-      setIsDialogOpen(true)
-      return
-    }
-
-    setIsEntitySigning(true)
-
-    try {
-      const entityPayload: Payload = {
-        data: hash(entity),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
-
-      const entitySig = await signAccountJwt(entityPayload)
-
-      await axios.post('/api/data-store', {
-        entity: {
-          signature: entitySig,
-          data: entity
-        },
-        policy: dataStore.policy
-      })
-      await getData()
-
-      await axios.post(`${engineUrl}/clients/sync`, null, {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      })
-
-      setIsEngineSynced(true)
-      setTimeout(() => setIsEngineSynced(false), 5000)
-    } catch (error) {
-      console.log(error)
-    }
-
-    setIsEntitySigning(false)
+    const { entity } = JSON.parse(codeEditor)
+    await signEntityDataStore(entity)
+    await syncEngine()
   }
 
   const signPolicyData = async () => {
-    if (!data || !dataStore || !jwk) return
+    if (!codeEditor) return
 
-    const { policy } = JSON.parse(data)
-
-    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policy } })
-
-    if (!policyValidationResult.success) {
-      setValidationErrors(
-        policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`)
-      )
-      setIsDialogOpen(true)
-      return
-    }
-
-    setIsPolicySigning(true)
-
-    try {
-      const policyPayload: Payload = {
-        data: hash(policy),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
-
-      const policySig = await signAccountJwt(policyPayload)
-
-      await axios.post('/api/data-store', {
-        entity: dataStore.entity,
-        policy: {
-          signature: policySig,
-          data: policy
-        }
-      })
-
-      await getData()
-
-      await axios.post(`${engineUrl}/clients/sync`, null, {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      })
-
-      setIsEngineSynced(true)
-      setTimeout(() => setIsEngineSynced(false), 5000)
-    } catch (error) {
-      console.log(error)
-    }
-
-    setIsPolicySigning(false)
+    const { policy } = JSON.parse(codeEditor)
+    await signPolicyDataStore(policy)
+    await syncEngine()
   }
-
-  const getData = async () => {
-    const { data: dataStore } = await axios.get('/api/data-store')
-    const { entity, policy } = dataStore
-    setData(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
-    setDataStore(dataStore)
-  }
-
-  useEffect(() => {
-    getData()
-  }, [])
 
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
-    setData((prev) => {
+    setCodeEditor((prev) => {
       const { entity: currentEntity, policy: currentPolicy } = prev ? JSON.parse(prev) : { entity: {}, policy: {} }
       return JSON.stringify({ entity: { ...currentEntity, ...updatedData }, policy: currentPolicy }, null, 2)
     })
@@ -184,10 +79,7 @@ const DataStoreConfig = () => {
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Data Store</div>
         <div className="flex items-center gap-4">
-          <GreenCheckStatus
-            isChecked={isEngineSynced}
-            label={isEngineSynced ? 'Engine Synced!' : 'Syncing Engine...'}
-          />
+          <GreenCheckStatus isChecked={isSynced} label={isSynced ? 'Engine Synced!' : 'Syncing Engine...'} />
           <NarButton
             label={isEntitySigning ? 'Signing...' : 'Sign Entity'}
             leftIcon={isEntitySigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
@@ -217,16 +109,16 @@ const DataStoreConfig = () => {
           <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
         </div>
         <div className="flex flex-col gap-8 w-2/3">
-          {displayCodeEditor && <CodeEditor value={data} onChange={setData} />}
+          {displayCodeEditor && <CodeEditor value={codeEditor} onChange={setCodeEditor} />}
           {!displayCodeEditor && (
             <>
               <Users
-                users={data ? JSON.parse(data).entity.users : undefined}
+                users={codeEditor ? JSON.parse(codeEditor).entity.users : undefined}
                 onChange={(users) => updateEntityStore({ users })}
               />
               <Wallets
-                wallets={data ? JSON.parse(data).entity.wallets : undefined}
-                userWallets={data ? JSON.parse(data).entity.userWallets : undefined}
+                wallets={codeEditor ? JSON.parse(codeEditor).entity.wallets : undefined}
+                userWallets={codeEditor ? JSON.parse(codeEditor).entity.userWallets : undefined}
                 onChange={(wallets) => updateEntityStore({ wallets })}
               />
             </>
@@ -245,7 +137,7 @@ const DataStoreConfig = () => {
         >
           <div className="px-12 py-4">
             <ul className="flex flex-col gap-1 text-nv-white text-nv-sm list-disc">
-              {validationErrors.map((error, index) => (
+              {(errors as string[]).map((error, index) => (
                 <li key={index}>{error}</li>
               ))}
             </ul>
