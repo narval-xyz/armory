@@ -1,15 +1,19 @@
 import {
+  CredentialEntity,
   Entities,
   EntityStore,
   EntityUtil,
   Policy,
   PolicyStore,
+  UserEntity,
+  UserRole,
   entityDataSchema,
   policyDataSchema
 } from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
+import { Alg, Curves, KeyTypes, Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 import useAccountSignature from './useAccountSignature'
 
 type DataStore = { entity: EntityStore; policy: PolicyStore }
@@ -33,6 +37,48 @@ const useDataStoreApi = () => {
     setDataStore(data)
 
     return data
+  }
+
+  const createCredential = async (address: string) => {
+    if (!dataStore) return
+
+    const { entity, policy } = dataStore
+    const { credentials, users } = entity.data
+
+    const credentialAlreadyExists = credentials.find((c) => c.key.addr === address)
+
+    if (credentialAlreadyExists) return
+
+    try {
+      const user: UserEntity = { id: uuid(), role: UserRole.ADMIN }
+
+      const publicKey: CredentialEntity = {
+        id: uuid(),
+        userId: user.id,
+        key: {
+          kty: KeyTypes.EC,
+          crv: Curves.SECP256K1,
+          alg: Alg.ES256K,
+          kid: address.toLowerCase(),
+          addr: address.toLowerCase()
+        }
+      }
+
+      users.push(user)
+      credentials.push(publicKey)
+
+      await axios.post('/api/data-store', {
+        entity: {
+          signature: entity.signature,
+          data: { ...entity.data, users, credentials }
+        },
+        policy
+      })
+
+      await getDataStore()
+    } catch (error) {
+      setErrors(error)
+    }
   }
 
   const signEntityDataStore = async (entity: Entities) => {
@@ -116,7 +162,16 @@ const useDataStoreApi = () => {
     setIsPolicySigning(false)
   }
 
-  return { dataStore, isEntitySigning, isPolicySigning, errors, getDataStore, signEntityDataStore, signPolicyDataStore }
+  return {
+    dataStore,
+    isEntitySigning,
+    isPolicySigning,
+    errors,
+    getDataStore,
+    createCredential,
+    signEntityDataStore,
+    signPolicyDataStore
+  }
 }
 
 export default useDataStoreApi
