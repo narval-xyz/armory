@@ -69,8 +69,8 @@ const DataStoreConfig = () => {
 
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
     setCodeEditor((prev) => {
-      const { entity: currentEntity, policy: currentPolicy } = prev ? JSON.parse(prev) : { entity: {}, policy: {} }
-      return JSON.stringify({ entity: { ...currentEntity, ...updatedData }, policy: currentPolicy }, null, 2)
+      const { entity, policy } = prev ? JSON.parse(prev) : { entity: {}, policy: {} }
+      return JSON.stringify({ entity: { ...entity, ...updatedData }, policy }, null, 2)
     })
   }
 
@@ -114,7 +114,9 @@ const DataStoreConfig = () => {
             <>
               <Users
                 users={codeEditor ? JSON.parse(codeEditor).entity.users : undefined}
-                onChange={(users) => updateEntityStore({ users })}
+                credentials={codeEditor ? JSON.parse(codeEditor).entity.credentials : undefined}
+                userWallets={codeEditor ? JSON.parse(codeEditor).entity.userWallets : undefined}
+                onChange={updateEntityStore}
               />
               <Wallets
                 wallets={codeEditor ? JSON.parse(codeEditor).entity.wallets : undefined}
