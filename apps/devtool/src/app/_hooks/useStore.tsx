@@ -1,13 +1,9 @@
-import { PublicKey } from '@narval/signature'
 import { useLocalStorage } from 'usehooks-ts'
 import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
-  const [engineClientSigner, setEngineClientSigner] = useLocalStorage<PublicKey | undefined>(
-    LOCAL_STORAGE_KEYS.engineClientSigner,
-    undefined
-  )
+  const [engineClientSigner, setEngineClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSigner, '')
   const [engineAdminApiKey, setEngineAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.engineAdminApiKey, '')
   const [engineClientId, setEngineClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientId, '')
   const [engineClientSecret, setEngineClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSecret, '')
