@@ -2,82 +2,30 @@
 
 import { faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import axios from 'axios'
 import { useState } from 'react'
 import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
-import useAccountSignature from '../../_hooks/useAccountSignature'
+import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
-
-const ReadOnlyDataRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex flex-col gap-[8px]">
-    <div className="text-nv-xs text-nv-white">{label}</div>
-    <div className="truncate">{value}</div>
-  </div>
-)
 
 const PolicyEngineConfig = () => {
   const {
     engineUrl,
     setEngineUrl,
-    engineClientSigner,
-    setEngineClientSigner,
     engineAdminApiKey,
     setEngineAdminApiKey,
     engineClientId,
-    setEngineClientId,
     engineClientSecret,
-    setEngineClientSecret,
-    entityDataStoreUrl,
-    entitySignatureUrl,
-    policyDataStoreUrl,
-    policySignatureUrl
+    engineClientSigner
   } = useStore()
 
-  const { jwk } = useAccountSignature()
+  const { isOnboarded, onboardClient } = useEngineApi()
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  const [isProcessing, setIsProcessing] = useState<boolean>(false)
-  const [isOnboarded, setIsOnboarded] = useState<boolean>(false)
-
-  const onboardClient = async () => {
-    if (!engineAdminApiKey || !jwk) return
-
+  const onboard = async () => {
     setIsProcessing(true)
-
-    try {
-      const { data: client } = await axios.post(
-        `${engineUrl}/clients`,
-        {
-          entityDataStore: {
-            dataUrl: entityDataStoreUrl,
-            signatureUrl: entitySignatureUrl,
-            keys: [jwk]
-          },
-          policyDataStore: {
-            dataUrl: policyDataStoreUrl,
-            signatureUrl: policySignatureUrl,
-            keys: [jwk]
-          }
-        },
-        {
-          headers: {
-            'x-api-key': engineAdminApiKey
-          }
-        }
-      )
-
-      setEngineClientId(client.clientId)
-      setEngineClientSecret(client.clientSecret)
-      setEngineClientSigner(client.signer.publicKey)
-
-      setIsOnboarded(true)
-
-      setTimeout(() => setIsOnboarded(false), 5000)
-    } catch (error) {
-      console.log(error)
-    }
-
+    await onboardClient()
     setIsProcessing(false)
   }
 
@@ -96,7 +44,7 @@ const PolicyEngineConfig = () => {
                 <FontAwesomeIcon icon={faPlus} spin={isProcessing} />
               )
             }
-            onClick={onboardClient}
+            onClick={onboard}
             disabled={isProcessing}
           />
         </div>
@@ -107,7 +55,7 @@ const PolicyEngineConfig = () => {
           <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          <NarInput label="Client Signer" value={JSON.stringify(engineClientSigner)} onChange={() => null} disabled />
+          <NarInput label="Client Signer" value={engineClientSigner} onChange={() => null} disabled />
           <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />
           <NarInput label="Client Secret" value={engineClientSecret} onChange={() => null} disabled />
         </div>

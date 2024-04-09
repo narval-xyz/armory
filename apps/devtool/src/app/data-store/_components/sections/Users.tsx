@@ -1,30 +1,43 @@
 'use client'
 
-import { UserEntity } from '@narval/policy-engine-shared'
+import { CredentialEntity, UserEntity, UserWalletEntity } from '@narval/policy-engine-shared'
 import { FC, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarDialog from '../../../_design-system/NarDialog'
-import UserForm from '../forms/UserForm'
+import UserForm, { UserData } from '../forms/UserForm'
 import DataCard from '../layouts/DataCard'
 import DataSection from '../layouts/DataSection'
 
 const initUserFormState = {
   id: '',
-  role: ''
-} as unknown as UserEntity
+  role: '',
+  publicKey: ''
+} as unknown as UserData
 
 interface UserProps {
   users: UserEntity[] | undefined
-  onChange: (users: UserEntity[]) => void
+  credentials: CredentialEntity[] | undefined
+  userWallets: UserWalletEntity[] | undefined
+  onChange: ({
+    users,
+    credentials,
+    userWallets
+  }: {
+    users: UserEntity[]
+    credentials: CredentialEntity[]
+    userWallets?: UserWalletEntity[]
+  }) => void
 }
 
-const Users: FC<UserProps> = ({ users, onChange }) => {
+const Users: FC<UserProps> = ({ users, credentials, userWallets, onChange }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [userData, setUserData] = useState<UserEntity>(initUserFormState)
+  const [userData, setUserData] = useState<UserData>(initUserFormState)
 
   const openDialog = (user?: UserEntity) => {
     if (user) {
-      setUserData(user)
+      const credential = credentials?.find((c) => c.userId === user.id)
+      const publicKey = credential?.key ? JSON.stringify(credential.key) : ''
+      setUserData({ ...user, publicKey })
     }
     setIsDialogOpen(true)
   }
@@ -36,24 +49,46 @@ const Users: FC<UserProps> = ({ users, onChange }) => {
 
   const handleSave = () => {
     if (!userData) return
+
     const newUsers = users ? [...users] : []
-    newUsers.push({ ...userData, id: uuid() })
-    onChange(newUsers)
+    const newCredentials = credentials ? [...credentials] : []
+
+    const { publicKey, ...user } = userData
+    const userId = uuid()
+    newUsers.push({ ...user, id: userId })
+    newCredentials.push({ id: uuid(), userId, key: JSON.parse(publicKey) })
+
+    onChange({ users: newUsers, credentials: newCredentials })
     closeDialog()
   }
 
   const handleEdit = () => {
-    if (!users || !userData) return
-    const index = users.findIndex((w) => w.id === userData.id)
-    if (index === -1) return
-    users[index] = userData
-    onChange(users)
+    if (!users || !credentials || !userData) return
+
+    const editedUsers = [...users]
+    const editedCredentials = [...credentials]
+
+    const userIndex = editedUsers.findIndex((u) => u.id === userData.id)
+    if (userIndex === -1) return
+
+    const credentialIndex = editedCredentials.findIndex((c) => c.userId === userData.id)
+    if (credentialIndex === -1) return
+
+    const { publicKey, ...user } = userData
+    editedUsers[userIndex] = user
+    editedCredentials[credentialIndex].key = JSON.parse(publicKey)
+
+    onChange({ users: editedUsers, credentials: editedCredentials })
     closeDialog()
   }
 
   const handleDelete = (id: string) => {
-    if (!users) return
-    onChange(users.filter((user) => user.id !== id))
+    if (!users || !credentials) return
+    const newUsers = users.filter((u) => u.id !== id)
+    const newCredentials = credentials.filter((c) => c.userId !== id)
+    const newUsersWallets = userWallets?.filter((w) => w.userId !== id)
+
+    onChange({ users: newUsers, credentials: newCredentials, userWallets: newUsersWallets })
   }
 
   return (
