@@ -4,6 +4,17 @@
   "sourceRoot": "packages/policy-engine-shared/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "{workspaceRoot}/packages/policy-engine-shared/dist",
+        "tsConfig": "{workspaceRoot}/packages/policy-engine-shared/tsconfig.lib.json",
+        "packageJson": "{workspaceRoot}/packages/policy-engine-shared/package.json",
+        "main": "{workspaceRoot}/packages/policy-engine-shared/src/index.ts"
+      },
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],

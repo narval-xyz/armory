@@ -1,11 +1,14 @@
 # Ignore configuration files
 **/tsconfig*.json
-**/jest.config.ts
+**/jest*.ts
 **/project.json
 **/*.md
 **/Makefile
+**/.eslintrc.json
+**/.lintstagedrc.json
+
 
 # Ignore directories
 **/node_modules/
-**/__tests__/
+**/__test__/
 **/__mocks__/

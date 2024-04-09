@@ -1,7 +1,8 @@
-import { EvaluationRequest, Feed, JwtString, Prices, Request } from '@narval/policy-engine-shared'
+import { EvaluationRequest, Feed, JwtString, Prices, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Jwk, Payload, SignConfig, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
-import { Endpoints, NarvalSdkConfig } from '../domain'
+import { v4 } from 'uuid'
+import { Endpoints, NarvalSdkConfig, RequestInput } from '../domain'
 
 export type EvaluationRequestConfig = {
   approvals?: JwtString[]
@@ -18,6 +19,47 @@ const buildPayloadFromRequest = (request: Request, jwk: Jwk, orgId: string): Pay
   }
 }
 
+const buildNonce = (): string => {
+  return v4()
+}
+
+const getRequestFromInput = (input: RequestInput): Request => {
+  const { request } = input
+
+  const nonce = input.nonce || buildNonce()
+  switch (request.action) {
+    case 'signTransaction':
+      const validatedTransactionRequest = TransactionRequest.parse(request.transactionRequest)
+      return {
+        action: request.action,
+        resourceId: input.resourceId,
+        transactionRequest: validatedTransactionRequest,
+        nonce
+      }
+    case 'signMessage':
+      return {
+        action: request.action,
+        message: request.message,
+        resourceId: input.resourceId,
+        nonce
+      }
+    case 'signTypedData':
+      return {
+        action: request.action,
+        typedData: request.typedData,
+        resourceId: input.resourceId,
+        nonce
+      }
+    case 'signRaw':
+      return {
+        action: request.action,
+        rawMessage: request.rawMessage,
+        resourceId: input.resourceId,
+        nonce
+      }
+  }
+}
+
 export default class EvaluationRequestBuilder {
   private approvals?: JwtString[]
   private prices?: Prices
@@ -30,24 +72,26 @@ export default class EvaluationRequestBuilder {
   }
 
   async sign(
-    request: Request,
-    opts: {
+    input: RequestInput,
+    signParams: {
       signConfig: SignConfig
       jwk: Jwk
       clientId: string
     }
   ): Promise<EvaluationRequest> {
-    const payload = buildPayloadFromRequest(request, opts.jwk, opts.clientId)
-    const { signer, opts: signingOpts } = opts.signConfig
+    const { approvals, prices, feeds } = input
+    const request = getRequestFromInput(input)
+    const payload = buildPayloadFromRequest(request, signParams.jwk, signParams.clientId)
+    const { signer, opts: signingOpts } = signParams.signConfig
     const authentication = signer
-      ? await signJwt(payload, opts.jwk, signingOpts, signer)
-      : await signJwt(payload, opts.jwk, signingOpts)
+      ? await signJwt(payload, signParams.jwk, signingOpts, signer)
+      : await signJwt(payload, signParams.jwk, signingOpts)
     return {
       authentication,
       request,
-      approvals: this.approvals,
-      prices: this.prices,
-      feeds: this.feeds
+      approvals: approvals || this.approvals,
+      prices: prices || this.prices,
+      feeds: feeds || this.feeds
     }
   }
 

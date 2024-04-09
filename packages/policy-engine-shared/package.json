@@ -2,8 +2,8 @@
   "name": "@narval-xyz/policy-engine-domain",
   "version": "0.0.2",
   "description": "Domain shared for policy engine",
-  "main": "../../dist/out-tsc/packages/policy-engine-shared/index.js",
-  "types": "../../dist/out-tsc/packages/policy-engine-shared/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "nx build policy-engine-shared"
   },
@@ -13,7 +13,6 @@
     "directory": "packages/policy-engine-shared"
   },
   "dependencies": {
-    "@narval-xyz/signature": "0.1.1",
     "viem": "^2.7.16",
     "zod": "^3.22.4",
     "type-fest": "^4.14.0",
@@ -29,5 +28,8 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
     "access": "restricted"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -1,9 +1,9 @@
 {
   "name": "@narval-xyz/signature",
-  "version": "0.1.1",
+  "version": "0.1.7",
   "description": "Lib used throughout the Narval ecosystem to sign verify and decode JWT and JWS",
-  "main": "../../dist/out-tsc/packages/signature/index.js",
-  "types": "../../dist/out-tsc/packages/signature/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "nx build signature"
   },
@@ -25,6 +25,7 @@
     "@nx/eslint-plugin": "17.2.8",
     "eslint-plugin-jest": "^27.9.0"
   },
+  "prepublish": "npx nx build",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
     "access": "restricted"

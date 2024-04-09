@@ -1,5 +1,5 @@
-import { Action } from '@narval/policy-engine-shared'
-import { Jwk, SignConfig } from '@narval/signature'
+import { Action, Eip712TypedData, Feed, Hex, Prices, TransactionRequest } from '@narval/policy-engine-shared'
+import { Jwk, SignConfig, SigningAlg } from '@narval/signature'
 import { ZodError } from 'zod'
 
 export const Category = {
@@ -45,3 +45,16 @@ export const Endpoints = {
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
+
+export type RequestInput = {
+  resourceId: string
+  request:
+    | { action: 'signTransaction'; transactionRequest: TransactionRequest }
+    | { action: 'signRaw'; rawMessage: Hex; signingAlg: SigningAlg }
+    | { action: 'signMessage'; message: string }
+    | { action: 'signTypedData'; typedData: Eip712TypedData }
+  nonce?: string
+  approvals?: string[]
+  prices?: Prices
+  feeds?: Feed<unknown>[]
+}
