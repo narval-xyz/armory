@@ -4,7 +4,6 @@ import { faArrowRightArrowLeft, faPipe, faSpinner } from '@fortawesome/pro-regul
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
 import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
@@ -17,8 +16,6 @@ import Users from './sections/Users'
 import Wallets from './sections/Wallets'
 
 const DataStoreConfig = () => {
-  const account = useAccount()
-
   const {
     entityDataStoreUrl,
     entitySignatureUrl,
@@ -32,25 +29,12 @@ const DataStoreConfig = () => {
 
   const { isSynced, syncEngine } = useEngineApi()
 
-  const {
-    dataStore,
-    isEntitySigning,
-    isPolicySigning,
-    errors,
-    createCredential,
-    signEntityDataStore,
-    signPolicyDataStore
-  } = useDataStoreApi()
+  const { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore } =
+    useDataStoreApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  useEffect(() => {
-    if (!account.address) return
-
-    createCredential(account.address)
-  }, [account.address])
 
   useEffect(() => {
     if (!dataStore) return
