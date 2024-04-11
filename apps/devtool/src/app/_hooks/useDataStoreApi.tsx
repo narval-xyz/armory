@@ -14,13 +14,11 @@ import { Alg, Curves, KeyTypes, Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import { useAccount } from 'wagmi'
 import useAccountSignature from './useAccountSignature'
 
 type DataStore = { entity: EntityStore; policy: PolicyStore }
 
 const useDataStoreApi = () => {
-  const account = useAccount()
   const { jwk, signAccountJwt } = useAccountSignature()
 
   const [dataStore, setDataStore] = useState<DataStore>()
@@ -34,14 +32,9 @@ const useDataStoreApi = () => {
     }
   }, [dataStore])
 
-  useEffect(() => {
-    if (!account.isConnected) return
-
-    createCredential(account.address?.toLowerCase())
-  }, [account.address])
-
   const getDataStore = async () => {
     const { data } = await axios.get<DataStore>('/api/data-store')
+
     setDataStore(data)
 
     return data
@@ -61,14 +54,14 @@ const useDataStoreApi = () => {
       const user: UserEntity = { id: uuid(), role: UserRole.ADMIN }
 
       const publicKey: CredentialEntity = {
-        id: uuid(),
+        id: address,
         userId: user.id,
         key: {
           kty: KeyTypes.EC,
           crv: Curves.SECP256K1,
           alg: Alg.ES256K,
-          kid: address.toLowerCase(),
-          addr: address.toLowerCase()
+          kid: address,
+          addr: address
         }
       }
 

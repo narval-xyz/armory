@@ -1,6 +1,13 @@
 'use client'
 
-import { faArrowsRotate, faCheckCircle, faFileSignature, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import {
+  faArrowsRotate,
+  faCheck,
+  faCheckCircle,
+  faFileSignature,
+  faTriangleExclamation,
+  faXmarkCircle
+} from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
 import { Decision, EvaluationResponse } from '@narval/policy-engine-shared'
@@ -32,6 +39,22 @@ const PlaygroundEditor = () => {
     }
   }, [data, evaluationResponse])
 
+  const getApprovalSignature = async () => {
+    if (!data) return
+
+    const transactionRequest = JSON.parse(data)
+
+    const payload = {
+      iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
+      sub: transactionRequest.request.resourceId,
+      requestHash: hash(transactionRequest.request)
+    }
+
+    const authentication = await signAccountJwt(payload)
+
+    console.log(authentication)
+  }
+
   const sendEvaluation = async () => {
     if (!data || !jwk) return
 
@@ -59,7 +82,16 @@ const PlaygroundEditor = () => {
         }
       )
 
-      setData(JSON.stringify({ ...transactionRequest, authentication }, null, 2))
+      setData(
+        JSON.stringify(
+          {
+            ...transactionRequest,
+            ...(evaluation.data?.decision === Decision.PERMIT && { authentication })
+          },
+          null,
+          2
+        )
+      )
       setEvaluationResponse(evaluation.data)
     } catch (error) {
       console.log(error)
@@ -125,12 +157,18 @@ const PlaygroundEditor = () => {
             onClick={signRequest}
             disabled={isProcessing || !canBeSigned}
           />
+          <NarButton label="Approve" leftIcon={<FontAwesomeIcon icon={faCheck} />} onClick={getApprovalSignature} />
           {!isProcessing && evaluationResponse && (
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon
-                icon={evaluationResponse.decision === Decision.PERMIT ? faCheckCircle : faXmarkCircle}
-                className={evaluationResponse.decision === Decision.PERMIT ? 'text-nv-green-500' : 'text-nv-red-500'}
-              />
+              {evaluationResponse.decision === Decision.PERMIT && (
+                <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
+              )}
+              {evaluationResponse.decision === Decision.FORBID && (
+                <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-red-500" />
+              )}
+              {evaluationResponse.decision === Decision.CONFIRM && (
+                <FontAwesomeIcon icon={faTriangleExclamation} className="text-nv-orange-500" />
+              )}
               <div className="text-nv-white">{evaluationResponse.decision}</div>
             </div>
           )}
