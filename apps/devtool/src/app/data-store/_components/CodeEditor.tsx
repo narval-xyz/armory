@@ -17,6 +17,11 @@ const CodeEditor: FC<CodeEditorProps> = ({ value, onChange }) => {
       <Editor
         height="70vh"
         language="json"
+        options={{
+          minimap: {
+            enabled: false
+          }
+        }}
         value={value}
         onChange={(value) => onChange(value)}
         onMount={(editor, monaco) => {
