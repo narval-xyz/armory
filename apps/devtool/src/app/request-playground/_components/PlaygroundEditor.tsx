@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
 import { Decision, EvaluationResponse } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
@@ -22,27 +22,30 @@ import example from './example.json'
 const PlaygroundEditor = () => {
   const { engineUrl, engineClientId, engineClientSecret, vaultUrl, vaultClientId } = useStore()
   const { jwk, signAccountJwsd, signAccountJwt } = useAccountSignature()
-  const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
+  const [codeEditor, setCodeEditor] = useState<string | undefined>(JSON.stringify(example, null, 2))
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [evaluationResponse, setEvaluationResponse] = useState<EvaluationResponse>()
   const [signature, setSignature] = useState<string>()
+  const [error, setError] = useState<string>()
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
 
   const canBeSigned = useMemo(() => {
+    if (!codeEditor || !evaluationResponse) return false
+
     try {
-      const transactionRequest = JSON.parse(data || '{}')
-      return transactionRequest?.authentication && evaluationResponse?.decision === Decision.PERMIT
+      const transactionRequest = JSON.parse(codeEditor)
+      return transactionRequest.authentication && evaluationResponse.decision === Decision.PERMIT
     } catch (error) {
       return false
     }
-  }, [data, evaluationResponse])
+  }, [codeEditor, evaluationResponse])
 
   const getApprovalSignature = async () => {
-    if (!data) return
+    if (!codeEditor) return
 
-    const transactionRequest = JSON.parse(data)
+    const transactionRequest = JSON.parse(codeEditor)
 
     const payload = {
       iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
@@ -56,12 +59,15 @@ const PlaygroundEditor = () => {
   }
 
   const sendEvaluation = async () => {
-    if (!data || !jwk) return
+    if (!codeEditor || !jwk) return
 
     setIsProcessing(true)
+    setEvaluationResponse(undefined)
+    setSignature(undefined)
+    setError(undefined)
 
     try {
-      const transactionRequest = JSON.parse(data)
+      const transactionRequest = JSON.parse(codeEditor)
 
       const payload = {
         iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
@@ -82,7 +88,7 @@ const PlaygroundEditor = () => {
         }
       )
 
-      setData(
+      setCodeEditor(
         JSON.stringify(
           {
             ...transactionRequest,
@@ -93,8 +99,10 @@ const PlaygroundEditor = () => {
         )
       )
       setEvaluationResponse(evaluation.data)
-    } catch (error) {
-      console.log(error)
+    } catch (err) {
+      const error = err as AxiosError
+      const errorData = error.response?.data as any
+      setError(errorData?.message || error.message)
     }
 
     setIsProcessing(false)
@@ -106,6 +114,10 @@ const PlaygroundEditor = () => {
     const { accessToken, request } = evaluationResponse
 
     if (!accessToken?.value || !request) return
+
+    setEvaluationResponse(undefined)
+    setSignature(undefined)
+    setError(undefined)
 
     try {
       const bodyPayload = { request }
@@ -135,8 +147,8 @@ const PlaygroundEditor = () => {
         <Editor
           height="70vh"
           language="json"
-          value={data}
-          onChange={(value) => setData(value)}
+          value={codeEditor}
+          onChange={(value) => setCodeEditor(value)}
           onMount={(editor, monaco) => {
             editorRef.current = editor
             monacoRef.current = monaco
@@ -157,8 +169,10 @@ const PlaygroundEditor = () => {
             onClick={signRequest}
             disabled={isProcessing || !canBeSigned}
           />
-          <NarButton label="Approve" leftIcon={<FontAwesomeIcon icon={faCheck} />} onClick={getApprovalSignature} />
-          {!isProcessing && evaluationResponse && (
+          {false && (
+            <NarButton label="Approve" leftIcon={<FontAwesomeIcon icon={faCheck} />} onClick={getApprovalSignature} />
+          )}
+          {!isProcessing && !error && evaluationResponse && (
             <div className="flex items-center gap-2">
               {evaluationResponse.decision === Decision.PERMIT && (
                 <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
@@ -173,12 +187,13 @@ const PlaygroundEditor = () => {
             </div>
           )}
         </div>
-        {!isProcessing && evaluationResponse && (
+        {!isProcessing && error && <div className="text-nv-red-500 truncate">{error}</div>}
+        {!isProcessing && !error && evaluationResponse && (
           <div className="border-2 border-white rounded-t-xl p-4 overflow-auto">
             <pre>{JSON.stringify(evaluationResponse, null, 3)}</pre>
           </div>
         )}
-        {!isProcessing && signature && <div className="text-nv-white truncate">{signature}</div>}
+        {!isProcessing && !error && signature && <div className="text-nv-white truncate">{signature}</div>}
       </div>
     </div>
   )

@@ -96,7 +96,7 @@ export const Feed = <Data extends ZodTypeAny>(dataSchema: Data) =>
   z.object({
     source: z.string(),
     sig: JwtString.nullable(),
-    data: dataSchema
+    data: dataSchema.optional()
   })
 
 /**
@@ -116,7 +116,7 @@ export type Feed<Data> = {
    * any trusted data sources if they prefer.
    */
   sig: JwtString | null
-  data: Data
+  data?: Data
 }
 
 export const EvaluationRequest = z
