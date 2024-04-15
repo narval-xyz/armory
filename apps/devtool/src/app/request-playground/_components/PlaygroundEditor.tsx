@@ -10,23 +10,24 @@ import {
 } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
-import { Decision, EvaluationResponse } from '@narval/policy-engine-shared'
+import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
-import axios, { AxiosError } from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
-import useStore from '../../_hooks/useStore'
+import useEngineApi from '../../_hooks/useEngineApi'
+import useVaultApi from '../../_hooks/useVaultApi'
 import example from './example.json'
 
 const PlaygroundEditor = () => {
-  const { engineUrl, engineClientId, engineClientSecret, vaultUrl, vaultClientId } = useStore()
-  const { jwk, signAccountJwsd, signAccountJwt } = useAccountSignature()
+  const { signAccountJwt } = useAccountSignature()
+  const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
+  const { errors: signatureErrors, signTransaction } = useVaultApi()
   const [codeEditor, setCodeEditor] = useState<string | undefined>(JSON.stringify(example, null, 2))
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [evaluationResponse, setEvaluationResponse] = useState<EvaluationResponse>()
   const [signature, setSignature] = useState<string>()
-  const [error, setError] = useState<string>()
+  const error = evaluationErrors || signatureErrors
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
@@ -59,85 +60,45 @@ const PlaygroundEditor = () => {
   }
 
   const sendEvaluation = async () => {
-    if (!codeEditor || !jwk) return
+    if (!codeEditor) return
 
     setIsProcessing(true)
     setEvaluationResponse(undefined)
     setSignature(undefined)
-    setError(undefined)
 
-    try {
-      const transactionRequest = JSON.parse(codeEditor)
+    const request: EvaluationRequest = JSON.parse(codeEditor)
+    const { evaluation, authentication } = (await evaluateRequest(request)) || {}
 
-      const payload = {
-        iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
-        sub: transactionRequest.request.resourceId,
-        requestHash: hash(transactionRequest.request)
-      }
-
-      const authentication = await signAccountJwt(payload)
-
-      const evaluation = await axios.post(
-        `${engineUrl}/evaluations`,
-        { ...transactionRequest, authentication },
+    setCodeEditor(
+      JSON.stringify(
         {
-          headers: {
-            'x-client-id': engineClientId,
-            'x-client-secret': engineClientSecret
-          }
-        }
+          ...request,
+          ...(evaluation?.decision === Decision.PERMIT && { authentication })
+        },
+        null,
+        2
       )
+    )
 
-      setCodeEditor(
-        JSON.stringify(
-          {
-            ...transactionRequest,
-            ...(evaluation.data?.decision === Decision.PERMIT && { authentication })
-          },
-          null,
-          2
-        )
-      )
-      setEvaluationResponse(evaluation.data)
-    } catch (err) {
-      const error = err as AxiosError
-      const errorData = error.response?.data as any
-      setError(errorData?.message || error.message)
-    }
-
+    setEvaluationResponse(evaluation)
     setIsProcessing(false)
   }
 
   const signRequest = async () => {
-    if (!evaluationResponse || !jwk) return
+    if (!evaluationResponse) return
 
     const { accessToken, request } = evaluationResponse
 
     if (!accessToken?.value || !request) return
 
+    setIsProcessing(true)
     setEvaluationResponse(undefined)
     setSignature(undefined)
-    setError(undefined)
 
-    try {
-      const bodyPayload = { request }
+    const signature = await signTransaction({ request }, accessToken.value)
 
-      const detachedJws = await signAccountJwsd(bodyPayload, accessToken.value)
-
-      const { data } = await axios.post(`${vaultUrl}/sign`, bodyPayload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken.value}`
-        }
-      })
-
-      setSignature(data.signature)
-      setEvaluationResponse(undefined)
-    } catch (error) {
-      console.log(error)
-    }
-
+    setSignature(signature)
+    setEvaluationResponse(undefined)
     setIsProcessing(false)
   }
 
