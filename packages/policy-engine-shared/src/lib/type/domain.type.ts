@@ -96,7 +96,9 @@ export const Feed = <Data extends ZodTypeAny>(dataSchema: Data) =>
   z.object({
     source: z.string(),
     sig: JwtString.nullable(),
-    data: dataSchema
+    data: dataSchema.optional()
+    // TODO @samteb: I had to make data optional because of an inference bug in zod.
+    // Message sent on their discord https://discord.com/channels/893487829802418277/893488038477434881/1229425954762522825
   })
 
 /**
@@ -116,7 +118,7 @@ export type Feed<Data> = {
    * any trusted data sources if they prefer.
    */
   sig: JwtString | null
-  data: Data
+  data?: Data
 }
 
 export const EvaluationRequest = z
@@ -125,7 +127,6 @@ export const EvaluationRequest = z
     request: Request.describe('The request to be authorized'),
     approvals: z.array(JwtString).optional(),
     prices: Prices.optional(),
-    transfers: z.array(HistoricalTransfer).optional(),
     feeds: z
       .array(Feed(z.unknown()))
       .optional()
