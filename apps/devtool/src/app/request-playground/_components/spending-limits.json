@@ -1,0 +1,40 @@
+{
+  "request": {
+    "resourceId": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f",
+    "action": "signTransaction",
+    "nonce": "6bb2b3e9-fa8a-4081-a837-575184ceb3a5",
+    "transactionRequest": {
+      "from": "0xed123cf8e3ba51c6c15da1eac74b2b5deea31448",
+      "to": "0x031d8c0ca142921c459bcb28104c0ff37928f9ed",
+      "value": "0xde0b6b3a7640000",
+      "chainId": 137,
+      "type": "2"
+    }
+  },
+  "feeds": [
+    {
+      "source": "armory/price-feed",
+      "sig": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDlENDMyYTA5Q0JmNTVGMjJBYTZhMkUyOTBhY0IxMkQ1N2QyOUIyRmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJmZTcyMzA0NC0zNWRmLTRlOTktOTczOS0xMjJhNDhkNGFiOTYiLCJyZXF1ZXN0SGFzaCI6IjB4ZjdmY2MyMzRhMTMzNWNmNGE0NDE0MzAwNWJhOWJhNWQyY2VlMTJhMmZmZDFlNDMyYTU4Yjc5YjllNzcyYzk5NiIsInN1YiI6ImVpcDE1NTplb2E6MHg0OTQwNDI1MDRhODE0OGE2ZDAwYWIxMGVkMjYwNDNmNTU3OWNlMDBmIn0.BxgEr9TILTIocaNpQs-59vKhBSePpS-q0D4VWfVpqIs0bRSBp8vBMHkKa7AxdtfMwRCBd86vldj-1Ebb5UtmMhs",
+      "data": {
+        "eip155:137/slip44:966": {
+          "fiat:usd": "0.99",
+          "fiat:eur": "1.10"
+        }
+      }
+    },
+    {
+      "source": "armory/historical-transfer-feed",
+      "sig": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDlENDMyYTA5Q0JmNTVGMjJBYTZhMkUyOTBhY0IxMkQ1N2QyOUIyRmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJmZTcyMzA0NC0zNWRmLTRlOTktOTczOS0xMjJhNDhkNGFiOTYiLCJyZXF1ZXN0SGFzaCI6IjB4ZjdmY2MyMzRhMTMzNWNmNGE0NDE0MzAwNWJhOWJhNWQyY2VlMTJhMmZmZDFlNDMyYTU4Yjc5YjllNzcyYzk5NiIsInN1YiI6ImVpcDE1NTplb2E6MHg0OTQwNDI1MDRhODE0OGE2ZDAwYWIxMGVkMjYwNDNmNTU3OWNlMDBmIn0.BxgEr9TILTIocaNpQs-59vKhBSePpS-q0D4VWfVpqIs0bRSBp8vBMHkKa7AxdtfMwRCBd86vldj-1Ebb5UtmMhs",
+      "data": [
+        {
+          "amount": "500000000000000000",
+          "from": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f",
+          "token": "eip155:137/slip44:966",
+          "rates": { "fiat:usd": "0.90", "fiat:eur": "1.10" },
+          "chainId": 137,
+          "initiatedBy": "61e775a9-5f68-41ab-a775-5806845e6e72"
+        }
+      ]
+    }
+  ]
+}
