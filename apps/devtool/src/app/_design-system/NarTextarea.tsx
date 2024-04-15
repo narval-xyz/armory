@@ -1,20 +1,19 @@
-import { IconDefinition } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, useState } from 'react';
-import { classNames } from '../_lib/utils';
-
+import { IconDefinition } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FC, useState } from 'react'
+import { classNames } from '../_lib/utils'
 
 interface NarTextareaProps {
-  id?: string;
-  label?: string;
-  value?: string;
-  placeholder?: string;
-  rows?: number;
-  errorMessage?: string;
-  disabled?: boolean;
-  leftIcon?: IconDefinition;
-  validate?: (value: string | undefined) => boolean;
-  onChange: (value: string) => void;
+  id?: string
+  label?: string
+  value?: string
+  placeholder?: string
+  rows?: number
+  errorMessage?: string
+  disabled?: boolean
+  leftIcon?: IconDefinition
+  validate?: (value: string | undefined) => boolean
+  onChange: (value: string) => void
 }
 
 const NarTextarea: FC<NarTextareaProps> = ({
@@ -29,7 +28,7 @@ const NarTextarea: FC<NarTextareaProps> = ({
   validate,
   onChange
 }) => {
-  const [isError, setIsError] = useState(false);
+  const [isError, setIsError] = useState(false)
 
   return (
     <fieldset className="flex flex-col w-full">
@@ -51,12 +50,12 @@ const NarTextarea: FC<NarTextareaProps> = ({
           rows={rows}
           placeholder={placeholder}
           onChange={(e) => {
-            if (isError) setIsError(false);
-            onChange(e.target.value);
+            if (isError) setIsError(false)
+            onChange(e.target.value)
           }}
           onBlur={() => {
-            if (validate && !validate(value)) setIsError(true);
-            else setIsError(false);
+            if (validate && !validate(value)) setIsError(true)
+            else setIsError(false)
           }}
           disabled={disabled}
         >
@@ -65,7 +64,7 @@ const NarTextarea: FC<NarTextareaProps> = ({
       </div>
       {isError && <div className="text-nv-xs text-nv-danger mt-[4px]">{errorMessage}</div>}
     </fieldset>
-  );
-};
+  )
+}
 
-export default NarTextarea;
+export default NarTextarea
