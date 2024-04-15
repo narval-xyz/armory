@@ -1,99 +1,104 @@
 'use client'
 
-import { faArrowsRotate, faCheckCircle, faFileSignature, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import {
+  faArrowsRotate,
+  faCheck,
+  faCheckCircle,
+  faFileSignature,
+  faTriangleExclamation,
+  faXmarkCircle
+} from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
-import { Decision, EvaluationResponse } from '@narval/policy-engine-shared'
+import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
-import axios from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
-import useStore from '../../_hooks/useStore'
+import useEngineApi from '../../_hooks/useEngineApi'
+import useVaultApi from '../../_hooks/useVaultApi'
 import example from './example.json'
 
 const PlaygroundEditor = () => {
-  const { engineUrl, engineClientId, engineClientSecret, vaultUrl, vaultClientId } = useStore()
-  const { jwk, signAccountJwsd, signAccountJwt } = useAccountSignature()
-  const [data, setData] = useState<string | undefined>(JSON.stringify(example, null, 2))
+  const { signAccountJwt } = useAccountSignature()
+  const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
+  const { errors: signatureErrors, signTransaction } = useVaultApi()
+  const [codeEditor, setCodeEditor] = useState<string | undefined>(JSON.stringify(example, null, 2))
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [evaluationResponse, setEvaluationResponse] = useState<EvaluationResponse>()
   const [signature, setSignature] = useState<string>()
+  const error = evaluationErrors || signatureErrors
 
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
 
   const canBeSigned = useMemo(() => {
+    if (!codeEditor || !evaluationResponse) return false
+
     try {
-      const transactionRequest = JSON.parse(data || '{}')
-      return transactionRequest?.authentication && evaluationResponse?.decision === Decision.PERMIT
+      const transactionRequest = JSON.parse(codeEditor)
+      return transactionRequest.authentication && evaluationResponse.decision === Decision.PERMIT
     } catch (error) {
       return false
     }
-  }, [data, evaluationResponse])
+  }, [codeEditor, evaluationResponse])
 
-  const sendEvaluation = async () => {
-    if (!data || !jwk) return
+  const getApprovalSignature = async () => {
+    if (!codeEditor) return
 
-    setIsProcessing(true)
+    const transactionRequest = JSON.parse(codeEditor)
 
-    try {
-      const transactionRequest = JSON.parse(data)
-
-      const payload = {
-        iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
-        sub: transactionRequest.request.resourceId,
-        requestHash: hash(transactionRequest.request)
-      }
-
-      const authentication = await signAccountJwt(payload)
-
-      const evaluation = await axios.post(
-        `${engineUrl}/evaluations`,
-        { ...transactionRequest, authentication },
-        {
-          headers: {
-            'x-client-id': engineClientId,
-            'x-client-secret': engineClientSecret
-          }
-        }
-      )
-
-      setData(JSON.stringify({ ...transactionRequest, authentication }, null, 2))
-      setEvaluationResponse(evaluation.data)
-    } catch (error) {
-      console.log(error)
+    const payload = {
+      iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
+      sub: transactionRequest.request.resourceId,
+      requestHash: hash(transactionRequest.request)
     }
 
+    const authentication = await signAccountJwt(payload)
+
+    console.log(authentication)
+  }
+
+  const sendEvaluation = async () => {
+    if (!codeEditor) return
+
+    setIsProcessing(true)
+    setEvaluationResponse(undefined)
+    setSignature(undefined)
+
+    const request: EvaluationRequest = JSON.parse(codeEditor)
+    const { evaluation, authentication } = (await evaluateRequest(request)) || {}
+
+    setCodeEditor(
+      JSON.stringify(
+        {
+          ...request,
+          ...(evaluation?.decision === Decision.PERMIT && { authentication })
+        },
+        null,
+        2
+      )
+    )
+
+    setEvaluationResponse(evaluation)
     setIsProcessing(false)
   }
 
   const signRequest = async () => {
-    if (!evaluationResponse || !jwk) return
+    if (!evaluationResponse) return
 
     const { accessToken, request } = evaluationResponse
 
     if (!accessToken?.value || !request) return
 
-    try {
-      const bodyPayload = { request }
+    setIsProcessing(true)
+    setEvaluationResponse(undefined)
+    setSignature(undefined)
 
-      const detachedJws = await signAccountJwsd(bodyPayload, accessToken.value)
+    const signature = await signTransaction({ request }, accessToken.value)
 
-      const { data } = await axios.post(`${vaultUrl}/sign`, bodyPayload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken.value}`
-        }
-      })
-
-      setSignature(data.signature)
-      setEvaluationResponse(undefined)
-    } catch (error) {
-      console.log(error)
-    }
-
+    setSignature(signature)
+    setEvaluationResponse(undefined)
     setIsProcessing(false)
   }
 
@@ -103,8 +108,8 @@ const PlaygroundEditor = () => {
         <Editor
           height="70vh"
           language="json"
-          value={data}
-          onChange={(value) => setData(value)}
+          value={codeEditor}
+          onChange={(value) => setCodeEditor(value)}
           onMount={(editor, monaco) => {
             editorRef.current = editor
             monacoRef.current = monaco
@@ -125,22 +130,31 @@ const PlaygroundEditor = () => {
             onClick={signRequest}
             disabled={isProcessing || !canBeSigned}
           />
-          {!isProcessing && evaluationResponse && (
+          {false && (
+            <NarButton label="Approve" leftIcon={<FontAwesomeIcon icon={faCheck} />} onClick={getApprovalSignature} />
+          )}
+          {!isProcessing && !error && evaluationResponse && (
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon
-                icon={evaluationResponse.decision === Decision.PERMIT ? faCheckCircle : faXmarkCircle}
-                className={evaluationResponse.decision === Decision.PERMIT ? 'text-nv-green-500' : 'text-nv-red-500'}
-              />
+              {evaluationResponse.decision === Decision.PERMIT && (
+                <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
+              )}
+              {evaluationResponse.decision === Decision.FORBID && (
+                <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-red-500" />
+              )}
+              {evaluationResponse.decision === Decision.CONFIRM && (
+                <FontAwesomeIcon icon={faTriangleExclamation} className="text-nv-orange-500" />
+              )}
               <div className="text-nv-white">{evaluationResponse.decision}</div>
             </div>
           )}
         </div>
-        {!isProcessing && evaluationResponse && (
+        {!isProcessing && error && <div className="text-nv-red-500 truncate">{error}</div>}
+        {!isProcessing && !error && evaluationResponse && (
           <div className="border-2 border-white rounded-t-xl p-4 overflow-auto">
             <pre>{JSON.stringify(evaluationResponse, null, 3)}</pre>
           </div>
         )}
-        {!isProcessing && signature && <div className="text-nv-white truncate">{signature}</div>}
+        {!isProcessing && !error && signature && <div className="text-nv-white truncate">{signature}</div>}
       </div>
     </div>
   )

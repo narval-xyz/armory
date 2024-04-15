@@ -33,7 +33,7 @@ const DataStoreConfig = () => {
     useDataStoreApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
-  const [displayCodeEditor, setDisplayCodeEditor] = useState(false)
+  const [displayCodeEditor, setDisplayCodeEditor] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   useEffect(() => {
