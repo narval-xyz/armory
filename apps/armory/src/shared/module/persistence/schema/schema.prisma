@@ -115,3 +115,105 @@ model Feed {
 
   @@map("feed")
 }
+
+// Data Store
+
+enum UserRoles {
+  root
+  admin
+  member
+  manager
+}
+
+enum AccountTypes {
+  eoa
+  aa
+}
+
+model Client {
+  id           String        @id @default(uuid()) @db.VarChar(255)
+  name         String
+  users        User[]
+  wallets      Wallet[]
+  userGroups   UserGroup[]
+  walletGroups WalletGroup[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@map("client")
+}
+
+model User {
+  id       String @id @default(uuid()) @db.VarChar(255)
+  clientId String @map("client_id") @db.VarChar(255)
+  client   Client @relation(fields: [clientId], references: [id])
+
+  name    String
+  role    UserRoles
+  groups  UserGroup[]
+  wallets WalletAssignee[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Wallet {
+  id       String @id @default(uuid()) @db.VarChar(255)
+  clientId String @map("client_id") @db.VarChar(255)
+  client   Client @relation(fields: [clientId], references: [id])
+
+  address     String
+  accountType AccountTypes     @map("account_type")
+  chainId     Int?             @map("chain_id")
+  assignees   WalletAssignee[]
+  groups      WalletGroup[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("wallet")
+}
+
+model WalletAssignee {
+  id String @id @default(uuid()) @db.VarChar(255)
+
+  user     User   @relation(fields: [userId], references: [id])
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+  userId   String @map("user_id")
+  walletId String @map("wallet_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("wallet_assignee")
+}
+
+model UserGroup {
+  id       String @id @default(uuid()) @db.VarChar(255)
+  clientId String @map("client_id") @db.VarChar(255)
+  client   Client @relation(fields: [clientId], references: [id])
+
+  name  String
+  users User[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("user_group")
+}
+
+model WalletGroup {
+  id       String @id @default(uuid()) @db.VarChar(255)
+  clientId String @map("client_id") @db.VarChar(255)
+  client   Client @relation(fields: [clientId], references: [id])
+
+  name    String
+  wallets Wallet[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("wallet_group")
+}
