@@ -112,23 +112,6 @@ export const toInput = (params: {
   ])
   const mapper = mappers.get(action)
 
-  // For demo purpose, we need to modify timestamps of transaction
-  // and fake it that those happened in the last 24hours
-
-  // const feedsDemo = evaluation.feeds?.map((feed) => {
-  //   if (feed.source === 'armory/historical-transfer-feed') {
-  //     const { data, ...res } = feed
-  //     const dataRes = (data as any[]).map((d: any) => ({
-  //       ...d,
-  //       timestamp: new Date().getTime() - 10 * 60 * 60 * 1000
-  //     }))
-
-  //     return { ...res, data: dataRes }
-  //   }
-
-  //   return feed
-  // }) as Feed<unknown>[]
-
   if (mapper) {
     return mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds)
   }

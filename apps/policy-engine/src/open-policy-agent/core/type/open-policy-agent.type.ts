@@ -25,7 +25,6 @@ export type Input = {
   principal: CredentialEntity
   resource?: { uid: string }
   approvals?: CredentialEntity[]
-  transfers?: HistoricalTransfer[]
   feeds?: Feed<unknown>[]
 }
 
