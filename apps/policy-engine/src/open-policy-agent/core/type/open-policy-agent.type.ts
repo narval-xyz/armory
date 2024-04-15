@@ -5,7 +5,6 @@ import {
   Address,
   CredentialEntity,
   Feed,
-  HistoricalTransfer,
   TransactionRequest,
   UserRole
 } from '@narval/policy-engine-shared'
