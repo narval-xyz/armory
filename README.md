@@ -52,7 +52,7 @@ make test/e2e
 ```
 
 These commands utilize the NX CLI's run-many feature to execute the specified
-targets (test or test:type) across all projects in the monorepo. 
+targets (test or test:type) across all projects in the monorepo.
 
 ## Formatting
 
