@@ -4,6 +4,7 @@ import {
   Action,
   Address,
   CredentialEntity,
+  Feed,
   HistoricalTransfer,
   TransactionRequest,
   UserRole
@@ -24,7 +25,7 @@ export type Input = {
   principal: CredentialEntity
   resource?: { uid: string }
   approvals?: CredentialEntity[]
-  transfers?: HistoricalTransfer[]
+  feeds?: Feed<unknown>[]
 }
 
 // TODO: (@wcalderipe, 18/03/24) Check with @samteb how can we replace these

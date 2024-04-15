@@ -166,7 +166,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private getCredential(id: string): CredentialEntity | null {
-    return this.getEntities().credentials.find((cred) => cred.id === id) || null
+    return this.getEntities().credentials.find((cred) => cred.id.toLowerCase() === id.toLowerCase()) || null
   }
 
   private async opaEvaluate(

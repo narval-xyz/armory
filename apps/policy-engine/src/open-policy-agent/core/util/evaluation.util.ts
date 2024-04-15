@@ -3,6 +3,7 @@ import {
   CredentialEntity,
   Entities,
   EvaluationRequest,
+  Feed,
   Request,
   SignMessageAction,
   SignRawAction,
@@ -15,9 +16,14 @@ import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
-type Mapping<R extends Request> = (request: R, principal: CredentialEntity, approvals?: CredentialEntity[]) => Input
+type Mapping<R extends Request> = (
+  request: R,
+  principal: CredentialEntity,
+  approvals?: CredentialEntity[],
+  feeds?: Feed<unknown>[]
+) => Input
 
-const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals): Input => {
+const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals, feeds): Input => {
   const result = safeDecode({
     input: {
       type: InputType.TRANSACTION_REQUEST,
@@ -32,7 +38,8 @@ const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, a
       approvals,
       intent: result.intent,
       transactionRequest: request.transactionRequest,
-      resource: { uid: request.resourceId }
+      resource: { uid: request.resourceId },
+      feeds
     }
   }
 
@@ -106,7 +113,7 @@ export const toInput = (params: {
   const mapper = mappers.get(action)
 
   if (mapper) {
-    return mapper(evaluation.request, params.principal, params.approvals)
+    return mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds)
   }
 
   throw new OpenPolicyAgentException({

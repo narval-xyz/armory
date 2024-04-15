@@ -3,12 +3,11 @@
 import { faUpload, faUserPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Address, Namespace, UserWalletEntity, WalletEntity, toAccountId } from '@narval/policy-engine-shared'
-import axios from 'axios'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
-import useStore from '../../../_hooks/useStore'
+import useVaultApi from '../../../_hooks/useVaultApi'
 import ImportWalletForm from '../forms/ImportWalletForm'
 import WalletForm from '../forms/WalletForm'
 import DataCard from '../layouts/DataCard'
@@ -28,7 +27,7 @@ interface WalletsProps {
 }
 
 const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
-  const { vaultUrl, vaultClientId, vaultClientSecret } = useStore()
+  const { importPrivateKey } = useVaultApi()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isImportForm, setIsImportForm] = useState(false)
   const [isWalletForm, setIsWalletForm] = useState(false)
@@ -105,26 +104,11 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
   }
 
   const handleImport = async () => {
-    if (!vaultClientId || !vaultClientSecret || !privateKey) return
-
-    try {
-      const { data: wallet } = await axios.post<WalletEntity>(
-        `${vaultUrl}/import/private-key`,
-        { privateKey },
-        {
-          headers: {
-            'x-client-id': vaultClientId,
-            'x-client-secret': vaultClientSecret
-          }
-        }
-      )
-
-      const newWallets = wallets ? [...wallets] : []
-      newWallets.push({ ...wallet, address: wallet.address.toLowerCase() as Address, accountType: 'eoa' })
-      onChange(newWallets)
-    } catch (error) {
-      console.log(error)
-    }
+    const wallet = await importPrivateKey(privateKey)
+    if (!wallet) return
+    const newWallets = wallets ? [...wallets] : []
+    newWallets.push({ ...wallet, address: wallet.address.toLowerCase() as Address, accountType: 'eoa' })
+    onChange(newWallets)
   }
 
   const onSaveDialog = async () => {
