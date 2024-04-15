@@ -125,7 +125,6 @@ export const EvaluationRequest = z
     request: Request.describe('The request to be authorized'),
     approvals: z.array(JwtString).optional(),
     prices: Prices.optional(),
-    transfers: z.array(HistoricalTransfer).optional(),
     feeds: z
       .array(Feed(z.unknown()))
       .optional()
