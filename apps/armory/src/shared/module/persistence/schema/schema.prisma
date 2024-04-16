@@ -142,9 +142,15 @@ enum Then {
   forbid
 }
 
+enum SignatureType {
+  entity
+  policy
+}
+
 model Client {
   id           String        @id @default(uuid()) @db.VarChar(255)
   name         String?
+  signatures   Signature[]
   policies     Policy[]
   users        User[]
   wallets      Wallet[]
@@ -263,4 +269,16 @@ model Policy {
   // TODO @samteb: Add `version` field to track the policy version?
 
   @@map("policy")
+}
+
+model Signature {
+  id          String        @id @default(uuid()) @db.VarChar(255)
+  clientId    String        @map("client_id")
+  client      Client        @relation(fields: [clientId], references: [id])
+  type        SignatureType
+  sig         String
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@map("signature")
 }
