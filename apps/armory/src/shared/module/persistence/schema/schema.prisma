@@ -130,74 +130,74 @@ enum AccountTypes {
   aa
 }
 
+enum AccountClassification {
+  external
+  counterparty
+  internal
+  wallet
+}
+
 model Client {
   id           String        @id @default(uuid()) @db.VarChar(255)
-  name         String
+  name         String?
   users        User[]
   wallets      Wallet[]
   userGroups   UserGroup[]
   walletGroups WalletGroup[]
+  addressBook  AddressBook[]
+  tokens       Token[]
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
 
   @@map("client")
 }
 
+model UserCredential {
+  id     String @id
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+  key    String
+
+  @@map("user_credential")
+}
+
 model User {
-  id       String @id @default(uuid()) @db.VarChar(255)
-  clientId String @map("client_id") @db.VarChar(255)
-  client   Client @relation(fields: [clientId], references: [id])
-
-  name    String
-  role    UserRoles
-  groups  UserGroup[]
-  wallets WalletAssignee[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  id          String           @id @default(uuid()) @db.VarChar(255)
+  clientId    String           @map("client_id")
+  client      Client           @relation(fields: [clientId], references: [id])
+  name        String?
+  role        UserRoles
+  credentials UserCredential[]
+  wallets     Wallet[]
+  groups      UserGroup[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @default(now()) @updatedAt @map("updated_at")
 
   @@map("user")
 }
 
 model Wallet {
-  id       String @id @default(uuid()) @db.VarChar(255)
-  clientId String @map("client_id") @db.VarChar(255)
-  client   Client @relation(fields: [clientId], references: [id])
-
+  id          String        @id
+  clientId    String        @map("client_id")
+  client      Client        @relation(fields: [clientId], references: [id])
+  name        String?
   address     String
-  accountType AccountTypes     @map("account_type")
-  chainId     Int?             @map("chain_id")
-  assignees   WalletAssignee[]
+  accountType AccountTypes  @map("account_type")
+  chainId     Int?          @map("chain_id")
+  assignees   User[]
   groups      WalletGroup[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
 
   @@map("wallet")
 }
 
-model WalletAssignee {
-  id String @id @default(uuid()) @db.VarChar(255)
-
-  user     User   @relation(fields: [userId], references: [id])
-  wallet   Wallet @relation(fields: [walletId], references: [id])
-  userId   String @map("user_id")
-  walletId String @map("wallet_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  @@map("wallet_assignee")
-}
-
 model UserGroup {
-  id       String @id @default(uuid()) @db.VarChar(255)
-  clientId String @map("client_id") @db.VarChar(255)
-  client   Client @relation(fields: [clientId], references: [id])
-
-  name  String
-  users User[]
-
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  clientId  String   @map("client_id")
+  client    Client   @relation(fields: [clientId], references: [id])
+  name      String?
+  users     User[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -205,15 +205,42 @@ model UserGroup {
 }
 
 model WalletGroup {
-  id       String @id @default(uuid()) @db.VarChar(255)
-  clientId String @map("client_id") @db.VarChar(255)
-  client   Client @relation(fields: [clientId], references: [id])
-
-  name    String
-  wallets Wallet[]
-
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  clientId  String   @map("client_id")
+  client    Client   @relation(fields: [clientId], references: [id])
+  name      String?
+  wallets   Wallet[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("wallet_group")
+}
+
+model AddressBook {
+  id             String                @id
+  clientId       String                @map("client_id")
+  client         Client                @relation(fields: [clientId], references: [id])
+  name           String?
+  address        String
+  chainId        Int                   @map("chain_id")
+  classification AccountClassification
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  @@map("address_book")
+}
+
+model Token {
+  id        String   @id
+  clientId  String   @map("client_id")
+  client    Client   @relation(fields: [clientId], references: [id])
+  name      String?
+  address   String
+  symbol    String
+  chainId   Int      @map("chain_id")
+  decimals  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("token")
 }
