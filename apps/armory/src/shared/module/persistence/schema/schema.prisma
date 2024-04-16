@@ -137,9 +137,15 @@ enum AccountClassification {
   wallet
 }
 
+enum Then {
+  permit
+  forbid
+}
+
 model Client {
   id           String        @id @default(uuid()) @db.VarChar(255)
   name         String?
+  policies     Policy[]
   users        User[]
   wallets      Wallet[]
   userGroups   UserGroup[]
@@ -243,4 +249,17 @@ model Token {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("token")
+}
+
+model Policy {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  clientId    String   @map("client_id")
+  client      Client   @relation(fields: [clientId], references: [id])
+  description String
+  when        Json[]
+  then        Then
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("policy")
 }
