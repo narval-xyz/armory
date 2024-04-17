@@ -1,4 +1,13 @@
-import { Alg, Secp256k1PublicKey, privateKeyToJwk, secp256k1PublicKeySchema } from '@narval/signature'
+import {
+  Alg,
+  Curves,
+  Hex,
+  KeyTypes,
+  Secp256k1PublicKey,
+  SigningAlg,
+  privateKeyToJwk,
+  secp256k1PublicKeySchema
+} from '@narval/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'
@@ -34,7 +43,6 @@ export const ORGANIZATION: OrganizationEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
 }
 
-// See doc/prefixed-test-ethereum-accounts.md
 export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0x000c0d191308a336356bee3813cc17f6868972c4
   Root: '0xa95b097938cc1d1a800d2b10d2a175f979613c940868460fd66830059fc1e418',
@@ -115,6 +123,64 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
   }
 }
 
+export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
+  Root: {
+    id: ACCOUNT.Root.address,
+    userId: USER.Root.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: ACCOUNT.Root.address,
+      addr: ACCOUNT.Root.address
+    }
+  },
+  Alice: {
+    id: ACCOUNT.Alice.address,
+    userId: USER.Alice.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: ACCOUNT.Alice.address,
+      addr: ACCOUNT.Alice.address
+    }
+  },
+  Bob: {
+    id: ACCOUNT.Bob.address,
+    userId: USER.Bob.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: ACCOUNT.Bob.address,
+      addr: ACCOUNT.Bob.address
+    }
+  },
+  Carol: {
+    id: ACCOUNT.Carol.address,
+    userId: USER.Carol.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: ACCOUNT.Carol.address,
+      addr: ACCOUNT.Carol.address
+    }
+  },
+  Dave: {
+    id: ACCOUNT.Dave.address,
+    userId: USER.Dave.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: ACCOUNT.Dave.address,
+      addr: ACCOUNT.Dave.address
+    }
+  }
+}
+
 export const USER_GROUP: Record<Groups, UserGroupEntity> = {
   Engineering: {
     id: 'test-engineering-user-group-uid'
@@ -139,25 +205,39 @@ export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   }
 ]
 
+export const UNSAFE_WALLET_PRIVATE_KEY: Record<Wallets, Hex> = {
+  Engineering: '0x1c2813a646825e89229434ad424c973e0fd043e4e99976abf6c7938419ca70b2',
+  Testing: '0x84daac66f32f715deded36d3cd22cd35a2f2b286d1205886899fff827dc1f3f2',
+  Treasury: '0x136f85910606e14fc69ffad7f1d77efc0f08284d1d9ac3369e51aeef81c8316e',
+  Operation: '0x2743f953c8912cbfec84702744b43937cfcb71b3d1fba7a1e6c08a2d6d726991'
+}
+
+export const WALLET_ACCOUNT: Record<Wallets, PrivateKeyAccount> = {
+  Engineering: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Engineering),
+  Testing: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Testing),
+  Treasury: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Treasury),
+  Operation: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Operation)
+}
+
 export const WALLET: Record<Wallets, WalletEntity> = {
   Testing: {
-    id: 'eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
-    address: '0xddcf208f219a6e6af072f2cfdc615b2c1805f98e',
+    id: `eip155:eoa:${WALLET_ACCOUNT.Testing.address}`,
+    address: WALLET_ACCOUNT.Testing.address,
     accountType: AccountType.EOA
   },
   Engineering: {
-    id: 'eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-    address: '0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+    id: `eip155:eoa:${WALLET_ACCOUNT.Engineering.address}`,
+    address: WALLET_ACCOUNT.Engineering.address,
     accountType: AccountType.EOA
   },
   Treasury: {
-    id: 'eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b', // Prod guild 58 - treasury wallet
-    address: '0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b',
+    id: `eip155:eoa:${WALLET_ACCOUNT.Treasury.address}`,
+    address: WALLET_ACCOUNT.Treasury.address,
     accountType: AccountType.EOA
   },
   Operation: {
-    id: 'eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
-    address: '0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4',
+    id: `eip155:eoa:${WALLET_ACCOUNT.Operation.address}`,
+    address: WALLET_ACCOUNT.Operation.address,
     accountType: AccountType.EOA
   }
 }
@@ -257,7 +337,7 @@ export const TOKEN: Record<`${string}1` | `${string}137`, TokenEntity> = {
 
 export const ENTITIES: Entities = {
   addressBook: ADDRESS_BOOK,
-  credentials: Object.values(CREDENTIAL),
+  credentials: [...Object.values(CREDENTIAL), ...Object.values(EOA_CREDENTIAL)],
   tokens: Object.values(TOKEN),
   userGroupMembers: USER_GROUP_MEMBER,
   userGroups: Object.values(USER_GROUP),
@@ -270,45 +350,20 @@ export const ENTITIES: Entities = {
 
 export const POLICIES: Policy[] = [
   {
-    id: 'test-permit-policy-uid',
-    then: Then.PERMIT,
-    description: 'Example of permit policy',
+    id: 'c13fe2c1-ecbe-43fe-9e0e-fae730fd5f50',
+    description: 'Required approval for an admin to transfer ERC-721 or ERC-1155 tokens',
     when: [
       {
-        criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
-        args: null
-      },
-      {
-        criterion: Criterion.CHECK_NONCE_EXISTS,
-        args: null
+        criterion: Criterion.CHECK_PRINCIPAL_ROLE,
+        args: [UserRole.ADMIN]
       },
       {
         criterion: Criterion.CHECK_ACTION,
         args: [Action.SIGN_TRANSACTION]
       },
       {
-        criterion: Criterion.CHECK_PRINCIPAL_ID,
-        args: [USER.Alice.role]
-      },
-      {
-        criterion: Criterion.CHECK_WALLET_ID,
-        args: [WALLET.Engineering.address]
-      },
-      {
         criterion: Criterion.CHECK_INTENT_TYPE,
-        args: ['transferNative']
-      },
-      {
-        criterion: Criterion.CHECK_INTENT_TOKEN,
-        args: ['eip155:137/slip44:966']
-      },
-      {
-        criterion: Criterion.CHECK_INTENT_AMOUNT,
-        args: {
-          currency: '*',
-          operator: ValueOperators.LESS_THAN_OR_EQUAL,
-          value: '1000000000000000000'
-        }
+        args: ['transferErc721', 'transferErc1155']
       },
       {
         criterion: Criterion.CHECK_APPROVALS,
@@ -318,41 +373,19 @@ export const POLICIES: Policy[] = [
             countPrincipal: false,
             approvalEntityType: EntityType.User,
             entityIds: [USER.Bob.id, USER.Carol.id]
-          },
-          {
-            approvalCount: 1,
-            countPrincipal: false,
-            approvalEntityType: EntityType.UserRole,
-            entityIds: [UserRole.ADMIN]
           }
         ]
       }
-    ]
+    ],
+    then: Then.PERMIT
   },
   {
-    id: 'test-forbid-policy-uid',
-    then: Then.FORBID,
-    description: 'Example of forbid policy',
+    id: 'f8ff8a65-a3ac-410f-800b-e345c49f9db9',
+    description: 'Authorize native transfers of up to 1 MATIC every 24 hours',
     when: [
-      {
-        criterion: Criterion.CHECK_RESOURCE_INTEGRITY,
-        args: null
-      },
-      {
-        criterion: Criterion.CHECK_NONCE_EXISTS,
-        args: null
-      },
       {
         criterion: Criterion.CHECK_ACTION,
         args: [Action.SIGN_TRANSACTION]
-      },
-      {
-        criterion: Criterion.CHECK_PRINCIPAL_ID,
-        args: [USER.Alice.id]
-      },
-      {
-        criterion: Criterion.CHECK_WALLET_ID,
-        args: [WALLET.Engineering.address]
       },
       {
         criterion: Criterion.CHECK_INTENT_TYPE,
@@ -366,17 +399,14 @@ export const POLICIES: Policy[] = [
         criterion: Criterion.CHECK_SPENDING_LIMIT,
         args: {
           limit: '1000000000000000000',
-          operator: ValueOperators.GREATER_THAN,
+          operator: ValueOperators.LESS_THAN_OR_EQUAL,
           timeWindow: {
             type: 'rolling',
-            value: 12 * 60 * 60
-          },
-          filters: {
-            tokens: ['eip155:137/slip44:966'],
-            users: ['matt@narval.xyz']
+            value: 43_200
           }
         }
       }
-    ]
+    ],
+    then: Then.PERMIT
   }
 ]

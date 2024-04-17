@@ -87,7 +87,10 @@ const useEngineApi = () => {
   }
 
   const evaluateRequest = async (evaluationRequest: EvaluationRequest | undefined) => {
-    if (!engineClientId || !engineClientSecret || !evaluationRequest) return
+    if (!engineClientId || !engineClientSecret || !evaluationRequest) {
+      setErrors('Missing engine client configuration')
+      return
+    }
 
     setErrors(undefined)
 

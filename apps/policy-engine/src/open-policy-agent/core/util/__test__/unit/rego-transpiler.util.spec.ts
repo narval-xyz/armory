@@ -33,7 +33,6 @@ describe('transpile', () => {
     const rules = await transpile(FIXTURE.POLICIES, await getTemplatePath())
 
     expect(rules).toContain('permit')
-    expect(rules).toContain('forbid')
   })
 })
 
