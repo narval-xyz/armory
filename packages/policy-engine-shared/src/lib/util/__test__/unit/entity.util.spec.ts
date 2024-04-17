@@ -107,7 +107,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4 is undefined"
+              "couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
           }
         ]
       })
