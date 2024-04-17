@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios'
-import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
+import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -27,11 +27,6 @@ import { DataStoreRepository } from './persistence/repository/data-store.reposit
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor
-    },
-    {
-      // DEPRECATE: Use Zod generated DTOs to validate request and responses.
-      provide: APP_PIPE,
-      useClass: ValidationPipe
     },
     {
       provide: APP_PIPE,

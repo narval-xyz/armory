@@ -1,14 +1,5 @@
 import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engine-shared'
-import {
-  Alg,
-  Payload,
-  SigningAlg,
-  buildSignerEip191,
-  hash,
-  privateKeyToJwk,
-  signJwt,
-  verifyJwt
-} from '@narval/signature'
+import { Alg, Payload, SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { DataStoreRepository } from '../../persistence/repository/data-store.repository'
@@ -103,10 +94,6 @@ export class DataStoreService {
       { alg: SigningAlg.EIP191 },
       buildSignerEip191(UNSAFE_PRIVATE_KEY.Root)
     )
-
-    const verify = await verifyJwt(signature, jwk)
-
-    console.log({ signature, verify })
 
     return signature
   }
