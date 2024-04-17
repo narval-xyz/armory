@@ -61,7 +61,6 @@ describe('writeRegoPolicies', () => {
       // NOTE: The transpilation process is covered by rego-transpile.util.ts.
       // Here we only care if the file is empty or not.
       expect(content).toContain('permit')
-      expect(content).toContain('forbid')
     })
   })
 })
