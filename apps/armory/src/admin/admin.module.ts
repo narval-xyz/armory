@@ -7,12 +7,16 @@ import { ApplicationExceptionFilter } from '../shared/filter/application-excepti
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { AdminController } from './admin.controller'
+import { DataStoreService } from './core/service/data-store.service'
 import { DataStoreController } from './http/controller/data-store.controller'
+import { DataStoreRepository } from './persistence/repository/data-store.repository'
 
 @Module({
   imports: [ConfigModule.forRoot(), HttpModule, PersistenceModule],
   controllers: [AdminController, DataStoreController],
   providers: [
+    DataStoreService,
+    DataStoreRepository,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter

@@ -8,7 +8,9 @@ export const Action = {
   SIGN_TRANSACTION: 'signTransaction',
   SIGN_RAW: 'signRaw',
   SIGN_MESSAGE: 'signMessage',
-  SIGN_TYPED_DATA: 'signTypedData'
+  SIGN_TYPED_DATA: 'signTypedData',
+  SET_ENTITIES: 'setEntities',
+  SET_POLICIES: 'setPolicies'
 } as const
 export type Action = (typeof Action)[keyof typeof Action]
 export const ActionSchema = z.nativeEnum(Action)
@@ -124,3 +126,19 @@ export const SignRawAction = BaseAction.merge(
   })
 )
 export type SignRawAction = z.infer<typeof SignRawAction>
+
+export const SetEntitiesAction = BaseAction.merge(
+  z.object({
+    action: z.literal(Action.SET_ENTITIES),
+    resourceId: z.string()
+  })
+)
+export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
+
+export const SetPoliciesAction = BaseAction.merge(
+  z.object({
+    action: z.literal(Action.SET_POLICIES),
+    resourceId: z.string()
+  })
+)
+export type SetPoliciesAction = z.infer<typeof SetPoliciesAction>

@@ -1,13 +1,12 @@
 import { existsSync } from 'fs'
 import { JSONFilePreset } from 'lowdb/node'
 import { NextRequest, NextResponse } from 'next/server'
-import example from './example.json'
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
   const storageExists = existsSync('./storage.json')
 
   if (!storageExists) {
-    return new Response(JSON.stringify(example))
+    return new Response(JSON.stringify({}))
   }
 
   const db = await JSONFilePreset('./storage.json', {

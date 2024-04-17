@@ -1,6 +1,13 @@
 import { ZodTypeAny, z } from 'zod'
 import { AccountId } from '../util/caip.util'
-import { SignMessageAction, SignRawAction, SignTransactionAction, SignTypedDataAction } from './action.type'
+import {
+  SetEntitiesAction,
+  SetPoliciesAction,
+  SignMessageAction,
+  SignRawAction,
+  SignTransactionAction,
+  SignTypedDataAction
+} from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -88,7 +95,9 @@ export const Request = z.discriminatedUnion('action', [
   SignTransactionAction,
   SignMessageAction,
   SignTypedDataAction,
-  SignRawAction
+  SignRawAction,
+  SetPoliciesAction,
+  SetEntitiesAction
 ])
 export type Request = z.infer<typeof Request>
 

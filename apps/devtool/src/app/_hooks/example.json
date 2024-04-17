@@ -1,0 +1,145 @@
+{
+  "entity": {
+    "addressBook": [],
+    "credentials": [
+      {
+        "id": "0x9D432a09CBf55F22Aa6a2E290acB12D57d29B2Fc",
+        "userId": "7a09904c-070e-4d00-8fa8-5f1dfafff2a5",
+        "key": {
+          "kty": "EC",
+          "crv": "secp256k1",
+          "alg": "ES256K",
+          "kid": "0x9D432a09CBf55F22Aa6a2E290acB12D57d29B2Fc",
+          "addr": "0x9D432a09CBf55F22Aa6a2E290acB12D57d29B2Fc"
+        }
+      },
+      {
+        "id": "0x0C151023EDedCC419caB0f49ABaCd2e87a4FF013",
+        "userId": "db5bf088-05f7-492c-a2a9-0b62696ac9c7",
+        "key": {
+          "kty": "EC",
+          "crv": "secp256k1",
+          "alg": "ES256K",
+          "kid": "0x0C151023EDedCC419caB0f49ABaCd2e87a4FF013",
+          "addr": "0x0C151023EDedCC419caB0f49ABaCd2e87a4FF013"
+        }
+      },
+      {
+        "id": "0x000c0d191308A336356BEe3813CC17F6868972C4",
+        "userId": "61e775a9-5f68-41ab-a775-5806845e6e72",
+        "key": {
+          "kty": "EC",
+          "crv": "secp256k1",
+          "alg": "ES256K",
+          "kid": "0x000c0d191308A336356BEe3813CC17F6868972C4",
+          "addr": "0x000c0d191308A336356BEe3813CC17F6868972C4"
+        }
+      }
+    ],
+    "tokens": [],
+    "userGroupMembers": [],
+    "userGroups": [],
+    "userWallets": [
+      {
+        "userId": "61e775a9-5f68-41ab-a775-5806845e6e72",
+        "walletId": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f"
+      }
+    ],
+    "users": [
+      {
+        "id": "7a09904c-070e-4d00-8fa8-5f1dfafff2a5",
+        "role": "admin"
+      },
+      {
+        "id": "db5bf088-05f7-492c-a2a9-0b62696ac9c7",
+        "role": "admin"
+      },
+      {
+        "id": "61e775a9-5f68-41ab-a775-5806845e6e72",
+        "role": "admin"
+      }
+    ],
+    "walletGroupMembers": [],
+    "walletGroups": [],
+    "wallets": [
+      {
+        "id": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f",
+        "address": "0x494042504a8148a6d00ab10ed26043f5579ce00f",
+        "accountType": "eoa"
+      }
+    ]
+  },
+  "policy": [
+    {
+      "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+      "description": "Authorized any admin to set entities and policies",
+      "when": [
+        {
+          "criterion": "checkPrincipalRole",
+          "args": ["admin"]
+        },
+        {
+          "criterion": "checkAction",
+          "args": ["setEntities", "setPolicies"]
+        }
+      ],
+      "then": "permit"
+    },
+    {
+      "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+      "description": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
+      "when": [
+        {
+          "criterion": "checkPrincipalRole",
+          "args": ["admin"]
+        },
+        {
+          "criterion": "checkAction",
+          "args": ["signTransaction"]
+        },
+        {
+          "criterion": "checkIntentType",
+          "args": ["transferErc721", "transferErc1155"]
+        },
+        {
+          "criterion": "checkApprovals",
+          "args": [
+            {
+              "approvalCount": 2,
+              "countPrincipal": false,
+              "approvalEntityType": "Narval::User",
+              "entityIds": ["7a09904c-070e-4d00-8fa8-5f1dfafff2a5", "db5bf088-05f7-492c-a2a9-0b62696ac9c7"]
+            }
+          ]
+        }
+      ],
+      "then": "permit"
+    },
+    {
+      "id": "a68e8d20-0519-475c-9fcc-b17d4de8c955",
+      "description": "Authorized transfers <= 1 MATIC on a 24h sliding window",
+      "when": [
+        {
+          "criterion": "checkAction",
+          "args": ["signTransaction"]
+        },
+        {
+          "criterion": "checkIntentType",
+          "args": ["transferNative"]
+        },
+        {
+          "criterion": "checkSpendingLimit",
+          "args": {
+            "limit": "1000000000000000000",
+            "operator": "lte",
+            "timeWindow": {
+              "type": "rolling",
+              "value": 43200
+            }
+          }
+        }
+      ],
+      "then": "permit"
+    }
+  ]
+}
