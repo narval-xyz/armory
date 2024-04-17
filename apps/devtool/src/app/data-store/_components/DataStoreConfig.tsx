@@ -8,7 +8,7 @@ import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
-import useAdminApi from '../../_hooks/useAdminApi'
+import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import CodeEditor from './CodeEditor'
@@ -29,7 +29,8 @@ const DataStoreConfig = () => {
 
   const { isSynced, syncEngine } = useEngineApi()
 
-  const { dataStore, isEntitySigning, isPolicySigning, errors, setEntities, setPolicies } = useAdminApi()
+  const { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore } =
+    useDataStoreApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(true)
@@ -38,7 +39,8 @@ const DataStoreConfig = () => {
   useEffect(() => {
     if (!dataStore) return
 
-    setCodeEditor(JSON.stringify(dataStore, null, 2))
+    const { entity, policy } = dataStore
+    setCodeEditor(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
   }, [dataStore])
 
   useEffect(() => {
@@ -53,7 +55,7 @@ const DataStoreConfig = () => {
     if (!codeEditor) return
 
     const { entity } = JSON.parse(codeEditor)
-    await setEntities(entity)
+    await signEntityDataStore(entity)
     await syncEngine()
   }
 
@@ -61,7 +63,7 @@ const DataStoreConfig = () => {
     if (!codeEditor) return
 
     const { policy } = JSON.parse(codeEditor)
-    await setPolicies(policy)
+    await signPolicyDataStore(policy)
     await syncEngine()
   }
 
