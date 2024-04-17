@@ -5,7 +5,7 @@ import { Wallet } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class WalletRepository {
-  private KEY_PREFIX = 'wallet:'
+  private KEY_PREFIX = 'wallet'
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
@@ -14,7 +14,7 @@ export class WalletRepository {
   }
 
   async findById(clientId: string, id: string): Promise<Wallet | null> {
-    const value = await this.keyValueService.get(this.getKey(clientId, id))
+    const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
       return this.decode(value)
@@ -24,7 +24,7 @@ export class WalletRepository {
   }
 
   async save(clientId: string, wallet: Wallet): Promise<Wallet> {
-    await this.keyValueService.set(this.getKey(clientId, wallet.id), this.encode(wallet))
+    await this.keyValueService.set(this.getKey(clientId, wallet.id.toLowerCase()), this.encode(wallet))
 
     return wallet
   }
