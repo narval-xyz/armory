@@ -11,7 +11,6 @@ export class DataStoreController {
 
   @Get('/entities')
   getEntities(@OrgId() orgId: string) {
-    console.log('orgId', orgId)
     return this.dataStoreService.getEntities(orgId)
   }
 
