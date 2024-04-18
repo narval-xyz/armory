@@ -6,7 +6,8 @@ import {
   FIXTURE,
   PolicyData,
   PolicySignature,
-  PolicyStore
+  PolicyStore,
+  UrlType
 } from '@narval/policy-engine-shared'
 import { Jwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
@@ -78,13 +79,25 @@ describe(DataStoreService.name, () => {
         const url = `file://${path}`
         const store = {
           entity: {
-            dataUrl: `${remoteDataStoreUrl}/entity`,
-            signatureUrl: url,
+            data: {
+              type: UrlType.HTTP,
+              url: `${remoteDataStoreUrl}/entity`
+            },
+            signature: {
+              type: UrlType.FILE,
+              url
+            },
             keys: [jwk]
           },
           policy: {
-            dataUrl: `${remoteDataStoreUrl}/policy`,
-            signatureUrl: url,
+            data: {
+              type: UrlType.HTTP,
+              url: `${remoteDataStoreUrl}/policy`
+            },
+            signature: {
+              type: UrlType.FILE,
+              url
+            },
             keys: [jwk]
           }
         }
@@ -114,13 +127,25 @@ describe(DataStoreService.name, () => {
         try {
           await service.fetch({
             entity: {
-              dataUrl: url,
-              signatureUrl: url,
+              data: {
+                type: UrlType.FILE,
+                url
+              },
+              signature: {
+                type: UrlType.FILE,
+                url
+              },
               keys: [jwk]
             },
             policy: {
-              dataUrl: url,
-              signatureUrl: url,
+              data: {
+                type: UrlType.FILE,
+                url
+              },
+              signature: {
+                type: UrlType.FILE,
+                url
+              },
               keys: [jwk]
             }
           })

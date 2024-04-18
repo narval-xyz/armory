@@ -5,6 +5,7 @@ import {
   EntityUtil,
   Policy,
   PolicyStore,
+  UrlConfiguration,
   entityDataSchema,
   entitySignatureSchema,
   policyDataSchema,
@@ -38,8 +39,8 @@ export class DataStoreService {
 
   async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
     const [entityData, entitySignature] = await Promise.all([
-      this.fetchByUrl(store.dataUrl, entityDataSchema),
-      this.fetchByUrl(store.signatureUrl, entitySignatureSchema)
+      this.fetchByUrl(store.data, entityDataSchema),
+      this.fetchByUrl(store.signature, entitySignatureSchema)
     ])
 
     const validation = EntityUtil.validate(entityData.entity.data)
@@ -65,7 +66,7 @@ export class DataStoreService {
       message: 'Invalid entity domain invariant',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: {
-        url: store.dataUrl,
+        urlConfig: store.data,
         errors: validation.success ? {} : validation.issues
       }
     })
@@ -73,8 +74,8 @@ export class DataStoreService {
 
   async fetchPolicy(store: DataStoreConfiguration): Promise<PolicyStore> {
     const [policyData, policySignature] = await Promise.all([
-      this.fetchByUrl(store.dataUrl, policyDataSchema),
-      this.fetchByUrl(store.signatureUrl, policySignatureSchema)
+      this.fetchByUrl(store.data, policyDataSchema),
+      this.fetchByUrl(store.signature, policySignatureSchema)
     ])
 
     const signatureVerification = await this.verifySignature({
@@ -95,10 +96,13 @@ export class DataStoreService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async fetchByUrl<DataSchema extends ZodObject<any>>(
-    url: string,
+    urlConfig: UrlConfiguration,
     schema: DataSchema
   ): Promise<z.infer<typeof schema>> {
-    const data = await this.dataStoreRepositoryFactory.getRepository(url).fetch(url)
+    const data = await this.dataStoreRepositoryFactory
+      .getRepository(urlConfig.type)
+      .fetch(urlConfig.url, urlConfig.headers)
+
     const result = schema.safeParse(data)
 
     if (result.success) {
@@ -110,7 +114,7 @@ export class DataStoreService {
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: {
         ...(schema.description ? { schema: schema.description } : {}),
-        url,
+        urlConfig,
         errors: result.error.errors.map(({ path, message, code }) => ({
           path,
           code,

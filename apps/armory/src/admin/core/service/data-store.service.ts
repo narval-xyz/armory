@@ -10,12 +10,12 @@ export class DataStoreService {
 
   async getEntities(orgId: string) {
     const dataStore = await this.dataStoreRepository.getLatestDataStore(orgId)
-    return dataStore?.data.entity.data
+    return { entity: dataStore?.data.entity }
   }
 
   async getPolicies(orgId: string) {
     const dataStore = await this.dataStoreRepository.getLatestDataStore(orgId)
-    return dataStore?.data.policy.data
+    return { policy: dataStore?.data.policy }
   }
 
   async setEntities(orgId: string, entities: Entities) {

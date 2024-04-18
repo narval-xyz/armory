@@ -1,11 +1,18 @@
 import { jwkSchema } from '@narval/signature'
 import { z } from 'zod'
+import { UrlType } from '../type/data-store.type'
 import { entitiesSchema } from './entity.schema'
 import { policySchema } from './policy.schema'
 
+export const urlConfigurationSchema = z.object({
+  type: z.nativeEnum(UrlType),
+  url: z.string().min(1),
+  headers: z.record(z.string()).optional()
+})
+
 export const dataStoreConfigurationSchema = z.object({
-  dataUrl: z.string().min(1),
-  signatureUrl: z.string().min(1),
+  data: urlConfigurationSchema,
+  signature: urlConfigurationSchema,
   keys: z.array(jwkSchema)
 })
 

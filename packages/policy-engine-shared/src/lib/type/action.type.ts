@@ -129,14 +129,16 @@ export type SignRawAction = z.infer<typeof SignRawAction>
 
 export const SetEntitiesAction = BaseAction.merge(
   z.object({
-    action: z.literal(Action.SET_ENTITIES)
+    action: z.literal(Action.SET_ENTITIES),
+    resourceId: z.string().optional()
   })
 )
 export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
 
 export const SetPoliciesAction = BaseAction.merge(
   z.object({
-    action: z.literal(Action.SET_POLICIES)
+    action: z.literal(Action.SET_POLICIES),
+    resourceId: z.string().optional()
   })
 )
 export type SetPoliciesAction = z.infer<typeof SetPoliciesAction>

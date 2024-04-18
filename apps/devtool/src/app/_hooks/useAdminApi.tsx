@@ -1,18 +1,39 @@
-import { Entities, EvaluationResponse, Policy } from '@narval/policy-engine-shared'
+import {
+  Entities,
+  EntityStore,
+  EntityUtil,
+  EvaluationResponse,
+  FIXTURE,
+  Policy,
+  PolicyStore,
+  entityDataSchema,
+  policyDataSchema
+} from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
-import example from './example.json'
 import useStore from './useStore'
 
 type DataStore = { entity: Entities; policy: Policy[] }
 
+const initDataStore: DataStore = {
+  entity: FIXTURE.ENTITIES,
+  policy: FIXTURE.POLICIES
+}
+
 const useAdminApi = () => {
-  const { engineClientId, engineClientSecret, entityDataStoreUrl, policyDataStoreUrl } = useStore()
+  const {
+    engineClientId,
+    engineClientSecret,
+    entityDataStoreUrl,
+    policyDataStoreUrl,
+    entityDataStoreHeaders,
+    policyDataStoreHeaders
+  } = useStore()
   const [dataStore, setDataStore] = useState<DataStore>()
   const [isEntitySigning, setIsEntitySigning] = useState(false)
   const [isPolicySigning, setIsPolicySigning] = useState(false)
-  const [errors, setErrors] = useState<any>()
+  const [errors, setErrors] = useState<string>()
 
   useEffect(() => {
     if (!dataStore) {
@@ -23,31 +44,46 @@ const useAdminApi = () => {
   const getDataStore = async () => {
     if (!entityDataStoreUrl || !policyDataStoreUrl) return
 
+    let data = initDataStore
+
     try {
-      const headers = { 'x-org-id': '1' }
-      const [{ data: entity }, { data: policy }] = await Promise.all([
-        axios.get<Entities>(entityDataStoreUrl, { headers }),
-        axios.get<Policy[]>(policyDataStoreUrl, { headers })
+      const [{ data: entityData }, { data: policyData }] = await Promise.all([
+        axios.get<{ entity: EntityStore }>(entityDataStoreUrl, { headers: JSON.parse(entityDataStoreHeaders) }),
+        axios.get<{ policy: PolicyStore }>(policyDataStoreUrl, { headers: JSON.parse(policyDataStoreHeaders) })
       ])
 
-      if (!entity && !policy) {
-        const data = example as unknown as DataStore
-        setDataStore(data)
-        return data
+      if (entityData?.entity?.data || policyData?.policy?.data) {
+        data = { entity: entityData.entity.data, policy: policyData.policy.data }
       }
-
-      const data: DataStore = { entity, policy }
-      setDataStore(data)
-      return data
     } catch (error) {
-      setDataStore(example as unknown as DataStore)
+      setErrors(extractErrorMessage(error))
     }
+
+    setDataStore(data)
+    return data
   }
 
-  const setEntities = async (entities: Entities) => {
+  const signEntityDataStore = async (entities: Entities) => {
     if (!engineClientId || !engineClientSecret || !entityDataStoreUrl) return
 
     setErrors(undefined)
+
+    const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entities } })
+
+    if (!entityValidationResult.success) {
+      setErrors(
+        entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
+      )
+      return
+    }
+
+    const validation = EntityUtil.validate(entities)
+
+    if (!validation.success) {
+      setErrors(validation.issues.map((issue) => issue.message).join(', '))
+      return
+    }
+
     setIsEntitySigning(true)
 
     try {
@@ -65,10 +101,20 @@ const useAdminApi = () => {
     setIsEntitySigning(false)
   }
 
-  const setPolicies = async (policies: Policy[]) => {
+  const signPolicyDataStore = async (policies: Policy[]) => {
     if (!engineClientId || !engineClientSecret || !policyDataStoreUrl) return
 
     setErrors(undefined)
+
+    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policies } })
+
+    if (!policyValidationResult.success) {
+      setErrors(
+        policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
+      )
+      return
+    }
+
     setIsPolicySigning(true)
 
     try {
@@ -86,7 +132,7 @@ const useAdminApi = () => {
     setIsPolicySigning(false)
   }
 
-  return { dataStore, isEntitySigning, isPolicySigning, errors, setEntities, setPolicies }
+  return { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore }
 }
 
 export default useAdminApi

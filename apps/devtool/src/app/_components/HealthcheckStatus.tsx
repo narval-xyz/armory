@@ -23,12 +23,16 @@ const HealthcheckStatus = () => {
     policyDataStoreUrl,
     entitySignatureUrl,
     policySignatureUrl,
+    policyDataStoreHeaders,
+    policySignatureHeaders,
+    entityDataStoreHeaders,
+    entitySignatureHeaders,
     vaultUrl
   } = useStore()
 
   const checkPolicyDataConnection = async () => {
     try {
-      await axios.get(policyDataStoreUrl)
+      await axios.get(policyDataStoreUrl, { headers: JSON.parse(policyDataStoreHeaders) })
       setStatus((prev) => ({ ...prev, policyDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, policyDataUrl: false }))
@@ -37,7 +41,7 @@ const HealthcheckStatus = () => {
 
   const checkPolicySignatureConnection = async () => {
     try {
-      await axios.get(policySignatureUrl)
+      await axios.get(policySignatureUrl, { headers: JSON.parse(policySignatureHeaders) })
       setStatus((prev) => ({ ...prev, policySignatureUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, policySignatureUrl: false }))
@@ -46,7 +50,7 @@ const HealthcheckStatus = () => {
 
   const checkEntityDataConnection = async () => {
     try {
-      await axios.get(entityDataStoreUrl)
+      await axios.get(entityDataStoreUrl, { headers: JSON.parse(entityDataStoreHeaders) })
       setStatus((prev) => ({ ...prev, entityDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, entityDataUrl: false }))
@@ -55,7 +59,7 @@ const HealthcheckStatus = () => {
 
   const checkEntitySignatureConnection = async () => {
     try {
-      await axios.get(entitySignatureUrl)
+      await axios.get(entitySignatureUrl, { headers: JSON.parse(entitySignatureHeaders) })
       setStatus((prev) => ({ ...prev, entitySignatureUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, entitySignatureUrl: false }))

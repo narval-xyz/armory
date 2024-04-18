@@ -8,9 +8,19 @@ import {
   policyDataSchema,
   policyJsonWebKeysSchema,
   policySignatureSchema,
-  policyStoreSchema
+  policyStoreSchema,
+  urlConfigurationSchema
 } from '../schema/data-store.schema'
 
+export const UrlType = {
+  HTTP: 'http',
+  HTTPS: 'https',
+  FILE: 'file'
+} as const
+
+export type UrlType = (typeof UrlType)[keyof typeof UrlType]
+
+export type UrlConfiguration = z.infer<typeof urlConfigurationSchema>
 export type DataStoreConfiguration = z.infer<typeof dataStoreConfigurationSchema>
 
 export type EntityData = z.infer<typeof entityDataSchema>

@@ -1,5 +1,7 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
+import { ADMIN_SERVICE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
+
+const HEADERS = JSON.stringify({ 'x-org-id': '1' })
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
@@ -15,19 +17,35 @@ const useStore = () => {
 
   const [entityDataStoreUrl, setEntityDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.entityDataStoreUrl,
-    DATA_STORE_URL
+    `${ADMIN_SERVICE_URL}/data-store/entities`
   )
   const [entitySignatureUrl, setEntitySignatureUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.entitySignatureUrl,
-    DATA_STORE_URL
+    `${ADMIN_SERVICE_URL}/data-store/entities`
+  )
+  const [entityDataStoreHeaders, setEntityDataStoreHeaders] = useLocalStorage(
+    LOCAL_STORAGE_KEYS.entityDataStoreHeaders,
+    HEADERS
+  )
+  const [entitySignatureHeaders, setEntitySignatureHeaders] = useLocalStorage(
+    LOCAL_STORAGE_KEYS.entitySignatureHeaders,
+    HEADERS
   )
   const [policyDataStoreUrl, setPolicyDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.policyDataStoreUrl,
-    DATA_STORE_URL
+    `${ADMIN_SERVICE_URL}/data-store/policies`
   )
   const [policySignatureUrl, setPolicySignatureUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.policySignatureUrl,
-    DATA_STORE_URL
+    `${ADMIN_SERVICE_URL}/data-store/policies`
+  )
+  const [policyDataStoreHeaders, setPolicyDataStoreHeaders] = useLocalStorage(
+    LOCAL_STORAGE_KEYS.policyDataStoreHeaders,
+    HEADERS
+  )
+  const [policySignatureHeaders, setPolicySignatureHeaders] = useLocalStorage(
+    LOCAL_STORAGE_KEYS.policySignatureHeaders,
+    HEADERS
   )
 
   return {
@@ -56,7 +74,15 @@ const useStore = () => {
     policyDataStoreUrl,
     setPolicyDataStoreUrl,
     policySignatureUrl,
-    setPolicySignatureUrl
+    setPolicySignatureUrl,
+    entityDataStoreHeaders,
+    setEntityDataStoreHeaders,
+    entitySignatureHeaders,
+    setEntitySignatureHeaders,
+    policyDataStoreHeaders,
+    setPolicyDataStoreHeaders,
+    policySignatureHeaders,
+    setPolicySignatureHeaders
   }
 }
 

@@ -8,9 +8,9 @@ import { DataStoreRepository } from '../../core/repository/data-store.repository
 export class HttpDataStoreRepository implements DataStoreRepository {
   constructor(private httpService: HttpService) {}
 
-  fetch<Data>(url: string): Promise<Data> {
+  fetch<Data>(url: string, headers?: Record<string, string>): Promise<Data> {
     return lastValueFrom(
-      this.httpService.get<Data>(url).pipe(
+      this.httpService.get<Data>(url, { headers }).pipe(
         map((response) => response.data),
         catchError((error) => {
           throw new DataStoreException({

@@ -1,9 +1,9 @@
-import { EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
+import { EvaluationRequest, EvaluationResponse, FIXTURE } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import { extractErrorMessage } from '../_lib/utils'
+import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
@@ -17,19 +17,23 @@ const useEngineApi = () => {
     entitySignatureUrl,
     policyDataStoreUrl,
     policySignatureUrl,
+    entityDataStoreHeaders,
+    entitySignatureHeaders,
+    policyDataStoreHeaders,
+    policySignatureHeaders,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner
   } = useStore()
 
-  const { jwk, signAccountJwt } = useAccountSignature()
+  const { signAccountJwt } = useAccountSignature()
   const [isOnboarded, setIsOnboarded] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
 
-  const [errors, setErrors] = useState<any>()
+  const [errors, setErrors] = useState<string>()
 
   const onboardClient = async () => {
-    if (!engineAdminApiKey || !jwk) return
+    if (!engineAdminApiKey) return
 
     setErrors(undefined)
 
@@ -38,14 +42,30 @@ const useEngineApi = () => {
         `${engineUrl}/clients`,
         {
           entityDataStore: {
-            dataUrl: entityDataStoreUrl,
-            signatureUrl: entitySignatureUrl,
-            keys: [jwk]
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl,
+              headers: JSON.parse(entityDataStoreHeaders)
+            },
+            signature: {
+              type: getUrlProtocol(entitySignatureUrl),
+              url: entitySignatureUrl,
+              headers: JSON.parse(entitySignatureHeaders)
+            },
+            keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
           },
           policyDataStore: {
-            dataUrl: policyDataStoreUrl,
-            signatureUrl: policySignatureUrl,
-            keys: [jwk]
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl,
+              headers: JSON.parse(policyDataStoreHeaders)
+            },
+            signature: {
+              type: getUrlProtocol(policySignatureUrl),
+              url: policySignatureUrl,
+              headers: JSON.parse(policySignatureHeaders)
+            },
+            keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
           }
         },
         {
