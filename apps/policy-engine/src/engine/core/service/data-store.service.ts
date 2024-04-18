@@ -1,13 +1,9 @@
 import {
   DataStoreConfiguration,
   Entities,
-  EntityData,
-  EntitySignature,
   EntityStore,
   EntityUtil,
   Policy,
-  PolicyData,
-  PolicySignature,
   PolicyStore,
   Source
 } from '@narval/policy-engine-shared'

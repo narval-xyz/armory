@@ -22,7 +22,7 @@ export class PolicyDataStoreRepository {
     return dataStore
   }
 
- async getLatestVersion(orgId: string): Promise<number> {
+  async getLatestVersion(orgId: string): Promise<number> {
     const data = await this.prismaService.policyDataStore.aggregate({
       where: {
         orgId
