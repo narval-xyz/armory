@@ -60,10 +60,10 @@ vault/db/setup:
 			--force
 	make vault/db/seed
 
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Vault test database${TERM_NO_COLOR}"
-	@echo ""
-	make vault/test/db/setup
+vault/db/migrate/deploy:
+	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
+		prisma migrate deploy \
+			--schema ${VAULT_DATABASE_SCHEMA}
 
 vault/db/create-migration:
 	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
@@ -128,3 +128,28 @@ vault/cli:
 		--project ${VAULT_PROJECT_DIR}/tsconfig.app.json \
 		${VAULT_PROJECT_DIR}/src/cli.ts ${CMD}
 
+
+# === DOCKER ===
+vault/docker/build:
+	docker buildx build \
+		--platform linux/amd64 \
+		--secret id=npmrc,src=./.npmrc \
+		-f vault.dockerfile \
+		-t armory/vault:latest \
+		--cache-from armory/vault:latest \
+		. --load
+
+vault/docker/push:
+	docker tag armory/vault:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault:latest
+	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault:latest
+
+vault/migrator/docker/build:
+	docker buildx build \
+		--platform linux/amd64 \
+		-f vault-db-migrator.dockerfile \
+		-t armory/vault-db-migrator:latest \
+		. --load
+
+vault/migrator/docker/push:
+	docker tag armory/vault-db-migrator:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator:latest
+	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator:latest
