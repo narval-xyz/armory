@@ -1,6 +1,16 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { Action, Criterion, Decision, EvaluationRequest, FIXTURE, Then } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Criterion,
+  DataStoreConfiguration,
+  Decision,
+  EvaluationRequest,
+  FIXTURE,
+  HttpSource,
+  SourceType,
+  Then
+} from '@narval/policy-engine-shared'
 import { Alg, PrivateKey, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -39,7 +49,10 @@ describe('Evaluation', () => {
 
   const clientId = uuid()
 
-  const dataStoreUrl = 'http://127.0.0.1:9999/test-data-store'
+  const dataStoreSource: HttpSource = {
+    type: SourceType.HTTP,
+    url: 'http://127.0.0.1:9999/test-data-store'
+  }
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -71,9 +84,9 @@ describe('Evaluation', () => {
 
     privateKey = secp256k1PrivateKeyToJwk(generatePrivateKey())
 
-    const dataStoreConfiguration = {
-      dataUrl: dataStoreUrl,
-      signatureUrl: dataStoreUrl,
+    const dataStoreConfiguration: DataStoreConfiguration = {
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: [privateKey]
     }
 

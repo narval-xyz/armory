@@ -1,13 +1,13 @@
 import {
   Entities,
+  EntityData,
   EntityStore,
   EntityUtil,
   EvaluationResponse,
   FIXTURE,
   Policy,
-  PolicyStore,
-  entityDataSchema,
-  policyDataSchema
+  PolicyData,
+  PolicyStore
 } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
@@ -68,7 +68,7 @@ const useAdminApi = () => {
 
     setErrors(undefined)
 
-    const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entities } })
+    const entityValidationResult = EntityData.safeParse({ entity: { data: entities } })
 
     if (!entityValidationResult.success) {
       setErrors(
@@ -106,7 +106,7 @@ const useAdminApi = () => {
 
     setErrors(undefined)
 
-    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policies } })
+    const policyValidationResult = PolicyData.safeParse({ policy: { data: policies } })
 
     if (!policyValidationResult.success) {
       setErrors(

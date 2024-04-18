@@ -1,5 +1,5 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { DataStoreConfiguration, FIXTURE } from '@narval/policy-engine-shared'
+import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -20,9 +20,14 @@ describe(ClientService.name, () => {
 
   const clientId = 'test-client-id'
 
+  const dataStoreSource: HttpSource = {
+    type: SourceType.HTTP,
+    url: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test'
+  }
+
   const dataStoreConfiguration: DataStoreConfiguration = {
-    dataUrl: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test',
-    signatureUrl: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test',
+    data: dataStoreSource,
+    signature: dataStoreSource,
     keys: []
   }
 

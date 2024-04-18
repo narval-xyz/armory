@@ -1,15 +1,15 @@
 import {
   DataStoreConfiguration,
   Entities,
+  EntityData,
+  EntitySignature,
   EntityStore,
   EntityUtil,
   Policy,
+  PolicyData,
+  PolicySignature,
   PolicyStore,
-  UrlConfiguration,
-  entityDataSchema,
-  entitySignatureSchema,
-  policyDataSchema,
-  policySignatureSchema
+  Source
 } from '@narval/policy-engine-shared'
 import { Jwk, decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
@@ -39,23 +39,23 @@ export class DataStoreService {
 
   async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
     const [entityData, entitySignature] = await Promise.all([
-      this.fetchByUrl(store.data, entityDataSchema),
-      this.fetchByUrl(store.signature, entitySignatureSchema)
+      this.fetchByUrl(store.data, EntityStore),
+      this.fetchByUrl(store.signature, EntityStore)
     ])
 
-    const validation = EntityUtil.validate(entityData.entity.data)
+    const validation = EntityUtil.validate(entityData.data)
 
     if (validation.success) {
       const signatureVerification = await this.verifySignature({
-        data: entityData.entity.data,
-        signature: entitySignature.entity.signature,
+        data: entityData.data,
+        signature: entitySignature.signature,
         keys: store.keys
       })
 
       if (signatureVerification.success) {
         return {
-          data: entityData.entity.data,
-          signature: entitySignature.entity.signature
+          data: entityData.data,
+          signature: entitySignature.signature
         }
       }
 
@@ -74,20 +74,20 @@ export class DataStoreService {
 
   async fetchPolicy(store: DataStoreConfiguration): Promise<PolicyStore> {
     const [policyData, policySignature] = await Promise.all([
-      this.fetchByUrl(store.data, policyDataSchema),
-      this.fetchByUrl(store.signature, policySignatureSchema)
+      this.fetchByUrl(store.data, PolicyStore),
+      this.fetchByUrl(store.signature, PolicyStore)
     ])
 
     const signatureVerification = await this.verifySignature({
-      data: policyData.policy.data,
-      signature: policySignature.policy.signature,
+      data: policyData.data,
+      signature: policySignature.signature,
       keys: store.keys
     })
 
     if (signatureVerification.success) {
       return {
-        data: policyData.policy.data,
-        signature: policySignature.policy.signature
+        data: policyData.data,
+        signature: policySignature.signature
       }
     }
 
@@ -96,12 +96,10 @@ export class DataStoreService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async fetchByUrl<DataSchema extends ZodObject<any>>(
-    urlConfig: UrlConfiguration,
+    source: Source,
     schema: DataSchema
   ): Promise<z.infer<typeof schema>> {
-    const data = await this.dataStoreRepositoryFactory
-      .getRepository(urlConfig.type)
-      .fetch(urlConfig.url, urlConfig.headers)
+    const data = await this.dataStoreRepositoryFactory.getRepository(source.type).fetch(source)
 
     const result = schema.safeParse(data)
 
@@ -114,7 +112,7 @@ export class DataStoreService {
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: {
         ...(schema.description ? { schema: schema.description } : {}),
-        urlConfig,
+        source,
         errors: result.error.errors.map(({ path, message, code }) => ({
           path,
           code,

@@ -92,14 +92,14 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
-      await axios.post(`${engineUrl}/clients/sync`, null, {
+      const { data } = await axios.post(`${engineUrl}/clients/sync`, null, {
         headers: {
           'x-client-id': engineClientId,
           'x-client-secret': engineClientSecret
         }
       })
 
-      setIsSynced(true)
+      setIsSynced(data.ok)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
