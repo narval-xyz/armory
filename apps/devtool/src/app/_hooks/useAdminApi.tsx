@@ -8,7 +8,9 @@ import {
   FIXTURE,
   Policy,
   PolicyData,
-  PolicyStore
+  PolicyStore,
+  SetEntitiesAction,
+  SetPoliciesAction
 } from '@narval/policy-engine-shared'
 import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
@@ -94,7 +96,13 @@ const useAdminApi = () => {
     setIsEntitySigning(true)
 
     try {
-      const evaluationRequest = await buildEvaluationRequest(Action.SET_ENTITIES, entities)
+      const request: SetEntitiesAction = {
+        action: Action.SET_ENTITIES,
+        nonce: uuid(),
+        data: entities
+      }
+
+      const evaluationRequest = await signRequest(request)
 
       await axios.post(
         entityDataStoreUrl,
@@ -134,7 +142,13 @@ const useAdminApi = () => {
     setIsPolicySigning(true)
 
     try {
-      const evaluationRequest = await buildEvaluationRequest(Action.SET_POLICIES, policies)
+      const request: SetPoliciesAction = {
+        action: Action.SET_POLICIES,
+        nonce: uuid(),
+        data: policies
+      }
+
+      const evaluationRequest = await signRequest(request)
 
       await axios.post(
         policyDataStoreUrl,
@@ -156,16 +170,7 @@ const useAdminApi = () => {
     setIsPolicySigning(false)
   }
 
-  const buildEvaluationRequest = async (
-    action: 'setEntities' | 'setPolicies',
-    data: Entities | Policy[]
-  ): Promise<EvaluationRequest> => {
-    const request = {
-      action,
-      nonce: uuid(),
-      data
-    }
-
+  const signRequest = async (request: SetEntitiesAction | SetPoliciesAction): Promise<EvaluationRequest> => {
     const payload: Payload = {
       iss: uuid(),
       requestHash: hash(request)

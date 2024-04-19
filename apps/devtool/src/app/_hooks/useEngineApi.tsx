@@ -1,4 +1,4 @@
-import { EvaluationRequest, EvaluationResponse, FIXTURE } from '@narval/policy-engine-shared'
+import { EvaluationRequest, EvaluationResponse, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
 import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
@@ -115,10 +115,12 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
+      const request = evaluationRequest.request as SignTransactionAction
+
       const payload: Payload = {
         iss: uuid(),
-        sub: evaluationRequest.request.resourceId,
-        requestHash: hash(evaluationRequest.request)
+        sub: request.resourceId,
+        requestHash: hash(request)
       }
 
       const authentication = await signAccountJwt(payload)
