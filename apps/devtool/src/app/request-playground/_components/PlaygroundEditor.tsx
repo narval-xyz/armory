@@ -2,7 +2,6 @@
 
 import {
   faArrowsRotate,
-  faCheck,
   faCheckCircle,
   faFileSignature,
   faTriangleExclamation,
@@ -11,7 +10,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { hash } from '@narval/signature'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
@@ -42,22 +40,6 @@ const PlaygroundEditor = () => {
       return false
     }
   }, [codeEditor, evaluationResponse])
-
-  const getApprovalSignature = async () => {
-    if (!codeEditor) return
-
-    const transactionRequest = JSON.parse(codeEditor)
-
-    const payload = {
-      iss: 'fe723044-35df-4e99-9739-122a48d4ab96',
-      sub: transactionRequest.request.resourceId,
-      requestHash: hash(transactionRequest.request)
-    }
-
-    const authentication = await signAccountJwt(payload)
-
-    console.log(authentication)
-  }
 
   const sendEvaluation = async () => {
     if (!codeEditor) return
@@ -157,9 +139,7 @@ const PlaygroundEditor = () => {
             onClick={signRequest}
             disabled={isProcessing || !canBeSigned}
           />
-          {false && (
-            <NarButton label="Approve" leftIcon={<FontAwesomeIcon icon={faCheck} />} onClick={getApprovalSignature} />
-          )}
+
           {!isProcessing && !error && evaluationResponse && (
             <div className="flex items-center gap-2">
               {evaluationResponse.decision === Decision.PERMIT && (

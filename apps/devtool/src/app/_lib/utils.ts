@@ -13,5 +13,8 @@ export const getUrlProtocol = (url: string) => url.split(':')[0]
 export const extractErrorMessage = (err: unknown): string => {
   const error = err as AxiosError
   const data = error.response?.data as any
-  return data?.message.join(', ') || error.message
+  if (Array.isArray(data?.message)) {
+    return data?.message.join(', ')
+  }
+  return data?.message || error.message
 }

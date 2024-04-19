@@ -4,6 +4,7 @@ import { faArrowRightArrowLeft, faPipe, faSpinner } from '@fortawesome/pro-regul
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
+import ErrorStatus from '../../_components/ErrorStatus'
 import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
@@ -37,8 +38,15 @@ const DataStoreConfig = () => {
 
   const { isSynced, syncEngine } = useEngineApi()
 
-  const { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore } =
-    useAdminApi()
+  const {
+    dataStore,
+    isEntitySigning,
+    isPolicySigning,
+    errors,
+    validationErrors,
+    signEntityDataStore,
+    signPolicyDataStore
+  } = useAdminApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(true)
@@ -51,27 +59,23 @@ const DataStoreConfig = () => {
   }, [dataStore])
 
   useEffect(() => {
-    if (errors && errors.length > 0) {
+    if (validationErrors && validationErrors.length > 0) {
       setIsDialogOpen(true)
     } else {
       setIsDialogOpen(false)
     }
-  }, [errors])
+  }, [validationErrors])
 
   const signEntityData = async () => {
     if (!codeEditor) return
-
     const { entity } = JSON.parse(codeEditor)
-    await signEntityDataStore(entity)
-    await syncEngine()
+    return signEntityDataStore(entity, syncEngine)
   }
 
   const signPolicyData = async () => {
     if (!codeEditor) return
-
     const { policy } = JSON.parse(codeEditor)
-    await signPolicyDataStore(policy)
-    await syncEngine()
+    return signPolicyDataStore(policy, syncEngine)
   }
 
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
@@ -86,6 +90,7 @@ const DataStoreConfig = () => {
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Data Store</div>
         <div className="flex items-center gap-4">
+          <ErrorStatus label={errors} />
           <GreenCheckStatus isChecked={isSynced} label={isSynced ? 'Engine Synced!' : 'Syncing Engine...'} />
           <NarButton
             label={isEntitySigning ? 'Signing...' : 'Sign Entity'}
@@ -149,7 +154,7 @@ const DataStoreConfig = () => {
           isConfirm
         >
           <div className="w-[650px] px-12 py-4">
-            <p className="flex flex-col gap-1 text-nv-white text-nv-sm list-disc">{errors}</p>
+            <p className="flex flex-col gap-1 text-nv-white text-nv-sm list-disc">{validationErrors}</p>
           </div>
         </NarDialog>
       )}

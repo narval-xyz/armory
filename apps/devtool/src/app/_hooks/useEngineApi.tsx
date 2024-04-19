@@ -1,5 +1,5 @@
 import { EvaluationRequest, EvaluationResponse, FIXTURE } from '@narval/policy-engine-shared'
-import { hash } from '@narval/signature'
+import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
@@ -115,7 +115,7 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
-      const payload = {
+      const payload: Payload = {
         iss: uuid(),
         sub: evaluationRequest.request.resourceId,
         requestHash: hash(evaluationRequest.request)

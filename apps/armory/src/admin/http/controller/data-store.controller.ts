@@ -1,6 +1,7 @@
-import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Entities, EntityStore, EvaluationRequest, Policy, PolicyStore } from '@narval/policy-engine-shared'
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { AxiosHeaders } from 'axios'
 import { OrgId } from '../../../shared/decorator/org-id.decorator'
 import { EntityDataStoreService } from '../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../core/service/policy-data-store.service'
@@ -24,12 +25,34 @@ export class DataStoreController {
   }
 
   @Post('/entities')
-  setEntities(@OrgId() orgId: string, @Body() body: Entities) {
-    return this.entityDataStoreService.setEntities(orgId, body)
+  setEntities(
+    @Headers() headers: AxiosHeaders,
+    @OrgId() orgId: string,
+    @Body() data: { evaluationRequest: EvaluationRequest; entities: Entities }
+  ) {
+    return this.entityDataStoreService.setEntities({
+      orgId,
+      headers: {
+        'x-client-id': headers['x-client-id'],
+        'x-client-secret': headers['x-client-secret']
+      },
+      data
+    })
   }
 
   @Post('/policies')
-  setPolicies(@OrgId() orgId: string, @Body() body: Policy[]) {
-    return this.policyDataStoreService.setPolicies(orgId, body)
+  setPolicies(
+    @Headers() headers: AxiosHeaders,
+    @OrgId() orgId: string,
+    @Body() data: { evaluationRequest: EvaluationRequest; policies: Policy[] }
+  ) {
+    return this.policyDataStoreService.setPolicies({
+      orgId,
+      headers: {
+        'x-client-id': headers['x-client-id'],
+        'x-client-secret': headers['x-client-secret']
+      },
+      data
+    })
   }
 }

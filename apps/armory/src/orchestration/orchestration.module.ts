@@ -16,7 +16,7 @@ import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.m
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
 import { ClusterService } from './core/service/cluster.service'
 import { AuthorizationRequestGateway } from './gateway/authorization-request.gateway'
-import { AuthzApplicationClient } from './http/client/authz-application.client'
+import { PolicyEngineClient } from './http/client/policy-engine.client'
 import { AuthorizationRequestController } from './http/rest/controller/authorization-request.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
@@ -49,7 +49,7 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer,
     AuthorizationRequestGateway,
-    AuthzApplicationClient,
+    PolicyEngineClient,
     ClusterService,
     {
       provide: APP_FILTER,
@@ -73,6 +73,6 @@ import { AuthorizationRequestProcessingProducer } from './queue/producer/authori
       useClass: ZodValidationPipe
     }
   ],
-  exports: [AuthorizationRequestGateway]
+  exports: [AuthorizationRequestGateway, PolicyEngineClient]
 })
 export class OrchestrationModule {}

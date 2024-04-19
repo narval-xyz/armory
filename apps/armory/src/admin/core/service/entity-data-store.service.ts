@@ -1,12 +1,20 @@
-import { Entities, EntityStore } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, buildSignerEip191, hash, privateKeyToJwk, signJwt } from '@narval/signature'
-import { Injectable } from '@nestjs/common'
-import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
+import { Decision, Entities, EntityStore, EvaluationRequest } from '@narval/policy-engine-shared'
+import { HttpStatus, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { Config } from '../../../../src/armory.config'
+import { PolicyEngineClient } from '../../../../src/orchestration/http/client/policy-engine.client'
+import { ApplicationException } from '../../../../src/shared/exception/application.exception'
 import { EntityDataStoreRepository } from '../../persistence/repository/entity-data-store.repository'
+import { FakeVaultService } from './fake-vault.service'
 
 @Injectable()
 export class EntityDataStoreService {
-  constructor(private entitydataStoreRepository: EntityDataStoreRepository) {}
+  constructor(
+    private entitydataStoreRepository: EntityDataStoreRepository,
+    private policyEngineClient: PolicyEngineClient,
+    private configService: ConfigService<Config, true>,
+    private fakeVaultService: FakeVaultService
+  ) {}
 
   async getEntities(orgId: string): Promise<{ entity: EntityStore } | null> {
     const entityStore = await this.entitydataStoreRepository.getLatestDataStore(orgId)
@@ -18,9 +26,29 @@ export class EntityDataStoreService {
     return { entity: EntityStore.parse(entityStore.data) }
   }
 
-  async setEntities(orgId: string, data: Entities) {
-    const signature = await this.signDataPayload(data)
-    const entity: EntityStore = { data, signature }
+  async setEntities({
+    orgId,
+    headers,
+    data
+  }: {
+    orgId: string
+    headers: Record<string, string>
+    data: { evaluationRequest: EvaluationRequest; entities: Entities }
+  }) {
+    const evaluation = await this.policyEngineClient.evaluation({
+      host: this.configService.get('policyEngine.host', { infer: true }),
+      headers,
+      data: data.evaluationRequest
+    })
+    if (evaluation.decision !== Decision.PERMIT) {
+      throw new ApplicationException({
+        message: 'User is not authorized to perform this action',
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN,
+        context: { evaluationRequest: data.evaluationRequest, evaluationResponse: evaluation }
+      })
+    }
+    const signature = await this.fakeVaultService.signDataPayload(data.entities)
+    const entity: EntityStore = { data: data.entities, signature }
     const version = await this.entitydataStoreRepository.getLatestVersion(orgId)
 
     return this.entitydataStoreRepository.setDataStore({
@@ -28,25 +56,5 @@ export class EntityDataStoreService {
       version: version + 1,
       data: entity
     })
-  }
-
-  private async signDataPayload(data: Entities) {
-    const jwk = privateKeyToJwk(UNSAFE_PRIVATE_KEY.Root, Alg.ES256K)
-
-    const payload: Payload = {
-      data: hash(data),
-      sub: ACCOUNT.Root.address,
-      iss: 'https://armory.narval.xyz',
-      iat: Math.floor(Date.now() / 1000)
-    }
-
-    const signature = await signJwt(
-      payload,
-      jwk,
-      { alg: SigningAlg.EIP191 },
-      buildSignerEip191(UNSAFE_PRIVATE_KEY.Root)
-    )
-
-    return signature
   }
 }
