@@ -8,14 +8,16 @@ import { PolicyDataStoreRepository } from '../../persistence/repository/policy-d
 export class PolicyDataStoreService {
   constructor(private policyDataStoreRepository: PolicyDataStoreRepository) {}
 
-  async getPolicies(orgId: string): Promise<PolicyStore | null> {
+  async getPolicies(orgId: string): Promise<{ policy: PolicyStore } | null> {
     const policyStore = await this.policyDataStoreRepository.getLatestDataStore(orgId)
 
     if (!policyStore) {
       return null
     }
 
-    return PolicyStore.parse(policyStore.data)
+    const { data: policy } = policyStore
+
+    return { policy: PolicyStore.parse(policy) }
   }
 
   async setPolicies(orgId: string, data: Policy[]) {

@@ -14,12 +14,12 @@ export class DataStoreController {
   ) {}
 
   @Get('/entities')
-  getEntities(@OrgId() orgId: string): Promise<EntityStore | null> {
+  getEntities(@OrgId() orgId: string): Promise<{ entity: EntityStore } | null> {
     return this.entityDataStoreService.getEntities(orgId)
   }
 
   @Get('/policies')
-  getPolicies(@OrgId() orgId: string): Promise<PolicyStore | null> {
+  getPolicies(@OrgId() orgId: string): Promise<{ policy: PolicyStore } | null> {
     return this.policyDataStoreService.getPolicies(orgId)
   }
 

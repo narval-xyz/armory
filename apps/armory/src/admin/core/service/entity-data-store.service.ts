@@ -8,14 +8,14 @@ import { EntityDataStoreRepository } from '../../persistence/repository/entity-d
 export class EntityDataStoreService {
   constructor(private entitydataStoreRepository: EntityDataStoreRepository) {}
 
-  async getEntities(orgId: string): Promise<EntityStore | null> {
+  async getEntities(orgId: string): Promise<{ entity: EntityStore } | null> {
     const entityStore = await this.entitydataStoreRepository.getLatestDataStore(orgId)
 
     if (!entityStore) {
       return null
     }
 
-    return EntityStore.parse(entityStore.data)
+    return { entity: EntityStore.parse(entityStore.data) }
   }
 
   async setEntities(orgId: string, data: Entities) {

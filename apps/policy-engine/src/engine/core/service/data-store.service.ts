@@ -1,9 +1,14 @@
 import {
+  DataStore,
   DataStoreConfiguration,
   Entities,
+  EntityData,
+  EntitySignature,
   EntityStore,
   EntityUtil,
   Policy,
+  PolicyData,
+  PolicySignature,
   PolicyStore,
   Source
 } from '@narval/policy-engine-shared'
@@ -18,7 +23,7 @@ import { DataStoreRepositoryFactory } from '../factory/data-store-repository.fac
 export class DataStoreService {
   constructor(private dataStoreRepositoryFactory: DataStoreRepositoryFactory) {}
 
-  async fetch(store: { entity: DataStoreConfiguration; policy: DataStoreConfiguration }): Promise<{
+  async fetch(store: DataStore): Promise<{
     entity: EntityStore
     policy: PolicyStore
   }> {
@@ -35,23 +40,23 @@ export class DataStoreService {
 
   async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
     const [entityData, entitySignature] = await Promise.all([
-      this.fetchByUrl(store.data, EntityStore),
-      this.fetchByUrl(store.signature, EntityStore)
+      this.fetchByUrl(store.data, EntityData),
+      this.fetchByUrl(store.signature, EntitySignature)
     ])
 
-    const validation = EntityUtil.validate(entityData.data)
+    const validation = EntityUtil.validate(entityData.entity.data)
 
     if (validation.success) {
       const signatureVerification = await this.verifySignature({
-        data: entityData.data,
-        signature: entitySignature.signature,
+        data: entityData.entity.data,
+        signature: entitySignature.entity.signature,
         keys: store.keys
       })
 
       if (signatureVerification.success) {
         return {
-          data: entityData.data,
-          signature: entitySignature.signature
+          data: entityData.entity.data,
+          signature: entitySignature.entity.signature
         }
       }
 
@@ -70,20 +75,20 @@ export class DataStoreService {
 
   async fetchPolicy(store: DataStoreConfiguration): Promise<PolicyStore> {
     const [policyData, policySignature] = await Promise.all([
-      this.fetchByUrl(store.data, PolicyStore),
-      this.fetchByUrl(store.signature, PolicyStore)
+      this.fetchByUrl(store.data, PolicyData),
+      this.fetchByUrl(store.signature, PolicySignature)
     ])
 
     const signatureVerification = await this.verifySignature({
-      data: policyData.data,
-      signature: policySignature.signature,
+      data: policyData.policy.data,
+      signature: policySignature.policy.signature,
       keys: store.keys
     })
 
     if (signatureVerification.success) {
       return {
-        data: policyData.data,
-        signature: policySignature.signature
+        data: policyData.policy.data,
+        signature: policySignature.policy.signature
       }
     }
 

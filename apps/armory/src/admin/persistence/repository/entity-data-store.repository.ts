@@ -1,5 +1,6 @@
 import { EntityStore } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
+import { EntityDataStore } from '@prisma/client/armory'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 
 @Injectable()
@@ -10,7 +11,7 @@ export class EntityDataStoreRepository {
     return this.prismaService.entityDataStore.create({ data })
   }
 
-  async getLatestDataStore(orgId: string) {
+  async getLatestDataStore(orgId: string): Promise<EntityDataStore | null> {
     const version = await this.getLatestVersion(orgId)
 
     if (!version) return null

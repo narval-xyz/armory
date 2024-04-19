@@ -85,6 +85,7 @@ export type Source = z.infer<typeof Source>
 export type FileSource = z.infer<typeof FileSource>
 export type HttpSource = z.infer<typeof HttpSource>
 export type DataStoreConfiguration = z.infer<typeof DataStoreConfiguration>
+export type DataStore = z.infer<typeof DataStore>
 export type EntityData = z.infer<typeof EntityData>
 export type EntitySignature = z.infer<typeof EntitySignature>
 export type EntityJsonWebKeySet = z.infer<typeof EntityJsonWebKeys>
