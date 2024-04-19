@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
 import { entitiesSchema } from '../schema/entity.schema'
 import { hexSchema } from '../schema/hex.schema'
-import { policySchema } from '../schema/policy.schema'
 import { isHexString } from '../util/typeguards'
 
 export const Action = {
@@ -137,10 +136,13 @@ export const SetEntitiesAction = BaseAction.merge(
 )
 export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
 
+// TODO: (@samteb, 10/04/2024): the data type is z.array(z.unknown())
+// due to a circular dependency between the two
+// packages when importing policySchema.
 export const SetPoliciesAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.SET_POLICIES),
-    data: z.array(policySchema)
+    data: z.array(z.unknown())
   })
 )
 export type SetPoliciesAction = z.infer<typeof SetPoliciesAction>
