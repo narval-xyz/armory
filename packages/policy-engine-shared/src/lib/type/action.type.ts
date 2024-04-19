@@ -1,7 +1,9 @@
 import { fromHex } from 'viem'
 import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
+import { entitiesSchema } from '../schema/entity.schema'
 import { hexSchema } from '../schema/hex.schema'
+import { policySchema } from '../schema/policy.schema'
 import { isHexString } from '../util/typeguards'
 
 export const Action = {
@@ -130,7 +132,7 @@ export type SignRawAction = z.infer<typeof SignRawAction>
 export const SetEntitiesAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.SET_ENTITIES),
-    resourceId: z.string().optional()
+    data: entitiesSchema
   })
 )
 export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
@@ -138,7 +140,7 @@ export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
 export const SetPoliciesAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.SET_POLICIES),
-    resourceId: z.string().optional()
+    data: z.array(policySchema)
   })
 )
 export type SetPoliciesAction = z.infer<typeof SetPoliciesAction>

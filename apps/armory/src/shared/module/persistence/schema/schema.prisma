@@ -119,19 +119,21 @@ model Feed {
 // Data Store
 
 model EntityDataStore {
-  id      String @id @default(uuid()) @db.VarChar(255)
-  orgId   String @map("org_id")
-  data    Json
-  version Int
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  data      Json
+  version   Int
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("entity_data_store")
 }
 
 model PolicyDataStore {
-  id      String @id @default(uuid()) @db.VarChar(255)
-  orgId   String @map("org_id")
-  data    Json
-  version Int
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  orgId     String   @map("org_id")
+  data      Json
+  version   Int
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("policy_data_store")
 }

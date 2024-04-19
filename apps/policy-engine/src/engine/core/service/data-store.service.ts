@@ -40,8 +40,8 @@ export class DataStoreService {
 
   async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
     const [entityData, entitySignature] = await Promise.all([
-      this.fetchByUrl(store.data, EntityData),
-      this.fetchByUrl(store.signature, EntitySignature)
+      this.fetchBySource(store.data, EntityData),
+      this.fetchBySource(store.signature, EntitySignature)
     ])
 
     const validation = EntityUtil.validate(entityData.entity.data)
@@ -75,8 +75,8 @@ export class DataStoreService {
 
   async fetchPolicy(store: DataStoreConfiguration): Promise<PolicyStore> {
     const [policyData, policySignature] = await Promise.all([
-      this.fetchByUrl(store.data, PolicyData),
-      this.fetchByUrl(store.signature, PolicySignature)
+      this.fetchBySource(store.data, PolicyData),
+      this.fetchBySource(store.signature, PolicySignature)
     ])
 
     const signatureVerification = await this.verifySignature({
@@ -96,7 +96,7 @@ export class DataStoreService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async fetchByUrl<DataSchema extends ZodObject<any>>(
+  private async fetchBySource<DataSchema extends ZodObject<any>>(
     source: Source,
     schema: DataSchema
   ): Promise<z.infer<typeof schema>> {

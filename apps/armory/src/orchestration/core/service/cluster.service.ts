@@ -66,7 +66,7 @@ export class ClusterService {
 
     const responses = await Promise.all(
       hosts.map((host) =>
-        this.authzApplicationClient.evaluation({
+        this.policyEngineClient.evaluation({
           host,
           data: input.data
         })

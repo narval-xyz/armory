@@ -1,4 +1,4 @@
-import { Decision, Entities, EntityStore, EvaluationRequest } from '@narval/policy-engine-shared'
+import { Action, Decision, Entities, EntityStore, EvaluationRequest } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../../src/armory.config'

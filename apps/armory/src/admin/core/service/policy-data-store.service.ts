@@ -1,4 +1,4 @@
-import { Decision, EvaluationRequest, Policy, PolicyStore } from '@narval/policy-engine-shared'
+import { Action, Decision, EvaluationRequest, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../../src/armory.config'
@@ -44,7 +44,7 @@ export class PolicyDataStoreService {
     })
     if (evaluation.decision !== Decision.PERMIT) {
       throw new ApplicationException({
-        message: 'User is not authorized to perform this action',
+        message: `User is not permitted to perform ${Action.SET_POLICIES} action`,
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN,
         context: { evaluationRequest: data.evaluationRequest, evaluationResponse: evaluation }
       })

@@ -94,7 +94,7 @@ const useAdminApi = () => {
     setIsEntitySigning(true)
 
     try {
-      const evaluationRequest = await buildEvaluationRequest(Action.SET_ENTITIES)
+      const evaluationRequest = await buildEvaluationRequest(Action.SET_ENTITIES, entities)
 
       await axios.post(
         entityDataStoreUrl,
@@ -134,7 +134,7 @@ const useAdminApi = () => {
     setIsPolicySigning(true)
 
     try {
-      const evaluationRequest = await buildEvaluationRequest(Action.SET_POLICIES)
+      const evaluationRequest = await buildEvaluationRequest(Action.SET_POLICIES, policies)
 
       await axios.post(
         policyDataStoreUrl,
@@ -156,10 +156,14 @@ const useAdminApi = () => {
     setIsPolicySigning(false)
   }
 
-  const buildEvaluationRequest = async (action: 'setEntities' | 'setPolicies'): Promise<EvaluationRequest> => {
+  const buildEvaluationRequest = async (
+    action: 'setEntities' | 'setPolicies',
+    data: Entities | Policy[]
+  ): Promise<EvaluationRequest> => {
     const request = {
       action,
-      nonce: uuid()
+      nonce: uuid(),
+      data
     }
 
     const payload: Payload = {
