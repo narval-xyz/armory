@@ -15,7 +15,7 @@ import { getAddress, isAddressEqual, recoverMessageAddress } from 'viem'
 export class ClusterService {
   private logger = new Logger(ClusterService.name)
 
-  constructor(private authzApplicationClient: PolicyEngineClient) {}
+  constructor(private policyEngineClient: PolicyEngineClient) {}
 
   async getByOrgId(orgId: string): Promise<Cluster | null> {
     const clusterId = '3e2710cf-dab2-4c0f-8d50-b3b9db4d1b8b'
