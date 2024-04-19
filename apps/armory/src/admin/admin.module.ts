@@ -6,16 +6,20 @@ import { ZodValidationPipe } from 'nestjs-zod'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
-import { DataStoreService } from './core/service/data-store.service'
+import { EntityDataStoreService } from './core/service/entity-data-store.service'
+import { PolicyDataStoreService } from './core/service/policy-data-store.service'
 import { DataStoreController } from './http/controller/data-store.controller'
-import { DataStoreRepository } from './persistence/repository/data-store.repository'
+import { EntityDataStoreRepository } from './persistence/repository/entity-data-store.repository'
+import { PolicyDataStoreRepository } from './persistence/repository/policy-data-store.repository'
 
 @Module({
   imports: [ConfigModule.forRoot(), HttpModule, PersistenceModule],
   controllers: [DataStoreController],
   providers: [
-    DataStoreService,
-    DataStoreRepository,
+    EntityDataStoreService,
+    EntityDataStoreRepository,
+    PolicyDataStoreService,
+    PolicyDataStoreRepository,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter

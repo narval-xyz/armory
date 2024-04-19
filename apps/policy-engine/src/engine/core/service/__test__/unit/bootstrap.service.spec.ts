@@ -1,5 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
+import { HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -23,15 +24,20 @@ describe(BootstrapService.name, () => {
   let encryptionServiceMock: MockProxy<EncryptionService>
   let engineSignerConfigServiceMock: MockProxy<EngineSignerConfigService>
 
+  const dataStoreSource: HttpSource = {
+    type: SourceType.HTTP,
+    url: 'http://9.9.9.9:90'
+  }
+
   const dataStore = {
     entity: {
-      dataUrl: 'http://9.9.9.9:90',
-      signatureUrl: 'http://9.9.9.9:90',
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: []
     },
     policy: {
-      dataUrl: 'http://9.9.9.9:90',
-      signatureUrl: 'http://9.9.9.9:90',
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: []
     }
   }

@@ -1,3 +1,4 @@
+import { FileSource } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import fs from 'fs/promises'
 import { DataStoreException } from '../../core/exception/data-store.exception'
@@ -5,8 +6,8 @@ import { DataStoreRepository } from '../../core/repository/data-store.repository
 
 @Injectable()
 export class FileSystemDataStoreRepository implements DataStoreRepository {
-  async fetch<Data>(url: string): Promise<Data> {
-    const path = this.getPath(url)
+  async fetch<Data>(source: FileSource): Promise<Data> {
+    const path = this.getPath(source.url)
 
     if (await this.exists(path)) {
       return this.read(path) as Data
@@ -15,7 +16,7 @@ export class FileSystemDataStoreRepository implements DataStoreRepository {
     throw new DataStoreException({
       message: 'Data store file does not exist in the instance host',
       suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
-      context: { url }
+      context: { source }
     })
   }
 

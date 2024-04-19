@@ -1,4 +1,4 @@
-import { EntityStore, PolicyStore, entityStoreSchema, policyStoreSchema } from '@narval/policy-engine-shared'
+import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { z } from 'zod'
@@ -40,28 +40,28 @@ export class ClientRepository {
   }
 
   async saveEntityStore(clientId: string, store: EntityStore): Promise<boolean> {
-    return this.encryptKeyValueService.set(this.getEntityStoreKey(clientId), encode(entityStoreSchema, store))
+    return this.encryptKeyValueService.set(this.getEntityStoreKey(clientId), encode(EntityStore, store))
   }
 
   async findEntityStore(clientId: string): Promise<EntityStore | null> {
     const value = await this.encryptKeyValueService.get(this.getEntityStoreKey(clientId))
 
     if (value) {
-      return decode(entityStoreSchema, value)
+      return decode(EntityStore, value)
     }
 
     return null
   }
 
   async savePolicyStore(clientId: string, store: PolicyStore): Promise<boolean> {
-    return this.encryptKeyValueService.set(this.getPolicyStoreKey(clientId), encode(policyStoreSchema, store))
+    return this.encryptKeyValueService.set(this.getPolicyStoreKey(clientId), encode(PolicyStore, store))
   }
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
     const value = await this.encryptKeyValueService.get(this.getPolicyStoreKey(clientId))
 
     if (value) {
-      return decode(policyStoreSchema, value)
+      return decode(PolicyStore, value)
     }
 
     return null

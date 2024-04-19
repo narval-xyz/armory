@@ -1,3 +1,4 @@
+import { HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
@@ -26,18 +27,23 @@ describe(ClientSecretGuard.name, () => {
   }
 
   const mockService = (clientSecret: string = 'client-a-secret-key') => {
+    const dataStoreSource: HttpSource = {
+      type: SourceType.HTTP,
+      url: 'http://9.9.9.9:99/test-data-store'
+    }
+
     const client: Client = {
       clientId: CLIENT_ID,
       clientSecret: clientSecret,
       dataStore: {
         entity: {
-          dataUrl: 'http://9.9.9.9:99/test-data-store',
-          signatureUrl: 'http://9.9.9.9:99/test-data-store',
+          data: dataStoreSource,
+          signature: dataStoreSource,
           keys: []
         },
         policy: {
-          dataUrl: 'http://9.9.9.9:99/test-data-store',
-          signatureUrl: 'http://9.9.9.9:99/test-data-store',
+          data: dataStoreSource,
+          signature: dataStoreSource,
           keys: []
         }
       },

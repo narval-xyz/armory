@@ -1,3 +1,4 @@
+import { SourceType } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { FileSystemDataStoreRepository } from '../../persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from '../../persistence/repository/http-data-store.repository'
@@ -11,18 +12,18 @@ export class DataStoreRepositoryFactory {
     private httpRepository: HttpDataStoreRepository
   ) {}
 
-  getRepository(url: string): DataStoreRepository {
-    switch (this.getProtocol(url)) {
-      case 'file':
+  getRepository(type: SourceType): DataStoreRepository {
+    switch (type) {
+      case SourceType.FILE:
         return this.fileSystemRepository
-      case 'http':
-      case 'https':
+      case SourceType.HTTP:
+      case SourceType.HTTPS:
         return this.httpRepository
       default:
         throw new DataStoreException({
           message: 'Data store URL protocol not supported',
           suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          context: { url }
+          context: { type }
         })
     }
   }
