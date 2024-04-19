@@ -42,7 +42,7 @@ export class EntityDataStoreService {
     })
     if (evaluation.decision !== Decision.PERMIT) {
       throw new ApplicationException({
-        message: 'User is not authorized to perform this action',
+        message: `User is not permitted to perform ${Action.SET_ENTITIES} action`,
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN,
         context: { evaluationRequest: data.evaluationRequest, evaluationResponse: evaluation }
       })
