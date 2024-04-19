@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class FakeVaultService {
-  async signDataPayload(data: any) {
+  async signDataPayload(data: unknown) {
     const jwk = privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Root, Alg.ES256K)
 
     const payload: Payload = {
