@@ -1,4 +1,4 @@
-import { publicKeySchema } from '@narval-xyz/signature'
+import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 import { AccountId, AssetId } from '../util/caip.util'
 import { addressSchema } from './address.schema'

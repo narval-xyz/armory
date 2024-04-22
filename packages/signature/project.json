@@ -4,22 +4,6 @@
   "sourceRoot": "packages/signature/src",
   "projectType": "library",
   "targets": {
-    "buildLibs": {
-      "executor": "@nx/workspace:run-commands",
-      "options": {
-        "commands": ["nx run policy-engine-shared:build"]
-      }
-    },
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "{workspaceRoot}/packages/signature/dist",
-        "tsConfig": "{workspaceRoot}/packages/signature/tsconfig.lib.json",
-        "packageJson": "{workspaceRoot}/packages/signature/package.json",
-        "main": "{workspaceRoot}/packages/signature/src/index.ts"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],

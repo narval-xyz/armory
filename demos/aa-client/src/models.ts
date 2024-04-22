@@ -1,6 +1,6 @@
 // src/models.ts
 
-import { Jwk } from '@narval-xyz/signature'
+import { Jwk } from '@narval/signature'
 import { Polygon } from '@thirdweb-dev/chains'
 import { SmartWallet } from '@thirdweb-dev/wallets'
 

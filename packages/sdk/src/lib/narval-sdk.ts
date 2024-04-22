@@ -1,4 +1,5 @@
 import {
+  AccessToken,
   Entities,
   EntityStore,
   EvaluationResponse,
@@ -6,8 +7,8 @@ import {
   Policy,
   PolicyStore,
   Request
-} from '@narval-xyz/policy-engine-domain'
-import { hash, signJwt, verifyJwt } from '@narval-xyz/signature'
+} from '@narval/policy-engine-shared'
+import { hash, signJwt, verifyJwt } from '@narval/signature'
 import axios from 'axios'
 import { Config, SignConfig, getConfig } from './domain'
 import PolicyEngine from './evaluation-request'
@@ -23,6 +24,8 @@ export class NarvalSdk {
   #vault: VaultRequestManager
 
   constructor(config: Config, evaluationRequest?: PolicyEngine, vault?: VaultRequestManager) {
+    this.#config = config
+
     this.#policyEngine = evaluationRequest || new PolicyEngine(config.engine)
 
     this.#vault = vault || new VaultRequestManager(config.vault)
@@ -54,10 +57,10 @@ export class NarvalSdk {
     return res
   }
 
-  async saveEntities(authentication: JwtString, entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
+  async saveEntities(authentication: AccessToken, entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
 
-    const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
+    const verified = await verifyJwt(authentication.value, this.#config.engine.pubKey)
     if (!verified) {
       throw new Error('Invalid authentication')
     }
@@ -68,15 +71,15 @@ export class NarvalSdk {
     }
     // TODO: check that entities are the same in authentication request hash and in entities
 
-    await this.save(authentication, this.#config.dataStore.entityUrl, entityStore)
+    await this.save(authentication.value, this.#config.dataStore.entityUrl, entityStore)
 
     return entityStore
   }
 
-  async savePolicies(authentication: JwtString, policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
+  async savePolicies(authentication: AccessToken, policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
 
-    const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
+    const verified = await verifyJwt(authentication.value, this.#config.engine.pubKey)
     if (!verified) {
       throw new Error('Invalid authentication')
     }
@@ -87,7 +90,7 @@ export class NarvalSdk {
       signature: await this.#signData(policies, config)
     }
 
-    await this.save(authentication, this.#config.dataStore.policyUrl, policyStore)
+    await this.save(authentication.value, this.#config.dataStore.policyUrl, policyStore)
 
     return policyStore
   }
@@ -98,7 +101,7 @@ export class NarvalSdk {
     const payload = {
       requestHash: hash(data),
       sub: config.jwk.kid,
-      iss: this.#config.engine.client.id,
+      iss: this.#config.engine.id,
       iat: new Date().getTime()
     }
 

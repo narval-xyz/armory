@@ -1,4 +1,4 @@
-import { JwtString } from '@narval-xyz/policy-engine-domain'
+import { JwtString } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { ClientConfig } from './domain'
 

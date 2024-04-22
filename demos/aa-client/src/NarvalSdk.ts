@@ -1,6 +1,6 @@
-import { NarvalSdk, NarvalSdkConfig } from '@narval-xyz/sdk/src'
+import { Config, NarvalSdk } from '@narval/sdk'
 
-const ensureConfig = (): NarvalSdkConfig => {
+const ensureConfig = (): Config => {
   const ENGINE_URL = process.env.ENGINE_URL
   if (!ENGINE_URL) {
     throw new Error('ENGINE_URL is required')
@@ -33,28 +33,8 @@ const ensureConfig = (): NarvalSdkConfig => {
   if (!VAULT_CLIENT_SECRET) {
     throw new Error('VAULT_CLIENT_SECRET is required')
   }
-  return {
-    engine: {
-      url: ENGINE_URL,
-      adminKey: ENGINE_ADMIN_KEY,
-      client: {
-        id: ENGINE_CLIENT_ID,
-        secret: ENGINE_CLIENT_SECRET
-      }
-    },
-    vault: {
-      url: VAULT_URL,
-      adminKey: VAULT_ADMIN_KEY,
-      client: {
-        id: VAULT_CLIENT_ID,
-        secret: VAULT_CLIENT_SECRET
-      }
-    },
-    dataStore: {
-      entityUrl: process.env.DATA_STORE_ENTITY_URL || 'http://localhost:3111/entities',
-      policyUrl: process.env.DATA_STORE_POLICY_URL || 'http://localhost:3111/policies'
-    }
-  }
+
+  return {} as Config
 }
 
 const default_sdk = new NarvalSdk(ensureConfig())

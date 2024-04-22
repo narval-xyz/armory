@@ -1,4 +1,4 @@
-import { Alg } from '@narval-xyz/signature'
+import { Alg } from '@narval/signature'
 import { z } from 'zod'
 import { Action } from '../type/action.type'
 import { EntityType, FiatCurrency, IdentityOperators, ValueOperators } from '../type/domain.type'

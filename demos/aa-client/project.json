@@ -1,18 +1,18 @@
 {
-  "name": "aa",
+  "name": "aa-client",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "demos/aa-client/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "demos/aa-client/src/main.ts",
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/demos/aa-client",
+        "main": "demos/aa-client/src/main.ts",
         "tsConfig": "demos/aa-client/tsconfig.app.json",
         "isolatedConfig": true,
         "webpackConfig": "demos/aa-client/webpack.config.js"
@@ -26,14 +26,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "aa:build"
+        "buildTarget": "aa-client:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "aa:build:development"
+          "buildTarget": "aa-client:build:development"
         },
         "production": {
-          "buildTarget": "aa:build:production"
+          "buildTarget": "aa-client:build:production"
         }
       }
     },
@@ -47,7 +47,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "make aa/test/type"
+        "command": "make aa-client/test/type"
       }
     },
     "test:unit": {

@@ -8,12 +8,12 @@ import {
   EntityStore,
   Policy,
   PolicyStore,
+  Request,
   Then
-} from '@narval-xyz/policy-engine-domain'
-import { NarvalSdk, buildRequest } from '@narval-xyz/sdk/src'
-import { Jwk, PublicKey, hash, signJwt } from '@narval-xyz/signature'
+} from '@narval/policy-engine-shared'
+import { NarvalSdk, buildRequest } from '@narval/sdk'
+import { PublicKey } from '@narval/signature'
 import { SmartWallet } from '@thirdweb-dev/wallets'
-import { getUnixTime } from 'date-fns'
 import { v4 } from 'uuid'
 import { Hex } from 'viem'
 import default_sdk from './NarvalSdk'
@@ -69,17 +69,6 @@ export default class WalletProvider {
     return result.decision
   }
 
-  async signData(data: Entities | Policy[], jwk: Jwk) {
-    const token = await signJwt(
-      {
-        data: hash(data),
-        iat: getUnixTime(new Date())
-      },
-      jwk
-    )
-    return token
-  }
-
   async getPolicies(): Promise<PolicyStore> {
     const policies = this.policyStore.values()
     return policies.next().value
@@ -114,8 +103,21 @@ export default class WalletProvider {
         then: Then.PERMIT
       }
     ]
-    const policyStore = await this.narvalSdk.setPolicies(data)
-    this.policyStore.set(v4(), policyStore)
+
+    const request = {
+      action: 'savePolicies',
+      data
+    } as unknown as Request
+
+    const evaluationResponse = await this.narvalSdk.evaluate(request)
+
+    if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
+      const policyStore = await this.narvalSdk.savePolicies(evaluationResponse.accessToken, data)
+      const policyStoreId = v4()
+
+      this.policyStore.set(policyStoreId, policyStore)
+    }
+    throw new Error('Unauthorized')
   }
 
   async updateEntities(userId: string): Promise<void> {
@@ -148,15 +150,16 @@ export default class WalletProvider {
       const address = (await wallet.getAddress()) as Hex
       entities.wallets.push({ id: Wallet.id, address, accountType: '4337' })
     }
+    const request = {
+      action: 'saveEntities',
+      data: entities
+    } as unknown as Request
 
-    const jwk = this.narvalSdk.getEngineDefaultSigner() || user.credential
-    const signature = await this.signData(entities, jwk)
-    const entityStore = {
-      data: entities,
-      signature
+    const evaluationResponse = await this.narvalSdk.evaluate(request)
+
+    if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
+      const store = await this.narvalSdk.saveEntities(evaluationResponse.accessToken, entities)
+      this.entityStore.set(v4(), store)
     }
-    this.entityStore.set(v4(), entityStore)
   }
-
-  async createTenant(userId: string, dataStoreUrl: string): Promise<void> {}
 }

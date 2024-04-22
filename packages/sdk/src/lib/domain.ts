@@ -1,5 +1,5 @@
-import { Action } from '@narval-xyz/policy-engine-domain'
-import { Jwk, SigningAlg, jwkSchema } from '@narval-xyz/signature'
+import { Action } from '@narval/policy-engine-shared'
+import { Jwk, SigningAlg, jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Category = {
@@ -38,7 +38,6 @@ export type ClientConfig = {
   secret: string
   url: string
   adminKey: string
-  client: ClientConfig
   pubKey: Jwk
   signConfig: SignConfig
 }

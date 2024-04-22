@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 app.post('/signMessage', async (req, res) => {
   try {
     const { message, userId, walletId } = req.body
+    message as string
     await walletProvider.signMessage(userId, walletId)
 
     console.log('Signed message')
@@ -66,6 +67,7 @@ app.post('/policies', async (req, res) => {
 app.post('/wallets/generate', async (req, res) => {
   try {
     const { eoa } = req.body
+    eoa as string
     const newWallet = await walletProvider.generate4337Wallet()
     res.json(newWallet)
   } catch (error) {

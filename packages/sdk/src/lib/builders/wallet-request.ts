@@ -5,7 +5,7 @@ import {
   SignTransactionAction,
   SignTypedDataAction,
   TransactionRequest
-} from '@narval-xyz/policy-engine-domain'
+} from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import { WalletAction } from '../domain'
 

@@ -1,11 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"],
-    "rootDir": "../../packages"
+    "lib": ["es2020"],
+    "target": "es2020",
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts", "../../apps/policy-engine/src/shared/decorators/validate-criterion.decorator.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts"]
 }

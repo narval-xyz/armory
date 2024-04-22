@@ -4,34 +4,27 @@
   "sourceRoot": "packages/sdk/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/sdk",
-        "tsConfig": "packages/sdk/tsconfig.lib.json",
-        "packageJson": "packages/sdk/package.json",
-        "main": "packages/sdk/src/index.ts",
-        "assets": ["packages/sdk/*.md"]
-      }
-    },
-    "publish": {
-      "command": "node tools/scripts/publish.mjs engine-request {args.ver} {args.tag}",
-      "dependsOn": ["build"]
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/sdk/**/*.ts", "{projectRoot}/package.json"]
+        "lintFilePatterns": ["packages/sdk/**/*.ts"]
       }
     },
-    "test": {
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make sdk/test/type"
+      }
+    },
+    "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/sdk/jest.config.ts"
+        "jestConfig": "packages/sdk/jest.unit.ts",
+        "verbose": true
       }
     }
   },
-  "tags": []
+  "tags": ["package"]
 }

@@ -1,5 +1,5 @@
-import { EvaluationRequest, EvaluationResponse, Request } from '@narval-xyz/policy-engine-domain'
-import { Jwk, Payload, hash, signJwt } from '@narval-xyz/signature'
+import { EvaluationRequest, EvaluationResponse, Request } from '@narval/policy-engine-shared'
+import { Jwk, Payload, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import { ClientConfig, Endpoints, SignConfig, getConfig } from './domain'
 
@@ -23,7 +23,7 @@ export default class PolicyEngine {
     const config = getConfig(this.config.signConfig, signConfig)
 
     const signingOpts = config.opts || {}
-    const payload = buildPayloadFromRequest(request, config.jwk, this.config.client.id)
+    const payload = buildPayloadFromRequest(request, config.jwk, this.config.id)
     const authentication = config.signer
       ? await signJwt(payload, config.jwk, signingOpts, config.signer)
       : await signJwt(payload, config.jwk, signingOpts)
@@ -37,8 +37,8 @@ export default class PolicyEngine {
   async send(request: EvaluationRequest): Promise<EvaluationResponse> {
     const response = await axios.post(`${this.config.url}${Endpoints.engine.evaluations}`, request, {
       headers: {
-        'x-client-id': this.config.client.id,
-        'x-client-secret': this.config.client.secret
+        'x-client-id': this.config.id,
+        'x-client-secret': this.config.secret
       }
     })
     return response.data
