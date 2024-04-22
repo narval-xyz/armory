@@ -4,6 +4,14 @@
   "sourceRoot": "packages/signature/src",
   "projectType": "library",
   "targets": {
+    "buildLibs": {
+      "executor": "@nx/workspace:run-commands",
+      "options": {
+        "commands": [
+          "nx run policy-engine-shared:build"
+        ]
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],

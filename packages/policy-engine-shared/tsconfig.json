@@ -12,9 +12,9 @@
   ],
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
     "strict": true,
-    "strictPropertyInitialization": false
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true
   }
 }

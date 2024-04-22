@@ -4,16 +4,24 @@
   "sourceRoot": "packages/policy-engine-shared/src",
   "projectType": "library",
   "targets": {
+    "buildLibs": {
+      "executor": "@nx/workspace:run-commands",
+      "options": {
+        "commands": [
+          "nx run policy-engine-shared:build"
+        ]
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "rootDir": ".",
         "outputPath": "{workspaceRoot}/packages/policy-engine-shared/dist",
         "tsConfig": "{workspaceRoot}/packages/policy-engine-shared/tsconfig.lib.json",
         "packageJson": "{workspaceRoot}/packages/policy-engine-shared/package.json",
         "main": "{workspaceRoot}/packages/policy-engine-shared/src/index.ts"
-      },
-      "dependsOn": ["^build"]
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
@@ -37,5 +45,6 @@
       }
     }
   },
+  "implicitDependencies": ["signature"],
   "tags": []
 }
