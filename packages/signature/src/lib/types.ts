@@ -197,15 +197,6 @@ export const JwsdHeader = z.object({
 })
 export type JwsdHeader = z.infer<typeof JwsdHeader>
 
-export const SignConfig = z.object({
-  opts: z.object({
-    alg: z.nativeEnum(SigningAlg)
-  }),
-  signer: z.function(z.tuple([z.string()]), z.promise(z.string())).optional()
-})
-
-export type SignConfig = z.infer<typeof SignConfig>
-
 /**
  * Defines the payload of JWT.
  *

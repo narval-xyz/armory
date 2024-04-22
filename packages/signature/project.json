@@ -7,9 +7,7 @@
     "buildLibs": {
       "executor": "@nx/workspace:run-commands",
       "options": {
-        "commands": [
-          "nx run policy-engine-shared:build"
-        ]
+        "commands": ["nx run policy-engine-shared:build"]
       }
     },
     "build": {

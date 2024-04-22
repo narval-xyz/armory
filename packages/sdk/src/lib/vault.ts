@@ -1,11 +1,11 @@
 import { JwtString } from '@narval-xyz/policy-engine-domain'
 import axios from 'axios'
-import { VaultConfig } from './domain'
+import { ClientConfig } from './domain'
 
 export class VaultRequestManager {
-  #config: VaultConfig
+  #config: ClientConfig
 
-  constructor(config: VaultConfig) {
+  constructor(config: ClientConfig) {
     this.#config = config
   }
 

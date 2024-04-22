@@ -91,7 +91,7 @@
     "@mdx-js/react": "^3.0.0",
     "@monaco-editor/react": "^4.6.0",
     "@narval-xyz/policy-engine-domain": "^0.0.4",
-    "@narval-xyz/sdk": "^0.0.1",
+    "@narval-xyz/sdk": "^0.0.2",
     "@narval-xyz/signature": "^0.1.7",
     "@nestjs/axios": "^3.0.1",
     "@nestjs/bull": "^10.1.0",

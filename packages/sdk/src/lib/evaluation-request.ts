@@ -1,7 +1,7 @@
 import { EvaluationRequest, EvaluationResponse, Request } from '@narval-xyz/policy-engine-domain'
-import { Jwk, Payload, SignConfig, hash, signJwt } from '@narval-xyz/signature'
+import { Jwk, Payload, hash, signJwt } from '@narval-xyz/signature'
 import axios from 'axios'
-import { Endpoints, PolicyEngineConfig } from '../domain'
+import { ClientConfig, Endpoints, SignConfig, getConfig } from './domain'
 
 const buildPayloadFromRequest = (request: Request, jwk: Jwk, orgId: string): Payload => {
   return {
@@ -13,18 +13,21 @@ const buildPayloadFromRequest = (request: Request, jwk: Jwk, orgId: string): Pay
 }
 
 export default class PolicyEngine {
-  private config: PolicyEngineConfig
+  private config: ClientConfig
 
-  constructor(config: PolicyEngineConfig) {
+  constructor(config: ClientConfig) {
     this.config = config
   }
 
-  async sign(request: Request, jwk: Jwk, signConfig?: SignConfig): Promise<EvaluationRequest> {
-    const payload = buildPayloadFromRequest(request, jwk, this.config.client.id)
-    const { signer, opts: signingOpts } = signConfig || { opts: { alg: 'ES256K' } }
-    const authentication = signer
-      ? await signJwt(payload, jwk, signingOpts, signer)
-      : await signJwt(payload, jwk, signingOpts)
+  async sign(request: Request, signConfig?: SignConfig): Promise<EvaluationRequest> {
+    const config = getConfig(this.config.signConfig, signConfig)
+
+    const signingOpts = config.opts || {}
+    const payload = buildPayloadFromRequest(request, config.jwk, this.config.client.id)
+    const authentication = config.signer
+      ? await signJwt(payload, config.jwk, signingOpts, config.signer)
+      : await signJwt(payload, config.jwk, signingOpts)
+
     return {
       authentication,
       request

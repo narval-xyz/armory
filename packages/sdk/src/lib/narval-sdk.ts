@@ -1,67 +1,112 @@
-import { Decision, Entities, EvaluationResponse, JwtString, Policy, Request } from '@narval-xyz/policy-engine-domain'
-import { Jwk, SignConfig } from '@narval-xyz/signature'
-import PolicyEngine from './builders/evaluation-request'
-import { DataStoreManager } from './data-store'
-import { NarvalSdkConfig } from './domain'
+import {
+  Entities,
+  EntityStore,
+  EvaluationResponse,
+  JwtString,
+  Policy,
+  PolicyStore,
+  Request
+} from '@narval-xyz/policy-engine-domain'
+import { hash, signJwt, verifyJwt } from '@narval-xyz/signature'
+import axios from 'axios'
+import { Config, SignConfig, getConfig } from './domain'
+import PolicyEngine from './evaluation-request'
 import { VaultRequestManager } from './vault'
 
 type SignedData = unknown
 
 export class NarvalSdk {
-  #policyEngine: PolicyEngine
+  #config: Config
 
-  #dataStore: DataStoreManager
+  #policyEngine: PolicyEngine
 
   #vault: VaultRequestManager
 
-  constructor(
-    config: NarvalSdkConfig,
-    evaluationRequest?: PolicyEngine,
-    dataStore?: DataStoreManager,
-    vault?: VaultRequestManager
-  ) {
+  constructor(config: Config, evaluationRequest?: PolicyEngine, vault?: VaultRequestManager) {
     this.#policyEngine = evaluationRequest || new PolicyEngine(config.engine)
-
-    this.#dataStore = dataStore || new DataStoreManager(config.dataStore)
 
     this.#vault = vault || new VaultRequestManager(config.vault)
   }
 
-  async evaluate(request: Request, principal: Jwk, signConfig?: SignConfig): Promise<EvaluationResponse> {
-    const evaluationRequest = await this.#policyEngine.sign(request, principal, signConfig)
+  async evaluate(request: Request, signConfig?: SignConfig): Promise<EvaluationResponse> {
+    const config = getConfig(this.#config.signConfig, signConfig)
+    const evaluationRequest = await this.#policyEngine.sign(request, config)
     const res = await this.#policyEngine.send(evaluationRequest)
     return res
   }
 
-  // TODO: define a type for AccessToken
+  async save(authentication: JwtString, url: string, data: unknown): Promise<{ success: boolean }> {
+    const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
+    // TODO: Define claims that needs to be verified
+    // e.g.: hashed data must match authentication hashed data
+    if (!verified) {
+      throw new Error('Invalid authentication')
+    }
+    const res = await axios.put(url, data)
+    if (res.status !== 200) {
+      return { success: false }
+    }
+    return { success: true }
+  }
+
   async sign(accessToken: JwtString): Promise<SignedData> {
     const res = await this.#vault.sign(accessToken)
     return res
   }
 
-  async setEntities(entities: Entities): Promise<EvaluationResponse> {
-    // TODO: Build evaluation request and send it to the policy engine
-    const res: EvaluationResponse = {
-      decision: Decision.PERMIT,
-      request: {
-        action: 'setEntities',
-        entities
-      } as unknown as Request
+  async saveEntities(authentication: JwtString, entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
+    const config = getConfig(this.#config.signConfig, signConfig)
+
+    const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
+    if (!verified) {
+      throw new Error('Invalid authentication')
     }
-    await this.#dataStore.setEntities(entities)
-    return res
+
+    const entityStore: EntityStore = {
+      data: entities,
+      signature: await this.#signData(entities, config)
+    }
+    // TODO: check that entities are the same in authentication request hash and in entities
+
+    await this.save(authentication, this.#config.dataStore.entityUrl, entityStore)
+
+    return entityStore
   }
 
-  async setPolicies(policies: Policy[], jwk: Jwk, signConfig?: SignConfig): Promise<EvaluationResponse> {
-    // TODO: Build evaluation request and send it to the policy engine
-    const res: EvaluationResponse = {
-      decision: Decision.PERMIT,
-      request: {
-        action: 'setPolicies',
-        policies
-      } as unknown as Request
+  async savePolicies(authentication: JwtString, policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
+    const config = getConfig(this.#config.signConfig, signConfig)
+
+    const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
+    if (!verified) {
+      throw new Error('Invalid authentication')
     }
-    await this.#dataStore.setPolicies(policies, jwk, signConfig)
-    return res
+    // TODO: check that policies are the same in authentication request hash and in the policy array
+
+    const policyStore: PolicyStore = {
+      data: policies,
+      signature: await this.#signData(policies, config)
+    }
+
+    await this.save(authentication, this.#config.dataStore.policyUrl, policyStore)
+
+    return policyStore
+  }
+
+  async #signData(data: unknown, signConfig?: SignConfig): Promise<JwtString> {
+    const config = getConfig(this.#config.signConfig, signConfig)
+
+    const payload = {
+      requestHash: hash(data),
+      sub: config.jwk.kid,
+      iss: this.#config.engine.client.id,
+      iat: new Date().getTime()
+    }
+
+    const signingOpts = config.opts || {}
+    const authentication = config.signer
+      ? await signJwt(payload, config.jwk, signingOpts, config.signer)
+      : await signJwt(payload, config.jwk, signingOpts)
+
+    return authentication
   }
 }

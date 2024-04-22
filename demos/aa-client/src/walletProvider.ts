@@ -56,9 +56,7 @@ export default class WalletProvider {
     }
 
     const request = buildRequest('wallet').setAction('signMessage').setMessage(message).build()
-
-    const evaluationRequest = await this.narvalSdk.sign(request, user.credential)
-    const result = await this.narvalSdk.evaluate(evaluationRequest)
+    const result = await this.narvalSdk.evaluate(request)
 
     console.log('Evaluation result:', result.decision)
 
@@ -102,7 +100,7 @@ export default class WalletProvider {
     const data: Policy[] = [
       {
         id: 'c13fe2c1-ecbe-43fe-9e0e-fae730fd5f50',
-        description: 'Required approval for an admin to transfer ERC-721 or ERC-1155 tokens',
+        description: 'Permit users to sign message',
         when: [
           {
             criterion: Criterion.CHECK_PRINCIPAL_ID,
@@ -116,13 +114,7 @@ export default class WalletProvider {
         then: Then.PERMIT
       }
     ]
-
-    const jwk = this.narvalSdk.getEngineDefaultSigner() || user.credential
-    const signature = await this.signData(data, jwk)
-    const policyStore = {
-      data,
-      signature
-    }
+    const policyStore = await this.narvalSdk.setPolicies(data)
     this.policyStore.set(v4(), policyStore)
   }
 

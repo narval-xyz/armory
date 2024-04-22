@@ -1,11 +1,24 @@
 import { Action } from '@narval-xyz/policy-engine-domain'
-import { Jwk, SignConfig } from '@narval-xyz/signature'
+import { Jwk, SigningAlg, jwkSchema } from '@narval-xyz/signature'
+import { z } from 'zod'
 
 export const Category = {
   WALLET: 'wallet',
   ORGANIZATION: 'organization'
 } as const
 export type Category = (typeof Category)[keyof typeof Category]
+
+export const SignConfig = z.object({
+  jwk: jwkSchema,
+  opts: z
+    .object({
+      alg: z.nativeEnum(SigningAlg).optional()
+    })
+    .optional(),
+  signer: z.function(z.tuple([z.string()]), z.promise(z.string())).optional()
+})
+
+export type SignConfig = z.infer<typeof SignConfig>
 
 export const WalletAction = {
   SIGN_TRANSACTION: Action.SIGN_TRANSACTION,
@@ -23,33 +36,25 @@ export type OrganizationAction = (typeof OrganizationAction)[keyof typeof Organi
 export type ClientConfig = {
   id: string
   secret: string
-  defaultSignConfig?: {
-    jwk?: Jwk
-    opts?: SignConfig
-  }
-}
-
-export type PolicyEngineConfig = {
   url: string
   adminKey: string
   client: ClientConfig
+  pubKey: Jwk
+  signConfig: SignConfig
 }
 
-export type VaultConfig = {
-  url: string
-  adminKey: string
-  client: ClientConfig
-}
-
-export type NarvalSdkConfig = {
-  engine: PolicyEngineConfig
-  vault: VaultConfig
+export type Config = {
+  engine: ClientConfig
+  vault: ClientConfig
   dataStore: DataStoreConfig
+  signConfig: SignConfig
 }
 
 export type DataStoreConfig = {
   policyUrl: string
   entityUrl: string
+  clientId: string
+  signConfig: SignConfig
 }
 
 export const Endpoints = {
@@ -58,3 +63,17 @@ export const Endpoints = {
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
+
+export const getConfig = (defaultConfig: SignConfig, passedConfig?: SignConfig): SignConfig => {
+  if (!passedConfig) return defaultConfig
+
+  const signingOpts = passedConfig?.opts || defaultConfig.opts || {}
+  const signer = passedConfig?.signer || defaultConfig.signer
+  const jwk = passedConfig?.jwk || defaultConfig?.jwk
+
+  return {
+    opts: signingOpts || {},
+    signer,
+    jwk
+  }
+}
