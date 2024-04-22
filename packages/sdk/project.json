@@ -1,18 +1,18 @@
 {
-  "name": "engine-request",
+  "name": "sdk",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/engine-request/src",
+  "sourceRoot": "packages/sdk/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/engine-request",
-        "tsConfig": "packages/engine-request/tsconfig.lib.json",
-        "packageJson": "packages/engine-request/package.json",
-        "main": "packages/engine-request/src/index.ts",
-        "assets": ["packages/engine-request/*.md"]
+        "outputPath": "dist/packages/sdk",
+        "tsConfig": "packages/sdk/tsconfig.lib.json",
+        "packageJson": "packages/sdk/package.json",
+        "main": "packages/sdk/src/index.ts",
+        "assets": ["packages/sdk/*.md"]
       }
     },
     "publish": {
@@ -22,14 +22,14 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["packages/engine-request/**/*.ts", "{projectRoot}/package.json"]
+        "lintFilePatterns": ["packages/sdk/**/*.ts", "{projectRoot}/package.json"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/engine-request/jest.config.ts"
+        "jestConfig": "packages/sdk/jest.config.ts"
       }
     }
   },

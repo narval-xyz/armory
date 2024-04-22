@@ -1,5 +1,5 @@
-import { EvaluationRequest, EvaluationResponse, JwtString, Request } from '@narval/policy-engine-shared'
-import { Jwk, Payload, SigningAlg, hash, signJwt } from '@narval/signature'
+import { EvaluationRequest, EvaluationResponse, JwtString, Request } from '@narval-xyz/policy-engine-domain'
+import { Jwk, Payload, SigningAlg, hash, signJwt } from '@narval-xyz/signature'
 import axios from 'axios'
 
 export type SignConfig = {

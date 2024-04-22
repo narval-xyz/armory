@@ -5,17 +5,17 @@ import {
   SignTransactionAction,
   SignTypedDataAction,
   TransactionRequest
-} from '@narval/policy-engine-shared'
+} from '@narval-xyz/policy-engine-domain'
 import { v4 } from 'uuid'
-import { BuildResponse, WalletAction } from '../../domain'
+import { WalletAction } from '../domain'
 
 /**
  * Builder class for creating wallet-related requests, such as signing transactions, raw data, messages, or typed data.
  */
 export default class WalletRequestBuilder {
-  private action: WalletAction
-  private resourceId: string
-  private nonce: string
+  private action: WalletAction | null = null
+  private resourceId: string | null = null
+  private nonce: string | null = null
 
   /**
    * Mandatory. Sets the action to be performed by the request.
@@ -82,7 +82,7 @@ export default class WalletRequestBuilder {
 }
 
 class SignTransactionBuilder extends WalletRequestBuilder {
-  private transactionRequest: TransactionRequest
+  private transactionRequest: TransactionRequest | null = null
 
   setTransactionRequest(transactionRequest: TransactionRequest) {
     this.transactionRequest = transactionRequest
@@ -93,7 +93,7 @@ class SignTransactionBuilder extends WalletRequestBuilder {
    * Constructs and returns the final request object based on the previously provided configurations.
    * @returns {BuildResponse<SignTransactionAction>} The final request object if all required configurations are valid, otherwise returns an error object.
    */
-  build(): BuildResponse<SignTransactionAction> {
+  build(): SignTransactionAction {
     const nonce = this.getNonce() || v4()
     const request = {
       action: WalletAction.SIGN_TRANSACTION,
@@ -101,22 +101,14 @@ class SignTransactionBuilder extends WalletRequestBuilder {
       resourceId: this.getResourceId(),
       transactionRequest: this.transactionRequest
     }
-    const res = SignTransactionAction.safeParse(request)
-    return res.success
-      ? {
-          success: true,
-          request: res.data
-        }
-      : {
-          success: false,
-          error: res.error
-        }
+    const res = SignTransactionAction.parse(request)
+    return res
   }
 }
 
 class SignRawBuilder extends WalletRequestBuilder {
-  private rawMessage: string
-  private alg: string
+  private rawMessage: string | null = null
+  private alg: string | null = null
 
   setRawMessage(rawMessage: string) {
     this.rawMessage = rawMessage
@@ -132,7 +124,7 @@ class SignRawBuilder extends WalletRequestBuilder {
    * Constructs and returns the final request object based on the previously provided configurations.
    * @returns {BuildResponse<SignRawAction>} The final request object if all required configurations are valid, otherwise returns an error object.
    */
-  build(): BuildResponse<SignRawAction> {
+  build(): SignRawAction {
     const nonce = this.getNonce() || v4()
     const request = {
       action: WalletAction.SIGN_RAW,
@@ -140,21 +132,13 @@ class SignRawBuilder extends WalletRequestBuilder {
       resourceId: this.getResourceId(),
       rawMessage: this.rawMessage
     }
-    const res = SignRawAction.safeParse(request)
-    return res.success
-      ? {
-          success: true,
-          request: res.data
-        }
-      : {
-          success: false,
-          error: res.error
-        }
+    const res = SignRawAction.parse(request)
+    return res
   }
 }
 
 class SignMessageBuilder extends WalletRequestBuilder {
-  private message: string
+  private message: string | null = null
 
   setMessage(message: string) {
     this.message = message
@@ -165,7 +149,7 @@ class SignMessageBuilder extends WalletRequestBuilder {
    * Constructs and returns the final request object based on the previously provided configurations.
    * @returns {BuildResponse<SignMessageAction>} The final request object if all required configurations are valid, otherwise returns an error object.
    */
-  build(): BuildResponse<SignMessageAction> {
+  build(): SignMessageAction {
     const nonce = this.getNonce() || v4()
     const request = {
       action: WalletAction.SIGN_MESSAGE,
@@ -173,21 +157,13 @@ class SignMessageBuilder extends WalletRequestBuilder {
       resourceId: this.getResourceId(),
       message: this.message
     }
-    const res = SignMessageAction.safeParse(request)
-    return res.success
-      ? {
-          success: true,
-          request: res.data
-        }
-      : {
-          success: false,
-          error: res.error
-        }
+    const res = SignMessageAction.parse(request)
+    return res
   }
 }
 
 class SignTypedDataBuilder extends WalletRequestBuilder {
-  private typedData: Eip712TypedData
+  private typedData: Eip712TypedData | null = null
 
   setTypedData(typedData: Eip712TypedData) {
     this.typedData = typedData
@@ -198,7 +174,7 @@ class SignTypedDataBuilder extends WalletRequestBuilder {
    * Constructs and returns the final request object based on the previously provided configurations.
    * @returns {BuildResponse<SignTypedDataAction>} The final request object if all required configurations are valid, otherwise returns an error object.
    */
-  build(): BuildResponse<SignTypedDataAction> {
+  build(): SignTypedDataAction {
     const nonce = this.getNonce() || v4()
     const request = {
       action: WalletAction.SIGN_TYPED_DATA,
@@ -206,15 +182,7 @@ class SignTypedDataBuilder extends WalletRequestBuilder {
       resourceId: this.getResourceId(),
       typedData: this.typedData
     }
-    const res = SignTypedDataAction.safeParse(request)
-    return res.success
-      ? {
-          success: true,
-          request: res.data
-        }
-      : {
-          success: false,
-          error: res.error
-        }
+    const res = SignTypedDataAction.parse(request)
+    return res
   }
 }

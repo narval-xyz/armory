@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { InvalidAddressError, getAddress as viemGetAddress, isAddress as viemIsAddress } from 'viem'
+import { Hex, InvalidAddressError, getAddress as viemGetAddress, isAddress as viemIsAddress } from 'viem'
 
 type Address = `0x${string}`
 
@@ -37,7 +37,7 @@ export const getAddress = (address: string, options?: { checksum?: boolean; chai
     const validAddress = address as Address
 
     if (options?.checksum || options?.chainId) {
-      return viemGetAddress(validAddress, options.chainId)
+      return viemGetAddress(validAddress, options.chainId) as Hex
     }
 
     return validAddress

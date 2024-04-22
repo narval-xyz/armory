@@ -7,7 +7,7 @@ import {
   SigningAlg,
   privateKeyToJwk,
   secp256k1PublicKeySchema
-} from '@narval/signature'
+} from '@narval-xyz/signature'
 import { PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Action } from './type/action.type'

@@ -1,11 +1,11 @@
 /* eslint-disable */
 export default {
-  displayName: 'engine-request',
+  displayName: 'sdk',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/engine-request'
+  coverageDirectory: '../../coverage/packages/sdk'
 }

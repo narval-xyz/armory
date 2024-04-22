@@ -2,7 +2,7 @@ import { OrganizationAction } from '../domain'
 
 export default class OrganizationBuilder {
   private action: OrganizationAction | null = null
-  private nonce: string
+  private nonce: string | null = null
 
   setAction(action: OrganizationAction) {
     this.action = action
@@ -18,11 +18,4 @@ export default class OrganizationBuilder {
   }
 }
 
-class CreateOrganizationBuilder extends OrganizationBuilder {
-  private organizationId: string
-
-  setOrganization(organizationId: string) {
-    this.organizationId = organizationId
-    return this
-  }
-}
+class CreateOrganizationBuilder extends OrganizationBuilder {}

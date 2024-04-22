@@ -1,0 +1,11 @@
+{
+  "name": "@narval-xyz/sdk",
+  "version": "0.0.1",
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "uuid": "^9.0.1",
+    "@narval-xyz/policy-engine-domain": "0.0.4",
+    "@narval-xyz/signature": "^0.1.7",
+    "axios": "^1.6.7"
+  }
+}
