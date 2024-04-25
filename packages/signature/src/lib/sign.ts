@@ -20,6 +20,7 @@ const SigningAlgToKey = {
 }
 
 const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
+  console.log('\n\njwk', jwk, '\n\n')
   const key = validateJwk<PartialJwk>({
     schema: jwkBaseSchema,
     jwk,

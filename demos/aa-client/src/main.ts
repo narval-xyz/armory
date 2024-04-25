@@ -2,7 +2,7 @@ import { NarvalSdk } from '@narval/sdk'
 import bodyParser from 'body-parser'
 import express from 'express'
 import ensureConfig from './config'
-import { populateUsersWithCredentials } from './store'
+import { populateUsersWithCredentials, signPolicyAndEntity } from './store'
 import WalletProvider from './walletProvider'
 
 const app = express()
@@ -14,6 +14,9 @@ const port = 3111
     const sdk = new NarvalSdk(config)
     const walletProvider = new WalletProvider(sdk)
     populateUsersWithCredentials()
+
+    console.log('\n\njwk', config.signConfig.jwk, '\n\n')
+    signPolicyAndEntity(config.signConfig.jwk)
 
     app.use(bodyParser.json())
 
@@ -97,23 +100,24 @@ const port = 3111
       }
     })
 
-    app.put('/store/policies', async (req, res) => {
+    app.put('/policies', async (req, res) => {
       try {
-        const { policies } = req.body
-        walletProvider.policyStore = policies
+        const store = req.body
+        console.log('body == ', req.body)
+        console.log('Stored policies', store)
 
-        console.log('Stored policies')
+        walletProvider.policyStore = store
         res.status(200).json({ success: true })
       } catch (error) {
         res.status(500).send({ error: 'Failed to store policies', details: error })
       }
     })
 
-    app.put('/store/entities', async (req, res) => {
-      const { entities } = req.body
-      walletProvider.entityStore = entities
+    app.put('/entities', async (req, res) => {
+      const store = req.body
 
-      console.log('Stored entities')
+      walletProvider.entityStore = store
+      console.log('Stored entities', store)
       res.status(200).json({ success: true })
     })
 

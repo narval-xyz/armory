@@ -1,24 +1,18 @@
 import { Polygon } from '@thirdweb-dev/chains'
-import { ThirdwebSDK, UserWallet } from '@thirdweb-dev/sdk'
-import { LocalWallet, SmartWallet } from '@thirdweb-dev/wallets'
+import { ThirdwebSDK, UserWallet, getSignerAndProvider } from '@thirdweb-dev/sdk'
+import { SmartWallet } from '@thirdweb-dev/wallets'
+import { Wallet } from 'ethers'
 import { Hex } from 'viem'
 
 const generateSmartAccount = async (eoaPrivateKey: Hex): Promise<UserWallet> => {
   const factoryAddress = '0x61ffcc675cfbf8e0A35Cd6140bfe40Fe94DF845f'
   const secretKey = process.env.THIRDWEB_SECRET as string
+  const res = getSignerAndProvider(Polygon)
+  const account = new Wallet(eoaPrivateKey, res[1])
 
-  const adminWallet = new LocalWallet({
-    secretKey: eoaPrivateKey
-  })
+  console.log('Admin wallet address:', account.address)
 
-  await adminWallet.loadOrCreate({
-    strategy: 'privateKey',
-    encryption: false
-  })
-
-  const adminWalletAddress = await adminWallet.getAddress()
-  console.log('Admin wallet address:', adminWalletAddress)
-
+  const getSigner = async () => account
   const config = {
     chain: Polygon,
     factoryAddress,
@@ -28,12 +22,12 @@ const generateSmartAccount = async (eoaPrivateKey: Hex): Promise<UserWallet> => 
 
   const smartWallet = new SmartWallet(config)
   await smartWallet.connect({
-    personalWallet: adminWallet
+    personalWallet: { getSigner }
   })
 
-  const sdk = await ThirdwebSDK.fromWallet(smartWallet, Polygon)
+  const { wallet } = await ThirdwebSDK.fromWallet(smartWallet, Polygon)
 
-  return sdk.wallet
+  return wallet
 }
 
 export default generateSmartAccount

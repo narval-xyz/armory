@@ -52,7 +52,6 @@ export class NarvalSdk {
     return { success: true }
   }
 
-  //
   async sign(accessToken: JwtString): Promise<SignedData> {
     const res = await this.#vault.sign(accessToken)
     return res
@@ -61,50 +60,64 @@ export class NarvalSdk {
   async saveEntities(entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
 
-    const entityStore: EntityStore = {
+    console.log('Final data to hash:', JSON.stringify(entities, null, 2))
+
+    const signature = await this.#signData(entities, config)
+
+    const entity: EntityStore = {
       data: entities,
-      signature: await this.#signData(entities, config)
+      signature
     }
 
-    const res = await axios.put(this.#config.dataStore.entityUrl, entityStore)
+    const store = {
+      entity
+    }
+    await axios.put(this.#config.dataStore.entityUrl, store)
 
-    console.log('res: ', res)
     await axios.post(`${this.#config.engine.url}/clients/sync`, null, {
       headers: {
         'x-client-id': this.#config.engine.id,
         'x-client-secret': this.#config.engine.secret
       }
     })
-    return entityStore
+
+    return entity
   }
 
   async savePolicies(policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
 
-    const policyStore: PolicyStore = {
-      data: policies,
-      signature: await this.#signData(policies, config)
+    const store = {
+      policy: {
+        data: policies,
+        signature: await this.#signData(policies, config)
+      }
     }
-    const res = await axios.put(this.#config.dataStore.policyUrl, policyStore)
 
-    console.log('res: ', res)
-    return policyStore
+    await axios.put(this.#config.dataStore.policyUrl, store)
+
+    await axios.post(`${this.#config.engine.url}/clients/sync`, null, {
+      headers: {
+        'x-client-id': this.#config.engine.id,
+        'x-client-secret': this.#config.engine.secret
+      }
+    })
+
+    return store.policy
   }
 
   async #signData(data: unknown, signConfig?: SignConfig): Promise<JwtString> {
     const config = getConfig(this.#config.signConfig, signConfig)
 
+    const hashed = hash(data)
     const payload = {
-      requestHash: hash(data),
+      data: hashed,
       sub: config.jwk.kid,
       iss: this.#config.engine.id,
       iat: new Date().getTime()
     }
 
-    const signingOpts = config.opts || {}
-    const authentication = config.signer
-      ? await signJwt(payload, config.jwk, signingOpts, config.signer)
-      : await signJwt(payload, config.jwk, signingOpts)
+    const authentication = await signJwt(payload, config.jwk)
 
     return authentication
   }

@@ -12,7 +12,7 @@ import {
   Then
 } from '@narval/policy-engine-shared'
 import { NarvalSdk } from '@narval/sdk'
-import { PublicKey } from '@narval/signature'
+import { secp256k1PublicKeySchema } from '@narval/signature'
 import { UserWallet } from '@thirdweb-dev/sdk'
 import { v4 } from 'uuid'
 import { Hex } from 'viem'
@@ -28,9 +28,9 @@ export default class WalletProvider {
 
   wallets: Map<string, Wallet> = wallets
 
-  entityStore: EntityStore = entities
+  entityStore: { entity: EntityStore } = entities
 
-  policyStore: PolicyStore = policies
+  policyStore: { policy: PolicyStore } = policies
 
   constructor(sdk: NarvalSdk) {
     this.narvalSdk = sdk
@@ -101,11 +101,11 @@ export default class WalletProvider {
     return result.decision
   }
 
-  getPolicies(): PolicyStore {
+  getPolicies(): { policy: PolicyStore } {
     return this.policyStore
   }
 
-  getEntities(): EntityStore {
+  getEntities(): { entity: EntityStore } {
     return this.entityStore
   }
 
@@ -134,9 +134,7 @@ export default class WalletProvider {
       }
     ]
 
-    const policyStore = await this.narvalSdk.savePolicies(data)
-    this.policyStore = policyStore
-    throw new Error('Unauthorized')
+    await this.narvalSdk.savePolicies(data)
   }
 
   async updateEntities(userId: string): Promise<void> {
@@ -160,14 +158,14 @@ export default class WalletProvider {
 
     this.users.forEach((user) => {
       entities.users.push({ id: user.id, role: 'admin' })
-      entities.credentials.push({ id: v4(), userId: user.id, key: user.credential as PublicKey })
+      entities.credentials.push({ id: v4(), userId: user.id, key: secp256k1PublicKeySchema.parse(user.credential) })
     })
 
     const wallets = this.wallets.values()
 
     for (const wallet of wallets) {
       const smartWallet = await generateSmartAccount(wallet.key)
-      const address = (await smartWallet.getAddress()) as Hex
+      const address = (await smartWallet.getAddress()).toLowerCase() as Hex
 
       entities.wallets.push({ id: wallet.id, address, accountType: '4337' })
     }
@@ -180,8 +178,7 @@ export default class WalletProvider {
     // const evaluationResponse = await this.narvalSdk.evaluate(request, { jwk: user.credential })
 
     // if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
-    const store = await this.narvalSdk.saveEntities(entities)
-    this.entityStore = store
+    await this.narvalSdk.saveEntities(entities)
     // }
   }
 }

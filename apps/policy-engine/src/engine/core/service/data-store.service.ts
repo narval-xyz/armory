@@ -25,6 +25,7 @@ export class DataStoreService {
     entity: EntityStore
     policy: PolicyStore
   }> {
+    console.log('\n\n START SYNCING \n\n')
     const [entityStore, policyStore] = await Promise.all([
       this.fetchEntity(store.entity),
       this.fetchPolicy(store.policy)
@@ -37,6 +38,7 @@ export class DataStoreService {
   }
 
   async fetchEntity(store: DataStoreConfiguration): Promise<EntityStore> {
+    console.log('\n\n\nstore.dataUrl', store.dataUrl, '\n\n\n')
     const [entityData, entitySignature] = await Promise.all([
       this.fetchByUrl(store.dataUrl, entityDataSchema),
       this.fetchByUrl(store.signatureUrl, entitySignatureSchema)
@@ -44,6 +46,7 @@ export class DataStoreService {
 
     const validation = EntityUtil.validate(entityData.entity.data)
 
+    console.log('\n\n\nvalidation', validation, '\n\n\n')
     if (validation.success) {
       const signatureVerification = await this.verifySignature({
         data: entityData.entity.data,
@@ -98,26 +101,35 @@ export class DataStoreService {
     url: string,
     schema: DataSchema
   ): Promise<z.infer<typeof schema>> {
-    const data = await this.dataStoreRepositoryFactory.getRepository(url).fetch(url)
-    const result = schema.safeParse(data)
+    try {
+      const data = await this.dataStoreRepositoryFactory.getRepository(url).fetch(url)
+      console.log('\n\n\ndata', data, '\n\n\n')
+      const result = schema.safeParse(data)
 
-    if (result.success) {
-      return result.data
-    }
+      console.log('\n\n\nresult', result, '\n\n\n')
 
-    throw new DataStoreException({
-      message: 'Invalid store schema',
-      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: {
-        ...(schema.description ? { schema: schema.description } : {}),
-        url,
-        errors: result.error.errors.map(({ path, message, code }) => ({
-          path,
-          code,
-          message
-        }))
+      if (result.success) {
+        return result.data
       }
-    })
+
+      console.log('\n\nerrors: ', result.error.errors, '\n\n')
+      throw new DataStoreException({
+        message: 'Invalid store schema',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        context: {
+          ...(schema.description ? { schema: schema.description } : {}),
+          url,
+          errors: result.error.errors.map(({ path, message, code }) => ({
+            path,
+            code,
+            message
+          }))
+        }
+      })
+    } catch (error) {
+      console.log('\n\n\nerror', url, error, '\n\n\n')
+      throw error
+    }
   }
 
   async verifySignature(params: {
@@ -145,6 +157,9 @@ export class DataStoreService {
       const verification = await verifyJwt(params.signature, jwk)
 
       if (verification.payload.data !== hash(params.data)) {
+        console.log('\n\n\nverification', JSON.stringify(params.data, null, 2), '\n\n\n')
+        console.log('hash: ', hash(params.data), '\n\n\n')
+        console.log('signature: ', verification.payload.data, '\n\n\n')
         return {
           success: false,
           error: new DataStoreException({
