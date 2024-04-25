@@ -1,16 +1,21 @@
 import { Polygon } from '@thirdweb-dev/chains'
-import { SmartWallet } from '@thirdweb-dev/wallets'
-import { LocalWalletNode } from '@thirdweb-dev/wallets/evm/wallets/local-wallet-node'
+import { ThirdwebSDK, UserWallet } from '@thirdweb-dev/sdk'
+import { LocalWallet, SmartWallet } from '@thirdweb-dev/wallets'
+import { Hex } from 'viem'
 
-const createSmartAccount = async () => {
+const generateSmartAccount = async (eoaPrivateKey: Hex): Promise<UserWallet> => {
   const factoryAddress = '0x61ffcc675cfbf8e0A35Cd6140bfe40Fe94DF845f'
   const secretKey = process.env.THIRDWEB_SECRET as string
 
-  const adminWallet = new LocalWalletNode()
-  await adminWallet.loadOrCreate({
-    strategy: 'encryptedJson',
-    password: 'password'
+  const adminWallet = new LocalWallet({
+    secretKey: eoaPrivateKey
   })
+
+  await adminWallet.loadOrCreate({
+    strategy: 'privateKey',
+    encryption: false
+  })
+
   const adminWalletAddress = await adminWallet.getAddress()
   console.log('Admin wallet address:', adminWalletAddress)
 
@@ -22,8 +27,13 @@ const createSmartAccount = async () => {
   }
 
   const smartWallet = new SmartWallet(config)
+  await smartWallet.connect({
+    personalWallet: adminWallet
+  })
 
-  return smartWallet
+  const sdk = await ThirdwebSDK.fromWallet(smartWallet, Polygon)
+
+  return sdk.wallet
 }
 
-export default createSmartAccount
+export default generateSmartAccount

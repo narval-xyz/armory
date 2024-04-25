@@ -11,15 +11,15 @@ import {
   Request,
   Then
 } from '@narval/policy-engine-shared'
-import { NarvalSdk, buildRequest } from '@narval/sdk'
+import { NarvalSdk } from '@narval/sdk'
 import { PublicKey } from '@narval/signature'
-import { SmartWallet } from '@thirdweb-dev/wallets'
+import { UserWallet } from '@thirdweb-dev/sdk'
 import { v4 } from 'uuid'
 import { Hex } from 'viem'
-import default_sdk from './NarvalSdk'
+import { generatePrivateKey } from 'viem/accounts'
 import { User, Wallet } from './models'
 import { entities, policies, users, wallets } from './store'
-import createSmartAccount from './thirdweb.client'
+import generateSmartAccount from './thirdweb.client'
 
 export default class WalletProvider {
   narvalSdk: NarvalSdk
@@ -28,21 +28,49 @@ export default class WalletProvider {
 
   wallets: Map<string, Wallet> = wallets
 
-  entityStore: Map<string, EntityStore> = entities
+  entityStore: EntityStore = entities
 
-  policyStore: Map<string, PolicyStore> = policies
+  policyStore: PolicyStore = policies
 
-  constructor(sdk?: NarvalSdk) {
-    this.narvalSdk = sdk || default_sdk
+  constructor(sdk: NarvalSdk) {
+    this.narvalSdk = sdk
   }
 
-  async generate4337Wallet(): Promise<SmartWallet> {
-    const newSmartWallet = await createSmartAccount()
-    const wallet = new Wallet(newSmartWallet)
+  async getWallets(): Promise<Wallet[]> {
+    return Array.from(this.wallets.values())
+  }
 
-    this.wallets.set(Wallet.id, wallet)
+  generateWallet(name: string, userId: string): Wallet {
+    const user = this.users.get(userId)
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const wallet: Wallet = {
+      id: v4(),
+      name,
+      key: generatePrivateKey(),
+      userIds: [userId]
+    }
+
+    this.wallets.set(wallet.id, wallet)
 
     return wallet
+  }
+
+  async instantiateAccount(walletId: string, userId: string): Promise<UserWallet> {
+    const user = this.users.get(userId)
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const wallet = this.wallets.get(walletId)
+    if (!wallet) {
+      throw new Error('Wallet not found')
+    }
+
+    const smartWallet = await generateSmartAccount(wallet.key)
+    return smartWallet
   }
 
   async signMessage(userId: string, walletId: string, message: string = 'Hello, world!'): Promise<string> {
@@ -55,28 +83,30 @@ export default class WalletProvider {
       throw new Error('Wallet not found')
     }
 
-    const request = buildRequest('wallet').setAction('signMessage').setMessage(message).build()
-    const result = await this.narvalSdk.evaluate(request)
+    const request: Request = {
+      action: 'signMessage',
+      nonce: v4(),
+      resourceId: wallet.id,
+      message
+    }
 
-    console.log('Evaluation result:', result.decision)
+    const result = await this.narvalSdk.evaluate(request, { jwk: user.credential })
 
+    const account = await this.instantiateAccount(wallet.key, user.id)
     if (result.decision === Decision.PERMIT) {
-      const signedMessage = await wallet.signMessage(message)
-      console.log('Signed message: ', signedMessage)
+      const signedMessage = await account.sign(message)
       return signedMessage
     }
 
     return result.decision
   }
 
-  async getPolicies(): Promise<PolicyStore> {
-    const policies = this.policyStore.values()
-    return policies.next().value
+  getPolicies(): PolicyStore {
+    return this.policyStore
   }
 
-  async getEntities(): Promise<EntityStore> {
-    const entities = this.entityStore.values()
-    return entities.next().value
+  getEntities(): EntityStore {
+    return this.entityStore
   }
 
   async updatePolicies(userId: string): Promise<void> {
@@ -104,19 +134,8 @@ export default class WalletProvider {
       }
     ]
 
-    const request = {
-      action: 'savePolicies',
-      data
-    } as unknown as Request
-
-    const evaluationResponse = await this.narvalSdk.evaluate(request)
-
-    if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
-      const policyStore = await this.narvalSdk.savePolicies(evaluationResponse.accessToken, data)
-      const policyStoreId = v4()
-
-      this.policyStore.set(policyStoreId, policyStore)
-    }
+    const policyStore = await this.narvalSdk.savePolicies(data)
+    this.policyStore = policyStore
     throw new Error('Unauthorized')
   }
 
@@ -147,19 +166,22 @@ export default class WalletProvider {
     const wallets = this.wallets.values()
 
     for (const wallet of wallets) {
-      const address = (await wallet.getAddress()) as Hex
-      entities.wallets.push({ id: Wallet.id, address, accountType: '4337' })
-    }
-    const request = {
-      action: 'saveEntities',
-      data: entities
-    } as unknown as Request
+      const smartWallet = await generateSmartAccount(wallet.key)
+      const address = (await smartWallet.getAddress()) as Hex
 
-    const evaluationResponse = await this.narvalSdk.evaluate(request)
-
-    if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
-      const store = await this.narvalSdk.saveEntities(evaluationResponse.accessToken, entities)
-      this.entityStore.set(v4(), store)
+      entities.wallets.push({ id: wallet.id, address, accountType: '4337' })
     }
+
+    // const request = {
+    //   action: 'saveEntities',
+    //   data: entities
+    // } as unknown as Request
+
+    // const evaluationResponse = await this.narvalSdk.evaluate(request, { jwk: user.credential })
+
+    // if (evaluationResponse.decision === Decision.PERMIT && evaluationResponse.accessToken) {
+    const store = await this.narvalSdk.saveEntities(entities)
+    this.entityStore = store
+    // }
   }
 }

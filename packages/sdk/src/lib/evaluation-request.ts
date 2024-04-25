@@ -19,11 +19,12 @@ export default class PolicyEngine {
     this.config = config
   }
 
-  async sign(request: Request, signConfig?: SignConfig): Promise<EvaluationRequest> {
-    const config = getConfig(this.config.signConfig, signConfig)
+  async sign(request: Request, signConfig: SignConfig): Promise<EvaluationRequest> {
+    const config = getConfig(signConfig)
 
     const signingOpts = config.opts || {}
     const payload = buildPayloadFromRequest(request, config.jwk, this.config.id)
+    console.log('payload', payload)
     const authentication = config.signer
       ? await signJwt(payload, config.jwk, signingOpts, config.signer)
       : await signJwt(payload, config.jwk, signingOpts)

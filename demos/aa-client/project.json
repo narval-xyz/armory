@@ -14,7 +14,6 @@
         "outputPath": "dist/demos/aa-client",
         "main": "demos/aa-client/src/main.ts",
         "tsConfig": "demos/aa-client/tsconfig.app.json",
-        "isolatedConfig": true,
         "webpackConfig": "demos/aa-client/webpack.config.js"
       },
       "configurations": {

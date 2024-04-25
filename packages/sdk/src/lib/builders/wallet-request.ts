@@ -157,8 +157,12 @@ class SignMessageBuilder extends WalletRequestBuilder {
       resourceId: this.getResourceId(),
       message: this.message
     }
-    const res = SignMessageAction.parse(request)
-    return res
+    const res = SignMessageAction.safeParse(request)
+    console.log('request: ', request)
+    if (res.success) {
+      return res.data
+    }
+    throw new Error('Failed to parse SignMessageAction')
   }
 }
 

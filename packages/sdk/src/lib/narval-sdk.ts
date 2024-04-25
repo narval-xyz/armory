@@ -1,5 +1,4 @@
 import {
-  AccessToken,
   Entities,
   EntityStore,
   EvaluationResponse,
@@ -31,13 +30,14 @@ export class NarvalSdk {
     this.#vault = vault || new VaultRequestManager(config.vault)
   }
 
-  async evaluate(request: Request, signConfig?: SignConfig): Promise<EvaluationResponse> {
-    const config = getConfig(this.#config.signConfig, signConfig)
+  async evaluate(request: Request, config: SignConfig): Promise<EvaluationResponse> {
     const evaluationRequest = await this.#policyEngine.sign(request, config)
+    console.log('signing worked: ', evaluationRequest)
     const res = await this.#policyEngine.send(evaluationRequest)
     return res
   }
 
+  // Check that the authentication token was issued by the engine tied to this client. If so, put in a URL.
   async save(authentication: JwtString, url: string, data: unknown): Promise<{ success: boolean }> {
     const verified = await verifyJwt(authentication, this.#config.engine.pubKey)
     // TODO: Define claims that needs to be verified
@@ -52,46 +52,42 @@ export class NarvalSdk {
     return { success: true }
   }
 
+  //
   async sign(accessToken: JwtString): Promise<SignedData> {
     const res = await this.#vault.sign(accessToken)
     return res
   }
 
-  async saveEntities(authentication: AccessToken, entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
+  async saveEntities(entities: Entities, signConfig?: SignConfig): Promise<EntityStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
-
-    const verified = await verifyJwt(authentication.value, this.#config.engine.pubKey)
-    if (!verified) {
-      throw new Error('Invalid authentication')
-    }
 
     const entityStore: EntityStore = {
       data: entities,
       signature: await this.#signData(entities, config)
     }
-    // TODO: check that entities are the same in authentication request hash and in entities
 
-    await this.save(authentication.value, this.#config.dataStore.entityUrl, entityStore)
+    const res = await axios.put(this.#config.dataStore.entityUrl, entityStore)
 
+    console.log('res: ', res)
+    await axios.post(`${this.#config.engine.url}/clients/sync`, null, {
+      headers: {
+        'x-client-id': this.#config.engine.id,
+        'x-client-secret': this.#config.engine.secret
+      }
+    })
     return entityStore
   }
 
-  async savePolicies(authentication: AccessToken, policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
+  async savePolicies(policies: Policy[], signConfig?: SignConfig): Promise<PolicyStore> {
     const config = getConfig(this.#config.signConfig, signConfig)
-
-    const verified = await verifyJwt(authentication.value, this.#config.engine.pubKey)
-    if (!verified) {
-      throw new Error('Invalid authentication')
-    }
-    // TODO: check that policies are the same in authentication request hash and in the policy array
 
     const policyStore: PolicyStore = {
       data: policies,
       signature: await this.#signData(policies, config)
     }
+    const res = await axios.put(this.#config.dataStore.policyUrl, policyStore)
 
-    await this.save(authentication.value, this.#config.dataStore.policyUrl, policyStore)
-
+    console.log('res: ', res)
     return policyStore
   }
 

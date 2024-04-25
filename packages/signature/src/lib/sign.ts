@@ -187,7 +187,7 @@ export const buildSignerEs256k =
   async (messageToSign: string): Promise<string> => {
     const hash = sha256Hash(messageToSign)
 
-    const signature = signSecp256k1(hash, privateKey)
+    const signature = signSecp256k1(hash, privateKey, true)
     const hexSignature = signatureToHex(signature)
     return hexToBase64Url(hexSignature)
   }

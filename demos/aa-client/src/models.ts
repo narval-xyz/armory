@@ -1,31 +1,21 @@
 // src/models.ts
 
+import { UserRole } from '@narval/policy-engine-shared'
 import { Jwk } from '@narval/signature'
-import { Polygon } from '@thirdweb-dev/chains'
-import { SmartWallet } from '@thirdweb-dev/wallets'
+import { Hex } from 'viem'
 
 export type User = {
   id: string
   name: string
+  role: UserRole
   credential: Jwk
+  privateKey?: Hex
   walletIds: string[]
 }
 
-export class Wallet extends SmartWallet {
+export type Wallet = {
+  id: string
+  name: string
+  key: Hex
   userIds: string[]
-
-  constructor(smartWallet: SmartWallet, userIds: string[] = []) {
-    const options = smartWallet.getOptions() || {
-      chain: Polygon,
-      factoryAddress: '0x61ffcc675cfbf8e0A35Cd6140bfe40Fe94DF845f',
-      secretKey: process.env.THIRDWEB_SECRET as string,
-      gasless: true
-    }
-    super(options)
-    this.userIds = userIds
-  }
-
-  assign(userId: string) {
-    this.userIds.push(userId)
-  }
 }

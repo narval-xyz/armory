@@ -36,7 +36,7 @@ export const getAddress = (address: string, options?: { checksum?: boolean; chai
     const validAddress = address as Address
 
     if (options?.checksum || options?.chainId) {
-      return viemGetAddress(validAddress, options.chainId)
+      return viemGetAddress(validAddress, options.chainId) as Address
     }
 
     return validAddress

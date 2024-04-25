@@ -39,7 +39,7 @@ export type ClientConfig = {
   url: string
   adminKey: string
   pubKey: Jwk
-  signConfig: SignConfig
+  signConfig?: SignConfig
 }
 
 export type Config = {
@@ -53,7 +53,6 @@ export type DataStoreConfig = {
   policyUrl: string
   entityUrl: string
   clientId: string
-  signConfig: SignConfig
 }
 
 export const Endpoints = {

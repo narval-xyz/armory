@@ -3,6 +3,7 @@ import {
   Curves,
   Hex,
   KeyTypes,
+  PublicKey,
   Secp256k1PublicKey,
   SigningAlg,
   privateKeyToJwk,
@@ -133,7 +134,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: ACCOUNT.Root.address,
       addr: ACCOUNT.Root.address
-    }
+    } as PublicKey
   },
   Alice: {
     id: ACCOUNT.Alice.address,
@@ -144,7 +145,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: ACCOUNT.Alice.address,
       addr: ACCOUNT.Alice.address
-    }
+    } as PublicKey
   },
   Bob: {
     id: ACCOUNT.Bob.address,
@@ -155,7 +156,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: ACCOUNT.Bob.address,
       addr: ACCOUNT.Bob.address
-    }
+    } as PublicKey
   },
   Carol: {
     id: ACCOUNT.Carol.address,
@@ -166,7 +167,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: ACCOUNT.Carol.address,
       addr: ACCOUNT.Carol.address
-    }
+    } as PublicKey
   },
   Dave: {
     id: ACCOUNT.Dave.address,
@@ -177,7 +178,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: ACCOUNT.Dave.address,
       addr: ACCOUNT.Dave.address
-    }
+    } as PublicKey
   }
 }
 
@@ -222,22 +223,22 @@ export const WALLET_ACCOUNT: Record<Wallets, PrivateKeyAccount> = {
 export const WALLET: Record<Wallets, WalletEntity> = {
   Testing: {
     id: `eip155:eoa:${WALLET_ACCOUNT.Testing.address}`,
-    address: WALLET_ACCOUNT.Testing.address,
+    address: WALLET_ACCOUNT.Testing.address as Hex,
     accountType: AccountType.EOA
   },
   Engineering: {
     id: `eip155:eoa:${WALLET_ACCOUNT.Engineering.address}`,
-    address: WALLET_ACCOUNT.Engineering.address,
+    address: WALLET_ACCOUNT.Engineering.address as Hex,
     accountType: AccountType.EOA
   },
   Treasury: {
     id: `eip155:eoa:${WALLET_ACCOUNT.Treasury.address}`,
-    address: WALLET_ACCOUNT.Treasury.address,
+    address: WALLET_ACCOUNT.Treasury.address as Hex,
     accountType: AccountType.EOA
   },
   Operation: {
     id: `eip155:eoa:${WALLET_ACCOUNT.Operation.address}`,
-    address: WALLET_ACCOUNT.Operation.address,
+    address: WALLET_ACCOUNT.Operation.address as Hex,
     accountType: AccountType.EOA
   }
 }
