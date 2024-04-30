@@ -1,0 +1,70 @@
+{
+  "entity": {
+    "tokens": [],
+    "addressBook": [],
+    "walletGroups": [],
+    "wallets": [
+      {
+        "id": "nar-wallet",
+        "chainId": 80001,
+        "address": "0x24C1e57c6A1fee4d5f2b128C1Ae9F2888463ce36",
+        "accountType": "eoa"
+      }
+    ],
+    "walletGroupMembers": [],
+    "userGroupMembers": [],
+    "userGroups": [],
+    "users": [
+      {
+        "id": "matt",
+        "role": "root"
+      },
+      {
+        "id": "pierre",
+        "role": "member"
+      }
+    ],
+    "userWallets": [],
+    "credentials": [
+      {
+        "id": "matt-credentials",
+        "key": {
+          "kty": "EC",
+          "crv": "secp256k1",
+          "alg": "ES256K",
+          "kid": "matt-credentials",
+          "x": "Ac9AtGcyOzDKX6-AtdEpyjxJ8s6q1cKNs1KDMH2OJbM",
+          "y": "wmRmZ8spkyMY7x6srQhs39TNb6iySm9DJU2Q2JbYRas",
+          "d": "C8r4o2W5h1_RwnvMER_SyJAuFwTf8zNxweZLNYSdiHA"
+        },
+        "userId": "matt"
+      },
+      {
+        "id": "pierre-credentials",
+        "key": {
+          "kty": "EC",
+          "crv": "secp256k1",
+          "alg": "ES256K",
+          "kid": "pierre-credentials",
+          "x": "K-iGhPczpyM47fZ1Cmug5oWLle12QCeAVJ_v938b2L0",
+          "y": "TQVS31KKuoVVXBd02jx1tpuVB3FDq2_OejOgA97eZ0A",
+          "d": "DA1AG-0j9STZJtEVr9UiVwmbTrv8aBlk2znertf5ms8"
+        },
+        "userId": "pierre"
+      }
+    ]
+  },
+  "policy": [
+    {
+      "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+      "description": "Admin can do all",
+      "when": [
+        {
+          "criterion": "checkPrincipalRole",
+          "args": ["admin"]
+        }
+      ],
+      "then": "permit"
+    }
+  ]
+}

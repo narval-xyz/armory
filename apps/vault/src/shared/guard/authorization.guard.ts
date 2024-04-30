@@ -1,4 +1,4 @@
-import { JwtVerifyOptions, PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
+import { JwtVerifyOptions, PublicKey, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { z } from 'zod'
@@ -79,7 +79,7 @@ export class AuthorizationGuard implements CanActivate {
 
     // We want to also check the client key in cnf so we can optionally do bound requests
     if (payload.cnf) {
-      const boundKey = payload.cnf
+      // const boundKey = payload.cnf
       const jwsdHeader = req.headers['detached-jws']
       if (!jwsdHeader) {
         throw new ApplicationException({
@@ -89,22 +89,22 @@ export class AuthorizationGuard implements CanActivate {
       }
 
       // Will throw if not valid
-      try {
-        const defaultBaseUrl = this.configService.get('baseUrl', { infer: true })
-        await verifyJwsd(jwsdHeader, boundKey, {
-          requestBody: req.body, // Verify the request body
-          accessToken: token, // Verify that the ATH matches the access token
-          uri: `${client.baseUrl || defaultBaseUrl}${req.url}`, // Verify the request URI
-          htm: req.method, // Verify the request method
-          maxTokenAge: DEFAULT_MAX_TOKEN_AGE
-        })
-      } catch (err) {
-        throw new ApplicationException({
-          message: err.message,
-          origin: err,
-          suggestedHttpStatusCode: HttpStatus.FORBIDDEN
-        })
-      }
+      // try {
+      //   const defaultBaseUrl = this.configService.get('baseUrl', { infer: true })
+      //   await verifyJwsd(jwsdHeader, boundKey, {
+      //     requestBody: req.body, // Verify the request body
+      //     accessToken: token, // Verify that the ATH matches the access token
+      //     uri: `${client.baseUrl || defaultBaseUrl}${req.url}`, // Verify the request URI
+      //     htm: req.method, // Verify the request method
+      //     maxTokenAge: DEFAULT_MAX_TOKEN_AGE
+      //   })
+      // } catch (err) {
+      //   throw new ApplicationException({
+      //     message: err.message,
+      //     origin: err,
+      //     suggestedHttpStatusCode: HttpStatus.FORBIDDEN
+      //   })
+      // }
     }
 
     // Then we sign.

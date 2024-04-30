@@ -2,7 +2,7 @@ import { Config } from '@narval/sdk'
 import { Alg, Jwk, generateJwk } from '@narval/signature'
 import axios from 'axios'
 
-const onboard = async (
+const onboardEngine = async (
   engineUrl: string,
   apiKey: string,
   entityDataStoreUrl: string,
@@ -32,6 +32,23 @@ const onboard = async (
   return client
 }
 
+const onboardVault = async (vaultUrl: string, adminKey: string, engineJwk: Jwk) => {
+  const { data: client } = await axios.post(
+    `${vaultUrl}/clients`,
+    {
+      engineJwk
+    },
+    {
+      headers: {
+        'x-api-key': adminKey
+      }
+    }
+  )
+
+  console.log('\n\n\nClient onboarded to vault', client)
+  return client
+}
+
 const ensureConfig = async (): Promise<Config> => {
   const ENGINE_URL = process.env.ENGINE_URL
   if (!ENGINE_URL) {
@@ -58,11 +75,12 @@ const ensureConfig = async (): Promise<Config> => {
     throw new Error('ENTITY_URL is required')
   }
   const jwk = await generateJwk(Alg.ES256K, { keyId: 'narval-aa-client' })
-  const client = await onboard(ENGINE_URL, ENGINE_ADMIN_KEY, ENTITY_URL, POLICY_URL, jwk)
+  const client = await onboardEngine(ENGINE_URL, ENGINE_ADMIN_KEY, ENTITY_URL, POLICY_URL, jwk)
   const { clientId: id, clientSecret: secret, signer } = client
   const { publicKey: pubKey } = signer
 
-  return {
+  const vaultClient = await onboardVault(VAULT_URL, VAULT_ADMIN_KEY, pubKey)
+  const config: Config = {
     engine: {
       url: ENGINE_URL,
       adminKey: ENGINE_ADMIN_KEY,
@@ -73,8 +91,8 @@ const ensureConfig = async (): Promise<Config> => {
     vault: {
       url: VAULT_URL,
       adminKey: VAULT_ADMIN_KEY,
-      id,
-      secret,
+      id: vaultClient.clientId,
+      secret: vaultClient.clientSecret,
       pubKey
     },
     dataStore: {
@@ -86,6 +104,9 @@ const ensureConfig = async (): Promise<Config> => {
       jwk
     }
   }
+
+  console.log('\n\n\n CONFIG DONE: ', config, '\n\n\n')
+  return config
 }
 
 export default ensureConfig

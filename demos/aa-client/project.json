@@ -12,7 +12,7 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/demos/aa-client",
-        "main": "demos/aa-client/src/main.ts",
+        "main": "demos/aa-client/src/index.ts",
         "tsConfig": "demos/aa-client/tsconfig.app.json",
         "webpackConfig": "demos/aa-client/webpack.config.js"
       },

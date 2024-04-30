@@ -10,7 +10,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import { Payload, PrivateKey, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
+import { Jwk, Payload, PrivateKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -142,6 +142,9 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private async verifySignature(signature: JwtString, message: string) {
     const { header } = decodeJwt(signature)
 
+    console.log('\n\nsignature: ', signature, '\n\n\n')
+    console.log('header: ', header, '\n\n\n')
+
     const credential = this.getCredential(header.kid)
 
     if (!credential) {
@@ -166,7 +169,9 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private getCredential(id: string): CredentialEntity | null {
-    return this.getEntities().credentials.find((cred) => cred.id.toLowerCase() === id.toLowerCase()) || null
+    const entities = this.getEntities().credentials
+    console.log('\n\n\nentities: ', entities, '\n\n\n')
+    return entities.find((cred) => cred.id.toLowerCase() === id.toLowerCase()) || null
   }
 
   private async opaEvaluate(
@@ -266,7 +271,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
-    const principalJwk: PublicKey = params.principalCredential.key
+    const principalJwk: Jwk = params.principalCredential.key
 
     const payload: Payload = {
       requestHash: params.message,

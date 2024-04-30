@@ -22,12 +22,8 @@ export default class PolicyEngine {
   async sign(request: Request, signConfig: SignConfig): Promise<EvaluationRequest> {
     const config = getConfig(signConfig)
 
-    const signingOpts = config.opts || {}
     const payload = buildPayloadFromRequest(request, config.jwk, this.config.id)
-    console.log('payload', payload)
-    const authentication = config.signer
-      ? await signJwt(payload, config.jwk, signingOpts, config.signer)
-      : await signJwt(payload, config.jwk, signingOpts)
+    const authentication = await signJwt(payload, config.jwk)
 
     return {
       authentication,
@@ -36,6 +32,8 @@ export default class PolicyEngine {
   }
 
   async send(request: EvaluationRequest): Promise<EvaluationResponse> {
+    const url = `${this.config.url}${Endpoints.engine.evaluations}`
+    console.log('url', url)
     const response = await axios.post(`${this.config.url}${Endpoints.engine.evaluations}`, request, {
       headers: {
         'x-client-id': this.config.id,
