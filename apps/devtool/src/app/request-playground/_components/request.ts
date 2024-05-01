@@ -1,5 +1,6 @@
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { Alg, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { getTime } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
 export const erc20 = async () => {
@@ -83,6 +84,7 @@ export const spendingLimits = async () => {
             amount: '500000000000000000',
             from: 'eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f',
             token: 'eip155:137/slip44:966',
+            timestamp: getTime(new Date()),
             rates: { 'fiat:usd': '0.90', 'fiat:eur': '1.10' },
             chainId: 137,
             initiatedBy: FIXTURE.USER.Alice.id
