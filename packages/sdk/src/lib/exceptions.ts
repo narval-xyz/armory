@@ -28,7 +28,7 @@ export class NotImplementedException extends NarvalSdkException {
   code: number
 
   constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode: number = 501) {
-    super(message, context, suggestedHttpCode)
+    super(message, context)
     this.code = suggestedHttpCode
     this.name = 'NotImplementedError'
   }
