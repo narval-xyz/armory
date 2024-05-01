@@ -42,6 +42,13 @@ export const TransactionRequest = z.object({
 })
 export type TransactionRequest = z.infer<typeof TransactionRequest>
 
+export const SerializedTransactionRequest = TransactionRequest.extend({
+  gas: z.coerce.string().optional(),
+  maxFeePerGas: z.coerce.string().optional(),
+  maxPriorityFeePerGas: z.coerce.string().optional()
+})
+export type SerializedTransactionRequest = z.infer<typeof SerializedTransactionRequest>
+
 export const Eip712Domain = z.object({
   name: z.string().optional(),
   version: z.string().optional(),
@@ -75,6 +82,11 @@ export const SignTransactionAction = BaseAction.merge(
   })
 )
 export type SignTransactionAction = z.infer<typeof SignTransactionAction>
+
+export const SerializedTransactionAction = SignTransactionAction.extend({
+  transactionRequest: SerializedTransactionRequest
+})
+export type SerializedTransactionAction = z.infer<typeof SerializedTransactionAction>
 
 // Matching viem's SignableMessage options
 // See https://viem.sh/docs/actions/wallet/signMessage#message
