@@ -58,6 +58,10 @@ export type DataStoreConfig = {
 export const Endpoints = {
   engine: {
     evaluations: '/evaluations'
+  },
+  vault: {
+    sign: '/sign',
+    importPrivateKey: '/import/private-key'
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]

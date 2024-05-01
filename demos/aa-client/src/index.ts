@@ -1,15 +1,11 @@
 import { Request } from '@narval/policy-engine-shared'
 import { Jwk } from '@narval/signature'
-import { importWallet } from 'packages/sdk/src'
-import { createNarvalClient } from 'packages/sdk/src/lib/narval-sdk'
+import { createArmory, resourceId } from 'packages/sdk/src'
 import { v4 } from 'uuid'
-import { Hex } from 'viem'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Hex, createPublicClient, http } from 'viem'
 import { polygon } from 'viem/chains'
 
-const chain = polygon
-
-const mattCredential: Jwk = {
+const rootSigner: Jwk = {
   kty: 'EC',
   crv: 'secp256k1',
   alg: 'ES256K',
@@ -34,55 +30,51 @@ const mattCredential: Jwk = {
 // }
 
 const main = async () => {
-  const privateKey = generatePrivateKey()
-  const address = privateKeyToAccount(privateKey).address.toLowerCase() as Hex
-  await importWallet(privateKey, 'nar_pierre')
+  const vaultWalletAddress = '0x9b54FCa833455bCc14696d7308f82B2f9b515A6d'.toLowerCase() as Hex
+  const anotherAddress = '0x3f843E606C79312718477F9bC020F3fC5b7264C2'.toLowerCase() as Hex
 
-  const narvalClient = createNarvalClient({
-    address,
-    chain
+  const armory = createArmory({
+    authClientId: 'd0df1860-f396-4851-96e9-f5364cfde9d6',
+    authHost: 'http://localhost:3010',
+    authSecret: 'c996b97632a5ae3bf36ad5d7f6ee660f074d0b21c854079024e3ab216305458a1443637746bd22c5b46a',
+    vaultClientId: '224217e7-1e66-4bce-a54e-a68140723e3d',
+    vaultHost: 'http://localhost:3011',
+    vaultSecret: '9e336d08aea0188a16bcba82731f1cd486fae54040188b1a23b344b076f08cec9fa261897e92a8c0ee7b',
+    signer: rootSigner
   })
+
+  const privateKey = process.env.USER_PRIVATE_KEY as Hex
+  const walletId = 'test-wallet-id'
+
+  await armory.importWallet(privateKey, walletId)
 
   const request: Request = {
     action: 'signTransaction',
     transactionRequest: {
-      from: address,
+      from: vaultWalletAddress,
       chainId: 137,
-      to: '0xEA13df4687eA4892bba5f7D8107D5906DD0dB1F5'.toLowerCase() as Hex,
+      gas: BigInt(22000),
+      to: anotherAddress,
       value: '0x111'
     },
-    resourceId: 'nar_pierre',
+    resourceId: resourceId(walletId),
     nonce: v4()
   }
 
-  const accessToken = await narvalClient.evaluate({
-    request,
-    credential: mattCredential
+  const { accessToken } = await armory.evaluate(request)
+  const signature = await armory.signRequest(request, accessToken)
+
+  const publicClient = createPublicClient({
+    chain: polygon,
+    transport: http()
   })
 
-  const narvalSignedTransaction = await narvalClient.signTransaction({
-    request,
-    accessToken,
-    credential: mattCredential
-  })
-
-  console.log('tx:', narvalSignedTransaction)
-  // const narvalSignedTransaction = await narvalAccount.signTransaction({
-  //   to: '0x',
-  //   value: 1n,
-  // })
-
-  // const viemSignedTransaction = await viemAccount.signTransaction({
-  //   to: '0x',
-  //   value: 1n,
-  // })
-
-  // console.log(narvalSignedTransaction === viemSignedTransaction)
-
-  // const narvalSignedMessage = await narvalAccount.signMessage({ message: 'message' })
-  // const viemSignedMessage = await viemAccount.signMessage({ message: 'message' })
-
-  // console.log(narvalSignedMessage === viemSignedMessage)
+  try {
+    const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
+    console.log('success', hash)
+  } catch (error) {
+    console.error('failed', error)
+  }
 }
 
 main()

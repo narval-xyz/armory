@@ -341,7 +341,7 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   }
 }
 
-export async function verifyJwsd(jws: string, jwk: PublicKey, opts: JwsdVerifyOptions): Promise<Jwsd> {
+export async function verifyJwsd(jws: string, jwk: Jwk, opts: JwsdVerifyOptions): Promise<Jwsd> {
   const key = validatePublicKey(jwk)
 
   const jwsdPayload = buildJwsdPayload(opts.requestBody)

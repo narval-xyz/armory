@@ -8,7 +8,8 @@ import {
   EvaluationRequest,
   EvaluationResponse,
   JwtString,
-  Policy
+  Policy,
+  SerializedTransactionRequest
 } from '@narval/policy-engine-shared'
 import { Jwk, Payload, PrivateKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
@@ -142,9 +143,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private async verifySignature(signature: JwtString, message: string) {
     const { header } = decodeJwt(signature)
 
-    console.log('\n\nsignature: ', signature, '\n\n\n')
-    console.log('header: ', header, '\n\n\n')
-
     const credential = this.getCredential(header.kid)
 
     if (!credential) {
@@ -170,7 +168,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private getCredential(id: string): CredentialEntity | null {
     const entities = this.getEntities().credentials
-    console.log('\n\n\nentities: ', entities, '\n\n\n')
     return entities.find((cred) => cred.id.toLowerCase() === id.toLowerCase()) || null
   }
 
@@ -191,11 +188,18 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       approvals: credentials.approvals
     })
 
+    const { transactionRequest } = input
+    const serializedTransactionRequest = SerializedTransactionRequest.parse(transactionRequest)
+    const serializedInput = {
+      ...input,
+      transactionRequest: serializedTransactionRequest
+    }
+
     // NOTE: When we evaluate an input against the Rego policy core, it returns
     // an array of results with an inner result. We perform a typecast here to
     // satisfy TypeScript compiler. Later, we parse the schema a few lines
     // below to ensure type-safety for data coming from external sources.
-    const results = (await this.opa.evaluate(input, POLICY_ENTRYPOINT)) as { result: unknown }[]
+    const results = (await this.opa.evaluate(serializedInput, POLICY_ENTRYPOINT)) as { result: unknown }[]
 
     const parse = z.array(resultSchema).safeParse(results.map(({ result }) => result))
 
