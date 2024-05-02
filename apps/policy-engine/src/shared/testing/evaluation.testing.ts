@@ -20,6 +20,34 @@ const sign = async (request: Request) => {
   return { aliceSignature, bobSignature, carolSignature }
 }
 
+export const generateSignTransactionRequestWithGas = async (): Promise<EvaluationRequest> => {
+  const txRequest: TransactionRequest = {
+    from: FIXTURE.WALLET.Engineering.address,
+    to: FIXTURE.WALLET.Treasury.address,
+    chainId: 137,
+    value: toHex(ONE_ETH),
+    data: '0x00000000',
+    gas: BigInt(22000),
+    nonce: 192,
+    type: '2'
+  }
+
+  const request: Request = {
+    action: Action.SIGN_TRANSACTION,
+    nonce: uuid(),
+    transactionRequest: txRequest,
+    resourceId: FIXTURE.WALLET.Engineering.id
+  }
+
+  const { aliceSignature, bobSignature, carolSignature } = await sign(request)
+
+  return {
+    authentication: aliceSignature,
+    request,
+    approvals: [bobSignature, carolSignature]
+  }
+}
+
 export const generateSignTransactionRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
     from: FIXTURE.WALLET.Engineering.address,

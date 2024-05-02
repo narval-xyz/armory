@@ -1,6 +1,15 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { Action, Criterion, Decision, EvaluationRequest, FIXTURE, Then } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Criterion,
+  Decision,
+  EvaluationRequest,
+  EvaluationResponse,
+  FIXTURE,
+  SerializedEvaluationRequest,
+  Then
+} from '@narval/policy-engine-shared'
 import { Alg, PrivateKey, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -20,6 +29,7 @@ import {
   generateSignMessageRequest,
   generateSignRawRequest,
   generateSignTransactionRequest,
+  generateSignTransactionRequestWithGas,
   generateSignTypedDataRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
@@ -132,6 +142,25 @@ describe('Evaluation', () => {
         statusCode: HttpStatus.UNAUTHORIZED
       })
       expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('serializes and parses request at the edge', async () => {
+      const payload = await generateSignTransactionRequestWithGas()
+
+      const serializedPayload = SerializedEvaluationRequest.parse(payload)
+      const { body } = await request(app.getHttpServer())
+        .post('/evaluations')
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+        .send(serializedPayload)
+
+      expect(body).toMatchObject({
+        decision: Decision.FORBID,
+        request: serializedPayload.request
+      })
+
+      const parsedRequest = EvaluationResponse.parse(body)
+      expect(parsedRequest.request).toEqual(payload.request)
     })
 
     const useCases = [
