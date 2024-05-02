@@ -1,0 +1,30 @@
+{
+  "name": "armory-sdk",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/armory-sdk/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/armory-sdk/**/*.ts"]
+      }
+    },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make sdk/test/type"
+      }
+    },
+    "test:unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/armory-sdk/jest.unit.ts",
+        "verbose": true
+      }
+    }
+  },
+  "tags": ["package"]
+}
