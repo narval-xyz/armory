@@ -1,6 +1,12 @@
 import { ZodTypeAny, z } from 'zod'
 import { AccountId } from '../util/caip.util'
-import { SignMessageAction, SignRawAction, SignTransactionAction, SignTypedDataAction } from './action.type'
+import {
+  SerializedTransactionAction,
+  SignMessageAction,
+  SignRawAction,
+  SignTransactionAction,
+  SignTypedDataAction
+} from './action.type'
 
 export enum Decision {
   PERMIT = 'Permit',
@@ -92,6 +98,14 @@ export const Request = z.discriminatedUnion('action', [
 ])
 export type Request = z.infer<typeof Request>
 
+export const SerializedRequest = z.discriminatedUnion('action', [
+  SerializedTransactionAction,
+  SignMessageAction,
+  SignTypedDataAction,
+  SignRawAction
+])
+export type SerializedRequest = z.infer<typeof SerializedRequest>
+
 export const Feed = <Data extends ZodTypeAny>(dataSchema: Data) =>
   z.object({
     source: z.string(),
@@ -137,6 +151,11 @@ export const EvaluationRequest = z
   .describe('The action being authorized')
 export type EvaluationRequest = z.infer<typeof EvaluationRequest>
 
+export const SerializedEvaluationRequest = EvaluationRequest.extend({
+  request: SerializedRequest
+})
+export type SerializedEvaluationRequest = z.infer<typeof SerializedEvaluationRequest>
+
 export const ApprovalRequirement = z.object({
   approvalCount: z.number().min(0),
   approvalEntityType: z.nativeEnum(EntityType).describe('The number of requried approvals'),
@@ -145,22 +164,30 @@ export const ApprovalRequirement = z.object({
 })
 export type ApprovalRequirement = z.infer<typeof ApprovalRequirement>
 
-export type AccessToken = {
-  value: string // JWT
-  // could include a key-proof
-}
+export const AccessToken = z.object({
+  value: JwtString
+})
+export type AccessToken = z.infer<typeof AccessToken>
 
-export type EvaluationResponse = {
-  decision: Decision
-  request?: Request
-  approvals?: {
-    required: ApprovalRequirement[]
-    missing: ApprovalRequirement[]
-    satisfied: ApprovalRequirement[]
-  }
-  accessToken?: AccessToken
-  transactionRequestIntent?: unknown
-}
+export const EvaluationResponse = z.object({
+  decision: z.nativeEnum(Decision),
+  request: Request.optional(),
+  approvals: z
+    .object({
+      required: z.array(ApprovalRequirement).optional(),
+      missing: z.array(ApprovalRequirement).optional(),
+      satisfied: z.array(ApprovalRequirement).optional()
+    })
+    .optional(),
+  accessToken: AccessToken.optional(),
+  transactionRequestIntent: z.unknown().optional()
+})
+export type EvaluationResponse = z.infer<typeof EvaluationResponse>
+
+export const SerializedEvaluationResponse = EvaluationResponse.extend({
+  request: SerializedRequest.optional()
+})
+export type SerializedEvaluationResponse = z.infer<typeof SerializedEvaluationResponse>
 
 export type Hex = `0x${string}`
 

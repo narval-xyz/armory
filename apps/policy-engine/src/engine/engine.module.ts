@@ -2,8 +2,8 @@ import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
-import { APP_PIPE } from '@nestjs/core'
-import { ZodValidationPipe } from 'nestjs-zod'
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
 import { load } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
@@ -64,6 +64,10 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor
     }
   ],
   exports: [EngineService, ProvisionService, BootstrapService]
