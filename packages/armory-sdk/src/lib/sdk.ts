@@ -1,6 +1,7 @@
 import { Request } from '@narval/policy-engine-shared'
 import {
   ArmoryClientConfig,
+  ArmoryClientConfigInput,
   Endpoints,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
@@ -19,6 +20,37 @@ import {
   walletId
 } from './utils'
 
+export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClientConfig => {
+  const authClientId = config.authClientId || process.env.ARMORY_CLIENT_ID
+  const authSecret = config.authSecret || process.env.ARMORY_AUTH_SECRET
+  const vaultClientId = config.vaultClientId || process.env.ARMORY_VAULT_CLIENT_ID
+  const vaultSecret = config.vaultSecret || process.env.ARMORY_VAULT_SECRET
+
+  const authHost = config.authHost || `https://cloud.narval.xyz/auth`
+  const vaultHost = config.vaultHost || `https://cloud.narval.xyz/vault`
+  const entityStoreHost = config.entityStoreHost || `https://cloud.narval.xyz/auth`
+  const policyStoreHost = config.policyStoreHost || `https://cloud.narval.xyz/auth`
+
+  const confirmedConfig = ArmoryClientConfig.parse({
+    authHost,
+    vaultHost,
+    authSecret,
+    vaultClientId,
+    vaultSecret,
+    entityStoreHost,
+    policyStoreHost,
+    authClientId,
+    signer: config.signer
+  })
+
+  return confirmedConfig
+}
+
+/**
+ * @param config
+ * @param request
+ * @returns SdkEvaluationResponse
+ */
 export const evaluate = async (config: ArmoryClientConfig, request: Request): Promise<SdkEvaluationResponse> => {
   const body = await signRequest(config, request)
 
@@ -37,6 +69,11 @@ export const evaluate = async (config: ArmoryClientConfig, request: Request): Pr
   return checkDecision(data, config)
 }
 
+/**
+ * @param config
+ * @param request
+ * @returns ImportPrivateKeyResponse
+ */
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
@@ -54,6 +91,11 @@ export const importPrivateKey = async (
   return data
 }
 
+/**
+ * @param config
+ * @param input
+ * @returns SignatureResponse
+ */
 export const signatureRequest = async (
   config: ArmoryClientConfig,
   input: SignatureRequest
