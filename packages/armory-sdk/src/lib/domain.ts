@@ -1,5 +1,5 @@
 import { AccessToken, Decision, Request, addressSchema, hexSchema } from '@narval/policy-engine-shared'
-import { jwkSchema } from '@narval/signature'
+import { Payload, jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Endpoints = {
@@ -12,6 +12,28 @@ export const Endpoints = {
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
+
+export const EngineClientConfig = z.object({
+  authHost: z.string(),
+  authClientId: z.string(),
+  authSecret: z.string(),
+  signer: jwkSchema
+})
+export type EngineClientConfig = z.infer<typeof EngineClientConfig>
+
+export const VaultClientConfig = z.object({
+  vaultHost: z.string(),
+  vaultClientId: z.string(),
+  vaultSecret: z.string(),
+  signer: jwkSchema
+})
+export type VaultClientConfig = z.infer<typeof VaultClientConfig>
+
+export const StoreConfig = z.object({
+  entityStoreHost: z.string(),
+  policyStoreHost: z.string()
+})
+export type StoreConfig = z.infer<typeof StoreConfig>
 
 export const ArmoryClientConfigInput = z.object({
   authHost: z.string().optional(),
@@ -27,15 +49,9 @@ export const ArmoryClientConfigInput = z.object({
 export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
 
 export const ArmoryClientConfig = z.object({
-  authHost: z.string(),
-  authSecret: z.string(),
-  vaultHost: z.string(),
-  vaultSecret: z.string(),
-  entityStoreHost: z.string(),
-  policyStoreHost: z.string(),
-  authClientId: z.string(),
-  vaultClientId: z.string(),
-  signer: jwkSchema
+  ...EngineClientConfig.shape,
+  ...VaultClientConfig.shape,
+  ...StoreConfig.shape
 })
 export type ArmoryClientConfig = z.infer<typeof ArmoryClientConfig>
 
@@ -71,3 +87,28 @@ export const SignatureResponse = z.object({
   signature: hexSchema
 })
 export type SignatureResponse = z.infer<typeof SignatureResponse>
+
+export const Htm = {
+  POST: 'POST',
+  GET: 'GET',
+  PUT: 'PUT'
+} as const
+export type Htm = (typeof Htm)[keyof typeof Htm]
+export const HtmSchema = z.nativeEnum(Htm)
+
+export const JwsdHeaderArgs = z.object({
+  uri: z.string(),
+  htm: HtmSchema,
+  jwk: jwkSchema,
+  accessToken: AccessToken
+})
+export type JwsdHeaderArgs = z.infer<typeof JwsdHeaderArgs>
+
+export const SignAccountJwsdArgs = z.object({
+  payload: Payload,
+  accessToken: AccessToken,
+  jwk: jwkSchema,
+  uri: z.string(),
+  htm: HtmSchema
+})
+export type SignAccountJwsdArgs = z.infer<typeof SignAccountJwsdArgs>

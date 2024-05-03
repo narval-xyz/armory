@@ -23,7 +23,6 @@ export class ImportController {
 
   @Post('/private-key')
   async create(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto) {
-    console.log('importing private key')
     let importedKey
     if (body.encryptedPrivateKey) {
       importedKey = await this.importService.importEncryptedPrivateKey(
@@ -32,7 +31,6 @@ export class ImportController {
         body.walletId
       )
     } else if (body.privateKey) {
-      console.log('un-encripted private key')
       importedKey = await this.importService.importPrivateKey(clientId, body.privateKey, body.walletId)
     } else {
       throw new ApplicationException({

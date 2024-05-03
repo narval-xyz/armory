@@ -6,45 +6,48 @@ import {
   Request,
   isAddress
 } from '@narval/policy-engine-shared'
-import {
-  Jwk,
-  JwsdHeader,
-  Payload,
-  SigningAlg,
-  buildSignerEs256k,
-  hash,
-  hexToBase64Url,
-  privateKeyToHex,
-  signJwsd,
-  signJwt
-} from '@narval/signature'
+import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt } from '@narval/signature'
 import { v4 } from 'uuid'
-import { Address, LocalAccount } from 'viem'
-import { ArmoryClientConfig, ImportPrivateKeyRequest, SdkEvaluationResponse, SdkPermitResponse } from './domain'
+import { Address } from 'viem'
+import {
+  EngineClientConfig,
+  ImportPrivateKeyRequest,
+  JwsdHeaderArgs,
+  SdkEvaluationResponse,
+  SdkPermitResponse,
+  SignAccountJwsdArgs,
+  VaultClientConfig
+} from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, SignatureRequestHeaders } from './http/schema'
 
-export type VaultAccount = LocalAccount & {
-  jwk: Jwk
-}
-
-export const signScopedJwsd = async (payload: Payload, accessToken: string, jwk: Jwk, uri: string) => {
-  if (!jwk.kid) {
-    throw new Error('kid is required')
+export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
+  const { uri, htm, jwk, accessToken } = args
+  if (!jwk.kid || !jwk.alg) {
+    throw new NarvalSdkException('jwk.kid and jwk.alg are required', {
+      context: {
+        kid: jwk.kid,
+        alg: jwk.alg,
+        args
+      }
+    })
   }
-
-  const privateKey = await privateKeyToHex(jwk)
-  const signer = buildSignerEs256k(privateKey)
-
-  const jwsdHeader: JwsdHeader = {
-    alg: SigningAlg.ES256K,
+  return {
+    alg: jwk.alg,
     kid: jwk.kid,
     typ: 'gnap-binding-jwsd',
-    htm: 'POST',
+    htm,
     uri,
     created: new Date().getTime(),
-    ath: hexToBase64Url(hash(accessToken))
+    ath: hexToBase64Url(hash(accessToken.value))
   }
+}
+
+export const signAccountJwsd = async (args: SignAccountJwsdArgs) => {
+  const { payload, accessToken, jwk, uri, htm } = args
+  const jwsdHeader = buildJwsdHeader({ uri, htm, jwk, accessToken })
+
+  const signer = await buildSignerForAlg(jwk)
 
   const signature = await signJwsd(payload, jwsdHeader, signer)
   return signature
@@ -57,7 +60,7 @@ export const resourceId = (walletIdOrAddress: Address | string): string => {
   return walletIdOrAddress
 }
 
-const buildPayloadFromRequest = (config: ArmoryClientConfig, request: Request): Payload => {
+export const buildPayloadFromRequest = (config: EngineClientConfig, request: Request): Payload => {
   return {
     requestHash: hash(request),
     sub: config.signer.kid,
@@ -66,7 +69,7 @@ const buildPayloadFromRequest = (config: ArmoryClientConfig, request: Request): 
   }
 }
 
-export const signRequest = async (config: ArmoryClientConfig, request: Request): Promise<EvaluationRequest> => {
+export const signRequest = async (config: EngineClientConfig, request: Request): Promise<EvaluationRequest> => {
   const payload = buildPayloadFromRequest(config, request)
   const authentication = await signJwt(payload, config.signer)
 
@@ -76,22 +79,27 @@ export const signRequest = async (config: ArmoryClientConfig, request: Request):
   }
 }
 
-export const signData = async (config: ArmoryClientConfig, data: unknown): Promise<JwtString> => {
+export const buildDataPayload = (config: EngineClientConfig, data: unknown): Payload => {
   const hashed = hash(data)
-  const payload = {
+  return {
     data: hashed,
     sub: config.signer.kid,
     iss: config.authClientId,
     iat: new Date().getTime()
   }
+}
+
+export const signData = async (config: EngineClientConfig, data: unknown): Promise<JwtString> => {
+  const payload = buildDataPayload(config, data)
+
   const authentication = await signJwt(payload, config.signer)
   return authentication
 }
 
-export const checkDecision = (data: EvaluationResponse, config: ArmoryClientConfig): SdkEvaluationResponse => {
+export const checkDecision = (data: EvaluationResponse, config: EngineClientConfig): SdkEvaluationResponse => {
   switch (data.decision) {
     case Decision.PERMIT:
-      if (!data.accessToken || !data.accessToken.value || !data.request) {
+      if (!data.accessToken || !data.accessToken.value) {
         throw new NarvalSdkException('Access token or validated request is missing', {
           evaluation: data,
           authHost: config.authHost,
@@ -125,22 +133,22 @@ export const walletId = (input: ImportPrivateKeyRequest): ImportPrivateKeyReques
   return input
 }
 
-export const buildBasicAuthHeaders = (config: ArmoryClientConfig): BasicHeaders => {
+export const buildBasicAuthHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
     'x-client-secret': config.authSecret
   }
 }
 
-export const buildBasicVaultHeaders = (config: ArmoryClientConfig): BasicHeaders => {
+export const buildBasicVaultHeaders = (config: VaultClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.vaultClientId,
     'x-client-secret': config.vaultSecret
   }
 }
 
-export const buildGnapScopedHeaders = (
-  config: ArmoryClientConfig,
+export const buildGnapVaultHeaders = (
+  config: VaultClientConfig,
   accessToken: JwtString,
   detachedJws: string
 ): SignatureRequestHeaders => {

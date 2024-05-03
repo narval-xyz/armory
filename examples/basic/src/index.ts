@@ -4,7 +4,7 @@ import { privateKeyToJwk } from '@narval/signature'
 import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { v4 } from 'uuid'
-import { Hex, createPublicClient, http } from 'viem'
+import { Hex, createPublicClient, http, toHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { polygon } from 'viem/chains'
 
@@ -33,8 +33,12 @@ const main = async () => {
       chainId: 137,
       gas: BigInt(22000),
       to: anotherAddress,
-      value: '0x111',
-      nonce: 10
+      maxFeePerGas: BigInt(291175227375),
+      maxPriorityFeePerGas: BigInt(81000000000),
+      value: toHex(BigInt(50000)),
+      nonce: 7
+      // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
+      // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
     },
     resourceId: resourceId(walletId),
     nonce: v4()
@@ -43,14 +47,13 @@ const main = async () => {
   const { accessToken } = await evaluate(config, request)
   const { signature } = await signRequest(config, { accessToken, request })
 
-  console.log(signature)
   try {
     const publicClient = createPublicClient({
-      transport: http(),
-      chain: polygon
+      chain: polygon,
+      transport: http()
     })
     const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
-    console.log('success', hash)
+    console.log('\n\nsuccess: ', hash)
   } catch (error) {
     console.error('failed', error)
   }

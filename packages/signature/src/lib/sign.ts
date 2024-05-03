@@ -120,37 +120,38 @@ export async function signJwt(
   if (actualSigner) {
     signature = await actualSigner(messageToSign)
   } else {
-    // Default signer logic
-    // Validate JWK as a private key for default signing
-    const privateKey = validateJwk<PrivateKey>({
-      schema: privateKeySchema,
-      jwk,
-      errorMessage: 'Invalid JWK: failed to validate private key'
-    })
-    const privateKeyHex = await privateKeyToHex(privateKey)
-    switch (header.alg) {
-      case SigningAlg.ES256K:
-        signature = await buildSignerEs256k(privateKeyHex)(messageToSign)
-        break
-      case SigningAlg.EIP191:
-        signature = await buildSignerEip191(privateKeyHex)(messageToSign)
-        break
-      case SigningAlg.ES256:
-        signature = await buildSignerEs256(privateKeyHex)(messageToSign)
-        break
-      case SigningAlg.RS256:
-        signature = await buildSignerRs256(jwk)(messageToSign)
-        break
-      default: {
-        throw new JwtError({
-          message: 'Unsupported signing algorithm',
-          context: { alg: header.alg }
-        })
-      }
-    }
+    const signer = await buildSignerForAlg(jwk)
+    signature = await signer(messageToSign)
   }
-
   return `${messageToSign}.${signature}`
+}
+
+export const buildSignerForAlg = async (jwk: Jwk) => {
+  // Default signer logic
+  // Validate JWK as a private key for default signing
+  const privateKey = validateJwk<PrivateKey>({
+    schema: privateKeySchema,
+    jwk,
+    errorMessage: 'Invalid JWK: failed to validate private key'
+  })
+  const { alg } = jwk
+  switch (alg) {
+    case SigningAlg.ES256K: {
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      return buildSignerEs256k(privateKeyHex)
+    }
+    case SigningAlg.ES256: {
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      return buildSignerEs256(privateKeyHex)
+    }
+    case SigningAlg.RS256:
+      return buildSignerRs256(privateKey)
+    default:
+      throw new JwtError({
+        message: 'Unsupported signing algorithm',
+        context: { alg }
+      })
+  }
 }
 
 export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?: boolean): EcdsaSignature => {

@@ -3,20 +3,23 @@ import {
   ArmoryClientConfig,
   ArmoryClientConfigInput,
   Endpoints,
+  EngineClientConfig,
+  Htm,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
   SdkEvaluationResponse,
   SignatureRequest,
-  SignatureResponse
+  SignatureResponse,
+  VaultClientConfig
 } from './domain'
-import { sendEvaluationRequest } from './http/engine'
+import { sendEvaluationRequest } from './http/policy-engine'
 import { sendImportPrivateKey, sendSignatureRequest } from './http/vault'
 import {
   buildBasicVaultHeaders,
-  buildGnapScopedHeaders,
+  buildGnapVaultHeaders,
   checkDecision,
+  signAccountJwsd,
   signRequest as signRequestHelper,
-  signScopedJwsd,
   walletId
 } from './utils'
 
@@ -47,11 +50,12 @@ export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClien
 }
 
 /**
- * @param config
- * @param request
- * @returns SdkEvaluationResponse
+ * Evaluates a request using the Armory SDK.
+ * @param config - The Armory client configuration.
+ * @param request - The request to be evaluated.
+ * @returns A promise that resolves to the SDK evaluation response.
  */
-export const evaluate = async (config: ArmoryClientConfig, request: Request): Promise<SdkEvaluationResponse> => {
+export const evaluate = async (config: EngineClientConfig, request: Request): Promise<SdkEvaluationResponse> => {
   const body = await signRequestHelper(config, request)
 
   const headers = {
@@ -66,16 +70,19 @@ export const evaluate = async (config: ArmoryClientConfig, request: Request): Pr
     headers,
     request: body
   })
+
   return checkDecision(data, config)
 }
 
 /**
- * @param config
- * @param request
- * @returns ImportPrivateKeyResponse
+ * Imports a private key using the Armory SDK.
+ *
+ * @param config - The Armory client configuration.
+ * @param request - The import private key request.
+ * @returns A promise that resolves to the import private key response.
  */
 export const importPrivateKey = async (
-  config: ArmoryClientConfig,
+  config: VaultClientConfig,
   request: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
   const validatedRequest = walletId(request)
@@ -92,25 +99,28 @@ export const importPrivateKey = async (
 }
 
 /**
- * @param config
- * @param input
- * @returns SignatureResponse
+ * Signs a request using the Armory SDK.
+ * @param config - The Armory client configuration.
+ * @param input - The signature request input.
+ * @returns A promise that resolves to the signature response.
  */
-export const signRequest = async (config: ArmoryClientConfig, input: SignatureRequest): Promise<SignatureResponse> => {
+export const signRequest = async (config: VaultClientConfig, input: SignatureRequest): Promise<SignatureResponse> => {
   const { request, accessToken } = input
 
   const uri = `${config.vaultHost}${Endpoints.vault.sign}`
 
-  const detachedJws = await signScopedJwsd(
-    {
-      request
-    },
-    accessToken.value,
-    config.signer,
-    uri
-  )
+  const payload = {
+    request
+  }
+  const detachedJws = await signAccountJwsd({
+    payload,
+    uri,
+    htm: Htm.POST,
+    accessToken,
+    jwk: config.signer
+  })
 
-  const headers = buildGnapScopedHeaders(config, accessToken.value, detachedJws)
+  const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)
 
   const data = await sendSignatureRequest({
     request,
