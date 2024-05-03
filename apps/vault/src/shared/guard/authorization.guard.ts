@@ -65,6 +65,8 @@ export class AuthorizationGuard implements CanActivate {
       maxTokenAge: client?.maxTokenAge || DEFAULT_MAX_TOKEN_AGE
     }
 
+    console.log('clientJwk', clientJwk)
+
     // Validate the JWT has a valid signature for the expected client key & the request matches
     const { payload } = await verifyJwt(token, clientJwk, {
       ...opts,

@@ -14,7 +14,7 @@ export const sendSignatureRequest = async (input: SendSignatureRequest): Promise
     }
   )
 
-  return data.signature
+  return data
 }
 
 export const sendImportPrivateKey = async (input: SendImportPrivateKey): Promise<ImportPrivateKeyResponse> => {

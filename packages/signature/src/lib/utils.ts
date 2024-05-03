@@ -258,7 +258,7 @@ export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   return rsaPrivateKeyToHex(jwk)
 }
 
-export const privateKeyToJwk = (key: Hex, alg: Alg): PrivateKey => {
+export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K): PrivateKey => {
   switch (alg) {
     case Alg.ES256K:
       return secp256k1PrivateKeyToJwk(key)

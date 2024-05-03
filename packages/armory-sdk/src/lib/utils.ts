@@ -125,10 +125,17 @@ export const walletId = (input: ImportPrivateKeyRequest): ImportPrivateKeyReques
   return input
 }
 
-export const buildBasicHeaders = (config: ArmoryClientConfig): BasicHeaders => {
+export const buildBasicAuthHeaders = (config: ArmoryClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
     'x-client-secret': config.authSecret
+  }
+}
+
+export const buildBasicVaultHeaders = (config: ArmoryClientConfig): BasicHeaders => {
+  return {
+    'x-client-id': config.vaultClientId,
+    'x-client-secret': config.vaultSecret
   }
 }
 

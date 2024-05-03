@@ -1,0 +1,80 @@
+{
+  "name": "basic-flow",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/basic/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/examples/basic",
+        "main": "examples/basic/src/index.ts",
+        "tsConfig": "examples/basic/tsconfig.app.json",
+        "webpackConfig": "examples/basic/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "basic-flow:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "basic-flow:build:development"
+        },
+        "production": {
+          "buildTarget": "basic-flow:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/basic/**/*.ts"]
+      }
+    },
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make basic-flow/test/type"
+      }
+    },
+    "test:unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "examples/basic/jest.unit.ts",
+        "verbose": true
+      }
+    },
+    "test:integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "examples/basic/jest.integration.ts",
+        "verbose": true,
+        "runInBand": true
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "examples/basic/jest.e2e.ts",
+        "verbose": true,
+        "runInBand": true
+      }
+    }
+  },
+  "tags": ["type:application"]
+}
