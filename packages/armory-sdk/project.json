@@ -14,7 +14,7 @@
     "test:type": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "make sdk/test/type"
+        "command": "make armory-sdk/test/type"
       }
     },
     "test:unit": {
