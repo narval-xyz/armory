@@ -1,11 +1,18 @@
-/* eslint-disable */
-export default {
+import type { Config } from 'jest'
+
+const config: Config = {
   displayName: 'armory-sdk',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
-  },
-  moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/armory-sdk'
+    '^.+\\.[tj]sx?$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json'
+      }
+    ]
+  }
 }
+
+export default config
