@@ -135,10 +135,7 @@ const PlaygroundEditor = () => {
         <div className="pt-4">
           <h3 className="pb-4">Examples</h3>
           <div className="flex gap-5 ">
-            <NarButton
-              label="ERC-20"
-              onClick={async () => setCodeEditor(JSON.stringify(await erc20(), null, 2))}
-            />
+            <NarButton label="ERC-20" onClick={async () => setCodeEditor(JSON.stringify(await erc20(), null, 2))} />
             <NarButton
               label="Spending limits"
               onClick={async () => setCodeEditor(JSON.stringify(await spendingLimits(), null, 2))}
