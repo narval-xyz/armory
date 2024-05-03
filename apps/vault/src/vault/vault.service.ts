@@ -7,7 +7,6 @@ export class VaultService {
   constructor(private signingService: SigningService) {}
 
   async sign(): Promise<EvaluationResponse | null> {
-    console.log('Signing Called')
     return null
   }
 }

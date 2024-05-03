@@ -5,6 +5,7 @@ import {
   EvaluationRequest,
   Feed,
   Request,
+  SerializedTransactionRequest,
   SetEntitiesAction,
   SetPoliciesAction,
   SignMessageAction,
@@ -47,7 +48,7 @@ const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, a
       principal,
       approvals,
       intent: result.intent,
-      transactionRequest: request.transactionRequest,
+      transactionRequest: SerializedTransactionRequest.parse(request.transactionRequest),
       resource: { uid: request.resourceId },
       feeds
     }

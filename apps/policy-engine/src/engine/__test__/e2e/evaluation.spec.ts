@@ -6,8 +6,10 @@ import {
   DataStoreConfiguration,
   Decision,
   EvaluationRequest,
+  EvaluationResponse,
   FIXTURE,
   HttpSource,
+  SerializedEvaluationRequest,
   SourceType,
   Then
 } from '@narval/policy-engine-shared'
@@ -30,6 +32,7 @@ import {
   generateSignMessageRequest,
   generateSignRawRequest,
   generateSignTransactionRequest,
+  generateSignTransactionRequestWithGas,
   generateSignTypedDataRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
@@ -145,6 +148,25 @@ describe('Evaluation', () => {
         statusCode: HttpStatus.UNAUTHORIZED
       })
       expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('serializes and parses request at the edge', async () => {
+      const payload = await generateSignTransactionRequestWithGas()
+
+      const serializedPayload = SerializedEvaluationRequest.parse(payload)
+      const { body } = await request(app.getHttpServer())
+        .post('/evaluations')
+        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+        .send(serializedPayload)
+
+      expect(body).toMatchObject({
+        decision: Decision.FORBID,
+        request: serializedPayload.request
+      })
+
+      const parsedRequest = EvaluationResponse.parse(body)
+      expect(parsedRequest.request).toEqual(payload.request)
     })
 
     const useCases = [
