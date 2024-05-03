@@ -14,13 +14,7 @@ const useEngineApi = () => {
     engineClientId,
     engineClientSecret,
     entityDataStoreUrl,
-    entitySignatureUrl,
     policyDataStoreUrl,
-    policySignatureUrl,
-    entityDataStoreHeaders,
-    entitySignatureHeaders,
-    policyDataStoreHeaders,
-    policySignatureHeaders,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner
@@ -44,26 +38,22 @@ const useEngineApi = () => {
           entityDataStore: {
             data: {
               type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl,
-              headers: JSON.parse(entityDataStoreHeaders)
+              url: entityDataStoreUrl
             },
             signature: {
-              type: getUrlProtocol(entitySignatureUrl),
-              url: entitySignatureUrl,
-              headers: JSON.parse(entitySignatureHeaders)
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
             },
             keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
           },
           policyDataStore: {
             data: {
               type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl,
-              headers: JSON.parse(policyDataStoreHeaders)
+              url: policyDataStoreUrl
             },
             signature: {
-              type: getUrlProtocol(policySignatureUrl),
-              url: policySignatureUrl,
-              headers: JSON.parse(policySignatureHeaders)
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
             },
             keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
           }

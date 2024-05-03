@@ -20,9 +20,6 @@ const configSchema = z.object({
   dataFeed: z.object({
     priceFeedPrivateKey: z.string().startsWith('0x'),
     historicalTransferFeedPrivateKey: z.string().startsWith('0x')
-  }),
-  policyEngine: z.object({
-    host: z.string()
   })
 })
 
@@ -43,9 +40,6 @@ export const load = (): Config => {
     dataFeed: {
       priceFeedPrivateKey: process.env.PRICE_FEED_PRIVATE_KEY,
       historicalTransferFeedPrivateKey: process.env.HISTORICAL_TRANSFER_FEED_PRIVATE_KEY
-    },
-    policyEngine: {
-      host: process.env.POLICY_ENGINE_HOST
     }
   })
 

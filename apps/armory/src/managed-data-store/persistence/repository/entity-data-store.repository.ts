@@ -23,7 +23,7 @@ export class EntityDataStoreRepository {
     return dataStore
   }
 
-  async getLatestVersion(orgId: string): Promise<number> {
+  private async getLatestVersion(orgId: string): Promise<number> {
     const data = await this.prismaService.entityDataStore.aggregate({
       where: {
         orgId

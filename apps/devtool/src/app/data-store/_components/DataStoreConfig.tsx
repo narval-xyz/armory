@@ -17,24 +17,7 @@ import Users from './sections/Users'
 import Wallets from './sections/Wallets'
 
 const DataStoreConfig = () => {
-  const {
-    entityDataStoreUrl,
-    entitySignatureUrl,
-    policyDataStoreUrl,
-    policySignatureUrl,
-    entityDataStoreHeaders,
-    entitySignatureHeaders,
-    policyDataStoreHeaders,
-    policySignatureHeaders,
-    setEntityDataStoreUrl,
-    setEntitySignatureUrl,
-    setPolicyDataStoreUrl,
-    setPolicySignatureUrl,
-    setEntityDataStoreHeaders,
-    setEntitySignatureHeaders,
-    setPolicyDataStoreHeaders,
-    setPolicySignatureHeaders
-  } = useStore()
+  const { entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } = useStore()
 
   const { isSynced, syncEngine } = useEngineApi()
 
@@ -116,13 +99,7 @@ const DataStoreConfig = () => {
       <div className="flex gap-20">
         <div className="flex flex-col gap-8 w-1/3">
           <NarInput label="Entity Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
-          <NarInput label="Headers" value={entityDataStoreHeaders} onChange={setEntityDataStoreHeaders} />
-          <NarInput label="Entity Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
-          <NarInput label="Headers" value={entitySignatureHeaders} onChange={setEntitySignatureHeaders} />
           <NarInput label="Policy Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
-          <NarInput label="Headers" value={policyDataStoreHeaders} onChange={setPolicyDataStoreHeaders} />
-          <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
-          <NarInput label="Headers" value={policySignatureHeaders} onChange={setPolicySignatureHeaders} />
         </div>
         <div className="flex flex-col gap-8 w-2/3">
           {displayCodeEditor && <CodeEditor value={codeEditor} onChange={setCodeEditor} />}

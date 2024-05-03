@@ -118,6 +118,17 @@ model Feed {
 
 // Data Store
 
+model Engine {
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  orgId        String   @map("org_id") // TODO @sam: this will be renamed to client_id in a future PR
+  clientSecret String   @map("client_secret")
+  entityKey    Json     @map("entity_key")
+  policyKey    Json     @map("policy_key")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("engine")
+}
+
 model EntityDataStore {
   id        String   @id @default(uuid()) @db.VarChar(255)
   orgId     String   @map("org_id")

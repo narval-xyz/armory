@@ -1,13 +1,12 @@
-import { Entities, EntityStore, EvaluationRequest, Policy, PolicyStore } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common'
+import { Entities, EntityStore, JwtString, Policy, PolicyStore } from '@narval/policy-engine-shared'
+import { Body, Controller, Get, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { AxiosHeaders } from 'axios'
 import { OrgId } from '../../../shared/decorator/org-id.decorator'
 import { EntityDataStoreService } from '../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../core/service/policy-data-store.service'
 
-@Controller('/data-store')
-@ApiTags('Data Store')
+@Controller('/managed-data-store')
+@ApiTags('Managed Data Store')
 export class DataStoreController {
   constructor(
     private entityDataStoreService: EntityDataStoreService,
@@ -25,34 +24,18 @@ export class DataStoreController {
   }
 
   @Post('/entities')
-  setEntities(
-    @Headers() headers: AxiosHeaders,
-    @OrgId() orgId: string,
-    @Body() data: { evaluationRequest: EvaluationRequest; entities: Entities }
-  ) {
+  setEntities(@OrgId() orgId: string, @Body() payload: { signature: JwtString; data: Entities }) {
     return this.entityDataStoreService.setEntities({
       orgId,
-      headers: {
-        'x-client-id': headers['x-client-id'],
-        'x-client-secret': headers['x-client-secret']
-      },
-      data
+      payload
     })
   }
 
   @Post('/policies')
-  setPolicies(
-    @Headers() headers: AxiosHeaders,
-    @OrgId() orgId: string,
-    @Body() data: { evaluationRequest: EvaluationRequest; policies: Policy[] }
-  ) {
+  setPolicies(@OrgId() orgId: string, @Body() payload: { signature: JwtString; data: Policy[] }) {
     return this.policyDataStoreService.setPolicies({
       orgId,
-      headers: {
-        'x-client-id': headers['x-client-id'],
-        'x-client-secret': headers['x-client-secret']
-      },
-      data
+      payload
     })
   }
 }
