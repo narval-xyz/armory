@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { ConfigService } from '@nestjs/config'
 import { Command, CommandRunner } from 'nest-commander'
 import { Config } from '../../main.config'

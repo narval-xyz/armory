@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { ConfigService } from '@narval/config-module'
 import { Command, CommandRunner } from 'nest-commander'
 import { EngineService } from '../../engine/core/service/engine.service'

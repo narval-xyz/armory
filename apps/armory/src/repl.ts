@@ -5,7 +5,8 @@ async function bootstrap() {
   try {
     await repl(ArmoryModule)
   } catch (error) {
-    console.log('### ERROR', error)
+    // eslint-disable-next-line no-console
+    console.error('REPL error', error)
     throw error
   }
 }
