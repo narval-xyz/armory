@@ -20,7 +20,7 @@ export class ForbiddenException extends NarvalSdkException {
   constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode: number = 403) {
     super(message, context)
     this.code = suggestedHttpCode
-    this.name = 'ForbiddenException'
+    this.name = ForbiddenException.name
   }
 }
 
