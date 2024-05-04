@@ -66,6 +66,8 @@ export class AuthorizationGuard implements CanActivate {
     }
 
     // Validate the JWT has a valid signature for the expected client key & the request matches
+
+    console.log('Validating token', token)
     const { payload } = await verifyJwt(token, clientJwk, {
       ...opts,
       requestHash: request
