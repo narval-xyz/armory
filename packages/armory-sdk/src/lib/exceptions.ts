@@ -10,7 +10,7 @@ export class NarvalSdkException extends Error {
 export class ConfigurationException extends NarvalSdkException {
   constructor(message: string, context: Record<string, unknown> = {}) {
     super(message, context)
-    this.name = 'ConfigurationException'
+    this.name = ConfigurationException.name
   }
 }
 
