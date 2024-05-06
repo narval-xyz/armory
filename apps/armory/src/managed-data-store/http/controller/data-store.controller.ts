@@ -14,13 +14,15 @@ export class DataStoreController {
   ) {}
 
   @Get('/entities')
-  getEntities(@OrgId() orgId: string): Promise<{ entity: EntityStore } | null> {
-    return this.entityDataStoreService.getEntities(orgId)
+  async getEntities(@OrgId() orgId: string): Promise<{ entity: EntityStore } | null> {
+    const entity = await this.entityDataStoreService.getEntities(orgId)
+    return entity ? { entity } : null
   }
 
   @Get('/policies')
-  getPolicies(@OrgId() orgId: string): Promise<{ policy: PolicyStore } | null> {
-    return this.policyDataStoreService.getPolicies(orgId)
+  async getPolicies(@OrgId() orgId: string): Promise<{ policy: PolicyStore } | null> {
+    const policy = await this.policyDataStoreService.getPolicies(orgId)
+    return policy ? { policy } : null
   }
 
   @Post('/entities')

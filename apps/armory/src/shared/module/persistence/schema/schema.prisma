@@ -13,12 +13,28 @@ datasource db {
 }
 
 model Organization {
-  id        String   @id @default(uuid()) @db.VarChar(255)
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  name         String
+  entityPubKey Json     @map("entity_pub_key")
+  policyPubKey Json     @map("policy_pub_key")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  Engine       Engine[]
 
   @@map("organization")
+}
+
+model Engine {
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  orgId        String   @map("org_id") // TODO @sam: this will be renamed to client_id in a future PR
+  clientSecret String   @map("client_secret")
+  pubKey       Json     @map("pub_key")
+  url          String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@map("engine")
 }
 
 //
@@ -117,17 +133,6 @@ model Feed {
 }
 
 // Data Store
-
-model Engine {
-  id           String   @id @default(uuid()) @db.VarChar(255)
-  orgId        String   @map("org_id") // TODO @sam: this will be renamed to client_id in a future PR
-  clientSecret String   @map("client_secret")
-  entityKey    Json     @map("entity_key")
-  policyKey    Json     @map("policy_key")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  @@map("engine")
-}
 
 model EntityDataStore {
   id        String   @id @default(uuid()) @db.VarChar(255)

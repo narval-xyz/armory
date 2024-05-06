@@ -10,7 +10,7 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { EntityDataStoreService } from './core/service/entity-data-store.service'
 import { PolicyDataStoreService } from './core/service/policy-data-store.service'
 import { DataStoreController } from './http/controller/data-store.controller'
-import { EngineRepository } from './persistence/repository/engine.repository'
+import { ClientRepository } from './persistence/repository/client.repository'
 import { EntityDataStoreRepository } from './persistence/repository/entity-data-store.repository'
 import { PolicyDataStoreRepository } from './persistence/repository/policy-data-store.repository'
 
@@ -22,7 +22,7 @@ import { PolicyDataStoreRepository } from './persistence/repository/policy-data-
     PolicyDataStoreService,
     EntityDataStoreRepository,
     PolicyDataStoreRepository,
-    EngineRepository,
+    ClientRepository,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter
@@ -42,4 +42,4 @@ import { PolicyDataStoreRepository } from './persistence/repository/policy-data-
   ],
   exports: []
 })
-export class ManagedDataStore {}
+export class ManagedDataStoreModule {}
