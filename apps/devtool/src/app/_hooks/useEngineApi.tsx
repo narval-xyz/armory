@@ -1,4 +1,4 @@
-import { EvaluationRequest, EvaluationResponse, FIXTURE, SignTransactionAction } from '@narval/policy-engine-shared'
+import { EvaluationRequest, EvaluationResponse, SignTransactionAction } from '@narval/policy-engine-shared'
 import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
@@ -20,14 +20,14 @@ const useEngineApi = () => {
     setEngineClientSigner
   } = useStore()
 
-  const { signAccountJwt } = useAccountSignature()
+  const { jwk, signAccountJwt } = useAccountSignature()
   const [isOnboarded, setIsOnboarded] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
 
   const [errors, setErrors] = useState<string>()
 
   const onboardClient = async () => {
-    if (!engineAdminApiKey) return
+    if (!engineAdminApiKey || !jwk) return
 
     setErrors(undefined)
 
@@ -44,7 +44,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(entityDataStoreUrl),
               url: entityDataStoreUrl
             },
-            keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
+            keys: [jwk]
           },
           policyDataStore: {
             data: {
@@ -55,7 +55,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(policyDataStoreUrl),
               url: policyDataStoreUrl
             },
-            keys: [FIXTURE.PUBLIC_KEYS_JWK.Root]
+            keys: [jwk]
           }
         },
         {

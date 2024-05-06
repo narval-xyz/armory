@@ -1,30 +1,26 @@
 import {
-  CredentialEntity,
   Entities,
   EntityData,
   EntityStore,
   EntityUtil,
   Policy,
   PolicyData,
-  PolicyStore,
-  UserEntity,
-  UserRole
+  PolicyStore
 } from '@narval/policy-engine-shared'
-import { Alg, Curves, KeyTypes, Payload, hash } from '@narval/signature'
+import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { v4 as uuid } from 'uuid'
+import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
-
-type DataStore = { entity: EntityStore; policy: PolicyStore }
 
 const useDataStoreApi = () => {
   const { jwk, signAccountJwt } = useAccountSignature()
 
-  const [dataStore, setDataStore] = useState<DataStore>()
+  const [dataStore, setDataStore] = useState<{ entity: Entities; policy: Policy[] }>()
   const [isEntitySigning, setIsEntitySigning] = useState(false)
   const [isPolicySigning, setIsPolicySigning] = useState(false)
-  const [errors, setErrors] = useState<unknown>()
+  const [errors, setErrors] = useState<string>()
+  const [validationErrors, setValidationErrors] = useState<string>()
 
   useEffect(() => {
     if (!dataStore) {
@@ -33,71 +29,32 @@ const useDataStoreApi = () => {
   }, [dataStore])
 
   const getDataStore = async () => {
-    const { data } = await axios.get<DataStore>('/api/data-store')
+    const { data } = await axios.get<{ entity: EntityStore; policy: PolicyStore }>('/api/data-store')
 
-    setDataStore(data)
+    setDataStore({ entity: data.entity.data, policy: data.policy.data })
 
     return data
   }
 
-  const createCredential = async (address: string | undefined) => {
-    if (!address || !dataStore) return
-
-    const { entity, policy } = dataStore
-    const { credentials, users } = entity.data
-
-    const credentialAlreadyExists = credentials.find((c) => c.key.addr === address)
-
-    if (credentialAlreadyExists) return
-
-    try {
-      const user: UserEntity = { id: uuid(), role: UserRole.ADMIN }
-
-      const publicKey: CredentialEntity = {
-        id: address,
-        userId: user.id,
-        key: {
-          kty: KeyTypes.EC,
-          crv: Curves.SECP256K1,
-          alg: Alg.ES256K,
-          kid: address,
-          addr: address
-        }
-      }
-
-      users.push(user)
-      credentials.push(publicKey)
-
-      await axios.post('/api/data-store', {
-        entity: {
-          signature: entity.signature,
-          data: { ...entity.data, users, credentials }
-        },
-        policy
-      })
-
-      await getDataStore()
-    } catch (error) {
-      setErrors(error)
-    }
-  }
-
-  const signEntityDataStore = async (entity: Entities) => {
+  const signEntityDataStore = async (entity: Entities, callback: () => Promise<void>) => {
     if (!jwk || !dataStore) return
 
     setErrors(undefined)
+    setValidationErrors(undefined)
 
     const entityValidationResult = EntityData.safeParse({ entity: { data: entity } })
 
     if (!entityValidationResult.success) {
-      setErrors(entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`))
+      setValidationErrors(
+        entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
+      )
       return
     }
 
     const validation = EntityUtil.validate(entity)
 
     if (!validation.success) {
-      setErrors(validation.issues.map((issue) => issue.message))
+      setValidationErrors(validation.issues.map((issue) => issue.message).join(', '))
       return
     }
 
@@ -114,27 +71,29 @@ const useDataStoreApi = () => {
       const signature = await signAccountJwt(payload)
 
       await axios.post('/api/data-store', {
-        entity: { signature, data: entity },
-        policy: dataStore.policy
+        entity: { signature, data: entity }
       })
 
-      await getDataStore()
+      await callback()
     } catch (error) {
-      setErrors(error)
+      setErrors(extractErrorMessage(error))
     }
 
     setIsEntitySigning(false)
   }
 
-  const signPolicyDataStore = async (policy: Policy[]) => {
+  const signPolicyDataStore = async (policy: Policy[], callback: () => Promise<void>) => {
     if (!jwk || !dataStore) return
 
     setErrors(undefined)
+    setValidationErrors(undefined)
 
     const policyValidationResult = PolicyData.safeParse({ policy: { data: policy } })
 
     if (!policyValidationResult.success) {
-      setErrors(policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`))
+      setValidationErrors(
+        policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
+      )
       return
     }
 
@@ -151,13 +110,12 @@ const useDataStoreApi = () => {
       const signature = await signAccountJwt(payload)
 
       await axios.post('/api/data-store', {
-        entity: dataStore.entity,
         policy: { signature, data: policy }
       })
 
-      await getDataStore()
+      await callback()
     } catch (error) {
-      setErrors(error)
+      setErrors(extractErrorMessage(error))
     }
 
     setIsPolicySigning(false)
@@ -168,8 +126,8 @@ const useDataStoreApi = () => {
     isEntitySigning,
     isPolicySigning,
     errors,
+    validationErrors,
     getDataStore,
-    createCredential,
     signEntityDataStore,
     signPolicyDataStore
   }

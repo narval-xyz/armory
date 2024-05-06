@@ -43,7 +43,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     policy: { signature: '', data: [] }
   })
 
-  db.data = { entity, policy }
+  db.data = {
+    ...db.data,
+    ...(entity && { entity }),
+    ...(policy && { policy })
+  }
 
   await db.write()
 

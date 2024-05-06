@@ -9,7 +9,7 @@ import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
-import useAdminApi from '../../_hooks/useAdminApi'
+import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import CodeEditor from './CodeEditor'
@@ -29,7 +29,7 @@ const DataStoreConfig = () => {
     validationErrors,
     signEntityDataStore,
     signPolicyDataStore
-  } = useAdminApi()
+  } = useDataStoreApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(true)

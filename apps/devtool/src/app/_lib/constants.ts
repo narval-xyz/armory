@@ -1,4 +1,4 @@
-export const ARMORY_URL = 'http://127.0.0.1:3005'
+export const DATA_STORE_URL = 'http://127.0.0.1:4200/api/data-store'
 export const ENGINE_URL = 'http://127.0.0.1:3010'
 export const VAULT_URL = 'http://127.0.0.1:3011'
 
