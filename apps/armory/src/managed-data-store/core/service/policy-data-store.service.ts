@@ -41,7 +41,7 @@ export class PolicyDataStoreService extends SignatureService<Policy[]> {
     return this.policyDataStoreRepository.setDataStore({
       orgId,
       version: dataStore?.version ? dataStore.version + 1 : 1,
-      data: payload
+      data: PolicyStore.parse(payload)
     })
   }
 }
