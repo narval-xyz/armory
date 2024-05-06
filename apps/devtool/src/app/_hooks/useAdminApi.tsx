@@ -28,14 +28,7 @@ const initDataStore: DataStore = {
 }
 
 const useAdminApi = () => {
-  const {
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    policyDataStoreUrl,
-    entityDataStoreHeaders,
-    policyDataStoreHeaders
-  } = useStore()
+  const { engineClientId, engineClientSecret, entityDataStoreUrl, policyDataStoreUrl } = useStore()
   const { signAccountJwt } = useAccountSignature()
   const [dataStore, setDataStore] = useState<DataStore>()
   const [isEntitySigning, setIsEntitySigning] = useState(false)
@@ -56,8 +49,8 @@ const useAdminApi = () => {
 
     try {
       const [{ data: entityData }, { data: policyData }] = await Promise.all([
-        axios.get<{ entity: EntityStore }>(entityDataStoreUrl, { headers: JSON.parse(entityDataStoreHeaders) }),
-        axios.get<{ policy: PolicyStore }>(policyDataStoreUrl, { headers: JSON.parse(policyDataStoreHeaders) })
+        axios.get<{ entity: EntityStore }>(entityDataStoreUrl),
+        axios.get<{ policy: PolicyStore }>(policyDataStoreUrl)
       ])
 
       if (entityData?.entity?.data || policyData?.policy?.data) {
@@ -109,7 +102,6 @@ const useAdminApi = () => {
         { evaluationRequest, entities },
         {
           headers: {
-            ...JSON.parse(entityDataStoreHeaders),
             'x-client-id': engineClientId,
             'x-client-secret': engineClientSecret
           }
@@ -155,7 +147,6 @@ const useAdminApi = () => {
         { evaluationRequest, policies },
         {
           headers: {
-            ...JSON.parse(policyDataStoreHeaders),
             'x-client-id': engineClientId,
             'x-client-secret': engineClientSecret
           }

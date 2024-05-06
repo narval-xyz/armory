@@ -1,7 +1,7 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { Organization, PrismaClient } from '@prisma/client/armory'
+import { Organization, Prisma, PrismaClient } from '@prisma/client/armory'
 import { ArmoryModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 
@@ -12,6 +12,8 @@ const orgs: Organization[] = [
   {
     id: FIXTURE.ORGANIZATION.id,
     name: 'Dev',
+    entityPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: now,
     updatedAt: now
   }
@@ -30,7 +32,11 @@ async function main() {
   for (const org of orgs) {
     logger.log(`Creating organization ${org.name} (ID: ${org.id})`)
     await prisma.organization.create({
-      data: org
+      data: {
+        ...org,
+        policyPubKey: org.policyPubKey as Prisma.InputJsonValue,
+        entityPubKey: org.entityPubKey as Prisma.InputJsonValue
+      }
     })
   }
 

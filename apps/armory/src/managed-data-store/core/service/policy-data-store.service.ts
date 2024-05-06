@@ -34,8 +34,8 @@ export class PolicyDataStoreService extends SignatureService<Policy[]> {
 
     await this.verifySignature({
       payload,
-      key: client.policyPubKey as Jwk,
-      timestamp: dataStore?.createdAt
+      pubKey: client.policyPubKey as Jwk,
+      date: dataStore?.createdAt
     })
 
     return this.policyDataStoreRepository.setDataStore({

@@ -34,8 +34,8 @@ export class EntityDataStoreService extends SignatureService<Entities> {
 
     await this.verifySignature({
       payload,
-      key: client.entityPubKey as Jwk,
-      timestamp: dataStore?.createdAt
+      pubKey: client.entityPubKey as Jwk,
+      date: dataStore?.createdAt
     })
 
     return this.entitydataStoreRepository.setDataStore({

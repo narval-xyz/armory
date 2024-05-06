@@ -1,9 +1,9 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestStatus, Organization } from '@prisma/client/armory'
+import { AuthorizationRequestStatus, Organization, Prisma } from '@prisma/client/armory'
 import { Queue } from 'bull'
 import request from 'supertest'
 import { stringToHex } from 'viem'
@@ -37,6 +37,8 @@ describe('Authorization Request', () => {
   const org: Organization = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     name: 'Test Evaluation',
+    entityPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -71,7 +73,13 @@ describe('Authorization Request', () => {
   })
 
   beforeEach(async () => {
-    await testPrismaService.getClient().organization.create({ data: org })
+    await testPrismaService.getClient().organization.create({
+      data: {
+        ...org,
+        policyPubKey: org.policyPubKey as Prisma.InputJsonValue,
+        entityPubKey: org.entityPubKey as Prisma.InputJsonValue
+      }
+    })
   })
 
   afterEach(async () => {

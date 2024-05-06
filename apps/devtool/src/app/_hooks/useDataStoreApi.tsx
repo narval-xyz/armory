@@ -1,14 +1,14 @@
 import {
   CredentialEntity,
   Entities,
+  EntityData,
   EntityStore,
   EntityUtil,
   Policy,
+  PolicyData,
   PolicyStore,
   UserEntity,
-  UserRole,
-  entityDataSchema,
-  policyDataSchema
+  UserRole
 } from '@narval/policy-engine-shared'
 import { Alg, Curves, KeyTypes, Payload, hash } from '@narval/signature'
 import axios from 'axios'
@@ -87,7 +87,7 @@ const useDataStoreApi = () => {
 
     setErrors(undefined)
 
-    const entityValidationResult = entityDataSchema.safeParse({ entity: { data: entity } })
+    const entityValidationResult = EntityData.safeParse({ entity: { data: entity } })
 
     if (!entityValidationResult.success) {
       setErrors(entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`))
@@ -131,7 +131,7 @@ const useDataStoreApi = () => {
 
     setErrors(undefined)
 
-    const policyValidationResult = policyDataSchema.safeParse({ policy: { data: policy } })
+    const policyValidationResult = PolicyData.safeParse({ policy: { data: policy } })
 
     if (!policyValidationResult.success) {
       setErrors(policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`))
