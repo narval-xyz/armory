@@ -9,9 +9,11 @@ import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-modu
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
+import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
+import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { ImportController } from './http/rest/controller/import.controller'
@@ -39,15 +41,17 @@ import { VaultService } from './vault.service'
   ],
   controllers: [VaultController, ImportController, SignController],
   providers: [
-    AppService,
     AppRepository,
+    AppService,
     ClientSecretGuard,
+    ImportRepository,
     ImportService,
-    VaultService,
+    NonceGuard,
+    NonceService,
     ProvisionService,
     SigningService,
+    VaultService,
     WalletRepository,
-    ImportRepository,
     {
       provide: APP_PIPE,
       useFactory: () =>
