@@ -24,10 +24,14 @@ import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { NonceService } from './nonce.service'
 
 @Injectable()
 export class SigningService {
-  constructor(private walletRepository: WalletRepository) {}
+  constructor(
+    private walletRepository: WalletRepository,
+    private nonceService: NonceService
+  ) {}
 
   async sign(clientId: string, request: Request): Promise<Hex> {
     if (request.action === Action.SIGN_TRANSACTION) {
@@ -40,43 +44,16 @@ export class SigningService {
       return this.signRaw(clientId, request)
     }
 
-    throw new Error('Action not supported')
-  }
-
-  async #getWallet(clientId: string, resourceId: string) {
-    const wallet = await this.walletRepository.findById(clientId, resourceId)
-    if (!wallet) {
-      throw new ApplicationException({
-        message: 'Wallet not found',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { clientId: clientId, resourceId }
-      })
-    }
-
-    return wallet
-  }
-
-  async #buildClient(clientId: string, resourceId: string, chainId?: number) {
-    const wallet = await this.#getWallet(clientId, resourceId)
-
-    const account = privateKeyToAccount(wallet.privateKey)
-    const chain = extractChain<chains.Chain[], number>({
-      chains: Object.values(chains),
-      id: chainId || 1
+    throw new ApplicationException({
+      message: 'Action not supported',
+      suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+      context: { clientId, request }
     })
-
-    const client = createWalletClient({
-      account,
-      chain,
-      transport: http('') // clear the RPC so we don't call any chain stuff here.
-    })
-
-    return client
   }
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
-    const client = await this.#buildClient(clientId, resourceId, transactionRequest.chainId)
+    const client = await this.buildClient(clientId, resourceId, transactionRequest.chainId)
 
     const txRequest: TransactionRequest = {
       from: checksumAddress(client.account.address),
@@ -105,34 +82,84 @@ export class SigningService {
     // const hash = await c2.sendRawTransaction({ serializedTransaction: signature })
     // console.log('sent transaction', hash)
 
+    await this.maybeSaveNonce(clientId, action)
+
     return signature
   }
 
   async signMessage(clientId: string, action: SignMessageAction): Promise<Hex> {
     const { message, resourceId } = action
-    const client = await this.#buildClient(clientId, resourceId)
-
+    const client = await this.buildClient(clientId, resourceId)
     const signature = await client.signMessage({ message })
+
+    await this.maybeSaveNonce(clientId, action)
+
     return signature
   }
 
   async signTypedData(clientId: string, action: SignTypedDataAction): Promise<Hex> {
     const { typedData, resourceId } = action
-    const client = await this.#buildClient(clientId, resourceId)
-
+    const client = await this.buildClient(clientId, resourceId)
     const signature = await client.signTypedData(typedData)
+
+    await this.maybeSaveNonce(clientId, action)
+
     return signature
   }
 
-  // Sign a raw message; nothing ETH or chain-specific, simply performs an ecdsa signature on the byte representation of the hex-encoded raw message
+  // Sign a raw message; nothing ETH or chain-specific, simply performs an
+  // ecdsa signature on the byte representation of the hex-encoded raw message
   async signRaw(clientId: string, action: SignRawAction): Promise<Hex> {
     const { rawMessage, resourceId } = action
-
-    const wallet = await this.#getWallet(clientId, resourceId)
+    const wallet = await this.findWallet(clientId, resourceId)
     const message = hexToBytes(rawMessage)
-    const signature = await signSecp256k1(message, wallet.privateKey, true)
-
+    const signature = signSecp256k1(message, wallet.privateKey, true)
     const hexSignature = signatureToHex(signature)
+
+    await this.maybeSaveNonce(clientId, action)
+
     return hexSignature
+  }
+
+  private async findWallet(clientId: string, resourceId: string) {
+    const wallet = await this.walletRepository.findById(clientId, resourceId)
+
+    if (!wallet) {
+      throw new ApplicationException({
+        message: 'Wallet not found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+        context: { clientId, resourceId }
+      })
+    }
+
+    return wallet
+  }
+
+  private async buildClient(clientId: string, resourceId: string, chainId?: number) {
+    const wallet = await this.findWallet(clientId, resourceId)
+
+    const account = privateKeyToAccount(wallet.privateKey)
+    const chain = extractChain<chains.Chain[], number>({
+      chains: Object.values(chains),
+      id: chainId || 1
+    })
+
+    const client = createWalletClient({
+      account,
+      chain,
+      // TODO: (@wcalderipe) implement a no-op custom transport.
+      transport: http('') // clear the RPC so we don't call any chain stuff here.
+    })
+
+    return client
+  }
+
+  private async maybeSaveNonce(
+    clientId: string,
+    request: SignTransactionAction | SignMessageAction | SignTypedDataAction | SignRawAction
+  ) {
+    if (request.nonce) {
+      await this.nonceService.save(clientId, request.nonce)
+    }
   }
 }
