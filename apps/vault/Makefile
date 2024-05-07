@@ -7,6 +7,9 @@ VAULT_DATABASE_SCHEMA := ${VAULT_PROJECT_DIR}/src/shared/module/persistence/sche
 vault/start/dev:
 	npx nx serve ${VAULT_PROJECT_NAME}
 
+vault/start/prod:
+	node ./dist/apps/vault/main.js
+
 # === Setup ===
 
 vault/setup:
@@ -21,9 +24,8 @@ vault/copy-default-env:
 
 # === Build ===
 
-vault/build/script:
-	npx tsc --project ${VAULT_PROJECT_DIR}/tsconfig.app.json
-	npx tsc-alias --project ${VAULT_PROJECT_DIR}/tsconfig.app.json
+vault/build:
+	npx nx build ${VAULT_PROJECT_NAME}
 
 # == Code format ==
 
