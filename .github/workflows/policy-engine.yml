@@ -36,6 +36,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:

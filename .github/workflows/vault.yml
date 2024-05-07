@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Add private .npmrc
-        run: echo "${{ secrets.NPMRC }}" > ~/.npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -124,6 +124,9 @@ jobs:
       - name: Get short SHA
         id: slug
         run: echo "sha7=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
 
       - name: Build, tag, and push docker image to Amazon ECR
         uses: docker/build-push-action@v4
