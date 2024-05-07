@@ -243,3 +243,31 @@ export const buildSignerRs256 =
     const hexSignature = toHex(new Uint8Array(signature))
     return hexToBase64Url(hexSignature)
   }
+
+export const buildSignerForAlg = async (jwk: Jwk) => {
+  // Default signer logic
+  // Validate JWK as a private key for default signing
+  const privateKey = validateJwk<PrivateKey>({
+    schema: privateKeySchema,
+    jwk,
+    errorMessage: 'Invalid JWK: failed to validate private key'
+  })
+  const { alg } = jwk
+  switch (alg) {
+    case SigningAlg.ES256K: {
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      return buildSignerEs256k(privateKeyHex)
+    }
+    case SigningAlg.ES256: {
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      return buildSignerEs256(privateKeyHex)
+    }
+    case SigningAlg.RS256:
+      return buildSignerRs256(privateKey)
+    default:
+      throw new JwtError({
+        message: 'Unsupported signing algorithm',
+        context: { alg }
+      })
+  }
+}

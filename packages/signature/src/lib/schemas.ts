@@ -194,3 +194,11 @@ export const Jwsd = z.object({
   payload: z.string(),
   signature: z.string()
 })
+
+export const SignJwtOptions = z.object({
+  alg: z.nativeEnum(Alg).optional(),
+  kid: z.string().optional()
+})
+export const SignJwtInput = z.object({
+  payload: Payload
+})
