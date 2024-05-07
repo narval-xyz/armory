@@ -1,4 +1,3 @@
-import { Request } from '@narval/policy-engine-shared'
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { createZodDto } from 'nestjs-zod'
 import {
@@ -26,7 +25,8 @@ export class SignController {
 
   @Post()
   async sign(@ClientId() clientId: string, @Body() body: SignRequestDto) {
-    const request: Request = body.request
+    const parsed = SignRequest.parse(body)
+    const { request } = parsed
     const result = await this.signingService.sign(clientId, request)
 
     return { signature: result }
