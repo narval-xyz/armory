@@ -7,8 +7,8 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 export class PolicyDataStoreRepository {
   constructor(private prismaService: PrismaService) {}
 
-  setDataStore(data: { orgId: string; version: number; data: PolicyStore }) {
-    return this.prismaService.policyDataStore.create({ data })
+  setDataStore(orgId: string, data: { version: number; data: PolicyStore }) {
+    return this.prismaService.policyDataStore.create({ data: { orgId, ...data } })
   }
 
   async getLatestDataStore(orgId: string): Promise<PolicyDataStore | null> {

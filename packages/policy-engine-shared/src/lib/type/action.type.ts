@@ -1,7 +1,6 @@
 import { fromHex } from 'viem'
 import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
-import { entitiesSchema } from '../schema/entity.schema'
 import { hexSchema } from '../schema/hex.schema'
 import { isHexString } from '../util/typeguards'
 
@@ -9,9 +8,7 @@ export const Action = {
   SIGN_TRANSACTION: 'signTransaction',
   SIGN_RAW: 'signRaw',
   SIGN_MESSAGE: 'signMessage',
-  SIGN_TYPED_DATA: 'signTypedData',
-  SET_ENTITIES: 'setEntities',
-  SET_POLICIES: 'setPolicies'
+  SIGN_TYPED_DATA: 'signTypedData'
 } as const
 export type Action = (typeof Action)[keyof typeof Action]
 export const ActionSchema = z.nativeEnum(Action)
@@ -139,22 +136,3 @@ export const SignRawAction = BaseAction.merge(
   })
 )
 export type SignRawAction = z.infer<typeof SignRawAction>
-
-export const SetEntitiesAction = BaseAction.merge(
-  z.object({
-    action: z.literal(Action.SET_ENTITIES),
-    data: entitiesSchema
-  })
-)
-export type SetEntitiesAction = z.infer<typeof SetEntitiesAction>
-
-// TODO: (@samteb, 10/04/2024): the data type is z.array(z.unknown())
-// due to a circular dependency between the two
-// packages when importing policySchema.
-export const SetPoliciesAction = BaseAction.merge(
-  z.object({
-    action: z.literal(Action.SET_POLICIES),
-    data: z.array(z.unknown())
-  })
-)
-export type SetPoliciesAction = z.infer<typeof SetPoliciesAction>

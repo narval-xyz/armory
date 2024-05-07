@@ -7,8 +7,8 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 export class EntityDataStoreRepository {
   constructor(private prismaService: PrismaService) {}
 
-  setDataStore(data: { orgId: string; version: number; data: EntityStore }) {
-    return this.prismaService.entityDataStore.create({ data })
+  setDataStore(orgId: string, data: { version: number; data: EntityStore }) {
+    return this.prismaService.entityDataStore.create({ data: { orgId, ...data } })
   }
 
   async getLatestDataStore(orgId: string): Promise<EntityDataStore | null> {

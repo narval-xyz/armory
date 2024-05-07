@@ -6,8 +6,6 @@ import {
   Feed,
   Request,
   SerializedTransactionRequest,
-  SetEntitiesAction,
-  SetPoliciesAction,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
@@ -25,14 +23,6 @@ type Mapping<R extends Request> = (
   approvals?: CredentialEntity[],
   feeds?: Feed<unknown>[]
 ) => Input
-
-const toMetaPermission: Mapping<SetEntitiesAction | SetPoliciesAction> = (request, principal, approvals): Input => {
-  return {
-    action: request.action,
-    principal,
-    approvals
-  }
-}
 
 const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals, feeds): Input => {
   const result = safeDecode({
@@ -119,9 +109,7 @@ export const toInput = (params: {
     [Action.SIGN_MESSAGE, toSignMessage],
     [Action.SIGN_RAW, toSignRaw],
     [Action.SIGN_TRANSACTION, toSignTransaction],
-    [Action.SIGN_TYPED_DATA, toSignTypedData],
-    [Action.SET_ENTITIES, toMetaPermission],
-    [Action.SET_POLICIES, toMetaPermission]
+    [Action.SIGN_TYPED_DATA, toSignTypedData]
   ])
   const mapper = mappers.get(action)
 

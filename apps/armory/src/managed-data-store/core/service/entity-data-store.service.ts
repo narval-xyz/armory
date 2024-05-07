@@ -1,6 +1,6 @@
 import { Entities, EntityStore } from '@narval/policy-engine-shared'
-import { Jwk } from '@narval/signature'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { publicKeySchema } from '@narval/signature'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 import { EntityDataStoreRepository } from '../../persistence/repository/entity-data-store.repository'
 import { SignatureService } from './signature.service'
@@ -20,13 +20,13 @@ export class EntityDataStoreService extends SignatureService<Entities> {
     return entityStore ? EntityStore.parse(entityStore.data) : null
   }
 
-  async setEntities({ orgId, payload }: { orgId: string; payload: EntityStore }) {
-    const client = await this.clientRepository.getClientData(orgId)
+  async setEntities(orgId: string, payload: EntityStore) {
+    const client = await this.clientRepository.getClient(orgId)
 
     if (!client) {
       throw new NotFoundException({
         message: 'Client data not found',
-        suggestedHttpStatusCode: 404
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
       })
     }
 
@@ -34,12 +34,11 @@ export class EntityDataStoreService extends SignatureService<Entities> {
 
     await this.verifySignature({
       payload,
-      pubKey: client.entityPubKey as Jwk,
+      pubKey: publicKeySchema.parse(client.entityPublicKey),
       date: dataStore?.createdAt
     })
 
-    return this.entitydataStoreRepository.setDataStore({
-      orgId,
+    return this.entitydataStoreRepository.setDataStore(orgId, {
       version: dataStore?.version ? dataStore.version + 1 : 1,
       data: EntityStore.parse(payload)
     })

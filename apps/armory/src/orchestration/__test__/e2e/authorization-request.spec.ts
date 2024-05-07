@@ -37,8 +37,9 @@ describe('Authorization Request', () => {
   const org: Organization = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     name: 'Test Evaluation',
-    entityPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
-    policyPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    enginePublicKey: {},
+    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -76,8 +77,9 @@ describe('Authorization Request', () => {
     await testPrismaService.getClient().organization.create({
       data: {
         ...org,
-        policyPubKey: org.policyPubKey as Prisma.InputJsonValue,
-        entityPubKey: org.entityPubKey as Prisma.InputJsonValue
+        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
       }
     })
   })

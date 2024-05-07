@@ -1,5 +1,5 @@
 import { Jwk, hash, verifyJwt } from '@narval/signature'
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
 @Injectable()
@@ -18,14 +18,14 @@ export class SignatureService<T> {
     if (validJwt.payload.data !== hash(payload.data)) {
       throw new ApplicationException({
         message: 'Signature hash mismatch',
-        suggestedHttpStatusCode: 403
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN
       })
     }
 
     if (date && validJwt.payload.iat && validJwt.payload.iat < date.getTime() / 1000) {
       throw new ApplicationException({
         message: 'Signature timestamp mismatch',
-        suggestedHttpStatusCode: 403
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN
       })
     }
 

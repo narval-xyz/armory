@@ -3,6 +3,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
+import { load } from '../armory.config'
 import { OrchestrationModule } from '../orchestration/orchestration.module'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
@@ -15,7 +16,14 @@ import { EntityDataStoreRepository } from './persistence/repository/entity-data-
 import { PolicyDataStoreRepository } from './persistence/repository/policy-data-store.repository'
 
 @Module({
-  imports: [ConfigModule.forRoot(), HttpModule, PersistenceModule, OrchestrationModule],
+  imports: [
+    ConfigModule.forRoot({
+      load: [load]
+    }),
+    HttpModule,
+    PersistenceModule,
+    OrchestrationModule
+  ],
   controllers: [DataStoreController],
   providers: [
     EntityDataStoreService,

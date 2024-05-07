@@ -27,17 +27,11 @@ export class DataStoreController {
 
   @Post('/entities')
   setEntities(@OrgId() orgId: string, @Body() payload: { signature: JwtString; data: Entities }) {
-    return this.entityDataStoreService.setEntities({
-      orgId,
-      payload
-    })
+    return this.entityDataStoreService.setEntities(orgId, payload)
   }
 
   @Post('/policies')
   setPolicies(@OrgId() orgId: string, @Body() payload: { signature: JwtString; data: Policy[] }) {
-    return this.policyDataStoreService.setPolicies({
-      orgId,
-      payload
-    })
+    return this.policyDataStoreService.setPolicies(orgId, payload)
   }
 }

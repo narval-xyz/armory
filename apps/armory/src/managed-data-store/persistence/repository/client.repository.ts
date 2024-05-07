@@ -6,7 +6,7 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 export class ClientRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async getClientData(id: string): Promise<Organization | null> {
+  async getClient(id: string): Promise<Organization | null> {
     return this.prismaService.organization.findUnique({ where: { id } })
   }
 }

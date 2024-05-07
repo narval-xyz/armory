@@ -3,7 +3,7 @@ import { Payload, SigningAlg, buildSignerEip191, hash, secp256k1PrivateKeyToJwk,
 import { ApplicationException } from '../../../../shared/exception/application.exception'
 import { SignatureService } from '../../service/signature.service'
 
-describe('Signature Service', () => {
+describe(SignatureService.name, () => {
   const signatureService = new SignatureService()
   const DATA_STORE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
   const jwk = secp256k1PrivateKeyToJwk(`0x${DATA_STORE_PRIVATE_KEY}`)

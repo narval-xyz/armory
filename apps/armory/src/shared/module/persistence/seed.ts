@@ -12,8 +12,9 @@ const orgs: Organization[] = [
   {
     id: FIXTURE.ORGANIZATION.id,
     name: 'Dev',
-    entityPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
-    policyPubKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    enginePublicKey: {},
+    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: now,
     updatedAt: now
   }
@@ -34,8 +35,9 @@ async function main() {
     await prisma.organization.create({
       data: {
         ...org,
-        policyPubKey: org.policyPubKey as Prisma.InputJsonValue,
-        entityPubKey: org.entityPubKey as Prisma.InputJsonValue
+        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
       }
     })
   }

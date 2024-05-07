@@ -1,13 +1,15 @@
 /*
   Warnings:
 
-  - Added the required column `entity_pub_key` to the `organization` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `policy_pub_key` to the `organization` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `engine_public_key` to the `organization` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `entity_public_key` to the `organization` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `policy_public_key` to the `organization` table without a default value. This is not possible if the table is not empty.
 
 */
 -- AlterTable
-ALTER TABLE "organization" ADD COLUMN     "entity_pub_key" JSONB NOT NULL,
-ADD COLUMN     "policy_pub_key" JSONB NOT NULL;
+ALTER TABLE "organization" ADD COLUMN     "engine_public_key" JSONB NOT NULL,
+ADD COLUMN     "entity_public_key" JSONB NOT NULL,
+ADD COLUMN     "policy_public_key" JSONB NOT NULL;
 
 -- CreateTable
 CREATE TABLE "engine" (
