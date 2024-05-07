@@ -4,9 +4,9 @@ FROM node:21 as build
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+COPY .npmrc ./
 
-# NOTE: This expects the .npmrc file to be passed as a build secret
-RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # Copy the local code to the container's workspace.
 COPY packages ./packages
