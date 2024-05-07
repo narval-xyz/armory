@@ -1,4 +1,4 @@
-import { EntityData, FIXTURE } from '@narval/policy-engine-shared'
+import { EntityData, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
@@ -11,7 +11,10 @@ describe(HttpDataStoreRepository.name, () => {
 
   const dataStoreHost = 'http://some.host:3010'
   const dataStoreEndpoint = '/data-store/entities'
-  const dataStoreUrl = dataStoreHost + dataStoreEndpoint
+  const source: HttpSource = {
+    type: SourceType.HTTP,
+    url: dataStoreHost + dataStoreEndpoint
+  }
 
   const entityData: EntityData = {
     entity: {
@@ -32,7 +35,7 @@ describe(HttpDataStoreRepository.name, () => {
     it('fetches data from a remote data source via http protocol', async () => {
       nock(dataStoreHost).get(dataStoreEndpoint).reply(HttpStatus.OK, entityData)
 
-      const data = await repository.fetch(dataStoreUrl)
+      const data = await repository.fetch(source)
 
       expect(data).toEqual(entityData)
     })
@@ -40,7 +43,7 @@ describe(HttpDataStoreRepository.name, () => {
     it('throws a DataStoreException when it fails to fetch', async () => {
       nock(dataStoreHost).get(dataStoreEndpoint).reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
 
-      await expect(() => repository.fetch(dataStoreUrl)).rejects.toThrow(DataStoreException)
+      await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
     })
   })
 })

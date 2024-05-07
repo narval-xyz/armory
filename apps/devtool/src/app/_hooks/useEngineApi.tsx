@@ -1,9 +1,9 @@
-import { EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { hash } from '@narval/signature'
+import { EvaluationRequest, EvaluationResponse, SignTransactionAction } from '@narval/policy-engine-shared'
+import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import { extractErrorMessage } from '../_lib/utils'
+import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
@@ -14,9 +14,7 @@ const useEngineApi = () => {
     engineClientId,
     engineClientSecret,
     entityDataStoreUrl,
-    entitySignatureUrl,
     policyDataStoreUrl,
-    policySignatureUrl,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner
@@ -26,7 +24,7 @@ const useEngineApi = () => {
   const [isOnboarded, setIsOnboarded] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
 
-  const [errors, setErrors] = useState<any>()
+  const [errors, setErrors] = useState<string>()
 
   const onboardClient = async () => {
     if (!engineAdminApiKey || !jwk) return
@@ -38,13 +36,25 @@ const useEngineApi = () => {
         `${engineUrl}/clients`,
         {
           entityDataStore: {
-            dataUrl: entityDataStoreUrl,
-            signatureUrl: entitySignatureUrl,
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
             keys: [jwk]
           },
           policyDataStore: {
-            dataUrl: policyDataStoreUrl,
-            signatureUrl: policySignatureUrl,
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
             keys: [jwk]
           }
         },
@@ -72,14 +82,14 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
-      await axios.post(`${engineUrl}/clients/sync`, null, {
+      const { data } = await axios.post(`${engineUrl}/clients/sync`, null, {
         headers: {
           'x-client-id': engineClientId,
           'x-client-secret': engineClientSecret
         }
       })
 
-      setIsSynced(true)
+      setIsSynced(data.ok)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -95,10 +105,12 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
-      const payload = {
+      const request = evaluationRequest.request as SignTransactionAction
+
+      const payload: Payload = {
         iss: uuid(),
-        sub: evaluationRequest.request.resourceId,
-        requestHash: hash(evaluationRequest.request)
+        sub: request.resourceId,
+        requestHash: hash(request)
       }
 
       const authentication = await signAccountJwt(payload)

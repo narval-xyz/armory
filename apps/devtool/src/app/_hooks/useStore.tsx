@@ -17,16 +17,9 @@ const useStore = () => {
     LOCAL_STORAGE_KEYS.entityDataStoreUrl,
     DATA_STORE_URL
   )
-  const [entitySignatureUrl, setEntitySignatureUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.entitySignatureUrl,
-    DATA_STORE_URL
-  )
+
   const [policyDataStoreUrl, setPolicyDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.policyDataStoreUrl,
-    DATA_STORE_URL
-  )
-  const [policySignatureUrl, setPolicySignatureUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.policySignatureUrl,
     DATA_STORE_URL
   )
 
@@ -51,12 +44,8 @@ const useStore = () => {
     setVaultClientSecret,
     entityDataStoreUrl,
     setEntityDataStoreUrl,
-    entitySignatureUrl,
-    setEntitySignatureUrl,
     policyDataStoreUrl,
-    setPolicyDataStoreUrl,
-    policySignatureUrl,
-    setPolicySignatureUrl
+    setPolicyDataStoreUrl
   }
 }
 

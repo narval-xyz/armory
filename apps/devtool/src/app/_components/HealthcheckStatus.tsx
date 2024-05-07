@@ -11,20 +11,9 @@ const HealthcheckStatus = () => {
     engineDataStore: false,
     entityDataUrl: false,
     policyDataUrl: false,
-    entitySignatureUrl: false,
-    policySignatureUrl: false,
     vaultConnection: false
   })
-  const {
-    engineUrl,
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    policyDataStoreUrl,
-    entitySignatureUrl,
-    policySignatureUrl,
-    vaultUrl
-  } = useStore()
+  const { engineUrl, engineClientId, engineClientSecret, entityDataStoreUrl, policyDataStoreUrl, vaultUrl } = useStore()
 
   const checkPolicyDataConnection = async () => {
     try {
@@ -35,30 +24,12 @@ const HealthcheckStatus = () => {
     }
   }
 
-  const checkPolicySignatureConnection = async () => {
-    try {
-      await axios.get(policySignatureUrl)
-      setStatus((prev) => ({ ...prev, policySignatureUrl: true }))
-    } catch (e) {
-      setStatus((prev) => ({ ...prev, policySignatureUrl: false }))
-    }
-  }
-
   const checkEntityDataConnection = async () => {
     try {
       await axios.get(entityDataStoreUrl)
       setStatus((prev) => ({ ...prev, entityDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, entityDataUrl: false }))
-    }
-  }
-
-  const checkEntitySignatureConnection = async () => {
-    try {
-      await axios.get(entitySignatureUrl)
-      setStatus((prev) => ({ ...prev, entitySignatureUrl: true }))
-    } catch (e) {
-      setStatus((prev) => ({ ...prev, entitySignatureUrl: false }))
     }
   }
 
@@ -96,9 +67,7 @@ const HealthcheckStatus = () => {
 
   useEffect(() => {
     checkPolicyDataConnection()
-    checkPolicySignatureConnection()
     checkEntityDataConnection()
-    checkEntitySignatureConnection()
     checkEngineConnection()
     checkEngineDataStore()
     checkVaultConnection()
@@ -165,18 +134,6 @@ const HealthcheckStatus = () => {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Entity Signature URL</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.entitySignatureUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.entitySignatureUrl ? 'Connected' : 'Disconnected'}</div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
             <div className="text-nv-md underline">Policy Data URL</div>
             <div className="flex items-center gap-4">
               <div
@@ -186,18 +143,6 @@ const HealthcheckStatus = () => {
                 )}
               ></div>
               <div>{status.policyDataUrl ? 'Connected' : 'Disconnected'}</div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Policy Signature URL</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.policySignatureUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.policySignatureUrl ? 'Connected' : 'Disconnected'}</div>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Organization } from '@prisma/client/armory'
+import { Organization, Prisma } from '@prisma/client/armory'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
 import { load } from '../../../../../armory.config'
@@ -45,6 +45,9 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   const org: Organization = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     name: 'Test Org',
+    enginePublicKey: {},
+    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -123,7 +126,14 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     repository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     consumer = module.get<AuthorizationRequestProcessingConsumer>(AuthorizationRequestProcessingConsumer)
 
-    await testPrismaService.getClient().organization.create({ data: org })
+    await testPrismaService.getClient().organization.create({
+      data: {
+        ...org,
+        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+      }
+    })
     await repository.create(authzRequest)
   })
 

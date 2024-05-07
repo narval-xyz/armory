@@ -20,7 +20,7 @@ const useVaultApi = () => {
   const { signAccountJwsd } = useAccountSignature()
 
   const [isOnboarded, setIsOnboarded] = useState(false)
-  const [errors, setErrors] = useState<any>()
+  const [errors, setErrors] = useState<string>()
 
   const onboardClient = async () => {
     if (!vaultAdminApiKey) return
