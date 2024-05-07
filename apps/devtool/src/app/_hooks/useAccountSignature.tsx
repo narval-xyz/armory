@@ -2,6 +2,7 @@ import {
   Curves,
   JwsdHeader,
   KeyTypes,
+  Payload,
   PublicKey,
   SigningAlg,
   hash,
@@ -36,7 +37,7 @@ const useAccountSignature = () => {
     return hexToBase64Url(signature)
   }
 
-  const signAccountJwt = async (payload: any) => {
+  const signAccountJwt = async (payload: Payload) => {
     if (!jwk) return ''
 
     const signature = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)

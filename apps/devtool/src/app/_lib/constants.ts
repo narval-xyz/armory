@@ -13,7 +13,5 @@ export const LOCAL_STORAGE_KEYS = {
   vaultClientId: 'narvalVaultClientId',
   vaultClientSecret: 'narvalVaultClientSecret',
   entityDataStoreUrl: 'narvalEntityDataStoreUrl',
-  policyDataStoreUrl: 'narvalPolicyDataStoreUrl',
-  entitySignatureUrl: 'narvalEntitySignatureUrl',
-  policySignatureUrl: 'narvalPolicySignatureUrl'
+  policyDataStoreUrl: 'narvalPolicyDataStoreUrl'
 }

@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { DataStoreConfiguration } from '@narval/policy-engine-shared'
+import { DataStoreConfiguration, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import {
   PrivateKey,
   privateKeyToHex,
@@ -42,7 +42,10 @@ describe('Client', () => {
 
   const clientId = uuid()
 
-  const dataStoreUrl = 'http://127.0.0.1:9999/test-data-store'
+  const dataStoreSource: HttpSource = {
+    type: SourceType.HTTP,
+    url: 'http://127.0.0.1:9999/test-data-store'
+  }
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -71,8 +74,8 @@ describe('Client', () => {
     const jwk = secp256k1PrivateKeyToJwk(generatePrivateKey())
 
     dataStoreConfiguration = {
-      dataUrl: dataStoreUrl,
-      signatureUrl: dataStoreUrl,
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: [jwk]
     }
 

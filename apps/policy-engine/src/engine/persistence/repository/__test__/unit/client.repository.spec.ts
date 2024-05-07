@@ -5,7 +5,9 @@ import {
   DataStoreConfiguration,
   EntityStore,
   FIXTURE,
+  HttpSource,
   PolicyStore,
+  SourceType,
   Then
 } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
@@ -51,9 +53,14 @@ describe(ClientRepository.name, () => {
   describe('save', () => {
     const now = new Date()
 
+    const dataStoreSource: HttpSource = {
+      type: SourceType.HTTP,
+      url: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test'
+    }
+
     const dataStoreConfiguration: DataStoreConfiguration = {
-      dataUrl: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test',
-      signatureUrl: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test',
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: []
     }
 

@@ -9,6 +9,7 @@ export enum Env {
 const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
+  cors: z.array(z.string()).optional(),
   database: z.object({
     url: z.string().startsWith('postgresql://')
   }),
@@ -28,6 +29,7 @@ export const load = (): Config => {
   const result = configSchema.safeParse({
     env: process.env.NODE_ENV,
     port: process.env.PORT,
+    cors: process.env.CORS ? process.env.CORS.split(',') : [],
     database: {
       url: process.env.ARMORY_DATABASE_URL
     },

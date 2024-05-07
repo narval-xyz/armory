@@ -1,6 +1,6 @@
 {
   "entity": {
-    "signature": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDAwMGMwZDE5MTMwOEEzMzYzNTZCRWUzODEzQ0MxN0Y2ODY4OTcyQzQiLCJ0eXAiOiJKV1QifQ.eyJkYXRhIjoiMHgzNTE5MTkzZDVkNjQxYjIzYzdmYTIwYjRhMDE2NGI5YmZkZmI4MmQ2Njk5NjZiZWU1YTFhNmYwNmExMzI4ZTdlIiwiaWF0IjoxNzEyODUxNzg0LCJpc3MiOiJodHRwczovL2RldnRvb2wubmFydmFsLnh5eiIsInN1YiI6IjB4MDAwYzBkMTkxMzA4QTMzNjM1NkJFZTM4MTNDQzE3RjY4Njg5NzJDNCJ9.ReYKAos1x-UjAxfMsZVsE6tA2oURthN5iaLW9i9pr6gO37LVLCrKqdJ0ekouNHdJNQ-eI7VwlKct9esi9A1V_Bs",
+    "signature": "",
     "data": {
       "addressBook": [],
       "credentials": [
@@ -73,8 +73,23 @@
     }
   },
   "policy": {
-    "signature": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDAwMGMwZDE5MTMwOEEzMzYzNTZCRWUzODEzQ0MxN0Y2ODY4OTcyQzQiLCJ0eXAiOiJKV1QifQ.eyJkYXRhIjoiMHhhNDRhNmM5YjQzNmQyMDk5Y2Y4MzFjNTdkYmIyZGRmOTUzZTNhNTZhZWE5Y2E2NWI2Yzg3OTA1MDZkYjNjZjExIiwiaWF0IjoxNzEyODU5NDUyLCJpc3MiOiJodHRwczovL2RldnRvb2wubmFydmFsLnh5eiIsInN1YiI6IjB4MDAwYzBkMTkxMzA4QTMzNjM1NkJFZTM4MTNDQzE3RjY4Njg5NzJDNCJ9.9BCnmnwq3rN9YEquH3H1fTvCh7fo1eOlsSszi7guVnAZE54h3yPhGLwRtNHABVgajMKK_DaQg0hOVgKwVvoI9Rs",
+    "signature": "",
     "data": [
+      {
+        "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
+        "description": "Authorized any admin to set entities and policies",
+        "when": [
+          {
+            "criterion": "checkPrincipalRole",
+            "args": ["admin"]
+          },
+          {
+            "criterion": "checkAction",
+            "args": ["setEntities", "setPolicies"]
+          }
+        ],
+        "then": "permit"
+      },
       {
         "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
         "description": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
