@@ -15,6 +15,7 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
+      - vault.dockerfile
 
 jobs:
   test:
