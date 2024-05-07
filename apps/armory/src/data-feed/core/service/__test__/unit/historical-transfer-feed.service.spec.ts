@@ -28,11 +28,11 @@ describe(HistoricalTransferFeedService.name, () => {
     })
   })
 
-  const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
+  const transfers: Transfer[] = times(() => generateTransfer({ clientId: authzRequest.clientId }), 2)
 
   beforeEach(async () => {
     transferTrackingServiceMock = mock<TransferTrackingService>()
-    transferTrackingServiceMock.findByOrgId.mockResolvedValue(transfers)
+    transferTrackingServiceMock.findByclientId.mockResolvedValue(transfers)
 
     module = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ load: [load] })],
@@ -76,7 +76,7 @@ describe(HistoricalTransferFeedService.name, () => {
     it('calls transfer tracking service', async () => {
       await service.getFeed(authzRequest)
 
-      expect(transferTrackingServiceMock.findByOrgId).toHaveBeenCalledWith(authzRequest.orgId)
+      expect(transferTrackingServiceMock.findByclientId).toHaveBeenCalledWith(authzRequest.clientId)
     })
   })
 })

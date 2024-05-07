@@ -14,7 +14,7 @@ export class TransferTrackingService {
     return this.transferFeedRepository.create(transfer)
   }
 
-  findByOrgId(orgId: string): Promise<Transfer[]> {
-    return this.transferFeedRepository.findByOrgId(orgId)
+  findByclientId(clientId: string): Promise<Transfer[]> {
+    return this.transferFeedRepository.findByclientId(clientId)
   }
 }

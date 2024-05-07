@@ -14,14 +14,14 @@ export class EntityDataStoreService extends SignatureService<Entities> {
     super()
   }
 
-  async getEntities(orgId: string): Promise<EntityStore | null> {
-    const entityStore = await this.entitydataStoreRepository.getLatestDataStore(orgId)
+  async getEntities(clientId: string): Promise<EntityStore | null> {
+    const entityStore = await this.entitydataStoreRepository.getLatestDataStore(clientId)
 
     return entityStore ? EntityStore.parse(entityStore.data) : null
   }
 
-  async setEntities(orgId: string, payload: EntityStore) {
-    const client = await this.clientRepository.getClient(orgId)
+  async setEntities(clientId: string, payload: EntityStore) {
+    const client = await this.clientRepository.getClient(clientId)
 
     if (!client) {
       throw new NotFoundException({
@@ -30,7 +30,7 @@ export class EntityDataStoreService extends SignatureService<Entities> {
       })
     }
 
-    const dataStore = await this.entitydataStoreRepository.getLatestDataStore(orgId)
+    const dataStore = await this.entitydataStoreRepository.getLatestDataStore(clientId)
 
     await this.verifySignature({
       payload,
@@ -38,7 +38,7 @@ export class EntityDataStoreService extends SignatureService<Entities> {
       date: dataStore?.createdAt
     })
 
-    return this.entitydataStoreRepository.setDataStore(orgId, {
+    return this.entitydataStoreRepository.setDataStore(clientId, {
       version: dataStore?.version ? dataStore.version + 1 : 1,
       data: EntityStore.parse(payload)
     })

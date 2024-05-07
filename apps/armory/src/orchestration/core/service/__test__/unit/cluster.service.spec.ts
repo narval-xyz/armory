@@ -58,7 +58,7 @@ describe(ClusterService.name, () => {
     }
 
     const input = {
-      orgId: authzRequest.orgId,
+      clientId: authzRequest.clientId,
       data: {
         authentication: authzRequest.authentication,
         approvals: authzRequest.approvals,
@@ -91,7 +91,7 @@ describe(ClusterService.name, () => {
 
     const cluster: Cluster = {
       id: clusterId,
-      orgId: authzRequest.id,
+      clientId: authzRequest.id,
       size: 2,
       nodes: [nodeOne, nodeTwo]
     }
@@ -120,15 +120,15 @@ describe(ClusterService.name, () => {
     }
 
     beforeEach(async () => {
-      jest.spyOn(service, 'getByOrgId').mockResolvedValue(cluster)
+      jest.spyOn(service, 'getByclientId').mockResolvedValue(cluster)
 
       const evaluationResponse = await generateEvaluationResponse(nodeAccount, authzRequest)
 
       authzApplicationClientMock.evaluation.mockResolvedValue(evaluationResponse)
     })
 
-    it('throws when organization cluster is not found', async () => {
-      jest.spyOn(service, 'getByOrgId').mockResolvedValue(null)
+    it('throws when client cluster is not found', async () => {
+      jest.spyOn(service, 'getByclientId').mockResolvedValue(null)
 
       await expect(service.evaluation(input)).rejects.toThrow(ClusterNotFoundException)
     })

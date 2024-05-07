@@ -71,42 +71,42 @@ describe(TransferTrackingService.name, () => {
     })
   })
 
-  describe('findByOrgId', () => {
-    const orgA = 'be382fa4-59e1-4622-ae5e-78ba4287a060'
-    const orgB = '908d0299-dab2-4adc-a603-9508b4a84e8d'
+  describe('findByClientId', () => {
+    const clientA = 'be382fa4-59e1-4622-ae5e-78ba4287a060'
+    const clientB = '908d0299-dab2-4adc-a603-9508b4a84e8d'
 
     beforeEach(async () => {
       await Promise.all([
         service.track({
           ...transfer,
           id: '2f68d6e1-f76c-44c8-a86f-e57c8352cf93',
-          orgId: orgA
+          clientId: clientA
         }),
         service.track({
           ...transfer,
           id: '6deafaf3-13fe-4817-ac7e-589dfc097aa0',
-          orgId: orgA
+          clientId: clientA
         }),
         service.track({
           ...transfer,
           id: 'b2100c63-3ee3-4044-b3da-169a3fc43d52',
-          orgId: orgB
+          clientId: clientB
         })
       ])
     })
 
-    it('finds org transfers', async () => {
-      const transfers = await service.findByOrgId(orgA)
+    it('finds client transfers', async () => {
+      const transfers = await service.findByclientId(clientA)
 
       expect(transfers.length).toEqual(2)
-      expect(uniq(map('orgId', transfers))).toEqual([orgA])
-      expect(first(transfers)).toMatchObject(omit(['id', 'orgId'], transfer))
+      expect(uniq(map('clientId', transfers))).toEqual([clientA])
+      expect(first(transfers)).toMatchObject(omit(['id', 'clientId'], transfer))
     })
 
     it('decodes transfers', async () => {
-      const transfers = await service.findByOrgId(orgA)
+      const transfers = await service.findByclientId(clientA)
 
-      expect(first(transfers)).toMatchObject(omit(['id', 'orgId'], transfer))
+      expect(first(transfers)).toMatchObject(omit(['id', 'clientId'], transfer))
     })
   })
 })

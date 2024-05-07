@@ -74,7 +74,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
   }
 
   async getFeed(input: AuthorizationRequest): Promise<Feed<HistoricalTransfer[]>> {
-    const transfers = await this.transferTrackingService.findByOrgId(input.orgId)
+    const transfers = await this.transferTrackingService.findByclientId(input.clientId)
     const historicalTransfers = HistoricalTransferFeedService.build(transfers)
     const sig = await this.sign(historicalTransfers)
 
@@ -87,7 +87,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
 
   static build(transfers: Transfer[]): HistoricalTransfer[] {
     return transfers.map((transfer) => ({
-      ...omit('orgId', transfer),
+      ...omit('clientId', transfer),
       amount: transfer.amount.toString(),
       timestamp: transfer.createdAt.getTime(),
       rates: buildHistoricalTranferRates(transfer.rates)

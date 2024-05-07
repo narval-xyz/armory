@@ -3,9 +3,9 @@ import {
   accountClassificationSchema,
   accountTypeSchema,
   addressBookAccountEntitySchema,
+  clientEntitySchema,
   credentialEntitySchema,
   entitiesSchema,
-  organizationEntitySchema,
   tokenEntitySchema,
   userEntitySchema,
   userGroupEntitySchema,
@@ -31,7 +31,7 @@ export type AccountClassification = z.infer<typeof accountClassificationSchema>
 
 export type CredentialEntity = z.infer<typeof credentialEntitySchema>
 
-export type OrganizationEntity = z.infer<typeof organizationEntitySchema>
+export type ClientEntity = z.infer<typeof clientEntitySchema>
 
 export type UserEntity = z.infer<typeof userEntitySchema>
 

@@ -16,9 +16,9 @@ import {
   AccountClassification,
   AccountType,
   AddressBookAccountEntity,
+  ClientEntity,
   CredentialEntity,
   Entities,
-  OrganizationEntity,
   TokenEntity,
   UserEntity,
   UserGroupEntity,
@@ -39,7 +39,7 @@ type Personas = (typeof PERSONAS)[number]
 type Groups = (typeof GROUPS)[number]
 type Wallets = (typeof WALLETS)[number]
 
-export const ORGANIZATION: OrganizationEntity = {
+export const CLIENT: ClientEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
 }
 

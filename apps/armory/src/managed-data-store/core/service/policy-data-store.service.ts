@@ -14,14 +14,14 @@ export class PolicyDataStoreService extends SignatureService<Policy[]> {
     super()
   }
 
-  async getPolicies(orgId: string): Promise<PolicyStore | null> {
-    const policyStore = await this.policyDataStoreRepository.getLatestDataStore(orgId)
+  async getPolicies(clientId: string): Promise<PolicyStore | null> {
+    const policyStore = await this.policyDataStoreRepository.getLatestDataStore(clientId)
 
     return policyStore ? PolicyStore.parse(policyStore.data) : null
   }
 
-  async setPolicies(orgId: string, payload: PolicyStore) {
-    const client = await this.clientRepository.getClient(orgId)
+  async setPolicies(clientId: string, payload: PolicyStore) {
+    const client = await this.clientRepository.getClient(clientId)
 
     if (!client) {
       throw new NotFoundException({
@@ -30,7 +30,7 @@ export class PolicyDataStoreService extends SignatureService<Policy[]> {
       })
     }
 
-    const dataStore = await this.policyDataStoreRepository.getLatestDataStore(orgId)
+    const dataStore = await this.policyDataStoreRepository.getLatestDataStore(clientId)
 
     await this.verifySignature({
       payload,
@@ -38,7 +38,7 @@ export class PolicyDataStoreService extends SignatureService<Policy[]> {
       date: dataStore?.createdAt
     })
 
-    return this.policyDataStoreRepository.setDataStore(orgId, {
+    return this.policyDataStoreRepository.setDataStore(clientId, {
       version: dataStore?.version ? dataStore.version + 1 : 1,
       data: PolicyStore.parse(payload)
     })

@@ -13,7 +13,7 @@ export class TransferTrackingSeed extends SeedService {
   override async germinate(): Promise<void> {
     const now = getTime(new Date())
     const twentyHoursAgo = subHours(now, 20)
-    const orgId = '7d704a62-d15e-4382-a826-1eb41563043b'
+    const clientId = '7d704a62-d15e-4382-a826-1eb41563043b'
     const rates = {
       'fiat:usd': '0.99',
       'fiat:eur': '1.10'
@@ -24,7 +24,7 @@ export class TransferTrackingSeed extends SeedService {
     await this.prismaService.approvedTransfer.createMany({
       data: [
         {
-          orgId,
+          clientId,
           rates,
           id: '107b07ec-3e8d-440f-9e4a-d145dcd53324',
           requestId: '623121f4-439c-42ac-aee3-d38f94f6f886',
@@ -37,7 +37,7 @@ export class TransferTrackingSeed extends SeedService {
           createdAt: twentyHoursAgo
         },
         {
-          orgId,
+          clientId,
           rates,
           id: '2b697c4b-4675-4762-b68d-89baaa1b5cb8',
           requestId: 'e615f495-fa7b-4ee8-b4c6-927ce72a9107',
@@ -50,7 +50,7 @@ export class TransferTrackingSeed extends SeedService {
           createdAt: twentyHoursAgo
         },
         {
-          orgId,
+          clientId,
           rates,
           id: '4810c9de-ebc6-4788-ba5c-e9a899273c86',
           requestId: '1d88e7e4-49ab-4f83-9e55-c3e089a4a252',
@@ -63,7 +63,7 @@ export class TransferTrackingSeed extends SeedService {
           createdAt: twentyHoursAgo
         },
         {
-          orgId,
+          clientId,
           rates,
           id: 'a8116490-2c0e-4315-892f-f4795ff7eda9',
           requestId: 'c91393e3-1cbb-49e6-888c-50f188f22f7e',
