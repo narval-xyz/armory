@@ -17,7 +17,7 @@ COPY tsconfig*.json ./
 
 RUN make vault/db/generate-types && \
     make vault/build && \
-    rm -rf apps/ && rm -rf node_modules/
+    rm -rf src/
 
 FROM node:21 as final
 
