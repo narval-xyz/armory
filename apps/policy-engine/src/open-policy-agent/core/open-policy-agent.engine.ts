@@ -282,9 +282,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       cnf: principalJwk
     }
 
-    console.log('this.privateKey', this.privateKey)
-    console.log('payload', payload)
-
     return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }

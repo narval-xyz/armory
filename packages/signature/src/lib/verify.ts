@@ -159,8 +159,6 @@ export const verifyEip191 = async (sig: Hex, msg: string, jwk: PublicKey): Promi
 
   if (isSecp256k1PublicKeyJwk(jwk)) {
     isValid = await verifySecp256k1(sig, msgHash, jwk)
-    console.log('sig', sig)
-    console.log('jwk', jwk)
   } else {
     const recoveredAddress = await recoverAddress({
       hash: msgHash,
@@ -314,8 +312,6 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   const key = validatePublicKey(jwk)
   const { header, payload, signature } = decodeJwt(jwt)
 
-  console.log('header', header)
-  console.log('payload', payload)
   verifyJwtHeader(header, opts)
 
   await verifySignature(jwt, key, header.alg)

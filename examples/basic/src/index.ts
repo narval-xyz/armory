@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { createArmoryConfig, evaluate, importPrivateKey, signRequest } from '@narval/armory-sdk'
 import { SignMessageAction, SignTransactionAction, SignTypedDataAction } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
