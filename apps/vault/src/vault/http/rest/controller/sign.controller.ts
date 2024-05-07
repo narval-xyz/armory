@@ -9,6 +9,7 @@ import {
 import { z } from 'zod'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
+import { NonceGuard } from '../../../../shared/guard/nonce.guard'
 import { SigningService } from '../../../core/service/signing.service'
 
 const SignRequest = z.object({
@@ -16,8 +17,9 @@ const SignRequest = z.object({
 })
 
 class SignRequestDto extends createZodDto(SignRequest) {}
+
 @Controller('/sign')
-@UseGuards(AuthorizationGuard)
+@UseGuards(AuthorizationGuard, NonceGuard)
 export class SignController {
   constructor(private signingService: SigningService) {}
 

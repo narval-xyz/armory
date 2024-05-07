@@ -1,4 +1,4 @@
-import { withSwagger } from '@narval/nestjs-shared'
+import { withCors, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
@@ -76,6 +76,7 @@ async function bootstrap(): Promise<void> {
       map(withGlobalPipes),
       map(withGlobalInterceptors),
       map(withGlobalFilters(configService)),
+      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )

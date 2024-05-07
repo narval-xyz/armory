@@ -1,5 +1,6 @@
+import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { privateKeySchema } from '@narval/signature'
-import { dataStoreConfigurationSchema } from 'packages/policy-engine-shared/src/lib/schema/data-store.schema'
+
 import { z } from 'zod'
 
 export const SignerConfig = z.object({
@@ -12,8 +13,8 @@ export const Client = z.object({
   clientId: z.string(),
   clientSecret: z.string(),
   dataStore: z.object({
-    entity: dataStoreConfigurationSchema,
-    policy: dataStoreConfigurationSchema
+    entity: DataStoreConfiguration,
+    policy: DataStoreConfiguration
   }),
   signer: SignerConfig,
   createdAt: z.coerce.date(),

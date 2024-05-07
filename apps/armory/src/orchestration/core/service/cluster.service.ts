@@ -6,7 +6,7 @@ import { ClusterNotFoundException } from '../../core/exception/cluster-not-found
 import { InvalidAttestationSignatureException } from '../../core/exception/invalid-attestation-signature.exception'
 import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
 import { Cluster, Node } from '../../core/type/clustering.type'
-import { AuthzApplicationClient } from '../../http/client/authz-application.client'
+import { PolicyEngineClient } from '../../http/client/policy-engine.client'
 import { ConsensusAgreementNotReachException } from '../exception/consensus-agreement-not-reach.exception'
 // eslint-disable-next-line no-restricted-imports
 import { getAddress, isAddressEqual, recoverMessageAddress } from 'viem'
@@ -15,7 +15,7 @@ import { getAddress, isAddressEqual, recoverMessageAddress } from 'viem'
 export class ClusterService {
   private logger = new Logger(ClusterService.name)
 
-  constructor(private authzApplicationClient: AuthzApplicationClient) {}
+  constructor(private policyEngineClient: PolicyEngineClient) {}
 
   async getByOrgId(orgId: string): Promise<Cluster | null> {
     const clusterId = '3e2710cf-dab2-4c0f-8d50-b3b9db4d1b8b'
@@ -66,7 +66,7 @@ export class ClusterService {
 
     const responses = await Promise.all(
       hosts.map((host) =>
-        this.authzApplicationClient.evaluation({
+        this.policyEngineClient.evaluation({
           host,
           data: input.data
         })

@@ -1,7 +1,7 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestStatus, Organization } from '@prisma/client/armory'
+import { AuthorizationRequestStatus, Organization, Prisma } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
@@ -17,6 +17,9 @@ describe(AuthorizationRequestRepository.name, () => {
   const org: Organization = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     name: 'Test Org',
+    enginePublicKey: {},
+    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
+    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -57,7 +60,14 @@ describe(AuthorizationRequestRepository.name, () => {
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     repository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
 
-    await testPrismaService.getClient().organization.create({ data: org })
+    await testPrismaService.getClient().organization.create({
+      data: {
+        ...org,
+        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+      }
+    })
   })
 
   afterEach(async () => {

@@ -4,6 +4,7 @@ import { faArrowRightArrowLeft, faPipe, faSpinner } from '@fortawesome/pro-regul
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
+import ErrorStatus from '../../_components/ErrorStatus'
 import GreenCheckStatus from '../../_components/GreenCheckStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
@@ -16,21 +17,19 @@ import Users from './sections/Users'
 import Wallets from './sections/Wallets'
 
 const DataStoreConfig = () => {
-  const {
-    entityDataStoreUrl,
-    entitySignatureUrl,
-    policyDataStoreUrl,
-    policySignatureUrl,
-    setEntityDataStoreUrl,
-    setEntitySignatureUrl,
-    setPolicyDataStoreUrl,
-    setPolicySignatureUrl
-  } = useStore()
+  const { entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } = useStore()
 
   const { isSynced, syncEngine } = useEngineApi()
 
-  const { dataStore, isEntitySigning, isPolicySigning, errors, signEntityDataStore, signPolicyDataStore } =
-    useDataStoreApi()
+  const {
+    dataStore,
+    isEntitySigning,
+    isPolicySigning,
+    errors,
+    validationErrors,
+    signEntityDataStore,
+    signPolicyDataStore
+  } = useDataStoreApi()
 
   const [codeEditor, setCodeEditor] = useState<string>()
   const [displayCodeEditor, setDisplayCodeEditor] = useState(true)
@@ -39,32 +38,27 @@ const DataStoreConfig = () => {
   useEffect(() => {
     if (!dataStore) return
 
-    const { entity, policy } = dataStore
-    setCodeEditor(JSON.stringify({ entity: entity.data, policy: policy.data }, null, 2))
+    setCodeEditor(JSON.stringify(dataStore, null, 2))
   }, [dataStore])
 
   useEffect(() => {
-    if (errors && (errors as string[]).length > 0) {
+    if (validationErrors && validationErrors.length > 0) {
       setIsDialogOpen(true)
     } else {
       setIsDialogOpen(false)
     }
-  }, [errors])
+  }, [validationErrors])
 
   const signEntityData = async () => {
     if (!codeEditor) return
-
     const { entity } = JSON.parse(codeEditor)
-    await signEntityDataStore(entity)
-    await syncEngine()
+    return signEntityDataStore(entity, syncEngine)
   }
 
   const signPolicyData = async () => {
     if (!codeEditor) return
-
     const { policy } = JSON.parse(codeEditor)
-    await signPolicyDataStore(policy)
-    await syncEngine()
+    return signPolicyDataStore(policy, syncEngine)
   }
 
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
@@ -75,10 +69,11 @@ const DataStoreConfig = () => {
   }
 
   return (
-    <div className="flex flex-col gap-20">
+    <div className="flex flex-col gap-16">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Data Store</div>
         <div className="flex items-center gap-4">
+          <ErrorStatus label={errors} />
           <GreenCheckStatus isChecked={isSynced} label={isSynced ? 'Engine Synced!' : 'Syncing Engine...'} />
           <NarButton
             label={isEntitySigning ? 'Signing...' : 'Sign Entity'}
@@ -87,7 +82,7 @@ const DataStoreConfig = () => {
             disabled={isEntitySigning}
           />
           <NarButton
-            label={isEntitySigning ? 'Signing...' : 'Sign Policy'}
+            label={isPolicySigning ? 'Signing...' : 'Sign Policy'}
             leftIcon={isPolicySigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
             onClick={signPolicyData}
             disabled={isPolicySigning}
@@ -104,9 +99,7 @@ const DataStoreConfig = () => {
       <div className="flex gap-20">
         <div className="flex flex-col gap-8 w-1/3">
           <NarInput label="Entity Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
-          <NarInput label="Entity Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
           <NarInput label="Policy Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
-          <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
         </div>
         <div className="flex flex-col gap-8 w-2/3">
           {displayCodeEditor && <CodeEditor value={codeEditor} onChange={setCodeEditor} />}
@@ -137,12 +130,8 @@ const DataStoreConfig = () => {
           onDismiss={() => setIsDialogOpen(false)}
           isConfirm
         >
-          <div className="px-12 py-4">
-            <ul className="flex flex-col gap-1 text-nv-white text-nv-sm list-disc">
-              {(errors as string[]).map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
+          <div className="w-[650px] px-12 py-4">
+            <p className="flex flex-col gap-1 text-nv-white text-nv-sm list-disc">{validationErrors}</p>
           </div>
         </NarDialog>
       )}

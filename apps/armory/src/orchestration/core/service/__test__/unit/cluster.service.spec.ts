@@ -17,23 +17,23 @@ import { InvalidAttestationSignatureException } from '../../../../core/exception
 import { ClusterService } from '../../../../core/service/cluster.service'
 import { Cluster, Node } from '../../../../core/type/clustering.type'
 import { AuthorizationRequest } from '../../../../core/type/domain.type'
-import { AuthzApplicationClient } from '../../../../http/client/authz-application.client'
+import { PolicyEngineClient } from '../../../../http/client/policy-engine.client'
 
 describe(ClusterService.name, () => {
   const jwt =
     'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFSVAxOTEiLCJ0eXAiOiJKV1QifQ.eyJyZXF1ZXN0SGFzaCI6IjYwOGFiZTkwOGNmZmVhYjFmYzMzZWRkZTZiNDQ1ODZmOWRhY2JjOWM2ZmU2ZjBhMTNmYTMwNzIzNzI5MGNlNWEiLCJzdWIiOiJ0ZXN0LXJvb3QtdXNlci11aWQiLCJpc3MiOiJodHRwczovL2FybW9yeS5uYXJ2YWwueHl6IiwiY25mIjp7Imt0eSI6IkVDIiwiY3J2Ijoic2VjcDI1NmsxIiwiYWxnIjoiRVMyNTZLIiwidXNlIjoic2lnIiwia2lkIjoiMHgwMDBjMGQxOTEzMDhBMzM2MzU2QkVlMzgxM0NDMTdGNjg2ODk3MkM0IiwieCI6IjA0YTlmM2JjZjY1MDUwNTk1OTdmNmYyN2FkOGMwZjAzYTNiZDdhMTc2MzUyMGIwYmZlYzIwNDQ4OGI4ZTU4NDAiLCJ5IjoiN2VlOTI4NDVhYjFjMzVhNzg0YjA1ZmRmYTU2NzcxNWM1M2JiMmYyOTk0OWIyNzcxNGUzYzE3NjBlMzcwOTAwOWE2In19.gFDywYsxY2-uT6H6hyxk51CtJhAZpI8WtcvoXHltiWsoBVOot1zMo3nHAhkWlYRmD3RuLtmOYzi6TwTUM8mFyBs'
 
   let service: ClusterService
-  let authzApplicationClientMock: MockProxy<AuthzApplicationClient>
+  let authzApplicationClientMock: MockProxy<PolicyEngineClient>
 
   beforeEach(async () => {
-    authzApplicationClientMock = mock<AuthzApplicationClient>()
+    authzApplicationClientMock = mock<PolicyEngineClient>()
 
     const module = await Test.createTestingModule({
       providers: [
         ClusterService,
         {
-          provide: AuthzApplicationClient,
+          provide: PolicyEngineClient,
           useValue: authzApplicationClientMock
         }
       ]

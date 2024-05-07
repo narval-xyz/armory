@@ -3,11 +3,14 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
   Action,
   Criterion,
+  DataStoreConfiguration,
   Decision,
   EvaluationRequest,
   EvaluationResponse,
   FIXTURE,
+  HttpSource,
   SerializedEvaluationRequest,
+  SourceType,
   Then
 } from '@narval/policy-engine-shared'
 import { Alg, PrivateKey, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
@@ -49,7 +52,10 @@ describe('Evaluation', () => {
 
   const clientId = uuid()
 
-  const dataStoreUrl = 'http://127.0.0.1:9999/test-data-store'
+  const dataStoreSource: HttpSource = {
+    type: SourceType.HTTP,
+    url: 'http://127.0.0.1:9999/test-data-store'
+  }
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -81,9 +87,9 @@ describe('Evaluation', () => {
 
     privateKey = secp256k1PrivateKeyToJwk(generatePrivateKey())
 
-    const dataStoreConfiguration = {
-      dataUrl: dataStoreUrl,
-      signatureUrl: dataStoreUrl,
+    const dataStoreConfiguration: DataStoreConfiguration = {
+      data: dataStoreSource,
+      signature: dataStoreSource,
       keys: [privateKey]
     }
 

@@ -1,3 +1,5 @@
+import { Source } from '@narval/policy-engine-shared'
+
 export interface DataStoreRepository {
-  fetch<Data>(url: string): Promise<Data>
+  fetch<Data>(source: Source): Promise<Data>
 }
