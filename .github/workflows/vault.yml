@@ -2,7 +2,11 @@ name: '@app/vault CI'
 
 on:
   push:
+    branches:
+      - main
+      - feature/vault-infra # temporary for testing
     paths:
+      - packages/**
       - apps/vault/**
       - .github/workflows/vault.yml
       - jest.config.ts
@@ -13,9 +17,8 @@ on:
       - package-lock.json
 
 jobs:
-  build-and-test:
-    name: Build and test
-
+  test:
+    name: test
     runs-on: ubuntu-latest
 
     services:
@@ -88,3 +91,53 @@ jobs:
           fields: message,commit,author
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  build:
+    name: buildpush
+    runs-on: ubuntu-latest
+
+    # Only run if the Test job succeeds
+    needs: test
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ACTIONS_ECR_ROLE_ARN }} # Organization variable
+          aws-region: ${{ vars.ACTIONS_ECR_REGION }} # Organization variable
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get short SHA
+        id: slug
+        run: echo "sha7=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./vault.dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
+            ${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
+
+      - name: Update Image Version in the worker HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: "charts/vault/values.yaml"
+          propertyPath: "image.tag"
+          value: ${{ env.sha7 }}
+          # branch: main
+          branch: feature/vault-infra # Temporary for testing
+          message: "Update Image Version to ${{ env.sha7 }}"
