@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
