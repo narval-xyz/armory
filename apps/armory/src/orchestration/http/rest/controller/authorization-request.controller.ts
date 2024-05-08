@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { REQUEST_HEADER_ORG_ID } from '../../../../armory.constant'
-import { OrgId } from '../../../../shared/decorator/org-id.decorator'
+import { REQUEST_HEADER_CLIENT_ID } from '../../../../../src/armory.constant'
+import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
 import { AuthorizationRequestDto } from '../../../http/rest/dto/authorization-request.dto'
@@ -18,15 +18,18 @@ export class AuthorizationRequestController {
     summary: 'Submits a new authorization request for evaluation by the policy engine'
   })
   @ApiHeader({
-    name: REQUEST_HEADER_ORG_ID
+    name: REQUEST_HEADER_CLIENT_ID
   })
   @ApiResponse({
     description: 'The authorization request has been successfully submitted for evaluation',
     status: HttpStatus.CREATED,
     type: AuthorizationResponseDto
   })
-  async evaluation(@OrgId() orgId: string, @Body() body: AuthorizationRequestDto): Promise<AuthorizationResponseDto> {
-    const authzRequest = await this.authorizationRequestService.create(toCreateAuthorizationRequest(orgId, body))
+  async evaluation(
+    @ClientId() clientId: string,
+    @Body() body: AuthorizationRequestDto
+  ): Promise<AuthorizationResponseDto> {
+    const authzRequest = await this.authorizationRequestService.create(toCreateAuthorizationRequest(clientId, body))
 
     // TODO (@wcalderipe, 23/01/24): Validate if the signed hash is the same
     // hash used internally.

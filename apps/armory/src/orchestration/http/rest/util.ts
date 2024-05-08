@@ -6,7 +6,7 @@ import { AuthorizationRequestDto } from '../../http/rest/dto/authorization-reque
 // Most of the complexity came from the discriminated union type.
 // It's fine for now to keep it ugly here but I'll look at the problem later
 export const toCreateAuthorizationRequest = (
-  orgId: string,
+  clientId: string,
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
@@ -14,7 +14,7 @@ export const toCreateAuthorizationRequest = (
   const authentication: string = dto.authentication
 
   return {
-    orgId,
+    clientId,
     approvals,
     authentication,
     evaluations: [],

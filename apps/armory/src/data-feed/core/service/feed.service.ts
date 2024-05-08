@@ -23,7 +23,7 @@ export class FeedService {
       const feeds = await Promise.all([this.price.getFeed(authzRequest), this.historicalTransfer.getFeed(authzRequest)])
 
       // Exploring a low-hanging fruit idea of building an audit trail.
-      await this.save(authzRequest.orgId, authzRequest.id, feeds)
+      await this.save(authzRequest.clientId, authzRequest.id, feeds)
 
       return feeds
     } catch (error) {
@@ -32,18 +32,18 @@ export class FeedService {
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         origin: error,
         context: {
-          orgId: authzRequest.orgId,
+          clientId: authzRequest.clientId,
           requestId: authzRequest.id
         }
       })
     }
   }
 
-  private async save(orgId: string, requestId: string, feeds: Feed<unknown>[]) {
+  private async save(clientId: string, requestId: string, feeds: Feed<unknown>[]) {
     return this.prismaService.feed.createMany({
       data: feeds.map((feed) => ({
         id: uuid(),
-        orgId,
+        clientId,
         requestId,
         source: feed.source,
         sig: feed.sig,

@@ -31,7 +31,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
   const authzRequest: AuthorizationRequest = {
     authentication,
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
-    orgId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
+    clientId: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     status: AuthorizationRequestStatus.CREATED,
     request: {
       action: Action.SIGN_MESSAGE,

@@ -17,7 +17,7 @@ export class ClusterService {
 
   constructor(private policyEngineClient: PolicyEngineClient) {}
 
-  async getByOrgId(orgId: string): Promise<Cluster | null> {
+  async getByclientId(clientId: string): Promise<Cluster | null> {
     const clusterId = '3e2710cf-dab2-4c0f-8d50-b3b9db4d1b8b'
     // Derived from the hard coded ENGINE_PRIVATE_KEY variable at the
     // AppService in the @app/authz.
@@ -25,7 +25,7 @@ export class ClusterService {
 
     return {
       id: clusterId,
-      orgId,
+      clientId,
       size: 2,
       nodes: [
         {
@@ -46,11 +46,11 @@ export class ClusterService {
     }
   }
 
-  async evaluation(input: { orgId: string; data: EvaluationRequest }): Promise<EvaluationResponse> {
-    const cluster = await this.getByOrgId(input.orgId)
+  async evaluation(input: { clientId: string; data: EvaluationRequest }): Promise<EvaluationResponse> {
+    const cluster = await this.getByclientId(input.clientId)
 
     if (!cluster) {
-      throw new ClusterNotFoundException(input.orgId)
+      throw new ClusterNotFoundException(input.clientId)
     }
 
     const hosts = cluster.nodes.map((node) => ClusterService.getNodeHost(node))

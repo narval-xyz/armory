@@ -17,7 +17,7 @@ const evaluationSchema = z.object({
 
 const authorizationRequestSchema = z.object({
   id: z.string().uuid(),
-  orgId: z.string().uuid(),
+  clientId: z.string().uuid(),
   status: z.nativeEnum(AuthorizationRequestStatus),
   request: readRequestSchema,
   authentication: z.string(),

@@ -20,7 +20,7 @@ const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog):
 
 const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => ({
   id: model.id,
-  orgId: model.orgId,
+  clientId: model.clientId,
   status: model.status,
   idempotencyKey: model.idempotencyKey,
   authentication: model.authnSig,

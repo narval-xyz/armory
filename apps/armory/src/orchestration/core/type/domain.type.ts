@@ -44,7 +44,7 @@ export type Request = SignTransaction | SignMessage
 
 export type AuthorizationRequest = {
   id: string
-  orgId: string
+  clientId: string
   status: `${AuthorizationRequestStatus}`
   authentication: JwtString
   request: Request

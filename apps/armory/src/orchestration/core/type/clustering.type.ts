@@ -8,7 +8,7 @@ export type Node = {
 
 export type Cluster = {
   id: string
-  orgId: string
+  clientId: string
   nodes: Node[]
   size: number
 }

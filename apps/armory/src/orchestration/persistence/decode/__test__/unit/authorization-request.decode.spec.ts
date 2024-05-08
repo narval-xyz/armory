@@ -7,7 +7,7 @@ import { AuthorizationRequestModel } from '../../../../persistence/type/model.ty
 describe('decodeAuthorizationRequest', () => {
   const sharedModel: Omit<AuthorizationRequestModel, 'action' | 'request'> = {
     id: '3356d68c-bc63-4b08-9253-289eec475d1d',
-    orgId: 'f6477ee7-7f5e-4e19-92f9-7864c7af5fd4',
+    clientId: 'f6477ee7-7f5e-4e19-92f9-7864c7af5fd4',
     status: AuthorizationRequestStatus.CREATED,
     idempotencyKey: null,
     authnSig:

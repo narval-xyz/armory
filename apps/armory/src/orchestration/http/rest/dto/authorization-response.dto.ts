@@ -32,7 +32,7 @@ export class AuthorizationResponseDto {
   id: string
 
   @ApiProperty()
-  orgId: string
+  clientId: string
 
   @IsString()
   @ApiProperty({

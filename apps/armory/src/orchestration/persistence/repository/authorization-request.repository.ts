@@ -16,10 +16,10 @@ export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const { id, orgId, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals, authentication } =
+    const { id, clientId, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals, authentication } =
       this.getDefaults(input)
     const request = createRequestSchema.parse(input.request)
-    const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
+    const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
 
     const approvalsData = approvals.map((approval) => ({
       sig: approval
@@ -29,7 +29,7 @@ export class AuthorizationRequestRepository {
       data: {
         id,
         status,
-        orgId,
+        clientId,
         request,
         idempotencyKey,
         createdAt,
@@ -68,11 +68,11 @@ export class AuthorizationRequestRepository {
    * @returns {AuthorizationRequest}
    */
   async update(
-    input: Partial<Pick<AuthorizationRequest, 'orgId' | 'status' | 'evaluations' | 'approvals'>> &
+    input: Partial<Pick<AuthorizationRequest, 'clientId' | 'status' | 'evaluations' | 'approvals'>> &
       Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
-    const { id, orgId, status, evaluations, approvals } = input
-    const evaluationLogs = this.toEvaluationLogs(orgId, evaluations)
+    const { id, clientId, status, evaluations, approvals } = input
+    const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     const model = await this.prismaService.authorizationRequest.update({
@@ -149,11 +149,11 @@ export class AuthorizationRequestRepository {
     }
   }
 
-  private toEvaluationLogs(orgId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] {
-    return orgId && evaluations?.length
+  private toEvaluationLogs(clientId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] {
+    return clientId && evaluations?.length
       ? evaluations.map((evaluation) => ({
           ...evaluation,
-          orgId
+          clientId
         }))
       : []
   }

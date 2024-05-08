@@ -3,7 +3,7 @@ import { Price } from './price.type'
 
 export type Transfer = {
   id: string
-  orgId: string
+  clientId: string
   requestId: string
   amount: bigint
   from: string

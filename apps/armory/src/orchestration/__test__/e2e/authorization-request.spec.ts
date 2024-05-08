@@ -3,12 +3,12 @@ import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestStatus, Organization, Prisma } from '@prisma/client/armory'
+import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
 import { Queue } from 'bull'
 import request from 'supertest'
 import { stringToHex } from 'viem'
 import { load } from '../../../armory.config'
-import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, REQUEST_HEADER_ORG_ID } from '../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, REQUEST_HEADER_CLIENT_ID } from '../../../armory.constant'
 import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../orchestration/persistence/repository/authorization-request.repository'
 import { PersistenceModule } from '../../../shared/module/persistence/persistence.module'
@@ -34,7 +34,7 @@ describe('Authorization Request', () => {
   ]
 
   // TODO: Create domain type
-  const org: Organization = {
+  const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     name: 'Test Evaluation',
     enginePublicKey: {},
@@ -74,12 +74,12 @@ describe('Authorization Request', () => {
   })
 
   beforeEach(async () => {
-    await testPrismaService.getClient().organization.create({
+    await testPrismaService.getClient().client.create({
       data: {
-        ...org,
-        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+        ...client,
+        enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
       }
     })
   })
@@ -104,7 +104,7 @@ describe('Authorization Request', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT_PREFIX)
-        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
       expect(body).toMatchObject({
@@ -149,7 +149,7 @@ describe('Authorization Request', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT_PREFIX)
-        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
       expect(body).toMatchObject({
@@ -182,7 +182,7 @@ describe('Authorization Request', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT_PREFIX)
-        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
       expect(body).toMatchObject({
@@ -203,7 +203,7 @@ describe('Authorization Request', () => {
     const authzRequest: AuthorizationRequest = {
       authentication,
       id: '986ae19d-c30c-40c6-b873-1fb6c49011de',
-      orgId: org.id,
+      clientId: client.id,
       status: AuthorizationRequestStatus.PERMITTED,
       request: {
         action: Action.SIGN_MESSAGE,
@@ -225,7 +225,7 @@ describe('Authorization Request', () => {
     it('responds with authorization request', async () => {
       const { status, body } = await request(app.getHttpServer())
         .get(`${ENDPOINT_PREFIX}/${authzRequest.id}`)
-        .set(REQUEST_HEADER_ORG_ID, org.id)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toEqual({
