@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/vault-infra # temporary for testing
     paths:
       - packages/**
       - apps/vault/**
@@ -140,8 +139,8 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
-          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Update Image Version in the worker HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@master
@@ -149,8 +148,7 @@ jobs:
           valueFile: "charts/vault/values.yaml"
           propertyPath: "image.tag"
           value: ${{ env.sha7 }}
-          # branch: main
-          branch: feature/vault-infra # Temporary for testing
+          branch: main
           message: "Update Image Version to ${{ env.sha7 }}"
 
       - name: Send Slack notification on failure
