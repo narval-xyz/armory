@@ -140,7 +140,7 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
-          cache-from: type=registry,ref=armory/vault:latest
+          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
           cache-to: type=inline
 
       - name: Update Image Version in the worker HelmChart values.yaml
