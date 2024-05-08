@@ -74,7 +74,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
   }
 
   async getFeed(input: AuthorizationRequest): Promise<Feed<HistoricalTransfer[]>> {
-    const transfers = await this.transferTrackingService.findByclientId(input.clientId)
+    const transfers = await this.transferTrackingService.findByClientId(input.clientId)
     const historicalTransfers = HistoricalTransferFeedService.build(transfers)
     const sig = await this.sign(historicalTransfers)
 

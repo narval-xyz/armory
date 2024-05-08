@@ -96,7 +96,7 @@ describe(TransferTrackingService.name, () => {
     })
 
     it('finds client transfers', async () => {
-      const transfers = await service.findByclientId(clientA)
+      const transfers = await service.findByClientId(clientA)
 
       expect(transfers.length).toEqual(2)
       expect(uniq(map('clientId', transfers))).toEqual([clientA])
@@ -104,7 +104,7 @@ describe(TransferTrackingService.name, () => {
     })
 
     it('decodes transfers', async () => {
-      const transfers = await service.findByclientId(clientA)
+      const transfers = await service.findByClientId(clientA)
 
       expect(first(transfers)).toMatchObject(omit(['id', 'clientId'], transfer))
     })

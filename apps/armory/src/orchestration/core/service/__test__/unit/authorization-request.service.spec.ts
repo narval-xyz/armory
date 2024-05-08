@@ -131,7 +131,7 @@ describe(AuthorizationRequestService.name, () => {
     beforeEach(() => {
       clusterServiceMock.evaluation.mockResolvedValue(evaluationResponse)
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
-      transferFeedServiceMock.findByclientId.mockResolvedValue(transfers)
+      transferFeedServiceMock.findByClientId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
         [POLYGON.coin.id]: {
           [FIAT_ID_USD]: 0.99

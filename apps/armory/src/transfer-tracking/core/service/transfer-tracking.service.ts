@@ -14,7 +14,7 @@ export class TransferTrackingService {
     return this.transferFeedRepository.create(transfer)
   }
 
-  findByclientId(clientId: string): Promise<Transfer[]> {
-    return this.transferFeedRepository.findByclientId(clientId)
+  findByClientId(clientId: string): Promise<Transfer[]> {
+    return this.transferFeedRepository.findByClientId(clientId)
   }
 }

@@ -32,7 +32,7 @@ describe(HistoricalTransferFeedService.name, () => {
 
   beforeEach(async () => {
     transferTrackingServiceMock = mock<TransferTrackingService>()
-    transferTrackingServiceMock.findByclientId.mockResolvedValue(transfers)
+    transferTrackingServiceMock.findByClientId.mockResolvedValue(transfers)
 
     module = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ load: [load] })],
@@ -76,7 +76,7 @@ describe(HistoricalTransferFeedService.name, () => {
     it('calls transfer tracking service', async () => {
       await service.getFeed(authzRequest)
 
-      expect(transferTrackingServiceMock.findByclientId).toHaveBeenCalledWith(authzRequest.clientId)
+      expect(transferTrackingServiceMock.findByClientId).toHaveBeenCalledWith(authzRequest.clientId)
     })
   })
 })
