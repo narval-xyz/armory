@@ -3,7 +3,7 @@ import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Organization, Prisma } from '@prisma/client/armory'
+import { Client, Prisma } from '@prisma/client/armory'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
 import { load } from '../../../../../armory.config'
@@ -42,9 +42,9 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   let consumer: AuthorizationRequestProcessingConsumer
   let testPrismaService: TestPrismaService
 
-  const org: Organization = {
+  const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
-    name: 'Test Org',
+    name: 'Test Client',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
@@ -58,7 +58,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   const authzRequest: AuthorizationRequest = {
     authentication,
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
-    orgId: org.id,
+    clientId: client.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
       action: Action.SIGN_MESSAGE,
@@ -75,7 +75,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
   const permitEvaluation = {
     id: '404853b2-1338-47f5-be17-a1aa78da8010',
-    orgId: org.id,
+    clientId: client.id,
     requestId: authzRequest.id,
     decision: 'Permit',
     signature: 'test-signature',
@@ -126,12 +126,12 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     repository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     consumer = module.get<AuthorizationRequestProcessingConsumer>(AuthorizationRequestProcessingConsumer)
 
-    await testPrismaService.getClient().organization.create({
+    await testPrismaService.getClient().client.create({
       data: {
-        ...org,
-        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+        ...client,
+        enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
       }
     })
     await repository.create(authzRequest)
@@ -180,7 +180,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
       it('stops retrying on known unrecoverable errors', async () => {
         const unrecoverableErrors = [
-          new ClusterNotFoundException(authzRequest.orgId),
+          new ClusterNotFoundException(authzRequest.clientId),
           new ConsensusAgreementNotReachException([], []),
           new UnreachableClusterException(mock<Cluster>()),
           new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey'),

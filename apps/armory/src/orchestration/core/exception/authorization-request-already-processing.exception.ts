@@ -9,7 +9,7 @@ export class AuthorizationRequestAlreadyProcessingException extends PolicyEngine
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: {
         id: authzRequest.id,
-        orgId: authzRequest.orgId,
+        clientId: authzRequest.clientId,
         status: authzRequest.status
       }
     })

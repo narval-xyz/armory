@@ -1,16 +1,16 @@
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { Organization, Prisma, PrismaClient } from '@prisma/client/armory'
+import { Client, Prisma, PrismaClient } from '@prisma/client/armory'
 import { ArmoryModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 
 const now = new Date()
 const prisma = new PrismaClient()
 
-const orgs: Organization[] = [
+const clients: Client[] = [
   {
-    id: FIXTURE.ORGANIZATION.id,
+    id: FIXTURE.CLIENT.id,
     name: 'Dev',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
@@ -30,14 +30,14 @@ async function main() {
 
   logger.log('Seeding database')
 
-  for (const org of orgs) {
-    logger.log(`Creating organization ${org.name} (ID: ${org.id})`)
-    await prisma.organization.create({
+  for (const client of clients) {
+    logger.log(`Creating client ${client.name} (ID: ${client.id})`)
+    await prisma.client.create({
       data: {
-        ...org,
-        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+        ...client,
+        enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
       }
     })
   }

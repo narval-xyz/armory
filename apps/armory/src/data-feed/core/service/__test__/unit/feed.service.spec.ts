@@ -90,12 +90,12 @@ describe(FeedService.name, () => {
       expect(prismaServiceMock.feed.createMany).toHaveBeenCalledWith({
         data: [
           expect.objectContaining({
-            orgId: authzRequest.orgId,
+            clientId: authzRequest.clientId,
             requestId: authzRequest.id,
             source: PriceFeedService.SOURCE_ID
           }),
           expect.objectContaining({
-            orgId: authzRequest.orgId,
+            clientId: authzRequest.clientId,
             requestId: authzRequest.id,
             source: HistoricalTransferFeedService.SOURCE_ID
           })

@@ -7,26 +7,26 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 export class EntityDataStoreRepository {
   constructor(private prismaService: PrismaService) {}
 
-  setDataStore(orgId: string, data: { version: number; data: EntityStore }) {
-    return this.prismaService.entityDataStore.create({ data: { orgId, ...data } })
+  setDataStore(clientId: string, data: { version: number; data: EntityStore }) {
+    return this.prismaService.entityDataStore.create({ data: { clientId, ...data } })
   }
 
-  async getLatestDataStore(orgId: string): Promise<EntityDataStore | null> {
-    const version = await this.getLatestVersion(orgId)
+  async getLatestDataStore(clientId: string): Promise<EntityDataStore | null> {
+    const version = await this.getLatestVersion(clientId)
 
     if (!version) return null
 
-    const dataStore = await this.prismaService.entityDataStore.findFirst({ where: { orgId, version } })
+    const dataStore = await this.prismaService.entityDataStore.findFirst({ where: { clientId, version } })
 
     if (!dataStore) return null
 
     return dataStore
   }
 
-  private async getLatestVersion(orgId: string): Promise<number> {
+  private async getLatestVersion(clientId: string): Promise<number> {
     const data = await this.prismaService.entityDataStore.aggregate({
       where: {
-        orgId
+        clientId
       },
       _max: {
         version: true

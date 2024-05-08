@@ -29,9 +29,9 @@ export class TransferRepository {
     return this.decode(model)
   }
 
-  async findByOrgId(orgId: string): Promise<Transfer[]> {
+  async findByClientId(clientId: string): Promise<Transfer[]> {
     const models = await this.prismaService.approvedTransfer.findMany({
-      where: { orgId }
+      where: { clientId }
     })
 
     return models.map((model) => this.decode(model))

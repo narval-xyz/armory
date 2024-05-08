@@ -126,12 +126,12 @@ describe(AuthorizationRequestService.name, () => {
       }
     }
 
-    const transfers: Transfer[] = times(() => generateTransfer({ orgId: authzRequest.orgId }), 2)
+    const transfers: Transfer[] = times(() => generateTransfer({ clientId: authzRequest.clientId }), 2)
 
     beforeEach(() => {
       clusterServiceMock.evaluation.mockResolvedValue(evaluationResponse)
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
-      transferFeedServiceMock.findByOrgId.mockResolvedValue(transfers)
+      transferFeedServiceMock.findByClientId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
         [POLYGON.coin.id]: {
           [FIAT_ID_USD]: 0.99
@@ -152,7 +152,7 @@ describe(AuthorizationRequestService.name, () => {
       await service.evaluate(authzRequest)
 
       expect(clusterServiceMock.evaluation).toHaveBeenCalledWith({
-        orgId: authzRequest.orgId,
+        clientId: authzRequest.clientId,
         data: expect.objectContaining({
           authentication: authzRequest.authentication,
           approvals: authzRequest.approvals,
@@ -166,7 +166,7 @@ describe(AuthorizationRequestService.name, () => {
 
       expect(authzRequestRepositoryMock.update).toHaveBeenCalledWith({
         id: authzRequest.id,
-        orgId: authzRequest.orgId,
+        clientId: authzRequest.clientId,
         status: AuthorizationRequestStatus.PERMITTED,
         evaluations: [
           expect.objectContaining({
@@ -201,7 +201,7 @@ describe(AuthorizationRequestService.name, () => {
         from: intent.from,
         token: intent.token,
         chainId: request.transactionRequest.chainId,
-        orgId: authzRequest.orgId,
+        clientId: authzRequest.clientId,
         requestId: authzRequest.id,
         initiatedBy: authzRequest.authentication, // TODO: this will change when the underlying data is corrected.
         rates: {

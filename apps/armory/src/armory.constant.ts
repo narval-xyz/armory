@@ -3,7 +3,7 @@ import { BackoffOptions } from 'bull'
 import { Chain } from './shared/core/lib/chains.lib'
 import { FiatId } from './shared/core/type/price.type'
 
-export const REQUEST_HEADER_ORG_ID = 'x-org-id'
+export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
 
 //
 // Queues

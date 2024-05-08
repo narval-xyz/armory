@@ -12,7 +12,7 @@ datasource db {
   url      = env("ARMORY_DATABASE_URL")
 }
 
-model Organization {
+model Client {
   id              String   @id @default(uuid()) @db.VarChar(255)
   name            String
   enginePublicKey Json     @map("engine_public_key")
@@ -22,18 +22,18 @@ model Organization {
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
   Engine          Engine[]
 
-  @@map("organization")
+  @@map("client")
 }
 
 model Engine {
   id           String   @id @default(uuid()) @db.VarChar(255)
-  orgId        String   @map("org_id") // TODO @sam: this will be renamed to client_id in a future PR
+  clientId     String   @map("client_id") // TODO @sam: this will be renamed to client_id in a future PR
   clientSecret String   @map("client_secret")
   publicKey    Json     @map("pub_key")
   url          String
   createdAt    DateTime @default(now()) @map("created_at")
 
-  organization Organization @relation(fields: [orgId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
 
   @@map("engine")
 }
@@ -54,7 +54,7 @@ enum AuthorizationRequestStatus {
 
 model AuthorizationRequest {
   id             String                     @id @default(uuid()) @db.VarChar(255)
-  orgId          String                     @map("org_id")
+  clientId       String                     @map("client_id")
   status         AuthorizationRequestStatus @default(CREATED)
   // Duplicate the action to pick the `request` schema at the application-level.
   // After the decoding, the model's action is not used in the domain type.
@@ -84,7 +84,7 @@ model AuthorizationRequestApproval {
 
 model EvaluationLog {
   id        String   @id @default(uuid()) @db.VarChar(255)
-  orgId     String   @map("org_id")
+  clientId  String   @map("client_id")
   requestId String   @map("request_id")
   decision  String
   signature String?
@@ -101,7 +101,7 @@ model EvaluationLog {
 
 model ApprovedTransfer {
   id          String   @id @default(uuid()) @db.VarChar(255)
-  orgId       String   @map("org_id")
+  clientId    String   @map("client_id")
   requestId   String   @map("request_id")
   chainId     Int      @map("chain_id")
   from        String
@@ -121,7 +121,7 @@ model ApprovedTransfer {
 
 model Feed {
   id        String   @id @default(uuid()) @db.VarChar(255)
-  orgId     String   @map("org_id")
+  clientId  String   @map("client_id")
   requestId String   @map("request_id")
   source    String
   sig       String?
@@ -137,7 +137,7 @@ model Feed {
 
 model EntityDataStore {
   id        String   @id @default(uuid()) @db.VarChar(255)
-  orgId     String   @map("org_id")
+  clientId  String   @map("client_id")
   data      Json
   version   Int
   createdAt DateTime @default(now()) @map("created_at")
@@ -147,7 +147,7 @@ model EntityDataStore {
 
 model PolicyDataStore {
   id        String   @id @default(uuid()) @db.VarChar(255)
-  orgId     String   @map("org_id")
+  clientId  String   @map("client_id")
   data      Json
   version   Int
   createdAt DateTime @default(now()) @map("created_at")

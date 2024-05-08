@@ -1,7 +1,7 @@
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestStatus, Organization, Prisma } from '@prisma/client/armory'
+import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
@@ -14,9 +14,9 @@ describe(AuthorizationRequestRepository.name, () => {
   let repository: AuthorizationRequestRepository
   let testPrismaService: TestPrismaService
 
-  const org: Organization = {
+  const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
-    name: 'Test Org',
+    name: 'Test Client',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
@@ -30,7 +30,7 @@ describe(AuthorizationRequestRepository.name, () => {
   const signMessageRequest: AuthorizationRequest = {
     authentication,
     id: '6c7e92fc-d2b0-4840-8e9b-485393ecdf89',
-    orgId: org.id,
+    clientId: client.id,
     status: AuthorizationRequestStatus.PROCESSING,
     request: {
       action: Action.SIGN_MESSAGE,
@@ -60,12 +60,12 @@ describe(AuthorizationRequestRepository.name, () => {
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     repository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
 
-    await testPrismaService.getClient().organization.create({
+    await testPrismaService.getClient().client.create({
       data: {
-        ...org,
-        enginePublicKey: org.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: org.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: org.entityPublicKey as Prisma.InputJsonValue
+        ...client,
+        enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
+        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
+        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
       }
     })
   })
@@ -124,7 +124,7 @@ describe(AuthorizationRequestRepository.name, () => {
         {
           ...permit,
           requestId: signMessageRequest.id,
-          orgId: signMessageRequest.orgId
+          clientId: signMessageRequest.clientId
         }
       ])
     })

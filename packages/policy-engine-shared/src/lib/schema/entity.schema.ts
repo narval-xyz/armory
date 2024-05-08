@@ -29,7 +29,7 @@ export const credentialEntitySchema = z.object({
   // TODO @ptroger: Should we be allowing a private key to be passed in entity data ?
 })
 
-export const organizationEntitySchema = z.object({
+export const clientEntitySchema = z.object({
   id: z.string()
 })
 

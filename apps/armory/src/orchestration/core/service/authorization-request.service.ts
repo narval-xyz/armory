@@ -70,7 +70,7 @@ export class AuthorizationRequestService {
     if (authzRequest) {
       await this.authzRequestRepository.update({
         id: authzRequest.id,
-        orgId: authzRequest.orgId,
+        clientId: authzRequest.clientId,
         status: AuthorizationRequestStatus.PROCESSING
       })
 
@@ -104,13 +104,13 @@ export class AuthorizationRequestService {
 
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
-      orgId: input.orgId,
+      clientId: input.clientId,
       status: input.status
     })
 
     const feeds = await this.feedService.gather(input)
     const evaluation = await this.clusterService.evaluation({
-      orgId: input.orgId,
+      clientId: input.clientId,
       data: {
         authentication: input.authentication,
         approvals: input.approvals,
@@ -123,7 +123,7 @@ export class AuthorizationRequestService {
 
     const authzRequest = await this.authzRequestRepository.update({
       id: input.id,
-      orgId: input.orgId,
+      clientId: input.clientId,
       status,
       evaluations: [
         {
@@ -146,7 +146,7 @@ export class AuthorizationRequestService {
         })
 
         const transfer = {
-          orgId: authzRequest.orgId,
+          clientId: authzRequest.clientId,
           requestId: authzRequest.id,
           from: intent.from,
           to: intent.to,
@@ -165,7 +165,7 @@ export class AuthorizationRequestService {
     }
 
     this.logger.log('Authorization request status updated', {
-      orgId: authzRequest.orgId,
+      clientId: authzRequest.clientId,
       id: authzRequest.id,
       status: authzRequest.status,
       evaluations: authzRequest.evaluations
