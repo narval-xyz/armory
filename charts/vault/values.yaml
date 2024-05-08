@@ -45,7 +45,7 @@ ingress:
     - host: stage.vault.narval.xyz
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls:
     - hosts:
         - stage.vault.narval.xyz

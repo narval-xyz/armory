@@ -17,11 +17,17 @@ COPY tsconfig*.json ./
 
 RUN make vault/db/generate-types && \
     make vault/build && \
-    rm -rf src/
+    rm -rf apps/ && rm -rf packages/
 
 FROM node:21 as final
 
-COPY --from=build /usr/src/app .
+WORKDIR /usr/src/app
+
+# Copy built application and node_modules
+# We need node_modules to run the application and it's more efficient to copy the whole thing from the previous step
+# rather than installing it again, even though this includes devDependencies b/c it can use the cache to speed up builds unless deps change.
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
 EXPOSE 3011
 
