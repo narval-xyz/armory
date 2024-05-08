@@ -29,9 +29,9 @@ export class AppController {
       evaluation
     })
 
-    const response = await this.evaluationService.evaluate(FIXTURE.ORGANIZATION.id, evaluation)
+    const response = await this.evaluationService.evaluate(FIXTURE.CLIENT.id, evaluation)
 
-    this.logger.log('Evaluation respone', {
+    this.logger.log('Evaluation response', {
       response
     })
 
