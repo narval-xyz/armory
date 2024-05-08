@@ -148,8 +148,10 @@ jobs:
           valueFile: "charts/vault/values.yaml"
           propertyPath: "image.tag"
           value: ${{ env.sha7 }}
-          branch: main
-          message: "Update Image Version to ${{ env.sha7 }}"
+          branch: deployment
+          targetBranch: main
+          createPR: true
+          message: "Update Vault Image Version to ${{ env.sha7 }}"
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
