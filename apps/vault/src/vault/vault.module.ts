@@ -17,6 +17,7 @@ import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
 import { ImportController } from './http/rest/controller/import.controller'
+import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
@@ -39,7 +40,7 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => ClientModule)
   ],
-  controllers: [VaultController, ImportController, SignController],
+  controllers: [VaultController, ImportController, SignController, ProvisionController],
   providers: [
     AppRepository,
     AppService,
