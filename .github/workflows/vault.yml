@@ -16,6 +16,7 @@ on:
       - package.json
       - package-lock.json
       - vault.dockerfile
+      - charts/vault/**
 
 jobs:
   test:
