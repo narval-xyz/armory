@@ -86,3 +86,12 @@ npx nx g @nx/nest:application --tags type:application
 
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
+
+
+# NPM Auth Variables
+The `.npmrc` file is needed for private registry credentials.
+This file is NOT in git, but it's necessary for the build
+
+1. Create a `.npmrc` file in the root of this project.
+2. Get the values from someone who has them.
+3. Now `npm install` should work.

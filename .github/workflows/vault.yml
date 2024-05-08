@@ -2,7 +2,10 @@ name: '@app/vault CI'
 
 on:
   push:
+    branches:
+      - main
     paths:
+      - packages/**
       - apps/vault/**
       - .github/workflows/vault.yml
       - jest.config.ts
@@ -11,11 +14,12 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
+      - vault.dockerfile
+      - charts/vault/**
 
 jobs:
-  build-and-test:
-    name: Build and test
-
+  test:
+    name: test
     runs-on: ubuntu-latest
 
     services:
@@ -34,12 +38,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.4.0'
+          node-version: '21'
+          cache: 'npm'
 
       - name: Install dependencies
         run: |
@@ -83,7 +91,72 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@app/vault CI failed'
+          author_name: '@app/vault CI tests failed'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  build:
+    name: buildpush
+    runs-on: ubuntu-latest
+
+    # Only run if the Test job succeeds
+    needs: test
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ACTIONS_ECR_ROLE_ARN }} # Organization variable
+          aws-region: ${{ vars.ACTIONS_ECR_REGION }} # Organization variable
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get short SHA
+        id: slug
+        run: echo "sha7=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./vault.dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
+            ${{ steps.login-ecr.outputs.registry }}/armory/vault:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Image Version in the worker HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: "charts/vault/values.yaml"
+          propertyPath: "image.tag"
+          value: ${{ env.sha7 }}
+          branch: main
+          message: "Update Image Version to ${{ env.sha7 }}"
+
+      - name: Send Slack notification on failure
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: '@app/vault CI buildpush failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
