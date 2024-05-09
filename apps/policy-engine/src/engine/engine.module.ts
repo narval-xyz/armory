@@ -20,6 +20,7 @@ import { ProvisionService } from './core/service/provision.service'
 import { ClientController } from './http/rest/controller/client.controller'
 import { EngineController } from './http/rest/controller/engine.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
+import { ProvisionController } from './http/rest/controller/provision.controller'
 import { ClientRepository } from './persistence/repository/client.repository'
 import { EngineSignerConfigRepository } from './persistence/repository/engine-signer-config.repository'
 import { EngineRepository } from './persistence/repository/engine.repository'
@@ -40,7 +41,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
       useClass: EncryptionModuleOptionFactory
     })
   ],
-  controllers: [AppController, ClientController, EngineController, EvaluationController],
+  controllers: [ProvisionController, AppController, ClientController, EngineController, EvaluationController],
   providers: [
     AdminApiKeyGuard,
     BootstrapService,

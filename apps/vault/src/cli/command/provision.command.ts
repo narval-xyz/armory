@@ -26,7 +26,7 @@ export class ProvisionCommand extends CommandRunner {
       return console.log('App already provisioned')
     }
 
-    await this.provisionService.provision()
+    await this.provisionService.provision(true)
 
     try {
       const keyring = this.configService.get('keyring', { infer: true })

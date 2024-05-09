@@ -14,27 +14,36 @@ export class ProvisionService {
     private appService: AppService
   ) {}
 
-  async provision(): Promise<void> {
-    this.logger.log('Start app provision')
-
+  async provision(activate?: boolean): Promise<void> {
     const app = await this.appService.getApp()
 
     const isFirstTime = app === null
 
     // IMPORTANT: The order of internal methods call matters.
-
     if (isFirstTime) {
-      await this.createApp()
+      this.logger.log('Start app provision')
+      await this.createApp(activate)
       await this.maybeSetupEncryption()
+    } else {
+      this.logger.log('app already provisioned')
     }
   }
 
-  private async createApp(): Promise<void> {
+  // Activate is just a boolean that lets you return the adminApiKey one time
+  // This enables you to provision the app at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
+  async activate(): Promise<void> {
+    this.logger.log('Activate app')
+    const app = await this.appService.getAppOrThrow()
+    await this.appService.save({ ...app, activated: true })
+  }
+
+  private async createApp(activate?: boolean): Promise<void> {
     this.logger.log('Generate admin API key and save app')
 
     await this.appService.save({
       id: this.getAppId(),
-      adminApiKey: randomBytes(20).toString('hex')
+      adminApiKey: randomBytes(20).toString('hex'),
+      activated: !!activate
     })
   }
 

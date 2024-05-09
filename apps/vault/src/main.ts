@@ -3,7 +3,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
-import { MainModule } from './main.module'
+import { MainModule, ProvisionModule } from './main.module'
 
 /**
  * Adds global pipes to the application.
@@ -17,7 +17,17 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
   return app
 }
 
+const provision = async () => {
+  const application = await NestFactory.createApplicationContext(ProvisionModule)
+
+  await application.close()
+}
+
 async function bootstrap() {
+  // NOTE: Refer to the comment in the ProvisionModule to understand why we use
+  // a temporary application for the provision step.
+  await provision()
+
   const logger = new Logger('AppBootstrap')
   const application = await NestFactory.create(MainModule, { bodyParser: true })
   const configService = application.get(ConfigService)
