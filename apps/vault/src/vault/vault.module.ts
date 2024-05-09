@@ -9,7 +9,6 @@ import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-modu
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
-import { PermissionsGuard } from '../shared/guard/permissions.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
@@ -44,7 +43,6 @@ import { VaultService } from './vault.service'
   providers: [
     AppRepository,
     AppService,
-    PermissionsGuard,
     ImportRepository,
     ImportService,
     NonceGuard,
