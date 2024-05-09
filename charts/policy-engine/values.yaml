@@ -1,8 +1,8 @@
 replicaCount: 1
 image:
-  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault
+  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine
   pullPolicy: IfNotPresent
-  tag: 49b464e
+  tag: 76d089c
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -18,10 +18,10 @@ securityContext: {}
 env:
   PORT: 3011
   NODE_ENV: production
-  CORS: https://vault.armory.narval.xyz
-  APP_UID: staging-vault-instance-1
+  CORS: https://policy-engine.armory.narval.xyz
+  APP_UID: staging-policy-engine-instance-1
   KEYRING_TYPE: raw
-  BASE_URL: https://vault.armory.narval.xyz
+  BASE_URL: https://policy-engine.armory.narval.xyz
 service:
   type: ClusterIP
   port: 80
@@ -40,15 +40,15 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:728783560968:certificate/ab1729c2-8213-4ce2-b9e0-cbac3de2a459 # *.armory.narval.xyz certificate
-    external-dns.alpha.kubernetes.io/hostname: vault.armory.narval.xyz
+    external-dns.alpha.kubernetes.io/hostname: policy-engine.armory.narval.xyz
   hosts:
-    - host: vault.armory.narval.xyz
+    - host: policy-engine.armory.narval.xyz
       paths:
         - path: /
           pathType: Prefix
   tls:
     - hosts:
-        - vault.armory.narval.xyz
+        - policy-engine.armory.narval.xyz
 resources: {}
 livenessProbe:
   httpGet:
@@ -70,7 +70,7 @@ tolerations: []
 affinity: {}
 database:
   migrator:
-    repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator
+    repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine-db-migrator
     tag: latest
   username:
     secretKeyRef:
@@ -82,5 +82,5 @@ database:
       key: password
   host: armory-dev-db.caenfnzrkfmg.us-east-2.rds.amazonaws.com
   port: 5432
-  databaseName: vault_test
-secretRemoteRef: staging/vault
+  databaseName: policy_engine_test
+secretRemoteRef: staging/policy-engine

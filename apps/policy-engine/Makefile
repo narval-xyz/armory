@@ -8,6 +8,9 @@ POLICY_ENGINE_REGO_DIST = ./dist/rego
 policy-engine/start/dev:
 	npx nx serve ${POLICY_ENGINE_PROJECT_NAME}
 
+policy-engine/start/prod:
+	node ./dist/apps/policy-engine/main.js
+
 # === Setup ===
 
 policy-engine/setup:
@@ -26,6 +29,9 @@ policy-engine/copy-default-env:
 policy-engine/build/script:
 	npx tsc --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
 	npx tsc-alias --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json
+
+policy-engine/build:
+	npx nx build ${POLICY_ENGINE_PROJECT_NAME}
 
 # === Code format ===
 
@@ -66,6 +72,11 @@ policy-engine/db/setup:
 	@echo "${TERM_GREEN}🛠️  Setting up Engine test database${TERM_NO_COLOR}"
 	@echo ""
 	make policy-engine/test/db/setup
+
+policy-engine/db/migrate/deploy:
+	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
+		prisma migrate deploy \
+			--schema ${POLICY_ENGINE_DATABASE_SCHEMA}
 
 policy-engine/db/create-migration:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
@@ -152,3 +163,39 @@ policy-engine/rego/test:
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
 
+# === DOCKER ===
+policy-engine/docker/build:
+	docker buildx build \
+		--platform linux/amd64 \
+		--secret id=npmrc,src=./.npmrc \
+		-f policy-engine.dockerfile \
+		-t armory/policy-engine:latest \
+		--cache-from armory/policy-engine:latest \
+		. --load
+
+policy-engine/docker/push:
+	docker tag armory/policy-engine:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine:latest
+	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine:latest
+
+policy-engine/docker/run:
+	docker run --env-file ./apps/policy-engine/.env -p 3010:3010 armory/policy-engine:latest
+
+policy-engine/migrator/docker/build:
+	docker buildx build \
+		--platform linux/amd64 \
+		-f policy-engine-db-migrator.dockerfile \
+		-t armory/policy-engine-db-migrator:latest \
+		. --load
+
+policy-engine/migrator/docker/push:
+	docker tag armory/policy-engine-db-migrator:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine-db-migrator:latest
+	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine-db-migrator:latest
+
+policy-engine/migrator/docker/run:
+	docker run \
+  -e APP_DATABASE_USERNAME="postgres" \
+  -e APP_DATABASE_PASSWORD="postgres" \
+  -e APP_DATABASE_HOST="host.docker.internal" \
+  -e APP_DATABASE_PORT=5432 \
+  -e APP_DATABASE_NAME="engine" \
+  armory/policy-engine-db-migrator
