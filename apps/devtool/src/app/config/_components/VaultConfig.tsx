@@ -16,8 +16,11 @@ const VaultConfig = () => {
     vaultAdminApiKey,
     setVaultAdminApiKey,
     vaultClientId,
+    setVaultClientId,
     vaultClientSecret,
-    engineClientSigner
+    setVaultClientSecret,
+    engineClientSigner,
+    setEngineClientSigner
   } = useStore()
 
   const { isOnboarded, onboardClient } = useVaultApi()
@@ -56,9 +59,9 @@ const VaultConfig = () => {
           <NarInput label="Admin API Key" value={vaultAdminApiKey} onChange={setVaultAdminApiKey} />
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          <NarInput label="Client Signer" value={engineClientSigner} onChange={() => null} disabled />
-          <NarInput label="Client ID" value={vaultClientId} onChange={() => null} disabled />
-          <NarInput label="Client Secret" value={vaultClientSecret} onChange={() => null} disabled />
+          <NarInput label="Client Signer" value={engineClientSigner} onChange={setEngineClientSigner} />
+          <NarInput label="Client ID" value={vaultClientId} onChange={setVaultClientId} />
+          <NarInput label="Client Secret" value={vaultClientSecret} onChange={setVaultClientSecret} />
         </div>
       </div>
     </div>
