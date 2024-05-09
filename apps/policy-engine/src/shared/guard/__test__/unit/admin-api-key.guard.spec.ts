@@ -23,7 +23,8 @@ describe(AdminApiKeyGuard.name, () => {
     const engine = {
       adminApiKey,
       id: 'test-engine-id',
-      masterKey: 'test-master-key'
+      masterKey: 'test-master-key',
+      activated: true
     }
 
     const serviceMock = mock<EngineService>()
