@@ -16,16 +16,14 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 env:
-  PORT: 3011
-  NODE_ENV: production
-  CORS: https://policy-engine.armory.narval.xyz
   APP_UID: staging-policy-engine-instance-1
   KEYRING_TYPE: raw
+  CORS: https://policy-engine.armory.narval.xyz
   BASE_URL: https://policy-engine.armory.narval.xyz
 service:
   type: ClusterIP
   port: 80
-  targetPort: 3011
+  targetPort: 3010
 ingress:
   enabled: true
   fullname: eks-alb

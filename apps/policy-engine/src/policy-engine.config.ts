@@ -42,7 +42,7 @@ export const load = (): Config => {
       url: process.env.APP_DATABASE_URL
     },
     engine: {
-      id: process.env.ENGINE_UID,
+      id: process.env.APP_UID,
       masterKey: process.env.MASTER_KEY
     },
     keyring: {
