@@ -15,7 +15,7 @@ import NarButton from '../../_design-system/NarButton'
 import useAccountSignature from '../../_hooks/useAccountSignature'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useVaultApi from '../../_hooks/useVaultApi'
-import { erc20, spendingLimits } from './request'
+import { erc20, grantPermission, spendingLimits } from './request'
 
 const PlaygroundEditor = () => {
   const { signAccountJwt } = useAccountSignature()
@@ -121,6 +121,10 @@ const PlaygroundEditor = () => {
             <NarButton
               label="Spending limits"
               onClick={async () => setCodeEditor(JSON.stringify(await spendingLimits(), null, 2))}
+            />
+            <NarButton
+              label="Grant Permissions"
+              onClick={async () => setCodeEditor(JSON.stringify(await grantPermission(), null, 2))}
             />
           </div>
         </div>

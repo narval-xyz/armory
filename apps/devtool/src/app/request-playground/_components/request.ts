@@ -1,4 +1,4 @@
-import { Action, FIXTURE } from '@narval/policy-engine-shared'
+import { Action, FIXTURE, Permission, Resource } from '@narval/policy-engine-shared'
 import { Alg, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { getTime } from 'date-fns'
 import { v4 as uuid } from 'uuid'
@@ -92,5 +92,16 @@ export const spendingLimits = async () => {
         ]
       }
     ]
+  }
+}
+
+export const grantPermission = async () => {
+  return {
+    request: {
+      action: Action.GRANT_PERMISSION,
+      resourceId: Resource.VAULT,
+      nonce: uuid(),
+      permissions: [Permission.WALLET_CREATE, Permission.WALLET_READ, Permission.WALLET_IMPORT]
+    }
   }
 }
