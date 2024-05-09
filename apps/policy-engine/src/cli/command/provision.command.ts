@@ -26,7 +26,7 @@ export class ProvisionCommand extends CommandRunner {
       return console.log('Engine already provisioned')
     }
 
-    await this.provisionService.provision()
+    await this.provisionService.provision(true) // activate the engine b/c we'll print the admin API key below
 
     try {
       const keyring = this.configService.get('keyring')
