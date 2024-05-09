@@ -18,7 +18,6 @@ securityContext: {}
 env:
   APP_UID: staging-policy-engine-instance-1
   KEYRING_TYPE: raw
-  CORS: https://policy-engine.armory.narval.xyz
   BASE_URL: https://policy-engine.armory.narval.xyz
 service:
   type: ClusterIP
