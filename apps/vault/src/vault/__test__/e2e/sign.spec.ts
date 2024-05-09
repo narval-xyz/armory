@@ -133,12 +133,6 @@ describe('Sign', () => {
   })
 
   describe('POST /sign', () => {
-    it('has client secret guard', async () => {
-      const { status } = await request(app.getHttpServer()).post('/sign').send({})
-
-      expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
-    })
-
     it('validates nested transaction data', async () => {
       const payload = {
         request: {

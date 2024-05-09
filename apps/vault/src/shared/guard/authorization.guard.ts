@@ -65,14 +65,15 @@ export class AuthorizationGuard implements CanActivate {
       ...(request && {
         requestHash: request
       }),
-      ...(permissions.length > 0 && {
-        access: [
-          {
-            resource: 'vault',
-            permissions
-          }
-        ]
-      })
+      ...(permissions &&
+        permissions.length > 0 && {
+          access: [
+            {
+              resource: 'vault',
+              permissions
+            }
+          ]
+        })
     }
 
     return this.validateToken(context, client, accessToken, opts)
