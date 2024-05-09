@@ -5,6 +5,7 @@ import {
   Address,
   CredentialEntity,
   Feed,
+  Permission,
   SerializedTransactionRequest,
   UserRole
 } from '@narval/policy-engine-shared'
@@ -19,10 +20,11 @@ export type OpenPolicyAgentInstance = PromiseType<ReturnType<typeof loadPolicy>>
 
 export type Input = {
   action: Action
-  intent?: Intent
-  transactionRequest?: SerializedTransactionRequest
   principal: CredentialEntity
   resource?: { uid: string }
+  intent?: Intent
+  transactionRequest?: SerializedTransactionRequest
+  permissions?: Permission[]
   approvals?: CredentialEntity[]
   feeds?: Feed<unknown>[]
 }

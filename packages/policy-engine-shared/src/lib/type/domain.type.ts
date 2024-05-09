@@ -1,6 +1,7 @@
 import { ZodTypeAny, z } from 'zod'
 import { AccountId } from '../util/caip.util'
 import {
+  GrantPermissionAction,
   SerializedTransactionAction,
   SignMessageAction,
   SignRawAction,
@@ -94,7 +95,8 @@ export const Request = z.discriminatedUnion('action', [
   SignTransactionAction,
   SignMessageAction,
   SignTypedDataAction,
-  SignRawAction
+  SignRawAction,
+  GrantPermissionAction
 ])
 export type Request = z.infer<typeof Request>
 
@@ -102,7 +104,8 @@ export const SerializedRequest = z.discriminatedUnion('action', [
   SerializedTransactionAction,
   SignMessageAction,
   SignTypedDataAction,
-  SignRawAction
+  SignRawAction,
+  GrantPermissionAction
 ])
 export type SerializedRequest = z.infer<typeof SerializedRequest>
 

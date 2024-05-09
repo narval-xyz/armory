@@ -151,3 +151,12 @@ export const SignRawAction = BaseAction.merge(
   })
 )
 export type SignRawAction = z.infer<typeof SignRawAction>
+
+export const GrantPermissionAction = BaseAction.merge(
+  z.object({
+    action: z.literal(Action.GRANT_PERMISSION),
+    resourceId: z.string(),
+    permissions: z.array(PermissionSchema)
+  })
+)
+export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>
