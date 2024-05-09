@@ -17,7 +17,10 @@ const PolicyEngineConfig = () => {
     setEngineAdminApiKey,
     engineClientId,
     engineClientSecret,
-    engineClientSigner
+    engineClientSigner,
+    setEngineClientId,
+    setEngineClientSecret,
+    setEngineClientSigner
   } = useStore()
 
   const { isOnboarded, onboardClient } = useEngineApi()
@@ -55,9 +58,9 @@ const PolicyEngineConfig = () => {
           <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          <NarInput label="Client Signer" value={engineClientSigner} onChange={() => null} disabled />
-          <NarInput label="Client ID" value={engineClientId} onChange={() => null} disabled />
-          <NarInput label="Client Secret" value={engineClientSecret} onChange={() => null} disabled />
+          <NarInput label="Client Signer" value={engineClientSigner} onChange={setEngineClientSigner} />
+          <NarInput label="Client ID" value={engineClientId} onChange={setEngineClientId} />
+          <NarInput label="Client Secret" value={engineClientSecret} onChange={setEngineClientSecret} />
         </div>
       </div>
     </div>

@@ -167,7 +167,6 @@ policy-engine/rego/test/watch:
 policy-engine/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		--secret id=npmrc,src=./.npmrc \
 		-f policy-engine.dockerfile \
 		-t armory/policy-engine:latest \
 		--cache-from armory/policy-engine:latest \
