@@ -29,7 +29,8 @@ describe(EngineRepository.name, () => {
   const engine: Engine = {
     id: 'test-engine-id',
     adminApiKey: 'unsafe-test-admin-api-key',
-    masterKey: 'unsafe-test-master-key'
+    masterKey: 'unsafe-test-master-key',
+    activated: true
   }
 
   describe('save', () => {
