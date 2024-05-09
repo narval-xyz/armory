@@ -29,7 +29,11 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/node_modules ./node_modules
 
-EXPOSE 3011
+# Set the env variables that don't need to be changed outside this container.
+ENV NODE_ENV=production
+ENV PORT=3010
+ENV RESOURCE_PATH=/usr/src/app/dist/apps/policy-engine/resource
 
+EXPOSE 3010
 CMD ["node", "dist/apps/policy-engine/main.js"]
 

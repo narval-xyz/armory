@@ -29,6 +29,9 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/node_modules ./node_modules
 
+ENV NODE_ENV=production
+ENV PORT=3011
+
 EXPOSE 3011
 
 CMD ["node", "dist/apps/vault/main.js"]
