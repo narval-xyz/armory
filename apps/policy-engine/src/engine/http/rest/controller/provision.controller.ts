@@ -1,7 +1,7 @@
 import { Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Config } from '../../../../main.config'
-import { AppService } from '../../../core/service/app.service'
+import { Config } from '../../../../policy-engine.config'
+import { EngineService } from '../../../core/service/engine.service'
 import { ProvisionService } from '../../../core/service/provision.service'
 
 type ProvisionResponse = {
@@ -17,40 +17,40 @@ type ProvisionResponse = {
 export class ProvisionController {
   constructor(
     private provisionService: ProvisionService,
-    private appService: AppService,
+    private engineService: EngineService,
     private configService: ConfigService<Config, true>
   ) {}
 
   @Post()
   async provision(): Promise<string | ProvisionResponse> {
-    const app = await this.appService.getApp()
+    const engine = await this.engineService.getEngine()
 
-    if (app && app.masterKey && app.activated) {
+    if (engine && engine.masterKey && engine.activated) {
       return 'App already provisioned'
     }
 
     // if we've already provisioned but not activate, just flag it.
-    if (app && app.masterKey && !app.activated) {
+    if (engine && engine.masterKey && !engine.activated) {
       await this.provisionService.activate()
     }
-    // Provision the app if it hasn't yet
+    // Provision the engine if it hasn't yet
     else {
       await this.provisionService.provision(true)
     }
 
     try {
       const keyring = this.configService.get('keyring', { infer: true })
-      const app = await this.appService.getAppOrThrow()
+      const engine = await this.engineService.getEngineOrThrow()
 
       const response: ProvisionResponse = {
-        appId: app.id,
-        adminApiKey: app.adminApiKey,
+        appId: engine.id,
+        adminApiKey: engine.adminApiKey,
         encryptionType: keyring.type
       }
 
       if (keyring.type === 'raw') {
         response.isMasterPasswordSet = Boolean(keyring.masterPassword)
-        response.isMasterKeySet = Boolean(app.masterKey)
+        response.isMasterKeySet = Boolean(engine.masterKey)
       }
 
       if (keyring.type === 'awskms') {

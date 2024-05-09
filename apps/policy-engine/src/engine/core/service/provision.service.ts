@@ -20,28 +20,36 @@ export class ProvisionService {
     private engineService: EngineService
   ) {}
 
-  async provision(): Promise<void> {
+  async provision(activate?: boolean): Promise<void> {
     const engine = await this.engineService.getEngine()
 
     const isFirstTime = engine === null
 
+    // IMPORTANT: The order of internal methods call matters.
     if (isFirstTime) {
-      this.logger.log('Start engine provision')
-
-      // IMPORTANT: The order of internal methods call matters.
-      await this.createEngine()
+      this.logger.log('Start app provision')
+      await this.createEngine(activate)
       await this.maybeSetupEncryption()
     } else {
-      this.logger.log('Skip engine provision')
+      this.logger.log('App already provisioned')
     }
   }
 
-  private async createEngine(): Promise<void> {
+  // Activate is just a boolean that lets you return the adminApiKey one time
+  // This enables you to provision the engine at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
+  async activate(): Promise<void> {
+    this.logger.log('Activate app')
+    const engine = await this.engineService.getEngineOrThrow()
+    await this.engineService.save({ ...engine, activated: true })
+  }
+
+  private async createEngine(activate?: boolean): Promise<void> {
     this.logger.log('Generate admin API key and save engine')
 
     await this.engineService.save({
       id: this.getEngineId(),
-      adminApiKey: randomBytes(20).toString('hex')
+      adminApiKey: randomBytes(20).toString('hex'),
+      activated: !!activate
     })
   }
 
@@ -50,7 +58,7 @@ export class ProvisionService {
     const engine = await this.engineService.getEngineOrThrow()
 
     if (engine.masterKey) {
-      return this.logger.log('Skip master key set up')
+      return this.logger.log('Skip master key set up because it already exists')
     }
 
     const keyring = this.configService.get('keyring')
