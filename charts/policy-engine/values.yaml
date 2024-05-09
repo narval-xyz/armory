@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine
   pullPolicy: IfNotPresent
-  tag: 76d089c
+  tag: 3e75f13
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -39,7 +39,7 @@ ingress:
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:728783560968:certificate/ab1729c2-8213-4ce2-b9e0-cbac3de2a459 # *.armory.narval.xyz certificate
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:728783560968:certificate/ab1729c2-8213-4ce2-b9e0-cbac3de2a459
     external-dns.alpha.kubernetes.io/hostname: policy-engine.armory.narval.xyz
   hosts:
     - host: policy-engine.armory.narval.xyz
