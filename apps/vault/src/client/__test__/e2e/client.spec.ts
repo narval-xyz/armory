@@ -55,7 +55,8 @@ describe('Client', () => {
     await appService.save({
       id: configService.get('app.id', { infer: true }),
       masterKey: 'unsafe-test-master-key',
-      adminApiKey
+      adminApiKey,
+      activated: true
     })
 
     await app.init()

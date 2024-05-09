@@ -23,7 +23,8 @@ describe(AdminApiKeyGuard.name, () => {
     const app = {
       adminApiKey,
       id: 'test-app-id',
-      masterKey: 'test-master-key'
+      masterKey: 'test-master-key',
+      activated: true
     }
 
     const serviceMock = mock<AppService>()

@@ -96,7 +96,8 @@ describe('Evaluation', () => {
     await engineService.save({
       id: configService.get('engine.id'),
       masterKey: 'unsafe-test-master-key',
-      adminApiKey
+      adminApiKey,
+      activated: true
     })
 
     await engineSignerConfigService.save({
