@@ -9,10 +9,24 @@ export const Action = {
   SIGN_RAW: 'signRaw',
   SIGN_MESSAGE: 'signMessage',
   SIGN_TYPED_DATA: 'signTypedData',
-  GRANT_PERMISSION: 'grantPermission',
+  GRANT_PERMISSION: 'grantPermission'
 } as const
 export type Action = (typeof Action)[keyof typeof Action]
 export const ActionSchema = z.nativeEnum(Action)
+
+export const Resource = {
+  VAULT: 'vault'
+} as const
+export type Resource = (typeof Resource)[keyof typeof Resource]
+export const ResourceSchema = z.nativeEnum(Resource)
+
+export const Permission = {
+  WALLET_IMPORT: 'wallet:import',
+  WALLET_CREATE: 'wallet:create',
+  WALLET_READ: 'wallet:read'
+} as const
+export type Permission = (typeof Permission)[keyof typeof Permission]
+export const PermissionSchema = z.nativeEnum(Permission)
 
 export const AccessList = z.array(
   z.object({
