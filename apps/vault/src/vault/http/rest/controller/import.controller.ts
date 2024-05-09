@@ -1,14 +1,16 @@
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
+import { Permissions } from 'apps/vault/src/shared/decorator/permissions.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
-import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
+import { PermissionsGuard } from '../../../../shared/guard/permissions.guard'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
 import { ImportPrivateKeyDto } from '../dto/import-private-key-dto'
 import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-dto'
 
 @Controller('/import')
-@UseGuards(ClientSecretGuard)
+@Permissions(['wallet:import'])
+@UseGuards(PermissionsGuard)
 export class ImportController {
   constructor(private importService: ImportService) {}
 

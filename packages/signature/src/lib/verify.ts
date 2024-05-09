@@ -32,7 +32,8 @@ export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): b
     ...(opts.subject ? ['sub'] : []),
     ...(opts.requestHash ? ['requestHash'] : []),
     ...(opts.data ? ['data'] : []),
-    ...(opts.requiredClaims || [])
+    ...(opts.requiredClaims || []),
+    ...(opts.access ? ['access'] : [])
   ]
   if (requiredClaims.length) {
     for (const claim of requiredClaims) {
@@ -122,6 +123,26 @@ export const checkDataHash = (payload: Payload, opts: JwtVerifyOptions): boolean
     const data = typeof opts.data === 'string' ? opts.data : hash(opts.data)
     if (!payload.data || data !== payload.data) {
       throw new JwtError({ message: 'Invalid data hash', context: { payload } })
+    }
+  }
+  return true
+}
+
+export const checkAccess = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+  if (opts.access) {
+    if (
+      !opts.access.length ||
+      !payload.access ||
+      !payload.access.length ||
+      !opts.access.every((oa) => {
+        const payloadAccess = payload.access?.find((pa) => pa.resource === oa.resource)
+        return (
+          payloadAccess &&
+          oa.permissions.every((p) => payloadAccess.permissions.includes(p))
+        )
+      })
+    ) {
+      throw new JwtError({ message: 'Invalid permissions', context: { payload } })
     }
   }
   return true
@@ -333,6 +354,8 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
   checkRequestHash(payload, opts)
 
   checkDataHash(payload, opts)
+
+  checkAccess(payload, opts)
 
   return {
     header,

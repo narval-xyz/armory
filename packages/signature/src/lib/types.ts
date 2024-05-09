@@ -225,7 +225,15 @@ export const Payload = z.intersection(
     azp: z.string().optional(),
     cnf: publicKeySchema.optional(),
     requestHash: z.string().optional(),
-    data: z.string().optional()
+    data: z.string().optional(),
+    access: z
+      .array(
+        z.object({
+          resource: z.string(),
+          permissions: z.array(z.string())
+        })
+      )
+      .optional()
   })
 )
 export type Payload = z.infer<typeof Payload>
@@ -288,6 +296,8 @@ export type JwtVerifyOptions = {
    * Hash of the data, or the data itself which will be hashed then compared
    */
   data?: Hex | object
+
+  access?: { resource: string; permissions: string[] }[]
 }
 
 export type JwsdVerifyOptions = {
