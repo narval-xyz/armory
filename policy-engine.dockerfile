@@ -3,6 +3,12 @@ FROM node:21 as build
 # Set the working directory
 WORKDIR /usr/src/app
 
+# Install the OPA binary, which we'll need to actually run evals
+RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.64.1/opa_linux_amd64_static && \
+    chmod 755 opa && \
+    mv opa /usr/local/bin/opa && \
+    opa version
+
 COPY package*.json ./
 COPY .npmrc ./
 
@@ -28,6 +34,7 @@ WORKDIR /usr/src/app
 # rather than installing it again, even though this includes devDependencies b/c it can use the cache to speed up builds unless deps change.
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/local/bin/opa /usr/local/bin/opa
 
 # Set the env variables that don't need to be changed outside this container.
 ENV NODE_ENV=production
