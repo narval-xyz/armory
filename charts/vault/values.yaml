@@ -16,8 +16,6 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 env:
-  PORT: 3011
-  NODE_ENV: production
   CORS: https://vault.armory.narval.xyz
   APP_UID: staging-vault-instance-1
   KEYRING_TYPE: raw
