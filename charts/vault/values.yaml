@@ -16,7 +16,6 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 env:
-  CORS: https://vault.armory.narval.xyz
   APP_UID: staging-vault-instance-1
   KEYRING_TYPE: raw
   BASE_URL: https://vault.armory.narval.xyz
