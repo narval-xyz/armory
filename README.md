@@ -95,3 +95,14 @@ This file is NOT in git, but it's necessary for the build
 1. Create a `.npmrc` file in the root of this project.
 2. Get the values from someone who has them.
 3. Now `npm install` should work.
+
+# Troubleshooting
+
+## Docker
+Common issues you might encounter w/ docker
+
+### DB URL in env variable fails when using `docker run`, but works when running outside docker
+If using `docker run --env-file .env ...`, the env file cannot include quotes around values. The quotes will be included in the value.
+
+### Localhost postgres url cannot connect
+Inside docker, localhost points to the container not your computer. Change `localhost` to `host.docker.internal` to reference your computer's localhost ip.
