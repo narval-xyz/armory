@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POLICY_ENGINE_DATABASE_URL")
+  url      = env("APP_DATABASE_URL")
 }
 
 model Engine {

@@ -39,7 +39,7 @@ export const load = (): Config => {
     cors: process.env.CORS ? process.env.CORS.split(',') : [],
     resourcePath: process.env.RESOURCE_PATH,
     database: {
-      url: process.env.POLICY_ENGINE_DATABASE_URL
+      url: process.env.APP_DATABASE_URL
     },
     engine: {
       id: process.env.ENGINE_UID,
