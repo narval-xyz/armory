@@ -14,10 +14,12 @@ import { signMessage } from '@wagmi/core'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { config } from '../_lib/config'
+import useStore from './useStore'
 
 const useAccountSignature = () => {
   const account = useAccount()
   const [jwk, setJwk] = useState<PublicKey>()
+  const { vaultUrl } = useStore()
 
   useEffect(() => {
     if (!account.address) return
@@ -45,7 +47,7 @@ const useAccountSignature = () => {
     return signature
   }
 
-  const signAccountJwsd = async (payload: any, accessToken: string) => {
+  const signAccountJwsd = async (payload: { request: Request }, accessToken: string) => {
     if (!jwk) return ''
 
     const jwsdHeader: JwsdHeader = {
@@ -53,7 +55,7 @@ const useAccountSignature = () => {
       kid: jwk.kid,
       typ: 'gnap-binding-jwsd',
       htm: 'POST',
-      uri: 'http://localhost:3011/sign',
+      uri: `${vaultUrl}/sign`,
       created: new Date().getTime(),
       ath: hexToBase64Url(hash(accessToken))
     }
