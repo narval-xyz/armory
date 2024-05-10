@@ -119,6 +119,7 @@ jobs:
 
   build:
     name: buildpush
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     # Only run if the Test jobs succeed
