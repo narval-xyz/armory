@@ -1,10 +1,6 @@
 'use client'
 
-import { faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
-import GreenCheckStatus from '../../_components/GreenCheckStatus'
-import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
@@ -12,14 +8,14 @@ import useVaultApi from '../../_hooks/useVaultApi'
 const VaultConfig = () => {
   const {
     vaultUrl,
-    setVaultUrl,
     vaultAdminApiKey,
-    setVaultAdminApiKey,
     vaultClientId,
-    setVaultClientId,
     vaultClientSecret,
-    setVaultClientSecret,
     engineClientSigner,
+    setVaultUrl,
+    setVaultAdminApiKey,
+    setVaultClientId,
+    setVaultClientSecret,
     setEngineClientSigner
   } = useStore()
 
@@ -35,24 +31,7 @@ const VaultConfig = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex items-center">
-        <div className="text-nv-2xl grow">Vault</div>
-        <div className="flex items-center gap-4">
-          <GreenCheckStatus isChecked={isOnboarded} label={isOnboarded ? 'Client Onboarded!' : 'Onboarding...'} />
-          <NarButton
-            label={isProcessing ? 'Processing...' : 'Add client'}
-            leftIcon={
-              isProcessing ? (
-                <FontAwesomeIcon icon={faSpinner} spin />
-              ) : (
-                <FontAwesomeIcon icon={faPlus} spin={isProcessing} />
-              )
-            }
-            onClick={onboard}
-            disabled={isProcessing}
-          />
-        </div>
-      </div>
+      <div className="text-nv-2xl">Vault</div>
       <div className="flex gap-20">
         <div className="flex flex-col gap-6 w-1/3">
           <NarInput label="Vault URL" value={vaultUrl} onChange={setVaultUrl} />

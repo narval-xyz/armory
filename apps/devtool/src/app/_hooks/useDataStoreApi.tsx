@@ -12,8 +12,10 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
+import useStore from './useStore'
 
 const useDataStoreApi = () => {
+  const { entityDataStoreUrl, policyDataStoreUrl } = useStore()
   const { jwk, signAccountJwt } = useAccountSignature()
 
   const [dataStore, setDataStore] = useState<{ entity: Entities; policy: Policy[] }>()
@@ -29,9 +31,14 @@ const useDataStoreApi = () => {
   }, [dataStore])
 
   const getDataStore = async () => {
-    const { data } = await axios.get<{ entity: EntityStore; policy: PolicyStore }>('/api/data-store')
+    const [{ data: entityData }, { data: policyData }] = await Promise.all([
+      axios.get<{ entity: EntityStore }>(entityDataStoreUrl),
+      axios.get<{ policy: PolicyStore }>(policyDataStoreUrl)
+    ])
 
-    setDataStore({ entity: data.entity.data, policy: data.policy.data })
+    const data = { entity: entityData.entity.data, policy: policyData.policy.data }
+
+    setDataStore(data)
 
     return data
   }

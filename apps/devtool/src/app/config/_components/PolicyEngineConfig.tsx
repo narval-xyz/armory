@@ -1,23 +1,20 @@
 'use client'
 
-import { faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
-import GreenCheckStatus from '../../_components/GreenCheckStatus'
-import NarButton from '../../_design-system/NarButton'
 import NarInput from '../../_design-system/NarInput'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
+import AddClientModal from './AddClientModal'
 
 const PolicyEngineConfig = () => {
   const {
     engineUrl,
-    setEngineUrl,
     engineAdminApiKey,
-    setEngineAdminApiKey,
     engineClientId,
     engineClientSecret,
     engineClientSigner,
+    setEngineUrl,
+    setEngineAdminApiKey,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner
@@ -36,21 +33,7 @@ const PolicyEngineConfig = () => {
     <div className="flex flex-col gap-10">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Policy Engine</div>
-        <div className="flex items-center gap-4">
-          <GreenCheckStatus isChecked={isOnboarded} label={isOnboarded ? 'Client Onboarded!' : 'Onboarding...'} />
-          <NarButton
-            label={isProcessing ? 'Processing...' : 'Add client'}
-            leftIcon={
-              isProcessing ? (
-                <FontAwesomeIcon icon={faSpinner} spin />
-              ) : (
-                <FontAwesomeIcon icon={faPlus} spin={isProcessing} />
-              )
-            }
-            onClick={onboard}
-            disabled={isProcessing}
-          />
-        </div>
+        <AddClientModal />
       </div>
       <div className="flex gap-20">
         <div className="flex flex-col gap-6 w-1/3">

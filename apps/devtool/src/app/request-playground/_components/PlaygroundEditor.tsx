@@ -12,13 +12,11 @@ import { Editor } from '@monaco-editor/react'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
-import useAccountSignature from '../../_hooks/useAccountSignature'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useVaultApi from '../../_hooks/useVaultApi'
 import { erc20, spendingLimits } from './request'
 
 const PlaygroundEditor = () => {
-  const { signAccountJwt } = useAccountSignature()
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
   const { errors: signatureErrors, signTransaction } = useVaultApi()
   const [codeEditor, setCodeEditor] = useState<string | undefined>()

@@ -7,10 +7,18 @@ import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
+export interface EngineClientData {
+  clientId: string
+  entityDataStoreUrl: string
+  entitySignatureUrl: string
+  entityPublicKey: string
+  policyDataStoreUrl: string
+  policySignatureUrl: string
+  policyPublicKey: string
+}
+
 const useEngineApi = () => {
   const {
-    engineUrl,
-    engineAdminApiKey,
     engineClientId,
     engineClientSecret,
     entityDataStoreUrl,
@@ -26,7 +34,7 @@ const useEngineApi = () => {
 
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async () => {
+  const onboardClient = async (engineUrl: string, engineAdminApiKey: string, {entityDataStoreUrl, entitySignatureUrl,  policyDataStoreUrl, policySignatureUrl}: EngineClientData) => {
     if (!engineAdminApiKey || !jwk) return
 
     setErrors(undefined)
