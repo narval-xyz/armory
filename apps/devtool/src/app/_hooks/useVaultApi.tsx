@@ -49,22 +49,22 @@ const useVaultApi = () => {
     }
   }
 
-  const importPrivateKey = async (privateKey: string) => {
-    if (!vaultClientId || !vaultClientSecret || !privateKey) return
+  const importPrivateKey = async (payload: { privateKey: string }, accessToken: string) => {
+    if (!vaultClientId || !accessToken) return
 
     setErrors(undefined)
 
     try {
-      const { data } = await axios.post<WalletEntity>(
-        `${vaultUrl}/import/private-key`,
-        { privateKey },
-        {
-          headers: {
-            'x-client-id': vaultClientId,
-            'x-client-secret': vaultClientSecret
-          }
+      const uri = `${vaultUrl}/import/private-key`
+      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
+
+      const { data } = await axios.post<WalletEntity>(uri, payload, {
+        headers: {
+          'x-client-id': vaultClientId,
+          'detached-jws': detachedJws,
+          authorization: `GNAP ${accessToken}`
         }
-      )
+      })
 
       return data
     } catch (error) {
@@ -73,14 +73,15 @@ const useVaultApi = () => {
   }
 
   const signTransaction = async (payload: { request: Request }, accessToken: string) => {
-    if (!vaultClientId || !vaultClientSecret || !accessToken) return
+    if (!vaultClientId || !accessToken) return
 
     setErrors(undefined)
 
     try {
-      const detachedJws = await signAccountJwsd(payload, accessToken)
+      const uri = `${vaultUrl}/sign`
+      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
 
-      const { data } = await axios.post(`${vaultUrl}/sign`, payload, {
+      const { data } = await axios.post(uri, payload, {
         headers: {
           'x-client-id': vaultClientId,
           'detached-jws': detachedJws,
