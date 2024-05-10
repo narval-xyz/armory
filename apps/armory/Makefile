@@ -59,11 +59,6 @@ armory/db/setup:
 			--force
 	make armory/db/seed
 
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Armory test database${TERM_NO_COLOR}"
-	@echo ""
-	make armory/test/db/setup
-
 armory/db/create-migration:
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
 		prisma migrate dev \
@@ -82,6 +77,9 @@ armory/db/seed:
 # === Testing ===
 
 armory/test/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Armory test database${TERM_NO_COLOR}"
+	@echo ""
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env.test --override -- \
 		prisma migrate reset \
 		--schema ${ARMORY_DATABASE_SCHEMA} \

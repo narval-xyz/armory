@@ -19,7 +19,7 @@ describe(AdminApiKeyGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockEngineService = (adminApiKey: string = 'test-admin-api-key') => {
+  const mockEngineService = (adminApiKey = 'test-admin-api-key') => {
     const engine = {
       adminApiKey,
       id: 'test-engine-id',

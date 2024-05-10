@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/transaction-engine-module/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
@@ -16,13 +17,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "packages/transaction-engine-module/**/*.ts",
-          "packages/transaction-engine-module/package.json"
-        ]
+        "args": ["./**/*.ts", "./package.json"]
       }
     },
     "test": {
@@ -32,6 +28,5 @@
         "jestConfig": "packages/transaction-engine-module/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

@@ -79,6 +79,28 @@
         "startTargetName": "start",
         "serveStaticTargetName": "serve-static"
       }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint",
+        "extensions": ["ts", "tsx", "js", "jsx", "html", "vue"]
+      },
+      "include": [
+        "apps/armory/**/*",
+        "apps/policy-engine/**/*",
+        "apps/vault/**/*",
+        "examples/armory-sdk-nodejs/**/*",
+        "packages/armory-sdk/**/*",
+        "packages/config-module/**/*",
+        "packages/encryption-module/**/*",
+        "packages/nestjs-shared/**/*",
+        "packages/policy-engine-shared/**/*",
+        "packages/signature/**/*",
+        "packages/transaction-engine-module/**/*",
+        "packages/transaction-request-intent/**/*"
+      ]
     }
-  ]
+  ],
+  "useInferencePlugins": false
 }

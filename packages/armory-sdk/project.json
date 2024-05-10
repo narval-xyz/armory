@@ -3,12 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/armory-sdk/src",
   "projectType": "library",
+  "tags": ["package"],
   "targets": {
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/armory-sdk/**/*.ts"]
+        "args": ["./**/*.ts"]
       }
     },
     "test:type": {
@@ -25,6 +24,5 @@
         "verbose": true
       }
     }
-  },
-  "tags": ["package"]
+  }
 }

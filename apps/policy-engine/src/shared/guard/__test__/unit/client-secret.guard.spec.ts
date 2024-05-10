@@ -26,7 +26,7 @@ describe(ClientSecretGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockService = (clientSecret: string = 'client-a-secret-key') => {
+  const mockService = (clientSecret = 'client-a-secret-key') => {
     const dataStoreSource: HttpSource = {
       type: SourceType.HTTP,
       url: 'http://9.9.9.9:99/test-data-store'

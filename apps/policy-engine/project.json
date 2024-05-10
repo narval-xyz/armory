@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/policy-engine/src",
   "projectType": "application",
+  "tags": ["type:application"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -15,7 +16,6 @@
         "main": "apps/policy-engine/src/main.ts",
         "assets": ["apps/policy-engine/src/resource"],
         "tsConfig": "apps/policy-engine/tsconfig.app.json",
-        "isolatedConfig": true,
         "webpackConfig": "apps/policy-engine/webpack.config.js"
       },
       "configurations": {
@@ -39,10 +39,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/policy-engine/**/*.ts"]
+        "args": ["./**/*.ts"]
       }
     },
     "test:type": {
@@ -77,6 +75,5 @@
         "runInBand": true
       }
     }
-  },
-  "tags": ["type:application"]
+  }
 }

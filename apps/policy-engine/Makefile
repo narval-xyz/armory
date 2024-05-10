@@ -68,11 +68,6 @@ policy-engine/db/setup:
 			--force
 	make policy-engine/db/seed
 
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Engine test database${TERM_NO_COLOR}"
-	@echo ""
-	make policy-engine/test/db/setup
-
 policy-engine/db/migrate/deploy:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
 		prisma migrate deploy \
@@ -95,6 +90,9 @@ policy-engine/db/seed:
 # === Testing ===
 
 policy-engine/test/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️  Setting up Engine test database${TERM_NO_COLOR}"
+	@echo ""
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env.test --override -- \
 		prisma migrate reset \
 		--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \

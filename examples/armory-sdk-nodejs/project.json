@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/armory-sdk-nodejs/src",
   "projectType": "application",
+  "tags": ["type:application"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -37,10 +38,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["examples/armory-sdk-nodejs/**/*.ts"]
+        "args": ["./**/*.ts"]
       }
     },
     "test:type": {
@@ -75,6 +74,5 @@
         "runInBand": true
       }
     }
-  },
-  "tags": ["type:application"]
+  }
 }

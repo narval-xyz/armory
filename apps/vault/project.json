@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/vault/src",
   "projectType": "application",
+  "tags": ["type:application"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -14,7 +15,6 @@
         "outputPath": "dist/apps/vault",
         "main": "apps/vault/src/main.ts",
         "tsConfig": "apps/vault/tsconfig.app.json",
-        "isolatedConfig": true,
         "webpackConfig": "apps/vault/webpack.config.js"
       },
       "configurations": {
@@ -38,10 +38,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/vault/**/*.ts"]
+        "args": ["./**/*.ts"]
       }
     },
     "test:type": {
@@ -76,6 +74,5 @@
         "runInBand": true
       }
     }
-  },
-  "tags": ["type:application"]
+  }
 }

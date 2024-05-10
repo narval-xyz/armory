@@ -94,7 +94,7 @@ export class AuthorizationRequestService {
     return this.evaluate(authzRequest)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line
   async complete(id: string) {}
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
