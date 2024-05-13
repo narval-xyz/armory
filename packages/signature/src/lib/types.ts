@@ -296,7 +296,7 @@ export type JwtVerifyOptions = {
    */
   data?: Hex | object
 
-  access?: { resource: string; permissions: string[] }[]
+  access?: { resource: string; permissions?: string[] }[]
 }
 
 export type JwsdVerifyOptions = {

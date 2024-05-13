@@ -1,3 +1,4 @@
+import { Permission } from '@narval/armory-sdk'
 import {
   AccountClassification,
   AccountType,
@@ -5,7 +6,6 @@ import {
   Address,
   CredentialEntity,
   Feed,
-  Permission,
   SerializedTransactionRequest,
   UserRole
 } from '@narval/policy-engine-shared'

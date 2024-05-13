@@ -1,4 +1,5 @@
-import { Action, FIXTURE, Permission, Resource } from '@narval/policy-engine-shared'
+import { Permission, Resource } from '@narval/armory-sdk'
+import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { Alg, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { getTime } from 'date-fns'
 import { v4 as uuid } from 'uuid'

@@ -1,4 +1,4 @@
-import { Permission } from '@narval/policy-engine-shared'
+import { Permission } from '@narval/armory-sdk'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'

@@ -799,16 +799,16 @@ describe('checkDataHash', () => {
 })
 
 describe('checkAccess', () => {
-  it('returns true when the access is valid', () => {
-    const payload: Payload = {
-      access: [
-        {
-          resource: 'vault',
-          permissions: ['wallet:create', 'wallet:read']
-        }
-      ]
-    }
+  const payload: Payload = {
+    access: [
+      {
+        resource: 'vault',
+        permissions: ['wallet:create', 'wallet:read']
+      }
+    ]
+  }
 
+  it('returns true when the access is valid', () => {
     expect(
       checkAccess(payload, {
         access: [
@@ -830,5 +830,60 @@ describe('checkAccess', () => {
         ]
       })
     ).toEqual(true)
+  })
+
+  it('supports undefined for permissions and this acts as a wildcard', () => {
+    expect(
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault'
+          }
+        ]
+      })
+    ).toEqual(true)
+  })
+
+  it('throws JwtError when resource is not valid', () => {
+    const payload: Payload = {
+      access: []
+    }
+
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:import']
+          }
+        ]
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('throws JwtError when permissions are not valid', () => {
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:import']
+          }
+        ]
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('throws JwtError when permissions is an empty array', () => {
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: []
+          }
+        ]
+      })
+    ).toThrow(JwtError)
   })
 })

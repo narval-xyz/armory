@@ -1,3 +1,4 @@
+import { PermissionSchema } from '@narval/armory-sdk'
 import { fromHex } from 'viem'
 import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
@@ -13,20 +14,6 @@ export const Action = {
 } as const
 export type Action = (typeof Action)[keyof typeof Action]
 export const ActionSchema = z.nativeEnum(Action)
-
-export const Resource = {
-  VAULT: 'vault'
-} as const
-export type Resource = (typeof Resource)[keyof typeof Resource]
-export const ResourceSchema = z.nativeEnum(Resource)
-
-export const Permission = {
-  WALLET_IMPORT: 'wallet:import',
-  WALLET_CREATE: 'wallet:create',
-  WALLET_READ: 'wallet:read'
-} as const
-export type Permission = (typeof Permission)[keyof typeof Permission]
-export const PermissionSchema = z.nativeEnum(Permission)
 
 export const AccessList = z.array(
   z.object({

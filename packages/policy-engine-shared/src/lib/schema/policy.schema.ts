@@ -1,6 +1,7 @@
+import { Permission, Resource } from '@narval/armory-sdk'
 import { Alg } from '@narval/signature'
 import { z } from 'zod'
-import { Action, Permission, Resource } from '../type/action.type'
+import { Action } from '../type/action.type'
 import { EntityType, FiatCurrency, IdentityOperators, ValueOperators } from '../type/domain.type'
 import { AccountType, UserRole } from '../type/entity.type'
 import { AccountId, AssetId } from '../util/caip.util'

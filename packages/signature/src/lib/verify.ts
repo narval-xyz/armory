@@ -134,10 +134,16 @@ export const checkAccess = (payload: Payload, opts: JwtVerifyOptions): boolean =
       const payloadAccess = payload.access?.find(
         ({ resource }) => resource.toLowerCase() === access.resource.toLowerCase()
       )
+      if (!payloadAccess) {
+        throw new JwtError({ message: 'Invalid permissions', context: { payload, access } })
+      }
+      if (!access.permissions) {
+        continue
+      }
       const missingPermissions = access.permissions.filter(
-        (permission) => !payloadAccess?.permissions.includes(permission)
+        (permission) => !payloadAccess.permissions.includes(permission)
       )
-      if (missingPermissions.length) {
+      if (!access.permissions.length || missingPermissions.length) {
         throw new JwtError({ message: 'Invalid permissions', context: { payload, missingPermissions } })
       }
     }
