@@ -22,7 +22,8 @@ spec:
         - name: {{ .Values.imagePullSecret }}
       containers:
         - name: "{{ .Chart.Name }}-db-migrator"
-          image: "{{ .Values.database.migrator.repository }}:{{ .Values.database.migrator.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/bin/bash", "-c", "./db-migrator.sh"]
           env:
             - name: APP_DATABASE_USERNAME
               valueFrom:

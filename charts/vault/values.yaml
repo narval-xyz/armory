@@ -66,9 +66,6 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 database:
-  migrator:
-    repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator
-    tag: latest
   username:
     secretKeyRef:
       name: db-master-credentials
