@@ -1,3 +1,4 @@
+import { hashSecret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { EngineService } from '../../engine/core/service/engine.service'
 import { REQUEST_HEADER_API_KEY } from '../../policy-engine.constant'
@@ -20,6 +21,6 @@ export class AdminApiKeyGuard implements CanActivate {
 
     const engine = await this.engineService.getEngineOrThrow()
 
-    return engine.adminApiKey === apiKey
+    return engine.adminApiKey === hashSecret(apiKey)
   }
 }
