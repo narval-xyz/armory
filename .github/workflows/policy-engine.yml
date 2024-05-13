@@ -12,8 +12,8 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
-      - policy-engine.dockerfile
-      - charts/policy-engine/**
+      - deploy/policy-engine.dockerfile
+      - deploy/charts/policy-engine/**
 
 jobs:
   test:

@@ -167,7 +167,7 @@ policy-engine/rego/test/watch:
 policy-engine/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		-f policy-engine.dockerfile \
+		-f deploy/policy-engine.dockerfile \
 		-t armory/policy-engine:latest \
 		--cache-from armory/policy-engine:latest \
 		. --load
