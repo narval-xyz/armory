@@ -10,12 +10,9 @@ import { EngineService } from '../../engine.service'
 
 describe(EngineService.name, () => {
   let service: EngineService
-  let inMemoryKeyValueRepository: InMemoryKeyValueRepository
   let configService: ConfigService<Config>
 
   beforeEach(async () => {
-    inMemoryKeyValueRepository = new InMemoryKeyValueRepository()
-
     const module = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ load: [load] })],
       providers: [
@@ -24,7 +21,7 @@ describe(EngineService.name, () => {
         KeyValueService,
         {
           provide: KeyValueRepository,
-          useValue: inMemoryKeyValueRepository
+          useClass: InMemoryKeyValueRepository
         }
       ]
     }).compile()
@@ -34,21 +31,30 @@ describe(EngineService.name, () => {
   })
 
   describe('save', () => {
-    it('hashes the admin api key before save', async () => {
-      const id = 'test-engien'
-      const adminApiKey = 'test-admin-api-key'
+    const id = 'test-engine'
 
+    const adminApiKey = 'test-admin-api-key'
+
+    const engine = {
+      id,
+      adminApiKey,
+      activated: true
+    }
+
+    it('returns the given secret key', async () => {
+      const actualEngine = await service.save(engine)
+
+      expect(actualEngine.adminApiKey).toEqual(engine.adminApiKey)
+    })
+
+    it('hashes the admin api key', async () => {
       jest.spyOn(configService, 'get').mockReturnValue(id)
 
-      await service.save({
-        id,
-        adminApiKey,
-        activated: true
-      })
+      await service.save(engine)
 
-      const engine = await service.getEngine()
+      const actualEngine = await service.getEngine()
 
-      expect(engine?.adminApiKey).toEqual(hashSecret(adminApiKey))
+      expect(actualEngine?.adminApiKey).toEqual(hashSecret(adminApiKey))
     })
   })
 })

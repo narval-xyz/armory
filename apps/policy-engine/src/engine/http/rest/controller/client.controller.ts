@@ -1,6 +1,6 @@
+import { generateSecret } from '@narval/nestjs-shared'
 import { Alg, privateKeyToHex, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
-import { randomBytes } from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -18,9 +18,9 @@ export class ClientController {
   async create(@Body() body: CreateClientDto) {
     const now = new Date()
 
-    const client = await this.clientService.onboard({
+    const client = await this.clientService.save({
       clientId: body.clientId || uuid(),
-      clientSecret: randomBytes(42).toString('hex'),
+      clientSecret: generateSecret(),
       dataStore: {
         entity: body.entityDataStore,
         policy: body.policyDataStore

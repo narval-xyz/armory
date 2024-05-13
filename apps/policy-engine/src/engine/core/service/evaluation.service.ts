@@ -15,7 +15,7 @@ export class EvaluationService {
   ) {}
 
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
-    const client = await this.clientService.findByClientId(clientId)
+    const client = await this.clientService.findById(clientId)
 
     if (!client) {
       throw new ApplicationException({

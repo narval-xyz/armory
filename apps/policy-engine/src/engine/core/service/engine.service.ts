@@ -34,10 +34,12 @@ export class EngineService {
   }
 
   async save(engine: Engine): Promise<Engine> {
-    return this.engineRepository.save({
+    await this.engineRepository.save({
       ...engine,
       adminApiKey: hashSecret(engine.adminApiKey)
     })
+
+    return engine
   }
 
   private getId(): string {
