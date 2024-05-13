@@ -1,3 +1,4 @@
+import { Permission } from '@narval/policy-engine-shared'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'
@@ -9,7 +10,7 @@ import { ImportPrivateKeyDto } from '../dto/import-private-key-dto'
 import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-dto'
 
 @Controller('/import')
-@Permissions(['wallet:import'])
+@Permissions([Permission.WALLET_IMPORT])
 @UseGuards(AuthorizationGuard)
 export class ImportController {
   constructor(private importService: ImportService) {}

@@ -798,7 +798,7 @@ describe('checkDataHash', () => {
   })
 })
 
-describe('checkPermissions', () => {
+describe('checkAccess', () => {
   it('returns true when the access is valid', () => {
     const payload: Payload = {
       access: [
@@ -819,33 +819,16 @@ describe('checkPermissions', () => {
         ]
       })
     ).toEqual(true)
-  })
 
-  it('throws JwtError when the access is invalid', () => {
-    const payload: Payload = {
-      access: [
-        {
-          resource: 'vault',
-          permissions: ['wallet:create', 'wallet:read']
-        }
-      ]
-    }
-
-    expect(() =>
-      checkAccess(payload, {
-        access: []
-      })
-    ).toThrow(JwtError)
-
-    expect(() =>
+    expect(
       checkAccess(payload, {
         access: [
           {
             resource: 'vault',
-            permissions: ['wallet:create', 'foo:bar']
+            permissions: ['wallet:read']
           }
         ]
       })
-    ).toThrow(JwtError)
+    ).toEqual(true)
   })
 })

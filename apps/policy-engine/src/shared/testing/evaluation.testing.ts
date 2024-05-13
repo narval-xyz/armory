@@ -1,4 +1,12 @@
-import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
+import {
+  Action,
+  EvaluationRequest,
+  FIXTURE,
+  Permission,
+  Request,
+  Resource,
+  TransactionRequest
+} from '@narval/policy-engine-shared'
 import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { randomBytes } from 'crypto'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
@@ -145,6 +153,23 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
         contents: "Dear Bob, today we're going to the moon"
       }
     }
+  }
+
+  const { aliceSignature, bobSignature, carolSignature } = await sign(request)
+
+  return {
+    authentication: aliceSignature,
+    request,
+    approvals: [bobSignature, carolSignature]
+  }
+}
+
+export const generateGrantPermissionRequest = async (): Promise<EvaluationRequest> => {
+  const request: Request = {
+    action: Action.GRANT_PERMISSION,
+    nonce: uuid(),
+    resourceId: Resource.VAULT,
+    permissions: [Permission.WALLET_CREATE, Permission.WALLET_READ, Permission.WALLET_IMPORT]
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)

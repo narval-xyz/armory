@@ -130,16 +130,16 @@ export const checkDataHash = (payload: Payload, opts: JwtVerifyOptions): boolean
 
 export const checkAccess = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.access) {
-    if (
-      !opts.access.length ||
-      !payload.access ||
-      !payload.access.length ||
-      !opts.access.every((oa) => {
-        const payloadAccess = payload.access?.find((pa) => pa.resource === oa.resource)
-        return payloadAccess && oa.permissions.every((p) => payloadAccess.permissions.includes(p))
-      })
-    ) {
-      throw new JwtError({ message: 'Invalid permissions', context: { payload } })
+    for (const access of opts.access) {
+      const payloadAccess = payload.access?.find(
+        ({ resource }) => resource.toLowerCase() === access.resource.toLowerCase()
+      )
+      const missingPermissions = access.permissions.filter(
+        (permission) => !payloadAccess?.permissions.includes(permission)
+      )
+      if (missingPermissions.length) {
+        throw new JwtError({ message: 'Invalid permissions', context: { payload, missingPermissions } })
+      }
     }
   }
   return true

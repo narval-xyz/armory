@@ -2,6 +2,7 @@ import {
   Action,
   EvaluationRequest,
   FIXTURE,
+  GrantPermissionAction,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
@@ -9,6 +10,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import {
+  generateGrantPermissionRequest,
   generateSignMessageRequest,
   generateSignRawRequest,
   generateSignTransactionRequest,
@@ -199,6 +201,46 @@ describe('toInput', () => {
       const input = toInput({ evaluation, principal, approvals })
 
       expect(input.approvals).toEqual(approvals)
+    })
+  })
+
+  describe(`when action is ${Action.GRANT_PERMISSION}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateGrantPermissionRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.GRANT_PERMISSION)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as GrantPermissionAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+
+    it('maps permissions', async () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as GrantPermissionAction
+
+      expect(input.permissions).toEqual(request.permissions)
     })
   })
 })
