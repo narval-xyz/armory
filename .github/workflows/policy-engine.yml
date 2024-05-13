@@ -156,7 +156,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./policy-engine.dockerfile
+          file: ./deploy/policy-engine.dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/policy-engine:${{ env.sha7 }}
