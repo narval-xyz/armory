@@ -1,4 +1,5 @@
 import {
+  Action,
   ApprovalRequirement,
   CredentialEntity,
   Decision,
@@ -130,7 +131,15 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
         accessToken: {
           value: await this.sign({
             principalCredential,
-            message
+            message,
+            ...(evaluation.request.action === Action.GRANT_PERMISSION && {
+              access: [
+                {
+                  resource: evaluation.request.resourceId,
+                  permissions: evaluation.request.permissions
+                }
+              ]
+            })
           })
         }
       }
@@ -265,7 +274,16 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
   }
 
-  private async sign(params: { principalCredential: CredentialEntity; message: string }): Promise<JwtString> {
+  private async sign(params: {
+    principalCredential: CredentialEntity
+    message: string
+    access?: [
+      {
+        resource: string
+        permissions: string[]
+      }
+    ]
+  }): Promise<JwtString> {
     const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
@@ -279,7 +297,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       iss: 'https://armory.narval.xyz',
       // aud: TODO
       // jti: TODO
-      cnf: principalJwk
+      cnf: principalJwk,
+      ...(params.access && { access: params.access })
     }
 
     return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })

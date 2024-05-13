@@ -1,14 +1,17 @@
+import { Permission } from '@narval/armory-sdk'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { Permissions } from '../../../../shared/decorator/permissions.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
-import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
+import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
 import { ImportPrivateKeyDto } from '../dto/import-private-key-dto'
 import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-dto'
 
 @Controller('/import')
-@UseGuards(ClientSecretGuard)
+@Permissions([Permission.WALLET_IMPORT])
+@UseGuards(AuthorizationGuard)
 export class ImportController {
   constructor(private importService: ImportService) {}
 

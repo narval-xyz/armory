@@ -2,10 +2,13 @@ package main
 
 import future.keywords.in
 
-resource = data.entities.wallets[input.resource.uid]
+resource = result {
+	input.action in {actions.signTransaction, actions.signRaw, actions.signMessage, actions.signTypedData}
+	result = data.entities.wallets[input.resource.uid]
+}
 
 checkResourceIntegrity {
-	checkAction({"signTransaction"})
+	checkAction({actions.signTransaction})
 	transactionRequestFromAddress = input.transactionRequest.from
 	resourceAddress = extractAddressFromCaip10(input.resource.uid)
 	intentFromAddress = extractAddressFromCaip10(input.intent.from)
@@ -41,3 +44,12 @@ extractAddressFromCaip10(caip10) = result {
 	arr = split(caip10, ":")
 	result = arr[count(arr) - 1]
 }
+
+# Grant Permissions
+
+resource = result {
+	input.action in {actions.grantPermission}
+	result = input.resource
+}
+
+checkResource(values) = resource.uid in values

@@ -29,6 +29,7 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { getEntityStore, getPolicyStore } from '../../../shared/testing/data-store.testing'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import {
+  generateGrantPermissionRequest,
   generateSignMessageRequest,
   generateSignRawRequest,
   generateSignTransactionRequest,
@@ -186,6 +187,10 @@ describe('Evaluation', () => {
       {
         action: Action.SIGN_RAW,
         getPayload: () => generateSignRawRequest()
+      },
+      {
+        action: Action.GRANT_PERMISSION,
+        getPayload: () => generateGrantPermissionRequest()
       }
     ]
 
@@ -253,6 +258,12 @@ describe('Evaluation', () => {
           expect(status).toEqual(HttpStatus.OK)
         })
       })
+    })
+
+    it('has a use case for every supported action', () => {
+      for (const supportedAction of Object.values(Action)) {
+        expect(useCases.find(({ action }) => supportedAction === action)).not.toEqual(undefined)
+      }
     })
   })
 })
