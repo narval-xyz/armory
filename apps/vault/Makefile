@@ -148,13 +148,5 @@ vault/docker/push:
 vault/docker/run:
 	docker run --env-file ./apps/vault/.env -p 3011:3011 armory/vault:latest
 
-vault/migrator/docker/build:
-	docker buildx build \
-		--platform linux/amd64 \
-		-f vault-db-migrator.dockerfile \
-		-t armory/vault-db-migrator:latest \
-		. --load
-
-vault/migrator/docker/push:
-	docker tag armory/vault-db-migrator:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator:latest
-	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator:latest
+vault/docker/migrate:
+	docker run -it --rm --env-file ./apps/vault/.env armory/vault:latest /bin/bash ./db-migrator.sh
