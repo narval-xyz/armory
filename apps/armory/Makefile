@@ -24,6 +24,9 @@ armory/build/script:
 	npx tsc --project ${ARMORY_PROJECT_DIR}/tsconfig.app.json
 	npx tsc-alias --project ${ARMORY_PROJECT_DIR}/tsconfig.app.json
 
+armory/build:
+	npx nx build ${ARMORY_PROJECT_NAME}
+
 # == Code format ==
 
 armory/format:
@@ -63,6 +66,12 @@ armory/db/setup:
 	@echo "${TERM_GREEN}🛠️  Setting up Armory test database${TERM_NO_COLOR}"
 	@echo ""
 	make armory/test/db/setup
+
+armory/db/migrate/deploy:
+	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
+		prisma migrate deploy \
+			--schema ${ARMORY_DATABASE_SCHEMA}
+
 
 armory/db/create-migration:
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
@@ -123,3 +132,22 @@ armory/test:
 armory/price/generate-coin-gecko-asset-id-index:
 	make armory/build/script
 	node dist/out-tsc/${ARMORY_PROJECT_DIR}/src/price/script/generate-coin-gecko-asset-id-index.script.js
+
+# === DOCKER ===
+armory/docker/build:
+	docker buildx build \
+		--platform linux/amd64 \
+		-f deploy/armory.dockerfile \
+		-t armory/armory:latest \
+		--cache-from armory/armory:latest \
+		. --load
+
+armory/docker/push:
+	docker tag armory/armory:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory:latest
+	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory:latest
+
+armory/docker/run:
+	docker run --env-file ./apps/armory/.env -p 3010:3010 armory/armory:latest
+
+armory/docker/migrate:
+	docker run -it --rm --env-file ./apps/armory/.env armory/armory:latest /bin/bash ./db-migrator.sh
