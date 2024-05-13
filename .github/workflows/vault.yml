@@ -144,7 +144,7 @@ jobs:
       - name: Update Image Version in the worker HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@master
         with:
-          valueFile: 'charts/vault/values.yaml'
+          valueFile: 'deploy/charts/vault/values.yaml'
           propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
           branch: main
