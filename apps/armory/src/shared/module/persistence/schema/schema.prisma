@@ -20,14 +20,15 @@ model Client {
   policyPublicKey Json     @map("policy_public_key")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
-  Engine          Engine[]
+
+  engines         Engine[]
 
   @@map("client")
 }
 
 model Engine {
   id           String   @id @default(uuid()) @db.VarChar(255)
-  clientId     String   @map("client_id") // TODO @sam: this will be renamed to client_id in a future PR
+  clientId     String   @map("client_id")
   clientSecret String   @map("client_secret")
   publicKey    Json     @map("pub_key")
   url          String
@@ -126,14 +127,16 @@ model Feed {
   source    String
   sig       String?
   alg       String?
-  pubKey    String?
+  pubKey    String?  @map("pub_key")
   data      Json
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("feed")
 }
 
+//
 // Data Store
+//
 
 model EntityDataStore {
   id        String   @id @default(uuid()) @db.VarChar(255)
