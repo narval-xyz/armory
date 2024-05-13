@@ -4,7 +4,7 @@ import { useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
-import AddClientModal from './AddClientModal'
+import AddEngineClientModal from './AddEngineClientModal'
 
 const PolicyEngineConfig = () => {
   const {
@@ -33,7 +33,7 @@ const PolicyEngineConfig = () => {
     <div className="flex flex-col gap-10">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Policy Engine</div>
-        <AddClientModal />
+        <AddEngineClientModal />
       </div>
       <div className="flex gap-20">
         <div className="flex flex-col gap-6 w-1/3">

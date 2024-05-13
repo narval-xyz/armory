@@ -4,6 +4,7 @@ import { useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
+import AddVaultClientModal from './AddVaultClientModal'
 
 const VaultConfig = () => {
   const {
@@ -31,7 +32,10 @@ const VaultConfig = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="text-nv-2xl">Vault</div>
+      <div className="flex items-center">
+        <div className="text-nv-2xl grow">Vault</div>
+        <AddVaultClientModal />
+      </div>
       <div className="flex gap-20">
         <div className="flex flex-col gap-6 w-1/3">
           <NarInput label="Vault URL" value={vaultUrl} onChange={setVaultUrl} />

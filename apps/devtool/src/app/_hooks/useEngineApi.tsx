@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
-import useStore from './useStore'
 
 export interface EngineClientData {
   clientId: string
@@ -18,24 +17,21 @@ export interface EngineClientData {
 }
 
 const useEngineApi = () => {
-  const {
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    policyDataStoreUrl,
-    setEngineClientId,
-    setEngineClientSecret,
-    setEngineClientSigner
-  } = useStore()
-
-  const { jwk, signAccountJwt } = useAccountSignature()
+  const { signAccountJwt } = useAccountSignature()
   const [isOnboarded, setIsOnboarded] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
 
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async (engineUrl: string, engineAdminApiKey: string, {entityDataStoreUrl, entitySignatureUrl,  policyDataStoreUrl, policySignatureUrl}: EngineClientData) => {
-    if (!engineAdminApiKey || !jwk) return
+  const onboardClient = async (engineUrl: string, engineAdminApiKey: string, engineClientData: EngineClientData) => {
+    const {
+      entityDataStoreUrl,
+      entitySignatureUrl,
+      entityPublicKey,
+      policyDataStoreUrl,
+      policySignatureUrl,
+      policyPublicKey
+    } = engineClientData
 
     setErrors(undefined)
 
@@ -49,21 +45,21 @@ const useEngineApi = () => {
               url: entityDataStoreUrl
             },
             signature: {
-              type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl
+              type: getUrlProtocol(entitySignatureUrl),
+              url: entitySignatureUrl
             },
-            keys: [jwk]
+            keys: [entityPublicKey]
           },
           policyDataStore: {
             data: {
               type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
+              url: policySignatureUrl
             },
             signature: {
               type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
+              url: policySignatureUrl
             },
-            keys: [jwk]
+            keys: [policyPublicKey]
           }
         },
         {
@@ -73,9 +69,9 @@ const useEngineApi = () => {
         }
       )
 
-      setEngineClientId(client.clientId)
-      setEngineClientSecret(client.clientSecret)
-      setEngineClientSigner(JSON.stringify(client.signer.publicKey))
+      // setEngineClientId(client.clientId)
+      // setEngineClientSecret(client.clientSecret)
+      // setEngineClientSigner(JSON.stringify(client.signer.publicKey))
 
       setIsOnboarded(true)
       setTimeout(() => setIsOnboarded(false), 5000)
@@ -84,9 +80,7 @@ const useEngineApi = () => {
     }
   }
 
-  const syncEngine = async () => {
-    if (!engineClientId || !engineClientSecret) return
-
+  const syncEngine = async (engineUrl: string, engineClientId: string, engineClientSecret: string) => {
     setErrors(undefined)
 
     try {
@@ -104,12 +98,7 @@ const useEngineApi = () => {
     }
   }
 
-  const evaluateRequest = async (evaluationRequest: EvaluationRequest | undefined) => {
-    if (!engineClientId || !engineClientSecret || !evaluationRequest) {
-      setErrors('Missing engine client configuration')
-      return
-    }
-
+  const evaluateRequest = async (engineUrl: string, engineClientId: string, evaluationRequest: EvaluationRequest) => {
     setErrors(undefined)
 
     try {
@@ -128,8 +117,7 @@ const useEngineApi = () => {
         { ...evaluationRequest, authentication },
         {
           headers: {
-            'x-client-id': engineClientId,
-            'x-client-secret': engineClientSecret
+            'x-client-id': engineClientId
           }
         }
       )

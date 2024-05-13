@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
@@ -44,7 +44,7 @@ const initVaultClientForm: VaultClientData = {
   maxTokenAge: 60
 }
 
-const AddClientModal: FC = () => {
+const AddVaultClientModal = () => {
   const {
     engineUrl,
     engineAdminApiKey,
@@ -187,4 +187,4 @@ const AddClientModal: FC = () => {
   )
 }
 
-export default AddClientModal
+export default AddVaultClientModal
