@@ -133,7 +133,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./vault.dockerfile
+          file: ./deploy/vault.dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
