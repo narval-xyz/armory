@@ -4,4 +4,4 @@ dist/
 node_modules/*
 dist/*
 .nx/cache/*
-charts/*
+deploy/charts/*

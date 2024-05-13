@@ -12,8 +12,8 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
-      - vault.dockerfile
-      - charts/vault/**
+      - deploy/vault.dockerfile
+      - deploy/charts/vault/**
 
 jobs:
   test:
