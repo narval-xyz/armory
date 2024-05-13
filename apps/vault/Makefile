@@ -135,7 +135,6 @@ vault/cli:
 vault/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		--secret id=npmrc,src=./.npmrc \
 		-f vault.dockerfile \
 		-t armory/vault:latest \
 		--cache-from armory/vault:latest \

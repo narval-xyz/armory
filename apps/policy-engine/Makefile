@@ -179,22 +179,5 @@ policy-engine/docker/push:
 policy-engine/docker/run:
 	docker run --env-file ./apps/policy-engine/.env -p 3010:3010 armory/policy-engine:latest
 
-policy-engine/migrator/docker/build:
-	docker buildx build \
-		--platform linux/amd64 \
-		-f policy-engine-db-migrator.dockerfile \
-		-t armory/policy-engine-db-migrator:latest \
-		. --load
-
-policy-engine/migrator/docker/push:
-	docker tag armory/policy-engine-db-migrator:latest 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine-db-migrator:latest
-	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine-db-migrator:latest
-
-policy-engine/migrator/docker/run:
-	docker run \
-  -e APP_DATABASE_USERNAME="postgres" \
-  -e APP_DATABASE_PASSWORD="postgres" \
-  -e APP_DATABASE_HOST="host.docker.internal" \
-  -e APP_DATABASE_PORT=5432 \
-  -e APP_DATABASE_NAME="engine" \
-  armory/policy-engine-db-migrator
+policy-engine/docker/migrate:
+	docker run -it --rm --env-file ./apps/policy-engine/.env armory/policy-engine:latest /bin/bash ./db-migrator.sh
