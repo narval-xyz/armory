@@ -147,7 +147,7 @@ armory/docker/push:
 	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory:latest
 
 armory/docker/run:
-	docker run --env-file ./apps/armory/.env -p 3010:3010 armory/armory:latest
+	docker run --name armory --env-file ./apps/armory/.env -p 3005:3005 armory/armory:latest
 
 armory/docker/migrate:
 	docker run -it --rm --env-file ./apps/armory/.env armory/armory:latest /bin/bash ./db-migrator.sh

@@ -145,7 +145,7 @@ vault/docker/push:
 	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault:latest
 
 vault/docker/run:
-	docker run --env-file ./apps/vault/.env -p 3011:3011 armory/vault:latest
+	docker run --name vault --env-file ./apps/vault/.env -p 3011:3011 armory/vault:latest
 
 vault/docker/migrate:
 	docker run -it --rm --env-file ./apps/vault/.env armory/vault:latest /bin/bash ./db-migrator.sh
