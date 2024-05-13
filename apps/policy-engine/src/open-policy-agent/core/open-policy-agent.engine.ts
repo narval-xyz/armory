@@ -1,3 +1,4 @@
+import { Permission } from '@narval/armory-sdk'
 import {
   Action,
   ApprovalRequirement,
@@ -9,7 +10,6 @@ import {
   EvaluationRequest,
   EvaluationResponse,
   JwtString,
-  
   Policy
 } from '@narval/policy-engine-shared'
 import { Payload, PrivateKey, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
@@ -25,7 +25,6 @@ import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
 import { toData, toInput } from './util/evaluation.util'
 import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
 import { build, getRegoCorePath } from './util/wasm-build.util'
-import { Permission } from '@narval/armory-sdk'
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]

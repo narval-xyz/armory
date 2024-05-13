@@ -1,4 +1,3 @@
-import { PermissionSchema } from '@narval/armory-sdk'
 import { fromHex } from 'viem'
 import { z } from 'zod'
 import { addressSchema } from '../schema/address.schema'
@@ -143,7 +142,7 @@ export const GrantPermissionAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.GRANT_PERMISSION),
     resourceId: z.string(),
-    permissions: z.array(PermissionSchema)
+    permissions: z.array(z.string())
   })
 )
 export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>
