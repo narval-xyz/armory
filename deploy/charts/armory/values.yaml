@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: ecc4fbf
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -21,9 +21,8 @@ env:
   BASE_URL: https://auth.armory.narval.xyz
   REDIS_HOST: localhost
   REDIS_PORT: 6379
-  PRICE_FEED_PRIVATE_KEY: 0xc7a1b8ba040a238e36058fc5693f801d129aca9f10ed30d0133878f1b9147c01
-  HISTORICAL_TRANSFER_FEED_PRIVATE_KEY: 0xf5c8f17cc09215c5038f6b8d5e557c0d98d341236307fe831efdcdd7faeef134
-
+  PRICE_FEED_PRIVATE_KEY: 9.029599418180264e+76
+  HISTORICAL_TRANSFER_FEED_PRIVATE_KEY: 1.1117168400003896e+77
 service:
   type: ClusterIP
   port: 80
