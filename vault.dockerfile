@@ -38,6 +38,5 @@ ENV NODE_ENV=production
 ENV PORT=3011
 
 EXPOSE 3011
-
 CMD ["node", "dist/apps/vault/main.js"]
 
