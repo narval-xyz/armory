@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("ARMORY_DATABASE_URL")
+  url      = env("APP_DATABASE_URL")
 }
 
 model Client {

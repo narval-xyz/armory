@@ -31,7 +31,7 @@ WORKDIR /usr/src/app
 
 # Set up DB migration capability
 COPY apps/policy-engine/src/shared/module/persistence/schema ./schema
-COPY ./db-migrator.sh .
+COPY ./deploy/db-migrator.sh .
 RUN chmod +x ./db-migrator.sh
 
 # Copy built application and node_modules
