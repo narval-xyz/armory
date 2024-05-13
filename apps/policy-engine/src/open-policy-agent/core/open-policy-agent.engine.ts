@@ -1,4 +1,3 @@
-import { Permission } from '@narval/armory-sdk'
 import {
   Action,
   ApprovalRequirement,
@@ -281,7 +280,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     access?: [
       {
         resource: string
-        permissions: Permission[]
+        permissions: string[]
       }
     ]
   }): Promise<JwtString> {

@@ -1,4 +1,3 @@
-import { Permission, Resource } from '@narval/armory-sdk'
 import { Alg } from '@narval/signature'
 import { z } from 'zod'
 import { Action } from '../type/action.type'
@@ -147,12 +146,12 @@ export const actionCriterionSchema = z.object({
 
 export const resourceCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_RESOURCE),
-  args: z.array(z.nativeEnum(Resource)).min(1)
+  args: z.array(z.string()).min(1)
 })
 
 export const permissionCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_PERMISSION),
-  args: z.array(z.nativeEnum(Permission)).min(1)
+  args: z.array(z.string()).min(1)
 })
 
 export const resourceIntegrityCriterionSchema = z.object({

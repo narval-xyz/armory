@@ -1,4 +1,3 @@
-import { Permission } from '@narval/armory-sdk'
 import {
   AccountClassification,
   AccountType,
@@ -24,7 +23,7 @@ export type Input = {
   resource?: { uid: string }
   intent?: Intent
   transactionRequest?: SerializedTransactionRequest
-  permissions?: Permission[]
+  permissions?: string[]
   approvals?: CredentialEntity[]
   feeds?: Feed<unknown>[]
 }

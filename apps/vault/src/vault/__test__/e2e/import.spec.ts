@@ -1,5 +1,5 @@
+import { Permission } from '@narval/armory-sdk'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { Permission } from '@narval/policy-engine-shared'
 import {
   Payload,
   RsaPublicKey,
