@@ -177,7 +177,7 @@ policy-engine/docker/push:
 	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine:latest
 
 policy-engine/docker/run:
-	docker run --env-file ./apps/policy-engine/.env -p 3010:3010 armory/policy-engine:latest
+	docker run --name policy-engine --env-file ./apps/policy-engine/.env -p 3010:3010 armory/policy-engine:latest
 
 policy-engine/docker/migrate:
 	docker run -it --rm --env-file ./apps/policy-engine/.env armory/policy-engine:latest /bin/bash ./db-migrator.sh
