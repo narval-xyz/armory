@@ -1,10 +1,12 @@
-import { JwtVerifyOptions, PublicKey, verifyJwsd, verifyJwt } from '@narval/signature'
+import { JwtVerifyOptions, publicKeySchema, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Reflector } from '@nestjs/core'
 import { z } from 'zod'
 import { ClientService } from '../../client/core/service/client.service'
 import { Config } from '../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
+import { Permissions } from '../decorator/permissions.decorator'
 import { ApplicationException } from '../exception/application.exception'
 import { Client } from '../type/domain.type'
 
@@ -18,13 +20,13 @@ const DEFAULT_MAX_TOKEN_AGE = 60
 export class AuthorizationGuard implements CanActivate {
   constructor(
     private clientService: ClientService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config, true>,
+    private reflector: Reflector
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
-    const headers = AuthorizationHeaderSchema.parse(req.headers)
 
     if (!clientId) {
       throw new ApplicationException({
@@ -33,9 +35,8 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const client = await this.clientService.findByClientId(clientId)
-
     // Expect the header in the format "GNAP <token>"
+    const headers = AuthorizationHeaderSchema.parse(req.headers)
     const accessToken: string | undefined = headers.authorization.split('GNAP ')[1]
 
     if (!accessToken) {
@@ -44,32 +45,59 @@ export class AuthorizationGuard implements CanActivate {
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
-    const isAuthorized = await this.validateToken(context, accessToken, client)
 
-    return isAuthorized
+    const client = await this.clientService.findByClientId(clientId)
+
+    if (!client) {
+      throw new ApplicationException({
+        message: 'Client not found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
+      })
+    }
+
+    const { request } = req.body
+    const permissions = this.reflector.get(Permissions, context.getHandler())
+
+    const opts: JwtVerifyOptions = {
+      audience: client.audience,
+      issuer: client.issuer,
+      maxTokenAge: client.maxTokenAge || DEFAULT_MAX_TOKEN_AGE,
+      ...(request && {
+        requestHash: request
+      }),
+      ...(permissions &&
+        permissions.length > 0 && {
+          access: [
+            {
+              resource: 'vault',
+              permissions
+            }
+          ]
+        })
+    }
+
+    return this.validateToken(context, client, accessToken, opts)
   }
 
-  async validateToken(context: ExecutionContext, token: string, client: Client | null): Promise<boolean> {
+  private async validateToken(
+    context: ExecutionContext,
+    client: Client,
+    token: string,
+    opts: JwtVerifyOptions
+  ): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
-    const request = req.body.request
-    if (!client?.engineJwk) {
+
+    if (!client.engineJwk) {
       throw new ApplicationException({
         message: 'No engine key configured',
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
-    const clientJwk: PublicKey = client?.engineJwk
-    const opts: JwtVerifyOptions = {
-      audience: client?.audience,
-      issuer: client?.issuer,
-      maxTokenAge: client?.maxTokenAge || DEFAULT_MAX_TOKEN_AGE
-    }
+
+    const clientJwk = publicKeySchema.parse(client.engineJwk)
 
     // Validate the JWT has a valid signature for the expected client key & the request matches
-    const { payload } = await verifyJwt(token, clientJwk, {
-      ...opts,
-      requestHash: request
-    }).catch((err) => {
+    const { payload } = await verifyJwt(token, clientJwk, opts).catch((err) => {
       throw new ApplicationException({
         message: err.message,
         origin: err,
@@ -81,6 +109,7 @@ export class AuthorizationGuard implements CanActivate {
     if (payload.cnf) {
       const boundKey = payload.cnf
       const jwsdHeader = req.headers['detached-jws']
+
       if (!jwsdHeader) {
         throw new ApplicationException({
           message: `Missing detached-jws header`,
@@ -106,8 +135,6 @@ export class AuthorizationGuard implements CanActivate {
         })
       }
     }
-
-    // Then we sign.
 
     return true
   }

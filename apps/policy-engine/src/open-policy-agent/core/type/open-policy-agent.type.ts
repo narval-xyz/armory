@@ -19,10 +19,11 @@ export type OpenPolicyAgentInstance = PromiseType<ReturnType<typeof loadPolicy>>
 
 export type Input = {
   action: Action
-  intent?: Intent
-  transactionRequest?: SerializedTransactionRequest
   principal: CredentialEntity
   resource?: { uid: string }
+  intent?: Intent
+  transactionRequest?: SerializedTransactionRequest
+  permissions?: string[]
   approvals?: CredentialEntity[]
   feeds?: Feed<unknown>[]
 }
