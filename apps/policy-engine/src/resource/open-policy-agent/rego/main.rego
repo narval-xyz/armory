@@ -12,6 +12,14 @@ nowSeconds = nanoSecondsToSeconds(time.now_ns())
 
 wildcard = "*"
 
+actions = {
+	"signTransaction": "signTransaction", 
+	"signRaw": "signRaw", 
+	"signMessage": "signMessage", 
+	"signTypedData": "signTypedData",
+	"grantPermission": "grantPermission",
+}
+
 operators = {
 	"equal": "eq",
 	"notEqual": "ne",
