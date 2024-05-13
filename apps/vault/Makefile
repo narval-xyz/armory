@@ -135,7 +135,7 @@ vault/cli:
 vault/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		-f vault.dockerfile \
+		-f deploy/vault.dockerfile \
 		-t armory/vault:latest \
 		--cache-from armory/vault:latest \
 		. --load
