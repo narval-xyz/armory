@@ -17,7 +17,6 @@ import {
   signJwsd,
   signJwt
 } from '@narval/signature'
-import { Address } from 'viem'
 import {
   EngineClientConfig,
   JwsdHeaderArgs,
@@ -28,6 +27,7 @@ import {
 } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './http/schema'
+import { Address } from 'viem'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, accessToken } = args
