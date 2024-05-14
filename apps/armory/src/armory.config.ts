@@ -1,3 +1,4 @@
+import { hexSchema } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export enum Env {
@@ -18,8 +19,8 @@ const configSchema = z.object({
     port: z.coerce.number()
   }),
   dataFeed: z.object({
-    priceFeedPrivateKey: z.string().startsWith('0x'),
-    historicalTransferFeedPrivateKey: z.string().startsWith('0x')
+    priceFeedPrivateKey: hexSchema,
+    historicalTransferFeedPrivateKey: hexSchema
   })
 })
 

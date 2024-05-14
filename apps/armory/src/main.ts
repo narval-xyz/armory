@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { withCors, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
@@ -41,7 +41,7 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
  * @returns The modified Nest application instance.
  */
 const withGlobalFilters =
-  (configService: ConfigService<Config, true>) =>
+  (configService: ConfigService<Config>) =>
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(
       new ApplicationExceptionFilter(configService),
@@ -61,8 +61,8 @@ const withGlobalFilters =
 async function bootstrap(): Promise<void> {
   const logger = new Logger('ArmoryBootstrap')
   const application = await NestFactory.create(ArmoryModule)
-  const configService = application.get<ConfigService<Config, true>>(ConfigService)
-  const port = configService.get('port', { infer: true })
+  const configService = application.get<ConfigService<Config>>(ConfigService)
+  const port = configService.get('port')
 
   await lastValueFrom(
     of(application).pipe(

@@ -1,6 +1,6 @@
+import { ConfigModule } from '@narval/config-module'
 import { HttpModule } from '@nestjs/axios'
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { load } from '../armory.config'

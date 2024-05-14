@@ -1,8 +1,8 @@
 import { ExpressAdapter } from '@bull-board/express'
 import { BullBoardModule } from '@bull-board/nestjs'
+import { ConfigService } from '@narval/config-module'
 import { BullModule } from '@nestjs/bull'
 import { DynamicModule } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config, Env } from '../../../armory.config'
 import { QUEUE_PREFIX } from '../../../armory.constant'
 
@@ -19,12 +19,12 @@ export class QueueModule {
       imports: [
         BullModule.forRootAsync({
           inject: [ConfigService],
-          useFactory: async (configService: ConfigService<Config, true>) => {
-            const env = configService.get('env', { infer: true })
+          useFactory: async (configService: ConfigService<Config>) => {
+            const env = configService.get('env')
 
             return {
               prefix: getQueuePrefix(env),
-              redis: configService.get('redis', { infer: true })
+              redis: configService.get('redis')
             }
           }
         }),

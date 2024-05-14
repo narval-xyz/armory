@@ -1,6 +1,6 @@
+import { ConfigModule } from '@narval/config-module'
 import { Action } from '@narval/policy-engine-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
-import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Queue } from 'bull'
 import { load } from '../../../../../armory.config'

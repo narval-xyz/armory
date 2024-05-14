@@ -1,11 +1,12 @@
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
+import { ConfigModule } from '@narval/config-module'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
+import { load } from '../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '../armory.constant'
 import { DataFeedModule } from '../data-feed/data-feed.module'
 import { PriceModule } from '../price/price.module'
@@ -21,26 +22,27 @@ import { AuthorizationRequestRepository } from './persistence/repository/authori
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
 
+const INFRASTRUCTURE_MODULES = [
+  ConfigModule.forRoot({ load: [load] }),
+  HttpModule,
+  PersistenceModule,
+  // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to
+  // register both queue and board at the same time.
+  //
+  // Desired DevX: QueueModule.registerQueue({ name: "my-queue" })
+  BullModule.registerQueue({
+    name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
+  }),
+  BullBoardModule.forFeature({
+    name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+    adapter: BullAdapter
+  })
+]
+
+const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule]
+
 @Module({
-  imports: [
-    ConfigModule.forRoot(),
-    HttpModule,
-    PersistenceModule,
-    TransferTrackingModule,
-    PriceModule,
-    DataFeedModule,
-    // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to
-    // register both queue and board at the same time.
-    //
-    // Desired DevX: QueueModule.registerQueue({ name: "my-queue" })
-    BullModule.registerQueue({
-      name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
-    }),
-    BullBoardModule.forFeature({
-      name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
-      adapter: BullAdapter
-    })
-  ],
+  imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],
   controllers: [AuthorizationRequestController],
   providers: [
     AuthorizationRequestService,

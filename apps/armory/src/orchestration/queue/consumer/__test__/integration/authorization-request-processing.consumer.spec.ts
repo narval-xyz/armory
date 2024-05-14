@@ -1,7 +1,7 @@
+import { ConfigModule } from '@narval/config-module'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
-import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Client, Prisma } from '@prisma/client/armory'
 import { Job, Queue } from 'bull'
