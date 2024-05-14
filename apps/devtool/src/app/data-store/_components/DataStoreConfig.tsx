@@ -17,7 +17,19 @@ import Users from './sections/Users'
 import Wallets from './sections/Wallets'
 
 const DataStoreConfig = () => {
-  const { entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } = useStore()
+  const {
+    engineUrl,
+    engineClientId,
+    engineClientSecret,
+    entityDataStoreUrl,
+    entitySignatureUrl,
+    policyDataStoreUrl,
+    policySignatureUrl,
+    setEntityDataStoreUrl,
+    setEntitySignatureUrl,
+    setPolicyDataStoreUrl,
+    setPolicySignatureUrl
+  } = useStore()
 
   const { isSynced, syncEngine } = useEngineApi()
 
@@ -52,13 +64,15 @@ const DataStoreConfig = () => {
   const signEntityData = async () => {
     if (!codeEditor) return
     const { entity } = JSON.parse(codeEditor)
-    return signEntityDataStore(entity, syncEngine)
+    await signEntityDataStore(entity)
+    await syncEngine(engineUrl, engineClientId, engineClientSecret)
   }
 
   const signPolicyData = async () => {
     if (!codeEditor) return
     const { policy } = JSON.parse(codeEditor)
-    return signPolicyDataStore(policy, syncEngine)
+    await signPolicyDataStore(policy)
+    await syncEngine(engineUrl, engineClientId, engineClientSecret)
   }
 
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
@@ -99,7 +113,9 @@ const DataStoreConfig = () => {
       <div className="flex gap-20">
         <div className="flex flex-col gap-8 w-1/3">
           <NarInput label="Entity Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
+          <NarInput label="Entity Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
           <NarInput label="Policy Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
+          <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
         </div>
         <div className="flex flex-col gap-8 w-2/3">
           {displayCodeEditor && <CodeEditor value={codeEditor} onChange={setCodeEditor} />}

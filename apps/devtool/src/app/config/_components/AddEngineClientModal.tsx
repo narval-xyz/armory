@@ -9,7 +9,9 @@ import useAccountSignature from '../../_hooks/useAccountSignature'
 import useEngineApi, { EngineClientData } from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 
-const initEngineClientForm: EngineClientData = {
+const initForm: EngineClientData = {
+  engineUrl: '',
+  engineAdminApiKey: '',
   clientId: '',
   entityDataStoreUrl: '',
   entitySignatureUrl: '',
@@ -26,44 +28,60 @@ const AddEngineClientModal = () => {
     entityDataStoreUrl,
     entitySignatureUrl,
     policyDataStoreUrl,
-    policySignatureUrl
+    policySignatureUrl,
+    setEngineClientId,
+    setEngineClientSecret,
+    setEngineClientSigner
   } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { onboardClient } = useEngineApi()
+  const { isProcessing, onboardClient } = useEngineApi()
 
-  const [engineUrlForm, setEngineUrlForm] = useState(engineUrl)
-  const [engineAdminApiKeyForm, setEngineAdminApiKeyForm] = useState(engineAdminApiKey)
-  const [engineClientForm, setEngineClientForm] = useState<EngineClientData>(initEngineClientForm)
   const [isOpen, setIsOpen] = useState(false)
+  const [newClient, setNewClient] = useState<any>()
+  const [form, setForm] = useState<EngineClientData>(initForm)
 
-  const isEngineClientFormValid =
-    engineUrlForm &&
-    engineAdminApiKeyForm &&
-    engineClientForm.clientId &&
-    engineClientForm.entityDataStoreUrl &&
-    engineClientForm.entitySignatureUrl &&
-    engineClientForm.entityPublicKey &&
-    engineClientForm.policyDataStoreUrl &&
-    engineClientForm.policySignatureUrl &&
-    engineClientForm.policyPublicKey
+  const isFormValid =
+    form.engineAdminApiKey &&
+    form.engineUrl &&
+    form.clientId &&
+    form.entityDataStoreUrl &&
+    form.entitySignatureUrl &&
+    form.entityPublicKey &&
+    form.policyDataStoreUrl &&
+    form.policySignatureUrl &&
+    form.policyPublicKey
 
   const closeDialog = () => {
     setIsOpen(false)
-    setEngineClientForm(initEngineClientForm)
+    setNewClient(undefined)
+    setForm(initForm)
   }
 
-  const updateEngineClientForm = (data: Partial<EngineClientData>) =>
-    setEngineClientForm((prev) => ({ ...prev, ...data }))
+  const updateForm = (data: Partial<EngineClientData>) => setForm((prev) => ({ ...prev, ...data }))
 
-  const addEngineClient = async () => {
-    if (!engineUrl || !engineAdminApiKey || !isEngineClientFormValid) return
+  const addClient = async () => {
+    if (!isFormValid) return
 
-    await onboardClient(engineUrlForm, engineAdminApiKeyForm, engineClientForm)
+    const client = await onboardClient(form)
+    setNewClient(client)
+  }
+
+  const setConfig = () => {
+    if (!newClient) return
+
+    setEngineClientId(newClient.clientId)
+    setEngineClientSecret(newClient.clientSecret)
+    setEngineClientSigner(JSON.stringify(newClient.signer.publicKey))
+    closeDialog()
   }
 
   useEffect(() => {
-    updateEngineClientForm({
+    if (!isOpen) return
+
+    updateForm({
+      engineUrl,
+      engineAdminApiKey,
       entityDataStoreUrl,
       entitySignatureUrl,
       policyDataStoreUrl,
@@ -71,69 +89,89 @@ const AddEngineClientModal = () => {
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
       policyPublicKey: jwk ? JSON.stringify(jwk) : ''
     })
-  }, [jwk])
+  }, [isOpen, jwk])
 
   return (
     <NarDialog
       triggerButton={<NarButton label="Add client" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-      title="Add engine client"
-      primaryButtonLabel="Add"
+      title="Add Engine Client"
+      primaryButtonLabel={newClient ? 'Set Engine Config' : 'Add Client'}
       isOpen={isOpen}
+      isSaving={isProcessing}
+      isSaveDisabled={!isFormValid}
       onOpenChange={(val) => (val ? setIsOpen(val) : closeDialog())}
+      onSave={newClient ? setConfig : addClient}
       onDismiss={closeDialog}
-      onSave={addEngineClient}
     >
       <div className="w-[800px] px-12 py-4">
-        <div className="flex flex-col gap-[24px]">
-          <div className="flex flex-col gap-[16px]">
-            <NarInput label="Engine URL" value={engineUrlForm} onChange={setEngineUrlForm} />
-            <NarInput label="Admin API Key" value={engineAdminApiKeyForm} onChange={setEngineAdminApiKeyForm} />
-            <div className="flex gap-[16px] items-end">
+        {!newClient && (
+          <div className="flex flex-col gap-[24px]">
+            <div className="flex flex-col gap-[16px]">
+              <NarInput label="Engine URL" value={form.engineUrl} onChange={(engineUrl) => updateForm({ engineUrl })} />
               <NarInput
-                label="Client ID"
-                value={engineClientForm.clientId}
-                onChange={(clientId) => updateEngineClientForm({ clientId })}
+                label="Admin API Key"
+                value={form.engineAdminApiKey}
+                onChange={(engineAdminApiKey) => updateForm({ engineAdminApiKey })}
               />
-              <NarButton label="Generate" onClick={() => updateEngineClientForm({ clientId: uuid() })} />
+              <div className="flex gap-[16px] items-end">
+                <NarInput label="Client ID" value={form.clientId} onChange={(clientId) => updateForm({ clientId })} />
+                <NarButton label="Generate" onClick={() => updateForm({ clientId: uuid() })} />
+              </div>
+            </div>
+            <div className="flex gap-[16px]">
+              <div className="flex flex-col gap-[16px] w-1/2">
+                <NarInput
+                  label="Entity Data Store URL"
+                  value={form.entityDataStoreUrl}
+                  onChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
+                />
+                <NarInput
+                  label="Entity Signature URL"
+                  value={form.entitySignatureUrl}
+                  onChange={(entitySignatureUrl) => updateForm({ entitySignatureUrl })}
+                />
+                <NarInput
+                  label="Entity Public Key"
+                  value={form.entityPublicKey}
+                  onChange={(entityPublicKey) => updateForm({ entityPublicKey })}
+                />
+              </div>
+              <div className="flex flex-col gap-[16px] w-1/2">
+                <NarInput
+                  label="Policy Data Store URL"
+                  value={form.policyDataStoreUrl}
+                  onChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
+                />
+                <NarInput
+                  label="Policy Signature URL"
+                  value={form.policySignatureUrl}
+                  onChange={(policySignatureUrl) => updateForm({ policySignatureUrl })}
+                />
+                <NarInput
+                  label="Policy Public Key"
+                  value={form.policyPublicKey}
+                  onChange={(policyPublicKey) => updateForm({ policyPublicKey })}
+                />
+              </div>
             </div>
           </div>
-          <div className="flex gap-[16px]">
-            <div className="flex flex-col gap-[16px] w-1/2">
-              <NarInput
-                label="Entity Data Store URL"
-                value={engineClientForm.entityDataStoreUrl}
-                onChange={(entityDataStoreUrl) => updateEngineClientForm({ entityDataStoreUrl })}
-              />
-              <NarInput
-                label="Entity Signature URL"
-                value={engineClientForm.entitySignatureUrl}
-                onChange={(entitySignatureUrl) => updateEngineClientForm({ entitySignatureUrl })}
-              />
-              <NarInput
-                label="Entity Public Key"
-                value={engineClientForm.entityPublicKey}
-                onChange={(entityPublicKey) => updateEngineClientForm({ entityPublicKey })}
-              />
+        )}
+        {newClient && (
+          <div className="flex flex-col gap-[12px]">
+            <div className="flex flex-col gap-[8px]">
+              <div className="underline">Client ID:</div>
+              <p className="truncate">{newClient.clientId}</p>
             </div>
-            <div className="flex flex-col gap-[16px] w-1/2">
-              <NarInput
-                label="Policy Data Store URL"
-                value={engineClientForm.policyDataStoreUrl}
-                onChange={(policyDataStoreUrl) => updateEngineClientForm({ policyDataStoreUrl })}
-              />
-              <NarInput
-                label="Policy Signature URL"
-                value={engineClientForm.policySignatureUrl}
-                onChange={(policySignatureUrl) => updateEngineClientForm({ policySignatureUrl })}
-              />
-              <NarInput
-                label="Policy Public Key"
-                value={engineClientForm.policyPublicKey}
-                onChange={(policyPublicKey) => updateEngineClientForm({ policyPublicKey })}
-              />
+            <div className="flex flex-col gap-[8px]">
+              <div className="underline">Client Secret:</div>
+              <p className="truncate">{newClient.clientSecret}</p>
+            </div>
+            <div className="flex flex-col gap-[8px]">
+              <div className="underline">Client Signer:</div>
+              <pre>{JSON.stringify(newClient.signer.publicKey, null, 2)}</pre>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </NarDialog>
   )

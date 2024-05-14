@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
-import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import AddEngineClientModal from './AddEngineClientModal'
 
@@ -10,24 +8,23 @@ const PolicyEngineConfig = () => {
   const {
     engineUrl,
     engineAdminApiKey,
+    engineClientSigner,
+    entityDataStoreUrl,
+    entitySignatureUrl,
+    policyDataStoreUrl,
+    policySignatureUrl,
     engineClientId,
     engineClientSecret,
-    engineClientSigner,
     setEngineUrl,
     setEngineAdminApiKey,
+    setEntityDataStoreUrl,
+    setEntitySignatureUrl,
+    setPolicyDataStoreUrl,
+    setPolicySignatureUrl,
+    setEngineClientSigner,
     setEngineClientId,
-    setEngineClientSecret,
-    setEngineClientSigner
+    setEngineClientSecret
   } = useStore()
-
-  const { isOnboarded, onboardClient } = useEngineApi()
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  const onboard = async () => {
-    setIsProcessing(true)
-    await onboardClient()
-    setIsProcessing(false)
-  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -40,10 +37,16 @@ const PolicyEngineConfig = () => {
           <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
           <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
         </div>
-        <div className="flex flex-col gap-6 w-2/3">
-          <NarInput label="Client Signer" value={engineClientSigner} onChange={setEngineClientSigner} />
+        <div className="flex flex-col gap-6 w-1/3">
+          <NarInput label="Entity Data URL" value={entityDataStoreUrl} onChange={setEntityDataStoreUrl} />
+          <NarInput label="Entity Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
+          <NarInput label="Policy Data URL" value={policyDataStoreUrl} onChange={setPolicyDataStoreUrl} />
+          <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
+        </div>
+        <div className="flex flex-col gap-6 w-1/3">
           <NarInput label="Client ID" value={engineClientId} onChange={setEngineClientId} />
           <NarInput label="Client Secret" value={engineClientSecret} onChange={setEngineClientSecret} />
+          <NarInput label="Engine Public Key" value={engineClientSigner} onChange={setEngineClientSigner} />
         </div>
       </div>
     </div>

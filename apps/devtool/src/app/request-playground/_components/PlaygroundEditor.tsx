@@ -15,10 +15,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'
 import NarButton from '../../_design-system/NarButton'
 import useEngineApi from '../../_hooks/useEngineApi'
+import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
 import { erc20, grantPermission, spendingLimits } from './request'
 
 const PlaygroundEditor = () => {
+  const { engineUrl, engineClientId, vaultUrl, vaultClientId } = useStore()
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
   const { errors: signatureErrors, signTransaction, importPrivateKey } = useVaultApi()
   const [codeEditor, setCodeEditor] = useState<string | undefined>()
@@ -49,7 +51,7 @@ const PlaygroundEditor = () => {
     setSignature(undefined)
 
     const request: EvaluationRequest = JSON.parse(codeEditor)
-    const { evaluation, authentication } = (await evaluateRequest(request)) || {}
+    const { evaluation, authentication } = (await evaluateRequest(engineUrl, engineClientId, request)) || {}
 
     setCodeEditor(
       JSON.stringify(
@@ -77,7 +79,7 @@ const PlaygroundEditor = () => {
     setEvaluationResponse(undefined)
     setSignature(undefined)
 
-    const signature = await signTransaction({ request }, accessToken.value)
+    const signature = await signTransaction(vaultUrl, vaultClientId, { request }, accessToken.value)
 
     setSignature(signature)
     setEvaluationResponse(undefined)
@@ -94,7 +96,7 @@ const PlaygroundEditor = () => {
     setIsProcessing(true)
     setEvaluationResponse(undefined)
 
-    await importPrivateKey({ privateKey: generatePrivateKey() }, accessToken.value)
+    await importPrivateKey(vaultUrl, vaultClientId, { privateKey: generatePrivateKey() }, accessToken.value)
 
     setEvaluationResponse(undefined)
     setIsProcessing(false)

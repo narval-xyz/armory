@@ -30,6 +30,14 @@ const useDataStoreApi = () => {
     }
   }, [dataStore])
 
+  const pingDataStore = async (url: string) => {
+    try {
+      await axios.get(url)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
   const getDataStore = async () => {
     const [{ data: entityData }, { data: policyData }] = await Promise.all([
       axios.get<{ entity: EntityStore }>(entityDataStoreUrl),
@@ -43,7 +51,7 @@ const useDataStoreApi = () => {
     return data
   }
 
-  const signEntityDataStore = async (entity: Entities, callback: () => Promise<void>) => {
+  const signEntityDataStore = async (entity: Entities) => {
     if (!jwk || !dataStore) return
 
     setErrors(undefined)
@@ -77,11 +85,9 @@ const useDataStoreApi = () => {
 
       const signature = await signAccountJwt(payload)
 
-      await axios.post('/api/data-store', {
+      await axios.post(entityDataStoreUrl, {
         entity: { signature, data: entity }
       })
-
-      await callback()
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -89,7 +95,7 @@ const useDataStoreApi = () => {
     setIsEntitySigning(false)
   }
 
-  const signPolicyDataStore = async (policy: Policy[], callback: () => Promise<void>) => {
+  const signPolicyDataStore = async (policy: Policy[]) => {
     if (!jwk || !dataStore) return
 
     setErrors(undefined)
@@ -116,11 +122,9 @@ const useDataStoreApi = () => {
 
       const signature = await signAccountJwt(payload)
 
-      await axios.post('/api/data-store', {
+      await axios.post(policyDataStoreUrl, {
         policy: { signature, data: policy }
       })
-
-      await callback()
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -134,6 +138,7 @@ const useDataStoreApi = () => {
     isPolicySigning,
     errors,
     validationErrors,
+    pingDataStore,
     getDataStore,
     signEntityDataStore,
     signPolicyDataStore

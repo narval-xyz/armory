@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
-import useVaultApi from '../../_hooks/useVaultApi'
 import AddVaultClientModal from './AddVaultClientModal'
 
 const VaultConfig = () => {
@@ -20,16 +18,6 @@ const VaultConfig = () => {
     setEngineClientSigner
   } = useStore()
 
-  const { isOnboarded, onboardClient } = useVaultApi()
-
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  const onboard = async () => {
-    setIsProcessing(true)
-    await onboardClient()
-    setIsProcessing(false)
-  }
-
   return (
     <div className="flex flex-col gap-10">
       <div className="flex items-center">
@@ -42,7 +30,7 @@ const VaultConfig = () => {
           <NarInput label="Admin API Key" value={vaultAdminApiKey} onChange={setVaultAdminApiKey} />
         </div>
         <div className="flex flex-col gap-6 w-2/3">
-          <NarInput label="Client Signer" value={engineClientSigner} onChange={setEngineClientSigner} />
+          <NarInput label="Engine Public Key" value={engineClientSigner} onChange={setEngineClientSigner} />
           <NarInput label="Client ID" value={vaultClientId} onChange={setVaultClientId} />
           <NarInput label="Client Secret" value={vaultClientSecret} onChange={setVaultClientSecret} />
         </div>

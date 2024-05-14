@@ -3,34 +3,57 @@ import axios from 'axios'
 import { useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
-import useStore from './useStore'
+
+export interface VaultClientData {
+  vaultUrl: string
+  vaultAdminApiKey: string
+  engineClientSigner: string
+  clientId: string
+  backupPublicKey: string
+  allowKeyExport: boolean
+  audience: string
+  issuer: string
+  maxTokenAge: string
+}
 
 const useVaultApi = () => {
-  const {
-    vaultUrl,
-    vaultAdminApiKey,
-    vaultClientId,
-    vaultClientSecret,
-    engineClientSigner,
-    setVaultClientId,
-    setVaultClientSecret,
-    setEngineClientSigner
-  } = useStore()
-
   const { signAccountJwsd } = useAccountSignature()
-
-  const [isOnboarded, setIsOnboarded] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async () => {
-    if (!vaultAdminApiKey) return
+  const pingVault = async (url: string) => {
+    try {
+      await axios.get(url)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
 
+  const onboardClient = async (vaultClientData: VaultClientData) => {
     setErrors(undefined)
 
     try {
+      const {
+        vaultUrl,
+        vaultAdminApiKey,
+        engineClientSigner,
+        backupPublicKey,
+        allowKeyExport,
+        audience,
+        issuer,
+        maxTokenAge
+      } = vaultClientData
+
       const { data: client } = await axios.post(
         `${vaultUrl}/clients`,
-        { ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }) },
+        {
+          ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
+          ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+          ...(allowKeyExport && { allowKeyExport }),
+          ...(audience && { audience }),
+          ...(issuer && { issuer }),
+          ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
+        },
         {
           headers: {
             'x-api-key': vaultAdminApiKey
@@ -38,20 +61,21 @@ const useVaultApi = () => {
         }
       )
 
-      setVaultClientId(client.clientId)
-      setVaultClientSecret(client.clientSecret)
-      setEngineClientSigner(JSON.stringify(client.engineJwk))
+      setIsProcessing(false)
 
-      setIsOnboarded(true)
-      setTimeout(() => setIsOnboarded(false), 5000)
+      return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setIsProcessing(false)
     }
   }
 
-  const importPrivateKey = async (payload: { privateKey: string }, accessToken: string) => {
-    if (!vaultClientId || !accessToken) return
-
+  const importPrivateKey = async (
+    vaultUrl: string,
+    vaultClientId: string,
+    payload: { privateKey: string },
+    accessToken: string
+  ) => {
     setErrors(undefined)
 
     try {
@@ -72,9 +96,12 @@ const useVaultApi = () => {
     }
   }
 
-  const signTransaction = async (payload: { request: Request }, accessToken: string) => {
-    if (!vaultClientId || !accessToken) return
-
+  const signTransaction = async (
+    vaultUrl: string,
+    vaultClientId: string,
+    payload: { request: Request },
+    accessToken: string
+  ) => {
     setErrors(undefined)
 
     try {
@@ -95,7 +122,7 @@ const useVaultApi = () => {
     }
   }
 
-  return { isOnboarded, errors, onboardClient, importPrivateKey, signTransaction }
+  return { isProcessing, errors, pingVault, onboardClient, importPrivateKey, signTransaction }
 }
 
 export default useVaultApi

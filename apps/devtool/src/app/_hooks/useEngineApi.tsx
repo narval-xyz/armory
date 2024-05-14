@@ -1,4 +1,4 @@
-import { EvaluationRequest, EvaluationResponse, SignTransactionAction } from '@narval/policy-engine-shared'
+import { EvaluationRequest, EvaluationResponse, Request } from '@narval/policy-engine-shared'
 import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
@@ -7,6 +7,8 @@ import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 
 export interface EngineClientData {
+  engineUrl: string
+  engineAdminApiKey: string
   clientId: string
   entityDataStoreUrl: string
   entitySignatureUrl: string
@@ -18,24 +20,34 @@ export interface EngineClientData {
 
 const useEngineApi = () => {
   const { signAccountJwt } = useAccountSignature()
-  const [isOnboarded, setIsOnboarded] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
-
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async (engineUrl: string, engineAdminApiKey: string, engineClientData: EngineClientData) => {
-    const {
-      entityDataStoreUrl,
-      entitySignatureUrl,
-      entityPublicKey,
-      policyDataStoreUrl,
-      policySignatureUrl,
-      policyPublicKey
-    } = engineClientData
+  const pingEngine = async (url: string) => {
+    try {
+      await axios.get(url)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
 
+  const onboardClient = async (engineClientData: EngineClientData) => {
     setErrors(undefined)
+    setIsProcessing(true)
 
     try {
+      const {
+        engineUrl,
+        engineAdminApiKey,
+        entityDataStoreUrl,
+        entitySignatureUrl,
+        entityPublicKey,
+        policyDataStoreUrl,
+        policySignatureUrl,
+        policyPublicKey
+      } = engineClientData
+
       const { data: client } = await axios.post(
         `${engineUrl}/clients`,
         {
@@ -48,7 +60,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(entitySignatureUrl),
               url: entitySignatureUrl
             },
-            keys: [entityPublicKey]
+            keys: [JSON.parse(entityPublicKey)]
           },
           policyDataStore: {
             data: {
@@ -59,7 +71,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(policyDataStoreUrl),
               url: policySignatureUrl
             },
-            keys: [policyPublicKey]
+            keys: [JSON.parse(policyPublicKey)]
           }
         },
         {
@@ -69,14 +81,12 @@ const useEngineApi = () => {
         }
       )
 
-      // setEngineClientId(client.clientId)
-      // setEngineClientSecret(client.clientSecret)
-      // setEngineClientSigner(JSON.stringify(client.signer.publicKey))
+      setIsProcessing(false)
 
-      setIsOnboarded(true)
-      setTimeout(() => setIsOnboarded(false), 5000)
+      return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setIsProcessing(false)
     }
   }
 
@@ -102,7 +112,7 @@ const useEngineApi = () => {
     setErrors(undefined)
 
     try {
-      const request = evaluationRequest.request as SignTransactionAction
+      const request = Request.parse(evaluationRequest.request)
 
       const payload: Payload = {
         iss: uuid(),
@@ -128,7 +138,7 @@ const useEngineApi = () => {
     }
   }
 
-  return { isOnboarded, isSynced, errors, onboardClient, syncEngine, evaluateRequest }
+  return { isProcessing, isSynced, errors, pingEngine, onboardClient, syncEngine, evaluateRequest }
 }
 
 export default useEngineApi
