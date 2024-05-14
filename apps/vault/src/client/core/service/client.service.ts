@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Client } from '../../../shared/type/domain.type'
@@ -7,12 +8,12 @@ import { ClientRepository } from '../../persistence/repository/client.repository
 export class ClientService {
   constructor(private clientRepository: ClientRepository) {}
 
-  async findByClientId(clientId: string): Promise<Client | null> {
-    return this.clientRepository.findByClientId(clientId)
+  async findById(clientId: string): Promise<Client | null> {
+    return this.clientRepository.findById(clientId)
   }
 
-  async onboard(client: Client): Promise<Client> {
-    const exists = await this.clientRepository.findByClientId(client.clientId)
+  async save(client: Client): Promise<Client> {
+    const exists = await this.clientRepository.findById(client.clientId)
 
     if (exists) {
       throw new ApplicationException({
@@ -23,7 +24,10 @@ export class ClientService {
     }
 
     try {
-      await this.clientRepository.save(client)
+      await this.clientRepository.save({
+        ...client,
+        clientSecret: secret.hash(client.clientSecret)
+      })
 
       return client
     } catch (error) {

@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { EngineService } from '../../../../engine/core/service/engine.service'
@@ -21,7 +22,7 @@ describe(AdminApiKeyGuard.name, () => {
 
   const mockEngineService = (adminApiKey: string = 'test-admin-api-key') => {
     const engine = {
-      adminApiKey,
+      adminApiKey: secret.hash(adminApiKey),
       id: 'test-engine-id',
       masterKey: 'test-master-key',
       activated: true
@@ -47,7 +48,7 @@ describe(AdminApiKeyGuard.name, () => {
     expect(await guard.canActivate(mockExecutionContext(adminApiKey))).toEqual(true)
   })
 
-  it(`returns false when ${REQUEST_HEADER_API_KEY} does not matche the engine admin api key`, async () => {
+  it(`returns false when ${REQUEST_HEADER_API_KEY} does not match the engine admin api key`, async () => {
     const guard = new AdminApiKeyGuard(mockEngineService('test-admin-api-key'))
 
     expect(await guard.canActivate(mockExecutionContext('another-api-key'))).toEqual(false)

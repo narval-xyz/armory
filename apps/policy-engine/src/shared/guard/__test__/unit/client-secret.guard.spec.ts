@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
@@ -34,7 +35,7 @@ describe(ClientSecretGuard.name, () => {
 
     const client: Client = {
       clientId: CLIENT_ID,
-      clientSecret: clientSecret,
+      clientSecret: secret.hash(clientSecret),
       dataStore: {
         entity: {
           data: dataStoreSource,
@@ -56,7 +57,7 @@ describe(ClientSecretGuard.name, () => {
     }
 
     const serviceMock = mock<ClientService>()
-    serviceMock.findByClientId.mockResolvedValue(client)
+    serviceMock.findById.mockResolvedValue(client)
 
     return serviceMock
   }

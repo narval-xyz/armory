@@ -46,7 +46,7 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const client = await this.clientService.findByClientId(clientId)
+    const client = await this.clientService.findById(clientId)
 
     if (!client) {
       throw new ApplicationException({

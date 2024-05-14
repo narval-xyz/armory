@@ -1,9 +1,9 @@
+import { coerce } from '@narval/nestjs-shared'
 import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { z } from 'zod'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
 import { Client } from '../../../shared/type/domain.type'
 
 const ClientListIndex = z.array(z.string())
@@ -12,18 +12,18 @@ const ClientListIndex = z.array(z.string())
 export class ClientRepository {
   constructor(private encryptKeyValueService: EncryptKeyValueService) {}
 
-  async findByClientId(clientId: string): Promise<Client | null> {
+  async findById(clientId: string): Promise<Client | null> {
     const value = await this.encryptKeyValueService.get(this.getKey(clientId))
 
     if (value) {
-      return decode(Client, value)
+      return coerce.decode(Client, value)
     }
 
     return null
   }
 
   async save(client: Client): Promise<Client> {
-    await this.encryptKeyValueService.set(this.getKey(client.clientId), encode(Client, client))
+    await this.encryptKeyValueService.set(this.getKey(client.clientId), coerce.encode(Client, client))
     await this.index(client)
 
     return client
@@ -33,35 +33,35 @@ export class ClientRepository {
     const index = await this.encryptKeyValueService.get(this.getIndexKey())
 
     if (index) {
-      return decode(ClientListIndex, index)
+      return coerce.decode(ClientListIndex, index)
     }
 
     return []
   }
 
   async saveEntityStore(clientId: string, store: EntityStore): Promise<boolean> {
-    return this.encryptKeyValueService.set(this.getEntityStoreKey(clientId), encode(EntityStore, store))
+    return this.encryptKeyValueService.set(this.getEntityStoreKey(clientId), coerce.encode(EntityStore, store))
   }
 
   async findEntityStore(clientId: string): Promise<EntityStore | null> {
     const value = await this.encryptKeyValueService.get(this.getEntityStoreKey(clientId))
 
     if (value) {
-      return decode(EntityStore, value)
+      return coerce.decode(EntityStore, value)
     }
 
     return null
   }
 
   async savePolicyStore(clientId: string, store: PolicyStore): Promise<boolean> {
-    return this.encryptKeyValueService.set(this.getPolicyStoreKey(clientId), encode(PolicyStore, store))
+    return this.encryptKeyValueService.set(this.getPolicyStoreKey(clientId), coerce.encode(PolicyStore, store))
   }
 
   async findPolicyStore(clientId: string): Promise<PolicyStore | null> {
     const value = await this.encryptKeyValueService.get(this.getPolicyStoreKey(clientId))
 
     if (value) {
-      return decode(PolicyStore, value)
+      return coerce.decode(PolicyStore, value)
     }
 
     return null
@@ -76,7 +76,7 @@ export class ClientRepository {
   // strategy to solve the problem (e.g. where query in SQL)
   async findAll(): Promise<Client[]> {
     const ids = await this.getClientListIndex()
-    const clients = await Promise.all(ids.map((id) => this.findByClientId(id)))
+    const clients = await Promise.all(ids.map((id) => this.findById(id)))
 
     return compact(clients)
   }
@@ -113,7 +113,7 @@ export class ClientRepository {
 
     await this.encryptKeyValueService.set(
       this.getIndexKey(),
-      encode(ClientListIndex, [...currentIndex, client.clientId])
+      coerce.encode(ClientListIndex, [...currentIndex, client.clientId])
     )
 
     return true
