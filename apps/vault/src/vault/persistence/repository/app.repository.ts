@@ -1,6 +1,6 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
-import { appSchema } from '../../../shared/schema/app.schema'
 import { App } from '../../../shared/type/domain.type'
 
 @Injectable()
@@ -11,27 +11,19 @@ export class AppRepository {
     const value = await this.keyValueService.get(this.getKey(id))
 
     if (value) {
-      return this.decode(value)
+      return coerce.decode(App, value)
     }
 
     return null
   }
 
   async save(app: App): Promise<App> {
-    await this.keyValueService.set(this.getKey(app.id), this.encode(app))
+    await this.keyValueService.set(this.getKey(app.id), coerce.encode(App, app))
 
     return app
   }
 
   getKey(id: string): string {
     return `app:${id}`
-  }
-
-  private encode(app: App): string {
-    return JSON.stringify(app)
-  }
-
-  private decode(value: string): App {
-    return appSchema.parse(JSON.parse(value))
   }
 }

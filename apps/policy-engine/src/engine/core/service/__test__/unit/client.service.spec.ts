@@ -1,4 +1,5 @@
 import { EncryptionModule } from '@narval/encryption-module'
+import { secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -84,6 +85,16 @@ describe(ClientService.name, () => {
 
     clientService = module.get<ClientService>(ClientService)
     clientRepository = module.get<ClientRepository>(ClientRepository)
+  })
+
+  describe('save', () => {
+    it('hashes the secret key', async () => {
+      await clientService.save(client)
+
+      const actualClient = await clientService.findById(client.clientId)
+
+      expect(actualClient?.clientSecret).toEqual(secret.hash(client.clientSecret))
+    })
   })
 
   describe('syncDataStore', () => {

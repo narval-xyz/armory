@@ -1,4 +1,5 @@
 import { ConfigService } from '@narval/config-module'
+import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
@@ -33,7 +34,12 @@ export class EngineService {
   }
 
   async save(engine: Engine): Promise<Engine> {
-    return this.engineRepository.save(engine)
+    await this.engineRepository.save({
+      ...engine,
+      adminApiKey: secret.hash(engine.adminApiKey)
+    })
+
+    return engine
   }
 
   private getId(): string {

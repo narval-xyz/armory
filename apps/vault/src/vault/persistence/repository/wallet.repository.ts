@@ -1,6 +1,6 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { walletSchema } from '../../../shared/schema/wallet.schema'
 import { Wallet } from '../../../shared/type/domain.type'
 
 @Injectable()
@@ -17,23 +17,15 @@ export class WalletRepository {
     const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
-      return this.decode(value)
+      return coerce.decode(Wallet, value)
     }
 
     return null
   }
 
   async save(clientId: string, wallet: Wallet): Promise<Wallet> {
-    await this.keyValueService.set(this.getKey(clientId, wallet.id.toLowerCase()), this.encode(wallet))
+    await this.keyValueService.set(this.getKey(clientId, wallet.id.toLowerCase()), coerce.encode(Wallet, wallet))
 
     return wallet
-  }
-
-  private encode(wallet: Wallet): string {
-    return JSON.stringify(wallet)
-  }
-
-  private decode(value: string): Wallet {
-    return walletSchema.parse(JSON.parse(value))
   }
 }

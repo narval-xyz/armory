@@ -14,9 +14,8 @@ export class ClientController {
   @Post()
   async create(@Body() body: CreateClientDto) {
     const now = new Date()
-
     const engineJwk = body.engineJwk ? publicKeySchema.parse(body.engineJwk) : undefined // Validate the JWK, instead of in DTO
-    const client = await this.clientService.onboard({
+    const client = await this.clientService.save({
       clientId: body.clientId || uuid(),
       clientSecret: randomBytes(42).toString('hex'),
       engineJwk,
