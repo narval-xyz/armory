@@ -1,4 +1,5 @@
 import { EntityStore, PolicyStore, Request } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
 import {
   ArmoryClientConfig,
@@ -164,7 +165,8 @@ export const setPolicies = async (
 
   const signature = await signData(privateKey, policies, {
     sub: privateKey.kid,
-    iss: config.authClientId
+    iss: config.authClientId,
+    alg: SigningAlg.EIP191
   })
 
   const policy: PolicyStore = {
@@ -213,7 +215,8 @@ export const setEntities = async (
 
   const signature = await signData(privateKey, entities, {
     sub: privateKey.kid,
-    iss: config.authClientId
+    iss: config.authClientId,
+    alg: SigningAlg.EIP191
   })
 
   const entity: EntityStore = {

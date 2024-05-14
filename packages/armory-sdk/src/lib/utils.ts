@@ -10,6 +10,7 @@ import {
   JwsdHeader,
   Payload,
   PrivateKey,
+  SigningAlg,
   buildSignerForAlg,
   hash,
   hexToBase64Url,
@@ -112,11 +113,12 @@ export const signData = async (
     iss?: string
     sub?: string
     iat?: number
+    alg?: SigningAlg
   } = {}
 ): Promise<JwtString> => {
   const payload = buildDataPayload(data, opts)
 
-  const authentication = await signJwt(payload, signer)
+  const authentication = await signJwt(payload, signer, { alg: opts.alg })
   return authentication
 }
 
