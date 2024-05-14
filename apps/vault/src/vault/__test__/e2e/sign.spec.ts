@@ -117,7 +117,7 @@ describe('Sign', () => {
       activated: true
     })
 
-    await clientService.onboard(client)
+    await clientService.save(client)
 
     await walletRepository.save(clientId, wallet)
 

@@ -1,25 +1,28 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
+import { z } from 'zod'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { clientIndexSchema, clientSchema } from '../../../shared/schema/client.schema'
 import { Client } from '../../../shared/type/domain.type'
+
+export const ClientIndex = z.array(z.string())
 
 @Injectable()
 export class ClientRepository {
   constructor(private encryptKeyValueService: EncryptKeyValueService) {}
 
-  async findByClientId(clientId: string): Promise<Client | null> {
+  async findById(clientId: string): Promise<Client | null> {
     const value = await this.encryptKeyValueService.get(this.getKey(clientId))
 
     if (value) {
-      return this.decode(value)
+      return coerce.decode(Client, value)
     }
 
     return null
   }
 
   async save(client: Client): Promise<Client> {
-    await this.encryptKeyValueService.set(this.getKey(client.clientId), this.encode(client))
+    await this.encryptKeyValueService.set(this.getKey(client.clientId), coerce.encode(Client, client))
     await this.index(client)
 
     return client
@@ -29,7 +32,7 @@ export class ClientRepository {
     const index = await this.encryptKeyValueService.get(this.getIndexKey())
 
     if (index) {
-      return this.decodeIndex(index)
+      return coerce.decode(ClientIndex, index)
     }
 
     return []
@@ -44,7 +47,7 @@ export class ClientRepository {
   // strategy to solve the problem (e.g. where query in SQL)
   async findAll(): Promise<Client[]> {
     const ids = await this.getClientIndex()
-    const clients = await Promise.all(ids.map((id) => this.findByClientId(id)))
+    const clients = await Promise.all(ids.map((id) => this.findById(id)))
 
     return compact(clients)
   }
@@ -60,24 +63,11 @@ export class ClientRepository {
   private async index(client: Client): Promise<boolean> {
     const currentIndex = await this.getClientIndex()
 
-    await this.encryptKeyValueService.set(this.getIndexKey(), this.encodeIndex([...currentIndex, client.clientId]))
+    await this.encryptKeyValueService.set(
+      this.getIndexKey(),
+      coerce.encode(ClientIndex, [...currentIndex, client.clientId])
+    )
 
     return true
-  }
-
-  private encode(client: Client): string {
-    return EncryptKeyValueService.encode(clientSchema.parse(client))
-  }
-
-  private decode(value: string): Client {
-    return clientSchema.parse(JSON.parse(value))
-  }
-
-  private encodeIndex(value: string[]): string {
-    return EncryptKeyValueService.encode(clientIndexSchema.parse(value))
-  }
-
-  private decodeIndex(value: string): string[] {
-    return clientIndexSchema.parse(JSON.parse(value))
   }
 }

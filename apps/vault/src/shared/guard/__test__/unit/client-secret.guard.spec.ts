@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { ClientService } from '../../../../client/core/service/client.service'
@@ -26,13 +27,13 @@ describe(ClientSecretGuard.name, () => {
   const mockService = (clientSecret: string = 'client-a-secret-key') => {
     const client: Client = {
       clientId: CLIENT_ID,
-      clientSecret: clientSecret,
+      clientSecret: secret.hash(clientSecret),
       updatedAt: new Date(),
       createdAt: new Date()
     }
 
     const serviceMock = mock<ClientService>()
-    serviceMock.findByClientId.mockResolvedValue(client)
+    serviceMock.findById.mockResolvedValue(client)
 
     return serviceMock
   }

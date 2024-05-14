@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { ClientService } from '../../client/core/service/client.service'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../main.constant'
@@ -23,8 +24,9 @@ export class ClientSecretGuard implements CanActivate {
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
-    const client = await this.clientService.findByClientId(clientId)
 
-    return client?.clientSecret?.toLowerCase() === clientSecret.toLowerCase()
+    const client = await this.clientService.findById(clientId)
+
+    return client?.clientSecret === secret.hash(clientSecret)
   }
 }

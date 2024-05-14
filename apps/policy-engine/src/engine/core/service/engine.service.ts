@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { hashSecret } from '@narval/nestjs-shared'
+import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
@@ -36,7 +36,7 @@ export class EngineService {
   async save(engine: Engine): Promise<Engine> {
     await this.engineRepository.save({
       ...engine,
-      adminApiKey: hashSecret(engine.adminApiKey)
+      adminApiKey: secret.hash(engine.adminApiKey)
     })
 
     return engine

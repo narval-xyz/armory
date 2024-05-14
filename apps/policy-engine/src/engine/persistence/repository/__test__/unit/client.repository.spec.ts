@@ -83,7 +83,7 @@ describe(ClientRepository.name, () => {
       await repository.save(client)
 
       const value = await inMemoryKeyValueRepository.get(repository.getKey(client.clientId))
-      const actualClient = await repository.findByClientId(client.clientId)
+      const actualClient = await repository.findById(client.clientId)
 
       expect(value).not.toEqual(null)
       expect(client).toEqual(actualClient)

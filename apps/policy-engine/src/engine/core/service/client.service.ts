@@ -1,4 +1,4 @@
-import { hashSecret } from '@narval/nestjs-shared'
+import { secret } from '@narval/nestjs-shared'
 import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -16,13 +16,13 @@ export class ClientService {
   ) {}
 
   async findById(clientId: string): Promise<Client | null> {
-    return this.clientRepository.findByClientId(clientId)
+    return this.clientRepository.findById(clientId)
   }
 
   async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
     const syncAfter = options?.syncAfter ?? true
 
-    const exists = await this.clientRepository.findByClientId(client.clientId)
+    const exists = await this.clientRepository.findById(client.clientId)
 
     if (exists) {
       throw new ApplicationException({
@@ -35,7 +35,7 @@ export class ClientService {
     try {
       await this.clientRepository.save({
         ...client,
-        clientSecret: hashSecret(client.clientSecret)
+        clientSecret: secret.hash(client.clientSecret)
       })
 
       if (syncAfter) {

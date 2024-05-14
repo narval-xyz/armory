@@ -33,7 +33,7 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const client = await this.clientService.findByClientId(clientId)
+    const client = await this.clientService.findById(clientId)
 
     // Expect the header in the format "GNAP <token>"
     const accessToken: string | undefined = headers.authorization.split('GNAP ')[1]

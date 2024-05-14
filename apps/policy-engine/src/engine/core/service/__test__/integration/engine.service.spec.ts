@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { hashSecret } from '@narval/nestjs-shared'
+import { secret } from '@narval/nestjs-shared'
 import { Test } from '@nestjs/testing'
 import { Config, load } from '../../../../../policy-engine.config'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
@@ -54,7 +54,7 @@ describe(EngineService.name, () => {
 
       const actualEngine = await service.getEngine()
 
-      expect(actualEngine?.adminApiKey).toEqual(hashSecret(adminApiKey))
+      expect(actualEngine?.adminApiKey).toEqual(secret.hash(adminApiKey))
     })
   })
 })

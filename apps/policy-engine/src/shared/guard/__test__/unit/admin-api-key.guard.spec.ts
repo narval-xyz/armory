@@ -1,4 +1,4 @@
-import { hashSecret } from '@narval/nestjs-shared'
+import { secret } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { EngineService } from '../../../../engine/core/service/engine.service'
@@ -22,7 +22,7 @@ describe(AdminApiKeyGuard.name, () => {
 
   const mockEngineService = (adminApiKey: string = 'test-admin-api-key') => {
     const engine = {
-      adminApiKey: hashSecret(adminApiKey),
+      adminApiKey: secret.hash(adminApiKey),
       id: 'test-engine-id',
       masterKey: 'test-master-key',
       activated: true
