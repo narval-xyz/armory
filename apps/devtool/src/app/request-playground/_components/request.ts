@@ -1,3 +1,4 @@
+import { Permission, Resource } from '@narval/armory-sdk'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { Alg, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { getTime } from 'date-fns'
@@ -92,5 +93,16 @@ export const spendingLimits = async () => {
         ]
       }
     ]
+  }
+}
+
+export const grantPermission = async () => {
+  return {
+    request: {
+      action: Action.GRANT_PERMISSION,
+      resourceId: Resource.VAULT,
+      nonce: uuid(),
+      permissions: [Permission.WALLET_CREATE, Permission.WALLET_READ, Permission.WALLET_IMPORT]
+    }
   }
 }

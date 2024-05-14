@@ -37,6 +37,8 @@ export const thenSchema = z.nativeEnum({
 
 export const criterionSchema = z.nativeEnum({
   CHECK_ACTION: 'checkAction',
+  CHECK_RESOURCE: 'checkResource',
+  CHECK_PERMISSION: 'checkPermission',
   CHECK_RESOURCE_INTEGRITY: 'checkResourceIntegrity',
   CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
@@ -140,6 +142,16 @@ export const spendingLimitConditionSchema = z.object({
 export const actionCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ACTION),
   args: z.array(z.nativeEnum(Action)).min(1)
+})
+
+export const resourceCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_RESOURCE),
+  args: z.array(z.string()).min(1)
+})
+
+export const permissionCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_PERMISSION),
+  args: z.array(z.string()).min(1)
 })
 
 export const resourceIntegrityCriterionSchema = z.object({
@@ -309,6 +321,8 @@ export const spendingLimitCriterionSchema = z.object({
 
 export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   actionCriterionSchema,
+  resourceCriterionSchema,
+  permissionCriterionSchema,
   resourceIntegrityCriterionSchema,
   principalIdCriterionSchema,
   principalRoleCriterionSchema,

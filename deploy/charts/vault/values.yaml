@@ -1,0 +1,80 @@
+replicaCount: 1
+image:
+  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault
+  pullPolicy: IfNotPresent
+  tag: ecc4fbf
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ''
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+env:
+  APP_UID: staging-vault-instance-1
+  KEYRING_TYPE: raw
+  BASE_URL: https://vault.armory.narval.xyz
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3011
+ingress:
+  enabled: true
+  fullname: eks-alb
+  service:
+    port: 80
+  className: alb
+  ingressClassName: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:728783560968:certificate/ab1729c2-8213-4ce2-b9e0-cbac3de2a459
+    external-dns.alpha.kubernetes.io/hostname: vault.armory.narval.xyz
+  hosts:
+    - host: vault.armory.narval.xyz
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - vault.armory.narval.xyz
+resources: {}
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+volumes: []
+volumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+database:
+  username:
+    secretKeyRef:
+      name: db-master-credentials
+      key: username
+  password:
+    secretKeyRef:
+      name: db-master-credentials
+      key: password
+  host: armory-dev-db.caenfnzrkfmg.us-east-2.rds.amazonaws.com
+  port: 5432
+  databaseName: vault_test
+secretRemoteRef: staging/vault

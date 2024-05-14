@@ -12,8 +12,8 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
-      - policy-engine.dockerfile
-      - charts/policy-engine/**
+      - deploy/policy-engine.dockerfile
+      - deploy/charts/policy-engine/**
 
 jobs:
   test:
@@ -156,7 +156,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./policy-engine.dockerfile
+          file: ./deploy/policy-engine.dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/policy-engine:${{ env.sha7 }}
@@ -167,11 +167,11 @@ jobs:
       - name: Update Image Version in the worker HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@master
         with:
-          valueFile: "charts/policy-engine/values.yaml"
-          propertyPath: "image.tag"
+          valueFile: 'deploy/charts/policy-engine/values.yaml'
+          propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
           branch: main
-          message: "Update policy-engine Image Version to ${{ env.sha7 }}"
+          message: 'Update policy-engine Image Version to ${{ env.sha7 }}'
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'

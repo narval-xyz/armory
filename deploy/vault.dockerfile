@@ -23,6 +23,11 @@ FROM node:21 as final
 
 WORKDIR /usr/src/app
 
+# Set up DB migration capability
+COPY apps/vault/src/shared/module/persistence/schema ./schema
+COPY ./deploy/db-migrator.sh .
+RUN chmod +x ./db-migrator.sh
+
 # Copy built application and node_modules
 # We need node_modules to run the application and it's more efficient to copy the whole thing from the previous step
 # rather than installing it again, even though this includes devDependencies b/c it can use the cache to speed up builds unless deps change.
@@ -33,6 +38,5 @@ ENV NODE_ENV=production
 ENV PORT=3011
 
 EXPOSE 3011
-
 CMD ["node", "dist/apps/vault/main.js"]
 

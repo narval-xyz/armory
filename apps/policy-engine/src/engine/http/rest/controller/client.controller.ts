@@ -1,4 +1,4 @@
-import { generateSecret } from '@narval/nestjs-shared'
+import { secret } from '@narval/nestjs-shared'
 import { Alg, privateKeyToHex, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
@@ -20,7 +20,7 @@ export class ClientController {
 
     const client = await this.clientService.save({
       clientId: body.clientId || uuid(),
-      clientSecret: generateSecret(),
+      clientSecret: secret.generate(),
       dataStore: {
         entity: body.entityDataStore,
         policy: body.policyDataStore
