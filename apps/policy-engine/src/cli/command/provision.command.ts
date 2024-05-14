@@ -20,17 +20,17 @@ export class ProvisionCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const engine = await this.engineService.getEngine()
+    let engine = await this.engineService.getEngine()
 
     if (engine && engine.masterKey) {
       return console.log('Engine already provisioned')
     }
 
-    await this.provisionService.provision(true) // activate the engine b/c we'll print the admin API key below
-
     try {
+      engine = await this.provisionService.provision(true) // activate the engine b/c we'll print the admin API key below
+      if (!engine) throw new Error('Provision failed')
+
       const keyring = this.configService.get('keyring')
-      const engine = await this.engineService.getEngineOrThrow()
 
       console.log('Engine ID:', engine.id)
       console.log('Engine admin API key:', engine.adminApiKey)

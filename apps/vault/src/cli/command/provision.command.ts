@@ -20,17 +20,17 @@ export class ProvisionCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const app = await this.appService.getApp()
+    let app = await this.appService.getApp()
 
     if (app && app.masterKey) {
       return console.log('App already provisioned')
     }
 
-    await this.provisionService.provision(true)
-
     try {
+      app = await this.provisionService.provision(true)
+      if (!app) throw new Error('Provision failed')
+
       const keyring = this.configService.get('keyring', { infer: true })
-      const app = await this.appService.getAppOrThrow()
 
       console.log('App ID:', app.id)
       console.log('App admin API key:', app.adminApiKey)
