@@ -8,6 +8,9 @@ export const classNames = (...classes: Array<string | undefined | null>) => {
 
 export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.toLowerCase().slice(1)
 
+export const formatAddress = (address?: string, splitLength: number = 5): string =>
+  address ? `${address.substring(0, splitLength)}...${address.substring(address.length - splitLength)}` : ''
+
 export const getUrlProtocol = (url: string) => url.split(':')[0]
 
 export const extractErrorMessage = (err: unknown): string => {
