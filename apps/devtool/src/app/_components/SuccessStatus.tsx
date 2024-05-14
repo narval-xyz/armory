@@ -3,8 +3,8 @@
 import { faCheckCircle } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const GreenCheckStatus = ({ isChecked, label }: { isChecked: boolean; label: string }) => {
-  if (!isChecked) return null
+const SuccessStatus = ({ label }: { label: string }) => {
+  if (!label) return null
 
   return (
     <div className="flex items-center gap-4">
@@ -14,4 +14,4 @@ const GreenCheckStatus = ({ isChecked, label }: { isChecked: boolean; label: str
   )
 }
 
-export default GreenCheckStatus
+export default SuccessStatus

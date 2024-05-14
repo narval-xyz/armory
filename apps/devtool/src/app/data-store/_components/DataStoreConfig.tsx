@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
-import GreenCheckStatus from '../../_components/GreenCheckStatus'
+import SuccessStatus from '../../_components/SuccessStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
@@ -88,7 +88,7 @@ const DataStoreConfig = () => {
         <div className="text-nv-2xl grow">Data Store</div>
         <div className="flex items-center gap-4">
           <ErrorStatus label={errors} />
-          <GreenCheckStatus isChecked={isSynced} label={isSynced ? 'Engine Synced!' : 'Syncing Engine...'} />
+          <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
           <NarButton
             label={isEntitySigning ? 'Signing...' : 'Sign Entity'}
             leftIcon={isEntitySigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
