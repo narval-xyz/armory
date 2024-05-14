@@ -1,7 +1,30 @@
 import { AssetId } from '@narval/policy-engine-shared'
+import { ValidationPipe } from '@nestjs/common'
+import { APP_PIPE } from '@nestjs/core'
 import { BackoffOptions } from 'bull'
+import { ZodValidationPipe } from 'nestjs-zod'
 import { Chain } from './shared/core/lib/chains.lib'
 import { FiatId } from './shared/core/type/price.type'
+
+//
+// Providers
+//
+
+export const VALIDATION_PIPES = [
+  {
+    provide: APP_PIPE,
+    // Enable transformation after validation for HTTP response serialization.
+    useFactory: () => new ValidationPipe({ transform: true })
+  },
+  {
+    provide: APP_PIPE,
+    useClass: ZodValidationPipe
+  }
+]
+
+//
+// Headers
+//
 
 export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
 

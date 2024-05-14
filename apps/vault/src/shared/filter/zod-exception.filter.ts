@@ -5,7 +5,8 @@ import { ZodValidationException } from 'nestjs-zod'
 import { ZodError } from 'zod'
 import { Config, Env } from '../../main.config'
 
-// Catch both types, because the zodToDto function will throw a wrapped ZodValidationError that otherwise isn't picked up here
+// Catch both types, because the zodToDto function will throw a wrapped
+// ZodValidationError that otherwise isn't picked up here.
 @Catch(ZodError, ZodValidationException)
 export class ZodExceptionFilter implements ExceptionFilter {
   private logger = new Logger(ZodExceptionFilter.name)
