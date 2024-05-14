@@ -1,8 +1,9 @@
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
+import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { randomBytes } from 'crypto'
 import { Config } from '../../../main.config'
+import { App } from '../../../shared/type/domain.type'
 import { AppService } from './app.service'
 
 @Injectable()
@@ -14,45 +15,52 @@ export class ProvisionService {
     private appService: AppService
   ) {}
 
-  async provision(activate?: boolean): Promise<void> {
-    const app = await this.appService.getApp()
+  async provision(activate?: boolean): Promise<App | null> {
+    let app = await this.appService.getApp()
 
     const isFirstTime = app === null
 
     // IMPORTANT: The order of internal methods call matters.
     if (isFirstTime) {
       this.logger.log('Start app provision')
-      await this.createApp(activate)
-      await this.maybeSetupEncryption()
+      app = await this.createApp(activate)
+      app = await this.maybeSetupEncryption()
     } else {
       this.logger.log('app already provisioned')
     }
+    return app
   }
 
   // Activate is just a boolean that lets you return the adminApiKey one time
   // This enables you to provision the app at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
-  async activate(): Promise<void> {
+  async activate(): Promise<App> {
     this.logger.log('Activate app')
     const app = await this.appService.getAppOrThrow()
-    await this.appService.save({ ...app, activated: true })
-  }
-
-  private async createApp(activate?: boolean): Promise<void> {
-    this.logger.log('Generate admin API key and save app')
-
-    await this.appService.save({
-      id: this.getAppId(),
-      adminApiKey: randomBytes(20).toString('hex'),
-      activated: !!activate
+    return this.appService.save({
+      ...app,
+      activated: true,
+      adminApiKey: secret.generate() // rotate the API key
     })
   }
 
-  private async maybeSetupEncryption(): Promise<void> {
+  private async createApp(activate?: boolean): Promise<App> {
+    this.logger.log('Generate admin API key and save app')
+
+    const app = await this.appService.save({
+      id: this.getAppId(),
+      adminApiKey: secret.generate(),
+      activated: !!activate
+    })
+    return app
+  }
+
+  private async maybeSetupEncryption(): Promise<App> {
     // Get the app's latest state.
     const app = await this.appService.getAppOrThrow()
 
     if (app.masterKey) {
-      return this.logger.log('Skip master key set up because it already exists')
+      this.logger.log('Skip master key set up because it already exists')
+      return app
     }
 
     const keyring = this.configService.get('keyring', { infer: true })
@@ -64,8 +72,9 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getAppId())
       const masterKey = await generateMasterKey(kek)
 
-      await this.appService.save({ ...app, masterKey })
+      return await this.appService.save({ ...app, masterKey })
     }
+    return app
   }
 
   private getAppId(): string {

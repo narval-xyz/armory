@@ -1,8 +1,9 @@
 import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
+import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
-import { randomBytes } from 'crypto'
 import { Config } from '../../../policy-engine.config'
+import { Engine } from '../../../shared/type/domain.type'
 import { ProvisionException } from '../exception/provision.exception'
 import { EngineService } from './engine.service'
 
@@ -20,45 +21,52 @@ export class ProvisionService {
     private engineService: EngineService
   ) {}
 
-  async provision(activate?: boolean): Promise<void> {
-    const engine = await this.engineService.getEngine()
+  async provision(activate?: boolean): Promise<Engine | null> {
+    let engine = await this.engineService.getEngine()
 
     const isFirstTime = engine === null
 
     // IMPORTANT: The order of internal methods call matters.
     if (isFirstTime) {
       this.logger.log('Start app provision')
-      await this.createEngine(activate)
-      await this.maybeSetupEncryption()
+      engine = await this.createEngine(activate)
+      engine = await this.maybeSetupEncryption()
     } else {
       this.logger.log('App already provisioned')
     }
+    return engine
   }
 
   // Activate is just a boolean that lets you return the adminApiKey one time
   // This enables you to provision the engine at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
-  async activate(): Promise<void> {
+  async activate(): Promise<Engine> {
     this.logger.log('Activate app')
     const engine = await this.engineService.getEngineOrThrow()
-    await this.engineService.save({ ...engine, activated: true })
-  }
-
-  private async createEngine(activate?: boolean): Promise<void> {
-    this.logger.log('Generate admin API key and save engine')
-
-    await this.engineService.save({
-      id: this.getEngineId(),
-      adminApiKey: randomBytes(20).toString('hex'),
-      activated: !!activate
+    return this.engineService.save({
+      ...engine,
+      activated: true,
+      adminApiKey: secret.generate()
     })
   }
 
-  private async maybeSetupEncryption(): Promise<void> {
+  private async createEngine(activate?: boolean): Promise<Engine> {
+    this.logger.log('Generate admin API key and save engine')
+
+    const app = await this.engineService.save({
+      id: this.getEngineId(),
+      adminApiKey: secret.generate(),
+      activated: !!activate
+    })
+    return app
+  }
+
+  private async maybeSetupEncryption(): Promise<Engine> {
     // Get the engine's latest state.
     const engine = await this.engineService.getEngineOrThrow()
 
     if (engine.masterKey) {
-      return this.logger.log('Skip master key set up because it already exists')
+      this.logger.log('Skip master key set up because it already exists')
+      return engine
     }
 
     const keyring = this.configService.get('keyring')
@@ -70,10 +78,11 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getEngineId())
       const masterKey = await generateMasterKey(kek)
 
-      await this.engineService.save({ ...engine, masterKey })
+      return await this.engineService.save({ ...engine, masterKey })
     } else {
       throw new ProvisionException('Unsupported keyring type', { type: keyring.type })
     }
+    return engine
   }
 
   private getEngineId(): string {
