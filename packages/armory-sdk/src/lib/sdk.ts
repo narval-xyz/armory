@@ -138,7 +138,7 @@ export const signRequest = async (config: VaultClientConfig, input: SignatureReq
   return data
 }
 
-export const syncEngine = async (config: EngineClientConfig) => {
+export const syncDataStores = async (config: EngineClientConfig) => {
   const { authHost } = config
   const headers = buildBasicEngineHeaders(config)
 
@@ -191,7 +191,8 @@ export const setPolicies = async (
     })
   }
   try {
-    await syncEngine(config)
+    // TODO: remove manual sync after https://linear.app/narval/issue/NAR-1623
+    await syncDataStores(config)
     return { success: true }
   } catch (error) {
     throw new NarvalSdkException('Failed to sync engine after setting policies', {
@@ -233,7 +234,7 @@ export const setEntities = async (
     })
   }
   try {
-    await syncEngine(config)
+    await syncDataStores(config)
     return { success: true }
   } catch (error) {
     throw new NarvalSdkException('Failed to sync engine after setting entities', {
