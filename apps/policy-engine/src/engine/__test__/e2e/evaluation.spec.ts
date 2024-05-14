@@ -106,7 +106,7 @@ describe('Evaluation', () => {
       key: privateKey
     })
 
-    client = await clientService.onboard(
+    client = await clientService.save(
       {
         clientId,
         clientSecret: randomBytes(42).toString('hex'),

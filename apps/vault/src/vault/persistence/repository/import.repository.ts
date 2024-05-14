@@ -1,13 +1,14 @@
+import { coerce } from '@narval/nestjs-shared'
 import { RsaPrivateKey, rsaPrivateKeySchema } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { z } from 'zod'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
 
-const importKeySchema = z.object({
+const ImportKey = z.object({
   jwk: rsaPrivateKeySchema,
   createdAt: z.number() // epoch in seconds
 })
-export type ImportKey = z.infer<typeof importKeySchema>
+export type ImportKey = z.infer<typeof ImportKey>
 
 @Injectable()
 export class ImportRepository {
@@ -23,7 +24,7 @@ export class ImportRepository {
     const value = await this.keyValueService.get(this.getKey(clientId, id))
 
     if (value) {
-      return this.decode(value)
+      return coerce.decode(ImportKey, value)
     }
 
     return null
@@ -35,16 +36,9 @@ export class ImportRepository {
       jwk: privateKey,
       createdAt
     }
-    await this.keyValueService.set(this.getKey(clientId, privateKey.kid), this.encode(importKey))
+
+    await this.keyValueService.set(this.getKey(clientId, privateKey.kid), coerce.encode(ImportKey, importKey))
 
     return importKey
-  }
-
-  private encode(importKey: ImportKey): string {
-    return JSON.stringify(importKey)
-  }
-
-  private decode(value: string): ImportKey {
-    return importKeySchema.parse(JSON.parse(value))
   }
 }

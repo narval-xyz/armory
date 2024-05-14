@@ -6,8 +6,6 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { Config, load } from '../../../main.config'
 import { REQUEST_HEADER_API_KEY } from '../../../main.constant'
-import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { AppService } from '../../../vault/core/service/app.service'
@@ -35,8 +33,6 @@ describe('Client', () => {
         ClientModule
       ]
     })
-      .overrideProvider(KeyValueRepository)
-      .useValue(new InMemoryKeyValueRepository())
       .overrideProvider(EncryptionModuleOptionProvider)
       .useValue({
         keyring: getTestRawAesKeyring()
@@ -54,7 +50,7 @@ describe('Client', () => {
 
     await appService.save({
       id: configService.get('app.id', { infer: true }),
-      masterKey: 'unsafe-test-master-key',
+      masterKey: 'test-master-key',
       adminApiKey,
       activated: true
     })
@@ -84,16 +80,12 @@ describe('Client', () => {
         .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(payload)
-      const actualClient = await clientRepository.findByClientId(clientId)
 
-      expect(body).toMatchObject({
-        ...payload,
-        clientSecret: expect.any(String),
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String)
-      })
+      const actualClient = await clientRepository.findById(clientId)
+
       expect(body).toEqual({
         ...actualClient,
+        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
@@ -116,16 +108,12 @@ describe('Client', () => {
         .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(newPayload)
-      const actualClient = await clientRepository.findByClientId('client-2')
 
-      expect(body).toMatchObject({
-        clientId: newPayload.clientId,
-        clientSecret: expect.any(String),
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String)
-      })
+      const actualClient = await clientRepository.findById('client-2')
+
       expect(body).toEqual({
         ...actualClient,
+        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })

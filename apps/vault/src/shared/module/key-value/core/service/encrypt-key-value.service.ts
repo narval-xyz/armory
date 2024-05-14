@@ -36,8 +36,4 @@ export class EncryptKeyValueService {
   async delete(key: string): Promise<boolean> {
     return this.keyValueRepository.delete(key)
   }
-
-  static encode(value: unknown): string {
-    return JSON.stringify(value)
-  }
 }

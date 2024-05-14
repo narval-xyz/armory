@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { REQUEST_HEADER_API_KEY } from '../../main.constant'
 import { AppService } from '../../vault/core/service/app.service'
@@ -20,6 +21,6 @@ export class AdminApiKeyGuard implements CanActivate {
 
     const app = await this.appService.getAppOrThrow()
 
-    return app.adminApiKey === apiKey
+    return app.adminApiKey === secret.hash(apiKey)
   }
 }
