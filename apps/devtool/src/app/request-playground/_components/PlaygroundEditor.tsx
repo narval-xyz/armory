@@ -5,20 +5,22 @@ import {
   faCheckCircle,
   faFileSignature,
   faTriangleExclamation,
+  faUpload,
   faXmarkCircle
 } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Editor } from '@monaco-editor/react'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { generatePrivateKey } from 'viem/accounts'
 import NarButton from '../../_design-system/NarButton'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useVaultApi from '../../_hooks/useVaultApi'
-import { erc20, spendingLimits } from './request'
+import { erc20, grantPermission, spendingLimits } from './request'
 
 const PlaygroundEditor = () => {
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
-  const { errors: signatureErrors, signTransaction } = useVaultApi()
+  const { errors: signatureErrors, signTransaction, importPrivateKey } = useVaultApi()
   const [codeEditor, setCodeEditor] = useState<string | undefined>()
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [evaluationResponse, setEvaluationResponse] = useState<EvaluationResponse>()
@@ -82,6 +84,22 @@ const PlaygroundEditor = () => {
     setIsProcessing(false)
   }
 
+  const importWallet = async () => {
+    if (!evaluationResponse) return
+
+    const { accessToken, request } = evaluationResponse
+
+    if (!accessToken?.value || !request) return
+
+    setIsProcessing(true)
+    setEvaluationResponse(undefined)
+
+    await importPrivateKey({ privateKey: generatePrivateKey() }, accessToken.value)
+
+    setEvaluationResponse(undefined)
+    setIsProcessing(false)
+  }
+
   const updateExample = async () => {
     setCodeEditor(JSON.stringify(await erc20(), null, 2))
   }
@@ -120,6 +138,10 @@ const PlaygroundEditor = () => {
               label="Spending limits"
               onClick={async () => setCodeEditor(JSON.stringify(await spendingLimits(), null, 2))}
             />
+            <NarButton
+              label="Grant Permissions"
+              onClick={async () => setCodeEditor(JSON.stringify(await grantPermission(), null, 2))}
+            />
           </div>
         </div>
       </div>
@@ -135,6 +157,12 @@ const PlaygroundEditor = () => {
             label="Sign"
             leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
             onClick={signRequest}
+            disabled={isProcessing || !canBeSigned}
+          />
+          <NarButton
+            label="Import Wallet"
+            leftIcon={<FontAwesomeIcon icon={faUpload} />}
+            onClick={importWallet}
             disabled={isProcessing || !canBeSigned}
           />
 

@@ -4,6 +4,7 @@ import {
   Entities,
   EvaluationRequest,
   Feed,
+  GrantPermissionAction,
   Request,
   SerializedTransactionRequest,
   SignMessageAction,
@@ -97,6 +98,16 @@ const toSignMessage: Mapping<SignMessageAction> = (request, principal, approvals
 const toSignRaw: Mapping<SignMessageAction> = (request, principal, approvals): Input =>
   toSignMessageOrSignRaw({ action: Action.SIGN_RAW, request, principal, approvals })
 
+const toGrantPermission: Mapping<GrantPermissionAction> = (request, principal, approvals): Input => {
+  return {
+    action: request.action,
+    principal,
+    approvals,
+    resource: { uid: request.resourceId },
+    permissions: request.permissions
+  }
+}
+
 export const toInput = (params: {
   evaluation: EvaluationRequest
   principal: CredentialEntity
@@ -109,7 +120,8 @@ export const toInput = (params: {
     [Action.SIGN_MESSAGE, toSignMessage],
     [Action.SIGN_RAW, toSignRaw],
     [Action.SIGN_TRANSACTION, toSignTransaction],
-    [Action.SIGN_TYPED_DATA, toSignTypedData]
+    [Action.SIGN_TYPED_DATA, toSignTypedData],
+    [Action.GRANT_PERMISSION, toGrantPermission]
   ])
   const mapper = mappers.get(action)
 

@@ -7,6 +7,7 @@ import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey, SigningAlg 
 import { generateJwk, nowSeconds, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
+  checkAccess,
   checkAudience,
   checkAuthorizedParty,
   checkDataHash,
@@ -213,7 +214,7 @@ describe('verifyJwtHeader', () => {
 
     const result = verifyJwtHeader(header as Header)
 
-    expect(result).toBe(true)
+    expect(result).toEqual(true)
   })
 
   it('throws JwtError when unrecognized crit parameter is present in the header', () => {
@@ -429,7 +430,7 @@ describe('checkRequiredClaims', () => {
 
     const result = checkRequiredClaims(payload, opts)
 
-    expect(result).toBe(true)
+    expect(result).toEqual(true)
   })
 
   it('requires iss if Issuer verify option is passed', () => {
@@ -531,7 +532,7 @@ describe('checkTokenExpiration', () => {
 
     const result = checkTokenExpiration(payload, opts)
 
-    expect(result).toBe(true)
+    expect(result).toEqual(true)
   })
 
   it('allows overwriting `now` with a custom value', () => {
@@ -544,7 +545,7 @@ describe('checkTokenExpiration', () => {
 
     const result = checkTokenExpiration(payload, opts)
 
-    expect(result).toBe(true)
+    expect(result).toEqual(true)
   })
 })
 
@@ -556,7 +557,7 @@ describe('checkNbf', () => {
 
     const result = checkNbf(payload, {})
 
-    expect(result).toBe(true)
+    expect(result).toEqual(true)
   })
 
   it('throws JwtError when the token is not yet valid', () => {
@@ -578,13 +579,13 @@ describe('checkIssuer', () => {
       checkIssuer(payload, {
         issuer: 'https://example.com'
       })
-    ).toBe(true)
+    ).toEqual(true)
 
     expect(
       checkIssuer(payload, {
         issuer: ['https://other.com', 'https://example.com']
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the issuer is invalid', () => {
@@ -610,13 +611,13 @@ describe('checkAudience', () => {
       checkAudience(payload, {
         audience: 'https://api.example.com'
       })
-    ).toBe(true)
+    ).toEqual(true)
 
     expect(
       checkAudience(payload, {
         audience: ['https://api.other.com', 'https://api.example.com']
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the audience is invalid', () => {
@@ -651,7 +652,7 @@ describe('checkAudience', () => {
       checkAudience(payload, {
         audience: 'https://api.example.com'
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 })
 
@@ -665,7 +666,7 @@ describe('checkSubject', () => {
       checkSubject(payload, {
         subject: 'test-subject'
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the subject is invalid', () => {
@@ -691,7 +692,7 @@ describe('checkAuthorizedParty', () => {
       checkAuthorizedParty(payload, {
         authorizedParty: 'my-client-id'
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the azp is invalid', () => {
@@ -717,7 +718,7 @@ describe('checkRequestHash', () => {
       checkRequestHash(payload, {
         requestHash: '0x1234567890'
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the requestHash does not match', () => {
@@ -762,7 +763,7 @@ describe('checkDataHash', () => {
       checkDataHash(payload, {
         data: '0x1234567890'
       })
-    ).toBe(true)
+    ).toEqual(true)
   })
 
   it('throws JwtError when the data does not match', () => {
@@ -794,5 +795,95 @@ describe('checkDataHash', () => {
     }
     const result = checkDataHash(payload, opts)
     expect(result).toEqual(true)
+  })
+})
+
+describe('checkAccess', () => {
+  const payload: Payload = {
+    access: [
+      {
+        resource: 'vault',
+        permissions: ['wallet:create', 'wallet:read']
+      }
+    ]
+  }
+
+  it('returns true when the access is valid', () => {
+    expect(
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:create', 'wallet:read']
+          }
+        ]
+      })
+    ).toEqual(true)
+
+    expect(
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:read']
+          }
+        ]
+      })
+    ).toEqual(true)
+  })
+
+  it('supports undefined for permissions and this acts as a wildcard', () => {
+    expect(
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault'
+          }
+        ]
+      })
+    ).toEqual(true)
+  })
+
+  it('throws JwtError when resource is not valid', () => {
+    const payload: Payload = {
+      access: []
+    }
+
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:import']
+          }
+        ]
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('throws JwtError when permissions are not valid', () => {
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['wallet:import']
+          }
+        ]
+      })
+    ).toThrow(JwtError)
+  })
+
+  it('throws JwtError when permissions is an empty array', () => {
+    expect(() =>
+      checkAccess(payload, {
+        access: [
+          {
+            resource: 'vault',
+            permissions: []
+          }
+        ]
+      })
+    ).toThrow(JwtError)
   })
 })

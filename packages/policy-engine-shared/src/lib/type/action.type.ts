@@ -8,7 +8,8 @@ export const Action = {
   SIGN_TRANSACTION: 'signTransaction',
   SIGN_RAW: 'signRaw',
   SIGN_MESSAGE: 'signMessage',
-  SIGN_TYPED_DATA: 'signTypedData'
+  SIGN_TYPED_DATA: 'signTypedData',
+  GRANT_PERMISSION: 'grantPermission'
 } as const
 export type Action = (typeof Action)[keyof typeof Action]
 export const ActionSchema = z.nativeEnum(Action)
@@ -136,3 +137,12 @@ export const SignRawAction = BaseAction.merge(
   })
 )
 export type SignRawAction = z.infer<typeof SignRawAction>
+
+export const GrantPermissionAction = BaseAction.merge(
+  z.object({
+    action: z.literal(Action.GRANT_PERMISSION),
+    resourceId: z.string(),
+    permissions: z.array(z.string())
+  })
+)
+export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>

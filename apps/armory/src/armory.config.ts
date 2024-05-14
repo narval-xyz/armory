@@ -31,7 +31,7 @@ export const load = (): Config => {
     port: process.env.PORT,
     cors: process.env.CORS ? process.env.CORS.split(',') : [],
     database: {
-      url: process.env.ARMORY_DATABASE_URL
+      url: process.env.APP_DATABASE_URL
     },
     redis: {
       host: process.env.REDIS_HOST,

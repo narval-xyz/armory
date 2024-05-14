@@ -1,8 +1,8 @@
 replicaCount: 1
 image:
-  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault
+  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory
   pullPolicy: IfNotPresent
-  tag: fd69b81
+  tag: 11d34b5
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -16,13 +16,17 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 env:
-  APP_UID: staging-vault-instance-1
+  APP_UID: staging-armory-instance-1
   KEYRING_TYPE: raw
-  BASE_URL: https://vault.armory.narval.xyz
+  BASE_URL: https://auth.armory.narval.xyz
+  REDIS_HOST: development-redis.vaz0jx.ng.0001.use2.cache.amazonaws.com
+  REDIS_PORT: 6379
+  PRICE_FEED_PRIVATE_KEY: '0xc7a1b8ba040a238e36058fc5693f801d129aca9f10ed30d0133878f1b9147c01'
+  HISTORICAL_TRANSFER_FEED_PRIVATE_KEY: '0xf5c8f17cc09215c5038f6b8d5e557c0d98d341236307fe831efdcdd7faeef134'
 service:
   type: ClusterIP
   port: 80
-  targetPort: 3011
+  targetPort: 3005
 ingress:
   enabled: true
   fullname: eks-alb
@@ -37,15 +41,15 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:728783560968:certificate/ab1729c2-8213-4ce2-b9e0-cbac3de2a459
-    external-dns.alpha.kubernetes.io/hostname: vault.armory.narval.xyz
+    external-dns.alpha.kubernetes.io/hostname: auth.armory.narval.xyz
   hosts:
-    - host: vault.armory.narval.xyz
+    - host: auth.armory.narval.xyz
       paths:
         - path: /
           pathType: Prefix
   tls:
     - hosts:
-        - vault.armory.narval.xyz
+        - auth.armory.narval.xyz
 resources: {}
 livenessProbe:
   httpGet:
@@ -66,9 +70,6 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 database:
-  migrator:
-    repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault-db-migrator
-    tag: latest
   username:
     secretKeyRef:
       name: db-master-credentials
@@ -79,5 +80,5 @@ database:
       key: password
   host: armory-dev-db.caenfnzrkfmg.us-east-2.rds.amazonaws.com
   port: 5432
-  databaseName: vault_test
-secretRemoteRef: staging/vault
+  databaseName: armory_test
+secretRemoteRef: staging/armory

@@ -8,7 +8,6 @@ import { load } from '../main.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
-import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppService } from './core/service/app.service'
@@ -44,7 +43,6 @@ import { VaultService } from './vault.service'
   providers: [
     AppRepository,
     AppService,
-    ClientSecretGuard,
     ImportRepository,
     ImportService,
     NonceGuard,

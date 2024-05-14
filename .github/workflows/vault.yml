@@ -12,8 +12,8 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
-      - vault.dockerfile
-      - charts/vault/**
+      - deploy/vault.dockerfile
+      - deploy/charts/vault/**
 
 jobs:
   test:
@@ -133,7 +133,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./vault.dockerfile
+          file: ./deploy/vault.dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/armory/vault:${{ env.sha7 }}
@@ -144,11 +144,11 @@ jobs:
       - name: Update Image Version in the worker HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@master
         with:
-          valueFile: "charts/vault/values.yaml"
-          propertyPath: "image.tag"
+          valueFile: 'deploy/charts/vault/values.yaml'
+          propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
           branch: main
-          message: "Update Vault Image Version to ${{ env.sha7 }}"
+          message: 'Update Vault Image Version to ${{ env.sha7 }}'
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'

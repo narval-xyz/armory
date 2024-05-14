@@ -87,8 +87,8 @@ npx nx g @nx/nest:application --tags type:application
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
 
-
 # NPM Auth Variables
+
 The `.npmrc` file is needed for private registry credentials.
 This file is NOT in git, but it's necessary for the build
 
@@ -99,10 +99,13 @@ This file is NOT in git, but it's necessary for the build
 # Troubleshooting
 
 ## Docker
+
 Common issues you might encounter w/ docker
 
 ### DB URL in env variable fails when using `docker run`, but works when running outside docker
+
 If using `docker run --env-file .env ...`, the env file cannot include quotes around values. The quotes will be included in the value.
 
 ### Localhost postgres url cannot connect
+
 Inside docker, localhost points to the container not your computer. Change `localhost` to `host.docker.internal` to reference your computer's localhost ip.

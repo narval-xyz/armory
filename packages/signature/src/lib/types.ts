@@ -197,6 +197,12 @@ export const JwsdHeader = z.object({
 })
 export type JwsdHeader = z.infer<typeof JwsdHeader>
 
+export const PayloadAccessSchema = z.object({
+  resource: z.string(),
+  permissions: z.array(z.string())
+})
+export type PayloadAccessSchema = z.infer<typeof PayloadAccessSchema>
+
 /**
  * Defines the payload of JWT.
  *
@@ -225,7 +231,8 @@ export const Payload = z.intersection(
     azp: z.string().optional(),
     cnf: publicKeySchema.optional(),
     requestHash: z.string().optional(),
-    data: z.string().optional()
+    data: z.string().optional(),
+    access: z.array(PayloadAccessSchema).optional()
   })
 )
 export type Payload = z.infer<typeof Payload>
@@ -288,6 +295,8 @@ export type JwtVerifyOptions = {
    * Hash of the data, or the data itself which will be hashed then compared
    */
   data?: Hex | object
+
+  access?: { resource: string; permissions?: string[] }[]
 }
 
 export type JwsdVerifyOptions = {
