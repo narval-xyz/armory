@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -14,14 +15,14 @@ export class ClientService {
     private dataStoreService: DataStoreService
   ) {}
 
-  async findByClientId(clientId: string): Promise<Client | null> {
-    return this.clientRepository.findByClientId(clientId)
+  async findById(clientId: string): Promise<Client | null> {
+    return this.clientRepository.findById(clientId)
   }
 
-  async onboard(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
+  async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
     const syncAfter = options?.syncAfter ?? true
 
-    const exists = await this.clientRepository.findByClientId(client.clientId)
+    const exists = await this.clientRepository.findById(client.clientId)
 
     if (exists) {
       throw new ApplicationException({
@@ -32,7 +33,10 @@ export class ClientService {
     }
 
     try {
-      await this.clientRepository.save(client)
+      await this.clientRepository.save({
+        ...client,
+        clientSecret: secret.hash(client.clientSecret)
+      })
 
       if (syncAfter) {
         const hasSynced = await this.syncDataStore(client.clientId)
@@ -57,7 +61,7 @@ export class ClientService {
     this.logger.log('Start syncing client data stores', { clientId })
 
     try {
-      const client = await this.findByClientId(clientId)
+      const client = await this.findById(clientId)
 
       if (client) {
         this.logger.log('Sync client data stores', {

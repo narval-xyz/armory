@@ -1,6 +1,6 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
-import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
 import { Engine } from '../../../shared/type/domain.type'
 
 @Injectable()
@@ -11,14 +11,14 @@ export class EngineRepository {
     const value = await this.keyValueService.get(this.getEngineKey(id))
 
     if (value) {
-      return decode(Engine, value)
+      return coerce.decode(Engine, value)
     }
 
     return null
   }
 
   async save(engine: Engine): Promise<Engine> {
-    await this.keyValueService.set(this.getEngineKey(engine.id), encode(Engine, engine))
+    await this.keyValueService.set(this.getEngineKey(engine.id), coerce.encode(Engine, engine))
 
     return engine
   }

@@ -6,7 +6,7 @@ import { ProvisionService } from '../../../core/service/provision.service'
 
 type ProvisionResponse = {
   appId: string
-  adminApiKey: string
+  adminApiKey: string | undefined
   encryptionType: string
   isMasterPasswordSet?: boolean
   isMasterKeySet?: boolean
@@ -29,13 +29,17 @@ export class ProvisionController {
       return 'App already provisioned'
     }
 
+    let adminApiKey
     // if we've already provisioned but not activate, just flag it.
     if (engine && engine.masterKey && !engine.activated) {
-      await this.provisionService.activate()
+      const activatedApp = await this.provisionService.activate()
+      adminApiKey = activatedApp.adminApiKey
     }
     // Provision the engine if it hasn't yet
     else {
       await this.provisionService.provision(true)
+      const newApp = await this.provisionService.provision(true)
+      adminApiKey = newApp?.adminApiKey
     }
 
     try {
@@ -44,7 +48,7 @@ export class ProvisionController {
 
       const response: ProvisionResponse = {
         appId: engine.id,
-        adminApiKey: engine.adminApiKey,
+        adminApiKey,
         encryptionType: keyring.type
       }
 

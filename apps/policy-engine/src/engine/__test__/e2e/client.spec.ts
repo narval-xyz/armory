@@ -114,12 +114,13 @@ describe('Client', () => {
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send(createClientPayload)
 
-      const actualClient = await clientRepository.findByClientId(clientId)
+      const actualClient = await clientRepository.findById(clientId)
       const hex = await privateKeyToHex(actualClient?.signer.key as PrivateKey)
       const actualPublicKey = secp256k1PrivateKeyToPublicJwk(hex)
 
       expect(body).toEqual({
         ...actualClient,
+        clientSecret: expect.any(String),
         signer: { publicKey: actualPublicKey },
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()

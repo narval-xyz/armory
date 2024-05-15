@@ -1,6 +1,6 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { decode, encode } from '../../../shared/module/key-value/core/util/coercion.util'
 import { SignerConfig } from '../../../shared/type/domain.type'
 import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
 
@@ -12,7 +12,7 @@ export class EngineSignerConfigRepository {
 
   async save(engineId: string, signerConfig: SignerConfig): Promise<boolean> {
     try {
-      await this.encryptKeyValueService.set(this.getKey(engineId), encode(SignerConfig, signerConfig))
+      await this.encryptKeyValueService.set(this.getKey(engineId), coerce.encode(SignerConfig, signerConfig))
 
       return true
     } catch (error) {
@@ -29,7 +29,7 @@ export class EngineSignerConfigRepository {
     const value = await this.encryptKeyValueService.get(this.getKey(engineId))
 
     if (value) {
-      return decode(SignerConfig, value)
+      return coerce.decode(SignerConfig, value)
     }
 
     return null
