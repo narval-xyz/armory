@@ -18,8 +18,8 @@ const useDataStoreApi = () => {
   const { entityDataStoreUrl, policyDataStoreUrl, entitySignatureUrl, policySignatureUrl } = useStore()
   const { jwk, signAccountJwt } = useAccountSignature()
 
-  const [entitySignature, setEntitySignature] = useState<string>('')
-  const [policySignature, setPolicySignature] = useState<string>('')
+  const [entitySignature, setEntitySignature] = useState('')
+  const [policySignature, setPolicySignature] = useState('')
   const [dataStore, setDataStore] = useState<{ entity: Entities; policy: Policy[] }>()
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()

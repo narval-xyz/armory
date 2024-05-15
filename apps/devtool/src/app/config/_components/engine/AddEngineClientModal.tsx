@@ -2,12 +2,13 @@ import { faPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../../_design-system/NarButton'
-import NarDialog from '../../_design-system/NarDialog'
-import NarInput from '../../_design-system/NarInput'
-import useAccountSignature from '../../_hooks/useAccountSignature'
-import useEngineApi, { EngineClientData } from '../../_hooks/useEngineApi'
-import useStore from '../../_hooks/useStore'
+import NarButton from '../../../_design-system/NarButton'
+import NarDialog from '../../../_design-system/NarDialog'
+import NarInput from '../../../_design-system/NarInput'
+import useAccountSignature from '../../../_hooks/useAccountSignature'
+import useEngineApi, { EngineClientData } from '../../../_hooks/useEngineApi'
+import useStore from '../../../_hooks/useStore'
+import ValueWithCopy from '../ValueWithCopy'
 
 const initForm: EngineClientData = {
   engineUrl: '',
@@ -106,20 +107,20 @@ const AddEngineClientModal = () => {
       <div className="w-[800px] px-12 py-4">
         {!newClient && (
           <div className="flex flex-col gap-[24px]">
-            <div className="flex flex-col gap-[16px]">
+            <div className="flex flex-col gap-[8px]">
               <NarInput label="Engine URL" value={form.engineUrl} onChange={(engineUrl) => updateForm({ engineUrl })} />
               <NarInput
                 label="Admin API Key"
                 value={form.engineAdminApiKey}
                 onChange={(engineAdminApiKey) => updateForm({ engineAdminApiKey })}
               />
-              <div className="flex gap-[16px] items-end">
+              <div className="flex gap-[8px] items-end">
                 <NarInput label="Client ID" value={form.clientId} onChange={(clientId) => updateForm({ clientId })} />
                 <NarButton label="Generate" onClick={() => updateForm({ clientId: uuid() })} />
               </div>
             </div>
-            <div className="flex gap-[16px]">
-              <div className="flex flex-col gap-[16px] w-1/2">
+            <div className="flex gap-[24px]">
+              <div className="flex flex-col gap-[8px] w-1/2">
                 <NarInput
                   label="Entity Data Store URL"
                   value={form.entityDataStoreUrl}
@@ -136,7 +137,7 @@ const AddEngineClientModal = () => {
                   onChange={(entityPublicKey) => updateForm({ entityPublicKey })}
                 />
               </div>
-              <div className="flex flex-col gap-[16px] w-1/2">
+              <div className="flex flex-col gap-[8px] w-1/2">
                 <NarInput
                   label="Policy Data Store URL"
                   value={form.policyDataStoreUrl}
@@ -157,19 +158,10 @@ const AddEngineClientModal = () => {
           </div>
         )}
         {newClient && (
-          <div className="flex flex-col gap-[12px]">
-            <div className="flex flex-col gap-[8px]">
-              <div className="underline">Client ID:</div>
-              <p className="truncate">{newClient.clientId}</p>
-            </div>
-            <div className="flex flex-col gap-[8px]">
-              <div className="underline">Client Secret:</div>
-              <p className="truncate">{newClient.clientSecret}</p>
-            </div>
-            <div className="flex flex-col gap-[8px]">
-              <div className="underline">Client Signer:</div>
-              <pre>{JSON.stringify(newClient.signer.publicKey, null, 2)}</pre>
-            </div>
+          <div className="flex flex-col gap-[8px]">
+            <ValueWithCopy label="Client ID" value={newClient.clientId} />
+            <ValueWithCopy label="Client Secret" value={newClient.clientSecret} />
+            <ValueWithCopy label="Client Signer" value={JSON.stringify(newClient.signer.publicKey, null, 2)} />
           </div>
         )}
       </div>

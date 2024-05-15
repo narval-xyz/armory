@@ -2,12 +2,13 @@ import { faPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../../_design-system/NarButton'
-import NarCheckbox from '../../_design-system/NarCheckbox'
-import NarDialog from '../../_design-system/NarDialog'
-import NarInput from '../../_design-system/NarInput'
-import useStore from '../../_hooks/useStore'
-import useVaultApi, { VaultClientData } from '../../_hooks/useVaultApi'
+import NarButton from '../../../_design-system/NarButton'
+import NarCheckbox from '../../../_design-system/NarCheckbox'
+import NarDialog from '../../../_design-system/NarDialog'
+import NarInput from '../../../_design-system/NarInput'
+import useStore from '../../../_hooks/useStore'
+import useVaultApi, { VaultClientData } from '../../../_hooks/useVaultApi'
+import ValueWithCopy from '../ValueWithCopy'
 
 const initForm: VaultClientData = {
   vaultUrl: '',
@@ -84,10 +85,10 @@ const AddVaultClientModal = () => {
       onSave={newClient ? setConfig : addClient}
       onDismiss={closeDialog}
     >
-      <div className="w-[800px] px-12 py-4">
+      <div className="w-[900px] px-12 py-4">
         {!newClient && (
-          <div className="flex flex-col gap-[24px]">
-            <div className="flex flex-col gap-[16px]">
+          <div className="flex gap-[24px]">
+            <div className="flex flex-col gap-[8px] w-1/2">
               <NarInput label="Vault URL" value={form.vaultUrl} onChange={(vaultUrl) => updateForm({ vaultUrl })} />
               <NarInput
                 label="Admin API Key"
@@ -95,16 +96,16 @@ const AddVaultClientModal = () => {
                 onChange={(vaultAdminApiKey) => updateForm({ vaultAdminApiKey })}
               />
               <NarInput
-                label="Engine Public Key"
+                label="Engine Client Signer"
                 value={form.engineClientSigner}
                 onChange={(engineClientSigner) => updateForm({ engineClientSigner })}
               />
-              <div className="flex gap-[16px] items-end">
+              <div className="flex gap-[8px] items-end">
                 <NarInput label="Client ID" value={form.clientId} onChange={(clientId) => updateForm({ clientId })} />
                 <NarButton label="Generate" onClick={() => updateForm({ clientId: uuid() })} />
               </div>
             </div>
-            <div className="flex flex-col gap-[16px]">
+            <div className="flex flex-col gap-[8px] w-1/2">
               <NarInput
                 label="Backup Public Key (optional)"
                 value={form.backupPublicKey}
@@ -132,15 +133,9 @@ const AddVaultClientModal = () => {
           </div>
         )}
         {newClient && (
-          <div className="flex flex-col gap-[12px]">
-            <div className="flex flex-col gap-[8px]">
-              <div className="underline">Client ID:</div>
-              <p className="truncate">{newClient.clientId}</p>
-            </div>
-            <div className="flex flex-col gap-[8px]">
-              <div className="underline">Client Secret:</div>
-              <p className="truncate">{newClient.clientSecret}</p>
-            </div>
+          <div className="flex flex-col gap-[8px]">
+            <ValueWithCopy label="Client ID" value={newClient.clientId} />
+            <ValueWithCopy label="Client Secret" value={newClient.clientSecret} />
           </div>
         )}
       </div>

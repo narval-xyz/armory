@@ -18,6 +18,18 @@ import EngineConfigModal from './modals/EngineConfigModal'
 import Users from './sections/Users'
 import Wallets from './sections/Wallets'
 
+enum Action {
+  FETCH_DATA_STORE = 'FETCH_DATA_STORE',
+  SIGN_ENTITY = 'SIGN_ENTITY',
+  SIGN_POLICY = 'SIGN_POLICY',
+  PUSH_ENTITY = 'PUSH_ENTITY',
+  PUSH_POLICY = 'PUSH_POLICY',
+  PUSH_ENTITY_SIGNATURE = 'PUSH_ENTITY_SIGNATURE',
+  PUSH_POLICY_SIGNATURE = 'PUSH_POLICY_SIGNATURE',
+  SIGN_AND_PUSH_ENTITY = 'SIGN_AND_PUSH_ENTITY',
+  SIGN_AND_PUSH_POLICY = 'SIGN_AND_PUSH_POLICY'
+}
+
 const DataStoreConfig = () => {
   const {
     engineUrl,
@@ -87,39 +99,62 @@ const DataStoreConfig = () => {
     }
   }, [validationErrors])
 
-  const resyncEngine = () => syncEngine(engineUrl, engineClientId, engineClientSecret)
-
-  const fetchDataStore = async () => {
-    setIsFetching(true)
-    await getDataStore()
-    setIsFetching(false)
-  }
-
-  const signAndPushEntityData = async () => {
-    if (!dataCodeEditor) return
-
-    setIsEntitySigning(true)
-    const { entity } = JSON.parse(dataCodeEditor)
-    await signAndPushEntity(entity)
-    await resyncEngine()
-    setIsEntitySigning(false)
-  }
-
-  const signAndPushPolicyData = async () => {
-    if (!dataCodeEditor) return
-
-    setIsPolicySigning(true)
-    const { policy } = JSON.parse(dataCodeEditor)
-    await signAndPushPolicy(policy)
-    await resyncEngine()
-    setIsPolicySigning(false)
-  }
-
   const updateEntityStore = async (updatedData: Partial<Entities>) => {
     setDataCodeEditor((prev) => {
       const { entity, policy } = prev ? JSON.parse(prev) : { entity: {}, policy: {} }
       return JSON.stringify({ entity: { ...entity, ...updatedData }, policy }, null, 2)
     })
+  }
+
+  const handleAction = async (action: Action) => {
+    if (!dataCodeEditor) return
+
+    const { entity, policy } = JSON.parse(dataCodeEditor)
+    const resyncEngine = () => syncEngine(engineUrl, engineClientId, engineClientSecret)
+
+    switch (action) {
+      case Action.FETCH_DATA_STORE:
+        setIsFetching(true)
+        await getDataStore()
+        setIsFetching(false)
+        break
+      case Action.SIGN_AND_PUSH_ENTITY:
+        setIsEntitySigning(true)
+        await signAndPushEntity(entity)
+        await resyncEngine()
+        setIsEntitySigning(false)
+        break
+      case Action.SIGN_AND_PUSH_POLICY:
+        setIsPolicySigning(true)
+        await signAndPushPolicy(policy)
+        await resyncEngine()
+        setIsPolicySigning(false)
+        break
+      case Action.SIGN_ENTITY:
+        await signEntityData(entity)
+        break
+      case Action.PUSH_ENTITY:
+        await pushEntityData(entity)
+        await resyncEngine()
+        break
+      case Action.SIGN_POLICY:
+        await signPolicyData(policy)
+        break
+      case Action.PUSH_POLICY:
+        await pushPolicyData(policy)
+        await resyncEngine()
+        break
+      case Action.PUSH_ENTITY_SIGNATURE:
+        await pushEntitySignature(entitySignature)
+        await resyncEngine()
+        break
+      case Action.PUSH_POLICY_SIGNATURE:
+        await pushPolicySignature(policySignature)
+        await resyncEngine()
+        break
+      default:
+        return
+    }
   }
 
   return (
@@ -132,19 +167,19 @@ const DataStoreConfig = () => {
           <NarButton
             label={isEntitySigning ? 'Processing...' : 'Sign & Push Entity'}
             leftIcon={isEntitySigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-            onClick={signAndPushEntityData}
+            onClick={() => handleAction(Action.SIGN_AND_PUSH_ENTITY)}
             disabled={isEntitySigning}
           />
           <NarButton
             label={isPolicySigning ? 'Processing...' : 'Sign & Push Policy'}
             leftIcon={isPolicySigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-            onClick={signAndPushPolicyData}
+            onClick={() => handleAction(Action.SIGN_AND_PUSH_POLICY)}
             disabled={isPolicySigning}
           />
           <NarButton
             label="Fetch"
             leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRotateRight} spin={isFetching} />}
-            onClick={fetchDataStore}
+            onClick={() => handleAction(Action.FETCH_DATA_STORE)}
             disabled={isFetching}
           />
           <FontAwesomeIcon height="20" icon={faPipe} size="xl" />
@@ -163,53 +198,29 @@ const DataStoreConfig = () => {
             label="Entity Data URL"
             value={entityDataStoreUrl}
             onChange={setEntityDataStoreUrl}
-            onSign={async () => {
-              if (!dataCodeEditor) return
-              const { entity } = JSON.parse(dataCodeEditor)
-              await signEntityData(entity)
-            }}
-            onPush={async () => {
-              if (!dataCodeEditor) return
-              const { entity } = JSON.parse(dataCodeEditor)
-              await pushEntityData(entity)
-              await resyncEngine()
-            }}
+            onSign={() => handleAction(Action.SIGN_ENTITY)}
+            onPush={() => handleAction(Action.PUSH_ENTITY)}
           />
           <SignAndPushForm
             label="Policy Data URL"
             value={policyDataStoreUrl}
             onChange={setPolicyDataStoreUrl}
-            onSign={async () => {
-              if (!dataCodeEditor) return
-              const { policy } = JSON.parse(dataCodeEditor)
-              await signPolicyData(policy)
-            }}
-            onPush={async () => {
-              if (!dataCodeEditor) return
-              const { policy } = JSON.parse(dataCodeEditor)
-              await pushPolicyData(policy)
-              await resyncEngine()
-            }}
+            onSign={() => handleAction(Action.SIGN_POLICY)}
+            onPush={() => handleAction(Action.PUSH_POLICY)}
           />
           <NarInput label="Entity Signature URL" value={entitySignatureUrl} onChange={setEntitySignatureUrl} />
           <SignAndPushForm
             label="Entity Signature"
             value={entitySignature}
             onChange={setEntitySignature}
-            onPush={async () => {
-              await pushEntitySignature(entitySignature)
-              await resyncEngine()
-            }}
+            onPush={() => handleAction(Action.PUSH_ENTITY_SIGNATURE)}
           />
           <NarInput label="Policy Signature URL" value={policySignatureUrl} onChange={setPolicySignatureUrl} />
           <SignAndPushForm
             label="Policy Signature"
             value={policySignature}
             onChange={setPolicySignature}
-            onPush={async () => {
-              await pushPolicySignature(policySignature)
-              await resyncEngine()
-            }}
+            onPush={() => handleAction(Action.PUSH_POLICY_SIGNATURE)}
           />
         </div>
         <div className="flex flex-col gap-8 w-2/3">

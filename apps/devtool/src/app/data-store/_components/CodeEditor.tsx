@@ -15,7 +15,7 @@ const CodeEditor: FC<CodeEditorProps> = ({ value, onChange }) => {
   return (
     <div className="border-2 border-white rounded-xl p-4 w-full">
       <Editor
-        height="70vh"
+        height="65vh"
         language="json"
         options={{
           minimap: {
