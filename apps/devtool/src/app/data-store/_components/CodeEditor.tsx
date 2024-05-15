@@ -23,7 +23,7 @@ const CodeEditor: FC<CodeEditorProps> = ({ value, onChange }) => {
           }
         }}
         value={value}
-        onChange={(value) => onChange(value)}
+        onChange={onChange}
         onMount={(editor, monaco) => {
           editorRef.current = editor
           monacoRef.current = monaco
