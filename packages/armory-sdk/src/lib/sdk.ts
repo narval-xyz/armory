@@ -1,7 +1,15 @@
-import { EntityStore, PolicyStore, Request, Action } from '@narval/policy-engine-shared'
+import {
+  Action,
+  EntityStore,
+  PolicyStore,
+  Request,
+  SignTransactionAction,
+  TransactionRequest
+} from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
 import { v4 } from 'uuid'
+import { Hex, createPublicClient, http } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import {
   ArmoryClientConfig,
@@ -26,6 +34,7 @@ import {
   buildBasicEngineHeaders,
   buildGnapVaultHeaders,
   checkDecision,
+  getChainOrThrow,
   resourceId,
   signAccountJwsd,
   signData,
@@ -266,4 +275,27 @@ export const setEntities = async (
       storeResponse: res.data
     })
   }
+}
+
+export const sendTransaction = async (
+  config: ArmoryClientConfig,
+  transactionRequest: TransactionRequest
+): Promise<Hex> => {
+  const request: SignTransactionAction = {
+    action: Action.SIGN_TRANSACTION,
+    resourceId: resourceId(transactionRequest.from),
+    nonce: v4(),
+    transactionRequest
+  }
+  const { accessToken } = await evaluate(config, request)
+  const { signature } = await signRequest(config, { request, accessToken })
+
+  const chain = getChainOrThrow(transactionRequest.chainId)
+  const publicClient = createPublicClient({
+    transport: http(),
+    chain
+  })
+
+  const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
+  return hash
 }
