@@ -6,8 +6,17 @@ import {
   Request,
   isAddress
 } from '@narval/policy-engine-shared'
-import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt,   PrivateKey,
-  SigningAlg, } from '@narval/signature'
+import {
+  JwsdHeader,
+  Payload,
+  PrivateKey,
+  SigningAlg,
+  buildSignerForAlg,
+  hash,
+  hexToBase64Url,
+  signJwsd,
+  signJwt
+} from '@narval/signature'
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
