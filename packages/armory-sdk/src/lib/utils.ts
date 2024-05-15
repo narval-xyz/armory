@@ -17,8 +17,7 @@ import {
   signJwsd,
   signJwt
 } from '@narval/signature'
-import { v4 } from 'uuid'
-import { Address, Hex } from 'viem'
+import { Address } from 'viem'
 import {
   EngineClientConfig,
   JwsdHeaderArgs,
@@ -148,21 +147,7 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
   }
 }
 
-export const walletId = (input: { walletId?: string; privateKey: Hex }): { walletId: string; privateKey: Hex } => {
-  const { walletId, privateKey } = input
-  if (!walletId) {
-    return {
-      ...input,
-      walletId: `wallet:${v4()}`
-    }
-  }
-  return {
-    walletId,
-    privateKey
-  }
-}
-
-export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
+export const buildBasicAuthHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
     'x-client-secret': config.authSecret
