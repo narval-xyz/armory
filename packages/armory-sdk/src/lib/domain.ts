@@ -1,10 +1,19 @@
-import { AccessToken, Decision, Request, addressSchema, hexSchema } from '@narval/policy-engine-shared'
-import { Payload, jwkSchema } from '@narval/signature'
+import {
+  AccessToken,
+  Decision,
+  EntityData,
+  Request,
+  addressSchema,
+  hexSchema,
+  policySchema
+} from '@narval/policy-engine-shared'
+import { Payload, jwkSchema, privateKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Endpoints = {
   engine: {
-    evaluations: '/evaluations'
+    evaluations: '/evaluations',
+    sync: '/clients/sync'
   },
   vault: {
     sign: '/sign',
@@ -126,3 +135,14 @@ export const Permission = {
 } as const
 export type Permission = (typeof Permission)[keyof typeof Permission]
 export const PermissionSchema = z.nativeEnum(Permission)
+export const SetPolicyRequest = z.object({
+  policies: z.array(policySchema),
+  privateKey: privateKeySchema
+})
+export type SetPolicyRequest = z.infer<typeof SetPolicyRequest>
+
+export const SetEntityRequest = z.object({
+  entity: EntityData,
+  privateKey: privateKeySchema
+})
+export type SetEntityRequest = z.infer<typeof SetEntityRequest>
