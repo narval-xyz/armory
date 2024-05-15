@@ -10,36 +10,21 @@ interface SignAndPushFormProps {
   label: string
   value: string
   onChange: Dispatch<SetStateAction<string>>
-  onPush?: () => Promise<void> | undefined
-  onSign?: () => Promise<void> | undefined
+  onBtnClick: () => Promise<void> | undefined
 }
 
-const SignAndPushForm: FC<SignAndPushFormProps> = ({ label, value, onChange, onPush, onSign }) => {
-  const [isSigning, setIsSigning] = useState(false)
-  const [isPushing, setIsPushing] = useState(false)
+const SignAndPushForm: FC<SignAndPushFormProps> = ({ label, value, onChange, onBtnClick }) => {
+  const [isProcessing, setIsProcessing] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const [errors, setErrors] = useState('')
 
-  const handleSign = async () => {
+  const handleBtnClick = async () => {
     try {
-      if (!onSign) return
       setErrors('')
-      setIsSigning(true)
-      await onSign()
-      setIsSigning(false)
-      setSuccessMsg('Signed!')
-      setTimeout(() => setSuccessMsg(''), 5000)
-    } catch (e) {}
-  }
-
-  const handlePush = async () => {
-    try {
-      if (!onPush) return
-      setErrors('')
-      setIsPushing(true)
-      await onPush()
-      setSuccessMsg('Pushed!')
-      setIsPushing(false)
+      setIsProcessing(true)
+      await onBtnClick()
+      setIsProcessing(false)
+      setSuccessMsg('Success!')
       setTimeout(() => setSuccessMsg(''), 5000)
     } catch (e) {}
   }
@@ -47,28 +32,14 @@ const SignAndPushForm: FC<SignAndPushFormProps> = ({ label, value, onChange, onP
   return (
     <div className="flex items-end gap-[8px]">
       <NarInput label={label} value={value} onChange={onChange} />
+      <NarButton
+        label={isProcessing ? 'Processing...' : 'Sign & Push'}
+        leftIcon={isProcessing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
+        onClick={handleBtnClick}
+        disabled={isProcessing}
+      />
       <ErrorStatus label={errors} />
       <SuccessStatus label={successMsg} />
-      {!successMsg && (
-        <>
-          {onSign && (
-            <NarButton
-              label={isPushing ? 'Signing...' : 'Sign'}
-              leftIcon={isSigning ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-              onClick={handleSign}
-              disabled={isSigning || isPushing}
-            />
-          )}
-          {onPush && (
-            <NarButton
-              label={isPushing ? 'Pushing...' : 'Push'}
-              leftIcon={isPushing ? <FontAwesomeIcon icon={faSpinner} spin /> : undefined}
-              onClick={handlePush}
-              disabled={isSigning || isPushing}
-            />
-          )}
-        </>
-      )}
     </div>
   )
 }

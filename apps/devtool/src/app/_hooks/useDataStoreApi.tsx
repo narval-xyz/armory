@@ -1,11 +1,11 @@
 import {
   Entities,
   EntityData,
-  EntitySignature,
+  EntityStore,
   EntityUtil,
   Policy,
   PolicyData,
-  PolicySignature
+  PolicyStore
 } from '@narval/policy-engine-shared'
 import { Payload, hash } from '@narval/signature'
 import axios from 'axios'
@@ -15,20 +15,33 @@ import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
 const useDataStoreApi = () => {
-  const { entityDataStoreUrl, policyDataStoreUrl, entitySignatureUrl, policySignatureUrl } = useStore()
+  const { entityDataStoreUrl, policyDataStoreUrl } = useStore()
   const { jwk, signAccountJwt } = useAccountSignature()
 
-  const [entitySignature, setEntitySignature] = useState('')
-  const [policySignature, setPolicySignature] = useState('')
-  const [dataStore, setDataStore] = useState<{ entity: Entities; policy: Policy[] }>()
+  const [processingStatus, setProcessingStatus] = useState({
+    isFetchingEntity: false,
+    isFetchingPolicy: false,
+    isSigningEntity: false,
+    isSigningPolicy: false,
+    isSigningAndPushingEntity: false,
+    isSigningAndPushingPolicy: false
+  })
+  const [entityStore, setEntityStore] = useState<EntityStore>()
+  const [policyStore, setPolicyStore] = useState<PolicyStore>()
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
   useEffect(() => {
-    if (!dataStore) {
-      getDataStore()
-    }
-  }, [dataStore])
+    if (entityStore) return
+
+    getEntityStore()
+  }, [entityStore])
+
+  useEffect(() => {
+    if (policyStore) return
+
+    getPolicyStore()
+  }, [policyStore])
 
   const pingDataStore = async (url: string) => {
     try {
@@ -38,57 +51,38 @@ const useDataStoreApi = () => {
     }
   }
 
-  const getEntitySignature = async () => {
-    const {
-      data: { entity }
-    } = await axios.get<EntitySignature>(entityDataStoreUrl)
+  const getEntityStore = async () => {
+    setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
 
-    setEntitySignature(entity.signature)
+    try {
+      const {
+        data: { entity }
+      } = await axios.get<{ entity: EntityStore }>(entityDataStoreUrl)
+      setEntityStore(entity)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
 
-    return entity.signature
+    setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
   }
 
-  const getPolicySignature = async () => {
-    const {
-      data: { policy }
-    } = await axios.get<PolicySignature>(policyDataStoreUrl)
+  const getPolicyStore = async () => {
+    setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
 
-    setPolicySignature(policy.signature)
+    try {
+      const {
+        data: { policy }
+      } = await axios.get<{ policy: PolicyStore }>(policyDataStoreUrl)
+      setPolicyStore(policy)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
 
-    return policy.signature
-  }
-
-  const getEntityData = async () => {
-    const {
-      data: { entity }
-    } = await axios.get<EntityData>(entityDataStoreUrl)
-
-    return entity.data
-  }
-
-  const getPolicyData = async () => {
-    const {
-      data: { policy }
-    } = await axios.get<PolicyData>(policyDataStoreUrl)
-
-    return policy.data
-  }
-
-  const getDataStore = async () => {
-    const [entitySignature, entityData, policySignature, policyData] = await Promise.all([
-      getEntitySignature(),
-      getEntityData(),
-      getPolicySignature(),
-      getPolicyData()
-    ])
-
-    setEntitySignature(entitySignature)
-    setPolicySignature(policySignature)
-    setDataStore({ entity: entityData, policy: policyData })
+    setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
   }
 
   const signEntityData = async (data: Entities) => {
-    if (!jwk || !dataStore) return
+    if (!jwk) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
@@ -109,6 +103,8 @@ const useDataStoreApi = () => {
       return
     }
 
+    setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
+
     try {
       const payload: Payload = {
         data: hash(data),
@@ -117,41 +113,17 @@ const useDataStoreApi = () => {
         iat: Math.floor(Date.now() / 1000)
       }
 
-      const signature = await signAccountJwt(payload)
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
 
-      setEntitySignature(signature)
-
-      return signature
+      return signAccountJwt(payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
-  }
-
-  const pushEntityData = async (data: Entities) => {
-    try {
-      await axios.post(entityDataStoreUrl, { entity: { data } })
-    } catch (error) {
-      setErrors(extractErrorMessage(error))
-    }
-  }
-
-  const pushEntitySignature = async (signature: string) => {
-    try {
-      await axios.post(entitySignatureUrl, { entity: { signature } })
-    } catch (error) {
-      setErrors(extractErrorMessage(error))
-    }
-  }
-
-  const signAndPushEntity = async (data: Entities) => {
-    const signature = await signEntityData(data)
-    if (!signature) return
-    await pushEntityData(data)
-    await pushEntitySignature(signature)
   }
 
   const signPolicyData = async (data: Policy[]) => {
-    if (!jwk || !dataStore) return
+    if (!jwk) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
@@ -165,6 +137,8 @@ const useDataStoreApi = () => {
       return
     }
 
+    setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
+
     try {
       const payload: Payload = {
         data: hash(data),
@@ -173,58 +147,55 @@ const useDataStoreApi = () => {
         iat: Math.floor(Date.now() / 1000)
       }
 
-      const signature = await signAccountJwt(payload)
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
 
-      setPolicySignature(signature)
-
-      return signature
+      return signAccountJwt(payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
   }
 
-  const pushPolicyData = async (data: Policy[]) => {
-    try {
-      await axios.post(policyDataStoreUrl, { policy: { data } })
-    } catch (error) {
-      setErrors(extractErrorMessage(error))
-    }
-  }
+  const signAndPushEntity = async (data: Entities) => {
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
 
-  const pushPolicySignature = async (signature: string) => {
     try {
-      await axios.post(policySignatureUrl, { policy: { signature } })
+      const signature = await signEntityData(data)
+      if (!signature) return
+      await axios.post(entityDataStoreUrl, { entity: { signature, data } })
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
+
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
   }
 
   const signAndPushPolicy = async (data: Policy[]) => {
-    const signature = await signPolicyData(data)
-    if (!signature) return
-    await pushPolicyData(data)
-    await pushPolicySignature(signature)
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
+
+    try {
+      const signature = await signPolicyData(data)
+      if (!signature) return
+      await axios.post(policyDataStoreUrl, { policy: { signature, data } })
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
   }
 
   return {
-    dataStore,
-    entitySignature,
-    policySignature,
+    entityStore,
+    policyStore,
     errors,
     validationErrors,
+    processingStatus,
     pingDataStore,
-    getEntitySignature,
-    getEntityData,
-    getPolicySignature,
-    getPolicyData,
-    getDataStore,
+    getEntityStore,
+    getPolicyStore,
     signEntityData,
-    pushEntityData,
-    pushEntitySignature,
     signAndPushEntity,
     signPolicyData,
-    pushPolicyData,
-    pushPolicySignature,
     signAndPushPolicy
   }
 }

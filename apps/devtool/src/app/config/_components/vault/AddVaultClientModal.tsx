@@ -2,13 +2,13 @@ import { faPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
+import ValueWithCopy from '../../../_components/ValueWithCopy'
 import NarButton from '../../../_design-system/NarButton'
 import NarCheckbox from '../../../_design-system/NarCheckbox'
 import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
 import useStore from '../../../_hooks/useStore'
 import useVaultApi, { VaultClientData } from '../../../_hooks/useVaultApi'
-import ValueWithCopy from '../ValueWithCopy'
 
 const initForm: VaultClientData = {
   vaultUrl: '',
