@@ -22,19 +22,20 @@ export const Endpoints = {
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
 
-export const EngineClientConfig = z.object({
+export const UserSigner = z.object({
+  signer: jwkSchema
+})
+
+export const EngineClientConfig = UserSigner.extend({
   authHost: z.string(),
   authClientId: z.string(),
-  authSecret: z.string(),
-  signer: jwkSchema
+  authSecret: z.string()
 })
 export type EngineClientConfig = z.infer<typeof EngineClientConfig>
 
-export const VaultClientConfig = z.object({
+export const VaultClientConfig = UserSigner.extend({
   vaultHost: z.string(),
-  vaultClientId: z.string(),
-  vaultSecret: z.string(),
-  signer: jwkSchema
+  vaultClientId: z.string()
 })
 export type VaultClientConfig = z.infer<typeof VaultClientConfig>
 
@@ -44,20 +45,18 @@ export const StoreConfig = z.object({
 })
 export type StoreConfig = z.infer<typeof StoreConfig>
 
-export const ArmoryClientConfigInput = z.object({
+export const ArmoryClientConfigInput = UserSigner.extend({
   authHost: z.string().optional(),
   authSecret: z.string().optional(),
   vaultHost: z.string().optional(),
-  vaultSecret: z.string().optional(),
   entityStoreHost: z.string().optional(),
   policyStoreHost: z.string().optional(),
   authClientId: z.string().optional(),
-  vaultClientId: z.string().optional(),
-  signer: jwkSchema
+  vaultClientId: z.string().optional()
 })
 export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
 
-export const ArmoryClientConfig = z.object({
+export const ArmoryClientConfig = UserSigner.extend({
   ...EngineClientConfig.shape,
   ...VaultClientConfig.shape,
   ...StoreConfig.shape

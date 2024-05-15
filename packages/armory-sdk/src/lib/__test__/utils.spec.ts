@@ -12,7 +12,6 @@ describe('checkDecision', () => {
     authSecret: 'secret',
     vaultHost: 'example.com',
     vaultClientId: '123456789',
-    vaultSecret: 'secret',
     entityStoreHost: 'example.com',
     policyStoreHost: 'example.com',
     signer: FIXTURE.CREDENTIAL.Alice.key
@@ -132,7 +131,6 @@ describe('buildPayloadFromRequest', () => {
     authSecret: 'secret',
     vaultHost: 'example.com',
     vaultClientId: '123456789',
-    vaultSecret: 'secret',
     entityStoreHost: 'example.com',
     policyStoreHost: 'example.com',
     signer: FIXTURE.CREDENTIAL.Alice.key

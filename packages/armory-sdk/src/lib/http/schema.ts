@@ -8,16 +8,16 @@ export const BasicHeaders = z.object({
 })
 export type BasicHeaders = z.infer<typeof BasicHeaders>
 
-export const SignatureRequestHeaders = z.object({
+export const GnapHeaders = z.object({
   'x-client-id': z.string(),
   'detached-jws': z.string(),
   authorization: z.string().startsWith('GNAP ')
 })
-export type SignatureRequestHeaders = z.infer<typeof SignatureRequestHeaders>
+export type GnapHeaders = z.infer<typeof GnapHeaders>
 
 export const SendSignatureRequest = z.object({
   uri: z.string(),
-  headers: SignatureRequestHeaders,
+  headers: GnapHeaders,
   request: Request
 })
 export type SendSignatureRequest = z.infer<typeof SendSignatureRequest>
@@ -25,7 +25,7 @@ export type SendSignatureRequest = z.infer<typeof SendSignatureRequest>
 export const SendImportPrivateKey = z.object({
   request: ImportPrivateKeyRequest,
   uri: z.string(),
-  headers: BasicHeaders
+  headers: GnapHeaders
 })
 export type SendImportPrivateKey = z.infer<typeof SendImportPrivateKey>
 
