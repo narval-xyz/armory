@@ -17,11 +17,9 @@ import {
   signJwsd,
   signJwt
 } from '@narval/signature'
-import { v4 } from 'uuid'
 import { Address } from 'viem'
 import {
   EngineClientConfig,
-  ImportPrivateKeyRequest,
   JwsdHeaderArgs,
   SdkEvaluationResponse,
   SdkPermitResponse,
@@ -29,7 +27,7 @@ import {
   VaultClientConfig
 } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
-import { BasicHeaders, SignatureRequestHeaders } from './http/schema'
+import { BasicHeaders, GnapHeaders } from './http/schema'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, accessToken } = args
@@ -149,16 +147,6 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
   }
 }
 
-export const walletId = (input: ImportPrivateKeyRequest): ImportPrivateKeyRequest => {
-  if (!input.walletId) {
-    return {
-      ...input,
-      walletId: `wallet:${v4()}`
-    }
-  }
-  return input
-}
-
 export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
@@ -166,18 +154,11 @@ export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeader
   }
 }
 
-export const buildBasicVaultHeaders = (config: VaultClientConfig): BasicHeaders => {
-  return {
-    'x-client-id': config.vaultClientId,
-    'x-client-secret': config.vaultSecret
-  }
-}
-
 export const buildGnapVaultHeaders = (
   config: VaultClientConfig,
   accessToken: JwtString,
   detachedJws: string
-): SignatureRequestHeaders => {
+): GnapHeaders => {
   return {
     'x-client-id': config.vaultClientId,
     'detached-jws': detachedJws,
