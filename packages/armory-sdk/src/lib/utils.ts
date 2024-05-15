@@ -177,7 +177,7 @@ export const walletId = (input: { walletId?: string; privateKey: Hex }): { walle
   }
 }
 
-export const buildBasicAuthHeaders = (config: EngineClientConfig): BasicHeaders => {
+export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
     'x-client-secret': config.authSecret
