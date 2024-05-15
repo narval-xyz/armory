@@ -17,7 +17,9 @@ import {
   signJwsd,
   signJwt
 } from '@narval/signature'
-import { Address } from 'viem'
+import { v4 } from 'uuid'
+import { Address, Chain, Hex } from 'viem'
+import { mainnet, optimism, polygon } from 'viem/chains'
 import {
   EngineClientConfig,
   JwsdHeaderArgs,
@@ -144,6 +146,34 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
         authClientId: config.authClientId
       })
     }
+  }
+}
+
+export const getChainOrThrow = (chainId: number): Chain => {
+  switch (chainId) {
+    case 1:
+      return mainnet
+    case 137:
+      return polygon
+    case 10:
+      return optimism
+    default:
+      throw new NarvalSdkException('Unsupported chain', {
+        chainId
+      })
+  }
+}
+export const walletId = (input: { walletId?: string; privateKey: Hex }): { walletId: string; privateKey: Hex } => {
+  const { walletId, privateKey } = input
+  if (!walletId) {
+    return {
+      ...input,
+      walletId: `wallet:${v4()}`
+    }
+  }
+  return {
+    walletId,
+    privateKey
   }
 }
 

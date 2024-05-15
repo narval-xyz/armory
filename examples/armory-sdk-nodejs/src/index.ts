@@ -1,20 +1,11 @@
 /* eslint-disable no-console */
 
-import { createArmoryConfig, evaluate, importPrivateKey, setPolicies, signRequest } from '@narval/armory-sdk'
-import {
-  Action,
-  Policy,
-  SignMessageAction,
-  SignTransactionAction,
-  SignTypedDataAction
-} from '@narval/policy-engine-shared'
+import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval/armory-sdk'
+import { Action, Policy } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
-import { v4 } from 'uuid'
-import { Hex, createPublicClient, http, toHex } from 'viem'
+import { Hex, toHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
-import { polygon } from 'viem/chains'
 
 const policy = [
   {
@@ -140,42 +131,27 @@ const main = async () => {
   const vaultWalletAddress = privateKeyToAddress(privateKey)
   const walletId = vaultWalletAddress
 
-  const nonce = 16
-  const transactionRequestAction: SignTransactionAction = {
-    action: 'signTransaction',
-    transactionRequest: {
-      from: vaultWalletAddress,
-      chainId: 137,
-      gas: BigInt(22000),
-      to: anotherAddress,
-      maxFeePerGas: BigInt(291175227375),
-      maxPriorityFeePerGas: BigInt(81000000000),
-      value: toHex(BigInt(50000)),
-      nonce
-      // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
-      // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
-    },
-    resourceId: resourceId(walletId),
-    nonce: v4()
-  }
-
   const { address: newAddress, walletId: newWalletId } = await importPrivateKey(config, { privateKey, walletId })
 
   console.log('\n\nimported wallet:', newWalletId, 'address:', newAddress)
 
-  const { accessToken } = await evaluate(config, transactionRequestAction)
-  const { signature } = await signRequest(config, { accessToken, request: transactionRequestAction })
-
-  const publicClient = createPublicClient({
-    chain: polygon,
-    transport: http()
-  })
-  try {
-    const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
-    console.log('\n\ntransaction request successfully broadcasted !', 'txHash: ', hash)
-  } catch (error) {
-    console.error('transaction request failed', error)
+  const nonce = 18
+  const transactionRequest = {
+    from: vaultWalletAddress,
+    chainId: 137,
+    gas: BigInt(22000),
+    to: anotherAddress,
+    maxFeePerGas: BigInt(291175227375),
+    maxPriorityFeePerGas: BigInt(81000000000),
+    value: toHex(BigInt(50000)),
+    nonce
+    // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
+    // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
   }
+
+  const hash = await sendTransaction(config, transactionRequest)
+
+  console.log('\n\ntransaction hash:', hash)
 
   // const signMessageAction: SignMessageAction = {
   //   action: 'signMessage',
