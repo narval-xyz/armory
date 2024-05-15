@@ -147,7 +147,7 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
   }
 }
 
-export const buildBasicAuthHeaders = (config: EngineClientConfig): BasicHeaders => {
+export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
     'x-client-id': config.authClientId,
     'x-client-secret': config.authSecret
