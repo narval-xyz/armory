@@ -15,10 +15,8 @@ const initForm: EngineClientData = {
   engineAdminApiKey: '',
   clientId: '',
   entityDataStoreUrl: '',
-  entitySignatureUrl: '',
   entityPublicKey: '',
   policyDataStoreUrl: '',
-  policySignatureUrl: '',
   policyPublicKey: ''
 }
 
@@ -27,9 +25,7 @@ const AddEngineClientModal = () => {
     engineUrl,
     engineAdminApiKey,
     entityDataStoreUrl,
-    entitySignatureUrl,
     policyDataStoreUrl,
-    policySignatureUrl,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner
@@ -47,10 +43,8 @@ const AddEngineClientModal = () => {
     form.engineUrl &&
     form.clientId &&
     form.entityDataStoreUrl &&
-    form.entitySignatureUrl &&
     form.entityPublicKey &&
     form.policyDataStoreUrl &&
-    form.policySignatureUrl &&
     form.policyPublicKey
 
   const closeDialog = () => {
@@ -84,9 +78,7 @@ const AddEngineClientModal = () => {
       engineUrl,
       engineAdminApiKey,
       entityDataStoreUrl,
-      entitySignatureUrl,
       policyDataStoreUrl,
-      policySignatureUrl,
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
       policyPublicKey: jwk ? JSON.stringify(jwk) : ''
     })
@@ -127,11 +119,6 @@ const AddEngineClientModal = () => {
                   onChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
                 />
                 <NarInput
-                  label="Entity Signature URL"
-                  value={form.entitySignatureUrl}
-                  onChange={(entitySignatureUrl) => updateForm({ entitySignatureUrl })}
-                />
-                <NarInput
                   label="Entity Public Key"
                   value={form.entityPublicKey}
                   onChange={(entityPublicKey) => updateForm({ entityPublicKey })}
@@ -142,11 +129,6 @@ const AddEngineClientModal = () => {
                   label="Policy Data Store URL"
                   value={form.policyDataStoreUrl}
                   onChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
-                />
-                <NarInput
-                  label="Policy Signature URL"
-                  value={form.policySignatureUrl}
-                  onChange={(policySignatureUrl) => updateForm({ policySignatureUrl })}
                 />
                 <NarInput
                   label="Policy Public Key"

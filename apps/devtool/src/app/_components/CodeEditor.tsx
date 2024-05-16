@@ -5,18 +5,17 @@ import { FC, useRef } from 'react'
 
 interface CodeEditorProps {
   value: string | undefined
-  readOnly: boolean
+  readOnly?: boolean
   onChange: (value: string | undefined) => void
 }
 
-const CodeEditor: FC<CodeEditorProps> = ({ value, readOnly, onChange }) => {
+const CodeEditor: FC<CodeEditorProps> = ({ value, readOnly = false, onChange }) => {
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
 
   return (
-    <div className="border-2 border-white rounded-xl p-4 w-full">
+    <div className="border-2 border-white rounded-xl p-4 w-full grow">
       <Editor
-        height="50vh"
         language="json"
         options={{
           readOnly,

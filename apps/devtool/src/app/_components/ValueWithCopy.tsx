@@ -8,7 +8,7 @@ const ValueWithCopy = ({ label, value }: { label: string; value: string }) => {
       <div className="underline">{label}</div>
       <div className="flex items-center gap-[8px]">
         <p className="truncate">{value}</p>
-        <NarCopyButton copy={value} />
+        <NarCopyButton copy={value} isIconBtn />
       </div>
     </div>
   )

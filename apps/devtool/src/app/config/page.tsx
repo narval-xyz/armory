@@ -3,7 +3,7 @@ import VaultConfig from './_components/vault/VaultConfig'
 
 export default async function PolicyEngine() {
   return (
-    <div className="flex flex-col gap-[24px]">
+    <div className="grid grid-cols-2 gap-[64px] h-full">
       <EngineConfig />
       <VaultConfig />
     </div>

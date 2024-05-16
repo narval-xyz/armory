@@ -11,10 +11,8 @@ export interface EngineClientData {
   engineAdminApiKey: string
   clientId: string
   entityDataStoreUrl: string
-  entitySignatureUrl: string
   entityPublicKey: string
   policyDataStoreUrl: string
-  policySignatureUrl: string
   policyPublicKey: string
 }
 
@@ -37,16 +35,8 @@ const useEngineApi = () => {
     setIsProcessing(true)
 
     try {
-      const {
-        engineUrl,
-        engineAdminApiKey,
-        entityDataStoreUrl,
-        entitySignatureUrl,
-        entityPublicKey,
-        policyDataStoreUrl,
-        policySignatureUrl,
-        policyPublicKey
-      } = engineClientData
+      const { engineUrl, engineAdminApiKey, entityDataStoreUrl, entityPublicKey, policyDataStoreUrl, policyPublicKey } =
+        engineClientData
 
       const { data: client } = await axios.post(
         `${engineUrl}/clients`,
@@ -57,19 +47,19 @@ const useEngineApi = () => {
               url: entityDataStoreUrl
             },
             signature: {
-              type: getUrlProtocol(entitySignatureUrl),
-              url: entitySignatureUrl
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
             },
             keys: [JSON.parse(entityPublicKey)]
           },
           policyDataStore: {
             data: {
               type: getUrlProtocol(policyDataStoreUrl),
-              url: policySignatureUrl
+              url: policyDataStoreUrl
             },
             signature: {
               type: getUrlProtocol(policyDataStoreUrl),
-              url: policySignatureUrl
+              url: policyDataStoreUrl
             },
             keys: [JSON.parse(policyPublicKey)]
           }
