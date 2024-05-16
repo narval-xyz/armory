@@ -163,12 +163,13 @@ policy-engine/rego/test:
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
 
-# === DOCKER ===
+# === Docker ===
+
 policy-engine/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		-f deploy/policy-engine.dockerfile \
-		-t armory/policy-engine:latest \
+		--file deploy/policy-engine.dockerfile \
+		--tag armory/policy-engine:latest \
 		--cache-from armory/policy-engine:latest \
 		. --load
 

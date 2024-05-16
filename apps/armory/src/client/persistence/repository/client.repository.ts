@@ -9,7 +9,9 @@ export class ClientRepository {
   constructor(private prismaService: PrismaService) {}
 
   async findById(id: string): Promise<Client | null> {
-    const model = await this.prismaService.client.findUnique({ where: { id } })
+    const model = await this.prismaService.client.findUnique({
+      where: { id }
+    })
 
     if (model) {
       return this.decode(model)
@@ -35,6 +37,9 @@ export class ClientRepository {
       dataStore: {
         entityPublicKey: publicKeySchema.parse(model.entityPublicKey),
         policyPublicKey: publicKeySchema.parse(model.policyPublicKey)
+      },
+      policyEngine: {
+        nodes: []
       }
     }
   }

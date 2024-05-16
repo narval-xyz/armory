@@ -2,6 +2,7 @@ import { ConfigModule } from '@narval/config-module'
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { load } from './armory.config'
+import { ClientModule } from './client/client.module'
 import { ManagedDataStoreModule } from './managed-data-store/managed-data-store.module'
 import { OrchestrationModule } from './orchestration/orchestration.module'
 import { QueueModule } from './shared/module/queue/queue.module'
@@ -15,7 +16,7 @@ const INFRASTRUCTURE_MODULES = [
   QueueModule.forRoot()
 ]
 
-const DOMAIN_MODULES = [OrchestrationModule, TransferTrackingModule, ManagedDataStoreModule]
+const DOMAIN_MODULES = [OrchestrationModule, TransferTrackingModule, ManagedDataStoreModule, ClientModule]
 
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],
