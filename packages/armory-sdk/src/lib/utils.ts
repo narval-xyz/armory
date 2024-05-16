@@ -18,10 +18,10 @@ import {
   signJwt
 } from '@narval/signature'
 import { v4 } from 'uuid'
-import { Address } from 'viem'
+import { Address, Chain, Hex } from 'viem'
+import { mainnet, optimism, polygon } from 'viem/chains'
 import {
   EngineClientConfig,
-  ImportPrivateKeyRequest,
   JwsdHeaderArgs,
   SdkEvaluationResponse,
   SdkPermitResponse,
@@ -29,7 +29,7 @@ import {
   VaultClientConfig
 } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
-import { BasicHeaders, SignatureRequestHeaders } from './http/schema'
+import { BasicHeaders, GnapHeaders } from './http/schema'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, accessToken } = args
@@ -149,14 +149,32 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
   }
 }
 
-export const walletId = (input: ImportPrivateKeyRequest): ImportPrivateKeyRequest => {
-  if (!input.walletId) {
+export const getChainOrThrow = (chainId: number): Chain => {
+  switch (chainId) {
+    case 1:
+      return mainnet
+    case 137:
+      return polygon
+    case 10:
+      return optimism
+    default:
+      throw new NarvalSdkException('Unsupported chain', {
+        chainId
+      })
+  }
+}
+export const walletId = (input: { walletId?: string; privateKey: Hex }): { walletId: string; privateKey: Hex } => {
+  const { walletId, privateKey } = input
+  if (!walletId) {
     return {
       ...input,
       walletId: `wallet:${v4()}`
     }
   }
-  return input
+  return {
+    walletId,
+    privateKey
+  }
 }
 
 export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
@@ -166,18 +184,11 @@ export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeader
   }
 }
 
-export const buildBasicVaultHeaders = (config: VaultClientConfig): BasicHeaders => {
-  return {
-    'x-client-id': config.vaultClientId,
-    'x-client-secret': config.vaultSecret
-  }
-}
-
 export const buildGnapVaultHeaders = (
   config: VaultClientConfig,
   accessToken: JwtString,
   detachedJws: string
-): SignatureRequestHeaders => {
+): GnapHeaders => {
   return {
     'x-client-id': config.vaultClientId,
     'detached-jws': detachedJws,

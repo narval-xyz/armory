@@ -1,6 +1,16 @@
-import { EntityStore, PolicyStore, Request } from '@narval/policy-engine-shared'
+import {
+  Action,
+  EntityStore,
+  PolicyStore,
+  Request,
+  SignTransactionAction,
+  TransactionRequest
+} from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
+import { v4 } from 'uuid'
+import { Hex, createPublicClient, http } from 'viem'
+import { privateKeyToAddress } from 'viem/accounts'
 import {
   ArmoryClientConfig,
   ArmoryClientConfigInput,
@@ -9,6 +19,7 @@ import {
   Htm,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
+  Permission,
   SdkEvaluationResponse,
   SetEntityRequest,
   SetPolicyRequest,
@@ -21,20 +32,19 @@ import { sendEvaluationRequest } from './http/policy-engine'
 import { sendImportPrivateKey, sendSignatureRequest } from './http/vault'
 import {
   buildBasicEngineHeaders,
-  buildBasicVaultHeaders,
   buildGnapVaultHeaders,
   checkDecision,
+  getChainOrThrow,
+  resourceId,
   signAccountJwsd,
   signData,
-  signRequest as signRequestHelper,
-  walletId
+  signRequest as signRequestHelper
 } from './utils'
 
 export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClientConfig => {
   const authClientId = config.authClientId || process.env.ARMORY_CLIENT_ID
   const authSecret = config.authSecret || process.env.ARMORY_AUTH_SECRET
   const vaultClientId = config.vaultClientId || process.env.ARMORY_VAULT_CLIENT_ID
-  const vaultSecret = config.vaultSecret || process.env.ARMORY_VAULT_SECRET
 
   const authHost = config.authHost || `https://cloud.narval.xyz/auth`
   const vaultHost = config.vaultHost || `https://cloud.narval.xyz/vault`
@@ -46,7 +56,6 @@ export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClien
     vaultHost,
     authSecret,
     vaultClientId,
-    vaultSecret,
     entityStoreHost,
     policyStoreHost,
     authClientId,
@@ -89,14 +98,36 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
  * @returns A promise that resolves to the import private key response.
  */
 export const importPrivateKey = async (
-  config: VaultClientConfig,
+  config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
-  const validatedRequest = walletId(request)
+  const walletId = resourceId(request.walletId || privateKeyToAddress(request.privateKey))
 
-  const headers = buildBasicVaultHeaders(config)
+  const validatedRequest = {
+    privateKey: request.privateKey,
+    walletId
+  }
+
+  const grantPermissionRequest: Request = {
+    action: Action.GRANT_PERMISSION,
+    resourceId: validatedRequest.walletId,
+    nonce: v4(),
+    permissions: [Permission.WALLET_CREATE]
+  }
+  const { accessToken } = await evaluate(config, grantPermissionRequest)
 
   const uri = `${config.vaultHost}${Endpoints.vault.importPrivateKey}`
+
+  const detachedJws = await signAccountJwsd({
+    payload: validatedRequest,
+    uri,
+    htm: Htm.POST,
+    accessToken,
+    jwk: config.signer
+  })
+
+  const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)
+
   const data = await sendImportPrivateKey({
     uri,
     headers,
@@ -244,4 +275,27 @@ export const setEntities = async (
       storeResponse: res.data
     })
   }
+}
+
+export const sendTransaction = async (
+  config: ArmoryClientConfig,
+  transactionRequest: TransactionRequest
+): Promise<Hex> => {
+  const request: SignTransactionAction = {
+    action: Action.SIGN_TRANSACTION,
+    resourceId: resourceId(transactionRequest.from),
+    nonce: v4(),
+    transactionRequest
+  }
+  const { accessToken } = await evaluate(config, request)
+  const { signature } = await signRequest(config, { request, accessToken })
+
+  const chain = getChainOrThrow(transactionRequest.chainId)
+  const publicClient = createPublicClient({
+    transport: http(),
+    chain
+  })
+
+  const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
+  return hash
 }

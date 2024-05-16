@@ -1,20 +1,11 @@
 /* eslint-disable no-console */
 
-import { createArmoryConfig, evaluate, importPrivateKey, setPolicies, signRequest } from '@narval/armory-sdk'
-import {
-  Action,
-  Policy,
-  SignMessageAction,
-  SignTransactionAction,
-  SignTypedDataAction
-} from '@narval/policy-engine-shared'
+import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval/armory-sdk'
+import { Action, Policy } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
-import { v4 } from 'uuid'
-import { Hex, TypedData, createPublicClient, http, toHex } from 'viem'
+import { Hex, toHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
-import { polygon } from 'viem/chains'
 
 const policy = [
   {
@@ -122,15 +113,12 @@ const main = async () => {
   }
 
   const config = createArmoryConfig({
-    authClientId: '608eb164-b25b-414e-a02f-ddaaf031de97',
+    authClientId: '7d88cd82-4ee4-4f99-819e-07fd5fd4c2cf',
     authHost: 'http://localhost:3010',
-    authSecret: '0f0bbeaa275a878a2fccdf42238394998ec3ece5f5c0cfdbaff2a7bc19e51de0300b6d1ca44fdba239d1',
+    authSecret: '4d975e601bd61cb7163025bdec0b77ce6fcfc30d2513eab7b1187e13a5ecfe409fb40850b9e917a51a02',
     vaultClientId: '5f16ff6a-a9ca-42d5-9a6e-d605e58e3359',
-    vaultSecret: 'toto',
-    entityStoreHost: 'http://localhost:4200/api/data-store',
-    policyStoreHost: 'http://localhost:4200/api/data-store',
     vaultHost: 'http://localhost:3011',
-    signer
+    signer: privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)
   })
 
   try {
@@ -143,108 +131,93 @@ const main = async () => {
   const vaultWalletAddress = privateKeyToAddress(privateKey)
   const walletId = vaultWalletAddress
 
-  const nonce = 14
-  const transactionRequestAction: SignTransactionAction = {
-    action: 'signTransaction',
-    transactionRequest: {
-      from: vaultWalletAddress,
-      chainId: 137,
-      gas: BigInt(22000),
-      to: anotherAddress,
-      maxFeePerGas: BigInt(291175227375),
-      maxPriorityFeePerGas: BigInt(81000000000),
-      value: toHex(BigInt(50000)),
-      nonce
-      // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
-      // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
-    },
-    resourceId: resourceId(walletId),
-    nonce: v4()
-  }
-
   const { address: newAddress, walletId: newWalletId } = await importPrivateKey(config, { privateKey, walletId })
 
   console.log('\n\nimported wallet:', newWalletId, 'address:', newAddress)
 
-  const { accessToken } = await evaluate(config, transactionRequestAction)
-  const { signature } = await signRequest(config, { accessToken, request: transactionRequestAction })
-
-  const publicClient = createPublicClient({
-    chain: polygon,
-    transport: http()
-  })
-  try {
-    const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
-    console.log('\n\ntransaction request successfully broadcasted !', 'txHash: ', hash)
-  } catch (error) {
-    console.error('transaction request failed', error)
+  const nonce = 18
+  const transactionRequest = {
+    from: vaultWalletAddress,
+    chainId: 137,
+    gas: BigInt(22000),
+    to: anotherAddress,
+    maxFeePerGas: BigInt(291175227375),
+    maxPriorityFeePerGas: BigInt(81000000000),
+    value: toHex(BigInt(50000)),
+    nonce
+    // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
+    // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
   }
 
-  const signMessageAction: SignMessageAction = {
-    action: 'signMessage',
-    message: 'Hello, World!',
-    resourceId: resourceId(walletId),
-    nonce: v4()
-  }
+  const hash = await sendTransaction(config, transactionRequest)
 
-  const { accessToken: messageAccessToken } = await evaluate(config, signMessageAction)
-  const { signature: messageSignature } = await signRequest(config, {
-    accessToken: messageAccessToken,
-    request: signMessageAction
-  })
+  console.log('\n\ntransaction hash:', hash)
 
-  console.log('\n\nmessage signature:', messageSignature)
+  // const signMessageAction: SignMessageAction = {
+  //   action: 'signMessage',
+  //   message: 'Hello, World!',
+  //   resourceId: resourceId(walletId),
+  //   nonce: v4()
+  // }
 
-  try {
-    const messageVerification = await publicClient.verifyMessage({
-      message: signMessageAction.message,
-      signature: messageSignature,
-      address: vaultWalletAddress
-    })
-    console.log('\n\nmessage verification:', messageVerification)
-  } catch (error) {
-    console.error('message verification failed', error)
-  }
+  // const { accessToken: messageAccessToken } = await evaluate(config, signMessageAction)
+  // const { signature: messageSignature } = await signRequest(config, {
+  //   accessToken: messageAccessToken,
+  //   request: signMessageAction
+  // })
 
-  const signTypedDataAction: SignTypedDataAction = {
-    action: 'signTypedData',
-    typedData: {
-      types: {
-        EIP712Domain: [{ name: 'name', type: 'string' }],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallet', type: 'address' }
-        ]
-      },
-      primaryType: 'Person',
-      domain: { name: 'Ether Mail', version: '1' },
-      message: {
-        name: 'Bob',
-        wallet: anotherAddress
-      }
-    },
-    resourceId: resourceId(walletId),
-    nonce: v4()
-  }
+  // console.log('\n\nmessage signature:', messageSignature)
 
-  const { accessToken: typedDataAccessToken } = await evaluate(config, signTypedDataAction)
+  // try {
+  //   const messageVerification = await publicClient.verifyMessage({
+  //     message: signMessageAction.message,
+  //     signature: messageSignature,
+  //     address: vaultWalletAddress
+  //   })
+  //   console.log('\n\nmessage verification:', messageVerification)
+  // } catch (error) {
+  //   console.error('message verification failed', error)
+  // }
 
-  const { signature: typedDataSignature } = await signRequest(config, {
-    accessToken: typedDataAccessToken,
-    request: signTypedDataAction
-  })
+  // const signTypedDataAction: SignTypedDataAction = {
+  //   action: 'signTypedData',
+  //   typedData: {
+  //     types: {
+  //       EIP712Domain: [{ name: 'name', type: 'string' }],
+  //       Person: [
+  //         { name: 'name', type: 'string' },
+  //         { name: 'wallet', type: 'address' }
+  //       ]
+  //     },
+  //     primaryType: 'Person',
+  //     domain: { name: 'Ether Mail', version: '1' },
+  //     message: {
+  //       name: 'Bob',
+  //       wallet: anotherAddress
+  //     }
+  //   },
+  //   resourceId: resourceId(walletId),
+  //   nonce: v4()
+  // }
 
-  const typedDataVerification = await publicClient.verifyTypedData({
-    signature: typedDataSignature,
-    address: vaultWalletAddress,
-    types: signTypedDataAction.typedData.types as unknown as TypedData,
-    // TODO: @ptroger find a way to make this work without casting or explitly mapping to viem.
-    primaryType: signTypedDataAction.typedData.primaryType,
-    domain: signTypedDataAction.typedData.domain,
-    message: signTypedDataAction.typedData.message
-  })
+  // const { accessToken: typedDataAccessToken } = await evaluate(config, signTypedDataAction)
 
-  console.log('\n\ntyped data verification:', typedDataVerification)
+  // const { signature: typedDataSignature } = await signRequest(config, {
+  //   accessToken: typedDataAccessToken,
+  //   request: signTypedDataAction
+  // })
+
+  // const typedDataVerification = await publicClient.verifyTypedData({
+  //   signature: typedDataSignature,
+  //   address: vaultWalletAddress,
+  //   types: signTypedDataAction.typedData.types as unknown as TypedData,
+  //   // TODO: @ptroger find a way to make this work without casting or explitly mapping to viem.
+  //   primaryType: signTypedDataAction.typedData.primaryType,
+  //   domain: signTypedDataAction.typedData.domain,
+  //   message: signTypedDataAction.typedData.message
+  // })
+
+  // console.log('\n\ntyped data verification:', typedDataVerification)
 }
 
 main()
