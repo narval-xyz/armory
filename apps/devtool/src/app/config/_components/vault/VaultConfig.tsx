@@ -8,7 +8,7 @@ const VaultConfig = () => {
   const { vaultUrl, vaultAdminApiKey, setVaultUrl, setVaultAdminApiKey } = useStore()
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-[48px]">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Vault</div>
         <AddVaultClientModal />

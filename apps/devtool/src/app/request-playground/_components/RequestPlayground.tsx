@@ -18,6 +18,7 @@ import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
 import { erc20, grantPermission, spendingLimits } from '../../_lib/request'
+import RequestConfigModal from './RequestPlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -206,6 +207,7 @@ const PlaygroundEditor = () => {
               disabled={isProcessing}
             />
           )}
+          <RequestConfigModal />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-[32px] grow">

@@ -8,7 +8,7 @@ import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
-import EngineConfigModal from './modals/EngineConfigModal'
+import EngineConfigModal from './DataStoreConfigModal'
 
 enum Action {
   FETCH_ENTITY = 'FETCH_ENTITY',
@@ -60,7 +60,7 @@ const DataStoreConfig = () => {
   const resyncEngine = () => syncEngine(engineUrl, engineClientId, engineClientSecret)
 
   return (
-    <div className="flex flex-col gap-[16px] h-full">
+    <div className="flex flex-col gap-[48px] h-full">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Data Store</div>
         <div className="flex items-center gap-[8px]">

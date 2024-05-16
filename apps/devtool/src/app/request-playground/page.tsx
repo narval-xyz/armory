@@ -1,4 +1,4 @@
-import PlaygroundEditor from './_components/PlaygroundEditor'
+import PlaygroundEditor from './_components/RequestPlayground'
 
 export default async function RequestPlayground() {
   return <PlaygroundEditor />

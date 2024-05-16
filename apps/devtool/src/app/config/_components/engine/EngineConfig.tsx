@@ -8,7 +8,7 @@ const EngineConfig = () => {
   const { engineUrl, engineAdminApiKey, setEngineUrl, setEngineAdminApiKey } = useStore()
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-[48px]">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Policy Engine</div>
         <AddEngineClientModal />

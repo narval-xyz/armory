@@ -1,10 +1,12 @@
+'use client'
+
 import { faGear } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
-import NarButton from '../../../_design-system/NarButton'
-import NarDialog from '../../../_design-system/NarDialog'
-import NarInput from '../../../_design-system/NarInput'
-import useStore from '../../../_hooks/useStore'
+import NarButton from '../../_design-system/NarButton'
+import NarDialog from '../../_design-system/NarDialog'
+import NarInput from '../../_design-system/NarInput'
+import useStore from '../../_hooks/useStore'
 
 interface EngineConfigForm {
   url: string
@@ -21,6 +23,7 @@ const initForm: EngineConfigForm = {
 const EngineConfigModal = () => {
   const { engineUrl, engineClientId, engineClientSecret, setEngineUrl, setEngineClientId, setEngineClientSecret } =
     useStore()
+
   const [isOpen, setIsOpen] = useState(false)
   const [form, setForm] = useState(initForm)
 
@@ -55,9 +58,9 @@ const EngineConfigModal = () => {
   return (
     <NarDialog
       triggerButton={
-        <NarButton variant="secondary" label="Engine Config" leftIcon={<FontAwesomeIcon icon={faGear} />} />
+        <NarButton variant="secondary" label="Configuration" leftIcon={<FontAwesomeIcon icon={faGear} />} />
       }
-      title="Engine Config"
+      title="Configuration"
       primaryButtonLabel="Save"
       isOpen={isOpen}
       isSaveDisabled={!isFormValid}
