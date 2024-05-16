@@ -2,21 +2,6 @@ import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
-export type Node = {
-  id: string
-  clusterId: string
-  host: string
-  port: number
-  pubKey: string
-}
-
-export type Cluster = {
-  id: string
-  clientId: string
-  nodes: Node[]
-  size: number
-}
-
 export const PolicyEngineNode = z.object({
   id: z.string().min(1),
   // In case of the client ID in the PE is different than the one in the
