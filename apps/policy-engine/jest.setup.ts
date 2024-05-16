@@ -28,3 +28,12 @@ nock.disableNetConnect()
 // Enable outgoing HTTP requests to 127.0.0.1 to allow E2E tests with
 // supertestwith supertest to work.
 nock.enableNetConnect('127.0.0.1')
+
+// Jest sometimes translates unmatched errors into obscure JSON circular
+// dependency without a proper stack trace. This can lead to hours of
+// debugging. To save time, this emitter will consistently log an unmatched
+// event allowing engineers to quickly identify the source of the error.
+nock.emitter.on('no match', (request) => {
+  // eslint-disable-next-line no-console
+  console.error('Nock: no match for request', request)
+})
