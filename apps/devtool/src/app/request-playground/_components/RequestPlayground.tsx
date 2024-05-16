@@ -231,7 +231,7 @@ const PlaygroundEditor = () => {
           </div>
           {errors && <div className="text-nv-red-500 truncate">{errors}</div>}
           {!errors && response && (
-            <div className="border-2 border-white rounded-xl p-[4px] overflow-auto">
+            <div className="border-2 border-white p-[4px] overflow-auto">
               <pre>{JSON.stringify(response, null, 3)}</pre>
             </div>
           )}
