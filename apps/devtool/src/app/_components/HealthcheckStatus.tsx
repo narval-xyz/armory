@@ -8,24 +8,13 @@ import useVaultApi from '../_hooks/useVaultApi'
 import { classNames } from '../_lib/utils'
 
 const HealthcheckStatus = () => {
-  const {
-    engineUrl,
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    entitySignatureUrl,
-    policyDataStoreUrl,
-    policySignatureUrl,
-    vaultUrl
-  } = useStore()
+  const { engineUrl, engineClientId, engineClientSecret, entityDataStoreUrl, policyDataStoreUrl, vaultUrl } = useStore()
 
   const [status, setStatus] = useState({
     engineConnection: false,
     engineDataStore: false,
     entityDataUrl: false,
-    entitySignatureUrl: false,
     policyDataUrl: false,
-    policySignatureUrl: false,
     vaultConnection: false
   })
 
@@ -42,30 +31,12 @@ const HealthcheckStatus = () => {
     }
   }
 
-  const checkEntitySignatureConnection = async () => {
-    try {
-      await pingDataStore(entitySignatureUrl)
-      setStatus((prev) => ({ ...prev, entitySignatureUrl: true }))
-    } catch (e) {
-      setStatus((prev) => ({ ...prev, entitySignatureUrl: false }))
-    }
-  }
-
   const checkPolicyDataConnection = async () => {
     try {
       await pingDataStore(policyDataStoreUrl)
       setStatus((prev) => ({ ...prev, policyDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, policyDataUrl: false }))
-    }
-  }
-
-  const checkPolicySignatureConnection = async () => {
-    try {
-      await pingDataStore(policySignatureUrl)
-      setStatus((prev) => ({ ...prev, policySignatureUrl: true }))
-    } catch (e) {
-      setStatus((prev) => ({ ...prev, policySignatureUrl: false }))
     }
   }
 
@@ -98,9 +69,7 @@ const HealthcheckStatus = () => {
 
   useEffect(() => {
     checkEntityDataConnection()
-    checkEntitySignatureConnection()
     checkPolicyDataConnection()
-    checkPolicySignatureConnection()
     checkEngineConnection()
     checkEngineDataStore()
     checkVaultConnection()
@@ -113,7 +82,7 @@ const HealthcheckStatus = () => {
         <div className="flex flex-col gap-4">
           <div className="text-nv-xl">Data Store</div>
           <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Entity Data URL</div>
+            <div className="text-nv-md underline">Entity Data</div>
             <div className="flex items-center gap-4">
               <div
                 className={classNames(
@@ -125,39 +94,15 @@ const HealthcheckStatus = () => {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Entity Signature URL</div>
+            <div className="text-nv-md underline">Policy Data</div>
             <div className="flex items-center gap-4">
               <div
                 className={classNames(
                   'h-3 w-3 rounded-full',
-                  status.entitySignatureUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                  status.policyDataUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
                 )}
               ></div>
-              <div>{status.entitySignatureUrl ? 'Connected' : 'Disconnected'}</div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="text-nv-md underline">Policy Data URL</div>
-              <div className="flex items-center gap-4">
-                <div
-                  className={classNames(
-                    'h-3 w-3 rounded-full',
-                    status.policyDataUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                  )}
-                ></div>
-                <div>{status.policyDataUrl ? 'Connected' : 'Disconnected'}</div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="text-nv-md underline">Policy Signature URL</div>
-              <div className="flex items-center gap-4">
-                <div
-                  className={classNames(
-                    'h-3 w-3 rounded-full',
-                    status.policySignatureUrl ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                  )}
-                ></div>
-                <div>{status.policySignatureUrl ? 'Connected' : 'Disconnected'}</div>
-              </div>
+              <div>{status.policyDataUrl ? 'Connected' : 'Disconnected'}</div>
             </div>
           </div>
         </div>
