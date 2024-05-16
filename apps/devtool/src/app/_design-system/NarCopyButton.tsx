@@ -14,7 +14,7 @@ interface NarCopyButtonProps {
   delay?: number
 }
 
-const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn, className, delay = 2000 }) => {
+const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn = false, className, delay = 2000 }) => {
   const [isCopied, setIsCopied] = useState(false)
 
   const handleClick = (e: any) => {
@@ -24,6 +24,17 @@ const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn, classNa
     setTimeout(() => setIsCopied(false), delay)
   }
 
+  if (!isIconBtn) {
+    return (
+      <NarButton
+        variant="primary"
+        label={isCopied ? 'Copied!' : label || 'Copy'}
+        leftIcon={<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} />}
+        onClick={handleClick}
+      />
+    )
+  }
+
   return (
     <NarTooltip
       side="top"
@@ -31,19 +42,11 @@ const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn, classNa
       bgColor="nv-neutrals-400"
       className="text-nv-xs"
       triggerButton={
-        isIconBtn ? (
-          <NarIconButton
-            icon={isCopied ? faCheck : faCopy}
-            className={classNames(className, isCopied ? 'text-nv-green-500' : '')}
-            onClick={handleClick}
-          />
-        ) : (
-          <NarButton
-            label={isCopied ? 'Copied!' : label || 'Copy'}
-            leftIcon={<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} />}
-            onClick={handleClick}
-          />
-        )
+        <NarIconButton
+          icon={isCopied ? faCheck : faCopy}
+          className={classNames(className, isCopied ? 'text-nv-green-500' : '')}
+          onClick={handleClick}
+        />
       }
       delay={delay}
     >
