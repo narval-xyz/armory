@@ -11,10 +11,10 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities, Policy } from '@narval/policy-engine-shared'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import CodeEditor from '../../_components/CodeEditor'
 import NarButton from '../../_design-system/NarButton'
 import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarInput from '../../_design-system/NarInput'
-import CodeEditor from '../../_components/CodeEditor'
 
 enum Action {
   SIGN = 'SIGN',
@@ -23,6 +23,7 @@ enum Action {
 
 interface DataEditorProps<T> {
   data: { signature: string; data: T } | undefined
+  label: string
   url: string
   setUrl: Dispatch<SetStateAction<string>>
   isFetching: boolean
@@ -36,6 +37,7 @@ interface DataEditorProps<T> {
 
 const DataEditor = <T extends Entities | Policy[]>({
   data,
+  label,
   url,
   setUrl,
   isFetching,
@@ -82,7 +84,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   return (
     <div className="flex flex-col gap-[16px]">
       <div className="flex items-end gap-[8px]">
-        <NarInput label="Entity Data URL" value={url} onChange={setUrl} />
+        <NarInput label={label} value={url} onChange={setUrl} />
         {isReadOnly && editor && (
           <>
             <NarCopyButton label="Copy" copy={editor} />

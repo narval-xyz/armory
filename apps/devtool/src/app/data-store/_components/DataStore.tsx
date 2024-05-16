@@ -71,6 +71,7 @@ const DataStoreConfig = () => {
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
         <DataEditor
+          label="Entity Data URL"
           data={entityStore}
           url={entityDataStoreUrl}
           setUrl={setEntityDataStoreUrl}
@@ -83,6 +84,7 @@ const DataStoreConfig = () => {
           resyncEngine={resyncEngine}
         />
         <DataEditor
+          label="Policy Data URL"
           data={policyStore}
           url={policyDataStoreUrl}
           setUrl={setPolicyDataStoreUrl}
