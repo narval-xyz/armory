@@ -11,6 +11,7 @@ import axios from 'axios'
 import { v4 } from 'uuid'
 import { Hex, createPublicClient, http } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
+import { HEADER_CLIENT_ID } from './constants'
 import {
   ArmoryClientConfig,
   ArmoryClientConfigInput,
@@ -59,6 +60,8 @@ export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClien
     entityStoreHost,
     policyStoreHost,
     authClientId,
+    jwk: config.jwk,
+    alg: config.alg,
     signer: config.signer
   })
 
@@ -75,8 +78,7 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
   const body = await signRequestHelper(config, request)
 
   const headers = {
-    'x-client-id': config.authClientId,
-    'x-client-secret': config.authSecret
+    [HEADER_CLIENT_ID]: config.authClientId
   }
 
   const uri = `${config.authHost}${Endpoints.engine.evaluations}`
@@ -123,7 +125,7 @@ export const importPrivateKey = async (
     uri,
     htm: Htm.POST,
     accessToken,
-    jwk: config.signer
+    jwk: config.jwk
   })
 
   const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)
@@ -155,7 +157,7 @@ export const signRequest = async (config: VaultClientConfig, input: SignatureReq
     uri,
     htm: Htm.POST,
     accessToken,
-    jwk: config.signer
+    jwk: config.jwk
   })
 
   const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)

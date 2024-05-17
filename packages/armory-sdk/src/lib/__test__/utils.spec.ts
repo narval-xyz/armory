@@ -14,7 +14,8 @@ describe('checkDecision', () => {
     vaultClientId: '123456789',
     entityStoreHost: 'example.com',
     policyStoreHost: 'example.com',
-    signer: FIXTURE.CREDENTIAL.Alice.key
+    jwk: FIXTURE.CREDENTIAL.Alice.key,
+    signer: async () => 'signature'
   }
 
   it('return SdkPermitResponse when decision is PERMIT and all required data is present', () => {
@@ -133,7 +134,8 @@ describe('buildPayloadFromRequest', () => {
     vaultClientId: '123456789',
     entityStoreHost: 'example.com',
     policyStoreHost: 'example.com',
-    signer: FIXTURE.CREDENTIAL.Alice.key
+    jwk: FIXTURE.CREDENTIAL.Alice.key,
+    signer: async () => 'signature'
   }
 
   let request: Request
@@ -145,7 +147,7 @@ describe('buildPayloadFromRequest', () => {
   it('should return a payload object with the correct properties', () => {
     const expectedPayload: Payload = {
       requestHash: expect.any(String),
-      sub: config.signer.kid,
+      sub: config.jwk.kid,
       iss: config.authClientId,
       iat: expect.any(Number)
     }
@@ -158,7 +160,7 @@ describe('buildPayloadFromRequest', () => {
   it('should set the sub property to the signer kid', () => {
     const result = buildPayloadFromRequest(config, request)
 
-    expect(result.sub).toBe(config.signer.kid)
+    expect(result.sub).toBe(config.jwk.kid)
   })
 
   it('should set the iss property to the authClientId', () => {

@@ -7,7 +7,7 @@ import {
   hexSchema,
   policySchema
 } from '@narval/policy-engine-shared'
-import { Payload, jwkSchema, privateKeySchema } from '@narval/signature'
+import { Payload, SigningAlg, jwkSchema, privateKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Endpoints = {
@@ -23,13 +23,15 @@ export const Endpoints = {
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
 
 export const UserSigner = z.object({
-  signer: jwkSchema
+  jwk: jwkSchema,
+  alg: z.nativeEnum(SigningAlg).optional(),
+  signer: z.function().args(z.string()).returns(z.promise(z.string()))
 })
 
 export const EngineClientConfig = UserSigner.extend({
   authHost: z.string(),
   authClientId: z.string(),
-  authSecret: z.string()
+  authSecret: z.string().optional()
 })
 export type EngineClientConfig = z.infer<typeof EngineClientConfig>
 

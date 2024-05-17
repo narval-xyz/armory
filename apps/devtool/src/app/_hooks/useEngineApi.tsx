@@ -1,8 +1,8 @@
-import { EvaluationRequest, EvaluationResponse, Request } from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
+import { evaluate } from '@narval/armory-sdk'
+import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
 import { useState } from 'react'
-import { v4 as uuid } from 'uuid'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 
@@ -17,7 +17,7 @@ export interface EngineClientData {
 }
 
 const useEngineApi = () => {
-  const { signAccountJwt } = useAccountSignature()
+  const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
   const [errors, setErrors] = useState<string>()
@@ -98,31 +98,15 @@ const useEngineApi = () => {
     }
   }
 
-  const evaluateRequest = async (engineUrl: string, engineClientId: string, evaluationRequest: EvaluationRequest) => {
-    setErrors(undefined)
-
+  const evaluateRequest = async (authHost: string, authClientId: string, evaluationRequest: EvaluationRequest) => {
     try {
-      const request = Request.parse(evaluationRequest.request)
+      if (!jwk) return
+      setErrors(undefined)
 
-      const payload: Payload = {
-        iss: uuid(),
-        sub: request.resourceId,
-        requestHash: hash(request)
-      }
-
-      const authentication = await signAccountJwt(payload)
-
-      const { data: evaluation } = await axios.post<EvaluationResponse>(
-        `${engineUrl}/evaluations`,
-        { ...evaluationRequest, authentication },
-        {
-          headers: {
-            'x-client-id': engineClientId
-          }
-        }
+      return evaluate(
+        { authHost, authClientId, jwk, alg: SigningAlg.EIP191, signer },
+        Request.parse(evaluationRequest.request)
       )
-
-      return { evaluation, authentication }
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }

@@ -118,27 +118,17 @@ const PlaygroundEditor = () => {
 
   const sendEvaluation = async () => {
     if (!editor) return
-
     setIsProcessing(true)
     setErrors(undefined)
 
-    const request: EvaluationRequest = JSON.parse(editor)
-    const evaluationResponse = await evaluateRequest(engineUrl, engineClientId, request)
-
-    if (evaluationResponse) {
-      const { evaluation, authentication } = evaluationResponse
-      setEditor(
-        JSON.stringify(
-          {
-            ...request,
-            ...(evaluation.decision === Decision.PERMIT && { authentication })
-          },
-          null,
-          2
-        )
-      )
-      setResponse(evaluation)
-    }
+    try {
+      const request: EvaluationRequest = JSON.parse(editor)
+      const evaluationResponse = await evaluateRequest(engineUrl, engineClientId, request)
+      if (evaluationResponse) {
+        setEditor(JSON.stringify(request, null, 2))
+        setResponse(evaluationResponse)
+      }
+    } catch (error) {}
 
     setIsProcessing(false)
   }

@@ -73,7 +73,7 @@ export const resourceId = (walletIdOrAddress: Address | string): string => {
 export const buildPayloadFromRequest = (config: EngineClientConfig, request: Request): Payload => {
   return {
     requestHash: hash(request),
-    sub: config.signer.kid,
+    sub: config.jwk.kid,
     iss: config.authClientId,
     iat: new Date().getTime()
   }
@@ -81,8 +81,8 @@ export const buildPayloadFromRequest = (config: EngineClientConfig, request: Req
 
 export const signRequest = async (config: EngineClientConfig, request: Request): Promise<EvaluationRequest> => {
   const payload = buildPayloadFromRequest(config, request)
+  const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
 
-  const authentication = await signJwt(payload, config.signer)
   return {
     authentication,
     request
