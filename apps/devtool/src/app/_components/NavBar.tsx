@@ -7,11 +7,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import NarButton from '../_design-system/NarButton'
+import NarCopyButton from '../_design-system/NarCopyButton'
+import useAccountSignature from '../_hooks/useAccountSignature'
 import { formatAddress } from '../_lib/utils'
 
 const NavBar = () => {
   const currentPath = usePathname()
   const account = useAccount()
+  const { jwk } = useAccountSignature()
   const { connectors, connect } = useConnect()
   const { disconnect } = useDisconnect()
 
@@ -36,6 +39,7 @@ const NavBar = () => {
         </div>
         <div className="flex flex-row-reverse gap-2 flex-1">
           <div className="flex gap-2">
+            <NarCopyButton label="Copy JWK" copy={JSON.stringify(jwk)} />
             {connectors.map((connector) => (
               <NarButton
                 label={account.isConnected ? formatAddress(account.address) : 'Connect Wallet'}
