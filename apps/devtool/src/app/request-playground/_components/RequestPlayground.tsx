@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Decision, EvaluationRequest } from '@narval/policy-engine-shared'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'
 import CodeEditor from '../../_components/CodeEditor'
 import NarButton from '../../_design-system/NarButton'
@@ -64,6 +64,8 @@ const PlaygroundEditor = () => {
   const [response, setResponse] = useState<any>()
   const [errors, setErrors] = useState<string>()
 
+  const canBeSigned = response?.decision === Decision.PERMIT
+
   useEffect(() => {
     if (editor) return
 
@@ -78,19 +80,6 @@ const PlaygroundEditor = () => {
       setErrors(signatureErrors)
     }
   }, [evaluationErrors, signatureErrors])
-
-  const canBeSigned = useMemo(() => {
-    if (!editor || !response) return false
-
-    try {
-      const { authentication } = JSON.parse(editor)
-      const { decision } = response
-
-      return authentication && decision === Decision.PERMIT
-    } catch (error) {
-      return false
-    }
-  }, [editor, response])
 
   const resetResponse = () => {
     setResponse(undefined)
