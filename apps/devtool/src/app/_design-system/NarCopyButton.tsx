@@ -9,12 +9,20 @@ import NarTooltip from './NarTooltip'
 interface NarCopyButtonProps {
   copy: string
   className?: string
+  variant?: 'primary' | 'secondary'
   label?: string
   isIconBtn?: boolean
   delay?: number
 }
 
-const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn = false, className, delay = 2000 }) => {
+const NarCopyButton: FC<NarCopyButtonProps> = ({
+  copy,
+  className,
+  variant = 'primary',
+  label,
+  isIconBtn = false,
+  delay = 2000
+}) => {
   const [isCopied, setIsCopied] = useState(false)
 
   const handleClick = (e: any) => {
@@ -27,7 +35,7 @@ const NarCopyButton: FC<NarCopyButtonProps> = ({ copy, label, isIconBtn = false,
   if (!isIconBtn) {
     return (
       <NarButton
-        variant="primary"
+        variant={variant}
         label={isCopied ? 'Copied!' : label || 'Copy'}
         leftIcon={<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} />}
         onClick={handleClick}
