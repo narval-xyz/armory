@@ -70,7 +70,11 @@ export class PolicyEngineClient {
           url: `${option.host}/clients`,
           method: 'POST',
           data: option.data,
-          headers: this.getHeaders(option)
+          headers: {
+            ...this.getHeaders(option),
+            // TODO: Demo
+            'x-api-key': '7261e7447c8528e3ab2e0f7a801aa4f1cf5e69a6c0007077da5eb26714060011'
+          }
         })
         .pipe(
           tap((response) => {

@@ -84,10 +84,6 @@ policy-engine/db/create-migration:
 			--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
 			--name ${NAME}
 
-# To maintain seed data within their respective modules and then import them
-# into the main seed.ts file for execution, it's necessary to compile the
-# project and resolve its path aliases before running the vanilla JavaScript
-# seed entry point.
 policy-engine/db/seed:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
 		ts-node -r tsconfig-paths/register --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.ts

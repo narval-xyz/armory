@@ -16,6 +16,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const isProduction = this.configService.get('env') === Env.PRODUCTION
 
+    console.dir(exception, { depth: null })
+
     this.logger.error(exception)
 
     response.status(status).json(

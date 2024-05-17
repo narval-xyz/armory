@@ -4,9 +4,9 @@ import { entitiesSchema } from '../schema/entity.schema'
 import { policySchema } from '../schema/policy.schema'
 
 export const SourceType = {
-  HTTP: 'http',
-  HTTPS: 'https',
-  FILE: 'file'
+  HTTP: 'HTTP',
+  HTTPS: 'HTTPS',
+  FILE: 'FILE'
 } as const
 
 export type SourceType = (typeof SourceType)[keyof typeof SourceType]

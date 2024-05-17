@@ -16,7 +16,6 @@ import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.module'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
-import { PolicyEngineClient } from './http/client/policy-engine.client'
 import { AuthorizationRequestController } from './http/rest/controller/authorization-request.controller'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
@@ -49,7 +48,6 @@ const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule, Pol
     AuthorizationRequestRepository,
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer,
-    PolicyEngineClient,
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter
@@ -71,7 +69,6 @@ const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule, Pol
       provide: APP_PIPE,
       useClass: ZodValidationPipe
     }
-  ],
-  exports: [PolicyEngineClient]
+  ]
 })
 export class OrchestrationModule {}

@@ -5,7 +5,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { AdminApiKeyGuard } from '../../../../shared/guard/admin-api-key.guard'
+// import { AdminApiKeyGuard } from '../../../../shared/guard/admin-api-key.guard'
 import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
@@ -16,7 +16,7 @@ export class ClientController {
   constructor(private clientService: ClientService) {}
 
   @Post()
-  @UseGuards(AdminApiKeyGuard)
+  // @UseGuards(AdminApiKeyGuard)
   @ApiOperation({
     summary: 'Creates a new client'
   })
