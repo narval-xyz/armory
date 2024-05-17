@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Queue } from 'bull'
 import { load } from '../../../../../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '../../../../../armory.constant'
+import { PolicyEngineModule } from '../../../../../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../../shared/module/queue/queue.module'
@@ -55,6 +56,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
         }),
         QueueModule.forRoot(),
         PersistenceModule,
+        PolicyEngineModule,
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         })

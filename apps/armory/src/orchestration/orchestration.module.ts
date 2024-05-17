@@ -9,6 +9,7 @@ import { ZodValidationPipe } from 'nestjs-zod'
 import { load } from '../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE } from '../armory.constant'
 import { DataFeedModule } from '../data-feed/data-feed.module'
+import { PolicyEngineModule } from '../policy-engine/policy-engine.module'
 import { PriceModule } from '../price/price.module'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
@@ -39,7 +40,7 @@ const INFRASTRUCTURE_MODULES = [
   })
 ]
 
-const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule]
+const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule, PolicyEngineModule]
 
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],

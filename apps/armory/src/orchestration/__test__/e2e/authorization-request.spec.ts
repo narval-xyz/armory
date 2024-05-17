@@ -61,6 +61,11 @@ describe('Authorization Request', () => {
     authzRequestRepository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     authzRequestProcessingQueue = module.get<Queue>(getQueueToken(AUTHORIZATION_REQUEST_PROCESSING_QUEUE))
 
+    // Pauses the processing queue because to simplify the test. Here we want
+    // to make sure jobs are added to the queue. The processing correctness is
+    // covered by the consumer integration test.
+    await authzRequestProcessingQueue.pause()
+
     app = module.createNestApplication()
 
     await app.init()
@@ -68,7 +73,7 @@ describe('Authorization Request', () => {
 
   afterAll(async () => {
     await testPrismaService.truncateAll()
-    await authzRequestProcessingQueue.empty()
+    await authzRequestProcessingQueue.resume()
     await module.close()
     await app.close()
   })

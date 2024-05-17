@@ -25,15 +25,25 @@ dotenv.config({ path: testEnvFile, override: true })
 // Disable outgoing HTTP requests to avoid flaky tests.
 nock.disableNetConnect()
 
-// Enable outgoing HTTP requests to 127.0.0.1 to allow E2E tests with
+// Enable outbound HTTP requests to 127.0.0.1 to allow E2E tests with
 // supertestwith supertest to work.
-nock.enableNetConnect('127.0.0.1')
+const OUTBOUND_HTTP_ALLOWED_HOST = '127.0.0.1'
+
+nock.enableNetConnect(OUTBOUND_HTTP_ALLOWED_HOST)
 
 // Jest sometimes translates unmatched errors into obscure JSON circular
 // dependency without a proper stack trace. This can lead to hours of
 // debugging. To save time, this emitter will consistently log an unmatched
 // event allowing engineers to quickly identify the source of the error.
 nock.emitter.on('no match', (request) => {
+  if (request.host && request.host.includes(OUTBOUND_HTTP_ALLOWED_HOST)) {
+    return
+  }
+
+  if (request.hostname && request.hostname.includes(OUTBOUND_HTTP_ALLOWED_HOST)) {
+    return
+  }
+
   // eslint-disable-next-line no-console
   console.error('Nock: no match for request', request)
 })

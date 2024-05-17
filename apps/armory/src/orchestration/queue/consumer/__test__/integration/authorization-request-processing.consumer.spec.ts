@@ -1,30 +1,32 @@
 import { ConfigModule } from '@narval/config-module'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
+import { Alg, generateJwk, getPublicKey } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Client, Prisma } from '@prisma/client/armory'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
+import { JwtError } from 'packages/signature/src/lib/error'
 import { load } from '../../../../../armory.config'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { ClusterNotFoundException } from '../../../../../policy-engine/core/exception/cluster-not-found.exception'
+import { ConsensusAgreementNotReachException } from '../../../../../policy-engine/core/exception/consensus-agreement-not-reach.exception'
+import { InvalidAttestationSignatureException } from '../../../../../policy-engine/core/exception/invalid-attestation-signature.exception'
+import { UnreachableClusterException } from '../../../../../policy-engine/core/exception/unreachable-cluster.exception'
+import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
+import { PolicyEngineModule } from '../../../../../policy-engine/policy-engine.module'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../../shared/module/queue/queue.module'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
-import { ClusterNotFoundException } from '../../../../core/exception/cluster-not-found.exception'
-import { ConsensusAgreementNotReachException } from '../../../../core/exception/consensus-agreement-not-reach.exception'
-import { InvalidAttestationSignatureException } from '../../../../core/exception/invalid-attestation-signature.exception'
-import { UnreachableClusterException } from '../../../../core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
-import { ClusterService } from '../../../../core/service/cluster.service'
-import { Cluster } from '../../../../core/type/clustering.type'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
@@ -94,7 +96,8 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         }),
-        HttpModule
+        HttpModule,
+        PolicyEngineModule
       ],
       providers: [
         AuthorizationRequestProcessingConsumer,
@@ -179,11 +182,17 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
       })
 
       it('stops retrying on known unrecoverable errors', async () => {
+        const publicKey = getPublicKey(await generateJwk(Alg.ES256K))
+
         const unrecoverableErrors = [
           new ClusterNotFoundException(authzRequest.clientId),
           new ConsensusAgreementNotReachException([], []),
-          new UnreachableClusterException(mock<Cluster>()),
-          new InvalidAttestationSignatureException('test-pubkey', 'test-recovered-pubkey'),
+          new UnreachableClusterException(authzRequest.clientId, []),
+          new InvalidAttestationSignatureException(
+            'test-auth-token',
+            publicKey,
+            new JwtError({ message: 'Test JWT error' })
+          ),
           new AuthorizationRequestAlreadyProcessingException(authzRequest)
         ]
 
