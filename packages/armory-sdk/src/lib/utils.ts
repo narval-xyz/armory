@@ -6,12 +6,22 @@ import {
   Request,
   isAddress
 } from '@narval/policy-engine-shared'
-import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt } from '@narval/signature'
+import {
+  JwsdHeader,
+  Payload,
+  PrivateKey,
+  SigningAlg,
+  buildSignerForAlg,
+  hash,
+  hexToBase64Url,
+  signJwsd,
+  signJwt
+} from '@narval/signature'
 import { v4 } from 'uuid'
-import { Address } from 'viem'
+import { Address, Chain, Hex } from 'viem'
+import { mainnet, optimism, polygon } from 'viem/chains'
 import {
   EngineClientConfig,
-  ImportPrivateKeyRequest,
   JwsdHeaderArgs,
   SdkEvaluationResponse,
   SdkPermitResponse,
@@ -19,7 +29,7 @@ import {
   VaultClientConfig
 } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
-import { BasicHeaders, SignatureRequestHeaders } from './http/schema'
+import { BasicHeaders, GnapHeaders } from './http/schema'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, accessToken } = args
@@ -79,20 +89,36 @@ export const signRequest = async (config: EngineClientConfig, request: Request):
   }
 }
 
-export const buildDataPayload = (config: EngineClientConfig, data: unknown): Payload => {
+export const buildDataPayload = (
+  data: unknown,
+  opts: {
+    iss?: string
+    sub?: string
+    iat?: number
+  } = {}
+): Payload => {
   const hashed = hash(data)
   return {
     data: hashed,
-    sub: config.signer.kid,
-    iss: config.authClientId,
-    iat: new Date().getTime()
+    sub: opts.sub,
+    iss: opts.iss,
+    iat: opts.iat || new Date().getTime()
   }
 }
 
-export const signData = async (config: EngineClientConfig, data: unknown): Promise<JwtString> => {
-  const payload = buildDataPayload(config, data)
+export const signData = async (
+  signer: PrivateKey,
+  data: unknown,
+  opts: {
+    iss?: string
+    sub?: string
+    iat?: number
+    alg?: SigningAlg
+  } = {}
+): Promise<JwtString> => {
+  const payload = buildDataPayload(data, opts)
 
-  const authentication = await signJwt(payload, config.signer)
+  const authentication = await signJwt(payload, signer, { alg: opts.alg })
   return authentication
 }
 
@@ -123,27 +149,38 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
   }
 }
 
-export const walletId = (input: ImportPrivateKeyRequest): ImportPrivateKeyRequest => {
-  if (!input.walletId) {
+export const getChainOrThrow = (chainId: number): Chain => {
+  switch (chainId) {
+    case 1:
+      return mainnet
+    case 137:
+      return polygon
+    case 10:
+      return optimism
+    default:
+      throw new NarvalSdkException('Unsupported chain', {
+        chainId
+      })
+  }
+}
+export const walletId = (input: { walletId?: string; privateKey: Hex }): { walletId: string; privateKey: Hex } => {
+  const { walletId, privateKey } = input
+  if (!walletId) {
     return {
       ...input,
       walletId: `wallet:${v4()}`
     }
   }
-  return input
-}
-
-export const buildBasicAuthHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
-    'x-client-id': config.authClientId,
-    'x-client-secret': config.authSecret
+    walletId,
+    privateKey
   }
 }
 
-export const buildBasicVaultHeaders = (config: VaultClientConfig): BasicHeaders => {
+export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
-    'x-client-id': config.vaultClientId,
-    'x-client-secret': config.vaultSecret
+    'x-client-id': config.authClientId,
+    'x-client-secret': config.authSecret
   }
 }
 
@@ -151,7 +188,7 @@ export const buildGnapVaultHeaders = (
   config: VaultClientConfig,
   accessToken: JwtString,
   detachedJws: string
-): SignatureRequestHeaders => {
+): GnapHeaders => {
   return {
     'x-client-id': config.vaultClientId,
     'detached-jws': detachedJws,

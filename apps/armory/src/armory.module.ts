@@ -2,6 +2,7 @@ import { ConfigModule } from '@narval/config-module'
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { load } from './armory.config'
+import { ArmoryController } from './armory.controller'
 import { ClientModule } from './client/client.module'
 import { ManagedDataStoreModule } from './managed-data-store/managed-data-store.module'
 import { OrchestrationModule } from './orchestration/orchestration.module'
@@ -25,6 +26,7 @@ const DOMAIN_MODULES = [OrchestrationModule, TransferTrackingModule, ManagedData
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor
     }
-  ]
+  ],
+  controllers: [ArmoryController]
 })
 export class ArmoryModule {}
