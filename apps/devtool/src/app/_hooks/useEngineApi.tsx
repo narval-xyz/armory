@@ -49,17 +49,25 @@ const useEngineApi = () => {
     }
   }
 
-  const onboardClient = async (engineClientData: EngineClientData) => {
+  const onboard = async (engineClientData: EngineClientData) => {
     setErrors(undefined)
     setIsProcessing(true)
 
     try {
-      const { engineUrl, engineAdminApiKey, entityDataStoreUrl, entityPublicKey, policyDataStoreUrl, policyPublicKey } =
-        engineClientData
+      const {
+        engineUrl,
+        engineAdminApiKey,
+        clientId,
+        entityDataStoreUrl,
+        entityPublicKey,
+        policyDataStoreUrl,
+        policyPublicKey
+      } = engineClientData
 
       const { data: client } = await axios.post(
         `${engineUrl}/clients`,
         {
+          clientId,
           entityDataStore: {
             data: {
               type: getUrlProtocol(entityDataStoreUrl),
@@ -99,7 +107,7 @@ const useEngineApi = () => {
     }
   }
 
-  const syncEngine = async () => {
+  const sync = async () => {
     if (!sdkEngineConfig) return
 
     try {
@@ -129,8 +137,8 @@ const useEngineApi = () => {
     isSynced,
     errors,
     ping,
-    onboardClient,
-    syncEngine,
+    onboard,
+    sync,
     evaluateRequest
   }
 }

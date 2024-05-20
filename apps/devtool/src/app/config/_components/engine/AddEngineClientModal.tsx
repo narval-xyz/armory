@@ -32,7 +32,7 @@ const AddEngineClientModal = () => {
   } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { isProcessing, onboardClient } = useEngineApi()
+  const { isProcessing, onboard } = useEngineApi()
 
   const [isOpen, setIsOpen] = useState(false)
   const [newClient, setNewClient] = useState<any>()
@@ -58,7 +58,7 @@ const AddEngineClientModal = () => {
   const addClient = async () => {
     if (!isFormValid) return
 
-    const client = await onboardClient(form)
+    const client = await onboard(form)
     setNewClient(client)
   }
 

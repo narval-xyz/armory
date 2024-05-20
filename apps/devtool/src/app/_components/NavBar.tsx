@@ -39,7 +39,7 @@ const NavBar = () => {
         </div>
         <div className="flex flex-row-reverse gap-2 flex-1">
           <div className="flex gap-2">
-            <NarCopyButton variant="secondary" label="Copy JWK" copy={JSON.stringify(jwk)} />
+            {account.isConnected && <NarCopyButton variant="secondary" label="Copy JWK" copy={JSON.stringify(jwk)} />}
             {connectors.map((connector) => (
               <NarButton
                 label={account.isConnected ? formatAddress(account.address) : 'Connect Wallet'}

@@ -43,7 +43,7 @@ const DataStoreConfig = () => {
     validationErrors
   } = useDataStoreApi()
 
-  const { isSynced, syncEngine } = useEngineApi()
+  const { isSynced, sync } = useEngineApi()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -71,7 +71,7 @@ const DataStoreConfig = () => {
           sign={signEntityData}
           isSigningAndPushing={isSigningAndPushingEntity}
           signAndPush={signAndPushEntity}
-          resyncEngine={syncEngine}
+          resyncEngine={sync}
         />
         <DataEditor
           label="Policy Data URL"
@@ -84,7 +84,7 @@ const DataStoreConfig = () => {
           sign={signPolicyData}
           isSigningAndPushing={isSigningAndPushingPolicy}
           signAndPush={signAndPushPolicy}
-          resyncEngine={syncEngine}
+          resyncEngine={sync}
         />
       </div>
       {isDialogOpen && (

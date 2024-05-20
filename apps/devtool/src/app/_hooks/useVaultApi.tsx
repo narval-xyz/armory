@@ -73,13 +73,14 @@ const useVaultApi = () => {
     }
   }
 
-  const onboardClient = async (vaultClientData: VaultClientData) => {
+  const onboard = async (vaultClientData: VaultClientData) => {
     setErrors(undefined)
 
     try {
       const {
         vaultUrl,
         vaultAdminApiKey,
+        clientId,
         engineClientSigner,
         backupPublicKey,
         allowKeyExport,
@@ -91,6 +92,7 @@ const useVaultApi = () => {
       const { data: client } = await axios.post(
         `${vaultUrl}/clients`,
         {
+          clientId,
           ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
           ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
           ...(allowKeyExport && { allowKeyExport }),
@@ -136,7 +138,7 @@ const useVaultApi = () => {
     }
   }
 
-  return { isProcessing, errors, ping, onboardClient, sign, importPK }
+  return { isProcessing, errors, ping, onboard, sign, importPK }
 }
 
 export default useVaultApi

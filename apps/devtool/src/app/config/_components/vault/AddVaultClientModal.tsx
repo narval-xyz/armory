@@ -31,7 +31,7 @@ const AddVaultClientModal = () => {
     setVaultClientSecret,
     setEngineClientSigner
   } = useStore()
-  const { isProcessing, onboardClient } = useVaultApi()
+  const { isProcessing, onboard } = useVaultApi()
 
   const [isOpen, setIsOpen] = useState(false)
   const [newClient, setNewClient] = useState<any>()
@@ -50,7 +50,7 @@ const AddVaultClientModal = () => {
   const addClient = async () => {
     if (!isFormValid) return
 
-    const client = await onboardClient(form)
+    const client = await onboard(form)
     setNewClient(client)
   }
 
