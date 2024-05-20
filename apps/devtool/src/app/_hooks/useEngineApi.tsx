@@ -1,40 +1,73 @@
-import { EvaluationRequest, EvaluationResponse, SignTransactionAction } from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
+import { EngineClientConfig, evaluate, pingEngine, syncDataStores } from '@narval/armory-sdk'
+import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
-import { useState } from 'react'
-import { v4 as uuid } from 'uuid'
+import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
+export interface EngineClientData {
+  engineUrl: string
+  engineAdminApiKey: string
+  clientId: string
+  entityDataStoreUrl: string
+  entityPublicKey: string
+  policyDataStoreUrl: string
+  policyPublicKey: string
+}
+
 const useEngineApi = () => {
-  const {
-    engineUrl,
-    engineAdminApiKey,
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    policyDataStoreUrl,
-    setEngineClientId,
-    setEngineClientSecret,
-    setEngineClientSigner
-  } = useStore()
-
-  const { jwk, signAccountJwt } = useAccountSignature()
-  const [isOnboarded, setIsOnboarded] = useState(false)
+  const { engineUrl: authHost, engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
+  const { jwk, signer } = useAccountSignature()
+  const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
-
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async () => {
-    if (!engineAdminApiKey || !jwk) return
+  const sdkEngineConfig = useMemo<EngineClientConfig | null>(() => {
+    if (!authHost || !authClientId || !authSecret || !jwk || !signer) {
+      return null
+    }
 
-    setErrors(undefined)
+    return {
+      authHost,
+      authClientId,
+      authSecret,
+      jwk,
+      alg: SigningAlg.EIP191,
+      signer
+    }
+  }, [authHost, authClientId, authSecret, jwk, signer])
+
+  const ping = async () => {
+    if (!sdkEngineConfig) return
 
     try {
+      await pingEngine(sdkEngineConfig)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
+  const onboard = async (engineClientData: EngineClientData) => {
+    setErrors(undefined)
+    setIsProcessing(true)
+
+    try {
+      const {
+        engineUrl,
+        engineAdminApiKey,
+        clientId,
+        entityDataStoreUrl,
+        entityPublicKey,
+        policyDataStoreUrl,
+        policyPublicKey
+      } = engineClientData
+
       const { data: client } = await axios.post(
         `${engineUrl}/clients`,
         {
+          clientId,
           entityDataStore: {
             data: {
               type: getUrlProtocol(entityDataStoreUrl),
@@ -44,7 +77,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(entityDataStoreUrl),
               url: entityDataStoreUrl
             },
-            keys: [jwk]
+            keys: [JSON.parse(entityPublicKey)]
           },
           policyDataStore: {
             data: {
@@ -55,7 +88,7 @@ const useEngineApi = () => {
               type: getUrlProtocol(policyDataStoreUrl),
               url: policyDataStoreUrl
             },
-            keys: [jwk]
+            keys: [JSON.parse(policyPublicKey)]
           }
         },
         {
@@ -65,74 +98,49 @@ const useEngineApi = () => {
         }
       )
 
-      setEngineClientId(client.clientId)
-      setEngineClientSecret(client.clientSecret)
-      setEngineClientSigner(JSON.stringify(client.signer.publicKey))
+      setIsProcessing(false)
 
-      setIsOnboarded(true)
-      setTimeout(() => setIsOnboarded(false), 5000)
+      return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setIsProcessing(false)
     }
   }
 
-  const syncEngine = async () => {
-    if (!engineClientId || !engineClientSecret) return
-
-    setErrors(undefined)
+  const sync = async () => {
+    if (!sdkEngineConfig) return
 
     try {
-      const { data } = await axios.post(`${engineUrl}/clients/sync`, null, {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      })
-
-      setIsSynced(data.ok)
+      setErrors(undefined)
+      const isSynced = await syncDataStores(sdkEngineConfig)
+      setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  const evaluateRequest = async (evaluationRequest: EvaluationRequest | undefined) => {
-    if (!engineClientId || !engineClientSecret || !evaluationRequest) {
-      setErrors('Missing engine client configuration')
-      return
-    }
-
-    setErrors(undefined)
+  const evaluateRequest = async ({ request }: EvaluationRequest) => {
+    if (!sdkEngineConfig) return
 
     try {
-      const request = evaluationRequest.request as SignTransactionAction
-
-      const payload: Payload = {
-        iss: uuid(),
-        sub: request.resourceId,
-        requestHash: hash(request)
-      }
-
-      const authentication = await signAccountJwt(payload)
-
-      const { data: evaluation } = await axios.post<EvaluationResponse>(
-        `${engineUrl}/evaluations`,
-        { ...evaluationRequest, authentication },
-        {
-          headers: {
-            'x-client-id': engineClientId,
-            'x-client-secret': engineClientSecret
-          }
-        }
-      )
-
-      return { evaluation, authentication }
+      setErrors(undefined)
+      return evaluate(sdkEngineConfig, Request.parse(request))
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  return { isOnboarded, isSynced, errors, onboardClient, syncEngine, evaluateRequest }
+  return {
+    sdkEngineConfig,
+    isProcessing,
+    isSynced,
+    errors,
+    ping,
+    onboard,
+    sync,
+    evaluateRequest
+  }
 }
 
 export default useEngineApi

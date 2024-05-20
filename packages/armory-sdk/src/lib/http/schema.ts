@@ -4,7 +4,7 @@ import { ImportPrivateKeyRequest } from '../domain'
 
 export const BasicHeaders = z.object({
   'x-client-id': z.string(),
-  'x-client-secret': z.string()
+  'x-client-secret': z.string().optional()
 })
 export type BasicHeaders = z.infer<typeof BasicHeaders>
 

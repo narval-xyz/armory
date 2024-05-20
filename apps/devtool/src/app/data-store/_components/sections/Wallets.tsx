@@ -7,6 +7,7 @@ import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
+import useStore from '../../../_hooks/useStore'
 import useVaultApi from '../../../_hooks/useVaultApi'
 import ImportWalletForm from '../forms/ImportWalletForm'
 import WalletForm from '../forms/WalletForm'
@@ -27,6 +28,7 @@ interface WalletsProps {
 }
 
 const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
+  const { vaultUrl, vaultClientId } = useStore()
   const { importPrivateKey } = useVaultApi()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isImportForm, setIsImportForm] = useState(false)
@@ -103,8 +105,8 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
     onChange(wallets.filter((wallet) => wallet.id !== id))
   }
 
-  const handleImport = async () => {
-    const wallet = await importPrivateKey(privateKey)
+  const handleImport = async (accesToken: string) => {
+    const wallet = await importPrivateKey(vaultUrl, vaultClientId, { privateKey }, accesToken)
     if (!wallet) return
     const newWallets = wallets ? [...wallets] : []
     newWallets.push({ ...wallet, address: wallet.address.toLowerCase() as Address, accountType: 'eoa' })
@@ -116,9 +118,9 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
       walletData?.id ? handleEdit() : handleSave()
     }
 
-    if (isImportForm) {
-      await handleImport()
-    }
+    // if (isImportForm) {
+    //   await handleImport()
+    // }
 
     closeDialog()
   }
