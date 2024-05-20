@@ -67,7 +67,7 @@ const useAccountSignature = () => {
     return signature
   }
 
-  return { jwk, signAccountJwt, signAccountJwsd }
+  return { jwk, signer, signAccountJwt, signAccountJwsd }
 }
 
 export default useAccountSignature

@@ -6,17 +6,7 @@ import {
   Request,
   isAddress
 } from '@narval/policy-engine-shared'
-import {
-  JwsdHeader,
-  Payload,
-  PrivateKey,
-  SigningAlg,
-  buildSignerForAlg,
-  hash,
-  hexToBase64Url,
-  signJwsd,
-  signJwt
-} from '@narval/signature'
+import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt } from '@narval/signature'
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
@@ -32,18 +22,20 @@ import { ForbiddenException, NarvalSdkException, NotImplementedException } from 
 import { BasicHeaders, GnapHeaders } from './http/schema'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
-  const { uri, htm, jwk, accessToken } = args
-  if (!jwk.kid || !jwk.alg) {
-    throw new NarvalSdkException('jwk.kid and jwk.alg are required', {
+  const { uri, htm, jwk, alg, accessToken } = args
+
+  if (!jwk.kid || !alg) {
+    throw new NarvalSdkException('kid and alg are required', {
       context: {
         kid: jwk.kid,
-        alg: jwk.alg,
+        alg,
         args
       }
     })
   }
+
   return {
-    alg: jwk.alg,
+    alg,
     kid: jwk.kid,
     typ: 'gnap-binding-jwsd',
     htm,
@@ -55,12 +47,22 @@ export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
 
 export const signAccountJwsd = async (args: SignAccountJwsdArgs) => {
   const { payload, accessToken, jwk, uri, htm } = args
-  const jwsdHeader = buildJwsdHeader({ uri, htm, jwk, accessToken })
 
-  const signer = await buildSignerForAlg(jwk)
+  let signer = args.signer
+  let alg = args.alg
 
-  const signature = await signJwsd(payload, jwsdHeader, signer)
-  return signature
+  if (!signer) {
+    signer = await buildSignerForAlg(jwk)
+    alg = jwk.alg
+  }
+
+  const jwsdHeader = buildJwsdHeader({ accessToken, jwk, alg, uri, htm })
+
+  return signJwsd(payload, jwsdHeader, signer).then((jws) => {
+    const parts = jws.split('.')
+    parts[1] = ''
+    return parts.join('.')
+  })
 }
 
 export const resourceId = (walletIdOrAddress: Address | string): string => {
@@ -73,7 +75,7 @@ export const resourceId = (walletIdOrAddress: Address | string): string => {
 export const buildPayloadFromRequest = (config: EngineClientConfig, request: Request): Payload => {
   return {
     requestHash: hash(request),
-    sub: config.signer.kid,
+    sub: config.jwk.kid,
     iss: config.authClientId,
     iat: new Date().getTime()
   }
@@ -81,8 +83,8 @@ export const buildPayloadFromRequest = (config: EngineClientConfig, request: Req
 
 export const signRequest = async (config: EngineClientConfig, request: Request): Promise<EvaluationRequest> => {
   const payload = buildPayloadFromRequest(config, request)
+  const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
 
-  const authentication = await signJwt(payload, config.signer)
   return {
     authentication,
     request
@@ -104,22 +106,6 @@ export const buildDataPayload = (
     iss: opts.iss,
     iat: opts.iat || new Date().getTime()
   }
-}
-
-export const signData = async (
-  signer: PrivateKey,
-  data: unknown,
-  opts: {
-    iss?: string
-    sub?: string
-    iat?: number
-    alg?: SigningAlg
-  } = {}
-): Promise<JwtString> => {
-  const payload = buildDataPayload(data, opts)
-
-  const authentication = await signJwt(payload, signer, { alg: opts.alg })
-  return authentication
 }
 
 export const checkDecision = (data: EvaluationResponse, config: EngineClientConfig): SdkEvaluationResponse => {
@@ -185,12 +171,12 @@ export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeader
 }
 
 export const buildGnapVaultHeaders = (
-  config: VaultClientConfig,
+  vaultClientId: string,
   accessToken: JwtString,
   detachedJws: string
 ): GnapHeaders => {
   return {
-    'x-client-id': config.vaultClientId,
+    'x-client-id': vaultClientId,
     'detached-jws': detachedJws,
     authorization: `GNAP ${accessToken}`
   }

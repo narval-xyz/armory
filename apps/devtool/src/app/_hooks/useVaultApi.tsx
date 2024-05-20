@@ -1,36 +1,105 @@
-import { Request, WalletEntity } from '@narval/policy-engine-shared'
+import {
+  ArmoryClientConfig,
+  ImportPrivateKeyRequest,
+  VaultClientConfig,
+  importPrivateKey,
+  pingVault,
+  signRequest
+} from '@narval/armory-sdk'
+import { Request } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
+import useDataStoreApi from './useDataStoreApi'
+import useEngineApi from './useEngineApi'
 import useStore from './useStore'
 
+export interface VaultClientData {
+  vaultUrl: string
+  vaultAdminApiKey: string
+  engineClientSigner: string
+  clientId: string
+  backupPublicKey: string
+  allowKeyExport: boolean
+  audience: string
+  issuer: string
+  maxTokenAge: string
+}
+
 const useVaultApi = () => {
-  const {
-    vaultUrl,
-    vaultAdminApiKey,
-    vaultClientId,
-    vaultClientSecret,
-    engineClientSigner,
-    setVaultClientId,
-    setVaultClientSecret,
-    setEngineClientSigner
-  } = useStore()
-
-  const { signAccountJwsd } = useAccountSignature()
-
-  const [isOnboarded, setIsOnboarded] = useState(false)
+  const { vaultUrl: vaultHost, vaultClientId: vaultClientId } = useStore()
+  const { jwk, signer } = useAccountSignature()
+  const { sdkEngineConfig } = useEngineApi()
+  const { sdkDataStoreConfig } = useDataStoreApi()
+  const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const onboardClient = async () => {
-    if (!vaultAdminApiKey) return
+  const sdkArmoryConfig = useMemo<ArmoryClientConfig | null>(() => {
+    if (!sdkEngineConfig || !sdkDataStoreConfig) {
+      return null
+    }
 
+    return {
+      ...sdkEngineConfig,
+      ...sdkDataStoreConfig,
+      vaultHost,
+      vaultClientId
+    }
+  }, [sdkEngineConfig, sdkDataStoreConfig])
+
+  const sdkVaultConfig = useMemo<VaultClientConfig | null>(() => {
+    if (!vaultHost || !vaultClientId || !jwk || !signer) {
+      return null
+    }
+
+    return {
+      vaultHost,
+      vaultClientId,
+      jwk,
+      alg: SigningAlg.EIP191,
+      signer
+    }
+  }, [vaultHost, vaultClientId, jwk, signer])
+
+  const ping = async () => {
+    if (!sdkVaultConfig) return
+
+    try {
+      await pingVault(sdkVaultConfig)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
+  const onboard = async (vaultClientData: VaultClientData) => {
     setErrors(undefined)
 
     try {
+      const {
+        vaultUrl,
+        vaultAdminApiKey,
+        clientId,
+        engineClientSigner,
+        backupPublicKey,
+        allowKeyExport,
+        audience,
+        issuer,
+        maxTokenAge
+      } = vaultClientData
+
       const { data: client } = await axios.post(
         `${vaultUrl}/clients`,
-        { ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }) },
+        {
+          clientId,
+          ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
+          ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+          ...(allowKeyExport && { allowKeyExport }),
+          ...(audience && { audience }),
+          ...(issuer && { issuer }),
+          ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
+        },
         {
           headers: {
             'x-api-key': vaultAdminApiKey
@@ -38,64 +107,38 @@ const useVaultApi = () => {
         }
       )
 
-      setVaultClientId(client.clientId)
-      setVaultClientSecret(client.clientSecret)
-      setEngineClientSigner(JSON.stringify(client.engineJwk))
+      setIsProcessing(false)
 
-      setIsOnboarded(true)
-      setTimeout(() => setIsOnboarded(false), 5000)
+      return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setIsProcessing(false)
     }
   }
 
-  const importPrivateKey = async (payload: { privateKey: string }, accessToken: string) => {
-    if (!vaultClientId || !accessToken) return
-
-    setErrors(undefined)
+  const sign = async (payload: { accessToken: { value: string }; request: Request }) => {
+    if (!sdkVaultConfig) return
 
     try {
-      const uri = `${vaultUrl}/import/private-key`
-      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
-
-      const { data } = await axios.post<WalletEntity>(uri, payload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken}`
-        }
-      })
-
-      return data
+      setErrors(undefined)
+      return signRequest(sdkVaultConfig, payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  const signTransaction = async (payload: { request: Request }, accessToken: string) => {
-    if (!vaultClientId || !accessToken) return
-
-    setErrors(undefined)
+  const importPK = async (request: ImportPrivateKeyRequest) => {
+    if (!sdkArmoryConfig) return
 
     try {
-      const uri = `${vaultUrl}/sign`
-      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
-
-      const { data } = await axios.post(uri, payload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken}`
-        }
-      })
-
-      return data.signature
+      setErrors(undefined)
+      return importPrivateKey(sdkArmoryConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  return { isOnboarded, errors, onboardClient, importPrivateKey, signTransaction }
+  return { isProcessing, errors, ping, onboard, sign, importPK }
 }
 
 export default useVaultApi

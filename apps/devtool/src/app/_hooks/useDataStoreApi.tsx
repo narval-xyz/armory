@@ -1,3 +1,4 @@
+import { EngineClientConfig, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -7,42 +8,89 @@ import {
   PolicyData,
   PolicyStore
 } from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
-import useAccountSignature from './useAccountSignature'
+import useEngineApi from './useEngineApi'
+import useStore from './useStore'
 
 const useDataStoreApi = () => {
-  const { jwk, signAccountJwt } = useAccountSignature()
+  const { entityDataStoreUrl: entityStoreHost, policyDataStoreUrl: policyStoreHost } = useStore()
+  const { sdkEngineConfig } = useEngineApi()
 
-  const [dataStore, setDataStore] = useState<{ entity: Entities; policy: Policy[] }>()
-  const [isEntitySigning, setIsEntitySigning] = useState(false)
-  const [isPolicySigning, setIsPolicySigning] = useState(false)
+  const [processingStatus, setProcessingStatus] = useState({
+    isFetchingEntity: false,
+    isFetchingPolicy: false,
+    isSigningEntity: false,
+    isSigningPolicy: false,
+    isSigningAndPushingEntity: false,
+    isSigningAndPushingPolicy: false
+  })
+  const [entityStore, setEntityStore] = useState<EntityStore>()
+  const [policyStore, setPolicyStore] = useState<PolicyStore>()
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
-  useEffect(() => {
-    if (!dataStore) {
-      getDataStore()
+  const sdkDataStoreConfig = useMemo<
+    | (EngineClientConfig & {
+        entityStoreHost: string
+        policyStoreHost: string
+      })
+    | null
+  >(() => {
+    if (!sdkEngineConfig || !entityStoreHost || !policyStoreHost) {
+      return null
     }
-  }, [dataStore])
 
-  const getDataStore = async () => {
-    const { data } = await axios.get<{ entity: EntityStore; policy: PolicyStore }>('/api/data-store')
+    return {
+      ...sdkEngineConfig,
+      entityStoreHost,
+      policyStoreHost
+    }
+  }, [sdkEngineConfig, entityStoreHost, policyStoreHost])
 
-    setDataStore({ entity: data.entity.data, policy: data.policy.data })
+  useEffect(() => {
+    if (entityStore) return
 
-    return data
+    getEntityStore()
+  }, [entityStore])
+
+  useEffect(() => {
+    if (policyStore) return
+
+    getPolicyStore()
+  }, [policyStore])
+
+  const getEntityStore = async () => {
+    try {
+      setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
+      const entity = await getEntities(entityStoreHost)
+      setEntityStore(entity)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+
+    setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
   }
 
-  const signEntityDataStore = async (entity: Entities, callback: () => Promise<void>) => {
-    if (!jwk || !dataStore) return
+  const getPolicyStore = async () => {
+    try {
+      setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
+      const policy = await getPolicies(policyStoreHost)
+      setPolicyStore(policy)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+
+    setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
+  }
+
+  const signEntityData = async (data: Entities) => {
+    if (!sdkDataStoreConfig) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
 
-    const entityValidationResult = EntityData.safeParse({ entity: { data: entity } })
+    const entityValidationResult = EntityData.safeParse({ entity: { data } })
 
     if (!entityValidationResult.success) {
       setValidationErrors(
@@ -51,44 +99,32 @@ const useDataStoreApi = () => {
       return
     }
 
-    const validation = EntityUtil.validate(entity)
+    const validation = EntityUtil.validate(data)
 
     if (!validation.success) {
       setValidationErrors(validation.issues.map((issue) => issue.message).join(', '))
       return
     }
 
-    setIsEntitySigning(true)
+    setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
 
     try {
-      const payload: Payload = {
-        data: hash(entity),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
 
-      const signature = await signAccountJwt(payload)
-
-      await axios.post('/api/data-store', {
-        entity: { signature, data: entity }
-      })
-
-      await callback()
+      return signData(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
-
-    setIsEntitySigning(false)
   }
 
-  const signPolicyDataStore = async (policy: Policy[], callback: () => Promise<void>) => {
-    if (!jwk || !dataStore) return
+  const signPolicyData = async (data: Policy[]) => {
+    if (!sdkDataStoreConfig) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
 
-    const policyValidationResult = PolicyData.safeParse({ policy: { data: policy } })
+    const policyValidationResult = PolicyData.safeParse({ policy: { data } })
 
     if (!policyValidationResult.success) {
       setValidationErrors(
@@ -97,39 +133,59 @@ const useDataStoreApi = () => {
       return
     }
 
-    setIsPolicySigning(true)
+    setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
 
     try {
-      const payload: Payload = {
-        data: hash(policy),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
 
-      const signature = await signAccountJwt(payload)
+      return signData(sdkDataStoreConfig, data)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
+    }
+  }
 
-      await axios.post('/api/data-store', {
-        policy: { signature, data: policy }
-      })
+  const signAndPushEntity = async (data: Entities) => {
+    if (!sdkDataStoreConfig) return
 
-      await callback()
+    try {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
+
+      await setEntities(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
-    setIsPolicySigning(false)
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
+  }
+
+  const signAndPushPolicy = async (data: Policy[]) => {
+    if (!sdkDataStoreConfig) return
+
+    try {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
+
+      await setPolicies(sdkDataStoreConfig, data)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+
+    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
   }
 
   return {
-    dataStore,
-    isEntitySigning,
-    isPolicySigning,
+    sdkDataStoreConfig,
+    entityStore,
+    policyStore,
     errors,
     validationErrors,
-    getDataStore,
-    signEntityDataStore,
-    signPolicyDataStore
+    processingStatus,
+    getEntityStore,
+    getPolicyStore,
+    signEntityData,
+    signAndPushEntity,
+    signPolicyData,
+    signAndPushPolicy
   }
 }
 

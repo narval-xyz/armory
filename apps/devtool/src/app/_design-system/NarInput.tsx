@@ -34,7 +34,7 @@ const NarInput: FC<NarInputProps> = ({
   const [isError, setIsError] = useState(false)
 
   return (
-    <fieldset className={classNames('flex flex-col w-full', className)}>
+    <fieldset className={classNames('flex flex-col grow', className)}>
       {label && (
         <label className="text-nv-xs text-nv-white mb-[8px]" htmlFor={id}>
           {label}
