@@ -1,14 +1,20 @@
 'use client'
 
+import { faPowerOff, faWallet } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import NarButton from '../_design-system/NarButton'
+import NarCopyButton from '../_design-system/NarCopyButton'
+import useAccountSignature from '../_hooks/useAccountSignature'
+import { formatAddress } from '../_lib/utils'
 
 const NavBar = () => {
   const currentPath = usePathname()
   const account = useAccount()
+  const { jwk } = useAccountSignature()
   const { connectors, connect } = useConnect()
   const { disconnect } = useDisconnect()
 
@@ -32,19 +38,18 @@ const NavBar = () => {
           </div>
         </div>
         <div className="flex flex-row-reverse gap-2 flex-1">
-          {!account.isConnected && (
-            <div className="flex gap-2">
-              {connectors.map((connector) => (
-                <NarButton
-                  label=" Connect Wallet"
-                  variant="primary"
-                  key={connector.uid}
-                  onClick={() => connect({ connector })}
-                />
-              ))}
-            </div>
-          )}
-          {account.isConnected && <NarButton label="Disconnect" variant="secondary" onClick={() => disconnect()} />}
+          <div className="flex gap-2">
+            {account.isConnected && <NarCopyButton variant="secondary" label="Copy JWK" copy={JSON.stringify(jwk)} />}
+            {connectors.map((connector) => (
+              <NarButton
+                label={account.isConnected ? formatAddress(account.address) : 'Connect Wallet'}
+                variant={account.isConnected ? 'secondary' : 'primary'}
+                leftIcon={<FontAwesomeIcon icon={account.isConnected ? faPowerOff : faWallet} />}
+                key={connector.uid}
+                onClick={() => (account.isConnected ? disconnect() : connect({ connector }))}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </nav>

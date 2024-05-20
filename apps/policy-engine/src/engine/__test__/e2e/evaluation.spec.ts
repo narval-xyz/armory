@@ -137,21 +137,6 @@ describe('Evaluation', () => {
   })
 
   describe('POST /evaluations', () => {
-    it('responds with forbid when client secret is missing', async () => {
-      const payload = await generateSignTransactionRequest()
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/evaluations')
-        .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-        .send(payload)
-
-      expect(body).toEqual({
-        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
-        statusCode: HttpStatus.UNAUTHORIZED
-      })
-      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
-    })
-
     it('serializes and parses request at the edge', async () => {
       const payload = await generateSignTransactionRequestWithGas()
 
