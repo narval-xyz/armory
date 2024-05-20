@@ -55,12 +55,12 @@ export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClien
 
   const confirmedConfig = ArmoryClientConfig.parse({
     authHost,
-    vaultHost,
+    authClientId,
     authSecret,
+    vaultHost,
     vaultClientId,
     entityStoreHost,
     policyStoreHost,
-    authClientId,
     jwk: config.jwk,
     alg: config.alg,
     signer: config.signer

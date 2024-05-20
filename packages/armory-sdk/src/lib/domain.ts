@@ -49,12 +49,12 @@ export type StoreConfig = z.infer<typeof StoreConfig>
 
 export const ArmoryClientConfigInput = UserSigner.extend({
   authHost: z.string().optional(),
+  authClientId: z.string().optional(),
   authSecret: z.string().optional(),
   vaultHost: z.string().optional(),
+  vaultClientId: z.string().optional(),
   entityStoreHost: z.string().optional(),
-  policyStoreHost: z.string().optional(),
-  authClientId: z.string().optional(),
-  vaultClientId: z.string().optional()
+  policyStoreHost: z.string().optional()
 })
 export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
 
