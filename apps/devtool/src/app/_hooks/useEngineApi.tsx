@@ -1,10 +1,11 @@
-import { evaluate } from '@narval/armory-sdk'
+import { EngineClientConfig, evaluate, syncDataStores } from '@narval/armory-sdk'
 import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
+import useStore from './useStore'
 
 export interface EngineClientData {
   engineUrl: string
@@ -17,10 +18,26 @@ export interface EngineClientData {
 }
 
 const useEngineApi = () => {
+  const { engineUrl: authHost, engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
   const [errors, setErrors] = useState<string>()
+
+  const sdkConfig = useMemo<EngineClientConfig | null>(() => {
+    if (!authHost || !authClientId || !authSecret || !jwk || !signer) {
+      return null
+    }
+
+    return {
+      authHost,
+      authClientId,
+      authSecret,
+      jwk,
+      alg: SigningAlg.EIP191,
+      signer
+    }
+  }, [authHost, authClientId, authSecret, jwk, signer])
 
   const pingEngine = async (url: string) => {
     try {
@@ -80,33 +97,25 @@ const useEngineApi = () => {
     }
   }
 
-  const syncEngine = async (engineUrl: string, engineClientId: string, engineClientSecret: string) => {
-    setErrors(undefined)
+  const syncEngine = async () => {
+    if (!sdkConfig) return
 
     try {
-      const { data } = await axios.post(`${engineUrl}/clients/sync`, null, {
-        headers: {
-          'x-client-id': engineClientId,
-          'x-client-secret': engineClientSecret
-        }
-      })
-
-      setIsSynced(data.ok)
+      setErrors(undefined)
+      const isSynced = await syncDataStores(sdkConfig)
+      setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  const evaluateRequest = async (authHost: string, authClientId: string, evaluationRequest: EvaluationRequest) => {
-    try {
-      if (!jwk) return
-      setErrors(undefined)
+  const evaluateRequest = async ({ request }: EvaluationRequest) => {
+    if (!sdkConfig) return
 
-      return evaluate(
-        { authHost, authClientId, jwk, alg: SigningAlg.EIP191, signer },
-        Request.parse(evaluationRequest.request)
-      )
+    try {
+      setErrors(undefined)
+      return evaluate(sdkConfig, Request.parse(request))
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }

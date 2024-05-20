@@ -175,14 +175,13 @@ export const syncDataStores = async (config: EngineClientConfig) => {
   const { authHost } = config
   const headers = buildBasicEngineHeaders(config)
 
-  const { data } = await axios.post(`${authHost}${Endpoints.engine.sync}`, null, {
-    headers
-  })
-  if (!data.ok) {
-    throw new NarvalSdkException('Failed to sync engine', {
-      config,
-      engineError: data
+  try {
+    const { data } = await axios.post(`${authHost}${Endpoints.engine.sync}`, null, {
+      headers
     })
+    return data.ok
+  } catch (error) {
+    throw new NarvalSdkException('Failed to sync engine', { config, error })
   }
 }
 

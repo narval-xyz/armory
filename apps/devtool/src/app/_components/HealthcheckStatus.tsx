@@ -8,7 +8,7 @@ import useVaultApi from '../_hooks/useVaultApi'
 import { classNames } from '../_lib/utils'
 
 const HealthcheckStatus = () => {
-  const { engineUrl, engineClientId, engineClientSecret, entityDataStoreUrl, policyDataStoreUrl, vaultUrl } = useStore()
+  const { engineUrl, entityDataStoreUrl, policyDataStoreUrl, vaultUrl } = useStore()
 
   const [status, setStatus] = useState({
     engineConnection: false,
@@ -51,7 +51,7 @@ const HealthcheckStatus = () => {
 
   const checkEngineDataStore = async () => {
     try {
-      await syncEngine(engineUrl, engineClientId, engineClientSecret)
+      await syncEngine()
       setStatus((prev) => ({ ...prev, engineDataStore: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, engineDataStore: false }))

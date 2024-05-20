@@ -55,7 +55,7 @@ const EvaluationDecision = ({ decision }: { decision: Decision }) => {
 }
 
 const PlaygroundEditor = () => {
-  const { engineUrl, engineClientId, vaultUrl, vaultClientId } = useStore()
+  const { vaultUrl, vaultClientId } = useStore()
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
   const { errors: signatureErrors, signTransaction, importPrivateKey } = useVaultApi()
 
@@ -112,7 +112,7 @@ const PlaygroundEditor = () => {
 
     try {
       const request: EvaluationRequest = JSON.parse(editor)
-      const evaluationResponse = await evaluateRequest(engineUrl, engineClientId, request)
+      const evaluationResponse = await evaluateRequest(request)
       if (evaluationResponse) {
         setEditor(JSON.stringify(request, null, 2))
         setResponse(evaluationResponse)

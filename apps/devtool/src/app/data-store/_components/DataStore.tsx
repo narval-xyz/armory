@@ -20,15 +20,7 @@ enum Action {
 }
 
 const DataStoreConfig = () => {
-  const {
-    engineUrl,
-    engineClientId,
-    engineClientSecret,
-    entityDataStoreUrl,
-    policyDataStoreUrl,
-    setEntityDataStoreUrl,
-    setPolicyDataStoreUrl
-  } = useStore()
+  const { entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } = useStore()
 
   const {
     entityStore,
@@ -57,8 +49,6 @@ const DataStoreConfig = () => {
 
   useEffect(() => setIsDialogOpen(Boolean(validationErrors && validationErrors.length > 0)), [validationErrors])
 
-  const resyncEngine = () => syncEngine(engineUrl, engineClientId, engineClientSecret)
-
   return (
     <div className="flex flex-col gap-[48px] h-full">
       <div className="flex items-center">
@@ -81,7 +71,7 @@ const DataStoreConfig = () => {
           sign={signEntityData}
           isSigningAndPushing={isSigningAndPushingEntity}
           signAndPush={signAndPushEntity}
-          resyncEngine={resyncEngine}
+          resyncEngine={syncEngine}
         />
         <DataEditor
           label="Policy Data URL"
@@ -94,7 +84,7 @@ const DataStoreConfig = () => {
           sign={signPolicyData}
           isSigningAndPushing={isSigningAndPushingPolicy}
           signAndPush={signAndPushPolicy}
-          resyncEngine={resyncEngine}
+          resyncEngine={syncEngine}
         />
       </div>
       {isDialogOpen && (
