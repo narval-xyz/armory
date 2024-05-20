@@ -1,8 +1,20 @@
-import { Request, WalletEntity } from '@narval/policy-engine-shared'
+import {
+  ArmoryClientConfig,
+  ImportPrivateKeyRequest,
+  VaultClientConfig,
+  importPrivateKey,
+  pingVault,
+  signRequest
+} from '@narval/armory-sdk'
+import { Request } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
+import useDataStoreApi from './useDataStoreApi'
+import useEngineApi from './useEngineApi'
+import useStore from './useStore'
 
 export interface VaultClientData {
   vaultUrl: string
@@ -17,13 +29,45 @@ export interface VaultClientData {
 }
 
 const useVaultApi = () => {
-  const { signAccountJwsd } = useAccountSignature()
+  const { vaultUrl: vaultHost, vaultClientId: vaultClientId } = useStore()
+  const { jwk, signer } = useAccountSignature()
+  const { sdkEngineConfig } = useEngineApi()
+  const { sdkDataStoreConfig } = useDataStoreApi()
   const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const pingVault = async (url: string) => {
+  const sdkArmoryConfig = useMemo<ArmoryClientConfig | null>(() => {
+    if (!sdkEngineConfig || !sdkDataStoreConfig) {
+      return null
+    }
+
+    return {
+      ...sdkEngineConfig,
+      ...sdkDataStoreConfig,
+      vaultHost,
+      vaultClientId
+    }
+  }, [sdkEngineConfig, sdkDataStoreConfig])
+
+  const sdkVaultConfig = useMemo<VaultClientConfig | null>(() => {
+    if (!vaultHost || !vaultClientId || !jwk || !signer) {
+      return null
+    }
+
+    return {
+      vaultHost,
+      vaultClientId,
+      jwk,
+      alg: SigningAlg.EIP191,
+      signer
+    }
+  }, [vaultHost, vaultClientId, jwk, signer])
+
+  const ping = async () => {
+    if (!sdkVaultConfig) return
+
     try {
-      await axios.get(url)
+      await pingVault(sdkVaultConfig)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -70,59 +114,29 @@ const useVaultApi = () => {
     }
   }
 
-  const importPrivateKey = async (
-    vaultUrl: string,
-    vaultClientId: string,
-    payload: { privateKey: string },
-    accessToken: string
-  ) => {
-    setErrors(undefined)
+  const sign = async (payload: { accessToken: { value: string }; request: Request }) => {
+    if (!sdkVaultConfig) return
 
     try {
-      const uri = `${vaultUrl}/import/private-key`
-      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
-
-      const { data } = await axios.post<WalletEntity>(uri, payload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken}`
-        }
-      })
-
-      return data
+      setErrors(undefined)
+      return signRequest(sdkVaultConfig, payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  const signTransaction = async (
-    vaultUrl: string,
-    vaultClientId: string,
-    payload: { request: Request },
-    accessToken: string
-  ) => {
-    setErrors(undefined)
+  const importPK = async (request: ImportPrivateKeyRequest) => {
+    if (!sdkArmoryConfig) return
 
     try {
-      const uri = `${vaultUrl}/sign`
-      const detachedJws = await signAccountJwsd(payload, { accessToken, uri })
-
-      const { data } = await axios.post(uri, payload, {
-        headers: {
-          'x-client-id': vaultClientId,
-          'detached-jws': detachedJws,
-          authorization: `GNAP ${accessToken}`
-        }
-      })
-
-      return data.signature
+      setErrors(undefined)
+      return importPrivateKey(sdkArmoryConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  return { isProcessing, errors, pingVault, onboardClient, importPrivateKey, signTransaction }
+  return { isProcessing, errors, ping, onboardClient, sign, importPK }
 }
 
 export default useVaultApi

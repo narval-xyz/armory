@@ -70,6 +70,7 @@ describe('buildJwsdHeader', () => {
     const args = {
       uri: 'https://example.com',
       htm: Htm.POST,
+      alg: Alg.ES256K,
       jwk: {
         kid: '123',
         alg: Alg.ES256K

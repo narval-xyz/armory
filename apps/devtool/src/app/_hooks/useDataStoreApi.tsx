@@ -1,3 +1,4 @@
+import { EngineClientConfig, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -7,16 +8,14 @@ import {
   PolicyData,
   PolicyStore
 } from '@narval/policy-engine-shared'
-import { Payload, hash } from '@narval/signature'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
-import useAccountSignature from './useAccountSignature'
+import useEngineApi from './useEngineApi'
 import useStore from './useStore'
 
 const useDataStoreApi = () => {
-  const { entityDataStoreUrl, policyDataStoreUrl } = useStore()
-  const { jwk, signAccountJwt } = useAccountSignature()
+  const { entityDataStoreUrl: entityStoreHost, policyDataStoreUrl: policyStoreHost } = useStore()
+  const { sdkEngineConfig } = useEngineApi()
 
   const [processingStatus, setProcessingStatus] = useState({
     isFetchingEntity: false,
@@ -31,6 +30,24 @@ const useDataStoreApi = () => {
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
+  const sdkDataStoreConfig = useMemo<
+    | (EngineClientConfig & {
+        entityStoreHost: string
+        policyStoreHost: string
+      })
+    | null
+  >(() => {
+    if (!sdkEngineConfig || !entityStoreHost || !policyStoreHost) {
+      return null
+    }
+
+    return {
+      ...sdkEngineConfig,
+      entityStoreHost,
+      policyStoreHost
+    }
+  }, [sdkEngineConfig, entityStoreHost, policyStoreHost])
+
   useEffect(() => {
     if (entityStore) return
 
@@ -43,21 +60,10 @@ const useDataStoreApi = () => {
     getPolicyStore()
   }, [policyStore])
 
-  const pingDataStore = async (url: string) => {
-    try {
-      await axios.get(url)
-    } catch (error) {
-      setErrors(extractErrorMessage(error))
-    }
-  }
-
   const getEntityStore = async () => {
-    setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-
     try {
-      const {
-        data: { entity }
-      } = await axios.get<{ entity: EntityStore }>(entityDataStoreUrl)
+      setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
+      const entity = await getEntities(entityStoreHost)
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -67,12 +73,9 @@ const useDataStoreApi = () => {
   }
 
   const getPolicyStore = async () => {
-    setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-
     try {
-      const {
-        data: { policy }
-      } = await axios.get<{ policy: PolicyStore }>(policyDataStoreUrl)
+      setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
+      const policy = await getPolicies(policyStoreHost)
       setPolicyStore(policy)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -82,7 +85,7 @@ const useDataStoreApi = () => {
   }
 
   const signEntityData = async (data: Entities) => {
-    if (!jwk) return
+    if (!sdkDataStoreConfig) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
@@ -106,16 +109,9 @@ const useDataStoreApi = () => {
     setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
 
     try {
-      const payload: Payload = {
-        data: hash(data),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
-
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
 
-      return signAccountJwt(payload)
+      return signData(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
@@ -123,7 +119,7 @@ const useDataStoreApi = () => {
   }
 
   const signPolicyData = async (data: Policy[]) => {
-    if (!jwk) return
+    if (!sdkDataStoreConfig) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
@@ -140,16 +136,9 @@ const useDataStoreApi = () => {
     setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
 
     try {
-      const payload: Payload = {
-        data: hash(data),
-        sub: jwk.addr,
-        iss: 'https://devtool.narval.xyz',
-        iat: Math.floor(Date.now() / 1000)
-      }
-
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
 
-      return signAccountJwt(payload)
+      return signData(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
@@ -157,12 +146,12 @@ const useDataStoreApi = () => {
   }
 
   const signAndPushEntity = async (data: Entities) => {
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
+    if (!sdkDataStoreConfig) return
 
     try {
-      const signature = await signEntityData(data)
-      if (!signature) return
-      await axios.post(entityDataStoreUrl, { entity: { signature, data } })
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
+
+      await setEntities(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -171,12 +160,12 @@ const useDataStoreApi = () => {
   }
 
   const signAndPushPolicy = async (data: Policy[]) => {
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
+    if (!sdkDataStoreConfig) return
 
     try {
-      const signature = await signPolicyData(data)
-      if (!signature) return
-      await axios.post(policyDataStoreUrl, { policy: { signature, data } })
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
+
+      await setPolicies(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -185,12 +174,12 @@ const useDataStoreApi = () => {
   }
 
   return {
+    sdkDataStoreConfig,
     entityStore,
     policyStore,
     errors,
     validationErrors,
     processingStatus,
-    pingDataStore,
     getEntityStore,
     getPolicyStore,
     signEntityData,

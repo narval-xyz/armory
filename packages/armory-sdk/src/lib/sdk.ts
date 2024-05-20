@@ -1,12 +1,15 @@
 import {
   Action,
+  Entities,
   EntityStore,
+  JwtString,
+  Policy,
   PolicyStore,
   Request,
   SignTransactionAction,
   TransactionRequest
 } from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
+import { signJwt } from '@narval/signature'
 import axios from 'axios'
 import { v4 } from 'uuid'
 import { Hex, createPublicClient, http } from 'viem'
@@ -22,8 +25,6 @@ import {
   ImportPrivateKeyResponse,
   Permission,
   SdkEvaluationResponse,
-  SetEntityRequest,
-  SetPolicyRequest,
   SignatureRequest,
   SignatureResponse,
   VaultClientConfig
@@ -33,12 +34,12 @@ import { sendEvaluationRequest } from './http/policy-engine'
 import { sendImportPrivateKey, sendSignatureRequest } from './http/vault'
 import {
   buildBasicEngineHeaders,
+  buildDataPayload,
   buildGnapVaultHeaders,
   checkDecision,
   getChainOrThrow,
   resourceId,
   signAccountJwsd,
-  signData,
   signRequest as signRequestHelper
 } from './utils'
 
@@ -66,6 +67,22 @@ export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClien
   })
 
   return confirmedConfig
+}
+
+export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
+  try {
+    await axios.get(config.authHost)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to ping engine', { config, error })
+  }
+}
+
+export const pingVault = async (config: VaultClientConfig): Promise<void> => {
+  try {
+    await axios.get(config.vaultHost)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to ping vault', { config, error })
+  }
 }
 
 /**
@@ -125,10 +142,12 @@ export const importPrivateKey = async (
     uri,
     htm: Htm.POST,
     accessToken,
-    jwk: config.jwk
+    jwk: config.jwk,
+    alg: config.alg,
+    signer: config.signer
   })
 
-  const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)
+  const headers = buildGnapVaultHeaders(config.vaultClientId, accessToken.value, detachedJws)
 
   const data = await sendImportPrivateKey({
     uri,
@@ -152,15 +171,18 @@ export const signRequest = async (config: VaultClientConfig, input: SignatureReq
   const payload = {
     request
   }
+
   const detachedJws = await signAccountJwsd({
     payload,
     uri,
-    htm: Htm.POST,
     accessToken,
-    jwk: config.jwk
+    htm: Htm.POST,
+    jwk: config.jwk,
+    alg: config.alg,
+    signer: config.signer
   })
 
-  const headers = buildGnapVaultHeaders(config, accessToken.value, detachedJws)
+  const headers = buildGnapVaultHeaders(config.vaultClientId, accessToken.value, detachedJws)
 
   const data = await sendSignatureRequest({
     request,
@@ -185,53 +207,27 @@ export const syncDataStores = async (config: EngineClientConfig) => {
   }
 }
 
-export const setPolicies = async (
-  config: EngineClientConfig & {
-    policyStoreHost: string
-  },
-  input: SetPolicyRequest
-): Promise<{ success: boolean }> => {
-  const headers = buildBasicEngineHeaders(config)
-  const { privateKey, policies } = input
-  const { policyStoreHost } = config
-
-  const signature = await signData(privateKey, policies, {
-    sub: privateKey.kid,
-    iss: config.authClientId,
-    alg: SigningAlg.EIP191
-  })
-
-  const policy: PolicyStore = {
-    data: input.policies,
-    signature
-  }
-
+export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
   try {
-    const res = await axios.post(policyStoreHost, { policy }, { headers })
-    if (res.status !== 200) {
-      throw new NarvalSdkException('Failed to set policies', {
-        config,
-        input,
-        storeResponse: res.data
-      })
-    }
+    const {
+      data: { entity }
+    } = await axios.get(entityStoreHost)
+
+    return entity
   } catch (error) {
-    throw new NarvalSdkException('Failed to set policies', {
-      config,
-      input,
-      error
-    })
+    throw new NarvalSdkException('Failed to ping entity store', { entityStoreHost, error })
   }
+}
+
+export const getPolicies = async (policyStoreHost: string): Promise<PolicyStore> => {
   try {
-    // TODO: remove manual sync after https://linear.app/narval/issue/NAR-1623
-    await syncDataStores(config)
-    return { success: true }
+    const {
+      data: { policy }
+    } = await axios.get(policyStoreHost)
+
+    return policy
   } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine after setting policies', {
-      config,
-      input,
-      error
-    })
+    throw new NarvalSdkException('Failed to ping policy store', { policyStoreHost, error })
   }
 }
 
@@ -239,43 +235,91 @@ export const setEntities = async (
   config: EngineClientConfig & {
     entityStoreHost: string
   },
-  input: SetEntityRequest
+  data: Entities
 ): Promise<{ success: boolean }> => {
   const headers = buildBasicEngineHeaders(config)
-  const { privateKey, entity: entities } = input
+  const signature = await signData(config, data)
+  const entity: EntityStore = { data, signature }
 
-  const { entityStoreHost } = config
+  try {
+    const res = await axios.post(config.entityStoreHost, { entity }, { headers })
 
-  const signature = await signData(privateKey, entities, {
-    sub: privateKey.kid,
-    iss: config.authClientId,
-    alg: SigningAlg.EIP191
-  })
-
-  const entity: EntityStore = {
-    data: entities.entity.data,
-    signature
-  }
-
-  const res = await axios.post(entityStoreHost, { entity }, { headers })
-  if (res.status !== 200) {
+    if (res.status !== 200) {
+      throw new NarvalSdkException('Failed to set entities', {
+        config,
+        data,
+        storeResponse: res.data
+      })
+    }
+  } catch (error) {
     throw new NarvalSdkException('Failed to set entities', {
       config,
-      input,
-      storeResponse: res.data
+      data,
+      error
     })
   }
+
   try {
     await syncDataStores(config)
+
     return { success: true }
   } catch (error) {
     throw new NarvalSdkException('Failed to sync engine after setting entities', {
       config,
-      input,
-      error,
-      storeResponse: res.data
+      data,
+      error
     })
   }
+}
+
+export const setPolicies = async (
+  config: EngineClientConfig & {
+    policyStoreHost: string
+  },
+  data: Policy[]
+): Promise<{ success: boolean }> => {
+  const headers = buildBasicEngineHeaders(config)
+  const signature = await signData(config, data)
+  const policy: PolicyStore = { data, signature }
+
+  try {
+    const res = await axios.post(config.policyStoreHost, { policy }, { headers })
+
+    if (res.status !== 200) {
+      throw new NarvalSdkException('Failed to set policies', {
+        config,
+        data,
+        storeResponse: res.data
+      })
+    }
+  } catch (error) {
+    throw new NarvalSdkException('Failed to set policies', {
+      config,
+      data,
+      error
+    })
+  }
+
+  try {
+    await syncDataStores(config)
+
+    return { success: true }
+  } catch (error) {
+    throw new NarvalSdkException('Failed to sync engine after setting policies', {
+      config,
+      data,
+      error
+    })
+  }
+}
+
+export const signData = async (config: EngineClientConfig, data: unknown): Promise<JwtString> => {
+  const payload = buildDataPayload(data, {
+    sub: config.jwk.kid,
+    iss: config.authClientId
+  })
+
+  return signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
 }
 
 export const sendTransaction = async (

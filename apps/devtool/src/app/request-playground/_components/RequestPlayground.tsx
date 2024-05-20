@@ -15,7 +15,6 @@ import { generatePrivateKey } from 'viem/accounts'
 import CodeEditor from '../../_components/CodeEditor'
 import NarButton from '../../_design-system/NarButton'
 import useEngineApi from '../../_hooks/useEngineApi'
-import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
 import { erc20, grantPermission, spendingLimits } from '../../_lib/request'
 import RequestConfigModal from './RequestPlaygroundConfigModal'
@@ -55,9 +54,8 @@ const EvaluationDecision = ({ decision }: { decision: Decision }) => {
 }
 
 const PlaygroundEditor = () => {
-  const { vaultUrl, vaultClientId } = useStore()
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
-  const { errors: signatureErrors, signTransaction, importPrivateKey } = useVaultApi()
+  const { errors: signatureErrors, sign, importPK: importPrivateKey } = useVaultApi()
 
   const [editor, setEditor] = useState<string>()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -107,10 +105,10 @@ const PlaygroundEditor = () => {
 
   const sendEvaluation = async () => {
     if (!editor) return
-    setIsProcessing(true)
-    setErrors(undefined)
 
     try {
+      setIsProcessing(true)
+      setErrors(undefined)
       const request: EvaluationRequest = JSON.parse(editor)
       const evaluationResponse = await evaluateRequest(request)
       if (evaluationResponse) {
@@ -124,38 +122,27 @@ const PlaygroundEditor = () => {
 
   const signRequest = async () => {
     if (!response) return
-
     const { accessToken, request } = response
+    if (!accessToken || !request) return
 
-    if (!accessToken?.value || !request) return
+    try {
+      setIsProcessing(true)
+      setErrors(undefined)
+      const signature = await sign({ accessToken, request })
+      setResponse(signature)
+    } catch (error) {}
 
-    setIsProcessing(true)
-    setErrors(undefined)
-
-    const signature = await signTransaction(vaultUrl, vaultClientId, { request }, accessToken.value)
-
-    setResponse(signature)
     setIsProcessing(false)
   }
 
   const importWallet = async () => {
-    if (!response) return
+    try {
+      setIsProcessing(true)
+      setErrors(undefined)
+      const wallet = await importPrivateKey({ privateKey: generatePrivateKey() })
+      setResponse(wallet)
+    } catch (error) {}
 
-    const { accessToken, request } = response
-
-    if (!accessToken?.value || !request) return
-
-    setIsProcessing(true)
-    setErrors(undefined)
-
-    const wallet = await importPrivateKey(
-      vaultUrl,
-      vaultClientId,
-      { privateKey: generatePrivateKey() },
-      accessToken.value
-    )
-
-    setResponse(wallet)
     setIsProcessing(false)
   }
 
@@ -178,14 +165,12 @@ const PlaygroundEditor = () => {
               disabled={isProcessing}
             />
           )}
-          {canBeSigned && (
-            <NarButton
-              label="Import Wallet"
-              leftIcon={<FontAwesomeIcon icon={faUpload} />}
-              onClick={importWallet}
-              disabled={isProcessing}
-            />
-          )}
+          <NarButton
+            label="Import Wallet"
+            leftIcon={<FontAwesomeIcon icon={faUpload} />}
+            onClick={importWallet}
+            disabled={isProcessing}
+          />
           <RequestConfigModal />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { EngineClientConfig, evaluate, syncDataStores } from '@narval/armory-sdk'
+import { EngineClientConfig, evaluate, pingEngine, syncDataStores } from '@narval/armory-sdk'
 import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
@@ -24,7 +24,7 @@ const useEngineApi = () => {
   const [isSynced, setIsSynced] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const sdkConfig = useMemo<EngineClientConfig | null>(() => {
+  const sdkEngineConfig = useMemo<EngineClientConfig | null>(() => {
     if (!authHost || !authClientId || !authSecret || !jwk || !signer) {
       return null
     }
@@ -39,9 +39,11 @@ const useEngineApi = () => {
     }
   }, [authHost, authClientId, authSecret, jwk, signer])
 
-  const pingEngine = async (url: string) => {
+  const ping = async () => {
+    if (!sdkEngineConfig) return
+
     try {
-      await axios.get(url)
+      await pingEngine(sdkEngineConfig)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -98,11 +100,11 @@ const useEngineApi = () => {
   }
 
   const syncEngine = async () => {
-    if (!sdkConfig) return
+    if (!sdkEngineConfig) return
 
     try {
       setErrors(undefined)
-      const isSynced = await syncDataStores(sdkConfig)
+      const isSynced = await syncDataStores(sdkEngineConfig)
       setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
@@ -111,17 +113,26 @@ const useEngineApi = () => {
   }
 
   const evaluateRequest = async ({ request }: EvaluationRequest) => {
-    if (!sdkConfig) return
+    if (!sdkEngineConfig) return
 
     try {
       setErrors(undefined)
-      return evaluate(sdkConfig, Request.parse(request))
+      return evaluate(sdkEngineConfig, Request.parse(request))
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  return { isProcessing, isSynced, errors, pingEngine, onboardClient, syncEngine, evaluateRequest }
+  return {
+    sdkEngineConfig,
+    isProcessing,
+    isSynced,
+    errors,
+    ping,
+    onboardClient,
+    syncEngine,
+    evaluateRequest
+  }
 }
 
 export default useEngineApi

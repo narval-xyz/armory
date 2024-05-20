@@ -3,13 +3,10 @@
 import { useEffect, useState } from 'react'
 import useDataStoreApi from '../_hooks/useDataStoreApi'
 import useEngineApi from '../_hooks/useEngineApi'
-import useStore from '../_hooks/useStore'
 import useVaultApi from '../_hooks/useVaultApi'
 import { classNames } from '../_lib/utils'
 
 const HealthcheckStatus = () => {
-  const { engineUrl, entityDataStoreUrl, policyDataStoreUrl, vaultUrl } = useStore()
-
   const [status, setStatus] = useState({
     engineConnection: false,
     engineDataStore: false,
@@ -18,13 +15,13 @@ const HealthcheckStatus = () => {
     vaultConnection: false
   })
 
-  const { pingEngine, syncEngine } = useEngineApi()
-  const { pingVault } = useVaultApi()
-  const { pingDataStore } = useDataStoreApi()
+  const { ping: pingEngine, syncEngine } = useEngineApi()
+  const { getEntityStore, getPolicyStore } = useDataStoreApi()
+  const { ping: pingVault } = useVaultApi()
 
   const checkEntityDataConnection = async () => {
     try {
-      await pingDataStore(entityDataStoreUrl)
+      await getEntityStore()
       setStatus((prev) => ({ ...prev, entityDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, entityDataUrl: false }))
@@ -33,7 +30,7 @@ const HealthcheckStatus = () => {
 
   const checkPolicyDataConnection = async () => {
     try {
-      await pingDataStore(policyDataStoreUrl)
+      await getPolicyStore()
       setStatus((prev) => ({ ...prev, policyDataUrl: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, policyDataUrl: false }))
@@ -42,7 +39,7 @@ const HealthcheckStatus = () => {
 
   const checkEngineConnection = async () => {
     try {
-      await pingEngine(engineUrl)
+      await pingEngine()
       setStatus((prev) => ({ ...prev, engineConnection: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, engineConnection: false }))
@@ -60,7 +57,7 @@ const HealthcheckStatus = () => {
 
   const checkVaultConnection = async () => {
     try {
-      await pingVault(vaultUrl)
+      await pingVault()
       setStatus((prev) => ({ ...prev, vaultConnection: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, vaultConnection: false }))

@@ -110,14 +110,14 @@ export const JwsdHeaderArgs = z.object({
   uri: z.string(),
   htm: HtmSchema,
   jwk: jwkSchema,
+  alg: z.nativeEnum(SigningAlg).optional(),
   accessToken: AccessToken
 })
 export type JwsdHeaderArgs = z.infer<typeof JwsdHeaderArgs>
 
-export const SignAccountJwsdArgs = z.object({
+export const SignAccountJwsdArgs = UserSigner.extend({
   payload: Payload,
   accessToken: AccessToken,
-  jwk: jwkSchema,
   uri: z.string(),
   htm: HtmSchema
 })
