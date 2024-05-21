@@ -63,11 +63,11 @@ const useVaultApi = () => {
     }
   }, [vaultHost, vaultClientId, jwk, signer])
 
-  const ping = async () => {
+  const ping = () => {
     if (!sdkVaultConfig) return
 
     try {
-      await pingVault(sdkVaultConfig)
+      return pingVault(sdkVaultConfig)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -116,7 +116,7 @@ const useVaultApi = () => {
     }
   }
 
-  const sign = async (payload: { accessToken: { value: string }; request: Request }) => {
+  const sign = (payload: { accessToken: { value: string }; request: Request }) => {
     if (!sdkVaultConfig) return
 
     try {
@@ -127,7 +127,7 @@ const useVaultApi = () => {
     }
   }
 
-  const importPK = async (request: ImportPrivateKeyRequest) => {
+  const importPK = (request: ImportPrivateKeyRequest) => {
     if (!sdkArmoryConfig) return
 
     try {
