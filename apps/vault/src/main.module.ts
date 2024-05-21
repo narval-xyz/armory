@@ -1,5 +1,6 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { Module, OnModuleInit, ValidationPipe, forwardRef } from '@nestjs/common'
+import { HttpLoggerMiddleware } from '@narval/nestjs-shared'
+import { MiddlewareConsumer, Module, NestModule, OnModuleInit, ValidationPipe, forwardRef } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -42,7 +43,11 @@ const INFRASTRUCTURE_MODULES = [
     }
   ]
 })
-export class MainModule {}
+export class MainModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*')
+  }
+}
 
 // IMPORTANT: To avoid application failure on the first boot due to a missing
 // encryption keyring, we've set up a lite module that runs before the
