@@ -2,11 +2,11 @@ import {
   Action,
   Entities,
   EntityStore,
+  EvaluationRequest,
+  EvaluationResponse,
   JwtString,
   Policy,
   PolicyStore,
-  Request,
-  SignTransactionAction,
   TransactionRequest
 } from '@narval/policy-engine-shared'
 import { signJwt } from '@narval/signature'
@@ -90,7 +90,7 @@ export const pingVault = async (config: VaultClientConfig): Promise<void> => {
  * @param request - The request to be evaluated.
  * @returns A promise that resolves to the SDK evaluation response.
  */
-export const evaluate = async (config: EngineClientConfig, request: Request): Promise<SdkEvaluationResponse> => {
+export const evaluate = async (config: EngineClientConfig, request: EvaluationRequest): Promise<EvaluationResponse> => {
   const body = await signRequestHelper(config, request)
 
   const headers = {
@@ -105,7 +105,7 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
     request: body
   })
 
-  return SdkEvaluationResponse.parse(data)
+  return EvaluationResponse.parse(data)
 }
 
 /**
@@ -120,17 +120,18 @@ export const importPrivateKey = async (
   request: ImportPrivateKeyRequest
 ): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
   const walletId = resourceId(request.walletId || privateKeyToAddress(request.privateKey))
+  const { privateKey } = request
 
-  const validatedRequest = {
-    privateKey: request.privateKey,
-    walletId
-  }
+  const validatedRequest = { privateKey, walletId }
 
-  const grantPermissionRequest: Request = {
-    action: Action.GRANT_PERMISSION,
-    resourceId: validatedRequest.walletId,
-    nonce: v4(),
-    permissions: [Permission.WALLET_CREATE]
+  const grantPermissionRequest: EvaluationRequest = {
+    authentication: '',
+    request: {
+      action: Action.GRANT_PERMISSION,
+      resourceId: walletId,
+      nonce: v4(),
+      permissions: [Permission.WALLET_CREATE]
+    }
   }
   const evaluationResponse = await evaluate(config, grantPermissionRequest)
   const { accessToken } = evaluationResponse
@@ -331,11 +332,14 @@ export const sendTransaction = async (
   config: ArmoryClientConfig,
   transactionRequest: TransactionRequest
 ): Promise<Hex | SdkEvaluationResponse> => {
-  const request: SignTransactionAction = {
-    action: Action.SIGN_TRANSACTION,
-    resourceId: resourceId(transactionRequest.from),
-    nonce: v4(),
-    transactionRequest
+  const request: EvaluationRequest = {
+    authentication: '',
+    request: {
+      action: Action.SIGN_TRANSACTION,
+      resourceId: resourceId(transactionRequest.from),
+      nonce: v4(),
+      transactionRequest
+    }
   }
   const evaluationResponse = await evaluate(config, request)
   const { accessToken } = evaluationResponse
@@ -344,7 +348,7 @@ export const sendTransaction = async (
     return SdkEvaluationResponse.parse(evaluationResponse)
   }
 
-  const { signature } = await signRequest(config, { request, accessToken })
+  const { signature } = await signRequest(config, { ...request, accessToken })
 
   const chain = getChainOrThrow(transactionRequest.chainId)
 

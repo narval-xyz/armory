@@ -15,7 +15,7 @@ const HealthcheckStatus = () => {
     vaultConnection: false
   })
 
-  const { ping: pingEngine, syncEngine } = useEngineApi()
+  const { ping: pingEngine, sync } = useEngineApi()
   const { getEntityStore, getPolicyStore } = useDataStoreApi()
   const { ping: pingVault } = useVaultApi()
 
@@ -48,7 +48,7 @@ const HealthcheckStatus = () => {
 
   const checkEngineDataStore = async () => {
     try {
-      await syncEngine()
+      await sync()
       setStatus((prev) => ({ ...prev, engineDataStore: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, engineDataStore: false }))

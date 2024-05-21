@@ -1,5 +1,5 @@
 import { EngineClientConfig, evaluate, pingEngine, syncDataStores } from '@narval/armory-sdk'
-import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
+import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
 import { useMemo, useState } from 'react'
@@ -120,12 +120,12 @@ const useEngineApi = () => {
     }
   }
 
-  const evaluateRequest = ({ request }: EvaluationRequest) => {
+  const evaluateRequest = (request: EvaluationRequest) => {
     if (!sdkEngineConfig) return
 
     try {
       setErrors(undefined)
-      return evaluate(sdkEngineConfig, Request.parse(request))
+      return evaluate(sdkEngineConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }

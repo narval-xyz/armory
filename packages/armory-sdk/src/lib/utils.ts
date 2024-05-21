@@ -74,13 +74,16 @@ export const buildPayloadFromRequest = (config: EngineClientConfig, request: Req
   }
 }
 
-export const signRequest = async (config: EngineClientConfig, request: Request): Promise<EvaluationRequest> => {
-  const payload = buildPayloadFromRequest(config, request)
+export const signRequest = async (
+  config: EngineClientConfig,
+  request: EvaluationRequest
+): Promise<EvaluationRequest> => {
+  const payload = buildPayloadFromRequest(config, request.request)
   const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
 
   return {
-    authentication,
-    request
+    ...request,
+    authentication
   }
 }
 
