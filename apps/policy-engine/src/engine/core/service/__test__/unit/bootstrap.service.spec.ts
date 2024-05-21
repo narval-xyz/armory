@@ -1,7 +1,7 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
 import { HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
@@ -16,13 +16,11 @@ import { Client } from '../../../../../shared/type/domain.type'
 import { BootstrapException } from '../../../exception/bootstrap.exception'
 import { BootstrapService } from '../../bootstrap.service'
 import { ClientService } from '../../client.service'
-import { EngineSignerConfigService } from '../../engine-signer-config.service'
 
 describe(BootstrapService.name, () => {
   let bootstrapService: BootstrapService
   let clientServiceMock: MockProxy<ClientService>
   let encryptionServiceMock: MockProxy<EncryptionService>
-  let engineSignerConfigServiceMock: MockProxy<EngineSignerConfigService>
 
   const dataStoreSource: HttpSource = {
     type: SourceType.HTTP,
@@ -73,13 +71,6 @@ describe(BootstrapService.name, () => {
     encryptionServiceMock = mock<EncryptionService>()
     encryptionServiceMock.getKeyring.mockReturnValue(getTestRawAesKeyring())
 
-    engineSignerConfigServiceMock = mock<EngineSignerConfigService>()
-    engineSignerConfigServiceMock.save.mockResolvedValue(true)
-    engineSignerConfigServiceMock.getSignerConfigOrThrow.mockResolvedValue({
-      type: 'PRIVATE_KEY',
-      key: secp256k1PrivateKeyToJwk(generatePrivateKey())
-    })
-
     const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -103,10 +94,6 @@ describe(BootstrapService.name, () => {
         {
           provide: EncryptionService,
           useValue: encryptionServiceMock
-        },
-        {
-          provide: EngineSignerConfigService,
-          useValue: engineSignerConfigServiceMock
         }
       ]
     }).compile()
