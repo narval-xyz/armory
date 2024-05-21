@@ -27,8 +27,4 @@ export class DataStoreRepositoryFactory {
         })
     }
   }
-
-  private getProtocol(url: string): string {
-    return url.split(':')[0]
-  }
 }

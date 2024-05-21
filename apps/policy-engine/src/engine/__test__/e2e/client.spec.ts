@@ -24,7 +24,7 @@ import { Client } from '../../../shared/type/domain.type'
 import { ClientService } from '../../core/service/client.service'
 import { EngineService } from '../../core/service/engine.service'
 import { EngineModule } from '../../engine.module'
-import { CreateClientDto } from '../../http/rest/dto/create-client.dto'
+import { CreateClientRequestDto } from '../../http/rest/dto/create-client.dto'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 
 describe('Client', () => {
@@ -36,7 +36,7 @@ describe('Client', () => {
   let engineService: EngineService
   let configService: ConfigService<Config>
   let dataStoreConfiguration: DataStoreConfiguration
-  let createClientPayload: CreateClientDto
+  let createClientPayload: CreateClientRequestDto
 
   const adminApiKey = 'test-admin-api-key'
 

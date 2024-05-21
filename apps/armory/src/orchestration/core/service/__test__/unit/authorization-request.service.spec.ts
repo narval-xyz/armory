@@ -11,13 +11,13 @@ import {
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
 import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
-import { ClusterService } from '../../../../core/service/cluster.service'
 import { AuthorizationRequest, AuthorizationRequestStatus, SignTransaction } from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
@@ -129,7 +129,7 @@ describe(AuthorizationRequestService.name, () => {
     const transfers: Transfer[] = times(() => generateTransfer({ clientId: authzRequest.clientId }), 2)
 
     beforeEach(() => {
-      clusterServiceMock.evaluation.mockResolvedValue(evaluationResponse)
+      clusterServiceMock.evaluate.mockResolvedValue(evaluationResponse)
       authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
       transferFeedServiceMock.findByClientId.mockResolvedValue(transfers)
       priceServiceMock.getPrices.mockResolvedValue({
@@ -148,17 +148,17 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    it('calls authz application client', async () => {
+    it('calls cluster service', async () => {
       await service.evaluate(authzRequest)
 
-      expect(clusterServiceMock.evaluation).toHaveBeenCalledWith({
-        clientId: authzRequest.clientId,
-        data: expect.objectContaining({
+      expect(clusterServiceMock.evaluate).toHaveBeenCalledWith(
+        authzRequest.clientId,
+        expect.objectContaining({
           authentication: authzRequest.authentication,
           approvals: authzRequest.approvals,
           request: authzRequest.request
         })
-      })
+      )
     })
 
     it('updates the authorization request with the evaluation response', async () => {
@@ -179,7 +179,11 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    it('gathers data feed', async () => {
+    // TODO: (@wcalderipe, 17/5/24) Remove the skip flag once the comment about
+    // disabling the data feeds gathering in the service is done.
+    //
+    // eslint-disable-next-line jest/no-disabled-tests
+    it.skip('gathers data feed', async () => {
       await service.evaluate(authzRequest)
 
       expect(feedServiceMock.gather).toHaveBeenCalledWith(authzRequest)

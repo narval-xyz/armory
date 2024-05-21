@@ -10,7 +10,7 @@ import {
   SourceType,
   Then
 } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk } from '@narval/signature'
+import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { generatePrivateKey } from 'viem/accounts'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
@@ -61,7 +61,7 @@ describe(ClientRepository.name, () => {
     const dataStoreConfiguration: DataStoreConfiguration = {
       data: dataStoreSource,
       signature: dataStoreSource,
-      keys: []
+      keys: [getPublicKey(privateKeyToJwk(generatePrivateKey(), Alg.ES256K))]
     }
 
     const client: Client = {

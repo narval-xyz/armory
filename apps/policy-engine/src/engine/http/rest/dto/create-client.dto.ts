@@ -1,11 +1,6 @@
-import { DataStoreConfiguration } from '@narval/policy-engine-shared'
+import { CreateClient, PublicClient } from '@narval/policy-engine-shared'
 import { createZodDto } from 'nestjs-zod'
-import { z } from 'zod'
 
-export class CreateClientDto extends createZodDto(
-  z.object({
-    clientId: z.string().optional(),
-    entityDataStore: DataStoreConfiguration,
-    policyDataStore: DataStoreConfiguration
-  })
-) {}
+export class CreateClientRequestDto extends createZodDto(CreateClient) {}
+
+export class CreateClientResponseDto extends createZodDto(PublicClient) {}

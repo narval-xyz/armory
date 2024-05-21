@@ -1,5 +1,5 @@
+import { ConfigModule } from '@narval/config-module'
 import { INestApplication } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { first, map, mapValues, omit, uniq } from 'lodash/fp'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'

@@ -27,7 +27,7 @@ armory/build/script:
 armory/build:
 	npx nx build ${ARMORY_PROJECT_NAME}
 
-# == Code format ==
+# === Code format ===
 
 armory/format:
 	 npx nx format:write --projects ${ARMORY_PROJECT_NAME}
@@ -54,18 +54,13 @@ armory/db/migrate:
 
 armory/db/setup:
 	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Armory development database${TERM_NO_COLOR}"
+	@echo "${TERM_GREEN}🛠️ Setting up Armory development database${TERM_NO_COLOR}"
 	@echo ""
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
 		prisma migrate reset \
 			--schema ${ARMORY_DATABASE_SCHEMA} \
 			--force
 	make armory/db/seed
-
-	@echo ""
-	@echo "${TERM_GREEN}🛠️  Setting up Armory test database${TERM_NO_COLOR}"
-	@echo ""
-	make armory/test/db/setup
 
 armory/db/migrate/deploy:
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
@@ -91,6 +86,9 @@ armory/db/seed:
 # === Testing ===
 
 armory/test/db/setup:
+	@echo ""
+	@echo "${TERM_GREEN}🛠️ Setting up Armory test database${TERM_NO_COLOR}"
+	@echo ""
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env.test --override -- \
 		prisma migrate reset \
 		--schema ${ARMORY_DATABASE_SCHEMA} \
@@ -133,12 +131,13 @@ armory/price/generate-coin-gecko-asset-id-index:
 	make armory/build/script
 	node dist/out-tsc/${ARMORY_PROJECT_DIR}/src/price/script/generate-coin-gecko-asset-id-index.script.js
 
-# === DOCKER ===
+# === Docker ===
+
 armory/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
-		-f deploy/armory.dockerfile \
-		-t armory/armory:latest \
+		--file deploy/armory.dockerfile \
+		--tag armory/armory:latest \
 		--cache-from armory/armory:latest \
 		. --load
 
@@ -147,7 +146,16 @@ armory/docker/push:
 	docker push 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/armory:latest
 
 armory/docker/run:
-	docker run --name armory --env-file ./apps/armory/.env -p 3005:3005 armory/armory:latest
+	docker run \
+		--name armory \
+		--env-file ./apps/armory/.env \
+		--publish 3005:3005 \
+		armory/armory:latest
 
 armory/docker/migrate:
-	docker run -it --rm --env-file ./apps/armory/.env armory/armory:latest /bin/bash ./db-migrator.sh
+	docker run \
+		--interactive \
+		--tty \
+		--rm \
+		--env-file ./apps/armory/.env armory/armory:latest \
+		/bin/bash ./db-migrator.sh
