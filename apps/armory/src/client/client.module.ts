@@ -13,6 +13,7 @@ const DOMAIN_MODULES = [PolicyEngineModule]
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],
   controllers: [ClientController],
-  providers: [ClientService, ClientRepository, ...VALIDATION_PIPES]
+  providers: [ClientService, ClientRepository, ...VALIDATION_PIPES],
+  exports: [ClientService]
 })
 export class ClientModule {}

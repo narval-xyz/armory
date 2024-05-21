@@ -1,10 +1,12 @@
 import { AssetId } from '@narval/policy-engine-shared'
-import { ValidationPipe } from '@nestjs/common'
-import { APP_PIPE } from '@nestjs/core'
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { BackoffOptions } from 'bull'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { Chain } from './shared/core/lib/chains.lib'
 import { FiatId } from './shared/core/type/price.type'
+import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
+import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
 //
 // Providers
@@ -20,6 +22,26 @@ export const VALIDATION_PIPES = [
     provide: APP_PIPE,
     useClass: ZodValidationPipe
   }
+]
+
+export const EXCEPTION_FILTERS = [
+  {
+    provide: APP_FILTER,
+    useClass: ApplicationExceptionFilter
+  },
+  {
+    provide: APP_FILTER,
+    useClass: ZodExceptionFilter
+  }
+]
+
+export const DEFAULT_MODULE_PROVIDERS = [
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: ClassSerializerInterceptor
+  },
+  ...EXCEPTION_FILTERS,
+  ...VALIDATION_PIPES
 ]
 
 //
