@@ -149,10 +149,10 @@ describe('Client', () => {
       expect(actualClient?.policyEngine.nodes[0].url).toEqual(policyEngineNode)
     })
 
-    it('responds with bad request when payload is invalid', async () => {
+    it('responds with unprocessable entity when payload is invalid', async () => {
       const { status } = await request(app.getHttpServer()).post('/clients').send({})
 
-      expect(status).toEqual(HttpStatus.BAD_REQUEST)
+      expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 
     it.todo('responds with forbidden when admin api key is missing')
