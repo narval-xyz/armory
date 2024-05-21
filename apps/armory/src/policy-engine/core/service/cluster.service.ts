@@ -62,8 +62,6 @@ export class ClusterService {
       throw new ClusterNotFoundException(clientId)
     }
 
-    const hosts = nodes.map((node) => node.url)
-
     this.logger.log('Sending evaluation request to cluster', {
       clientId,
       nodes: nodes.map(({ id, url }) => ({ id, url }))
