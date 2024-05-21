@@ -37,6 +37,7 @@ import {
   buildDataPayload,
   buildGnapVaultHeaders,
   getChainOrThrow,
+  isSuccessResponse,
   resourceId,
   signAccountJwsd,
   signRequest as signRequestHelper
@@ -250,7 +251,7 @@ export const setEntities = async (
   try {
     const res = await axios.post(config.entityStoreHost, entity, { headers })
 
-    if (res.status !== 200) {
+    if (!isSuccessResponse(res.status)) {
       throw new NarvalSdkException('Failed to set entities', {
         config,
         data,
@@ -291,7 +292,7 @@ export const setPolicies = async (
   try {
     const res = await axios.post(config.policyStoreHost, policy, { headers })
 
-    if (res.status !== 200) {
+    if (!isSuccessResponse(res.status)) {
       throw new NarvalSdkException('Failed to set policies', {
         config,
         data,

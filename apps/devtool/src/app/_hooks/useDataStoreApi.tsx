@@ -152,6 +152,7 @@ const useDataStoreApi = () => {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
 
       await setEntities(sdkDataStoreConfig, data)
+      setErrors(undefined)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }

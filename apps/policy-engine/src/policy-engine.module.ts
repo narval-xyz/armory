@@ -1,6 +1,14 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { Module, OnApplicationBootstrap, OnModuleInit, ValidationPipe } from '@nestjs/common'
+import { HttpLoggerMiddleware } from '@narval/nestjs-shared'
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnApplicationBootstrap,
+  OnModuleInit,
+  ValidationPipe
+} from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { BootstrapService } from './engine/core/service/bootstrap.service'
@@ -36,8 +44,12 @@ const INFRASTRUCTURE_MODULES = [
     }
   ]
 })
-export class PolicyEngineModule implements OnApplicationBootstrap {
+export class PolicyEngineModule implements OnApplicationBootstrap, NestModule {
   constructor(private bootstrapService: BootstrapService) {}
+
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*')
+  }
 
   async onApplicationBootstrap() {
     await this.bootstrapService.boot()
