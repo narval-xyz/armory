@@ -13,7 +13,6 @@ import { DataStoreRepositoryFactory } from './core/factory/data-store-repository
 import { BootstrapService } from './core/service/bootstrap.service'
 import { ClientService } from './core/service/client.service'
 import { DataStoreService } from './core/service/data-store.service'
-import { EngineSignerConfigService } from './core/service/engine-signer-config.service'
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
@@ -22,7 +21,6 @@ import { EngineController } from './http/rest/controller/engine.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { ClientRepository } from './persistence/repository/client.repository'
-import { EngineSignerConfigRepository } from './persistence/repository/engine-signer-config.repository'
 import { EngineRepository } from './persistence/repository/engine.repository'
 import { FileSystemDataStoreRepository } from './persistence/repository/file-system-data-store.repository'
 import { HttpDataStoreRepository } from './persistence/repository/http-data-store.repository'
@@ -49,8 +47,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     DataStoreService,
     EngineRepository,
     EngineService,
-    EngineSignerConfigRepository,
-    EngineSignerConfigService,
     EvaluationService,
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,

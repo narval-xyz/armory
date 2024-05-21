@@ -38,7 +38,6 @@ import {
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientService } from '../../core/service/client.service'
-import { EngineSignerConfigService } from '../../core/service/engine-signer-config.service'
 import { EngineModule } from '../../engine.module'
 
 describe('Evaluation', () => {
@@ -79,7 +78,6 @@ describe('Evaluation', () => {
     app = module.createNestApplication()
 
     const engineService = module.get<EngineService>(EngineService)
-    const engineSignerConfigService = module.get<EngineSignerConfigService>(EngineSignerConfigService)
     const configService = module.get<ConfigService<Config>>(ConfigService)
     clientService = module.get<ClientService>(ClientService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
@@ -99,11 +97,6 @@ describe('Evaluation', () => {
       masterKey: 'unsafe-test-master-key',
       adminApiKey,
       activated: true
-    })
-
-    await engineSignerConfigService.save({
-      type: 'PRIVATE_KEY',
-      key: privateKey
     })
 
     client = await clientService.save(
