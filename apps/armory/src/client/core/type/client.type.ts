@@ -7,7 +7,6 @@ export const PolicyEngineNode = z.object({
   // In case of the client ID in the PE is different than the one in the
   // AS.
   clientId: z.string().min(1),
-  // TODO: Why do we need it? If we do, we MUST add encryption.
   clientSecret: z.string().min(1),
   publicKey: publicKeySchema,
   url: z.string().url()

@@ -50,10 +50,9 @@ export class ClientRepository {
       name: client.name,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt,
-      // TODO: Review before merge
-      enginePublicKey: client.dataStore.entityPublicKey as Prisma.InputJsonValue,
-      entityPublicKey: client.dataStore.entityPublicKey as Prisma.InputJsonValue,
-      policyPublicKey: client.dataStore.policyPublicKey as Prisma.InputJsonValue
+      enginePublicKey: publicKeySchema.parse(client.dataStore.entityPublicKey) as Prisma.InputJsonValue,
+      entityPublicKey: publicKeySchema.parse(client.dataStore.entityPublicKey) as Prisma.InputJsonValue,
+      policyPublicKey: publicKeySchema.parse(client.dataStore.policyPublicKey) as Prisma.InputJsonValue
     }
   }
 }
