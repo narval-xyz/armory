@@ -65,14 +65,11 @@ export const ArmoryClientConfig = UserSigner.extend({
 })
 export type ArmoryClientConfig = z.infer<typeof ArmoryClientConfig>
 
-export const SdkPermitResponse = z.object({
-  decision: z.literal(Decision.PERMIT),
-  accessToken: AccessToken,
+export const SdkEvaluationResponse = z.object({
+  decision: z.nativeEnum(Decision),
+  accessToken: AccessToken.optional(),
   request: Request.optional()
 })
-export type SdkPermitResponse = z.infer<typeof SdkPermitResponse>
-
-export const SdkEvaluationResponse = z.discriminatedUnion('decision', [SdkPermitResponse])
 export type SdkEvaluationResponse = z.infer<typeof SdkEvaluationResponse>
 
 export const ImportPrivateKeyRequest = z.object({

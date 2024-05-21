@@ -1,5 +1,5 @@
-import DataStoreConfig from './_components/DataStore'
+import DataStore from './_components/DataStore'
 
-export default async function DataStore() {
-  return <DataStoreConfig />
+export default async function Page() {
+  return <DataStore />
 }

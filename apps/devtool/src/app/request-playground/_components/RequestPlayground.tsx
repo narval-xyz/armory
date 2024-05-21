@@ -1,23 +1,18 @@
 'use client'
 
-import {
-  faArrowsRotate,
-  faCheckCircle,
-  faFileSignature,
-  faTriangleExclamation,
-  faUpload,
-  faXmarkCircle
-} from '@fortawesome/pro-regular-svg-icons'
+import { faArrowsRotate, faFileSignature, faUpload } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Decision, EvaluationRequest } from '@narval/policy-engine-shared'
+import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { useEffect, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'
 import CodeEditor from '../../_components/CodeEditor'
+import ValueWithCopy from '../../_components/ValueWithCopy'
 import NarButton from '../../_design-system/NarButton'
 import useEngineApi from '../../_hooks/useEngineApi'
+import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
 import { erc20, grantPermission, spendingLimits } from '../../_lib/request'
-import RequestConfigModal from './RequestPlaygroundConfigModal'
+import RequestPlaygroundConfigModal from './RequestPlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -25,78 +20,45 @@ enum Template {
   GRANT_PERMISSION = 'GRANT_PERMISSION'
 }
 
-const EvaluationDecision = ({ decision }: { decision: Decision }) => {
-  switch (decision) {
-    case Decision.PERMIT:
-      return (
-        <div className="flex items-center gap-[4px]">
-          <FontAwesomeIcon icon={faCheckCircle} className="text-nv-green-500" />
-          <div className="text-nv-white">{decision}</div>
-        </div>
-      )
-    case Decision.FORBID:
-      return (
-        <div className="flex items-center gap-[4px]">
-          <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-red-500" />
-          <div className="text-nv-white">{decision}</div>
-        </div>
-      )
-    case Decision.CONFIRM:
-      return (
-        <div className="flex items-center gap-[4px]">
-          <FontAwesomeIcon icon={faTriangleExclamation} className="text-nv-orange-500" />
-          <div className="text-nv-white">{decision}</div>
-        </div>
-      )
-    default:
-      return <div className="text-nv-white">{decision}</div>
-  }
-}
-
-const PlaygroundEditor = () => {
+const RequestPlayground = () => {
+  const { engineClientId, vaultClientId } = useStore()
   const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
   const { errors: signatureErrors, sign, importPK: importPrivateKey } = useVaultApi()
 
-  const [editor, setEditor] = useState<string>()
+  const [domLoaded, setDomLoaded] = useState(false)
+  const [requestEditor, setRequestEditor] = useState<string>()
+  const [responseEditor, setResponseEditor] = useState<string>()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [response, setResponse] = useState<any>()
-  const [errors, setErrors] = useState<string>()
 
-  const canBeSigned = response?.decision === Decision.PERMIT
+  useEffect(() => setDomLoaded(true), [])
 
   useEffect(() => {
-    if (editor) return
+    if (requestEditor) return
 
     updateTemplate(Template.ERC20)
-  }, [editor])
+  }, [requestEditor])
 
   useEffect(() => {
     if (evaluationErrors) {
-      setErrors(evaluationErrors)
-    }
-    if (signatureErrors) {
-      setErrors(signatureErrors)
+      setResponseEditor(`{ error: ${evaluationErrors} }`)
+    } else if (signatureErrors) {
+      setResponseEditor(`{ error: ${signatureErrors} }`)
     }
   }, [evaluationErrors, signatureErrors])
-
-  const resetResponse = () => {
-    setResponse(undefined)
-    setErrors(undefined)
-  }
 
   const updateTemplate = async (template: Template) => {
     switch (template) {
       case Template.ERC20:
-        resetResponse()
-        setEditor(JSON.stringify(await erc20(), null, 2))
+        setResponseEditor(undefined)
+        setRequestEditor(JSON.stringify(await erc20(), null, 2))
         break
       case Template.SPENDING_LIMITS:
-        resetResponse()
-        setEditor(JSON.stringify(await spendingLimits(), null, 2))
+        setResponseEditor(undefined)
+        setRequestEditor(JSON.stringify(await spendingLimits(), null, 2))
         break
       case Template.GRANT_PERMISSION:
-        resetResponse()
-        setEditor(JSON.stringify(await grantPermission(), null, 2))
+        setResponseEditor(undefined)
+        setRequestEditor(JSON.stringify(await grantPermission(), null, 2))
         break
       default:
         break
@@ -104,16 +66,15 @@ const PlaygroundEditor = () => {
   }
 
   const sendEvaluation = async () => {
-    if (!editor) return
+    if (!requestEditor) return
 
     try {
       setIsProcessing(true)
-      setErrors(undefined)
-      const request: EvaluationRequest = JSON.parse(editor)
+      setResponseEditor(undefined)
+      const request: EvaluationRequest = JSON.parse(requestEditor)
       const evaluationResponse = await evaluateRequest(request)
       if (evaluationResponse) {
-        setEditor(JSON.stringify(request, null, 2))
-        setResponse(evaluationResponse)
+        setResponseEditor(JSON.stringify(evaluationResponse, null, 2))
       }
     } catch (error) {}
 
@@ -121,15 +82,15 @@ const PlaygroundEditor = () => {
   }
 
   const signRequest = async () => {
-    if (!response) return
-    const { accessToken, request } = response
+    if (!responseEditor) return
+    const { accessToken, request } = JSON.parse(responseEditor)
     if (!accessToken || !request) return
 
     try {
       setIsProcessing(true)
-      setErrors(undefined)
+      setResponseEditor(undefined)
       const signature = await sign({ accessToken, request })
-      setResponse(signature)
+      setResponseEditor(JSON.stringify(signature, null, 2))
     } catch (error) {}
 
     setIsProcessing(false)
@@ -138,71 +99,70 @@ const PlaygroundEditor = () => {
   const importWallet = async () => {
     try {
       setIsProcessing(true)
-      setErrors(undefined)
+      setResponseEditor(undefined)
       const wallet = await importPrivateKey({ privateKey: generatePrivateKey() })
-      setResponse(wallet)
+      setResponseEditor(JSON.stringify(wallet, null, 2))
     } catch (error) {}
 
     setIsProcessing(false)
   }
 
+  if (!domLoaded) return null
+
   return (
-    <div className="flex flex-col gap-[48px] h-full">
+    <div className="flex flex-col gap-[32px] h-full">
       <div className="flex items-center">
         <div className="text-nv-2xl grow">Request Playground</div>
-        <div className="flex gap-[8px]">
+        <div className="flex items-center gap-[8px]">
           <NarButton
             label="Evaluate"
             leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
             onClick={sendEvaluation}
             disabled={isProcessing}
           />
-          {canBeSigned && (
-            <NarButton
-              label="Sign"
-              leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
-              onClick={signRequest}
-              disabled={isProcessing}
-            />
-          )}
+          <NarButton
+            label="Sign"
+            leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
+            onClick={signRequest}
+            disabled={isProcessing}
+          />
           <NarButton
             label="Import Wallet"
             leftIcon={<FontAwesomeIcon icon={faUpload} />}
             onClick={importWallet}
             disabled={isProcessing}
           />
-          <RequestConfigModal />
+          <RequestPlaygroundConfigModal />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-[32px] grow">
-        <div className="flex h-full col-span-2">
-          <CodeEditor value={editor} onChange={setEditor} />
-        </div>
-        <div className="flex flex-col gap-[16px] h-full col-span-1">
-          <div className="flex gap-[8px]">
-            <NarButton variant="secondary" label="ERC-20" onClick={() => updateTemplate(Template.ERC20)} />
-            <NarButton
-              variant="secondary"
-              label="Spending limits"
-              onClick={() => updateTemplate(Template.SPENDING_LIMITS)}
-            />
-            <NarButton
-              variant="secondary"
-              label="Grant Permissions"
-              onClick={() => updateTemplate(Template.GRANT_PERMISSION)}
-            />
-            {response && <EvaluationDecision decision={response?.decision} />}
+      <div className="flex items-start">
+        <div className="grow">
+          <div className="flex flex-col gap-[8px]">
+            <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />
+            <ValueWithCopy layout="horizontal" label="Vault Client ID" value={vaultClientId} />
           </div>
-          {errors && <div className="text-nv-red-500 truncate">{errors}</div>}
-          {!errors && response && (
-            <div className="border-2 border-white p-[4px] overflow-auto">
-              <pre>{JSON.stringify(response, null, 3)}</pre>
-            </div>
-          )}
         </div>
+        <div className="flex items-center gap-[8px]">
+          <div className="underline text-nv-xs">Templates:</div>
+          <NarButton variant="quaternary" label="ERC-20" onClick={() => updateTemplate(Template.ERC20)} />
+          <NarButton
+            variant="quaternary"
+            label="Spending limits"
+            onClick={() => updateTemplate(Template.SPENDING_LIMITS)}
+          />
+          <NarButton
+            variant="quaternary"
+            label="Grant Permissions"
+            onClick={() => updateTemplate(Template.GRANT_PERMISSION)}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-[32px] grow">
+        <CodeEditor value={requestEditor} onChange={setRequestEditor} />
+        <CodeEditor value={responseEditor} readOnly />
       </div>
     </div>
   )
 }
 
-export default PlaygroundEditor
+export default RequestPlayground

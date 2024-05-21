@@ -22,7 +22,7 @@ const initForm: ConfigForm = {
   vaultClientId: ''
 }
 
-const RequestConfigModal = () => {
+const RequestPlaygroundConfigModal = () => {
   const {
     engineUrl,
     engineClientId,
@@ -100,4 +100,4 @@ const RequestConfigModal = () => {
   )
 }
 
-export default RequestConfigModal
+export default RequestPlaygroundConfigModal
