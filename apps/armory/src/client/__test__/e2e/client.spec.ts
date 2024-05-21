@@ -132,6 +132,23 @@ describe('Client', () => {
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
+    it('creates a new client with given policy engines', async () => {
+      const policyEngineNode = 'http://mock.test/test-data-store'
+
+      mockPolicyEngineServer(policyEngineNode, clientId)
+
+      const createClientWithGivenPolicyEngine: CreateClientRequestDto = {
+        ...createClientPayload,
+        policyEngineNodes: [policyEngineNode]
+      }
+
+      const { body } = await request(app.getHttpServer()).post('/clients').send(createClientWithGivenPolicyEngine)
+
+      const actualClient = await clientService.findById(body.id)
+
+      expect(actualClient?.policyEngine.nodes[0].url).toEqual(policyEngineNode)
+    })
+
     it('responds with bad request when payload is invalid', async () => {
       const { status } = await request(app.getHttpServer()).post('/clients').send({})
 
@@ -140,6 +157,5 @@ describe('Client', () => {
 
     it.todo('responds with forbidden when admin api key is missing')
     it.todo('responds with forbidden when admin api key is invalid')
-    it.todo('creates a new client with given policy engines')
   })
 })

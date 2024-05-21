@@ -29,7 +29,7 @@ export class ClientController {
       name: body.name,
       dataStore: body.dataStore,
       policyEngine: {
-        nodes: [this.configService.get('policyEngine.url')]
+        nodes: body.policyEngineNodes || [this.configService.get('policyEngine.url')]
       },
       createdAt: now,
       updatedAt: now
