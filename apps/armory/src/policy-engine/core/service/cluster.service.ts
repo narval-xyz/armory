@@ -70,10 +70,12 @@ export class ClusterService {
     })
 
     const responses = await Promise.all(
-      hosts.map((host) =>
+      nodes.map((node) =>
         this.policyEngineClient.evaluate({
-          host,
-          data: evaluation
+          host: node.url,
+          data: evaluation,
+          clientId: node.clientId,
+          clientSecret: node.clientSecret
         })
       )
     )
