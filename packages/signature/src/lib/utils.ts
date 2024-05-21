@@ -17,11 +17,13 @@ import {
   P256PrivateKey,
   P256PublicKey,
   PrivateKey,
+  PublicKey,
   RsaPrivateKey,
   RsaPublicKey,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
-  Use
+  Use,
+  publicKeySchema
 } from './types'
 import { validateJwk } from './validate'
 
@@ -339,3 +341,5 @@ export const generateJwk = async <T = Jwk>(
 }
 
 export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
+
+export const getPublicKey = (privateKey: PrivateKey): PublicKey => publicKeySchema.parse(privateKey)

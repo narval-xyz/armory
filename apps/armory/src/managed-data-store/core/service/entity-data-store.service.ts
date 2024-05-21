@@ -1,15 +1,15 @@
-import { Entities, EntityStore } from '@narval/policy-engine-shared'
+import { EntityStore } from '@narval/policy-engine-shared'
 import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { ClientRepository } from '../../persistence/repository/client.repository'
+import { ClientService } from '../../../client/core/service/client.service'
 import { EntityDataStoreRepository } from '../../persistence/repository/entity-data-store.repository'
 import { SignatureService } from './signature.service'
 
 @Injectable()
-export class EntityDataStoreService extends SignatureService<Entities> {
+export class EntityDataStoreService extends SignatureService {
   constructor(
     private entitydataStoreRepository: EntityDataStoreRepository,
-    private clientRepository: ClientRepository
+    private clientService: ClientService
   ) {
     super()
   }
@@ -21,7 +21,7 @@ export class EntityDataStoreService extends SignatureService<Entities> {
   }
 
   async setEntities(clientId: string, payload: EntityStore) {
-    const client = await this.clientRepository.getClient(clientId)
+    const client = await this.clientService.findById(clientId)
 
     if (!client) {
       throw new NotFoundException({
@@ -34,7 +34,7 @@ export class EntityDataStoreService extends SignatureService<Entities> {
 
     await this.verifySignature({
       payload,
-      pubKey: publicKeySchema.parse(client.entityPublicKey),
+      pubKey: publicKeySchema.parse(client.dataStore.entityPublicKey),
       date: dataStore?.createdAt
     })
 

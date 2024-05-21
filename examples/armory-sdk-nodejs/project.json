@@ -6,7 +6,9 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
@@ -38,43 +40,17 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["examples/armory-sdk-nodejs/**/*.ts"]
-      }
-    },
-    "test:type": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "make basic-flow/test/type"
-      }
-    },
-    "test:unit": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "examples/armory-sdk-nodejs/jest.unit.ts",
-        "verbose": true
-      }
-    },
-    "test:integration": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "examples/armory-sdk-nodejs/jest.integration.ts",
-        "verbose": true,
-        "runInBand": true
-      }
-    },
-    "test:e2e": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "examples/armory-sdk-nodejs/jest.e2e.ts",
-        "verbose": true,
-        "runInBand": true
+        "lintFilePatterns": [
+          "examples/armory-sdk-nodejs/**/*.ts"
+        ]
       }
     }
   },
-  "tags": ["type:application"]
+  "tags": [
+    "type:application"
+  ]
 }

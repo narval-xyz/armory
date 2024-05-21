@@ -20,6 +20,8 @@ export class ClientService {
   }
 
   async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
+    this.logger.log('Create client', { client, options })
+
     const syncAfter = options?.syncAfter ?? true
 
     const exists = await this.clientRepository.findById(client.clientId)

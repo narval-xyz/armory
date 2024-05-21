@@ -3,14 +3,14 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
 @Injectable()
-export class SignatureService<T> {
+export class SignatureService {
   async verifySignature({
     pubKey,
     payload,
     date
   }: {
     pubKey: Jwk
-    payload: { signature: string; data: T }
+    payload: { signature: string; data: unknown }
     date: Date | undefined
   }) {
     const validJwt = await verifyJwt(payload.signature, pubKey)

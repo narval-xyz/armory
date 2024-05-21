@@ -4,6 +4,7 @@ export * from './lib/schema/hex.schema'
 export * from './lib/schema/policy.schema'
 
 export * from './lib/type/action.type'
+export * from './lib/type/client.type'
 export * from './lib/type/data-store.type'
 export * from './lib/type/domain.type'
 export * from './lib/type/engine.type'
