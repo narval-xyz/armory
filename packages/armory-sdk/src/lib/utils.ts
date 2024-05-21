@@ -15,8 +15,7 @@ import {
   JwsdHeaderArgs,
   SdkEvaluationResponse,
   SdkPermitResponse,
-  SignAccountJwsdArgs,
-  VaultClientConfig
+  SignAccountJwsdArgs
 } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './http/schema'
