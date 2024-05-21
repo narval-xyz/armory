@@ -24,14 +24,19 @@ export class ProvisionController {
   @Post()
   async provision(): Promise<string | ProvisionResponse> {
     const app = await this.appService.getApp()
+    const keyringConfig = this.configService.get('keyring', { infer: true })
 
-    if (app && app.masterKey && app.activated) {
+    const isProvisioned =
+      (keyringConfig.type === 'raw' && app?.masterKey) ||
+      (keyringConfig.type === 'awskms' && keyringConfig?.masterAwsKmsArn)
+
+    if (app && isProvisioned && app.activated) {
       return 'App already provisioned'
     }
 
     let adminApiKey
     // if we've already provisioned but not activate, just flag it.
-    if (app && app.masterKey && !app.activated) {
+    if (app && isProvisioned && !app.activated) {
       const activatedApp = await this.provisionService.activate()
       adminApiKey = activatedApp.adminApiKey
     }
@@ -42,22 +47,21 @@ export class ProvisionController {
     }
 
     try {
-      const keyring = this.configService.get('keyring', { infer: true })
       const app = await this.appService.getAppOrThrow()
 
       const response: ProvisionResponse = {
         appId: app.id,
         adminApiKey,
-        encryptionType: keyring.type
+        encryptionType: keyringConfig.type
       }
 
-      if (keyring.type === 'raw') {
-        response.isMasterPasswordSet = Boolean(keyring.masterPassword)
+      if (keyringConfig.type === 'raw') {
+        response.isMasterPasswordSet = Boolean(keyringConfig.masterPassword)
         response.isMasterKeySet = Boolean(app.masterKey)
       }
 
-      if (keyring.type === 'awskms') {
-        response.isMasterKmsArnSet = Boolean(keyring.masterAwsKmsArn)
+      if (keyringConfig.type === 'awskms') {
+        response.isMasterKmsArnSet = Boolean(keyringConfig.masterAwsKmsArn)
       }
 
       return response

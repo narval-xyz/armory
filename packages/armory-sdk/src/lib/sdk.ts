@@ -2,11 +2,11 @@ import {
   Action,
   Entities,
   EntityStore,
+  EvaluationRequest,
+  EvaluationResponse,
   JwtString,
   Policy,
   PolicyStore,
-  Request,
-  SignTransactionAction,
   TransactionRequest
 } from '@narval/policy-engine-shared'
 import { signJwt } from '@narval/signature'
@@ -36,7 +36,6 @@ import {
   buildBasicEngineHeaders,
   buildDataPayload,
   buildGnapVaultHeaders,
-  checkDecision,
   getChainOrThrow,
   resourceId,
   signAccountJwsd,
@@ -91,7 +90,7 @@ export const pingVault = async (config: VaultClientConfig): Promise<void> => {
  * @param request - The request to be evaluated.
  * @returns A promise that resolves to the SDK evaluation response.
  */
-export const evaluate = async (config: EngineClientConfig, request: Request): Promise<SdkEvaluationResponse> => {
+export const evaluate = async (config: EngineClientConfig, request: EvaluationRequest): Promise<EvaluationResponse> => {
   const body = await signRequestHelper(config, request)
 
   const headers = {
@@ -106,7 +105,7 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
     request: body
   })
 
-  return checkDecision(data, config)
+  return EvaluationResponse.parse(data)
 }
 
 /**
@@ -119,21 +118,27 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
-): Promise<ImportPrivateKeyResponse> => {
+): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
   const walletId = resourceId(request.walletId || privateKeyToAddress(request.privateKey))
+  const { privateKey } = request
 
-  const validatedRequest = {
-    privateKey: request.privateKey,
-    walletId
-  }
+  const validatedRequest = { privateKey, walletId }
 
-  const grantPermissionRequest: Request = {
-    action: Action.GRANT_PERMISSION,
-    resourceId: validatedRequest.walletId,
-    nonce: v4(),
-    permissions: [Permission.WALLET_CREATE]
+  const grantPermissionRequest: EvaluationRequest = {
+    authentication: '',
+    request: {
+      action: Action.GRANT_PERMISSION,
+      resourceId: walletId,
+      nonce: v4(),
+      permissions: [Permission.WALLET_CREATE]
+    }
   }
-  const { accessToken } = await evaluate(config, grantPermissionRequest)
+  const evaluationResponse = await evaluate(config, grantPermissionRequest)
+  const { accessToken } = evaluationResponse
+
+  if (!accessToken) {
+    return SdkEvaluationResponse.parse(evaluationResponse)
+  }
 
   const uri = `${config.vaultHost}${Endpoints.vault.importPrivateKey}`
 
@@ -154,6 +159,7 @@ export const importPrivateKey = async (
     headers,
     request: validatedRequest
   })
+
   return data
 }
 
@@ -325,22 +331,31 @@ export const signData = async (config: EngineClientConfig, data: unknown): Promi
 export const sendTransaction = async (
   config: ArmoryClientConfig,
   transactionRequest: TransactionRequest
-): Promise<Hex> => {
-  const request: SignTransactionAction = {
-    action: Action.SIGN_TRANSACTION,
-    resourceId: resourceId(transactionRequest.from),
-    nonce: v4(),
-    transactionRequest
+): Promise<Hex | SdkEvaluationResponse> => {
+  const request: EvaluationRequest = {
+    authentication: '',
+    request: {
+      action: Action.SIGN_TRANSACTION,
+      resourceId: resourceId(transactionRequest.from),
+      nonce: v4(),
+      transactionRequest
+    }
   }
-  const { accessToken } = await evaluate(config, request)
-  const { signature } = await signRequest(config, { request, accessToken })
+  const evaluationResponse = await evaluate(config, request)
+  const { accessToken } = evaluationResponse
+
+  if (!accessToken) {
+    return SdkEvaluationResponse.parse(evaluationResponse)
+  }
+
+  const { signature } = await signRequest(config, { ...request, accessToken })
 
   const chain = getChainOrThrow(transactionRequest.chainId)
+
   const publicClient = createPublicClient({
     transport: http(),
     chain
   })
 
-  const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
-  return hash
+  return publicClient.sendRawTransaction({ serializedTransaction: signature })
 }

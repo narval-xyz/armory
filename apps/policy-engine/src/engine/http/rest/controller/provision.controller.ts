@@ -24,41 +24,44 @@ export class ProvisionController {
   @Post()
   async provision(): Promise<string | ProvisionResponse> {
     const engine = await this.engineService.getEngine()
+    const keyringConfig = this.configService.get('keyring', { infer: true })
 
-    if (engine && engine.masterKey && engine.activated) {
+    const isProvisioned =
+      (keyringConfig.type === 'raw' && engine?.masterKey) ||
+      (keyringConfig.type === 'awskms' && keyringConfig?.masterAwsKmsArn)
+
+    if (engine && isProvisioned && engine.activated) {
       return 'App already provisioned'
     }
 
     let adminApiKey
     // if we've already provisioned but not activate, just flag it.
-    if (engine && engine.masterKey && !engine.activated) {
+    if (engine && isProvisioned && !engine.activated) {
       const activatedApp = await this.provisionService.activate()
       adminApiKey = activatedApp.adminApiKey
     }
     // Provision the engine if it hasn't yet
     else {
-      await this.provisionService.provision(true)
       const newApp = await this.provisionService.provision(true)
       adminApiKey = newApp?.adminApiKey
     }
 
     try {
-      const keyring = this.configService.get('keyring', { infer: true })
       const engine = await this.engineService.getEngineOrThrow()
 
       const response: ProvisionResponse = {
         appId: engine.id,
         adminApiKey,
-        encryptionType: keyring.type
+        encryptionType: keyringConfig.type
       }
 
-      if (keyring.type === 'raw') {
-        response.isMasterPasswordSet = Boolean(keyring.masterPassword)
+      if (keyringConfig.type === 'raw') {
+        response.isMasterPasswordSet = Boolean(keyringConfig.masterPassword)
         response.isMasterKeySet = Boolean(engine.masterKey)
       }
 
-      if (keyring.type === 'awskms') {
-        response.isMasterKmsArnSet = Boolean(keyring.masterAwsKmsArn)
+      if (keyringConfig.type === 'awskms') {
+        response.isMasterKmsArnSet = Boolean(keyringConfig.masterAwsKmsArn)
       }
 
       return response

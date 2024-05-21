@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
 import SuccessStatus from '../../_components/SuccessStatus'
+import ValueWithCopy from '../../_components/ValueWithCopy'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
-import EngineConfigModal from './DataStoreConfigModal'
+import DataStoreConfigModal from './DataStoreConfigModal'
 
 enum Action {
   FETCH_ENTITY = 'FETCH_ENTITY',
@@ -19,8 +20,9 @@ enum Action {
   SIGN_AND_PUSH_POLICY = 'SIGN_AND_PUSH_POLICY'
 }
 
-const DataStoreConfig = () => {
-  const { entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } = useStore()
+const DataStore = () => {
+  const { engineClientId, entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } =
+    useStore()
 
   const {
     entityStore,
@@ -45,19 +47,26 @@ const DataStoreConfig = () => {
 
   const { isSynced, sync } = useEngineApi()
 
+  const [domLoaded, setDomLoaded] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
+  useEffect(() => setDomLoaded(true), [])
   useEffect(() => setIsDialogOpen(Boolean(validationErrors && validationErrors.length > 0)), [validationErrors])
 
+  if (!domLoaded) return null
+
   return (
-    <div className="flex flex-col gap-[48px] h-full">
-      <div className="flex items-center">
-        <div className="text-nv-2xl grow">Data Store</div>
-        <div className="flex items-center gap-[8px]">
-          <ErrorStatus label={errors} />
-          <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
-          <EngineConfigModal />
+    <div className="flex flex-col gap-[32px] h-full">
+      <div className="flex flex-col gap-[4px]">
+        <div className="flex items-center">
+          <div className="text-nv-2xl grow">Data Store</div>
+          <div className="flex items-center gap-[8px]">
+            <ErrorStatus label={errors} />
+            <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
+            <DataStoreConfigModal />
+          </div>
         </div>
+        <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
         <DataEditor
@@ -106,4 +115,4 @@ const DataStoreConfig = () => {
   )
 }
 
-export default DataStoreConfig
+export default DataStore

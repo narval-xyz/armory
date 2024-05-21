@@ -73,6 +73,8 @@ export class ProvisionService {
       const masterKey = await generateMasterKey(kek)
 
       return await this.appService.save({ ...app, masterKey })
+    } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
+      this.logger.log('Using AWS KMS for encryption')
     }
     return app
   }
