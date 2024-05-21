@@ -7,7 +7,7 @@ import {
   hexSchema,
   policySchema
 } from '@narval/policy-engine-shared'
-import { Payload, jwkSchema, privateKeySchema } from '@narval/signature'
+import { Payload, SigningAlg, jwkSchema, privateKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Endpoints = {
@@ -23,13 +23,15 @@ export const Endpoints = {
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
 
 export const UserSigner = z.object({
-  signer: jwkSchema
+  jwk: jwkSchema,
+  alg: z.nativeEnum(SigningAlg).optional(),
+  signer: z.function().args(z.string()).returns(z.promise(z.string()))
 })
 
 export const EngineClientConfig = UserSigner.extend({
   authHost: z.string(),
   authClientId: z.string(),
-  authSecret: z.string()
+  authSecret: z.string().optional()
 })
 export type EngineClientConfig = z.infer<typeof EngineClientConfig>
 
@@ -47,12 +49,12 @@ export type StoreConfig = z.infer<typeof StoreConfig>
 
 export const ArmoryClientConfigInput = UserSigner.extend({
   authHost: z.string().optional(),
+  authClientId: z.string().optional(),
   authSecret: z.string().optional(),
   vaultHost: z.string().optional(),
+  vaultClientId: z.string().optional(),
   entityStoreHost: z.string().optional(),
-  policyStoreHost: z.string().optional(),
-  authClientId: z.string().optional(),
-  vaultClientId: z.string().optional()
+  policyStoreHost: z.string().optional()
 })
 export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
 
@@ -108,14 +110,14 @@ export const JwsdHeaderArgs = z.object({
   uri: z.string(),
   htm: HtmSchema,
   jwk: jwkSchema,
+  alg: z.nativeEnum(SigningAlg).optional(),
   accessToken: AccessToken
 })
 export type JwsdHeaderArgs = z.infer<typeof JwsdHeaderArgs>
 
-export const SignAccountJwsdArgs = z.object({
+export const SignAccountJwsdArgs = UserSigner.extend({
   payload: Payload,
   accessToken: AccessToken,
-  jwk: jwkSchema,
   uri: z.string(),
   htm: HtmSchema
 })
