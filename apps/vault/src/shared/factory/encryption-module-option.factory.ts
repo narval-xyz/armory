@@ -1,4 +1,4 @@
-import { RawAesKeyringNode } from '@aws-crypto/client-node'
+import { KmsKeyringNode, RawAesKeyringNode } from '@aws-crypto/client-node'
 import {
   EncryptionModuleOption,
   decryptMasterKey,
@@ -22,7 +22,7 @@ export class EncryptionModuleOptionFactory {
   ) {}
 
   async create(): Promise<EncryptionModuleOption> {
-    const keyring = this.configService.get('keyring', { infer: true })
+    const keyringConfig = this.configService.get('keyring', { infer: true })
     const app = await this.appService.getApp()
 
     // NOTE: An undefined app at boot time only happens during the
@@ -35,12 +35,12 @@ export class EncryptionModuleOptionFactory {
       }
     }
 
-    if (keyring.type === 'raw') {
+    if (keyringConfig.type === 'raw') {
       if (!app.masterKey) {
         throw new Error('Master key not set')
       }
 
-      const kek = generateKeyEncryptionKey(keyring.masterPassword, app.id)
+      const kek = generateKeyEncryptionKey(keyringConfig.masterPassword, app.id)
       const unencryptedMasterKey = await decryptMasterKey(kek, toBytes(app.masterKey))
 
       return {
@@ -51,6 +51,10 @@ export class EncryptionModuleOptionFactory {
           wrappingSuite: ENCRYPTION_WRAPPING_SUITE
         })
       }
+    } else if (keyringConfig.type === 'awskms') {
+      // We have AWS KMS config so we'll use that instead as the MasterKey, which means we don't need a KEK separately
+      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.masterAwsKmsArn })
+      return { keyring }
     }
 
     throw new Error('Unsupported keyring type')

@@ -79,8 +79,10 @@ export class ProvisionService {
       const masterKey = await generateMasterKey(kek)
 
       return await this.engineService.save({ ...engine, masterKey })
+    } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
+      this.logger.log('Using AWS KMS for encryption')
     } else {
-      throw new ProvisionException('Unsupported keyring type', { type: keyring.type })
+      throw new ProvisionException('Unsupported keyring type')
     }
     return engine
   }
