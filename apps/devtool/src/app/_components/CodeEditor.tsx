@@ -6,7 +6,7 @@ import { FC, useRef } from 'react'
 interface CodeEditorProps {
   value: string | undefined
   readOnly?: boolean
-  onChange: (value: string | undefined) => void
+  onChange?: (value: string | undefined) => void
 }
 
 const CodeEditor: FC<CodeEditorProps> = ({ value, readOnly = false, onChange }) => {
