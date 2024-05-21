@@ -1,6 +1,6 @@
-import { Jwk } from '@narval/signature'
+import { Jwk, PublicKey } from '@narval/signature'
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateClientDto {
   @IsString()
@@ -30,4 +30,12 @@ export class CreateClientDto {
   @IsOptional()
   @ApiPropertyOptional()
   baseUrl?: string
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional()
+  allowKeyExport?: boolean
+
+  @IsOptional()
+  backupPublicKey?: PublicKey
 }

@@ -11,6 +11,10 @@ export const Client = z.object({
   issuer: z.string().optional(),
   maxTokenAge: z.number().optional(),
 
+  // Backup key export options.
+  backupPublicKey: publicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
+
   // Override if you want to use a different baseUrl for a single client.
   baseUrl: z.string().optional(),
 
@@ -33,9 +37,23 @@ export const Wallet = z.object({
     .string()
     .regex(/^(0x)?([A-Fa-f0-9]{64})$/)
     .transform((val: string): Hex => val as Hex),
+  publicKey: z
+    .string()
+    .regex(/^(0x)?([A-Fa-f0-9]{128})$/)
+    .transform((val: string): Hex => val as Hex),
   address: z
     .string()
     .regex(/^0x([A-Fa-f0-9]{40})$/)
-    .transform((val: string): Hex => val as Hex)
+    .transform((val: string): Hex => val as Hex),
+  // root seed key id
+  keyId: z.string().min(1).optional(),
+  // If this is derived from a root seed key, this is the derivation path
+  derivationPath: z.string().min(1).optional()
 })
 export type Wallet = z.infer<typeof Wallet>
+
+export const RootKey = z.object({
+  keyId: z.string().min(1),
+  mnemonic: z.string().min(1)
+})
+export type RootKey = z.infer<typeof RootKey>

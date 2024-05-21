@@ -1,5 +1,14 @@
 import { Hex } from '@narval/policy-engine-shared'
-import { Alg, RsaPrivateKey, RsaPublicKey, generateJwk, rsaDecrypt, rsaPrivateKeyToPublicKey } from '@narval/signature'
+import {
+  Alg,
+  RsaPrivateKey,
+  RsaPublicKey,
+  generateJwk,
+  privateKeyToJwk,
+  publicKeyToHex,
+  rsaDecrypt,
+  rsaPrivateKeyToPublicKey
+} from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
@@ -34,10 +43,11 @@ export class ImportService {
     })
     const address = privateKeyToAddress(privateKey)
     const id = walletId || this.generateWalletId(address)
-
+    const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
     const wallet = await this.walletRepository.save(clientId, {
       id,
       privateKey,
+      publicKey,
       address
     })
 
