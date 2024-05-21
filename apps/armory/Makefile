@@ -61,7 +61,6 @@ armory/db/setup:
 			--schema ${ARMORY_DATABASE_SCHEMA} \
 			--force
 	make armory/db/seed
-	make armory/test/db/setup
 
 armory/db/migrate/deploy:
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \

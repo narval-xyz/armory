@@ -1,4 +1,4 @@
-import { jwkSchema, publicKeySchema } from '@narval/signature'
+import { jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 import { entitiesSchema } from '../schema/entity.schema'
 import { policySchema } from '../schema/policy.schema'
@@ -35,7 +35,7 @@ export const DataStoreConfiguration = z.object({
   // amount changes, we must ensure the AS takes it into consideration.
   // See
   // - The `save` method in the apps/armory/src/client/core/service/client.service.ts
-  keys: z.array(publicKeySchema).min(1).max(1)
+  keys: z.array(jwkSchema).min(1).max(1)
 })
 export type DataStoreConfiguration = z.infer<typeof DataStoreConfiguration>
 
