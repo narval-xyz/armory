@@ -1,5 +1,5 @@
 import { DataStoreConfiguration } from '@narval/policy-engine-shared'
-import { publicKeySchema } from '@narval/signature'
+import { jwkSchema, publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const PolicyEngineNode = z.object({
@@ -19,8 +19,8 @@ export const Client = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   dataStore: z.object({
-    entityPublicKey: publicKeySchema,
-    policyPublicKey: publicKeySchema
+    entityPublicKey: jwkSchema,
+    policyPublicKey: jwkSchema
   }),
   policyEngine: z.object({
     nodes: z.array(PolicyEngineNode)
