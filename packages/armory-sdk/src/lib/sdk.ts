@@ -242,7 +242,7 @@ export const setEntities = async (
   const entity: EntityStore = { data, signature }
 
   try {
-    const res = await axios.post(config.entityStoreHost, { entity }, { headers })
+    const res = await axios.post(config.entityStoreHost, entity, { headers })
 
     if (res.status !== 200) {
       throw new NarvalSdkException('Failed to set entities', {
@@ -283,7 +283,7 @@ export const setPolicies = async (
   const policy: PolicyStore = { data, signature }
 
   try {
-    const res = await axios.post(config.policyStoreHost, { policy }, { headers })
+    const res = await axios.post(config.policyStoreHost, policy, { headers })
 
     if (res.status !== 200) {
       throw new NarvalSdkException('Failed to set policies', {
