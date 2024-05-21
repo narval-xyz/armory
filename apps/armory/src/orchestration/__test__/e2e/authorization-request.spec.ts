@@ -61,9 +61,9 @@ describe('Authorization Request', () => {
     authzRequestRepository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     authzRequestProcessingQueue = module.get<Queue>(getQueueToken(AUTHORIZATION_REQUEST_PROCESSING_QUEUE))
 
-    // Pauses the processing queue because to simplify the test. Here we want
-    // to make sure jobs are added to the queue. The processing correctness is
-    // covered by the consumer integration test.
+    // Pauses the processing queue to simplify the test. Here we want to make
+    // sure jobs are added to the queue not the processing. The processing
+    // correctness is covered by the consumer integration test.
     await authzRequestProcessingQueue.pause()
 
     app = module.createNestApplication()
