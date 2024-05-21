@@ -1,4 +1,4 @@
-import { Policy, PolicyStore } from '@narval/policy-engine-shared'
+import { PolicyStore } from '@narval/policy-engine-shared'
 import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientRepository } from '../../persistence/repository/client.repository'
@@ -6,7 +6,7 @@ import { PolicyDataStoreRepository } from '../../persistence/repository/policy-d
 import { SignatureService } from './signature.service'
 
 @Injectable()
-export class PolicyDataStoreService extends SignatureService<Policy[]> {
+export class PolicyDataStoreService extends SignatureService {
   constructor(
     private policyDataStoreRepository: PolicyDataStoreRepository,
     private clientRepository: ClientRepository

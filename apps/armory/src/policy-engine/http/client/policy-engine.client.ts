@@ -1,3 +1,4 @@
+import { ConfigService } from '@narval/config-module'
 import {
   CreateClient,
   EvaluationRequest,
@@ -8,6 +9,7 @@ import {
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
+import { Config } from '../../../armory.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
 export class PolicyEngineClientException extends ApplicationException {}
@@ -16,7 +18,10 @@ export class PolicyEngineClientException extends ApplicationException {}
 export class PolicyEngineClient {
   private logger = new Logger(PolicyEngineClient.name)
 
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private configService: ConfigService<Config>
+  ) {}
 
   async evaluate(option: {
     host: string
@@ -72,8 +77,7 @@ export class PolicyEngineClient {
           data: option.data,
           headers: {
             ...this.getHeaders(option),
-            // TODO: Demo
-            'x-api-key': '7261e7447c8528e3ab2e0f7a801aa4f1cf5e69a6c0007077da5eb26714060011'
+            'x-api-key': this.configService.get('policyEngine.adminApiKey')
           }
         })
         .pipe(

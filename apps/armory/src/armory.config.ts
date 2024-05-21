@@ -11,7 +11,10 @@ const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
   cors: z.array(z.string()).optional(),
-  policyEngineUrl: z.string().url(),
+  policyEngine: z.object({
+    url: z.string().url(),
+    adminApiKey: z.string().optional()
+  }),
   database: z.object({
     url: z.string().startsWith('postgresql://')
   }),
@@ -32,7 +35,10 @@ export const load = (): Config => {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
     cors: process.env.CORS ? process.env.CORS.split(',') : [],
-    policyEngineUrl: process.env.POLICY_ENGINE_URL,
+    policyEngine: {
+      url: process.env.POLICY_ENGINE_URL,
+      adminApiKey: process.env.POLICY_ENGINE_ADMIN_API_KEY
+    },
     database: {
       url: process.env.APP_DATABASE_URL
     },
