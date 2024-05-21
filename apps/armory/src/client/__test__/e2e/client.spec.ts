@@ -114,7 +114,7 @@ describe('Client', () => {
     }
 
     it('creates a new client with a default policy engines', async () => {
-      mockPolicyEngineServer(configService.get('policyEngineUrl'), clientId)
+      mockPolicyEngineServer(configService.get('policyEngine.url'), clientId)
 
       const { status, body } = await request(app.getHttpServer()).post('/clients').send(createClientPayload)
 
