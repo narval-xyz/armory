@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { VALIDATION_PIPES } from '../armory.constant'
+import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
 import { PolicyEngineModule } from '../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { ClientService } from './core/service/client.service'
@@ -13,7 +13,7 @@ const DOMAIN_MODULES = [PolicyEngineModule]
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],
   controllers: [ClientController],
-  providers: [ClientService, ClientRepository, ...VALIDATION_PIPES],
+  providers: [...DEFAULT_HTTP_MODULE_PROVIDERS, ClientService, ClientRepository],
   exports: [ClientService]
 })
 export class ClientModule {}

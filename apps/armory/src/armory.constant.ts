@@ -12,7 +12,7 @@ import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 // Providers
 //
 
-export const VALIDATION_PIPES = [
+export const HTTP_VALIDATION_PIPES = [
   {
     provide: APP_PIPE,
     // Enable transformation after validation for HTTP response serialization.
@@ -24,7 +24,7 @@ export const VALIDATION_PIPES = [
   }
 ]
 
-export const EXCEPTION_FILTERS = [
+export const HTTP_EXCEPTION_FILTERS = [
   {
     provide: APP_FILTER,
     useClass: ApplicationExceptionFilter
@@ -35,13 +35,13 @@ export const EXCEPTION_FILTERS = [
   }
 ]
 
-export const DEFAULT_MODULE_PROVIDERS = [
+export const DEFAULT_HTTP_MODULE_PROVIDERS = [
   {
     provide: APP_INTERCEPTOR,
     useClass: ClassSerializerInterceptor
   },
-  ...EXCEPTION_FILTERS,
-  ...VALIDATION_PIPES
+  ...HTTP_EXCEPTION_FILTERS,
+  ...HTTP_VALIDATION_PIPES
 ]
 
 //
