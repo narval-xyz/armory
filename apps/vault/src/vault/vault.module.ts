@@ -53,10 +53,7 @@ import { VaultService } from './vault.service'
     WalletRepository,
     {
       provide: APP_PIPE,
-      useFactory: () =>
-        new ValidationPipe({
-          transform: true
-        })
+      useFactory: () => new ValidationPipe({ transform: true })
     },
     {
       provide: APP_FILTER,

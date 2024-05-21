@@ -1,5 +1,5 @@
+import { ConfigService } from '@narval/config-module'
 import { ArgumentsHost, Catch, ExceptionFilter, LogLevel, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { Config, Env } from '../../armory.config'
 import { ApplicationException } from '../../shared/exception/application.exception'
@@ -8,7 +8,7 @@ import { ApplicationException } from '../../shared/exception/application.excepti
 export class ApplicationExceptionFilter implements ExceptionFilter {
   private logger = new Logger(ApplicationExceptionFilter.name)
 
-  constructor(private configService: ConfigService<Config, true>) {}
+  constructor(private configService: ConfigService<Config>) {}
 
   catch(exception: ApplicationException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

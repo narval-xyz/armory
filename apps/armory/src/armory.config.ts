@@ -1,3 +1,4 @@
+import { hexSchema } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export enum Env {
@@ -10,6 +11,10 @@ const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
   cors: z.array(z.string()).optional(),
+  policyEngine: z.object({
+    url: z.string().url(),
+    adminApiKey: z.string().optional()
+  }),
   database: z.object({
     url: z.string().startsWith('postgresql://')
   }),
@@ -18,8 +23,8 @@ const configSchema = z.object({
     port: z.coerce.number()
   }),
   dataFeed: z.object({
-    priceFeedPrivateKey: z.string().startsWith('0x'),
-    historicalTransferFeedPrivateKey: z.string().startsWith('0x')
+    priceFeedPrivateKey: hexSchema,
+    historicalTransferFeedPrivateKey: hexSchema
   })
 })
 
@@ -30,6 +35,10 @@ export const load = (): Config => {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
     cors: process.env.CORS ? process.env.CORS.split(',') : [],
+    policyEngine: {
+      url: process.env.POLICY_ENGINE_URL,
+      adminApiKey: process.env.POLICY_ENGINE_ADMIN_API_KEY
+    },
     database: {
       url: process.env.APP_DATABASE_URL
     },

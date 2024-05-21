@@ -1,4 +1,4 @@
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule } from '@narval/config-module'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'

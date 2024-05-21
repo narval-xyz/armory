@@ -1,7 +1,7 @@
+import { ConfigModule } from '@narval/config-module'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
 import { Queue } from 'bull'
@@ -61,6 +61,11 @@ describe('Authorization Request', () => {
     authzRequestRepository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     authzRequestProcessingQueue = module.get<Queue>(getQueueToken(AUTHORIZATION_REQUEST_PROCESSING_QUEUE))
 
+    // Pauses the processing queue to simplify the test. Here we want to make
+    // sure jobs are added to the queue not the processing. The processing
+    // correctness is covered by the consumer integration test.
+    await authzRequestProcessingQueue.pause()
+
     app = module.createNestApplication()
 
     await app.init()
@@ -68,7 +73,7 @@ describe('Authorization Request', () => {
 
   afterAll(async () => {
     await testPrismaService.truncateAll()
-    await authzRequestProcessingQueue.empty()
+    await authzRequestProcessingQueue.resume()
     await module.close()
     await app.close()
   })

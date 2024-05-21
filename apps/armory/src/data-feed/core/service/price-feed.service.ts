@@ -1,8 +1,8 @@
+import { ConfigService } from '@narval/config-module'
 import { Action, AssetId, Feed, JwtString } from '@narval/policy-engine-shared'
 import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { uniq } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
@@ -19,7 +19,7 @@ export class PriceFeedService implements DataFeed<Prices> {
 
   constructor(
     private priceService: PriceService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {}
 
   getId(): string {
@@ -56,7 +56,7 @@ export class PriceFeedService implements DataFeed<Prices> {
     // TODO (@wcalderipe, 02/02/24): Storing the private key in environment
     // variables is a suitable approach for initial project setup. However, for
     // production environments, it's crucial to secure them in a vault.
-    return this.configService.get('dataFeed.priceFeedPrivateKey', { infer: true })
+    return this.configService.get('dataFeed.priceFeedPrivateKey')
   }
 
   async getFeed(input: AuthorizationRequest): Promise<Feed<Prices>> {
