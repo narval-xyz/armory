@@ -1,7 +1,7 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk } from '@narval/signature'
+import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
@@ -29,7 +29,7 @@ describe(ClientService.name, () => {
   const dataStoreConfiguration: DataStoreConfiguration = {
     data: dataStoreSource,
     signature: dataStoreSource,
-    keys: []
+    keys: [getPublicKey(privateKeyToJwk(generatePrivateKey()))]
   }
 
   const client: Client = {
