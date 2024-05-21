@@ -10,14 +10,7 @@ import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd,
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
-import {
-  EngineClientConfig,
-  JwsdHeaderArgs,
-  SdkEvaluationResponse,
-  SdkPermitResponse,
-  SignAccountJwsdArgs,
-  VaultClientConfig
-} from './domain'
+import { EngineClientConfig, JwsdHeaderArgs, SdkEvaluationResponse, SignAccountJwsdArgs } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './http/schema'
 
@@ -118,7 +111,7 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
           authClientId: config.authClientId
         })
       }
-      return SdkPermitResponse.parse(data)
+      return SdkEvaluationResponse.parse(data)
     case Decision.FORBID:
       throw new ForbiddenException('Host denied access', {
         evaluation: data,

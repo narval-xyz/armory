@@ -1,13 +1,24 @@
-import NarCopyButton from '../_design-system/NarCopyButton'
+'use client'
 
-const ValueWithCopy = ({ label, value }: { label: string; value: string }) => {
+import NarCopyButton from '../_design-system/NarCopyButton'
+import { classNames } from '../_lib/utils'
+
+const ValueWithCopy = ({
+  label,
+  value,
+  layout = 'vertical'
+}: {
+  label: string
+  value: string
+  layout?: 'horizontal' | 'vertical'
+}) => {
   if (!value) return null
 
   return (
-    <div className="flex flex-col gap-[16px] text-nv-xs">
-      <div className="underline">{label}</div>
+    <div className={classNames('flex gap-[8px]', layout === 'horizontal' ? 'flex-row items-center' : 'flex-col')}>
+      <div className="underline text-nv-xs">{label}:</div>
       <div className="flex items-center gap-[8px]">
-        <p className="truncate">{value}</p>
+        <p className="truncate text-nv-xs">{value}</p>
         <NarCopyButton copy={value} isIconBtn />
       </div>
     </div>

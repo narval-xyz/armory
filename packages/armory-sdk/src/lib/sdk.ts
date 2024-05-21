@@ -36,7 +36,6 @@ import {
   buildBasicEngineHeaders,
   buildDataPayload,
   buildGnapVaultHeaders,
-  checkDecision,
   getChainOrThrow,
   resourceId,
   signAccountJwsd,
@@ -106,7 +105,7 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
     request: body
   })
 
-  return checkDecision(data, config)
+  return SdkEvaluationResponse.parse(data)
 }
 
 /**
@@ -119,7 +118,7 @@ export const evaluate = async (config: EngineClientConfig, request: Request): Pr
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
-): Promise<ImportPrivateKeyResponse> => {
+): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
   const walletId = resourceId(request.walletId || privateKeyToAddress(request.privateKey))
 
   const validatedRequest = {
@@ -133,7 +132,12 @@ export const importPrivateKey = async (
     nonce: v4(),
     permissions: [Permission.WALLET_CREATE]
   }
-  const { accessToken } = await evaluate(config, grantPermissionRequest)
+  const evaluationResponse = await evaluate(config, grantPermissionRequest)
+  const { accessToken } = evaluationResponse
+
+  if (!accessToken) {
+    return SdkEvaluationResponse.parse(evaluationResponse)
+  }
 
   const uri = `${config.vaultHost}${Endpoints.vault.importPrivateKey}`
 
@@ -154,6 +158,7 @@ export const importPrivateKey = async (
     headers,
     request: validatedRequest
   })
+
   return data
 }
 
@@ -325,22 +330,28 @@ export const signData = async (config: EngineClientConfig, data: unknown): Promi
 export const sendTransaction = async (
   config: ArmoryClientConfig,
   transactionRequest: TransactionRequest
-): Promise<Hex> => {
+): Promise<Hex | SdkEvaluationResponse> => {
   const request: SignTransactionAction = {
     action: Action.SIGN_TRANSACTION,
     resourceId: resourceId(transactionRequest.from),
     nonce: v4(),
     transactionRequest
   }
-  const { accessToken } = await evaluate(config, request)
+  const evaluationResponse = await evaluate(config, request)
+  const { accessToken } = evaluationResponse
+
+  if (!accessToken) {
+    return SdkEvaluationResponse.parse(evaluationResponse)
+  }
+
   const { signature } = await signRequest(config, { request, accessToken })
 
   const chain = getChainOrThrow(transactionRequest.chainId)
+
   const publicClient = createPublicClient({
     transport: http(),
     chain
   })
 
-  const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature })
-  return hash
+  return publicClient.sendRawTransaction({ serializedTransaction: signature })
 }

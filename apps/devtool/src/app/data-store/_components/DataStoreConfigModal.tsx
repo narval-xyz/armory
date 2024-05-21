@@ -20,7 +20,7 @@ const initForm: EngineConfigForm = {
   clientSecret: ''
 }
 
-const EngineConfigModal = () => {
+const DataStoreConfigModal = () => {
   const { engineUrl, engineClientId, engineClientSecret, setEngineUrl, setEngineClientId, setEngineClientSecret } =
     useStore()
 
@@ -83,4 +83,4 @@ const EngineConfigModal = () => {
   )
 }
 
-export default EngineConfigModal
+export default DataStoreConfigModal

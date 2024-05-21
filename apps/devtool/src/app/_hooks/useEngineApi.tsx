@@ -39,11 +39,11 @@ const useEngineApi = () => {
     }
   }, [authHost, authClientId, authSecret, jwk, signer])
 
-  const ping = async () => {
+  const ping = () => {
     if (!sdkEngineConfig) return
 
     try {
-      await pingEngine(sdkEngineConfig)
+      return pingEngine(sdkEngineConfig)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -120,7 +120,7 @@ const useEngineApi = () => {
     }
   }
 
-  const evaluateRequest = async ({ request }: EvaluationRequest) => {
+  const evaluateRequest = ({ request }: EvaluationRequest) => {
     if (!sdkEngineConfig) return
 
     try {
