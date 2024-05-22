@@ -34,6 +34,10 @@ export class EngineService {
   }
 
   async save(engine: Engine): Promise<Engine> {
+    console.log({
+      adminApiKey: engine.adminApiKey,
+      hash: secret.hash(engine.adminApiKey)
+    })
     await this.engineRepository.save({
       ...engine,
       adminApiKey: secret.hash(engine.adminApiKey)

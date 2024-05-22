@@ -37,15 +37,18 @@ export class ProvisionService {
     return engine
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time
-  // This enables you to provision the engine at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
+  // Activate is just a boolean that lets you return the adminApiKey one time.
+  // This enables you to provision the engine at first-boot without access to
+  // the console, then to activate it to retrieve the api key through a REST
+  // endpoint.
   async activate(): Promise<Engine> {
     this.logger.log('Activate app')
     const engine = await this.engineService.getEngineOrThrow()
+    console.log('activate', engine)
     return this.engineService.save({
       ...engine,
       activated: true,
-      adminApiKey: secret.generate()
+      adminApiKey: this.getOrGenerateAdminApiKey()
     })
   }
 
@@ -54,8 +57,8 @@ export class ProvisionService {
 
     const app = await this.engineService.save({
       id: this.getEngineId(),
-      adminApiKey: secret.generate(),
-      activated: !!activate
+      activated: !!activate,
+      adminApiKey: this.getOrGenerateAdminApiKey()
     })
     return app
   }
@@ -63,6 +66,8 @@ export class ProvisionService {
   private async maybeSetupEncryption(): Promise<Engine> {
     // Get the engine's latest state.
     const engine = await this.engineService.getEngineOrThrow()
+
+    console.log('maybeSetupEncryption', engine)
 
     if (engine.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
@@ -78,6 +83,7 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getEngineId())
       const masterKey = await generateMasterKey(kek)
 
+      // WARN: This save hashes the key twice.
       return await this.engineService.save({ ...engine, masterKey })
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
@@ -85,6 +91,10 @@ export class ProvisionService {
       throw new ProvisionException('Unsupported keyring type')
     }
     return engine
+  }
+
+  private getOrGenerateAdminApiKey(): string {
+    return this.configService.get('adminApiKey') || secret.generate()
   }
 
   private getEngineId(): string {

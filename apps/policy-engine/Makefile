@@ -18,7 +18,7 @@ policy-engine/setup:
 	make policy-engine/rego/build
 	make policy-engine/db/setup
 	make policy-engine/test/db/setup
-	make policy-engine/cli CMD=provision
+#	make policy-engine/cli CMD=provision
 
 policy-engine/copy-default-env:
 	cp ${POLICY_ENGINE_PROJECT_DIR}/.env.default ${POLICY_ENGINE_PROJECT_DIR}/.env
