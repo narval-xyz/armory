@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common'
 import { load } from '../armory.config'
 import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
 import { ClientModule } from '../client/client.module'
-import { OrchestrationModule } from '../orchestration/orchestration.module'
+import { PolicyEngineModule } from '../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { EntityDataStoreService } from './core/service/entity-data-store.service'
 import { PolicyDataStoreService } from './core/service/policy-data-store.service'
@@ -20,7 +20,7 @@ const INFRASTRUCTURE_MODULES = [
   PersistenceModule
 ]
 
-const DOMAIN_MODULES = [OrchestrationModule, ClientModule]
+const DOMAIN_MODULES = [ClientModule, PolicyEngineModule]
 
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],

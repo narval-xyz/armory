@@ -30,7 +30,6 @@ export class ClientService {
     const nodes = await this.clusterService.create({
       clientId,
       nodes: input.policyEngine.nodes,
-      // TODO: Use the same data structure from the input
       entityDataStore: input.dataStore.entity,
       policyDataStore: input.dataStore.policy
     })
