@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { ConfigService } from '@nestjs/config'
+import { ConfigService } from '@narval/config-module'
 import { Command, CommandRunner } from 'nest-commander'
 import { Config } from '../../main.config'
 import { AppService } from '../../vault/core/service/app.service'
@@ -14,7 +14,7 @@ export class ProvisionCommand extends CommandRunner {
   constructor(
     private provisionService: ProvisionService,
     private appService: AppService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {
     super()
   }
@@ -30,7 +30,7 @@ export class ProvisionCommand extends CommandRunner {
       app = await this.provisionService.provision(true)
       if (!app) throw new Error('Provision failed')
 
-      const keyring = this.configService.get('keyring', { infer: true })
+      const keyring = this.configService.get('keyring')
 
       console.log('App ID:', app.id)
       console.log('App admin API key:', app.adminApiKey)

@@ -1,7 +1,7 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpLoggerMiddleware } from '@narval/nestjs-shared'
 import { MiddlewareConsumer, Module, NestModule, OnModuleInit, ValidationPipe, forwardRef } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { ClientModule } from './client/client.module'

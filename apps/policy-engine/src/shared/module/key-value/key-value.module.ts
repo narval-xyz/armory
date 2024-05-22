@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { Module, forwardRef } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { EngineModule } from '../../../engine/engine.module'
 import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'
