@@ -39,7 +39,7 @@ export const Wallet = z.object({
     .transform((val: string): Hex => val as Hex),
   publicKey: z
     .string()
-    .regex(/^(0x)?([A-Fa-f0-9]{128})$/)
+    .regex(/^(0x)?([A-Fa-f0-9]{130})$/)
     .transform((val: string): Hex => val as Hex),
   address: z
     .string()

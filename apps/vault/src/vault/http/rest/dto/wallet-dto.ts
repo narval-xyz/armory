@@ -1,16 +1,15 @@
 import { Hex } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEthereumAddress, IsString } from 'class-validator'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
+import { IsEthereumAddress, IsOptional, IsString } from 'class-validator'
 import { publicKeyToAddress } from 'viem/utils'
-import { buildDerivePath } from '../../../core/utils/key-generation'
+import { Wallet } from '../../../../../src/shared/type/domain.type'
 
 export class WalletDto {
-  constructor(publicKey: Hex, derivationPath?: string, resourceIdValue?: string, address?: Hex) {
+  constructor({ publicKey, address, id, derivationPath }: Wallet) {
     this.publicKey = publicKey
-    this.derivationPath = derivationPath || buildDerivePath({})
+    this.derivationPath = derivationPath
     this.address = address || publicKeyToAddress(publicKey)
-    this.resourceId = resourceIdValue || resourceId(this.address)
+    this.resourceId = id
   }
 
   @IsString()
@@ -26,6 +25,7 @@ export class WalletDto {
   address: Hex
 
   @IsString()
+  @IsOptional()
   @ApiProperty()
-  derivationPath: string
+  derivationPath?: string
 }

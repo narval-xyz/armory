@@ -1,24 +1,13 @@
-import { Hex } from '@narval/policy-engine-shared'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsString } from 'class-validator'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
+import { Wallet } from '../../../../shared/type/domain.type'
 import { WalletDto } from './wallet-dto'
 
 export class GenerateKeyResponseDto {
-  constructor({
-    publicKey,
-    keyId,
-    derivationPath,
-    backup
-  }: {
-    publicKey: Hex
-    keyId?: string
-    derivationPath?: string
-    backup?: string
-  }) {
+  constructor({ wallet, rootKeyId, backup }: { wallet: Wallet; rootKeyId: string; backup?: string }) {
     this.backup = backup
-    this.keyId = keyId || resourceId(publicKey)
-    this.wallet = new WalletDto(publicKey, derivationPath)
+    this.keyId = rootKeyId
+    this.wallet = new WalletDto(wallet)
   }
 
   @IsString()

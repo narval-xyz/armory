@@ -3,7 +3,7 @@ import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { HDOptions, Hex, toHex } from 'viem'
-import { privateKeyToAddress } from 'viem/accounts'
+import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Wallet } from '../../../shared/type/domain.type'
 
@@ -12,7 +12,29 @@ export const buildDerivePath = (opts: HDOptions) => {
   return path || `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`
 }
 
-export const HdKeyToWallet = async (key: HDKey, path: string): Promise<Wallet> => {
+export const HdKeyToKid = (key: HDKey): string => {
+  if (key.privateKey) {
+    const privateKey = toHex(key.privateKey).toLowerCase() as Hex
+    const address = privateKeyToAddress(privateKey).toLowerCase() as Hex
+
+    return addressToKid(address)
+  }
+
+  if (key.publicKey) {
+    const publicKey = toHex(key.publicKey).toLowerCase() as Hex
+    const address = publicKeyToAddress(publicKey).toLowerCase() as Hex
+
+    return addressToKid(address)
+  }
+
+  throw new ApplicationException({
+    message: 'HDKey does not have a private or a public key',
+    suggestedHttpStatusCode: 500,
+    context: { key }
+  })
+}
+
+export const HdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<Wallet> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
@@ -25,23 +47,26 @@ export const HdKeyToWallet = async (key: HDKey, path: string): Promise<Wallet> =
   const address = privateKeyToAddress(privateKey).toLowerCase() as Hex
   const privateJwk = privateKeyToJwk(privateKey)
   const publicKey = await publicKeyToHex(privateJwk)
-  const keyId = addressToKid(address)
 
   return {
     id: resourceId(address),
     privateKey,
     publicKey,
     address,
-    keyId,
+    keyId: kid,
     derivationPath: path
   }
 }
 
-export const mnemonicToWallet = async (mnemonic: string, opts: HDOptions = {}): Promise<Wallet> => {
+export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   const seed = mnemonicToSeedSync(mnemonic)
-  const hdKey = HDKey.fromMasterSeed(seed)
+  return HDKey.fromMasterSeed(seed)
+}
+
+export const deriveWallet = async (rootKey: HDKey, opts: HDOptions = {}): Promise<Wallet> => {
   const path = buildDerivePath(opts)
-  const derivedKey = hdKey.derive(path)
-  const wallet = await HdKeyToWallet(derivedKey, path)
+  const derivedKey = rootKey.derive(path)
+  const kid = HdKeyToKid(rootKey)
+  const wallet = await HdKeyToWallet(derivedKey, path, kid)
   return wallet
 }

@@ -14,9 +14,8 @@ export class GenerateController {
 
   @Post('/generate-key')
   async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
-    const { publicKey, keyId, derivationPath } = await this.keyGenService.generateMnemonic(clientId, body)
-
-    const response = new GenerateKeyResponseDto({ publicKey, keyId, derivationPath })
+    const { wallet, rootKeyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
+    const response = new GenerateKeyResponseDto({ wallet, rootKeyId, backup })
 
     return response
   }

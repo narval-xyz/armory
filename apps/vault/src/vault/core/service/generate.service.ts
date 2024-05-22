@@ -1,28 +1,92 @@
-import { Logger } from '@nestjs/common'
+import { Jwk, RsaKey, hash, rsaEncrypt, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
+import { Injectable, Logger } from '@nestjs/common'
 import { english, generateMnemonic } from 'viem/accounts'
+import { ClientService } from '../../../client/core/service/client.service'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { Wallet } from '../../../shared/type/domain.type'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { MnemonicRepository } from '../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { mnemonicToWallet } from '../utils/key-generation'
+import { HdKeyToKid, deriveWallet, mnemonicToRootKey } from '../utils/key-generation'
 
+@Injectable()
 export class KeyGenerationService {
   private logger = new Logger(KeyGenerationService.name)
 
   constructor(
     private walletRepository: WalletRepository,
-
-    private mnemonicRepository: MnemonicRepository
+    private mnemonicRepository: MnemonicRepository,
+    private prismaService: PrismaService,
+    private clientService: ClientService
   ) {}
 
-  async generateMnemonic(clientId: string, opts: GenerateKeyDto): Promise<Wallet> {
+  async #saveBackup(clientId: string, keyId: string, backupPublicKeyHash: string, data: string): Promise<void> {
+    await this.prismaService.backup.create({
+      data: {
+        clientId,
+        backupPublicKeyHash,
+        keyId,
+        data
+      }
+    })
+  }
+
+  async #maybeEncryptAndSaveBackup(
+    clientId: string,
+    kid: string,
+    mnemonic: string,
+    backupPublicKey?: Jwk
+  ): Promise<string | undefined> {
+    if (!backupPublicKey) {
+      this.logger.log('No backup public key provided', { clientId })
+      return
+    }
+    if (
+      rsaPublicKeySchema.safeParse(backupPublicKey).success === false &&
+      rsaPrivateKeySchema.safeParse(backupPublicKey).success === false
+    ) {
+      this.logger.error('Invalid backup public key provided. Need an RSA key', { clientId })
+      return
+    }
+    const backupPublicKeyHash = hash(backupPublicKey)
+    const data = await rsaEncrypt(mnemonic, backupPublicKey as RsaKey)
+    await this.#saveBackup(clientId, kid, backupPublicKeyHash, data)
+    return data
+  }
+
+  async #saveMnemonic(clientId: string, kid: string, mnemonic: string): Promise<string | undefined> {
+    const client = await this.clientService.findById(clientId)
+    const backup = await this.#maybeEncryptAndSaveBackup(clientId, kid, mnemonic, client?.backupPublicKey)
+
+    await this.mnemonicRepository.save(clientId, {
+      keyId: kid,
+      mnemonic
+    })
+    return backup
+  }
+
+  async generateMnemonic(
+    clientId: string,
+    opts: GenerateKeyDto
+  ): Promise<{
+    wallet: Wallet
+    rootKeyId: string
+    backup?: string
+  }> {
     const mnemonic = generateMnemonic(english)
+    const rootKey = mnemonicToRootKey(mnemonic)
 
-    this.logger.log(`Generated mnemonic for client ${clientId}`)
-    this.logger.log(`Mnemonic: ${mnemonic}`)
-    this.logger.log(`Opts: ${opts}`)
+    const rootKeyId = opts.keyId || HdKeyToKid(rootKey)
 
-    const wallet = mnemonicToWallet(mnemonic)
-    return wallet
+    const backup = await this.#saveMnemonic(clientId, rootKeyId, mnemonic)
+
+    const firstWallet = await deriveWallet(rootKey)
+    await this.walletRepository.save(clientId, firstWallet)
+
+    return {
+      wallet: firstWallet,
+      rootKeyId,
+      backup
+    }
   }
 }

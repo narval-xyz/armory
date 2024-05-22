@@ -21,6 +21,17 @@ model Vault {
   @@map("vault")
 }
 
+model Backup {
+  id                  String   @id @default(uuid())
+  clientId            String   @map("client_id")
+  backupPublicKeyHash String   @map("backup_public_key_hash") // sha256 of the publicKey that was used to encrypt this backup
+  keyId               String   @map("key_id") // Root Key Id that is backed up
+  data                String // Encrypted backup data, as a jwe string
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("backup")
+}
+
 // TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.
 // See https://www.postgresql.org/docs/9.1/hstore.html
 model KeyValue {
