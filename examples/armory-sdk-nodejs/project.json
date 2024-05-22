@@ -6,9 +6,7 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
@@ -40,17 +38,11 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "examples/armory-sdk-nodejs/**/*.ts"
-        ]
+        "lintFilePatterns": ["examples/armory-sdk-nodejs/**/*.ts"]
       }
     }
   },
-  "tags": [
-    "type:application"
-  ]
+  "tags": ["type:application"]
 }

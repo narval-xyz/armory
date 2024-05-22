@@ -1,5 +1,5 @@
-import { Inject, Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { ConfigService } from '@narval/config-module'
+import { Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/vault'
 import { Config } from '../../../../main.config'
 
@@ -7,8 +7,8 @@ import { Config } from '../../../../main.config'
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
   private logger = new Logger(PrismaService.name)
 
-  constructor(@Inject(ConfigService) configService: ConfigService<Config, true>) {
-    const url = configService.get('database.url', { infer: true })
+  constructor(configService: ConfigService<Config>) {
+    const url = configService.get('database.url')
 
     super({
       datasources: {

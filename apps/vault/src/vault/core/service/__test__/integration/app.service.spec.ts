@@ -1,6 +1,6 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { Config, load } from '../../../../../main.config'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
@@ -12,7 +12,7 @@ import { AppService } from '../../app.service'
 
 describe(AppService.name, () => {
   let appService: AppService
-  let configService: ConfigService<Config, true>
+  let configService: ConfigService<Config>
 
   const app = {
     id: 'test-app-id',
@@ -44,7 +44,7 @@ describe(AppService.name, () => {
     }).compile()
 
     appService = module.get<AppService>(AppService)
-    configService = module.get<ConfigService<Config, true>>(ConfigService)
+    configService = module.get<ConfigService<Config>>(ConfigService)
   })
 
   describe('save', () => {

@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { JwtVerifyOptions, publicKeySchema, verifyJwsd, verifyJwt } from '@narval/signature'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
 import { z } from 'zod'
 import { ClientService } from '../../client/core/service/client.service'
@@ -20,7 +20,7 @@ const DEFAULT_MAX_TOKEN_AGE = 60
 export class AuthorizationGuard implements CanActivate {
   constructor(
     private clientService: ClientService,
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private reflector: Reflector
   ) {}
 
@@ -119,7 +119,7 @@ export class AuthorizationGuard implements CanActivate {
 
       // Will throw if not valid
       try {
-        const defaultBaseUrl = this.configService.get('baseUrl', { infer: true })
+        const defaultBaseUrl = this.configService.get('baseUrl')
         await verifyJwsd(jwsdHeader, boundKey, {
           requestBody: req.body, // Verify the request body
           accessToken: token, // Verify that the ATH matches the access token

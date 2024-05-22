@@ -1,5 +1,5 @@
+import { ConfigModule } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { ConfigModule } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { load } from '../../../../../../../policy-engine.config'
 import { getTestRawAesKeyring } from '../../../../../../../shared/testing/encryption.testing'
