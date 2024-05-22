@@ -9,8 +9,10 @@ import { Wallet } from '../../../../../shared/type/domain.type'
 import { MnemonicRepository } from '../../../../../vault/persistence/repository/mnemonic.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { HdKeyToWallet, buildDerivePath, deriveWallet, mnemonicToRootKey } from '../../../utils/key-generation'
+import { buildDerivePath, deriveWallet, hdKeyToWallet, mnemonicToRootKey } from '../../../utils/key-generation'
 import { KeyGenerationService } from '../../generate.service'
+
+const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 describe('GenerateService', () => {
   let keyGenerationService: KeyGenerationService
@@ -27,7 +29,6 @@ describe('GenerateService', () => {
     keyId: '0x1ad67053dbaa34a78b8f1ce6151677881c79971394d570f7c8fca24bdff7d4f5',
     derivationPath: "m/44'/60'/0'/0/0"
   }
-  const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -168,7 +169,7 @@ describe('GenerateService', () => {
       publicKey: toBytes(await publicKeyToHex(FIXTURE.PUBLIC_KEYS_JWK.Root))
     })
     try {
-      await HdKeyToWallet(hdKey, buildDerivePath({}), 'kid')
+      await hdKeyToWallet(hdKey, buildDerivePath({}), 'kid')
     } catch (error) {
       expect(error).toBeInstanceOf(ApplicationException)
       expect(error.message).toEqual('HDKey does not have a private key')

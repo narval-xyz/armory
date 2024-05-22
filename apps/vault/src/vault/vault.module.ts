@@ -10,6 +10,7 @@ import { ApplicationExceptionFilter } from '../shared/filter/application-excepti
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
+import { PrismaService } from '../shared/module/persistence/service/prisma.service'
 import { AppService } from './core/service/app.service'
 import { KeyGenerationService } from './core/service/generate.service'
 import { ImportService } from './core/service/import.service'
@@ -21,7 +22,9 @@ import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
+import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
+import { MnemonicRepository } from './persistence/repository/mnemonic.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
@@ -52,8 +55,11 @@ import { VaultService } from './vault.service'
     ProvisionService,
     SigningService,
     KeyGenerationService,
+    MnemonicRepository,
+    BackupRepository,
     VaultService,
     WalletRepository,
+    PrismaService,
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe({ transform: true })

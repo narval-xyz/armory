@@ -7,12 +7,14 @@ import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Wallet } from '../../../shared/type/domain.type'
 
+type DeriveOptions = HDOptions & { rootKeyId?: string }
+
 export const buildDerivePath = (opts: HDOptions) => {
   const { accountIndex = 0, addressIndex = 0, changeIndex = 0, path } = opts
   return path || `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`
 }
 
-export const HdKeyToKid = (key: HDKey): string => {
+export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
     const privateKey = toHex(key.privateKey).toLowerCase() as Hex
     const address = privateKeyToAddress(privateKey).toLowerCase() as Hex
@@ -34,7 +36,7 @@ export const HdKeyToKid = (key: HDKey): string => {
   })
 }
 
-export const HdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<Wallet> => {
+export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<Wallet> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
@@ -63,10 +65,9 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
-export const deriveWallet = async (rootKey: HDKey, opts: HDOptions = {}): Promise<Wallet> => {
+export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<Wallet> => {
   const path = buildDerivePath(opts)
   const derivedKey = rootKey.derive(path)
-  const kid = HdKeyToKid(rootKey)
-  const wallet = await HdKeyToWallet(derivedKey, path, kid)
+  const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))
   return wallet
 }
