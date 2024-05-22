@@ -1,9 +1,9 @@
 import { LoggerService } from '@nestjs/common'
 
 export class NullLoggerService implements LoggerService {
-  log(message: string): any {}
-  error(message: string, trace: string): any {}
-  warn(message: string): any {}
-  debug(message: string): any {}
-  verbose(message: string): any {}
+  log(_message: string): any {}
+  error(_message: string, _trace: string): any {}
+  warn(_message: string): any {}
+  debug(_message: string): any {}
+  verbose(_message: string): any {}
 }
