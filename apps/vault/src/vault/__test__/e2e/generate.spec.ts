@@ -1,4 +1,5 @@
 import { Permission } from '@narval/armory-sdk'
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
   Payload,
@@ -9,7 +10,6 @@ import {
   signJwt
 } from '@narval/signature'
 import { INestApplication } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -30,7 +30,7 @@ describe('KeyGenerationService', () => {
   let testPrismaService: TestPrismaService
   let appService: AppService
   let clientService: ClientService
-  let configService: ConfigService<Config, true>
+  let configService: ConfigService<Config>
 
   const clientId = uuid()
   const clientSecret = 'test-client-secret'
@@ -85,7 +85,7 @@ describe('KeyGenerationService', () => {
     appService = module.get<AppService>(AppService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     clientService = module.get<ClientService>(ClientService)
-    configService = module.get<ConfigService<Config, true>>(ConfigService)
+    configService = module.get<ConfigService<Config>>(ConfigService)
 
     await app.init()
   })
@@ -100,7 +100,7 @@ describe('KeyGenerationService', () => {
     await testPrismaService.truncateAll()
 
     await appService.save({
-      id: configService.get('app.id', { infer: true }),
+      id: configService.get('app.id'),
       masterKey: 'test-master-key',
       adminApiKey: 'test-admin-api-key',
       activated: true
