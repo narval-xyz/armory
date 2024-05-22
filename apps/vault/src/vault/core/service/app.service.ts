@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
 import { AppRepository } from '../../persistence/repository/app.repository'
@@ -9,7 +9,7 @@ import { AppNotProvisionedException } from '../exception/app-not-provisioned.exc
 @Injectable()
 export class AppService {
   constructor(
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private appRepository: AppRepository
   ) {}
 
@@ -43,6 +43,6 @@ export class AppService {
   }
 
   private getId(): string {
-    return this.configService.get('app.id', { infer: true })
+    return this.configService.get('app.id')
   }
 }

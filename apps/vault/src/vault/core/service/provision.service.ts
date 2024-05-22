@@ -1,7 +1,7 @@
+import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
 import { AppService } from './app.service'
@@ -11,7 +11,7 @@ export class ProvisionService {
   private logger = new Logger(ProvisionService.name)
 
   constructor(
-    private configService: ConfigService<Config, true>,
+    private configService: ConfigService<Config>,
     private appService: AppService
   ) {}
 
@@ -63,7 +63,7 @@ export class ProvisionService {
       return app
     }
 
-    const keyring = this.configService.get('keyring', { infer: true })
+    const keyring = this.configService.get('keyring')
 
     if (keyring.type === 'raw') {
       this.logger.log('Generate and save app master key')
@@ -80,6 +80,6 @@ export class ProvisionService {
   }
 
   private getAppId(): string {
-    return this.configService.get('app.id', { infer: true })
+    return this.configService.get('app.id')
   }
 }

@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { ArgumentsHost, HttpStatus, Logger } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
-import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import { mock } from 'jest-mock-extended'
 import { Config, Env } from '../../../../main.config'
@@ -41,12 +41,13 @@ describe(ApplicationExceptionFilter.name, () => {
   }
 
   const buildConfigServiceMock = (env: Env) =>
-    mock<ConfigService<Config, true>>({
+    mock<ConfigService<Config>>({
       get: jest.fn().mockReturnValue(env)
     })
 
   describe('catch', () => {
-    // Silence the logger in these tests so we don't spam our console w/ errors that are "expected"
+    // Silence the logger in these tests so we don't spam our console w/ errors
+    // that are "expected".
     beforeAll(() => {
       Logger.overrideLogger([])
     })

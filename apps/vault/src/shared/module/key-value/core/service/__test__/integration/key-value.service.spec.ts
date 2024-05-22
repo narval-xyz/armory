@@ -1,4 +1,4 @@
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule } from '@narval/config-module'
 import { Test } from '@nestjs/testing'
 import { load } from '../../../../../../../main.config'
 import { InMemoryKeyValueRepository } from '../../../../persistence/repository/in-memory-key-value.repository'

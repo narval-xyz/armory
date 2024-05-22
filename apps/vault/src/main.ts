@@ -1,8 +1,9 @@
+import { ConfigService } from '@narval/config-module'
 import { withCors, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
+import { Config } from './main.config'
 import { MainModule, ProvisionModule } from './main.module'
 
 /**
@@ -30,12 +31,8 @@ async function bootstrap() {
 
   const logger = new Logger('AppBootstrap')
   const application = await NestFactory.create(MainModule, { bodyParser: true })
-  const configService = application.get(ConfigService)
-  const port = configService.get('PORT')
-
-  if (!port) {
-    throw new Error('Missing PORT environment variable')
-  }
+  const configService = application.get<ConfigService<Config>>(ConfigService)
+  const port = configService.get('port')
 
   await lastValueFrom(
     of(application).pipe(
