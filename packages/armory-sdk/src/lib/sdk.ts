@@ -258,20 +258,10 @@ export const setEntities = async (
         storeResponse: res.data
       })
     }
-  } catch (error) {
-    throw new NarvalSdkException('Failed to set entities', {
-      config,
-      data,
-      error
-    })
-  }
-
-  try {
-    await syncDataStores(config)
 
     return { success: true }
   } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine after setting entities', {
+    throw new NarvalSdkException('Failed to set entities', {
       config,
       data,
       error
@@ -299,20 +289,10 @@ export const setPolicies = async (
         storeResponse: res.data
       })
     }
-  } catch (error) {
-    throw new NarvalSdkException('Failed to set policies', {
-      config,
-      data,
-      error
-    })
-  }
-
-  try {
-    await syncDataStores(config)
 
     return { success: true }
   } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine after setting policies', {
+    throw new NarvalSdkException('Failed to set policies', {
       config,
       data,
       error
