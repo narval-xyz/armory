@@ -21,6 +21,7 @@ export class AuthorizationRequestProcessingConsumer {
 
   @Process()
   async process(job: Job<AuthorizationRequestProcessingJob>) {
+    console.log('#######', job)
     this.logger.log('Processing authorization request job', {
       id: job.id,
       data: job.data
