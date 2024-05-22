@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { NullLoggerService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
 import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -53,6 +53,7 @@ describe('Client', () => {
   let clientService: ClientService
   let configService: ConfigService<Config>
   let testPrismaService: TestPrismaService
+  let policyEngineNodeUrl: string
 
   const clientId = 'test-client-id'
 
@@ -69,13 +70,17 @@ describe('Client', () => {
         }),
         ClientModule
       ]
-    }).compile()
+    })
+      .setLogger(new NullLoggerService())
+      .compile()
 
     app = module.createNestApplication()
 
     clientService = module.get<ClientService>(ClientService)
     configService = module.get<ConfigService<Config>>(ConfigService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+
+    policyEngineNodeUrl = configService.get('policyEngine.nodes')[0].url
 
     await app.init()
   })
@@ -114,7 +119,7 @@ describe('Client', () => {
     }
 
     it('creates a new client with a default policy engines', async () => {
-      mockPolicyEngineServer(configService.get('policyEngine.url'), clientId)
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
 
       const { status, body } = await request(app.getHttpServer()).post('/clients').send(createClientPayload)
 
@@ -133,20 +138,19 @@ describe('Client', () => {
     })
 
     it('creates a new client with given policy engines', async () => {
-      const policyEngineNode = 'http://mock.test/test-data-store'
-
-      mockPolicyEngineServer(policyEngineNode, clientId)
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
 
       const createClientWithGivenPolicyEngine: CreateClientRequestDto = {
         ...createClientPayload,
-        policyEngineNodes: [policyEngineNode]
+        policyEngineNodes: [policyEngineNodeUrl, policyEngineNodeUrl]
       }
 
       const { body } = await request(app.getHttpServer()).post('/clients').send(createClientWithGivenPolicyEngine)
 
       const actualClient = await clientService.findById(body.id)
 
-      expect(actualClient?.policyEngine.nodes[0].url).toEqual(policyEngineNode)
+      expect(actualClient?.policyEngine.nodes[0].url).toEqual(policyEngineNodeUrl)
     })
 
     it('responds with unprocessable entity when payload is invalid', async () => {

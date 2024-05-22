@@ -5,6 +5,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
 import { Queue } from 'bull'
+import { mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { stringToHex } from 'viem'
 import { load } from '../../../armory.config'
@@ -15,6 +16,7 @@ import { QueueModule } from '../../../shared/module/queue/queue.module'
 import { AuthorizationRequest } from '../../core/type/domain.type'
 import { OrchestrationModule } from '../../orchestration.module'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
+import { AuthorizationRequestProcessingConsumer } from '../../queue/consumer/authorization-request-processing.consumer'
 
 const ENDPOINT_PREFIX = '/authorization-requests'
 
@@ -55,16 +57,17 @@ describe('Authorization Request', () => {
         PersistenceModule,
         OrchestrationModule
       ]
-    }).compile()
+    })
+      // Pauses the processing queue to simplify the test. Here we want to make
+      // sure jobs are added to the queue not the processing. The processing
+      // correctness is covered by the consumer integration test.
+      .overrideProvider(AuthorizationRequestProcessingConsumer)
+      .useValue(mock<AuthorizationRequestProcessingConsumer>())
+      .compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     authzRequestRepository = module.get<AuthorizationRequestRepository>(AuthorizationRequestRepository)
     authzRequestProcessingQueue = module.get<Queue>(getQueueToken(AUTHORIZATION_REQUEST_PROCESSING_QUEUE))
-
-    // Pauses the processing queue to simplify the test. Here we want to make
-    // sure jobs are added to the queue not the processing. The processing
-    // correctness is covered by the consumer integration test.
-    await authzRequestProcessingQueue.pause()
 
     app = module.createNestApplication()
 
