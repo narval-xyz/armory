@@ -1,9 +1,12 @@
+import { ConfigService } from '@narval/config-module'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
+import { Config } from '../../../armory.config'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
 import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
 import { PolicyEngineClient } from '../../http/client/policy-engine.client'
@@ -19,7 +22,8 @@ export class ClusterService {
 
   constructor(
     private policyEngineClient: PolicyEngineClient,
-    private policyEngineNodeRepository: PolicyEngineNodeRepository
+    private policyEngineNodeRepository: PolicyEngineNodeRepository,
+    private configService: ConfigService<Config>
   ) {}
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {
@@ -30,7 +34,15 @@ export class ClusterService {
     }
 
     // TODO: (@wcalderipe, 15/05/24): Add retry on failure.
-    const responses = await Promise.all(input.nodes.map((host) => this.policyEngineClient.createClient({ host, data })))
+    const responses = await Promise.all(
+      input.nodes.map((url) =>
+        this.policyEngineClient.createClient({
+          data,
+          host: url,
+          adminApiKey: this.getNodeConfigByUrl(url).adminApiKey
+        })
+      )
+    )
 
     const nodes: PolicyEngineNode[] = zip(input.nodes, responses)
       .map(([node, client]) => {
@@ -41,7 +53,7 @@ export class ClusterService {
             clientSecret: client.clientSecret,
             publicKey: client.signer.publicKey,
             url: node
-          } satisfies PolicyEngineNode
+          }
         }
       })
       .filter((engine): engine is PolicyEngineNode => engine !== undefined)
@@ -49,6 +61,23 @@ export class ClusterService {
     await this.policyEngineNodeRepository.bulkCreate(nodes)
 
     return nodes
+  }
+
+  private getNodeConfigByUrl(url: string): { url: string; adminApiKey: string } {
+    const node = this.configService.get('policyEngine.nodes').find((node) => node.url === url)
+
+    if (node && node.adminApiKey) {
+      return {
+        url: node.url,
+        adminApiKey: node.adminApiKey
+      }
+    }
+
+    throw new ApplicationException({
+      message: 'Policy engine node configuration not found',
+      suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      context: { url }
+    })
   }
 
   async findNodesByClientId(clientId: string): Promise<PolicyEngineNode[]> {
@@ -120,5 +149,29 @@ export class ClusterService {
     } catch (error) {
       throw new InvalidAttestationSignatureException(token, publicKey, error)
     }
+  }
+
+  async sync(clientId: string) {
+    const nodes = await this.findNodesByClientId(clientId)
+
+    if (isEmpty(nodes)) {
+      throw new ClusterNotFoundException(clientId)
+    }
+
+    const responses = await Promise.all(
+      nodes.map((node) =>
+        this.policyEngineClient.syncClient({
+          host: node.url,
+          clientId: node.clientId,
+          clientSecret: node.clientSecret
+        })
+      )
+    )
+
+    if (responses.length) {
+      return responses[0]
+    }
+
+    throw new UnreachableClusterException(clientId, nodes)
   }
 }

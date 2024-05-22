@@ -342,4 +342,4 @@ export const generateJwk = async <T = Jwk>(
 
 export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
 
-export const getPublicKey = (privateKey: PrivateKey): PublicKey => publicKeySchema.parse(privateKey)
+export const getPublicKey = (key: Jwk): PublicKey => publicKeySchema.parse(key)

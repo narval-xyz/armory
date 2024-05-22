@@ -5,8 +5,8 @@ import { EntityDataStoreService } from '../../../core/service/entity-data-store.
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
 import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
 import { PolicyDataStoreDto } from '../dto/policy-data-store.dto'
-import { SetEntityDto } from '../dto/set-entity.dto'
-import { SetPolicyDto } from '../dto/set-policy.dto'
+import { SetEntityStoreDto } from '../dto/set-entity-store.dto'
+import { SetPolicyStoreDto } from '../dto/set-policy-store.dto'
 
 @Controller('/data')
 @ApiTags('Managed Data Store')
@@ -70,7 +70,7 @@ export class DataStoreController {
     description: 'The client entities have been successfully set',
     status: HttpStatus.CREATED
   })
-  setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityDto) {
+  setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
     return this.entityDataStoreService.setEntities(clientId, body)
   }
 
@@ -82,7 +82,7 @@ export class DataStoreController {
     description: 'The client policies have been successfully set',
     status: HttpStatus.CREATED
   })
-  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyDto) {
+  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
     return this.policyDataStoreService.setPolicies(clientId, body)
   }
 }

@@ -9,7 +9,7 @@ import {
   PolicyStore,
   SourceType
 } from '@narval/policy-engine-shared'
-import { Jwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { Jwk, PublicKey, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
@@ -26,7 +26,8 @@ const UNSAFE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b084
 
 describe(DataStoreService.name, () => {
   let service: DataStoreService
-  let jwk: Jwk
+  let privateKey: Jwk
+  let publicKey: PublicKey
   let entityStore: EntityStore
   let policyStore: PolicyStore
   let entityData: EntityData
@@ -43,10 +44,12 @@ describe(DataStoreService.name, () => {
 
     service = module.get<DataStoreService>(DataStoreService)
 
-    jwk = secp256k1PrivateKeyToJwk(UNSAFE_PRIVATE_KEY)
+    privateKey = privateKeyToJwk(UNSAFE_PRIVATE_KEY)
 
-    entityStore = await getEntityStore(FIXTURE.ENTITIES, jwk)
-    policyStore = await getPolicyStore(FIXTURE.POLICIES, jwk)
+    publicKey = getPublicKey(privateKey)
+
+    entityStore = await getEntityStore(FIXTURE.ENTITIES, privateKey)
+    policyStore = await getPolicyStore(FIXTURE.POLICIES, privateKey)
 
     entityData = {
       entity: {
@@ -87,7 +90,7 @@ describe(DataStoreService.name, () => {
               type: SourceType.FILE,
               url
             },
-            keys: [jwk]
+            keys: [publicKey]
           },
           policy: {
             data: {
@@ -98,7 +101,7 @@ describe(DataStoreService.name, () => {
               type: SourceType.FILE,
               url
             },
-            keys: [jwk]
+            keys: [publicKey]
           }
         }
 
@@ -135,7 +138,7 @@ describe(DataStoreService.name, () => {
                 type: SourceType.FILE,
                 url
               },
-              keys: [jwk]
+              keys: [publicKey]
             },
             policy: {
               data: {
@@ -146,7 +149,7 @@ describe(DataStoreService.name, () => {
                 type: SourceType.FILE,
                 url
               },
-              keys: [jwk]
+              keys: [publicKey]
             }
           })
         } catch (error) {
@@ -199,7 +202,7 @@ describe(DataStoreService.name, () => {
         stores: {
           entity: {
             data: entities,
-            signature: await signData(entities, jwk)
+            signature: await signData(entities, privateKey)
           },
           policy: policyStore
         },
@@ -227,8 +230,8 @@ describe(DataStoreService.name, () => {
     })
 
     it('throws DataStoreException when entity signature is invalid', async () => {
-      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, jwk)
-      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), jwk)
+      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
+      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), privateKey)
 
       await testThrowDataStoreException({
         stores: {
@@ -246,8 +249,8 @@ describe(DataStoreService.name, () => {
     })
 
     it('throws DataStoreException when policy signature is invalid', async () => {
-      const policyStoreOne = await getPolicyStore(FIXTURE.POLICIES, jwk)
-      const policyStoreTwo = await getPolicyStore([], jwk)
+      const policyStoreOne = await getPolicyStore(FIXTURE.POLICIES, privateKey)
+      const policyStoreTwo = await getPolicyStore([], privateKey)
 
       await testThrowDataStoreException({
         stores: {
@@ -286,13 +289,13 @@ describe(DataStoreService.name, () => {
     })
 
     it('returns error when signature mismatch', async () => {
-      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, jwk)
-      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), jwk)
+      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
+      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), privateKey)
 
       const verification = await service.verifySignature({
         data: entityStoreOne.data,
         signature: entityStoreTwo.signature,
-        keys: [jwk]
+        keys: [publicKey]
       })
 
       expect(verification).toEqual({
@@ -308,7 +311,7 @@ describe(DataStoreService.name, () => {
       const verification = await service.verifySignature({
         data: entityStore.data,
         signature: 'invalid-signature',
-        keys: [jwk]
+        keys: [publicKey]
       })
 
       expect(verification).toEqual({
@@ -324,7 +327,7 @@ describe(DataStoreService.name, () => {
       const verification = await service.verifySignature({
         data: entityStore.data,
         signature: entityStore.signature,
-        keys: [jwk]
+        keys: [publicKey]
       })
 
       expect(verification).toEqual({ success: true })
