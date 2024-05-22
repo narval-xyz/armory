@@ -43,7 +43,8 @@ describe(WalletRepository.name, () => {
     const wallet: Wallet = {
       id: 'test-WALLET-ID',
       privateKey,
-      address: account.address
+      address: account.address,
+      publicKey: account.publicKey
     }
 
     it('uses lower case id in the key', async () => {

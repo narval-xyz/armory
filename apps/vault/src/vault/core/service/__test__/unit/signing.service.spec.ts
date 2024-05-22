@@ -26,7 +26,9 @@ describe('SigningService', () => {
   const wallet: Wallet = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-    privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+    privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',
+    publicKey:
+      '0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba'
   }
   const privateKey: Jwk = secp256k1PrivateKeyToJwk(wallet.privateKey)
 

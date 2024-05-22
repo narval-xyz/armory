@@ -2,9 +2,9 @@ import { FIXTURE, toBytes } from '@narval/policy-engine-shared'
 import { RsaPrivateKey, generateJwk, publicKeyToHex, rsaDecrypt } from '@narval/signature'
 import { Test, TestingModule } from '@nestjs/testing'
 import { HDKey } from '@scure/bip32'
+import { BackupRepository } from 'apps/vault/src/vault/persistence/repository/backup.repository'
 import { ClientService } from '../../../../../client/core/service/client.service'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
-import { PrismaService } from '../../../../../shared/module/persistence/service/prisma.service'
 import { Wallet } from '../../../../../shared/type/domain.type'
 import { MnemonicRepository } from '../../../../../vault/persistence/repository/mnemonic.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
@@ -66,7 +66,7 @@ describe('GenerateService', () => {
           }
         },
         {
-          provide: PrismaService,
+          provide: BackupRepository,
           useValue: {}
         }
       ]
@@ -122,11 +122,9 @@ describe('GenerateService', () => {
           }
         },
         {
-          provide: PrismaService,
+          provide: BackupRepository,
           useValue: {
-            backup: {
-              create: jest.fn().mockResolvedValue({})
-            }
+            save: jest.fn().mockResolvedValue({})
           }
         }
       ]

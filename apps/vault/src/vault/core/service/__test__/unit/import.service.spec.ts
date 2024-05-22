@@ -49,6 +49,8 @@ describe('ImportService', () => {
       expect(walletRepository.save).toHaveBeenCalledWith(clientId, {
         id: walletId,
         privateKey,
+        publicKey:
+          '0x04b314faec9379289567598cb2ef18453543a4e1bbaf3cbadb1251c18a7b85c2660b30bb20796c0e0f70cfe1aa86d73bf1e0b42045fbe6ea4c82bbe64b753a01de',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
       })
     })
