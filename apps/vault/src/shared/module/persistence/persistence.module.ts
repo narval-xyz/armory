@@ -1,5 +1,5 @@
+import { ConfigModule } from '@narval/config-module'
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { load } from '../../../main.config'
 import { PrismaService } from './service/prisma.service'
 import { TestPrismaService } from './service/test-prisma.service'

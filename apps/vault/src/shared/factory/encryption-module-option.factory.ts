@@ -1,4 +1,5 @@
 import { KmsKeyringNode, RawAesKeyringNode } from '@aws-crypto/client-node'
+import { ConfigService } from '@narval/config-module'
 import {
   EncryptionModuleOption,
   decryptMasterKey,
@@ -7,7 +8,6 @@ import {
 } from '@narval/encryption-module'
 import { toBytes } from '@narval/policy-engine-shared'
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config } from '../../main.config'
 import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../main.constant'
 import { AppService } from '../../vault/core/service/app.service'
@@ -18,11 +18,11 @@ export class EncryptionModuleOptionFactory {
 
   constructor(
     private appService: AppService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {}
 
   async create(): Promise<EncryptionModuleOption> {
-    const keyringConfig = this.configService.get('keyring', { infer: true })
+    const keyringConfig = this.configService.get('keyring')
     const app = await this.appService.getApp()
 
     // NOTE: An undefined app at boot time only happens during the

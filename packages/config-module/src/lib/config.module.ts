@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 import { DynamicModule } from '@nestjs/common'
 // eslint-disable-next-line no-restricted-imports
 import { ConfigModule as NestConfigModule } from '@nestjs/config'

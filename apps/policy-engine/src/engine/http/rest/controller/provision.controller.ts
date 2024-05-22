@@ -1,5 +1,5 @@
+import { ConfigService } from '@narval/config-module'
 import { Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Config } from '../../../../policy-engine.config'
 import { EngineService } from '../../../core/service/engine.service'
 import { ProvisionService } from '../../../core/service/provision.service'
@@ -18,13 +18,13 @@ export class ProvisionController {
   constructor(
     private provisionService: ProvisionService,
     private engineService: EngineService,
-    private configService: ConfigService<Config, true>
+    private configService: ConfigService<Config>
   ) {}
 
   @Post()
   async provision(): Promise<string | ProvisionResponse> {
     const engine = await this.engineService.getEngine()
-    const keyringConfig = this.configService.get('keyring', { infer: true })
+    const keyringConfig = this.configService.get('keyring')
 
     const isProvisioned =
       (keyringConfig.type === 'raw' && engine?.masterKey) ||
