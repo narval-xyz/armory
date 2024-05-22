@@ -34,9 +34,10 @@ export class KeyGenerationService {
       rsaPublicKeySchema.safeParse(backupPublicKey).success === false &&
       rsaPrivateKeySchema.safeParse(backupPublicKey).success === false
     ) {
-      this.logger.error('Invalid backup public key provided. Need an RSA key', { clientId })
+      this.logger.warn('Invalid backup public key provided. Need an RSA key', { clientId })
       return
     }
+    this.logger.log('Encrypting backup', { clientId })
     const backupPublicKeyHash = hash(backupPublicKey)
     await this.backupRepository.save(clientId, {
       backupPublicKeyHash,
@@ -67,6 +68,7 @@ export class KeyGenerationService {
     rootKeyId: string
     backup?: string
   }> {
+    this.logger.log('Generating mnemonic', { clientId })
     const mnemonic = generateMnemonic(english)
     const rootKey = mnemonicToRootKey(mnemonic)
 
@@ -74,6 +76,7 @@ export class KeyGenerationService {
 
     const backup = await this.#saveMnemonic(clientId, rootKeyId, mnemonic)
 
+    this.logger.log('Deriving first wallet', { clientId })
     const firstWallet = await deriveWallet(rootKey, { rootKeyId })
     await this.walletRepository.save(clientId, firstWallet)
 
