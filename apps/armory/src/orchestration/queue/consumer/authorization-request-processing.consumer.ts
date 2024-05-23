@@ -63,9 +63,12 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueCompleted()
-  onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
+  async onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
     if (result instanceof Error) {
       this.logger.error('Stop processing authorization request due to unrecoverable error', result)
+
+      await this.authzService.changeStatus(job.id.toString(), AuthorizationRequestStatus.FAILED)
+
       return
     }
 
