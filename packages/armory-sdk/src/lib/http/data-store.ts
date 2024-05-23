@@ -4,7 +4,6 @@ import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { signData } from '../sdk'
 import { buildBasicEngineHeaders, isSuccessResponse } from '../utils'
-import { syncEngine } from './policy-engine'
 
 export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
   try {
@@ -48,20 +47,10 @@ export const setEntities = async (
         response
       })
     }
+
+    return { success: true }
   } catch (error) {
     throw new NarvalSdkException('Failed to set entities', {
-      config,
-      data,
-      error
-    })
-  }
-
-  try {
-    const success = await syncEngine(config)
-
-    return { success }
-  } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine after setting entities', {
       config,
       data,
       error
@@ -86,20 +75,10 @@ export const setPolicies = async (
         response
       })
     }
+
+    return { success: true }
   } catch (error) {
     throw new NarvalSdkException('Failed to set policies', {
-      config,
-      data,
-      error
-    })
-  }
-
-  try {
-    const success = await syncEngine(config)
-
-    return { success }
-  } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine after setting policies', {
       config,
       data,
       error
