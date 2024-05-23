@@ -9,7 +9,7 @@ import { Wallet } from '../../../shared/type/domain.type'
 
 type DeriveOptions = HDOptions & { rootKeyId?: string }
 
-export const buildDerivePath = (opts: HDOptions) => {
+export const buildDerivationPath = (opts: HDOptions) => {
   const { accountIndex = 0, addressIndex = 0, changeIndex = 0, path } = opts
   return path || `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`
 }
@@ -66,7 +66,7 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
 }
 
 export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<Wallet> => {
-  const path = buildDerivePath(opts)
+  const path = buildDerivationPath(opts)
   const derivedKey = rootKey.derive(path)
   const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))
   return wallet

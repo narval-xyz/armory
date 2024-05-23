@@ -12,12 +12,12 @@ import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { PrismaService } from '../shared/module/persistence/service/prisma.service'
 import { AppService } from './core/service/app.service'
-import { KeyGenerationService } from './core/service/generate.service'
 import { ImportService } from './core/service/import.service'
+import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
-import { GenerateController } from './http/rest/controller/generate.controller'
+import { GenerationController } from './http/rest/controller/generation.controller'
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
@@ -44,7 +44,7 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => ClientModule)
   ],
-  controllers: [VaultController, ImportController, SignController, ProvisionController, GenerateController],
+  controllers: [VaultController, ImportController, SignController, ProvisionController, GenerationController],
   providers: [
     AppRepository,
     AppService,

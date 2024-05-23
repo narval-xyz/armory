@@ -125,4 +125,62 @@ describe('KeyGenerationService', () => {
     expect(body.wallet.derivationPath).toEqual("m/44'/60'/0'/0/0")
     expect(body.keyId).toEqual('rootKeyId')
   })
+
+  it('throws when deriving a rootKey that is not found', async () => {
+    const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+    const { status } = await request(app.getHttpServer())
+      .post('/derive-wallet')
+      .set(REQUEST_HEADER_CLIENT_ID, clientId)
+      .set('authorization', `GNAP ${accessToken}`)
+      .send({
+        keyId: 'somekeyId'
+      })
+
+    expect(status).toEqual(404)
+  })
+
+  it('derives a new wallet from a rootKey', async () => {
+    const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+    const { body: generateKeyResponse } = await request(app.getHttpServer())
+      .post('/generate-key')
+      .set(REQUEST_HEADER_CLIENT_ID, clientId)
+      .set('authorization', `GNAP ${accessToken}`)
+      .send({
+        keyId: 'rootKeyId'
+      })
+
+    const { keyId } = generateKeyResponse
+
+    const { body } = await request(app.getHttpServer())
+      .post('/derive-wallet')
+      .set(REQUEST_HEADER_CLIENT_ID, clientId)
+      .set('authorization', `GNAP ${accessToken}`)
+      .send({
+        keyId,
+        derivationPaths: ['next', 'next']
+      })
+
+    expect(body).toEqual({
+      wallets: [
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/1",
+          address: expect.any(String),
+          publicKey: expect.any(String),
+          privateKey: expect.any(String)
+        },
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/2",
+          address: expect.any(String),
+          publicKey: expect.any(String),
+          privateKey: expect.any(String)
+        }
+      ]
+    })
+  })
 })

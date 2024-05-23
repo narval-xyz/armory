@@ -3,6 +3,7 @@ import { Wallet } from '../../../../../shared/type/domain.type'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
+import { KeyGenerationService } from '../../key-generation.service'
 
 describe('ImportService', () => {
   let importService: ImportService
@@ -28,6 +29,10 @@ describe('ImportService', () => {
         },
         {
           provide: ImportRepository,
+          useValue: {}
+        },
+        {
+          provide: KeyGenerationService,
           useValue: {}
         }
       ]

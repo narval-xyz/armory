@@ -14,9 +14,11 @@ import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Wallet } from '../../../shared/type/domain.type'
+import { SeedOrigin, Wallet } from '../../../shared/type/domain.type'
+import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
 export class ImportService {
@@ -24,7 +26,8 @@ export class ImportService {
 
   constructor(
     private walletRepository: WalletRepository,
-    private importRepository: ImportRepository
+    private importRepository: ImportRepository,
+    private keyGenerationService: KeyGenerationService
   ) {}
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {
@@ -71,7 +74,6 @@ export class ImportService {
 
     const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
     // TODO: do we want to enforce a time constraint on the createdAt time so you have to use a fresh key?
-
     if (!encryptionPrivateKey) {
       throw new ApplicationException({
         message: 'Encryption Key Not Found',
@@ -91,6 +93,51 @@ export class ImportService {
     })
 
     return this.importPrivateKey(clientId, privateKey as Hex, walletId)
+  }
+
+  async importSeed(
+    clientId: string,
+    body: ImportSeedDto
+  ): Promise<{
+    wallet: Wallet
+    keyId: string
+    backup?: string
+  }> {
+    const { keyId, encryptedSeed } = body
+
+    // const mnemonic = await this.decryptSeed(clientId, keyId, encryptedSeed)
+    const header = decodeProtectedHeader(encryptedSeed)
+    const kid = header.kid
+
+    if (!kid) {
+      throw new ApplicationException({
+        message: 'Missing kid in JWE header',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+
+    const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
+
+    if (!encryptionPrivateKey) {
+      throw new ApplicationException({
+        message: 'Encryption Key Not Found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
+      })
+    }
+
+    const mnemonic = await rsaDecrypt(encryptedSeed, encryptionPrivateKey.jwk)
+
+    const { wallet, backup, rootKeyId } = await this.keyGenerationService.storeRootKeyAndFirstWallet(clientId, {
+      keyId,
+      mnemonic,
+      origin: SeedOrigin.IMPORTED
+    })
+
+    return {
+      wallet,
+      keyId: rootKeyId,
+      backup
+    }
   }
 
   generateWalletId(address: Hex): string {

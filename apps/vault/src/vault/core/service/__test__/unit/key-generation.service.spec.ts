@@ -4,13 +4,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { HDKey } from '@scure/bip32'
 import { ClientService } from '../../../../../client/core/service/client.service'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
-import { Wallet } from '../../../../../shared/type/domain.type'
+import { SeedOrigin, Wallet } from '../../../../../shared/type/domain.type'
 import { BackupRepository } from '../../../../../vault/persistence/repository/backup.repository'
 import { MnemonicRepository } from '../../../../../vault/persistence/repository/mnemonic.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { buildDerivePath, deriveWallet, hdKeyToWallet, mnemonicToRootKey } from '../../../utils/key-generation'
-import { KeyGenerationService } from '../../generate.service'
+import { buildDerivationPath, deriveWallet, hdKeyToWallet, mnemonicToRootKey } from '../../../util/key-generation'
+import { KeyGenerationService } from '../../key-generation.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -159,7 +159,9 @@ describe('GenerateService', () => {
     await keyGenerationService.generateMnemonic('clientId', {})
     expect(mnemonicRepository.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
-      keyId: expect.any(String)
+      keyId: expect.any(String),
+      origin: SeedOrigin.GENERATED,
+      nextAddrIndex: 1
     })
   })
   it('throw an error if the HDKey does not have a private key', async () => {
@@ -167,7 +169,7 @@ describe('GenerateService', () => {
       publicKey: toBytes(await publicKeyToHex(FIXTURE.PUBLIC_KEYS_JWK.Root))
     })
     try {
-      await hdKeyToWallet(hdKey, buildDerivePath({}), 'kid')
+      await hdKeyToWallet(hdKey, buildDerivationPath({}), 'kid')
     } catch (error) {
       expect(error).toBeInstanceOf(ApplicationException)
       expect(error.message).toEqual('HDKey does not have a private key')

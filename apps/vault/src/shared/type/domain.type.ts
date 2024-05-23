@@ -52,8 +52,16 @@ export const Wallet = z.object({
 })
 export type Wallet = z.infer<typeof Wallet>
 
+export const SeedOrigin = {
+  IMPORTED: 'imported',
+  GENERATED: 'generated'
+} as const
+export type SeedOrigin = (typeof SeedOrigin)[keyof typeof SeedOrigin]
+
 export const RootKey = z.object({
   keyId: z.string().min(1),
-  mnemonic: z.string().min(1)
+  mnemonic: z.string().min(1),
+  origin: z.union([z.literal('imported'), z.literal('generated')]),
+  nextAddrIndex: z.number().min(0).default(0)
 })
 export type RootKey = z.infer<typeof RootKey>
