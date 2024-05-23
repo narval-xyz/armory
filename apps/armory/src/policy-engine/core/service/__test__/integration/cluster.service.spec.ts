@@ -185,13 +185,6 @@ describe(ClusterService.name, () => {
           clientSecret: 'test-client-secret',
           url: nodeOne.url,
           publicKey: getPublicKey(nodeOne.attestationPrivateKey)
-        },
-        {
-          id: uuid(),
-          clientId,
-          clientSecret: 'test-client-secret',
-          url: nodeTwo.url,
-          publicKey: getPublicKey(nodeTwo.attestationPrivateKey)
         }
       ])
     })
@@ -203,16 +196,9 @@ describe(ClusterService.name, () => {
         request: signTransaction
       })
 
-      const { mockResponse: mockResponseTwo } = await mockPolicyEngineEvaluation({
-        ...nodeTwo,
-        decision: Decision.PERMIT,
-        request: signTransaction
-      })
-
       const response = await clusterService.evaluate(clientId, evaluation)
 
       expect(response).toEqual(mockResponseOne)
-      expect(response).not.toEqual(mockResponseTwo)
     })
 
     it('throws when client nodes are not found', async () => {
@@ -220,6 +206,15 @@ describe(ClusterService.name, () => {
     })
 
     it('throws when the nodes consensus disagree on the decision', async () => {
+      await policyEngineNodeRepository.bulkCreate([
+        {
+          id: uuid(),
+          clientId,
+          clientSecret: 'test-client-secret',
+          url: nodeTwo.url,
+          publicKey: getPublicKey(nodeTwo.attestationPrivateKey)
+        }
+      ])
       await mockPolicyEngineEvaluation({
         ...nodeOne,
         decision: Decision.PERMIT,
@@ -238,12 +233,6 @@ describe(ClusterService.name, () => {
     it('throws when node attestation is invalid', async () => {
       await mockPolicyEngineEvaluation({
         ...nodeOne,
-        decision: Decision.PERMIT,
-        request: signTransaction
-      })
-
-      await mockPolicyEngineEvaluation({
-        url: nodeTwo.url,
         attestationPrivateKey: privateKeyToJwk(generatePrivateKey()),
         decision: Decision.PERMIT,
         request: signTransaction

@@ -156,6 +156,7 @@ export class ClusterService {
         this.logger.log('Got final response', finalResponse)
 
         await this.verifyAttestation(nodes[0].publicKey, finalResponse.accessToken?.value)
+        return finalResponse
       }
 
       // If it's not a PERMIT, we don't care about all the responses, just the first one.
@@ -174,6 +175,7 @@ export class ClusterService {
       })
     }
     try {
+      this.logger.log
       await verifyJwt(token, publicKey)
     } catch (error) {
       throw new InvalidAttestationSignatureException(token, publicKey, error)
