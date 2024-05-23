@@ -21,7 +21,7 @@ export class AuthorizationRequestRepository {
     const request = createRequestSchema.parse(input.request)
     const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
 
-    const approvalsData = approvals.map((approval) => ({
+    const approvalsData = approvals?.map((approval) => ({
       sig: approval
     }))
 

@@ -8,6 +8,7 @@ import { generatePrivateKey } from 'viem/accounts'
 import CodeEditor from '../../_components/CodeEditor'
 import ValueWithCopy from '../../_components/ValueWithCopy'
 import NarButton from '../../_design-system/NarButton'
+import useArmoryApi from '../../_hooks/useArmoryApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import useVaultApi from '../../_hooks/useVaultApi'
@@ -22,7 +23,8 @@ enum Template {
 
 const RequestPlayground = () => {
   const { engineClientId, vaultClientId } = useStore()
-  const { errors: evaluationErrors, evaluateRequest } = useEngineApi()
+  const { authReq, authorizeRequest } = useArmoryApi()
+  const { errors: evaluationErrors, evaluate } = useEngineApi()
   const { errors: signatureErrors, sign, importPK: importPrivateKey } = useVaultApi()
 
   const [domLoaded, setDomLoaded] = useState(false)
@@ -31,6 +33,8 @@ const RequestPlayground = () => {
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => setDomLoaded(true), [])
+
+  useEffect(() => setResponseEditor(JSON.stringify(authReq, null, 2)), [authReq])
 
   useEffect(() => {
     if (requestEditor) return
@@ -72,9 +76,9 @@ const RequestPlayground = () => {
       setIsProcessing(true)
       setResponseEditor(undefined)
       const request: EvaluationRequest = JSON.parse(requestEditor)
-      const evaluationResponse = await evaluateRequest(request)
-      if (evaluationResponse) {
-        setResponseEditor(JSON.stringify(evaluationResponse, null, 2))
+      const response = await authorizeRequest(request)
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
       }
     } catch (error) {}
 

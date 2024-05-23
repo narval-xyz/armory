@@ -10,9 +10,10 @@ import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd,
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
+import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from './constants'
 import { EngineClientConfig, JwsdHeaderArgs, SdkEvaluationResponse, SignAccountJwsdArgs } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
-import { BasicHeaders, GnapHeaders } from './http/schema'
+import { BasicHeaders, GnapHeaders } from './schema'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, alg, accessToken } = args
@@ -161,8 +162,8 @@ export const walletId = (input: { walletId?: string; privateKey: Hex }): { walle
 
 export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {
-    'x-client-id': config.authClientId,
-    'x-client-secret': config.authSecret
+    [HEADER_CLIENT_ID]: config.authClientId,
+    [HEADER_CLIENT_SECRET]: config.authSecret
   }
 }
 
@@ -172,8 +173,8 @@ export const buildGnapVaultHeaders = (
   detachedJws: string
 ): GnapHeaders => {
   return {
-    'x-client-id': vaultClientId,
-    'detached-jws': detachedJws,
+    [HEADER_CLIENT_ID]: vaultClientId,
+    [DETACHED_JWS]: detachedJws,
     authorization: `GNAP ${accessToken}`
   }
 }
