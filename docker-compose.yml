@@ -29,6 +29,9 @@ services:
 
   armory_app:
     image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
     container_name: armory_app
     command: ["/bin/bash", "-c", "make armory/db/migrate/deploy && make armory/start/dev"]
     ports:
@@ -49,6 +52,9 @@ services:
 
   policy_engine_0:
     image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
     container_name: policy-engine-0
     command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
     ports:
@@ -71,6 +77,9 @@ services:
 
   policy_engine_1:
     image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
     container_name: policy-engine-1
     command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
     ports:
@@ -93,6 +102,9 @@ services:
 
   policy_engine_2:
     image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
     container_name: policy-engine-2
     command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
     ports:
@@ -112,6 +124,27 @@ services:
     depends_on:
       - postgres
       - armory_app
+
+  vault:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: vault
+    command: ["/bin/bash", "-c", "make vault/db/migrate/deploy && make vault/start/dev"]
+    ports:
+      - "3011:3010"
+    networks:
+      - armory-local
+    environment:
+      - PORT=3010
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/vault?schema=public
+      - ADMIN_API_KEY=vault-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

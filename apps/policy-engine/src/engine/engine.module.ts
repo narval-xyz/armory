@@ -59,8 +59,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
       },
       inject: [ConfigService]
     },
-    SimpleSigningService,
-    MpcSigningService,
     EngineRepository,
     EngineService,
     EvaluationService,
