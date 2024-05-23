@@ -13,6 +13,7 @@ import { Client } from '../../../../../shared/type/domain.type'
 import { ClientRepository } from '../../../../persistence/repository/client.repository'
 import { ClientService } from '../../client.service'
 import { DataStoreService } from '../../data-store.service'
+import { SimpleSigningService } from '../../signing-basic.service'
 
 describe(ClientService.name, () => {
   let clientService: ClientService
@@ -78,6 +79,10 @@ describe(ClientService.name, () => {
         {
           provide: KeyValueRepository,
           useClass: InMemoryKeyValueRepository
+        },
+        {
+          provide: 'SigningService',
+          useValue: SimpleSigningService
         }
       ]
     }).compile()

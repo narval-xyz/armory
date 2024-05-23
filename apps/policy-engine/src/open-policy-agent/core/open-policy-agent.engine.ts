@@ -1,5 +1,4 @@
 import {
-  Action,
   ApprovalRequirement,
   CredentialEntity,
   Decision,
@@ -11,13 +10,12 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import { Payload, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
+import { decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
-import { SignerConfig } from '../../shared/type/domain.type'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
@@ -98,7 +96,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     }
   }
 
-  async evaluate(evaluation: EvaluationRequest, signerConfig?: SignerConfig): Promise<EvaluationResponse> {
+  async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const message = hash(evaluation.request)
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
 
@@ -115,36 +113,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     const response: EvaluationResponse = {
       decision: decision.decision,
       approvals: decision.approvals,
-      request: evaluation.request
-    }
-
-    if (response.decision === Decision.PERMIT) {
-      if (!signerConfig) {
-        throw new OpenPolicyAgentException({
-          message: 'Missing signer configuration',
-          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-        })
-      }
-      return {
-        ...response,
-        accessToken: {
-          value: await this.sign(
-            {
-              principalCredential,
-              message,
-              ...(evaluation.request.action === Action.GRANT_PERMISSION && {
-                access: [
-                  {
-                    resource: evaluation.request.resourceId,
-                    permissions: evaluation.request.permissions
-                  }
-                ]
-              })
-            },
-            signerConfig
-          )
-        }
-      }
+      request: evaluation.request,
+      principal: decision.decision === Decision.PERMIT ? principalCredential : undefined
     }
 
     return response
@@ -274,43 +244,5 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private isPermitMissingApproval(result: Result): boolean {
     return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
-  }
-
-  private async sign(
-    params: {
-      principalCredential: CredentialEntity
-      message: string
-      access?: [
-        {
-          resource: string
-          permissions: string[]
-        }
-      ]
-    },
-    signerConfig: SignerConfig
-  ): Promise<JwtString> {
-    const principalJwk: PublicKey = params.principalCredential.key
-
-    const payload: Payload = {
-      requestHash: params.message,
-      sub: params.principalCredential.userId,
-      // TODO: iat & exp values must be arguments, cannot generate timestamps
-      // because of cluster mis-match
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
-      // TODO: allow client-specific; should come from config
-      iss: 'https://armory.narval.xyz',
-      // aud: TODO
-      // jti: TODO
-      cnf: principalJwk,
-      ...(params.access && { access: params.access })
-    }
-    if (!signerConfig.publicKey || !signerConfig.signer) {
-      throw new OpenPolicyAgentException({
-        message: 'Missing signer configuration; cannot sign',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
-    }
-    return signJwt(payload, signerConfig.publicKey, { alg: SigningAlg.EIP191 }, signerConfig.signer)
   }
 }

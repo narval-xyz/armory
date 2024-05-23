@@ -1,4 +1,5 @@
 import { ZodTypeAny, z } from 'zod'
+import { credentialEntitySchema } from '../schema/entity.schema'
 import { AccountId } from '../util/caip.util'
 import {
   GrantPermissionAction,
@@ -182,6 +183,7 @@ export const EvaluationResponse = z.object({
       satisfied: z.array(ApprovalRequirement).optional()
     })
     .optional(),
+  principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
   transactionRequestIntent: z.unknown().optional()
 })

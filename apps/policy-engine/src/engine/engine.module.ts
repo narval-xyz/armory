@@ -16,7 +16,7 @@ import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
-import { BasicSigningService } from './core/service/signing-basic.service'
+import { SimpleSigningService } from './core/service/signing-basic.service'
 import { MpcSigningService } from './core/service/signing-mpc.service'
 import { ClientController } from './http/rest/controller/client.controller'
 import { EngineController } from './http/rest/controller/engine.controller'
@@ -51,15 +51,15 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
       provide: 'SigningService',
       useFactory: async (configService: ConfigService<Config>) => {
         const signingProtocol = configService.get('signingProtocol')
-        if (signingProtocol === 'basic') {
-          return new BasicSigningService()
+        if (signingProtocol === 'simple') {
+          return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
           return new MpcSigningService()
         }
       },
       inject: [ConfigService]
     },
-    BasicSigningService,
+    SimpleSigningService,
     MpcSigningService,
     EngineRepository,
     EngineService,

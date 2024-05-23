@@ -29,7 +29,7 @@ const configSchema = z.object({
       masterAwsKmsArn: z.string()
     })
   ]),
-  signingProtocol: z.union([z.literal('basic'), z.literal('mpc')]).default('basic')
+  signingProtocol: z.union([z.literal('simple'), z.literal('mpc')]).default('simple')
 })
 
 export type Config = z.infer<typeof configSchema>

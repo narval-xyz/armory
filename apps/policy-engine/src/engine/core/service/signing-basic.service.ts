@@ -11,8 +11,8 @@ import { SignerConfig } from '../../../shared/type/domain.type'
 import { SigningService } from './signing.service.interface'
 
 @Injectable()
-export class BasicSigningService implements SigningService {
-  private logger = new Logger(BasicSigningService.name)
+export class SimpleSigningService implements SigningService {
+  private logger = new Logger(SimpleSigningService.name)
 
   constructor() {}
 
