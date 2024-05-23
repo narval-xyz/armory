@@ -1,5 +1,4 @@
 import { ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
@@ -33,13 +32,22 @@ export class EngineService {
     return null
   }
 
+  // IMPORTANT: The admin API key is hashed by the caller not the service. That
+  // allows us to have a determistic configuration file which is useful for
+  // automations like development or cloud set up.
   async save(engine: Engine): Promise<Engine> {
-    await this.engineRepository.save({
-      ...engine,
-      adminApiKey: secret.hash(engine.adminApiKey)
-    })
+    await this.engineRepository.save(engine)
 
     return engine
+  }
+
+  async update(engine: Partial<Engine>): Promise<Engine> {
+    const existingEngine = await this.getEngineOrThrow()
+    const updatedEngine = { ...existingEngine, ...engine }
+
+    await this.engineRepository.save(updatedEngine)
+
+    return updatedEngine
   }
 
   private getId(): string {

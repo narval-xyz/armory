@@ -33,7 +33,7 @@ describe(EngineService.name, () => {
   describe('save', () => {
     const id = 'test-engine'
 
-    const adminApiKey = 'test-admin-api-key'
+    const adminApiKey = secret.hash('test-admin-api-key')
 
     const engine = {
       id,
@@ -47,14 +47,17 @@ describe(EngineService.name, () => {
       expect(actualEngine.adminApiKey).toEqual(engine.adminApiKey)
     })
 
-    it('hashes the admin api key', async () => {
+    // IMPORTANT: The admin API key is hashed by the caller not the service. That
+    // allows us to have a determistic configuration file which is useful for
+    // automations like development or cloud set up.
+    it('does not hash the admin api key', async () => {
       jest.spyOn(configService, 'get').mockReturnValue(id)
 
       await service.save(engine)
 
       const actualEngine = await service.getEngine()
 
-      expect(actualEngine?.adminApiKey).toEqual(secret.hash(adminApiKey))
+      expect(actualEngine?.adminApiKey).toEqual(adminApiKey)
     })
   })
 })

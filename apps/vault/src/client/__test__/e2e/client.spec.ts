@@ -1,5 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { secret } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -51,7 +52,7 @@ describe('Client', () => {
     await appService.save({
       id: configService.get('app.id'),
       masterKey: 'test-master-key',
-      adminApiKey,
+      adminApiKey: secret.hash(adminApiKey),
       activated: true
     })
 
