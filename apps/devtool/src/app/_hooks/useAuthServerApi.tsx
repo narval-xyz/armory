@@ -8,10 +8,11 @@ import {
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
+import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
-import { ARMORY_URL } from '../_lib/constants'
-import { extractErrorMessage } from '../_lib/utils'
+import { AUTH_SERVER_URL } from '../_lib/constants'
+import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
@@ -22,9 +23,20 @@ const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
   AuthorizationRequestStatus.CANCELED
 ]
 
-const useArmoryApi = () => {
+export interface AuthClientData {
+  authServerUrl: string
+  id: string
+  name: string
+  entityDataStoreUrl: string
+  entityPublicKey: string
+  policyDataStoreUrl: string
+  policyPublicKey: string
+}
+
+const useAuthServerApi = () => {
   const { engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
+  const [isProcessing, setIsProcessing] = useState(false)
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
@@ -34,7 +46,7 @@ const useArmoryApi = () => {
     }
 
     return {
-      authHost: ARMORY_URL,
+      authHost: AUTH_SERVER_URL,
       authClientId,
       authSecret,
       jwk,
@@ -63,20 +75,70 @@ const useArmoryApi = () => {
     }
   }, [authorizationResponse])
 
+  const onboard = async (authClientData: AuthClientData) => {
+    setErrors(undefined)
+    setIsProcessing(true)
+
+    try {
+      const { authServerUrl, id, name, entityDataStoreUrl, entityPublicKey, policyDataStoreUrl, policyPublicKey } =
+        authClientData
+
+      const { data: client } = await axios.post(`${authServerUrl}/clients`, {
+        id,
+        name,
+        dataStore: {
+          entity: {
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            keys: [JSON.parse(entityPublicKey)]
+          },
+          policy: {
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            keys: [JSON.parse(policyPublicKey)]
+          }
+        }
+      })
+
+      setIsProcessing(false)
+
+      return client
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+      setIsProcessing(false)
+    }
+  }
+
   const authorize = async (request: EvaluationRequest) => {
     if (!sdkArmoryConfig) return
 
+    setErrors(undefined)
+    setIsProcessing(true)
+
     try {
-      setErrors(undefined)
       const authRequest = await sendAuthorizationRequest(sdkArmoryConfig, request)
       setProcessingRequest(authRequest)
       return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
+
+    setIsProcessing(false)
   }
 
-  return { errors, authorizationResponse, authorize }
+  return { errors, isProcessing, authorizationResponse, onboard, authorize }
 }
 
-export default useArmoryApi
+export default useAuthServerApi

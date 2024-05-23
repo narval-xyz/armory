@@ -7,34 +7,41 @@ import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
 import useAccountSignature from '../../../_hooks/useAccountSignature'
-import useEngineApi, { EngineClientData } from '../../../_hooks/useEngineApi'
+import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerApi'
 import useStore from '../../../_hooks/useStore'
-import { LOCAL_DATA_STORE_URL } from '../../../_lib/constants'
+import { MANAGED_ENTITY_DATA_STORE_URL, MANAGED_POLICY_DATA_STORE_URL } from '../../../_lib/constants'
 
-const initForm: EngineClientData = {
-  engineUrl: '',
-  engineAdminApiKey: '',
-  clientId: '',
+const initForm: AuthClientData = {
+  authServerUrl: '',
+  id: '',
+  name: '',
   entityDataStoreUrl: '',
   entityPublicKey: '',
   policyDataStoreUrl: '',
   policyPublicKey: ''
 }
 
-const AddEngineClientModal = () => {
-  const { engineUrl, engineAdminApiKey, setEngineClientId, setEngineClientSecret, setEngineClientSigner } = useStore()
+const AddAuthClientModal = () => {
+  const {
+    authServerUrl,
+    setEngineClientId,
+    setEngineClientSecret,
+    setEngineClientSigner,
+    setEntityDataStoreUrl,
+    setPolicyDataStoreUrl
+  } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { isProcessing, onboard } = useEngineApi()
+  const { isProcessing, onboard } = useAuthServerApi()
 
   const [isOpen, setIsOpen] = useState(false)
   const [newClient, setNewClient] = useState<any>()
-  const [form, setForm] = useState<EngineClientData>(initForm)
+  const [form, setForm] = useState<AuthClientData>(initForm)
 
   const isFormValid =
-    form.engineAdminApiKey &&
-    form.engineUrl &&
-    form.clientId &&
+    form.authServerUrl &&
+    form.id &&
+    form.name &&
     form.entityDataStoreUrl &&
     form.entityPublicKey &&
     form.policyDataStoreUrl &&
@@ -46,7 +53,7 @@ const AddEngineClientModal = () => {
     setForm(initForm)
   }
 
-  const updateForm = (data: Partial<EngineClientData>) => setForm((prev) => ({ ...prev, ...data }))
+  const updateForm = (data: Partial<AuthClientData>) => setForm((prev) => ({ ...prev, ...data }))
 
   const addClient = async () => {
     if (!isFormValid) return
@@ -58,9 +65,13 @@ const AddEngineClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
-    setEngineClientId(newClient.clientId)
-    setEngineClientSecret(newClient.clientSecret)
-    setEngineClientSigner(JSON.stringify(newClient.signer.publicKey))
+    const { clientId, clientSecret, publicKey } = newClient.policyEngine.nodes[0]
+
+    setEngineClientId(clientId)
+    setEngineClientSecret(clientSecret)
+    setEngineClientSigner(publicKey)
+    setEntityDataStoreUrl(`${MANAGED_ENTITY_DATA_STORE_URL}${clientId}`)
+    setPolicyDataStoreUrl(`${MANAGED_POLICY_DATA_STORE_URL}${clientId}`)
     closeDialog()
   }
 
@@ -68,20 +79,19 @@ const AddEngineClientModal = () => {
     if (!isOpen) return
 
     updateForm({
-      engineUrl,
-      engineAdminApiKey,
-      entityDataStoreUrl: LOCAL_DATA_STORE_URL,
-      policyDataStoreUrl: LOCAL_DATA_STORE_URL,
+      authServerUrl,
+      entityDataStoreUrl: `${MANAGED_ENTITY_DATA_STORE_URL}${form.id}`,
+      policyDataStoreUrl: `${MANAGED_POLICY_DATA_STORE_URL}${form.id}`,
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
       policyPublicKey: jwk ? JSON.stringify(jwk) : ''
     })
-  }, [isOpen, jwk])
+  }, [isOpen, jwk, form.id])
 
   return (
     <NarDialog
       triggerButton={<NarButton label="Add client" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-      title="Add Engine Client"
-      primaryButtonLabel={newClient ? 'Set Engine Config' : 'Add Client'}
+      title="Add Auth Client"
+      primaryButtonLabel={newClient ? 'Set Config' : 'Add Client'}
       isOpen={isOpen}
       isSaving={isProcessing}
       isSaveDisabled={!isFormValid}
@@ -93,15 +103,15 @@ const AddEngineClientModal = () => {
         {!newClient && (
           <div className="flex flex-col gap-[24px]">
             <div className="flex flex-col gap-[8px]">
-              <NarInput label="Engine URL" value={form.engineUrl} onChange={(engineUrl) => updateForm({ engineUrl })} />
               <NarInput
-                label="Admin API Key"
-                value={form.engineAdminApiKey}
-                onChange={(engineAdminApiKey) => updateForm({ engineAdminApiKey })}
+                label="Auth Server URL"
+                value={form.authServerUrl}
+                onChange={(authServerUrl) => updateForm({ authServerUrl })}
               />
+              <NarInput label="Name" value={form.name} onChange={(name) => updateForm({ name })} />
               <div className="flex gap-[8px] items-end">
-                <NarInput label="Client ID" value={form.clientId} onChange={(clientId) => updateForm({ clientId })} />
-                <NarButton label="Generate" onClick={() => updateForm({ clientId: uuid() })} />
+                <NarInput label="Client ID" value={form.id} onChange={(id) => updateForm({ id })} />
+                <NarButton label="Generate" onClick={() => updateForm({ id: uuid() })} />
               </div>
             </div>
             <div className="flex gap-[24px]">
@@ -134,9 +144,12 @@ const AddEngineClientModal = () => {
         )}
         {newClient && (
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy label="Client ID" value={newClient.clientId} />
-            <ValueWithCopy label="Client Secret" value={newClient.clientSecret} />
-            <ValueWithCopy label="Client Signer" value={JSON.stringify(newClient.signer.publicKey, null, 2)} />
+            <ValueWithCopy label="Client ID" value={newClient.policyEngine.nodes[0].clientId} />
+            <ValueWithCopy label="Client Secret" value={newClient.policyEngine.nodes[0].clientSecret} />
+            <ValueWithCopy
+              label="Client Signer"
+              value={JSON.stringify(newClient.policyEngine.nodes[0].publicKey, null, 2)}
+            />
           </div>
         )}
       </div>
@@ -144,4 +157,4 @@ const AddEngineClientModal = () => {
   )
 }
 
-export default AddEngineClientModal
+export default AddAuthClientModal

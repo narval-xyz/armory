@@ -1,7 +1,9 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { ENGINE_URL, LOCAL_DATA_STORE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
+import { AUTH_SERVER_URL, ENGINE_URL, LOCAL_DATA_STORE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
 
 const useStore = () => {
+  const [authServerUrl, setAuthServerUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.authServerUrl, AUTH_SERVER_URL)
+
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
   const [engineClientSigner, setEngineClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSigner, '')
   const [engineAdminApiKey, setEngineAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.engineAdminApiKey, '')
@@ -24,6 +26,8 @@ const useStore = () => {
   )
 
   return {
+    authServerUrl,
+    setAuthServerUrl,
     engineUrl,
     setEngineUrl,
     engineClientSigner,

@@ -17,7 +17,7 @@ import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
-import RequestPlaygroundConfigModal from './PlaygroundConfigModal'
+import PlaygroundConfigModal from './PlaygroundConfigModal'
 import ValueWithCopy from './ValueWithCopy'
 
 enum Template {
@@ -149,7 +149,7 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
       <div className="flex items-center">
         <div className="text-nv-2xl grow">{title}</div>
         <div className="flex items-center gap-[8px]">
-          {authorize && (
+          {authorize && engineClientId && (
             <NarButton
               label="Authorize"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -157,7 +157,7 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
               disabled={isProcessing}
             />
           )}
-          {evaluate && (
+          {evaluate && engineClientId && (
             <NarButton
               label="Evaluate"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -165,7 +165,7 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
               disabled={isProcessing}
             />
           )}
-          {sign && (
+          {sign && vaultClientId && (
             <NarButton
               label="Sign"
               leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
@@ -173,7 +173,7 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
               disabled={isProcessing}
             />
           )}
-          {importPk && (
+          {importPk && vaultClientId && (
             <NarButton
               label="Import Private Key"
               leftIcon={<FontAwesomeIcon icon={faUpload} />}
@@ -181,7 +181,7 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
               disabled={isProcessing}
             />
           )}
-          <RequestPlaygroundConfigModal />
+          <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
         </div>
       </div>
       <div className="flex items-start">
