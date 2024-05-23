@@ -18,7 +18,8 @@ import useStore from './useStore'
 const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
   AuthorizationRequestStatus.PERMITTED,
   AuthorizationRequestStatus.FORBIDDEN,
-  AuthorizationRequestStatus.FAILED
+  AuthorizationRequestStatus.FAILED,
+  AuthorizationRequestStatus.CANCELED
 ]
 
 const useArmoryApi = () => {
