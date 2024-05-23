@@ -85,7 +85,9 @@ policy-engine/db/create-migration:
 
 policy-engine/db/seed:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register --project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.ts
+		ts-node -r tsconfig-paths/register \
+			--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json \
+			${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/seed.ts
 
 # === Testing ===
 

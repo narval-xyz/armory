@@ -90,7 +90,7 @@ export class ProvisionService {
   }
 
   private getOrGenerateAdminApiKey(): string {
-    return secret.hash(this.configService.get('adminApiKey') || secret.generate())
+    return secret.hash(this.configService.get('engine.adminApiKey') || secret.generate())
   }
 
   private getEngineId(): string {

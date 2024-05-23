@@ -1,5 +1,4 @@
 import { ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
@@ -34,12 +33,18 @@ export class AppService {
   }
 
   async save(app: App): Promise<App> {
-    await this.appRepository.save({
-      ...app,
-      adminApiKey: secret.hash(app.adminApiKey)
-    })
+    await this.appRepository.save(app)
 
     return app
+  }
+
+  async update(app: Partial<App>): Promise<App> {
+    const existingApp = await this.getAppOrThrow()
+    const updatedApp = { ...existingApp, ...app }
+
+    await this.appRepository.save(updatedApp)
+
+    return updatedApp
   }
 
   private getId(): string {

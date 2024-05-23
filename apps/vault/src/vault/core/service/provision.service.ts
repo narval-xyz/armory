@@ -31,15 +31,16 @@ export class ProvisionService {
     return app
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time
-  // This enables you to provision the app at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
+  // Activate is just a boolean that lets you return the adminApiKey one time.
+  // This enables you to provision the app at first-boot without access to the
+  // console, then to activate it to retrieve the api key through a REST
+  // endpoint.
   async activate(): Promise<App> {
     this.logger.log('Activate app')
-    const app = await this.appService.getAppOrThrow()
-    return this.appService.save({
-      ...app,
+
+    return this.appService.update({
       activated: true,
-      adminApiKey: secret.generate() // rotate the API key
+      adminApiKey: this.getOrGenerateAdminApiKey()
     })
   }
 
@@ -48,7 +49,7 @@ export class ProvisionService {
 
     const app = await this.appService.save({
       id: this.getAppId(),
-      adminApiKey: secret.generate(),
+      adminApiKey: this.getOrGenerateAdminApiKey(),
       activated: !!activate
     })
     return app
@@ -72,11 +73,15 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getAppId())
       const masterKey = await generateMasterKey(kek)
 
-      return await this.appService.save({ ...app, masterKey })
+      return await this.appService.update({ masterKey })
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
     }
     return app
+  }
+
+  private getOrGenerateAdminApiKey(): string {
+    return secret.hash(this.configService.get('app.adminApiKey') || secret.generate())
   }
 
   private getAppId(): string {
