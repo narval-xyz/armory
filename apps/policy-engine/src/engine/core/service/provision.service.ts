@@ -43,10 +43,8 @@ export class ProvisionService {
   // endpoint.
   async activate(): Promise<Engine> {
     this.logger.log('Activate app')
-    const engine = await this.engineService.getEngineOrThrow()
-    console.log('activate', engine)
-    return this.engineService.save({
-      ...engine,
+
+    return this.engineService.update({
       activated: true,
       adminApiKey: this.getOrGenerateAdminApiKey()
     })
@@ -67,8 +65,6 @@ export class ProvisionService {
     // Get the engine's latest state.
     const engine = await this.engineService.getEngineOrThrow()
 
-    console.log('maybeSetupEncryption', engine)
-
     if (engine.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
       return engine
@@ -84,7 +80,7 @@ export class ProvisionService {
       const masterKey = await generateMasterKey(kek)
 
       // WARN: This save hashes the key twice.
-      return await this.engineService.save({ ...engine, masterKey })
+      return await this.engineService.update({ masterKey })
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
     } else {
@@ -94,7 +90,7 @@ export class ProvisionService {
   }
 
   private getOrGenerateAdminApiKey(): string {
-    return this.configService.get('adminApiKey') || secret.generate()
+    return secret.hash(this.configService.get('adminApiKey') || secret.generate())
   }
 
   private getEngineId(): string {

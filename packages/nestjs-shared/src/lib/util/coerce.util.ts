@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ZodArray, ZodObject, z } from 'zod'
+import { ZodArray, ZodObject, ZodUnion, z } from 'zod'
 
-type JsonCompatibleSchema = ZodObject<any> | ZodArray<any>
+type JsonCompatibleSchema = ZodObject<any> | ZodArray<any> | ZodUnion<any>
 
 export const encode = <Schema extends JsonCompatibleSchema>(schema: Schema, value: unknown): string => {
   return JSON.stringify(schema.parse(value))
