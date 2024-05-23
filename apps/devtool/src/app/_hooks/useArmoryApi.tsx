@@ -1,13 +1,14 @@
 import {
   AuthorizationRequest,
   AuthorizationRequestStatus,
+  Endpoints,
   EngineClientConfig,
   getAuthorizationRequest,
   sendAuthorizationRequest
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { ARMORY_URL } from '../_lib/constants'
 import { extractErrorMessage } from '../_lib/utils'
@@ -23,7 +24,7 @@ const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
 const useArmoryApi = () => {
   const { engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
-  const [authReq, setAuthReq] = useState<AuthorizationRequest>()
+  const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
   const sdkArmoryConfig = useMemo<EngineClientConfig | null>(() => {
@@ -41,38 +42,40 @@ const useArmoryApi = () => {
     }
   }, [authClientId, authSecret, jwk, signer])
 
-  useSWR(
-    async () => {
-      if (!sdkArmoryConfig || !authReq) {
+  const { data: authRequestResult } = useSWR(
+    Endpoints.armory.authorizeRequest,
+    () => {
+      if (!sdkArmoryConfig || !processingRequest) {
         return null
       }
 
-      if (COMPLETED_STATUS.includes(authReq.status)) {
-        return null
-      }
-
-      const res = await getAuthorizationRequest(sdkArmoryConfig, authReq.id)
-      setAuthReq(res)
+      return getAuthorizationRequest(sdkArmoryConfig, processingRequest.id)
     },
-    null,
-    { refreshInterval: 5000 }
+    { refreshInterval: 1000 }
   )
+
+  useEffect(() => {
+    if (!authRequestResult) return
+
+    if (COMPLETED_STATUS.includes(authRequestResult.status)) {
+      setProcessingRequest(undefined)
+    }
+  }, [authRequestResult])
 
   const authorizeRequest = async (request: EvaluationRequest) => {
     if (!sdkArmoryConfig) return
 
     try {
       setErrors(undefined)
-      const res = await sendAuthorizationRequest(sdkArmoryConfig, request)
-      setAuthReq(res)
-
-      return res
+      const authRequest = await sendAuthorizationRequest(sdkArmoryConfig, request)
+      setProcessingRequest(authRequest)
+      return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
-  return { errors, authReq, authorizeRequest }
+  return { errors, authRequestResult, authorizeRequest }
 }
 
 export default useArmoryApi

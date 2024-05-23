@@ -23,7 +23,7 @@ enum Template {
 
 const RequestPlayground = () => {
   const { engineClientId, vaultClientId } = useStore()
-  const { authReq, authorizeRequest } = useArmoryApi()
+  const { authRequestResult, authorizeRequest } = useArmoryApi()
   const { errors: evaluationErrors, evaluate } = useEngineApi()
   const { errors: signatureErrors, sign, importPK: importPrivateKey } = useVaultApi()
 
@@ -34,7 +34,11 @@ const RequestPlayground = () => {
 
   useEffect(() => setDomLoaded(true), [])
 
-  useEffect(() => setResponseEditor(JSON.stringify(authReq, null, 2)), [authReq])
+  useEffect(() => {
+    if (!authRequestResult) return
+
+    setResponseEditor(JSON.stringify(authRequestResult, null, 2))
+  }, [authRequestResult])
 
   useEffect(() => {
     if (requestEditor) return
