@@ -1,7 +1,7 @@
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
 import { ClientModule } from '../client/client.module'
 import { load } from '../main.config'

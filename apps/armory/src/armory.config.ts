@@ -1,4 +1,5 @@
 import { hexSchema } from '@narval/policy-engine-shared'
+import { zip } from 'lodash/fp'
 import { z } from 'zod'
 
 export enum Env {
@@ -12,8 +13,17 @@ const configSchema = z.object({
   port: z.coerce.number(),
   cors: z.array(z.string()).optional(),
   policyEngine: z.object({
-    url: z.string().url(),
-    adminApiKey: z.string().optional()
+    nodes: z
+      .array(
+        z.object({
+          url: z.string().url(),
+          // TODO: (@wcalderipe) Make it required once we have determistic
+          // configuration files. The AS is not able to fully operate without
+          // PE admin API keys.
+          adminApiKey: z.string().optional()
+        })
+      )
+      .min(1)
   }),
   database: z.object({
     url: z.string().startsWith('postgresql://')
@@ -30,14 +40,22 @@ const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>
 
+const toArray = (value?: string): string[] => (value ? value.split(',') : [])
+
+const getPolicyEngineNodes = () => {
+  const urls = toArray(process.env.POLICY_ENGINE_URLS)
+  const adminApiKeys = toArray(process.env.POLICY_ENGINE_ADMIN_API_KEYS)
+
+  return zip(urls, adminApiKeys).map(([url, adminApiKey]) => ({ url, adminApiKey }))
+}
+
 export const load = (): Config => {
   const result = configSchema.safeParse({
     env: process.env.NODE_ENV,
     port: process.env.PORT,
-    cors: process.env.CORS ? process.env.CORS.split(',') : [],
+    cors: toArray(process.env.CORS),
     policyEngine: {
-      url: process.env.POLICY_ENGINE_URL,
-      adminApiKey: process.env.POLICY_ENGINE_ADMIN_API_KEY
+      nodes: getPolicyEngineNodes()
     },
     database: {
       url: process.env.APP_DATABASE_URL
