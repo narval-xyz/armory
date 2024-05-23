@@ -1,10 +1,12 @@
 import { secret } from '@narval/nestjs-shared'
-import { EntityStore, PolicyStore } from '@narval/policy-engine-shared'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { DataStoreConfiguration, EntityStore, PolicyStore } from '@narval/policy-engine-shared'
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { v4 as uuid } from 'uuid'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 import { DataStoreService } from './data-store.service'
+import { SigningService } from './signing.service.interface'
 
 @Injectable()
 export class ClientService {
@@ -12,11 +14,42 @@ export class ClientService {
 
   constructor(
     private clientRepository: ClientRepository,
-    private dataStoreService: DataStoreService
+    private dataStoreService: DataStoreService,
+    @Inject('SigningService') private signingService: SigningService
   ) {}
 
   async findById(clientId: string): Promise<Client | null> {
     return this.clientRepository.findById(clientId)
+  }
+
+  async create(args: {
+    clientId?: string
+    unsafeKeyId?: string
+    entityDataStore: DataStoreConfiguration
+    policyDataStore: DataStoreConfiguration
+  }): Promise<Client> {
+    const now = new Date()
+
+    const { unsafeKeyId, entityDataStore, policyDataStore } = args
+    const clientId = args.clientId || uuid()
+    const keyId = unsafeKeyId ? `${clientId}:${unsafeKeyId}` : undefined
+
+    const keypair = await this.signingService.generateKey(keyId)
+    const signer = { ...keypair }
+
+    const client = await this.save({
+      clientId,
+      clientSecret: secret.generate(),
+      dataStore: {
+        entity: entityDataStore,
+        policy: policyDataStore
+      },
+      signer,
+      createdAt: now,
+      updatedAt: now
+    })
+
+    return client
   }
 
   async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {

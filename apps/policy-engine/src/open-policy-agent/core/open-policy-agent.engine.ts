@@ -11,12 +11,13 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import { Payload, PrivateKey, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
+import { Payload, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
+import { SignerConfig } from '../../shared/type/domain.type'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
@@ -32,27 +33,19 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private resourcePath: string
 
-  // TODO: (@wcalderipe, 20/03/24) How we store and recover a signing key will
-  // change very soon because we need to support MPC signing.
-  // This code is here just for feature parity with the existing proof of
-  // concept.
-  private privateKey: PrivateKey
-
   private opa?: OpenPolicyAgentInstance
 
-  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string; privateKey: PrivateKey }) {
+  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string }) {
     this.entities = params.entities
     this.policies = params.policies
-    this.privateKey = params.privateKey
     this.resourcePath = params.resourcePath
   }
 
-  static empty(params: { resourcePath: string; privateKey: PrivateKey }): OpenPolicyAgentEngine {
+  static empty(params: { resourcePath: string }): OpenPolicyAgentEngine {
     return new OpenPolicyAgentEngine({
       entities: EntityUtil.empty(),
       policies: [],
-      resourcePath: params.resourcePath,
-      privateKey: params.privateKey
+      resourcePath: params.resourcePath
     })
   }
 
@@ -105,7 +98,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     }
   }
 
-  async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
+  async evaluate(evaluation: EvaluationRequest, signerConfig?: SignerConfig): Promise<EvaluationResponse> {
     const message = hash(evaluation.request)
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
 
@@ -126,21 +119,30 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     }
 
     if (response.decision === Decision.PERMIT) {
+      if (!signerConfig) {
+        throw new OpenPolicyAgentException({
+          message: 'Missing signer configuration',
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+        })
+      }
       return {
         ...response,
         accessToken: {
-          value: await this.sign({
-            principalCredential,
-            message,
-            ...(evaluation.request.action === Action.GRANT_PERMISSION && {
-              access: [
-                {
-                  resource: evaluation.request.resourceId,
-                  permissions: evaluation.request.permissions
-                }
-              ]
-            })
-          })
+          value: await this.sign(
+            {
+              principalCredential,
+              message,
+              ...(evaluation.request.action === Action.GRANT_PERMISSION && {
+                access: [
+                  {
+                    resource: evaluation.request.resourceId,
+                    permissions: evaluation.request.permissions
+                  }
+                ]
+              })
+            },
+            signerConfig
+          )
         }
       }
     }
@@ -274,16 +276,19 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
   }
 
-  private async sign(params: {
-    principalCredential: CredentialEntity
-    message: string
-    access?: [
-      {
-        resource: string
-        permissions: string[]
-      }
-    ]
-  }): Promise<JwtString> {
+  private async sign(
+    params: {
+      principalCredential: CredentialEntity
+      message: string
+      access?: [
+        {
+          resource: string
+          permissions: string[]
+        }
+      ]
+    },
+    signerConfig: SignerConfig
+  ): Promise<JwtString> {
     const principalJwk: PublicKey = params.principalCredential.key
 
     const payload: Payload = {
@@ -300,7 +305,12 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       cnf: principalJwk,
       ...(params.access && { access: params.access })
     }
-
-    return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
+    if (!signerConfig.publicKey || !signerConfig.signer) {
+      throw new OpenPolicyAgentException({
+        message: 'Missing signer configuration; cannot sign',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    }
+    return signJwt(payload, signerConfig.publicKey, { alg: SigningAlg.EIP191 }, signerConfig.signer)
   }
 }

@@ -28,7 +28,8 @@ const configSchema = z.object({
       type: z.literal('awskms'),
       masterAwsKmsArn: z.string()
     })
-  ])
+  ]),
+  signingProtocol: z.union([z.literal('basic'), z.literal('mpc')]).default('basic')
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -51,7 +52,8 @@ export const load = (): Config => {
       type: process.env.KEYRING_TYPE,
       masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
-    }
+    },
+    signingProtocol: process.env.SIGNING_PROTOCOL
   })
 
   if (result.success) {

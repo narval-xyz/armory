@@ -116,7 +116,7 @@ describe('Client', () => {
         .send(createClientPayload)
 
       const actualClient = await clientRepository.findById(clientId)
-      const hex = await privateKeyToHex(actualClient?.signer.key as PrivateKey)
+      const hex = await privateKeyToHex(actualClient?.signer.privateKey as PrivateKey)
       const actualPublicKey = secp256k1PrivateKeyToPublicJwk(hex)
 
       expect(body).toEqual({

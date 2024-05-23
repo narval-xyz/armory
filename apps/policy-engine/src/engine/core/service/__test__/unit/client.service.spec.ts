@@ -40,8 +40,7 @@ describe(ClientService.name, () => {
       policy: dataStoreConfiguration
     },
     signer: {
-      type: 'PRIVATE_KEY',
-      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
     },
     createdAt: new Date(),
     updatedAt: new Date()
