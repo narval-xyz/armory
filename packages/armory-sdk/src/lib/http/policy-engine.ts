@@ -1,11 +1,7 @@
-import {
-  EvaluationRequest,
-  SerializedEvaluationRequest,
-  SerializedEvaluationResponse
-} from '@narval/policy-engine-shared'
+import { EvaluationRequest, SerializedEvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_CLIENT_ID } from '../constants'
-import { Endpoints, EngineClientConfig } from '../domain'
+import { Endpoints, EngineClientConfig, SdkEvaluationResponse } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { buildBasicEngineHeaders, signRequest } from '../utils'
 
@@ -20,17 +16,16 @@ export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
 export const sendEvaluationRequest = async (
   config: EngineClientConfig,
   request: EvaluationRequest
-): Promise<SerializedEvaluationResponse> => {
+): Promise<SdkEvaluationResponse> => {
   try {
     const { authHost, authClientId } = config
     const body = await signRequest(config, request)
-    const { data } = await axios.post<SerializedEvaluationResponse>(
+    const { data } = await axios.post<SdkEvaluationResponse>(
       `${authHost}${Endpoints.engine.evaluations}`,
-      SerializedEvaluationRequest.parse(body.request),
+      SerializedEvaluationRequest.parse(body),
       { headers: { [HEADER_CLIENT_ID]: authClientId } }
     )
-
-    return SerializedEvaluationResponse.parse(data)
+    return SdkEvaluationResponse.parse(data)
   } catch (error) {
     throw new NarvalSdkException('Failed to evaluate request', { config, request, error })
   }

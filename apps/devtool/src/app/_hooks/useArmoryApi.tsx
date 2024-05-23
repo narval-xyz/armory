@@ -43,7 +43,7 @@ const useArmoryApi = () => {
     }
   }, [authClientId, authSecret, jwk, signer])
 
-  const { data: authRequestResult } = useSWR(
+  const { data: authorizationResponse } = useSWR(
     Endpoints.armory.authorizeRequest,
     () => {
       if (!sdkArmoryConfig || !processingRequest) {
@@ -56,14 +56,14 @@ const useArmoryApi = () => {
   )
 
   useEffect(() => {
-    if (!authRequestResult) return
+    if (!authorizationResponse) return
 
-    if (COMPLETED_STATUS.includes(authRequestResult.status)) {
+    if (COMPLETED_STATUS.includes(authorizationResponse.status)) {
       setProcessingRequest(undefined)
     }
-  }, [authRequestResult])
+  }, [authorizationResponse])
 
-  const authorizeRequest = async (request: EvaluationRequest) => {
+  const authorize = async (request: EvaluationRequest) => {
     if (!sdkArmoryConfig) return
 
     try {
@@ -76,7 +76,7 @@ const useArmoryApi = () => {
     }
   }
 
-  return { errors, authRequestResult, authorizeRequest }
+  return { errors, authorizationResponse, authorize }
 }
 
 export default useArmoryApi

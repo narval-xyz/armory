@@ -3,10 +3,10 @@
 import { faGear } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
-import NarButton from '../../_design-system/NarButton'
-import NarDialog from '../../_design-system/NarDialog'
-import NarInput from '../../_design-system/NarInput'
-import useStore from '../../_hooks/useStore'
+import NarButton from '../_design-system/NarButton'
+import NarDialog from '../_design-system/NarDialog'
+import NarInput from '../_design-system/NarInput'
+import useStore from '../_hooks/useStore'
 
 interface ConfigForm {
   engineUrl: string

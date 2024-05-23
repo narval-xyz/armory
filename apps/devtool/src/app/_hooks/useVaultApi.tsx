@@ -127,7 +127,7 @@ const useVaultApi = () => {
     }
   }
 
-  const importPK = (request: ImportPrivateKeyRequest) => {
+  const importPk = (request: ImportPrivateKeyRequest) => {
     if (!sdkArmoryConfig) return
 
     try {
@@ -138,7 +138,7 @@ const useVaultApi = () => {
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPK }
+  return { isProcessing, errors, ping, onboard, sign, importPk }
 }
 
 export default useVaultApi
