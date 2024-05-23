@@ -16,7 +16,6 @@ vault/setup:
 	make vault/copy-default-env
 	make vault/db/setup
 	make vault/test/db/setup
-	make vault/cli CMD=provision
 
 vault/copy-default-env:
 	cp ${VAULT_PROJECT_DIR}/.env.default ${VAULT_PROJECT_DIR}/.env
@@ -73,14 +72,11 @@ vault/db/create-migration:
 			--schema ${VAULT_DATABASE_SCHEMA} \
 			--name ${NAME}
 
-# To maintain seed data within their respective modules and then import them
-# into the main seed.ts file for execution, it's necessary to compile the
-# project and resolve its path aliases before running the vanilla JavaScript
-# seed entry point.
 vault/db/seed:
 	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register --project ${VAULT_PROJECT_DIR}/tsconfig.app.json ${VAULT_PROJECT_DIR}/src/shared/module/persistence/seed.ts
-
+		ts-node -r tsconfig-paths/register \
+			--project ${VAULT_PROJECT_DIR}/tsconfig.app.json \
+			${VAULT_PROJECT_DIR}/src/shared/module/persistence/seed.ts
 
 # === Testing ===
 
@@ -122,16 +118,8 @@ vault/test:
 	make vault/test/integration
 	make vault/test/e2e
 
-# === CLI ===
+# === Docker ===
 
-vault/cli:
-	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register \
-		--project ${VAULT_PROJECT_DIR}/tsconfig.app.json \
-		${VAULT_PROJECT_DIR}/src/cli.ts ${CMD}
-
-
-# === DOCKER ===
 vault/docker/build:
 	docker buildx build \
 		--platform linux/amd64 \
