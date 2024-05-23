@@ -10,11 +10,13 @@ const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
   cors: z.array(z.string()).optional(),
+  baseUrl: z.string().optional(),
   database: z.object({
     url: z.string().startsWith('postgresql:')
   }),
   app: z.object({
     id: z.string(),
+    adminApiKey: z.string().optional(),
     masterKey: z.string().optional()
   }),
   keyring: z.union([
@@ -26,8 +28,7 @@ const configSchema = z.object({
       type: z.literal('awskms'),
       masterAwsKmsArn: z.string()
     })
-  ]),
-  baseUrl: z.string().optional()
+  ])
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -37,19 +38,21 @@ export const load = (): Config => {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
     cors: process.env.CORS ? process.env.CORS.split(',') : [],
+    // Such as "https://vault.narval.xyz"
+    baseUrl: process.env.BASE_URL,
     database: {
       url: process.env.APP_DATABASE_URL
     },
     app: {
       id: process.env.APP_UID,
+      adminApiKey: process.env.ADMIN_API_KEY,
       masterKey: process.env.MASTER_KEY
     },
     keyring: {
       type: process.env.KEYRING_TYPE,
       masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
-    },
-    baseUrl: process.env.BASE_URL // Such as "https://vault.narval.xyz"
+    }
   })
 
   if (result.success) {
