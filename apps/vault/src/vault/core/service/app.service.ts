@@ -32,6 +32,9 @@ export class AppService {
     return null
   }
 
+  // IMPORTANT: The admin API key is hashed by the caller not the service. That
+  // allows us to have a determistic configuration file which is useful for
+  // automations like development or cloud set up.
   async save(app: App): Promise<App> {
     await this.appRepository.save(app)
 
