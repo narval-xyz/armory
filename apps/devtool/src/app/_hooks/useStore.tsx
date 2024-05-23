@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { DATA_STORE_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
+import { ENGINE_URL, LOCAL_DATA_STORE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
 
 const useStore = () => {
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
@@ -15,22 +15,12 @@ const useStore = () => {
 
   const [entityDataStoreUrl, setEntityDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.entityDataStoreUrl,
-    DATA_STORE_URL
-  )
-
-  const [entitySignatureUrl, setEntitySignatureUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.entitySignatureUrl,
-    DATA_STORE_URL
+    LOCAL_DATA_STORE_URL
   )
 
   const [policyDataStoreUrl, setPolicyDataStoreUrl] = useLocalStorage(
     LOCAL_STORAGE_KEYS.policyDataStoreUrl,
-    DATA_STORE_URL
-  )
-
-  const [policySignatureUrl, setPolicySignatureUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.policySignatureUrl,
-    DATA_STORE_URL
+    LOCAL_DATA_STORE_URL
   )
 
   return {
@@ -54,12 +44,8 @@ const useStore = () => {
     setVaultClientSecret,
     entityDataStoreUrl,
     setEntityDataStoreUrl,
-    entitySignatureUrl,
-    setEntitySignatureUrl,
     policyDataStoreUrl,
-    setPolicyDataStoreUrl,
-    policySignatureUrl,
-    setPolicySignatureUrl
+    setPolicyDataStoreUrl
   }
 }
 
