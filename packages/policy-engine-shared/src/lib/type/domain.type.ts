@@ -141,6 +141,7 @@ export type Feed<Data> = {
 
 export const EvaluationRequest = z
   .object({
+    sessionId: z.string().optional().describe('An ID for this request session. Used for MPC.'),
     authentication: JwtString.describe('JWT signature of the request property'),
     request: Request.describe('The request to be authorized'),
     approvals: z.array(JwtString).optional(),

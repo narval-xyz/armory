@@ -86,10 +86,7 @@ export class TSMClient {
       keyID: string,
       derivationPath: Uint32Array,
       message: Uint8Array
-    ): Promise<{
-      partialSignature: Uint8Array
-    }>
-    sign(sessionConfig: SessionConfig, keyID: string, derivationPath: Uint32Array, message: string): Promise<Uint8Array>
+    ): Promise<Uint8Array>
     signWithPresignature(
       keyID: string,
       presignatureID: string,

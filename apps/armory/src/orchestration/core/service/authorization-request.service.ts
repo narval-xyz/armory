@@ -1,7 +1,7 @@
 import { Action, Decision, JwtString } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid, v4 } from 'uuid'
 import { FIAT_ID_USD } from '../../../armory.constant'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
@@ -118,7 +118,8 @@ export class AuthorizationRequestService {
       authentication: input.authentication,
       approvals: input.approvals,
       request: input.request,
-      feeds: []
+      feeds: [],
+      sessionId: v4() // a random sessionId, used for MPC
     })
 
     const status = getStatus(evaluation.decision)

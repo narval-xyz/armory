@@ -29,7 +29,15 @@ const configSchema = z.object({
       masterAwsKmsArn: z.string()
     })
   ]),
-  signingProtocol: z.union([z.literal('simple'), z.literal('mpc')]).default('simple')
+  signingProtocol: z.union([z.literal('simple'), z.literal('mpc')]).default('simple'),
+  tsm: z
+    .object({
+      url: z.string(),
+      apiKey: z.string(),
+      playerCount: z.coerce.number().default(3)
+    })
+    .optional()
+    .describe('Only required when signingProtocol is mpc. The TSM SDK node config.')
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -53,7 +61,15 @@ export const load = (): Config => {
       masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
     },
-    signingProtocol: process.env.SIGNING_PROTOCOL
+    signingProtocol: process.env.SIGNING_PROTOCOL,
+    tsm:
+      process.env.SIGNING_PROTOCOL === 'mpc'
+        ? {
+            url: process.env.TSM_URL,
+            apiKey: process.env.TSM_API_KEY,
+            playerCount: process.env.TSM_PLAYER_COUNT
+          }
+        : undefined
   })
 
   if (result.success) {

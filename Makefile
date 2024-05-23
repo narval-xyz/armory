@@ -77,3 +77,18 @@ test:
 	make test/unit
 	make test/integration
 	make test/e2e
+
+# === Docker ===
+
+docker/local/build:
+	docker buildx build \
+		--platform linux/arm64 \
+		--file local.dockerfile \
+		--tag armory/local:latest \
+		. --load
+
+docker/local/start:
+	docker-compose up -d
+
+docker/local/stop:
+	docker-compose stop

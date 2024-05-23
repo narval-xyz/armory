@@ -1,5 +1,6 @@
 import { secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, EntityStore, PolicyStore } from '@narval/policy-engine-shared'
+import { hash } from '@narval/signature'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -34,8 +35,12 @@ export class ClientService {
     const clientId = args.clientId || uuid()
     const keyId = unsafeKeyId ? `${clientId}:${unsafeKeyId}` : undefined
 
-    const keypair = await this.signingService.generateKey(keyId)
-    const signer = { ...keypair }
+    const sessionId = hash(args) // for MPC, we need a unique sessionId; we'll just generate it from the data since this isn't tx signing so it happens just once
+    const keypair = await this.signingService.generateKey(keyId, sessionId)
+    const signer = {
+      keyId: keypair.publicKey.kid,
+      ...keypair
+    }
 
     const client = await this.save({
       clientId,

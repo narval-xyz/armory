@@ -74,7 +74,7 @@ export class EvaluationService {
         jwtPayload,
         client.signer.publicKey,
         { alg: SigningAlg.EIP191 },
-        this.signingService.buildSignerEip191(client.signer)
+        this.signingService.buildSignerEip191(client.signer, evaluation.sessionId)
       )
       // Add the access token into the response
       evaluationResponse.accessToken = { value: jwt }

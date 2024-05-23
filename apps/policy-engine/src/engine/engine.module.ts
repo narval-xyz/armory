@@ -54,7 +54,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
         if (signingProtocol === 'simple') {
           return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
-          return new MpcSigningService()
+          return new MpcSigningService(configService)
         }
       },
       inject: [ConfigService]
