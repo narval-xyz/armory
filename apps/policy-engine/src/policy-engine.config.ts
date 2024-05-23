@@ -10,14 +10,15 @@ const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
   cors: z.array(z.string()).optional(),
+  resourcePath: z.string(),
   database: z.object({
     url: z.string().startsWith('postgresql:')
   }),
   engine: z.object({
     id: z.string(),
+    adminApiKey: z.string().optional(),
     masterKey: z.string().optional()
   }),
-  resourcePath: z.string(),
   keyring: z.union([
     z.object({
       type: z.literal('raw'),
@@ -43,6 +44,7 @@ export const load = (): Config => {
     },
     engine: {
       id: process.env.APP_UID,
+      adminApiKey: process.env.ADMIN_API_KEY,
       masterKey: process.env.MASTER_KEY
     },
     keyring: {

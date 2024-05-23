@@ -37,15 +37,16 @@ export class ProvisionService {
     return engine
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time
-  // This enables you to provision the engine at first-boot without access to the console, then to activate it to retrieve the api key through a REST endpoint.
+  // Activate is just a boolean that lets you return the adminApiKey one time.
+  // This enables you to provision the engine at first-boot without access to
+  // the console, then to activate it to retrieve the api key through a REST
+  // endpoint.
   async activate(): Promise<Engine> {
     this.logger.log('Activate app')
-    const engine = await this.engineService.getEngineOrThrow()
-    return this.engineService.save({
-      ...engine,
+
+    return this.engineService.update({
       activated: true,
-      adminApiKey: secret.generate()
+      adminApiKey: this.getOrGenerateAdminApiKey()
     })
   }
 
@@ -54,8 +55,8 @@ export class ProvisionService {
 
     const app = await this.engineService.save({
       id: this.getEngineId(),
-      adminApiKey: secret.generate(),
-      activated: !!activate
+      activated: !!activate,
+      adminApiKey: this.getOrGenerateAdminApiKey()
     })
     return app
   }
@@ -78,13 +79,18 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getEngineId())
       const masterKey = await generateMasterKey(kek)
 
-      return await this.engineService.save({ ...engine, masterKey })
+      // WARN: This save hashes the key twice.
+      return await this.engineService.update({ masterKey })
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
     } else {
       throw new ProvisionException('Unsupported keyring type')
     }
     return engine
+  }
+
+  private getOrGenerateAdminApiKey(): string {
+    return secret.hash(this.configService.get('engine.adminApiKey') || secret.generate())
   }
 
   private getEngineId(): string {

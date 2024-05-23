@@ -17,7 +17,7 @@ describe(AppService.name, () => {
   const app = {
     id: 'test-app-id',
     masterKey: 'test-master-key',
-    adminApiKey: 'test-admin-api-key',
+    adminApiKey: secret.hash('test-admin-api-key'),
     activated: true
   }
 
@@ -54,14 +54,17 @@ describe(AppService.name, () => {
       expect(actualApp.adminApiKey).toEqual(app.adminApiKey)
     })
 
-    it('hashes the secret key', async () => {
+    // IMPORTANT: The admin API key is hashed by the caller not the service. That
+    // allows us to have a determistic configuration file which is useful for
+    // automations like development or cloud set up.
+    it('does not hash the secret key', async () => {
       jest.spyOn(configService, 'get').mockReturnValue(app.id)
 
       await appService.save(app)
 
       const actualApp = await appService.getApp()
 
-      expect(actualApp?.adminApiKey).toEqual(secret.hash(app.adminApiKey))
+      expect(actualApp?.adminApiKey).toEqual(app.adminApiKey)
     })
   })
 })
