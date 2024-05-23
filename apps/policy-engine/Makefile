@@ -126,14 +126,6 @@ policy-engine/test:
 	make policy-engine/test/integration
 	make policy-engine/test/e2e
 
-# === CLI ===
-
-policy-engine/cli:
-	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
-		ts-node -r tsconfig-paths/register \
-		--project ${POLICY_ENGINE_PROJECT_DIR}/tsconfig.app.json \
-		${POLICY_ENGINE_PROJECT_DIR}/src/cli.ts ${CMD}
-
 # === Open Policy Agent & Rego ===
 
 policy-engine/rego/build:
