@@ -35,9 +35,19 @@ interface PlaygroundProps {
   evaluate?: (req: EvaluationRequest) => Promise<SdkEvaluationResponse> | undefined
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
   importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse | SdkEvaluationResponse> | undefined
+  validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
-const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, evaluate, sign, importPk }) => {
+const Playground: FC<PlaygroundProps> = ({
+  title,
+  response,
+  errors,
+  authorize,
+  evaluate,
+  sign,
+  importPk,
+  validateResponse
+}) => {
   const { engineClientId, vaultClientId } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
@@ -116,22 +126,17 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
   const handleSign = async () => {
     if (!responseEditor) return
 
-    // Currently, Engine returns AccessToken while Armory returns Authorization
-    // TODO: use zod to validate this schema
-    const parsed = JSON.parse(responseEditor)
-    const { request, evaluations } = parsed
-    let accessToken = parsed.accessToken
-    if (!accessToken && evaluations && evaluations[0].signature) {
-      accessToken = { value: evaluations[0].signature }
-    }
+    const responseJson = JSON.parse(responseEditor)
 
-    if (!accessToken || !request) return
+    const signatureReq = await validateResponse(responseJson)
+
+    if (!signatureReq) return
 
     setIsProcessing(true)
 
     try {
       setResponseEditor(undefined)
-      const response = sign && (await sign({ accessToken, request }))
+      const response = sign && (await sign(signatureReq))
       if (response) setResponseEditor(JSON.stringify(response, null, 2))
     } catch (error) {}
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { SdkEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
 import useEngineApi from '../../_hooks/useEngineApi'
@@ -19,7 +20,28 @@ const PolicyEnginePlayground = () => {
     }
   }, [evaluationErrors, signatureErrors])
 
-  return <Playground title="Policy Engine" errors={errors} evaluate={evaluate} sign={sign} importPk={importPk} />
+  const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
+    const response = SdkEvaluationResponse.safeParse(res)
+
+    if (!response.success || !response.data.accessToken || !response.data.request) {
+      return undefined
+    }
+
+    const { accessToken, request } = response.data
+
+    return { accessToken, request }
+  }
+
+  return (
+    <Playground
+      title="Policy Engine"
+      errors={errors}
+      evaluate={evaluate}
+      sign={sign}
+      importPk={importPk}
+      validateResponse={validateResponse}
+    />
+  )
 }
 
 export default PolicyEnginePlayground

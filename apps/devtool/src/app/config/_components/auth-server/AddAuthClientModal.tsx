@@ -69,7 +69,7 @@ const AddAuthClientModal = () => {
 
     setEngineClientId(clientId)
     setEngineClientSecret(clientSecret)
-    setEngineClientSigner(publicKey)
+    setEngineClientSigner(JSON.stringify(publicKey))
     setEntityDataStoreUrl(`${MANAGED_ENTITY_DATA_STORE_URL}${clientId}`)
     setPolicyDataStoreUrl(`${MANAGED_POLICY_DATA_STORE_URL}${clientId}`)
     closeDialog()
