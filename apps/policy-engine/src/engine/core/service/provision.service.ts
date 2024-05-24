@@ -22,18 +22,33 @@ export class ProvisionService {
   ) {}
 
   async provision(activate?: boolean): Promise<Engine | null> {
-    let engine = await this.engineService.getEngine()
+    const engine = await this.engineService.getEngine()
 
     const isFirstTime = engine === null
 
     // IMPORTANT: The order of internal methods call matters.
     if (isFirstTime) {
       this.logger.log('Start app provision')
-      engine = await this.createEngine(activate)
-      engine = await this.maybeSetupEncryption()
+
+      const adminApiKey = this.getOrGenerateAdminApiKey()
+      const newEngine: Engine = {
+        id: this.getEngineId(),
+        adminApiKey,
+        activated: !!activate
+      }
+
+      const withEncryption = await this.setupEncryption(newEngine)
+
+      await this.engineService.save({
+        ...withEncryption,
+        adminApiKey: secret.hash(adminApiKey)
+      })
+
+      return withEncryption
     } else {
       this.logger.log('App already provisioned')
     }
+
     return engine
   }
 
@@ -44,27 +59,19 @@ export class ProvisionService {
   async activate(): Promise<Engine> {
     this.logger.log('Activate app')
 
-    return this.engineService.update({
+    const adminApiKey = this.getOrGenerateAdminApiKey()
+
+    console.log({ adminApiKey, hash: secret.hash(adminApiKey) })
+
+    const app = await this.engineService.update({
       activated: true,
-      adminApiKey: this.getOrGenerateAdminApiKey()
+      adminApiKey: secret.hash(adminApiKey)
     })
+
+    return { ...app, adminApiKey }
   }
 
-  private async createEngine(activate?: boolean): Promise<Engine> {
-    this.logger.log('Generate admin API key and save engine')
-
-    const app = await this.engineService.save({
-      id: this.getEngineId(),
-      activated: !!activate,
-      adminApiKey: this.getOrGenerateAdminApiKey()
-    })
-    return app
-  }
-
-  private async maybeSetupEncryption(): Promise<Engine> {
-    // Get the engine's latest state.
-    const engine = await this.engineService.getEngineOrThrow()
-
+  private async setupEncryption(engine: Engine): Promise<Engine> {
     if (engine.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
       return engine
@@ -79,18 +86,18 @@ export class ProvisionService {
       const kek = generateKeyEncryptionKey(masterPassword, this.getEngineId())
       const masterKey = await generateMasterKey(kek)
 
-      // WARN: This save hashes the key twice.
-      return await this.engineService.update({ masterKey })
+      return { ...engine, masterKey }
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
     } else {
       throw new ProvisionException('Unsupported keyring type')
     }
+
     return engine
   }
 
   private getOrGenerateAdminApiKey(): string {
-    return secret.hash(this.configService.get('engine.adminApiKey') || secret.generate())
+    return this.configService.get('engine.adminApiKey') || secret.generate()
   }
 
   private getEngineId(): string {

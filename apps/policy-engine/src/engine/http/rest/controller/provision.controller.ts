@@ -4,7 +4,11 @@ import { Config } from '../../../../policy-engine.config'
 import { EngineService } from '../../../core/service/engine.service'
 import { ProvisionService } from '../../../core/service/provision.service'
 
-type ProvisionResponse = {
+type AlreadyProvisioned = {
+  alreadyProvisioned: true
+}
+
+type State = {
   appId: string
   adminApiKey: string | undefined
   encryptionType: string
@@ -12,6 +16,13 @@ type ProvisionResponse = {
   isMasterKeySet?: boolean
   isMasterKmsArnSet?: boolean
 }
+
+type Provisioned = {
+  alreadyProvisioned: false
+  state: State
+}
+
+type Response = AlreadyProvisioned | Provisioned
 
 @Controller('/provision')
 export class ProvisionController {
@@ -22,16 +33,17 @@ export class ProvisionController {
   ) {}
 
   @Post()
-  async provision(): Promise<string | ProvisionResponse> {
+  async provision(): Promise<Response> {
     const engine = await this.engineService.getEngine()
     const keyringConfig = this.configService.get('keyring')
 
-    const isProvisioned =
+    const isProvisioned = Boolean(
       (keyringConfig.type === 'raw' && engine?.masterKey) ||
-      (keyringConfig.type === 'awskms' && keyringConfig?.masterAwsKmsArn)
+        (keyringConfig.type === 'awskms' && keyringConfig?.masterAwsKmsArn)
+    )
 
     if (engine && isProvisioned && engine.activated) {
-      return 'App already provisioned'
+      return { alreadyProvisioned: true }
     }
 
     let adminApiKey
@@ -40,6 +52,7 @@ export class ProvisionController {
       const activatedApp = await this.provisionService.activate()
       adminApiKey = activatedApp.adminApiKey
     }
+
     // Provision the engine if it hasn't yet
     else {
       const newApp = await this.provisionService.provision(true)
@@ -49,22 +62,22 @@ export class ProvisionController {
     try {
       const engine = await this.engineService.getEngineOrThrow()
 
-      const response: ProvisionResponse = {
+      const state: State = {
         appId: engine.id,
         adminApiKey,
         encryptionType: keyringConfig.type
       }
 
       if (keyringConfig.type === 'raw') {
-        response.isMasterPasswordSet = Boolean(keyringConfig.masterPassword)
-        response.isMasterKeySet = Boolean(engine.masterKey)
+        state.isMasterPasswordSet = Boolean(keyringConfig.masterPassword)
+        state.isMasterKeySet = Boolean(engine.masterKey)
       }
 
       if (keyringConfig.type === 'awskms') {
-        response.isMasterKmsArnSet = Boolean(keyringConfig.masterAwsKmsArn)
+        state.isMasterKmsArnSet = Boolean(keyringConfig.masterAwsKmsArn)
       }
 
-      return response
+      return { alreadyProvisioned: false, state }
     } catch (error) {
       throw new HttpException('Something went wrong provisioning the app', HttpStatus.INTERNAL_SERVER_ERROR)
     }
