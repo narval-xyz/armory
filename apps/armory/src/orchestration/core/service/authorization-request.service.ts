@@ -1,14 +1,15 @@
 import { Action, Decision, JwtString } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
-import { Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { FIAT_ID_USD } from '../../../armory.constant'
-import { FeedService } from '../../../data-feed/core/service/feed.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 import {
   AuthorizationRequest,
+  AuthorizationRequestError,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest
 } from '../../core/type/domain.type'
@@ -41,7 +42,6 @@ export class AuthorizationRequestService {
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
-    private feedService: FeedService,
     private clusterService: ClusterService
   ) {}
 
@@ -174,5 +174,23 @@ export class AuthorizationRequestService {
     })
 
     return authzRequest
+  }
+
+  async fail(id: string, error: AuthorizationRequestError): Promise<AuthorizationRequest> {
+    const request = await this.authzRequestRepository.findById(id)
+
+    if (request) {
+      return this.authzRequestRepository.update({
+        ...request,
+        status: AuthorizationRequestStatus.FAILED,
+        errors: [error]
+      })
+    }
+
+    throw new ApplicationException({
+      message: 'Could not find the authorization request to fail',
+      suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+      context: { id }
+    })
   }
 }

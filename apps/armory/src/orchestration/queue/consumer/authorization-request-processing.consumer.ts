@@ -1,6 +1,7 @@
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
+import { v4 as uuid } from 'uuid'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
@@ -63,9 +64,15 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueCompleted()
-  onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
+  async onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
     if (result instanceof Error) {
       this.logger.error('Stop processing authorization request due to unrecoverable error', result)
+
+      await this.authzService.fail(job.id.toString(), {
+        ...result,
+        id: uuid()
+      })
+
       return
     }
 
