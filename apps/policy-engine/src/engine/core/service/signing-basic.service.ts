@@ -16,7 +16,6 @@ export class SimpleSigningService implements SigningService {
 
   constructor() {}
 
-  // TODO: test: that ensures KeyId is passed through
   async generateKey(keyId?: string) {
     const privateKey = privateKeyToJwk(generatePrivateKey(), Alg.ES256K, keyId)
     const hex = await privateKeyToHex(privateKey)
