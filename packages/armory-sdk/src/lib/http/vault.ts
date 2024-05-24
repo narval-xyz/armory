@@ -1,27 +1,109 @@
-import { SerializedRequest } from '@narval/policy-engine-shared'
+import { Action, EvaluationRequest, SerializedRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { ImportPrivateKeyResponse, SignatureResponse } from '../domain'
-import { SendImportPrivateKey, SendSignatureRequest } from './schema'
+import { v4 } from 'uuid'
+import { privateKeyToAddress } from 'viem/accounts'
+import {
+  ArmoryClientConfig,
+  Endpoints,
+  Htm,
+  ImportPrivateKeyRequest,
+  ImportPrivateKeyResponse,
+  Permission,
+  SdkEvaluationResponse,
+  SignatureRequest,
+  SignatureResponse,
+  VaultClientConfig
+} from '../domain'
+import { NarvalSdkException } from '../exceptions'
+import { buildGnapVaultHeaders, resourceId, signAccountJwsd } from '../utils'
+import { sendEvaluationRequest } from './policy-engine'
 
-export const sendSignatureRequest = async (input: SendSignatureRequest): Promise<SignatureResponse> => {
-  const { uri, headers, request } = input
-  const serializedRequest = SerializedRequest.parse(request)
-  const { data } = await axios.post(
-    uri,
-    { request: serializedRequest },
-    {
-      headers
-    }
-  )
-
-  return data
+export const pingVault = async (config: VaultClientConfig): Promise<void> => {
+  try {
+    return axios.get(config.vaultHost)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to ping vault', { config, error })
+  }
 }
 
-export const sendImportPrivateKey = async (input: SendImportPrivateKey): Promise<ImportPrivateKeyResponse> => {
-  const { uri, headers, request } = input
+export const signRequest = async (
+  config: VaultClientConfig,
+  { request, accessToken }: SignatureRequest
+): Promise<SignatureResponse> => {
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-  const { data } = await axios.post(uri, request, {
-    headers
-  })
-  return data
+    const uri = `${vaultHost}${Endpoints.vault.sign}`
+
+    const detachedJws = await signAccountJwsd({
+      payload: { request },
+      uri,
+      accessToken,
+      htm: Htm.POST,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post(
+      uri,
+      { request: SerializedRequest.parse(request) },
+      { headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws) }
+    )
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to sign request', { config, payload: { request, accessToken }, error })
+  }
+}
+
+export const importPrivateKey = async (
+  config: ArmoryClientConfig,
+  { privateKey, walletId }: ImportPrivateKeyRequest
+): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
+
+    const grantPermissionRequest = EvaluationRequest.parse({
+      authentication: '',
+      request: {
+        action: Action.GRANT_PERMISSION,
+        resourceId: walletId,
+        nonce: v4(),
+        permissions: [Permission.WALLET_CREATE]
+      }
+    })
+    const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
+
+    const { accessToken } = evaluationResponse
+
+    if (!accessToken) {
+      return SdkEvaluationResponse.parse(evaluationResponse)
+    }
+
+    const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`
+
+    const payload = {
+      privateKey,
+      walletId: resourceId(walletId || privateKeyToAddress(privateKey))
+    }
+
+    const detachedJws = await signAccountJwsd({
+      payload,
+      uri,
+      htm: Htm.POST,
+      accessToken,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post(uri, payload, {
+      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to import private key', { config, payload: { privateKey, walletId }, error })
+  }
 }

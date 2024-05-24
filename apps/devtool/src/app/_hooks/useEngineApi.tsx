@@ -1,4 +1,4 @@
-import { EngineClientConfig, evaluate, pingEngine, syncDataStores } from '@narval/armory-sdk'
+import { EngineClientConfig, pingEngine, sendEvaluationRequest, syncEngine } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import axios from 'axios'
@@ -112,7 +112,7 @@ const useEngineApi = () => {
 
     try {
       setErrors(undefined)
-      const isSynced = await syncDataStores(sdkEngineConfig)
+      const isSynced = await syncEngine(sdkEngineConfig)
       setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
@@ -120,12 +120,12 @@ const useEngineApi = () => {
     }
   }
 
-  const evaluateRequest = (request: EvaluationRequest) => {
+  const evaluate = (request: EvaluationRequest) => {
     if (!sdkEngineConfig) return
 
     try {
       setErrors(undefined)
-      return evaluate(sdkEngineConfig, request)
+      return sendEvaluationRequest(sdkEngineConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -139,7 +139,7 @@ const useEngineApi = () => {
     ping,
     onboard,
     sync,
-    evaluateRequest
+    evaluate
   }
 }
 
