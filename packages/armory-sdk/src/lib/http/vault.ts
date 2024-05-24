@@ -59,34 +59,36 @@ export const signRequest = async (
 
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
-  { privateKey, walletId }: ImportPrivateKeyRequest
+  request: ImportPrivateKeyRequest
 ): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
+  const { privateKey } = request
+  const walletId = resourceId(request.walletId || privateKeyToAddress(privateKey))
+  const payload = { privateKey, walletId }
+
   try {
+    let accessToken = request.accessToken
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const grantPermissionRequest = EvaluationRequest.parse({
-      authentication: '',
-      request: {
-        action: Action.GRANT_PERMISSION,
-        resourceId: walletId,
-        nonce: v4(),
-        permissions: [Permission.WALLET_CREATE]
+    if (!accessToken || !accessToken.value) {
+      const grantPermissionRequest = EvaluationRequest.parse({
+        authentication: 'missing',
+        request: {
+          action: Action.GRANT_PERMISSION,
+          resourceId: walletId,
+          nonce: v4(),
+          permissions: [Permission.WALLET_CREATE]
+        }
+      })
+      const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
+
+      if (!evaluationResponse.accessToken) {
+        return SdkEvaluationResponse.parse(evaluationResponse)
       }
-    })
-    const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
 
-    const { accessToken } = evaluationResponse
-
-    if (!accessToken) {
-      return SdkEvaluationResponse.parse(evaluationResponse)
+      accessToken = evaluationResponse.accessToken
     }
 
     const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`
-
-    const payload = {
-      privateKey,
-      walletId: resourceId(walletId || privateKeyToAddress(privateKey))
-    }
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -104,6 +106,6 @@ export const importPrivateKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import private key', { config, payload: { privateKey, walletId }, error })
+    throw new NarvalSdkException('Failed to import private key', { config, payload, error })
   }
 }
