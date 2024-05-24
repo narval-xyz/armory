@@ -21,26 +21,33 @@ export type Evaluation = {
 /**
  * AuthZ actions currently supported by the Armory.
  */
-export type SupportedAction = typeof Action.SIGN_TRANSACTION | typeof Action.SIGN_MESSAGE
+export type SupportedAction =
+  | typeof Action.SIGN_TRANSACTION
+  | typeof Action.SIGN_MESSAGE
+  | typeof Action.GRANT_PERMISSION
 
 export type SharedAuthorizationPayload = {
   action: SupportedAction
+  resourceId: string
   nonce: string
 }
 
 export type SignTransaction = SharedAuthorizationPayload & {
   action: typeof Action.SIGN_TRANSACTION
-  resourceId: string
   transactionRequest: TransactionRequest
 }
 
 export type SignMessage = SharedAuthorizationPayload & {
   action: typeof Action.SIGN_MESSAGE
-  resourceId: string
   message: string
 }
 
-export type Request = SignTransaction | SignMessage
+export type GrantPermission = SharedAuthorizationPayload & {
+  action: typeof Action.GRANT_PERMISSION
+  permissions: string[]
+}
+
+export type Request = SignTransaction | SignMessage | GrantPermission
 
 export type AuthorizationRequest = {
   id: string

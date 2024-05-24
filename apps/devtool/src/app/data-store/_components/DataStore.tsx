@@ -1,9 +1,12 @@
 'use client'
 
+import { faArrowRightArrowLeft } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
 import SuccessStatus from '../../_components/SuccessStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
+import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
@@ -27,6 +30,7 @@ const DataStore = () => {
   const {
     entityStore,
     policyStore,
+    isUsingManagedDataStore,
     processingStatus: {
       isFetchingEntity,
       isFetchingPolicy,
@@ -41,6 +45,7 @@ const DataStore = () => {
     signPolicyData,
     signAndPushEntity,
     signAndPushPolicy,
+    switchDataStore,
     errors,
     validationErrors
   } = useDataStoreApi()
@@ -63,6 +68,12 @@ const DataStore = () => {
           <div className="flex items-center gap-[8px]">
             <ErrorStatus label={errors} />
             <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
+            <NarButton
+              variant="tertiary"
+              label={`Use ${isUsingManagedDataStore ? 'Local Data Store' : 'Managed Data Store'}`}
+              leftIcon={<FontAwesomeIcon icon={faArrowRightArrowLeft} />}
+              onClick={switchDataStore}
+            />
             <DataStoreConfigModal />
           </div>
         </div>

@@ -1,18 +1,45 @@
-import {
-  EvaluationResponse,
-  SerializedEvaluationRequest,
-  SerializedEvaluationResponse
-} from '@narval/policy-engine-shared'
+import { EvaluationRequest, SerializedEvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { SendEvaluationRequest } from './schema'
+import { HEADER_CLIENT_ID } from '../constants'
+import { Endpoints, EngineClientConfig, SdkEvaluationResponse } from '../domain'
+import { NarvalSdkException } from '../exceptions'
+import { buildBasicEngineHeaders, signRequest } from '../utils'
 
-export const sendEvaluationRequest = async (input: SendEvaluationRequest): Promise<EvaluationResponse> => {
-  const { uri, request, headers } = input
+export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
+  try {
+    return axios.get(config.authHost)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to ping engine', { config, error })
+  }
+}
 
-  const serializedRequest = SerializedEvaluationRequest.parse(request)
-  const { data } = await axios.post<SerializedEvaluationResponse>(uri, serializedRequest, {
-    headers
-  })
+export const sendEvaluationRequest = async (
+  config: EngineClientConfig,
+  request: EvaluationRequest
+): Promise<SdkEvaluationResponse> => {
+  try {
+    const { authHost, authClientId } = config
+    const body = await signRequest(config, request)
+    const { data } = await axios.post<SdkEvaluationResponse>(
+      `${authHost}${Endpoints.engine.evaluations}`,
+      SerializedEvaluationRequest.parse(body),
+      { headers: { [HEADER_CLIENT_ID]: authClientId } }
+    )
+    return SdkEvaluationResponse.parse(data)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to evaluate request', { config, request, error })
+  }
+}
 
-  return EvaluationResponse.parse(data)
+export const syncEngine = async (config: EngineClientConfig): Promise<boolean> => {
+  try {
+    const { authHost } = config
+    const { data } = await axios.post(`${authHost}${Endpoints.engine.sync}`, null, {
+      headers: buildBasicEngineHeaders(config)
+    })
+
+    return data.ok
+  } catch (error) {
+    throw new NarvalSdkException('Failed to sync engine', { config, error })
+  }
 }
