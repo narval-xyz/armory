@@ -38,21 +38,29 @@ export class ProvisionService {
   async activate(): Promise<App> {
     this.logger.log('Activate app')
 
-    return this.appService.update({
+    const adminApiKey = this.getOrGenerateAdminApiKey()
+
+    const app = await this.appService.update({
       activated: true,
-      adminApiKey: this.getOrGenerateAdminApiKey()
+      adminApiKey: secret.hash(adminApiKey)
     })
+
+    return { ...app, adminApiKey }
   }
 
   private async createApp(activate?: boolean): Promise<App> {
     this.logger.log('Generate admin API key and save app')
 
-    const app = await this.appService.save({
+    const adminApiKey = this.getOrGenerateAdminApiKey()
+    const app = {
       id: this.getAppId(),
-      adminApiKey: this.getOrGenerateAdminApiKey(),
+      adminApiKey: secret.hash(adminApiKey),
       activated: !!activate
-    })
-    return app
+    }
+
+    await this.appService.save(app)
+
+    return { ...app, adminApiKey }
   }
 
   private async maybeSetupEncryption(): Promise<App> {
@@ -81,7 +89,7 @@ export class ProvisionService {
   }
 
   private getOrGenerateAdminApiKey(): string {
-    return secret.hash(this.configService.get('app.adminApiKey') || secret.generate())
+    return this.configService.get('app.adminApiKey') || secret.generate()
   }
 
   private getAppId(): string {
