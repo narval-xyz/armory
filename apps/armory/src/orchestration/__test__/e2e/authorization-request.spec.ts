@@ -18,7 +18,7 @@ import { OrchestrationModule } from '../../orchestration.module'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '../../queue/consumer/authorization-request-processing.consumer'
 
-const ENDPOINT_PREFIX = '/authorization-requests'
+const ENDPOINT = '/authorization-requests'
 
 describe('Authorization Request', () => {
   let app: INestApplication
@@ -97,7 +97,7 @@ describe('Authorization Request', () => {
     await authzRequestProcessingQueue.empty()
   })
 
-  describe('POST /evaluations', () => {
+  describe(`POST ${ENDPOINT}`, () => {
     it('evaluates a sign message authorization request', async () => {
       const payload = {
         authentication,
@@ -111,7 +111,7 @@ describe('Authorization Request', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(ENDPOINT_PREFIX)
+        .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
@@ -156,7 +156,7 @@ describe('Authorization Request', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(ENDPOINT_PREFIX)
+        .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
@@ -189,7 +189,7 @@ describe('Authorization Request', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post(ENDPOINT_PREFIX)
+        .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
@@ -207,7 +207,7 @@ describe('Authorization Request', () => {
     })
   })
 
-  describe('GET /evaluations/:id', () => {
+  describe(`GET ${ENDPOINT}/:id`, () => {
     const authzRequest: AuthorizationRequest = {
       authentication,
       id: '986ae19d-c30c-40c6-b873-1fb6c49011de',
@@ -222,6 +222,7 @@ describe('Authorization Request', () => {
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       evaluations: [],
       approvals: [],
+      errors: [],
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -232,7 +233,7 @@ describe('Authorization Request', () => {
 
     it('responds with authorization request', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .get(`${ENDPOINT_PREFIX}/${authzRequest.id}`)
+        .get(`${ENDPOINT}/${authzRequest.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
 
       expect(status).toEqual(HttpStatus.OK)

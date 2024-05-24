@@ -226,4 +226,21 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
       })
     })
   })
+
+  describe('onCompleted', () => {
+    const job = mock<Job<AuthorizationRequestProcessingJob>>({
+      id: authzRequest.id,
+      opts: {
+        jobId: authzRequest.id
+      }
+    })
+
+    it('changes the request status to failed on unrecoverable errors', async () => {
+      await consumer.onCompleted(job, new ClusterNotFoundException(authzRequest.clientId))
+
+      const request = await repository.findById(authzRequest.id)
+
+      expect(request?.status).toEqual(AuthorizationRequestStatus.FAILED)
+    })
+  })
 })
