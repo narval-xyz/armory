@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { DataStoreConfiguration } from './data-store.type'
 
 export const SignerConfig = z.object({
-  type: z.literal('PRIVATE_KEY').optional(), // TODO: Remove
   publicKey: publicKeySchema.optional(),
   privateKey: privateKeySchema.optional()
 })

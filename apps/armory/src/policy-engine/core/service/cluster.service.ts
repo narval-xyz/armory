@@ -4,7 +4,6 @@ import { Hex, PublicKey, base64UrlToHex, eip191Hash, hexToBase64Url, verifyJwt }
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { hexToBytes } from '@noble/curves/abstract/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { TSMClient } from '@sepior/tsmsdkv2'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
@@ -18,6 +17,14 @@ import { ConsensusAgreementNotReachException } from '../exception/consensus-agre
 import { InvalidAttestationSignatureException } from '../exception/invalid-attestation-signature.exception'
 import { PolicyEngineException } from '../exception/policy-engine.exception'
 import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.type'
+
+let TSMClient: any
+try {
+  const tsmsdkv2 = require('@sepior/tsmsdkv2')
+  TSMClient = tsmsdkv2.TSMClient
+} catch (err) {
+  console.log('@sepior/tsmsdkv2 is not installed')
+}
 
 @Injectable()
 export class ClusterService {
@@ -88,6 +95,12 @@ export class ClusterService {
   }
 
   async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
+    if (!TSMClient) {
+      throw new ApplicationException({
+        message: 'TSM SDK not installed',
+        suggestedHttpStatusCode: 500
+      })
+    }
     const tsmClient = new TSMClient(null)
     // Each `evaluation` should have a "signed" accessToken, but it's a partial sig.
     // It was generated as if it was a real sig, so it's a base64url encoded value.

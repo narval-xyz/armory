@@ -1,3 +1,5 @@
+declare module '@sepior/tsmsdkv2' // ambient module definition to make ts happy when tsm isn't installed
+
 export * from './api_broadcast.d.ts'
 export * from './api_ecdsa.d.ts'
 export * from './api_keymanagement.d.ts'

@@ -1,14 +1,33 @@
 import { ConfigService } from '@narval/config-module'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
-import { Inject, Injectable, Logger } from '@nestjs/common'
-import { Configuration, SessionConfig, TSMClient, curves } from '@sepior/tsmsdkv2'
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { toHex } from 'viem'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { SignerConfig } from '../../../shared/type/domain.type'
 import { SigningService } from './signing.service.interface'
 
+let Configuration: any
+let SessionConfig: any
+let TSMClient: any
+const curves = {
+  SECP256K1: 'secp256k1',
+  ED448: 'ED-448',
+  ED25519: 'ED-25519'
+}
+
+try {
+  const tsmsdkv2 = require('@sepior/tsmsdkv2')
+  TSMClient = tsmsdkv2.TSMClient
+  Configuration = tsmsdkv2.Configuration
+  SessionConfig = tsmsdkv2.SessionConfig
+} catch (err) {
+  console.log('@sepior/tsmsdkv2 is not installed')
+}
+
 const createClient = async (url: string, apiKey: string) => {
+  if (!TSMClient || !Configuration) return null
+
   const config = await new Configuration(url)
   await config.withAPIKeyAuthentication(apiKey)
   return await TSMClient.withConfiguration(config)
@@ -44,7 +63,7 @@ export class MpcSigningService implements SigningService {
   }
 
   async generateKey(keyId?: string, sessionId?: string): Promise<{ publicKey: PublicKey }> {
-    if (!sessionId) {
+    if (!sessionId || !SessionConfig || !TSMClient) {
       throw new ApplicationException({
         message: 'sessionId is missing',
         suggestedHttpStatusCode: 500
@@ -57,7 +76,7 @@ export class MpcSigningService implements SigningService {
     const ecdsaKeyId = await tsmClient
       .ECDSA()
       .generateKey(sessionConfig, 1, curves.SECP256K1, keyId)
-      .catch((e) => wrapTsmException('Failed to generate ECDSA key', e))
+      .catch((e: any) => wrapTsmException('Failed to generate ECDSA key', e))
 
     if (keyId && ecdsaKeyId !== keyId) {
       throw new ApplicationException({
@@ -72,7 +91,7 @@ export class MpcSigningService implements SigningService {
     const publicKeyBytes = await tsmClient
       .ECDSA()
       .publicKey(ecdsaKeyId)
-      .catch((e) => wrapTsmException('Failed to get public key from node', e))
+      .catch((e: any) => wrapTsmException('Failed to get public key from node', e))
     const publicKey = toHex(publicKeyBytes.slice(23))
 
     this.logger.log('Public key: ', publicKey)
@@ -89,7 +108,7 @@ export class MpcSigningService implements SigningService {
       if (!sessionId) {
         throw new ApplicationException({
           message: 'sessionId is missing',
-          suggestedHttpStatusCode: 500
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
         })
       }
 
@@ -98,26 +117,21 @@ export class MpcSigningService implements SigningService {
       const tsmClient = await createClient(this.url, this.apiKey)
 
       const keyId = signer.keyId || signer.publicKey?.kid
-      if (!keyId) throw new Error('missing kid in buildSigner')
+      if (!keyId) {
+        throw new ApplicationException({
+          message: 'missing kid in buildSigner',
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+        })
+      }
 
       const derivationPath = new Uint32Array()
       const partialSig = await tsmClient
         .ECDSA()
         .sign(sessionConfig, keyId, derivationPath, hash)
-        .catch((e) => wrapTsmException('Failed to sign message', e))
+        .catch((e: any) => wrapTsmException('Failed to sign message', e))
 
-      // // NOTE TSM returns a DER signature
-      // const { signature, recoveryID } = await tsmClient0
-      //   .ECDSA()
-      //   .finalizeSignature(hash, partialSigs)
-      // const sig = secp256k1.Signature.fromDER(signature)
-
-      // const hexSignature: Hex = `0x${sig.toCompactHex()}${toHex(27n + BigInt(recoveryID)).slice(2)}`
-
-      // const sig = secp256k1.Signature.fromDER(partialSigs[0])
       const hexSignature: Hex = toHex(partialSig)
 
-      // const signature = signSecp256k1(hash, privateKey, true)
       this.logger.log(hexSignature)
 
       return hexToBase64Url(hexSignature)

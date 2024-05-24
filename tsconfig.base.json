@@ -21,7 +21,7 @@
       "@narval/signature": ["packages/signature/src/index.ts"],
       "@narval/transaction-engine-module": ["packages/transaction-engine-module/src/index.ts"],
       "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"],
-      "@sepior/tsmsdkv2": ["packages/policy-engine-shared/src/tsmsdkv2/index.d.ts"]
+      "@sepior/tsmsdkv2": ["packages/policy-engine-shared/src/tsmsdkv2"]
     },
     "removeComments": true,
     "rootDir": ".",
