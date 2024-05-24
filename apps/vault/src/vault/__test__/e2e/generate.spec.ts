@@ -120,10 +120,13 @@ describe('KeyGenerationService', () => {
         keyId: 'rootKeyId'
       })
 
-    expect(body.wallet).toBeDefined()
-    expect(body.wallet.keyId).toEqual('rootKeyId')
-    expect(body.wallet.derivationPath).toEqual("m/44'/60'/0'/0/0")
-    expect(body.keyId).toEqual('rootKeyId')
+    expect(body.wallet).toEqual({
+      keyId: 'rootKeyId',
+      derivationPath: "m/44'/60'/0'/0/0",
+      address: expect.any(String),
+      publicKey: expect.any(String),
+      resourceId: expect.any(String)
+    })
   })
 
   it('throws when deriving a rootKey that is not found', async () => {

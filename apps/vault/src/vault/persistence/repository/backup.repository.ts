@@ -1,38 +1,30 @@
+import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import { Backup } from '@prisma/client/vault'
-import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
+import { KeyValueService } from '../../../shared/module/key-value/core/service/key-value.service'
+import { Backup } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class BackupRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private keyValueService: KeyValueService) {}
+  private KEY_PREFIX = 'mnemonic'
 
-  async save(
-    clientId: string,
-    {
-      backupPublicKeyHash,
-      keyId,
-      data
-    }: {
-      backupPublicKeyHash: string
-      keyId: string
-      data: string
-    }
-  ): Promise<void> {
-    await this.prismaService.backup.create({
-      data: {
-        clientId,
-        backupPublicKeyHash,
-        keyId,
-        data
-      }
-    })
+  getKey(clientId: string, id: string): string {
+    return `${this.KEY_PREFIX}:${clientId}:${id}`
   }
 
-  async findByClientId(clientId: string): Promise<Backup[] | null> {
-    return this.prismaService.backup.findMany({
-      where: {
-        clientId
-      }
-    })
+  async findById(clientId: string, id: string): Promise<Backup | null> {
+    const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
+
+    if (value) {
+      return coerce.decode(Backup, value)
+    }
+
+    return null
+  }
+
+  async save(clientId: string, key: Backup): Promise<Backup> {
+    await this.keyValueService.set(this.getKey(clientId, key.keyId.toLowerCase()), coerce.encode(Backup, key))
+
+    return key
   }
 }

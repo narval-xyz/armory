@@ -39,15 +39,18 @@ export class KeyGenerationService {
       this.logger.warn('Invalid backup public key provided. Need an RSA key', { clientId })
       return
     }
+
     this.logger.log('Encrypting backup', { clientId })
     const backupPublicKeyHash = hash(backupPublicKey)
+    const data = await rsaEncrypt(mnemonic, backupPublicKey as RsaKey)
+
     await this.backupRepository.save(clientId, {
       backupPublicKeyHash,
       keyId: kid,
-      data: mnemonic
+      data,
+      createdAt: new Date()
     })
 
-    const data = await rsaEncrypt(mnemonic, backupPublicKey as RsaKey)
     return data
   }
 

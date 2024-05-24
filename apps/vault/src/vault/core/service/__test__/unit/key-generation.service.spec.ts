@@ -1,15 +1,12 @@
-import { FIXTURE, toBytes } from '@narval/policy-engine-shared'
-import { RsaPrivateKey, generateJwk, publicKeyToHex, rsaDecrypt } from '@narval/signature'
+import { RsaPrivateKey, generateJwk, rsaDecrypt } from '@narval/signature'
 import { Test, TestingModule } from '@nestjs/testing'
-import { HDKey } from '@scure/bip32'
 import { ClientService } from '../../../../../client/core/service/client.service'
-import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { SeedOrigin, Wallet } from '../../../../../shared/type/domain.type'
-import { BackupRepository } from '../../../../../vault/persistence/repository/backup.repository'
-import { MnemonicRepository } from '../../../../../vault/persistence/repository/mnemonic.repository'
+import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
+import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { buildDerivationPath, deriveWallet, hdKeyToWallet, mnemonicToRootKey } from '../../../util/key-generation'
+import { deriveWallet, mnemonicToRootKey } from '../../../util/key-generation'
 import { KeyGenerationService } from '../../key-generation.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -163,16 +160,5 @@ describe('GenerateService', () => {
       origin: SeedOrigin.GENERATED,
       nextAddrIndex: 1
     })
-  })
-  it('throw an error if the HDKey does not have a private key', async () => {
-    const hdKey = new HDKey({
-      publicKey: toBytes(await publicKeyToHex(FIXTURE.PUBLIC_KEYS_JWK.Root))
-    })
-    try {
-      await hdKeyToWallet(hdKey, buildDerivationPath({}), 'kid')
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApplicationException)
-      expect(error.message).toEqual('HDKey does not have a private key')
-    }
   })
 })

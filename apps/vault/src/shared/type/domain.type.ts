@@ -65,3 +65,11 @@ export const RootKey = z.object({
   nextAddrIndex: z.number().min(0).default(0)
 })
 export type RootKey = z.infer<typeof RootKey>
+
+export const Backup = z.object({
+  backupPublicKeyHash: z.string(),
+  keyId: z.string(),
+  data: z.string(),
+  createdAt: z.coerce.date().default(() => new Date())
+})
+export type Backup = z.infer<typeof Backup>
