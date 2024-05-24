@@ -33,7 +33,6 @@ export class TransactionRequestDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   from: Address
 
   @IsNumber()
@@ -56,7 +55,6 @@ export class TransactionRequestDto {
   @IsString()
   @IsEthereumAddress()
   @IsOptional()
-  @Transform(({ value }) => value.toLowerCase())
   to?: Address | null
 
   @IsString()

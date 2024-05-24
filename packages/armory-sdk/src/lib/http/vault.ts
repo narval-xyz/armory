@@ -59,13 +59,17 @@ export const signRequest = async (
 
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
-  { privateKey, walletId }: ImportPrivateKeyRequest
+  request: ImportPrivateKeyRequest
 ): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
+  const { privateKey } = request
+  const walletId = resourceId(request.walletId || privateKeyToAddress(privateKey))
+  const payload = { privateKey, walletId }
+
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
     const grantPermissionRequest = EvaluationRequest.parse({
-      authentication: '',
+      authentication: 'missing',
       request: {
         action: Action.GRANT_PERMISSION,
         resourceId: walletId,
@@ -83,11 +87,6 @@ export const importPrivateKey = async (
 
     const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`
 
-    const payload = {
-      privateKey,
-      walletId: resourceId(walletId || privateKeyToAddress(privateKey))
-    }
-
     const detachedJws = await signAccountJwsd({
       payload,
       uri,
@@ -104,6 +103,6 @@ export const importPrivateKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import private key', { config, payload: { privateKey, walletId }, error })
+    throw new NarvalSdkException('Failed to import private key', { config, payload, error })
   }
 }
