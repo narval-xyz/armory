@@ -19,9 +19,7 @@ const PolicyEnginePlayground = () => {
     }
   }, [evaluationErrors, signatureErrors])
 
-  return (
-    <Playground title="Policy Engine Playground" errors={errors} evaluate={evaluate} sign={sign} importPk={importPk} />
-  )
+  return <Playground title="Policy Engine" errors={errors} evaluate={evaluate} sign={sign} importPk={importPk} />
 }
 
 export default PolicyEnginePlayground
