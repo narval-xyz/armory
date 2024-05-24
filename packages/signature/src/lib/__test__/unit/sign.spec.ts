@@ -1,7 +1,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, importPKCS8 } from 'jose'
-import { createPublicKey } from 'node:crypto'
+import { createHash, createPublicKey } from 'node:crypto'
 import { signatureToHex, toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1 } from '../../sign'
@@ -239,5 +239,11 @@ describe('sign', () => {
   it('throws if no signer is provided and key material is not present', async () => {
     const publicKey = secp256k1PublicKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     await expect(signJwt(payload, publicKey)).rejects.toThrow()
+  })
+  it('hashes', () => {
+    const hash = '2e35b6583bdba19c898a7ca545bac207502222f6167a59924ae3953a9231c787'
+    const generated = createHash('sha256').update('my-api-key').digest('hex')
+
+    expect(generated).toEqual(hash)
   })
 })

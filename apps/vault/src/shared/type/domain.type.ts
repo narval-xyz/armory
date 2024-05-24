@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 export const Client = z.object({
   clientId: z.string(),
-  clientSecret: z.string(),
   engineJwk: publicKeySchema.optional(),
 
   // JWT verification options.

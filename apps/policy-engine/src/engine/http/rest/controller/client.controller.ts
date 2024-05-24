@@ -25,6 +25,7 @@ export class ClientController {
   async create(@Body() body: CreateClientRequestDto): Promise<CreateClientResponseDto> {
     const client = await this.clientService.create({
       clientId: body.clientId,
+      clientSecret: body.clientSecret,
       unsafeKeyId: body.keyId,
       entityDataStore: body.entityDataStore,
       policyDataStore: body.policyDataStore

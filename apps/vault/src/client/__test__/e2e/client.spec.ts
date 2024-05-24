@@ -86,7 +86,6 @@ describe('Client', () => {
 
       expect(body).toEqual({
         ...actualClient,
-        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
@@ -114,7 +113,6 @@ describe('Client', () => {
 
       expect(body).toEqual({
         ...actualClient,
-        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })

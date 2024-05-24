@@ -25,6 +25,7 @@ export class ClientService {
 
   async create(args: {
     clientId?: string
+    clientSecret?: string
     unsafeKeyId?: string
     entityDataStore: DataStoreConfiguration
     policyDataStore: DataStoreConfiguration
@@ -33,6 +34,9 @@ export class ClientService {
 
     const { unsafeKeyId, entityDataStore, policyDataStore } = args
     const clientId = args.clientId || uuid()
+    // If we are generating the secret, we'll want to return the full thing to the user one time.
+    const fullClientSecret = !args.clientSecret ? secret.generate() : undefined
+    const clientSecret = args.clientSecret || secret.hash(fullClientSecret!)
     const keyId = unsafeKeyId ? `${clientId}:${unsafeKeyId}` : undefined
 
     const sessionId = hash(args) // for MPC, we need a unique sessionId; we'll just generate it from the data since this isn't tx signing so it happens just once
@@ -44,7 +48,7 @@ export class ClientService {
 
     const client = await this.save({
       clientId,
-      clientSecret: secret.generate(),
+      clientSecret,
       dataStore: {
         entity: entityDataStore,
         policy: policyDataStore
@@ -54,7 +58,10 @@ export class ClientService {
       updatedAt: now
     })
 
-    return client
+    return {
+      ...client,
+      ...(fullClientSecret ? { clientSecret: fullClientSecret } : {}) // If we generated a new secret, we need to include it in the response the first time.
+    }
   }
 
   async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
@@ -75,7 +82,7 @@ export class ClientService {
     try {
       await this.clientRepository.save({
         ...client,
-        clientSecret: secret.hash(client.clientSecret)
+        clientSecret: client.clientSecret
       })
 
       if (syncAfter) {
@@ -124,7 +131,8 @@ export class ClientService {
     } catch (error) {
       this.logger.error('Failed to sync client data store', {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        clientId
       })
 
       return false

@@ -175,7 +175,6 @@ export class ClusterService {
       })
     }
     try {
-      this.logger.log
       await verifyJwt(token, publicKey)
     } catch (error) {
       throw new InvalidAttestationSignatureException(token, publicKey, error)
