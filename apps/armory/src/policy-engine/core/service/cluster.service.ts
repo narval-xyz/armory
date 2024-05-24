@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
 import { Decision, EvaluationRequest, EvaluationResponse, toHex } from '@narval/policy-engine-shared'
 import { Hex, PublicKey, base64UrlToHex, eip191Hash, hexToBase64Url, verifyJwt } from '@narval/signature'
@@ -19,10 +20,11 @@ import { PolicyEngineException } from '../exception/policy-engine.exception'
 import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.type'
 
 let TSMClient: any
+const tsmsdkv2 = require('@sepior/tsmsdkv2')
 try {
-  const tsmsdkv2 = require('@sepior/tsmsdkv2')
   TSMClient = tsmsdkv2.TSMClient
 } catch (err) {
+  // eslint-disable-next-line no-console
   console.log('@sepior/tsmsdkv2 is not installed')
 }
 

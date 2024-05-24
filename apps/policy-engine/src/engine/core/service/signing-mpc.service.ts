@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
@@ -16,12 +17,14 @@ const curves = {
   ED25519: 'ED-25519'
 }
 
+// TODO: this should be moved into the try-catch but it's breaking nx lint rules so temporarily moving it up.
+const tsmsdkv2 = require('@sepior/tsmsdkv2')
 try {
-  const tsmsdkv2 = require('@sepior/tsmsdkv2')
   TSMClient = tsmsdkv2.TSMClient
   Configuration = tsmsdkv2.Configuration
   SessionConfig = tsmsdkv2.SessionConfig
 } catch (err) {
+  // eslint-disable-next-line no-console
   console.log('@sepior/tsmsdkv2 is not installed')
 }
 
