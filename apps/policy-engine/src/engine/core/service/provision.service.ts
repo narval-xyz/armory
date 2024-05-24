@@ -21,7 +21,7 @@ export class ProvisionService {
     private engineService: EngineService
   ) {}
 
-  async provision(activate?: boolean): Promise<Engine | null> {
+  async provision(activate: boolean): Promise<Engine | null> {
     const engine = await this.engineService.getEngine()
 
     const isFirstTime = engine === null
@@ -34,7 +34,7 @@ export class ProvisionService {
       const newEngine: Engine = {
         id: this.getEngineId(),
         adminApiKey,
-        activated: !!activate
+        activated: activate
       }
 
       const withEncryption = await this.setupEncryption(newEngine)
@@ -60,8 +60,6 @@ export class ProvisionService {
     this.logger.log('Activate app')
 
     const adminApiKey = this.getOrGenerateAdminApiKey()
-
-    console.log({ adminApiKey, hash: secret.hash(adminApiKey) })
 
     const app = await this.engineService.update({
       activated: true,
