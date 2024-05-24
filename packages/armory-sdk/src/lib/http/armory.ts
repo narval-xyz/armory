@@ -15,7 +15,7 @@ export const getAuthorizationRequest = async (
     const headers = { [HEADER_CLIENT_ID]: authClientId }
     const { data } = await axios.get(uri, { headers })
 
-    return AuthorizationRequest.parse(data)
+    return data
   } catch (error) {
     throw new NarvalSdkException('Failed to get authorization request', { config, id, error })
   }
@@ -32,7 +32,7 @@ export const sendAuthorizationRequest = async (
     const payload = await signRequest(config, request)
     const { data } = await axios.post(uri, payload, { headers })
 
-    return AuthorizationRequest.parse(data)
+    return data
   } catch (error) {
     throw new NarvalSdkException('Failed to send authorization request', { config, request, error })
   }

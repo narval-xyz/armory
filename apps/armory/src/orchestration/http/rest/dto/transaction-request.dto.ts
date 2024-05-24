@@ -52,6 +52,14 @@ export class TransactionRequestDto {
   @Transform(({ value }) => BigInt(value))
   gas?: bigint
 
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  maxFeePerGas?: bigint
+
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  maxPriorityFeePerGas?: bigint
+
   @IsString()
   @IsEthereumAddress()
   @IsOptional()
@@ -81,4 +89,16 @@ export class TransactionResponseDto extends TransactionRequestDto {
   @Transform(({ value }) => value.toString())
   @ApiPropertyOptional({ type: String })
   gas?: bigint
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.toString())
+  @ApiPropertyOptional({ type: String })
+  maxFeePerGas?: bigint
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.toString())
+  @ApiPropertyOptional({ type: String })
+  maxPriorityFeePerGas?: bigint
 }
