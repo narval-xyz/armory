@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 'use client'
 
 import { faArrowsRotate, faFileSignature, faUpload } from '@fortawesome/pro-regular-svg-icons'
@@ -115,7 +116,14 @@ const Playground: FC<PlaygroundProps> = ({ title, response, errors, authorize, e
   const handleSign = async () => {
     if (!responseEditor) return
 
-    const { accessToken, request } = JSON.parse(responseEditor)
+    // Currently, Engine returns AccessToken while Armory returns Authorization
+    // TODO: use zod to validate this schema
+    const parsed = JSON.parse(responseEditor)
+    const { request, evaluations } = parsed
+    let accessToken = parsed.accessToken
+    if (!accessToken && evaluations && evaluations[0].signature) {
+      accessToken = { value: evaluations[0].signature }
+    }
 
     if (!accessToken || !request) return
 
