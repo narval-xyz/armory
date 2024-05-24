@@ -35,7 +35,7 @@ describe(ClientService.name, () => {
 
   const client: Client = {
     clientId,
-    clientSecret: 'test-client-secret',
+    clientSecret: secret.hash('test-client-secret'),
     dataStore: {
       entity: dataStoreConfiguration,
       policy: dataStoreConfiguration
@@ -92,12 +92,12 @@ describe(ClientService.name, () => {
   })
 
   describe('save', () => {
-    it('hashes the secret key', async () => {
+    it('does not hash the client secret because it is already hashed', async () => {
       await clientService.save(client)
 
       const actualClient = await clientService.findById(client.clientId)
 
-      expect(actualClient?.clientSecret).toEqual(secret.hash(client.clientSecret))
+      expect(actualClient?.clientSecret).toEqual(client.clientSecret)
     })
   })
 
