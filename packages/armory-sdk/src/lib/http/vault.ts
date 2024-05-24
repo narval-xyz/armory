@@ -66,23 +66,26 @@ export const importPrivateKey = async (
   const payload = { privateKey, walletId }
 
   try {
+    let accessToken = request.accessToken
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const grantPermissionRequest = EvaluationRequest.parse({
-      authentication: 'missing',
-      request: {
-        action: Action.GRANT_PERMISSION,
-        resourceId: walletId,
-        nonce: v4(),
-        permissions: [Permission.WALLET_CREATE]
+    if (!accessToken || !accessToken.value) {
+      const grantPermissionRequest = EvaluationRequest.parse({
+        authentication: 'missing',
+        request: {
+          action: Action.GRANT_PERMISSION,
+          resourceId: walletId,
+          nonce: v4(),
+          permissions: [Permission.WALLET_CREATE]
+        }
+      })
+      const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
+
+      if (!evaluationResponse.accessToken) {
+        return SdkEvaluationResponse.parse(evaluationResponse)
       }
-    })
-    const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
 
-    const { accessToken } = evaluationResponse
-
-    if (!accessToken) {
-      return SdkEvaluationResponse.parse(evaluationResponse)
+      accessToken = evaluationResponse.accessToken
     }
 
     const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`

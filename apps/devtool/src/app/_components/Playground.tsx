@@ -57,6 +57,7 @@ const Playground: FC<PlaygroundProps> = ({
   const [isProcessing, setIsProcessing] = useState(false)
   const [domLoaded, setDomLoaded] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
+  const [accessToken, setAccessToken] = useState('')
 
   useEffect(() => setDomLoaded(true), [])
 
@@ -69,6 +70,8 @@ const Playground: FC<PlaygroundProps> = ({
   useEffect(() => {
     if (response) {
       setResponseEditor(response)
+      const authResponseParsed = AuthorizationRequest.parse(JSON.parse(response))
+      setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
     }
   }, [response])
 
@@ -106,7 +109,11 @@ const Playground: FC<PlaygroundProps> = ({
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = authorize && (await authorize(request))
-      if (response) setResponseEditor(JSON.stringify(response, null, 2))
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+        const authResponseParsed = AuthorizationRequest.parse(response)
+        setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+      }
     } catch (error) {}
 
     setIsProcessing(false)
@@ -121,7 +128,11 @@ const Playground: FC<PlaygroundProps> = ({
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = evaluate && (await evaluate(request))
-      if (response) setResponseEditor(JSON.stringify(response, null, 2))
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+        const evalResponseParsed = SdkEvaluationResponse.parse(response)
+        setAccessToken(evalResponseParsed.accessToken?.value || '')
+      }
     } catch (error) {}
 
     setIsProcessing(false)
@@ -153,7 +164,8 @@ const Playground: FC<PlaygroundProps> = ({
     try {
       setResponseEditor(undefined)
 
-      const response = importPk && (await importPk({ privateKey: hexSchema.parse(privateKey) }))
+      const response =
+        importPk && (await importPk({ privateKey: hexSchema.parse(privateKey), accessToken: { value: accessToken } }))
 
       if (response) setResponseEditor(JSON.stringify(response, null, 2))
 
@@ -212,9 +224,12 @@ const Playground: FC<PlaygroundProps> = ({
               isSaveDisabled={!privateKey || isProcessing}
             >
               <div className="w-[650px] px-12 py-4">
-                <div className="flex gap-6">
-                  <NarInput value={privateKey} onChange={setPrivateKey} />
-                  <NarButton label="Generate" onClick={() => setPrivateKey(generatePrivateKey())} />
+                <div className="flex flex-col gap-[8px]">
+                  <div className="flex items-end gap-[8px]">
+                    <NarInput label="Private Key" value={privateKey} onChange={setPrivateKey} />
+                    <NarButton label="Generate" onClick={() => setPrivateKey(generatePrivateKey())} />
+                  </div>
+                  <NarInput label="Access Token (optional)" value={accessToken} onChange={setAccessToken} />
                 </div>
               </div>
             </NarDialog>
