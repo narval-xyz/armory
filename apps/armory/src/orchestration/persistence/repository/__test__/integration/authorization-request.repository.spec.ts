@@ -6,7 +6,12 @@ import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
-import { AuthorizationRequest, Evaluation, SignTransaction } from '../../../../core/type/domain.type'
+import {
+  AuthorizationRequest,
+  AuthorizationRequestError,
+  Evaluation,
+  SignTransaction
+} from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../repository/authorization-request.repository'
 
 describe(AuthorizationRequestRepository.name, () => {
@@ -151,6 +156,33 @@ describe(AuthorizationRequestRepository.name, () => {
       ])
     })
 
+    it('creates errors', async () => {
+      const error: AuthorizationRequestError = {
+        id: 'test-error-id',
+        name: 'ErrorName',
+        message: 'Something went wrong',
+        context: {
+          moreInformation: true,
+          someText: 'foo',
+          aNumber: 123,
+          nullable: null
+        }
+      }
+
+      await repository.create({
+        ...signMessageRequest,
+        errors: [error]
+      })
+
+      const errors = await testPrismaService.getClient().authorizationRequestError.findMany({
+        where: {
+          requestId: signMessageRequest.id
+        }
+      })
+
+      expect(errors.map(omit(['createdAt', 'clientId', 'requestId']))).toEqual([error])
+    })
+
     describe(`when action is ${Action.SIGN_TRANSACTION}`, () => {
       const signTransaction: SignTransaction = {
         action: Action.SIGN_TRANSACTION,
@@ -248,6 +280,36 @@ describe(AuthorizationRequestRepository.name, () => {
       expect(authzRequestOne.approvals.length).toEqual(1)
       expect(authzRequestTwo.approvals.length).toEqual(2)
       expect(actual?.approvals.length).toEqual(2)
+    })
+
+    it('appends errors', async () => {
+      const authzRequestOne = await repository.update({
+        ...signMessageRequest,
+        errors: [
+          {
+            id: 'test-error-id-one',
+            name: 'ErrorNameOne',
+            message: 'Something went wrong one'
+          }
+        ]
+      })
+
+      const authzRequestTwo = await repository.update({
+        ...signMessageRequest,
+        errors: [
+          {
+            id: 'test-error-id-two',
+            name: 'ErrorNameTwo',
+            message: 'Something went wrong two'
+          }
+        ]
+      })
+
+      const actual = await repository.findById(signMessageRequest.id)
+
+      expect(authzRequestOne?.errors?.length).toEqual(1)
+      expect(authzRequestTwo?.errors?.length).toEqual(2)
+      expect(actual?.errors?.length).toEqual(2)
     })
   })
 })

@@ -1,3 +1,4 @@
+import { Json } from '@narval/nestjs-shared'
 import { Action, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 import { z } from 'zod'
@@ -54,7 +55,7 @@ export const Request = z.discriminatedUnion('action', [SignTransaction, SignMess
 export type Request = z.infer<typeof Request>
 
 export const AuthorizationRequestError = z.object({
-  context: z.record(z.string()).optional(),
+  context: Json.optional(),
   id: z.string(),
   message: z.string(),
   name: z.string()
