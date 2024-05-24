@@ -27,7 +27,8 @@ export type Evaluation = z.infer<typeof Evaluation>
  */
 export const SupportedAction = {
   SIGN_TRANSACTION: Action.SIGN_TRANSACTION,
-  SIGN_MESSAGE: Action.SIGN_MESSAGE
+  SIGN_MESSAGE: Action.SIGN_MESSAGE,
+  GRANT_PERMISSION: Action.GRANT_PERMISSION
 } as const
 export type SupportedAction = (typeof SupportedAction)[keyof typeof SupportedAction]
 
@@ -51,7 +52,14 @@ export const SignMessage = SharedAuthorizationPayload.extend({
 })
 export type SignMessage = z.infer<typeof SignMessage>
 
-export const Request = z.discriminatedUnion('action', [SignTransaction, SignMessage])
+export const GrantPermission = SharedAuthorizationPayload.extend({
+  action: z.literal(Action.GRANT_PERMISSION),
+  resourceId: z.string(),
+  permissions: z.array(z.string())
+})
+export type GrantPermission = z.infer<typeof GrantPermission>
+
+export const Request = z.discriminatedUnion('action', [SignTransaction, SignMessage, GrantPermission])
 export type Request = z.infer<typeof Request>
 
 export const AuthorizationRequestError = z.object({

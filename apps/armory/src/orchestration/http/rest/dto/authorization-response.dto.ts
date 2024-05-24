@@ -7,6 +7,7 @@ import { EvaluationDto } from '../../../http/rest/dto/evaluation.dto'
 import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
 import { TransactionResponseDto } from '../../../http/rest/dto/transaction-request.dto'
+import { GrantPermissionRequestDto } from './grant-permission-request.dto'
 
 class SignTransactionResponseDto extends SignTransactionRequestDto {
   // Use a different DTO for the response to ensure the conversion of attributes
@@ -25,8 +26,10 @@ class SignTransactionResponseDto extends SignTransactionRequestDto {
 // Nothing different, just keeping naming consistency.
 class SignMessageResponseDto extends SignMessageRequestDto {}
 
+class GrantPermissionResponseDto extends GrantPermissionRequestDto {}
+
 // TODO (@wcalderipe, 22/01/24): Missing the authentication attribute.
-@ApiExtraModels(SignTransactionResponseDto, SignMessageResponseDto)
+@ApiExtraModels(SignTransactionResponseDto, SignMessageResponseDto, GrantPermissionResponseDto)
 export class AuthorizationResponseDto {
   @ApiProperty()
   id: string
@@ -63,13 +66,28 @@ export class AuthorizationResponseDto {
   // class-transformer instead of a custom function map.
   //
   // See https://github.com/typestack/class-transformer?tab=readme-ov-file#working-with-nested-objects
+  @IsDefined()
+  @ValidateNested()
   @Type((opts) => {
-    return opts?.object.request.action === Action.SIGN_TRANSACTION ? SignTransactionResponseDto : SignMessageResponseDto
+    switch (opts?.object.request.action) {
+      case Action.SIGN_TRANSACTION:
+        return SignTransactionResponseDto
+      case Action.SIGN_MESSAGE:
+        return SignMessageResponseDto
+      case Action.GRANT_PERMISSION:
+        return GrantPermissionResponseDto
+      default:
+        return SignTransactionResponseDto
+    }
   })
   @ApiProperty({
-    oneOf: [{ $ref: getSchemaPath(SignMessageResponseDto) }, { $ref: getSchemaPath(SignTransactionResponseDto) }]
+    oneOf: [
+      { $ref: getSchemaPath(SignTransactionResponseDto) },
+      { $ref: getSchemaPath(SignMessageResponseDto) },
+      { $ref: getSchemaPath(GrantPermissionResponseDto) }
+    ]
   })
-  request: SignTransactionResponseDto | SignMessageResponseDto
+  request: SignTransactionResponseDto | SignMessageResponseDto | GrantPermissionResponseDto
 
   constructor(partial: Partial<AuthorizationResponseDto>) {
     Object.assign(this, partial)

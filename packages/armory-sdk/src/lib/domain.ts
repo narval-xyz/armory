@@ -11,6 +11,9 @@ import { Payload, SigningAlg, jwkSchema, privateKeySchema } from '@narval/signat
 import { z } from 'zod'
 
 export const Endpoints = {
+  armory: {
+    authorizeRequest: '/authorization-requests'
+  },
   engine: {
     evaluations: '/evaluations',
     sync: '/clients/sync'
@@ -41,11 +44,11 @@ export const VaultClientConfig = UserSigner.extend({
 })
 export type VaultClientConfig = z.infer<typeof VaultClientConfig>
 
-export const StoreConfig = z.object({
+export const DataStoreConfig = z.object({
   entityStoreHost: z.string(),
   policyStoreHost: z.string()
 })
-export type StoreConfig = z.infer<typeof StoreConfig>
+export type DataStoreConfig = z.infer<typeof DataStoreConfig>
 
 export const ArmoryClientConfigInput = UserSigner.extend({
   authHost: z.string().optional(),
@@ -61,7 +64,7 @@ export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
 export const ArmoryClientConfig = UserSigner.extend({
   ...EngineClientConfig.shape,
   ...VaultClientConfig.shape,
-  ...StoreConfig.shape
+  ...DataStoreConfig.shape
 })
 export type ArmoryClientConfig = z.infer<typeof ArmoryClientConfig>
 
@@ -74,7 +77,8 @@ export type SdkEvaluationResponse = z.infer<typeof SdkEvaluationResponse>
 
 export const ImportPrivateKeyRequest = z.object({
   privateKey: hexSchema,
-  walletId: z.string().optional()
+  walletId: z.string().optional(),
+  accessToken: AccessToken.optional()
 })
 export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
 
@@ -132,7 +136,9 @@ export const Permission = {
   WALLET_READ: 'wallet:read'
 } as const
 export type Permission = (typeof Permission)[keyof typeof Permission]
+
 export const PermissionSchema = z.nativeEnum(Permission)
+
 export const SetPolicyRequest = z.object({
   policies: z.array(policySchema),
   privateKey: privateKeySchema
@@ -144,3 +150,32 @@ export const SetEntityRequest = z.object({
   privateKey: privateKeySchema
 })
 export type SetEntityRequest = z.infer<typeof SetEntityRequest>
+
+export const AuthorizationRequestStatus = {
+  CREATED: 'CREATED',
+  CANCELED: 'CANCELED',
+  FAILED: 'FAILED',
+  PROCESSING: 'PROCESSING',
+  APPROVING: 'APPROVING',
+  PERMITTED: 'PERMITTED',
+  FORBIDDEN: 'FORBIDDEN'
+} as const
+export type AuthorizationRequestStatus = (typeof AuthorizationRequestStatus)[keyof typeof AuthorizationRequestStatus]
+
+export const AuthorizationRequest = z.object({
+  id: z.string(),
+  clientId: z.string(),
+  idempotencyKey: z.string().nullable(),
+  authentication: z.string(),
+  status: z.nativeEnum(AuthorizationRequestStatus),
+  evaluations: z.array(
+    z.object({
+      id: z.string(),
+      decision: z.nativeEnum(Decision),
+      signature: z.string().nullable().optional()
+    })
+  ),
+  request: Request,
+  approvals: z.array(z.string())
+})
+export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>

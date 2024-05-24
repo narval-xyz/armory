@@ -8,13 +8,20 @@ import {
   PolicyData,
   PolicyStore
 } from '@narval/policy-engine-shared'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { LOCAL_DATA_STORE_URL, MANAGED_ENTITY_DATA_STORE_URL, MANAGED_POLICY_DATA_STORE_URL } from '../_lib/constants'
 import { extractErrorMessage } from '../_lib/utils'
 import useEngineApi from './useEngineApi'
 import useStore from './useStore'
 
 const useDataStoreApi = () => {
-  const { entityDataStoreUrl: entityStoreHost, policyDataStoreUrl: policyStoreHost } = useStore()
+  const {
+    engineClientId,
+    entityDataStoreUrl: entityStoreHost,
+    policyDataStoreUrl: policyStoreHost,
+    setEntityDataStoreUrl,
+    setPolicyDataStoreUrl
+  } = useStore()
   const { sdkEngineConfig } = useEngineApi()
 
   const [processingStatus, setProcessingStatus] = useState({
@@ -29,6 +36,9 @@ const useDataStoreApi = () => {
   const [policyStore, setPolicyStore] = useState<PolicyStore>()
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
+
+  const isUsingManagedDataStore =
+    !entityStoreHost.startsWith(LOCAL_DATA_STORE_URL) && !policyStoreHost.startsWith(LOCAL_DATA_STORE_URL)
 
   const sdkDataStoreConfig = useMemo<
     | (EngineClientConfig & {
@@ -49,18 +59,30 @@ const useDataStoreApi = () => {
   }, [sdkEngineConfig, entityStoreHost, policyStoreHost])
 
   useEffect(() => {
-    if (entityStore) return
-
     getEntityStore()
-  }, [entityStore])
+  }, [entityStoreHost])
 
   useEffect(() => {
-    if (policyStore) return
-
     getPolicyStore()
-  }, [policyStore])
+  }, [policyStoreHost])
 
-  const getEntityStore = async () => {
+  const switchDataStore = useCallback(async () => {
+    if (!engineClientId) return
+
+    if (!entityStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
+      setEntityDataStoreUrl(LOCAL_DATA_STORE_URL)
+    } else {
+      setEntityDataStoreUrl(`${MANAGED_ENTITY_DATA_STORE_URL}${engineClientId}`)
+    }
+
+    if (!policyStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
+      setPolicyDataStoreUrl(LOCAL_DATA_STORE_URL)
+    } else {
+      setPolicyDataStoreUrl(`${MANAGED_POLICY_DATA_STORE_URL}${engineClientId}`)
+    }
+  }, [engineClientId, entityStoreHost, policyStoreHost])
+
+  const getEntityStore = useCallback(async () => {
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
       const entity = await getEntities(entityStoreHost)
@@ -70,9 +92,9 @@ const useDataStoreApi = () => {
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
-  }
+  }, [entityStoreHost])
 
-  const getPolicyStore = async () => {
+  const getPolicyStore = useCallback(async () => {
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
       const policy = await getPolicies(policyStoreHost)
@@ -82,7 +104,7 @@ const useDataStoreApi = () => {
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
-  }
+  }, [policyStoreHost])
 
   const signEntityData = async (data: Entities) => {
     if (!sdkDataStoreConfig) return
@@ -176,6 +198,7 @@ const useDataStoreApi = () => {
 
   return {
     sdkDataStoreConfig,
+    isUsingManagedDataStore,
     entityStore,
     policyStore,
     errors,
@@ -186,7 +209,8 @@ const useDataStoreApi = () => {
     signEntityData,
     signAndPushEntity,
     signPolicyData,
-    signAndPushPolicy
+    signAndPushPolicy,
+    switchDataStore
   }
 }
 

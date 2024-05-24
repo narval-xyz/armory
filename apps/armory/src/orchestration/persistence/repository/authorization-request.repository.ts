@@ -23,7 +23,7 @@ export class AuthorizationRequestRepository {
     const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
     const errors = this.toErrors(clientId, input.errors)
 
-    const approvalsData = approvals.map((approval) => ({
+    const approvalsData = approvals?.map((approval) => ({
       sig: approval
     }))
 
