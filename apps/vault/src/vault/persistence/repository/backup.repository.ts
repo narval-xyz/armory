@@ -9,11 +9,11 @@ export class BackupRepository {
   private KEY_PREFIX = 'mnemonic'
 
   getKey(clientId: string, id: string): string {
-    return `${this.KEY_PREFIX}:${clientId}:${id}`
+    return `${this.KEY_PREFIX}:${clientId}:${id.toLowerCase()}`
   }
 
   async findById(clientId: string, id: string): Promise<Backup | null> {
-    const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
+    const value = await this.keyValueService.get(this.getKey(clientId, id))
 
     if (value) {
       return coerce.decode(Backup, value)
@@ -23,7 +23,7 @@ export class BackupRepository {
   }
 
   async save(clientId: string, key: Backup): Promise<Backup> {
-    await this.keyValueService.set(this.getKey(clientId, key.keyId.toLowerCase()), coerce.encode(Backup, key))
+    await this.keyValueService.set(this.getKey(clientId, key.keyId), coerce.encode(Backup, key))
 
     return key
   }

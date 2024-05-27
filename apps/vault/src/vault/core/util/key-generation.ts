@@ -5,7 +5,7 @@ import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { HDOptions, Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Wallet } from '../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../shared/type/domain.type'
 
 type DeriveOptions = HDOptions & { rootKeyId?: string }
 
@@ -36,7 +36,7 @@ export const hdKeyToKid = (key: HDKey): string => {
   })
 }
 
-export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<Wallet> => {
+export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<PrivateWallet> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
@@ -65,7 +65,7 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
-export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<Wallet> => {
+export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<PrivateWallet> => {
   const path = buildDerivationPath(opts)
   const derivedKey = rootKey.derive(path)
   const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))

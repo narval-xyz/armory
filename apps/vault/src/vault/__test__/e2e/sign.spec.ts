@@ -25,7 +25,7 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Client, Wallet } from '../../../shared/type/domain.type'
+import { Client, PrivateWallet } from '../../../shared/type/domain.type'
 import { AppService } from '../../core/service/app.service'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { VaultModule } from '../../vault.module'
@@ -53,7 +53,7 @@ describe('Sign', () => {
     updatedAt: new Date()
   }
 
-  const wallet: Wallet = {
+  const wallet: PrivateWallet = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',

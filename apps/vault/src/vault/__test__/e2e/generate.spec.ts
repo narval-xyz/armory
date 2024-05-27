@@ -156,20 +156,18 @@ describe('Generate', () => {
       expect(body).toEqual({
         wallets: [
           {
-            id: expect.any(String),
+            resourceId: expect.any(String),
             keyId,
             derivationPath: "m/44'/60'/0'/0/1",
             address: expect.any(String),
-            publicKey: expect.any(String),
-            privateKey: expect.any(String)
+            publicKey: expect.any(String)
           },
           {
-            id: expect.any(String),
+            resourceId: expect.any(String),
             keyId,
             derivationPath: "m/44'/60'/0'/0/2",
             address: expect.any(String),
-            publicKey: expect.any(String),
-            privateKey: expect.any(String)
+            publicKey: expect.any(String)
           }
         ]
       })

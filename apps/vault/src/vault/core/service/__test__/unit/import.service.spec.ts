@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Wallet } from '../../../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../../../shared/type/domain.type'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
@@ -48,7 +48,7 @@ describe('ImportService', () => {
       const privateKey = PRIVATE_KEY
       const walletId = 'walletId'
 
-      const wallet: Wallet = await importService.importPrivateKey(clientId, privateKey, walletId)
+      const wallet: PrivateWallet = await importService.importPrivateKey(clientId, privateKey, walletId)
 
       expect(wallet).toEqual({ id: 'walletId', address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1', privateKey })
       expect(walletRepository.save).toHaveBeenCalledWith(clientId, {

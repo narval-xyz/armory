@@ -14,7 +14,7 @@ import {
   verifyMessage,
   verifyTypedData
 } from 'viem'
-import { Wallet } from '../../../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { NonceService } from '../../nonce.service'
 import { SigningService } from '../../signing.service'
@@ -23,7 +23,7 @@ describe('SigningService', () => {
   let signingService: SigningService
   let nonceServiceMock: MockProxy<NonceService>
 
-  const wallet: Wallet = {
+  const wallet: PrivateWallet = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',

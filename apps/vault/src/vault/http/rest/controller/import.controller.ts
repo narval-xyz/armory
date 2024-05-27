@@ -54,13 +54,7 @@ export class ImportController {
     const { wallet, keyId, backup } = await this.importService.importSeed(clientId, body)
 
     const response = new GenerateKeyResponseDto({
-      wallet: {
-        resourceId: wallet.id,
-        publicKey: wallet.publicKey,
-        keyId: wallet.keyId,
-        address: wallet.address,
-        derivationPath: wallet.derivationPath
-      },
+      wallet,
       keyId,
       backup
     })

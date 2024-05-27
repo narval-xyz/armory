@@ -1,4 +1,4 @@
 import { createZodDto } from 'nestjs-zod'
-import { UserFacingWallet } from '../../../../shared/type/domain.type'
+import { PublicWallet } from '../../../../shared/type/domain.type'
 
-export class WalletDto extends createZodDto(UserFacingWallet) {}
+export class WalletDto extends createZodDto(PublicWallet) {}

@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { SeedOrigin, Wallet } from '../../../shared/type/domain.type'
+import { PrivateWallet, SeedOrigin } from '../../../shared/type/domain.type'
 import { DeriveWalletDto } from '../../http/rest/dto/derive-wallet-dto'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
@@ -81,7 +81,7 @@ export class KeyGenerationService {
     return backup
   }
 
-  async deriveWallet(clientId: string, opts: DeriveWalletDto): Promise<Wallet[] | Wallet> {
+  async deriveWallet(clientId: string, opts: DeriveWalletDto): Promise<PrivateWallet[] | PrivateWallet> {
     this.logger.log('Deriving wallet', { clientId })
     const rootKey = await this.mnemonicRepository.findById(clientId, opts.keyId)
 
@@ -93,11 +93,11 @@ export class KeyGenerationService {
     }
     const { mnemonic, nextAddrIndex } = rootKey
 
-    const wallets: Wallet[] = []
+    const wallets: PrivateWallet[] = []
 
     let curr = nextAddrIndex
     for (const path of opts.derivationPaths) {
-      let wallet: Wallet
+      let wallet: PrivateWallet
       if (path === 'next') {
         wallet = await deriveWallet(mnemonicToRootKey(mnemonic), { rootKeyId: opts.keyId, addressIndex: curr })
         curr++
@@ -125,7 +125,7 @@ export class KeyGenerationService {
     clientId: string,
     { mnemonic, keyId, origin }: { mnemonic: string; keyId?: string; origin: SeedOrigin }
   ): Promise<{
-    wallet: Wallet
+    wallet: PrivateWallet
     rootKeyId: string
     backup?: string
   }> {
@@ -154,7 +154,7 @@ export class KeyGenerationService {
     clientId: string,
     opts: GenerateKeyDto
   ): Promise<{
-    wallet: Wallet
+    wallet: PrivateWallet
     rootKeyId: string
     backup?: string
   }> {

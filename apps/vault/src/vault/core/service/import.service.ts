@@ -14,7 +14,7 @@ import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { SeedOrigin, Wallet } from '../../../shared/type/domain.type'
+import { PrivateWallet, SeedOrigin } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
@@ -40,7 +40,7 @@ export class ImportService {
     return publicKey
   }
 
-  async importPrivateKey(clientId: string, privateKey: Hex, walletId?: string): Promise<Wallet> {
+  async importPrivateKey(clientId: string, privateKey: Hex, walletId?: string): Promise<PrivateWallet> {
     this.logger.log('Importing private key', {
       clientId
     })
@@ -57,7 +57,11 @@ export class ImportService {
     return wallet
   }
 
-  async importEncryptedPrivateKey(clientId: string, encryptedPrivateKey: string, walletId?: string): Promise<Wallet> {
+  async importEncryptedPrivateKey(
+    clientId: string,
+    encryptedPrivateKey: string,
+    walletId?: string
+  ): Promise<PrivateWallet> {
     this.logger.log('Importing encrypted private key', {
       clientId
     })
@@ -99,13 +103,12 @@ export class ImportService {
     clientId: string,
     body: ImportSeedDto
   ): Promise<{
-    wallet: Wallet
+    wallet: PrivateWallet
     keyId: string
     backup?: string
   }> {
     const { keyId, encryptedSeed } = body
 
-    // const mnemonic = await this.decryptSeed(clientId, keyId, encryptedSeed)
     const header = decodeProtectedHeader(encryptedSeed)
     const kid = header.kid
 
