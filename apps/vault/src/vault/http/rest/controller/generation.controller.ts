@@ -14,7 +14,7 @@ import { GenerateKeyResponseDto } from '../dto/generate-key-response-dto'
 export class GenerationController {
   constructor(private keyGenService: KeyGenerationService) {}
 
-  @Post('/generate-key')
+  @Post('/generate/keys')
   async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
     const { wallet, rootKeyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
     const response = new GenerateKeyResponseDto({
@@ -26,7 +26,7 @@ export class GenerationController {
     return response
   }
 
-  @Post('/derive-wallet')
+  @Post('/derive/wallets')
   async deriveWallet(@ClientId() clientId: string, @Body() body: DeriveWalletDto) {
     const wallets = await this.keyGenService.deriveWallet(clientId, body)
     const response = new DeriveWalletResponseDto(wallets)

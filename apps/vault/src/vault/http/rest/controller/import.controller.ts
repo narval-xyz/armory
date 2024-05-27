@@ -17,7 +17,7 @@ import { ImportSeedDto } from '../dto/import-seed-dto'
 export class ImportController {
   constructor(private importService: ImportService) {}
 
-  @Post('/encryption-key')
+  @Post('/encryption-keys')
   async generateEncryptionKey(@ClientId() clientId: string) {
     const publicKey = await this.importService.generateEncryptionKey(clientId)
 
@@ -26,7 +26,7 @@ export class ImportController {
     return response
   }
 
-  @Post('/private-key')
+  @Post('/private-keys')
   async create(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto) {
     let importedKey
     if (body.encryptedPrivateKey) {
@@ -49,7 +49,7 @@ export class ImportController {
     return response
   }
 
-  @Post('/seed')
+  @Post('/seeds')
   async importSeed(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
     const { wallet, keyId, backup } = await this.importService.importSeed(clientId, body)
 

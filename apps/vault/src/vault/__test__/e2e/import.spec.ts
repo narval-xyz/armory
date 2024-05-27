@@ -114,9 +114,9 @@ describe('Import', () => {
     await clientService.save(client)
   })
 
-  describe('POST /encryption-key', () => {
+  describe('POST /encryption-keys', () => {
     it('responds with unauthorized when client secret is missing', async () => {
-      const { status } = await request(app.getHttpServer()).post('/import/encryption-key').send()
+      const { status } = await request(app.getHttpServer()).post('/import/encryption-keys').send()
 
       expect(status).toEqual(HttpStatus.UNAUTHORIZED)
     })
@@ -125,7 +125,7 @@ describe('Import', () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/import/encryption-key')
+        .post('/import/encryption-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({})
@@ -144,12 +144,12 @@ describe('Import', () => {
     })
   })
 
-  describe('POST /private-key', () => {
+  describe('POST /private-keys', () => {
     it('imports an unencrypted private key', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/import/private-key')
+        .post('/import/private-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -166,7 +166,7 @@ describe('Import', () => {
     it('imports a jwe-encrypted private key', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
       const { body: keygenBody } = await request(app.getHttpServer())
-        .post('/import/encryption-key')
+        .post('/import/encryption-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({})
@@ -176,7 +176,7 @@ describe('Import', () => {
       const jwe = await rsaEncrypt(PRIVATE_KEY, rsPublicKey)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/import/private-key')
+        .post('/import/private-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
         .send({
@@ -189,11 +189,12 @@ describe('Import', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
-
+  })
+  describe('POST /seeds', () => {
     it('imports a jwe-encrypted mnemonic', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
       const { body: keygenBody } = await request(app.getHttpServer())
-        .post('/import/encryption-key')
+        .post('/import/encryption-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({})
@@ -204,7 +205,7 @@ describe('Import', () => {
       const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/import/seed')
+        .post('/import/seeds')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
         .send({

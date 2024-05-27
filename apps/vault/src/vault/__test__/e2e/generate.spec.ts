@@ -109,12 +109,12 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('POST /generate-key', () => {
+  describe('POST /generate/key', () => {
     it('generates a new mnemonic', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body } = await request(app.getHttpServer())
-        .post('/generate-key')
+        .post('/generate/keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -130,12 +130,12 @@ describe('Generate', () => {
       })
     })
   })
-  describe('POST /derive-wallet', () => {
+  describe('POST /derive/wallets', () => {
     it('derives a new wallet from a rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate-key')
+        .post('/generate/keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -145,7 +145,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive-wallet')
+        .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -176,7 +176,7 @@ describe('Generate', () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { status } = await request(app.getHttpServer())
-        .post('/derive-wallet')
+        .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
