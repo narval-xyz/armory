@@ -1,31 +1,36 @@
-import { RsaPrivateKey, generateJwk, rsaDecrypt } from '@narval/signature'
+import { RsaPrivateKey, generateJwk, rsaDecrypt, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Test, TestingModule } from '@nestjs/testing'
+import { mock } from 'jest-mock-extended'
+import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../../../client/core/service/client.service'
-import { SeedOrigin, Wallet } from '../../../../../shared/type/domain.type'
+import { Client, SeedOrigin } from '../../../../../shared/type/domain.type'
 import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { deriveWallet, mnemonicToRootKey } from '../../../util/key-generation'
 import { KeyGenerationService } from '../../key-generation.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+
+const clientId = uuid()
+const clientSecret = 'test-client-secret'
+
+// Engine key used to sign the approval request
+const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
+
+const client: Client = {
+  clientId,
+  clientSecret,
+  engineJwk: clientPublicJWK,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
 
 describe('GenerateService', () => {
   let keyGenerationService: KeyGenerationService
   let mnemonicRepository: MnemonicRepository
 
   const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'
-  const rootKey = mnemonicToRootKey(mnemonic)
-  const firstDerivedWallet = {
-    privateKey: '0x33fa40f84e854b941c2b0436dd4a256e1df1cb41b9c1c0ccc8446408c19b8bf9',
-    publicKey:
-      '0x04a70d1ef368ad99e90d509496e9888ee7404e4f4d360376bf521d769cf0c4de46902ab6f9d90af66773b6ead2fe3a0a1cb3225697d1617b1f2d37f493988d867d',
-    address: '0x58a57ed9d8d624cbd12e2c467d34787555bb1b25',
-    id: 'eip155:eoa:0x58a57ed9d8d624cbd12e2c467d34787555bb1b25',
-    keyId: '0x1ad67053dbaa34a78b8f1ce6151677881c79971394d570f7c8fca24bdff7d4f5',
-    derivationPath: "m/44'/60'/0'/0/0"
-  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -50,7 +55,7 @@ describe('GenerateService', () => {
         {
           provide: ClientService,
           useValue: {
-            findById: jest.fn().mockResolvedValue({})
+            findById: mock<ClientService>().findById.mockResolvedValue(client)
           }
         },
         {
@@ -72,13 +77,9 @@ describe('GenerateService', () => {
     keyGenerationService = module.get<KeyGenerationService>(KeyGenerationService)
     mnemonicRepository = module.get<MnemonicRepository>(MnemonicRepository)
   })
-  it('generate a mnemonic', async () => {
+  it('returns first derived wallet from a generated mnemonic', async () => {
     const { wallet } = await keyGenerationService.generateMnemonic('clientId', {})
-    expect(wallet.privateKey).toBeDefined()
-    expect(wallet.publicKey).toBeDefined()
-    expect(wallet.address).toBeDefined()
-    expect(wallet.id).toBeDefined()
-    expect(wallet.keyId).toBeDefined()
+    expect(wallet.derivationPath).toEqual("m/44'/60'/0'/0/0")
   })
   it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
     const rsaBackupKey = await generateJwk<RsaPrivateKey>('RS256')
@@ -135,24 +136,7 @@ describe('GenerateService', () => {
     const spaceInMnemonic = decryptedMnemonic.split(' ')
     expect(spaceInMnemonic.length).toBe(12)
   })
-  it('derive a wallet from a rootKey', async () => {
-    const wallet = await deriveWallet(rootKey)
-    expect(Wallet.safeParse(wallet).success).toBe(true)
-    expect(wallet).toEqual(firstDerivedWallet)
-  })
-  it('derive multiple wallets from same rootKey using custom path', async () => {
-    const walletWithDefaultPath = await deriveWallet(rootKey)
-    const walletWithCustomAccountIndex = await deriveWallet(rootKey, { addressIndex: 1 })
-
-    expect(walletWithDefaultPath).toEqual(firstDerivedWallet)
-    expect(Wallet.safeParse(walletWithCustomAccountIndex).success).toBe(true)
-    expect(walletWithCustomAccountIndex.derivationPath).toEqual("m/44'/60'/0'/0/1")
-    expect(walletWithCustomAccountIndex.id).not.toEqual(walletWithDefaultPath.id)
-    expect(walletWithCustomAccountIndex.address).not.toEqual(walletWithDefaultPath.address)
-    expect(walletWithCustomAccountIndex.privateKey).not.toEqual(walletWithDefaultPath.privateKey)
-    expect(walletWithCustomAccountIndex.publicKey).not.toEqual(walletWithDefaultPath.publicKey)
-  })
-  it('save mnemonic to the database', async () => {
+  it('saves mnemonic to the database', async () => {
     await keyGenerationService.generateMnemonic('clientId', {})
     expect(mnemonicRepository.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),

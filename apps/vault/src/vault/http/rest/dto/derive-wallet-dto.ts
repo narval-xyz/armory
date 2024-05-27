@@ -1,27 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsString } from 'class-validator'
-import { Wallet } from '../../../../shared/type/domain.type'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+import { DerivationPath, Wallet } from '../../../../shared/type/domain.type'
 
-type DerivationPath = `m/44'/60'/${string}` | 'next'
-export class DeriveWalletDto {
-  constructor(keyId: string, derivationPaths: DerivationPath[] = ['next']) {
-    this.keyId = keyId
-    this.derivationPaths = derivationPaths
-  }
+export class DeriveWalletDto extends createZodDto(
+  z.object({
+    keyId: z.string(),
+    derivationPaths: z.array(DerivationPath)
+  })
+) {}
 
-  @ApiProperty()
-  @IsString()
-  keyId: string
-
-  @ApiProperty()
-  derivationPaths: DerivationPath[]
-}
-
-export class DeriveWalletResponseDto {
+export class DeriveWalletResponseDto extends createZodDto(
+  z.object({
+    wallets: z.union([z.array(Wallet), Wallet])
+  })
+) {
   constructor(wallets: Wallet[] | Wallet) {
+    super()
     this.wallets = wallets
   }
-
-  @ApiProperty()
-  wallets: Wallet[] | Wallet
 }

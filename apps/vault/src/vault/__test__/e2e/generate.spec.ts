@@ -9,7 +9,7 @@ import {
   secp256k1PrivateKeyToPublicJwk,
   signJwt
 } from '@narval/signature'
-import { INestApplication } from '@nestjs/common'
+import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -24,7 +24,7 @@ import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('KeyGenerationService', () => {
+describe('Generate', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -109,81 +109,84 @@ describe('KeyGenerationService', () => {
     await clientService.save(client)
   })
 
-  it('generates a new mnemonic', async () => {
-    const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+  describe('POST /generate-key', () => {
+    it('generates a new mnemonic', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-    const { body } = await request(app.getHttpServer())
-      .post('/generate-key')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId: 'rootKeyId'
+      const { body } = await request(app.getHttpServer())
+        .post('/generate-key')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'rootKeyId'
+        })
+
+      expect(body.wallet).toEqual({
+        keyId: 'rootKeyId',
+        derivationPath: "m/44'/60'/0'/0/0",
+        address: expect.any(String),
+        publicKey: expect.any(String),
+        resourceId: expect.any(String)
       })
-
-    expect(body.wallet).toEqual({
-      keyId: 'rootKeyId',
-      derivationPath: "m/44'/60'/0'/0/0",
-      address: expect.any(String),
-      publicKey: expect.any(String),
-      resourceId: expect.any(String)
     })
   })
+  describe('POST /derive-wallet', () => {
+    it('derives a new wallet from a rootKey', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-  it('throws when deriving a rootKey that is not found', async () => {
-    const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/generate-key')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'rootKeyId'
+        })
 
-    const { status } = await request(app.getHttpServer())
-      .post('/derive-wallet')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId: 'somekeyId'
-      })
+      const { keyId } = generateKeyResponse
 
-    expect(status).toEqual(404)
-  })
-
-  it('derives a new wallet from a rootKey', async () => {
-    const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-
-    const { body: generateKeyResponse } = await request(app.getHttpServer())
-      .post('/generate-key')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId: 'rootKeyId'
-      })
-
-    const { keyId } = generateKeyResponse
-
-    const { body } = await request(app.getHttpServer())
-      .post('/derive-wallet')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId,
-        derivationPaths: ['next', 'next']
-      })
-
-    expect(body).toEqual({
-      wallets: [
-        {
-          id: expect.any(String),
+      const { body } = await request(app.getHttpServer())
+        .post('/derive-wallet')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
           keyId,
-          derivationPath: "m/44'/60'/0'/0/1",
-          address: expect.any(String),
-          publicKey: expect.any(String),
-          privateKey: expect.any(String)
-        },
-        {
-          id: expect.any(String),
-          keyId,
-          derivationPath: "m/44'/60'/0'/0/2",
-          address: expect.any(String),
-          publicKey: expect.any(String),
-          privateKey: expect.any(String)
-        }
-      ]
+          derivationPaths: ['next', 'next']
+        })
+
+      expect(body).toEqual({
+        wallets: [
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/1",
+            address: expect.any(String),
+            publicKey: expect.any(String),
+            privateKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/2",
+            address: expect.any(String),
+            publicKey: expect.any(String),
+            privateKey: expect.any(String)
+          }
+        ]
+      })
+    })
+    it('responds with not found when rootKey does not exist', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      const { status } = await request(app.getHttpServer())
+        .post('/derive-wallet')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'somekeyId',
+          derivationPaths: ['next', 'next']
+        })
+
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 })

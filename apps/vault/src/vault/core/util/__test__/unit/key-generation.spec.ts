@@ -29,7 +29,7 @@ const firstDerivedWallet = {
   derivationPath: "m/44'/60'/0'/0/0"
 }
 describe('hdKeyToWallet', () => {
-  it('should convert HDKey to Wallet', async () => {
+  it('convert HDKey to Wallet', async () => {
     const path = 'm'
     const rootKeyId = 'root-key-id'
 
@@ -39,19 +39,19 @@ describe('hdKeyToWallet', () => {
 })
 
 describe('buildDerivationPath', () => {
-  it('should return the default derivation path if no options are provided', () => {
+  it('returns  the default derivation path if no options are provided', () => {
     const expectedPath = "m/44'/60'/0'/0/0"
     const result = buildDerivationPath({})
     expect(result).toEqual(expectedPath)
   })
 
-  it('should return the provided derivation path if it is specified in the options', () => {
+  it('returns  the provided derivation path if it is specified in the options', () => {
     const expectedPath = "m/44'/60'/1'/0/0"
     const result = buildDerivationPath({ path: expectedPath })
     expect(result).toEqual(expectedPath)
   })
 
-  it('should return the derived derivation path based on the provided options', () => {
+  it('returns  the derived derivation path based on the provided options', () => {
     const expectedPath = "m/44'/60'/1'/2/3"
     const result = buildDerivationPath({ accountIndex: 1, changeIndex: 2, addressIndex: 3 })
     expect(result).toEqual(expectedPath)
@@ -59,13 +59,13 @@ describe('buildDerivationPath', () => {
 })
 
 describe('hdKeyToKid', () => {
-  it('should return the kid based on the private key', () => {
+  it('returns  the kid based on the private key', () => {
     const expectedKid = '0x1ad67053dbaa34a78b8f1ce6151677881c79971394d570f7c8fca24bdff7d4f5'
     const result = hdKeyToKid(rootKey)
     expect(result).toEqual(expectedKid)
   })
 
-  it('should return the kid based on the public key', async () => {
+  it('returns  the kid based on the public key', async () => {
     const key = new HDKey({
       publicKey: toBytes(await publicKeyToHex(FIXTURE.PUBLIC_KEYS_JWK.Root))
     })
@@ -75,7 +75,7 @@ describe('hdKeyToKid', () => {
     expect(result).toEqual(expectedKid)
   })
 
-  it('throw an error if the HDKey does not have a private key', async () => {
+  it('throws an error if the HDKey does not have a private key', async () => {
     try {
       await hdKeyToWallet({} as unknown as HDKey, buildDerivationPath({}), 'kid')
     } catch (error) {
@@ -87,7 +87,7 @@ describe('hdKeyToKid', () => {
 describe('deriveWallet', () => {
   const rootKey = HDKey.fromMasterSeed(seed)
 
-  it('should derive a wallet using the default derivation path if no options are provided', async () => {
+  it('derives a wallet using the default derivation path if no options are provided', async () => {
     const expectedPath = "m/44'/60'/0'/0/0"
     const expectedWallet = firstDerivedWallet
 
@@ -96,7 +96,7 @@ describe('deriveWallet', () => {
     expect(wallet.derivationPath).toEqual(expectedPath)
   })
 
-  it('should derive a wallet using the provided derivation path if it is specified in the options', async () => {
+  it('derives a wallet using the provided derivation path if it is specified in the options', async () => {
     const expectedPath = "m/44'/60'/1'/0/0"
     const expectedWallet = {
       address: '0x44f649fc8dc77694e6abef1aa966983dd6ed7c64',
@@ -113,7 +113,7 @@ describe('deriveWallet', () => {
     expect(wallet.derivationPath).toEqual(expectedPath)
   })
 
-  it('should derive a wallet using the derived derivation path based on the provided options', async () => {
+  it('derives a wallet using the derived derivation path based on the provided options', async () => {
     const expectedPath = "m/44'/60'/1'/2/3"
     const expectedWallet = {
       derivationPath: expectedPath,
@@ -130,7 +130,7 @@ describe('deriveWallet', () => {
     expect(wallet.derivationPath).toEqual(expectedPath)
   })
 
-  it('should derive a wallet using the provided rootKeyId if it is specified in the options', async () => {
+  it('derives a wallet using the provided rootKeyId if it is specified in the options', async () => {
     const expectedRootKeyId = 'custom-root-key-id'
     const expectedWallet = {
       ...firstDerivedWallet,
@@ -144,7 +144,7 @@ describe('deriveWallet', () => {
 })
 
 describe('mnemonicToRootKey', () => {
-  it('should convert mnemonic to root key', () => {
+  it('converts mnemonic to root key', () => {
     const expectedRootKey = rootKey
     const result = mnemonicToRootKey(mnemonic)
     expect(result).toEqual(expectedRootKey)

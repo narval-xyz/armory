@@ -20,7 +20,10 @@ export const Endpoints = {
   },
   vault: {
     sign: '/sign',
-    importPrivateKey: '/import/private-key'
+    importPrivateKey: '/import/private-key',
+    importSeed: '/import/seed',
+    generateWallet: '/generate-key',
+    deriveWallet: '/derive-wallet'
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]

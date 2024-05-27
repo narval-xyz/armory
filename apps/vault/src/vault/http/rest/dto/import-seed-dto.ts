@@ -1,13 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString } from 'class-validator'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
 
-export class ImportSeedDto {
-  @IsString()
-  @ApiProperty()
-  @IsOptional()
-  keyId?: string
-
-  @IsString()
-  @ApiProperty()
-  encryptedSeed: string
-}
+export class ImportSeedDto extends createZodDto(
+  z.object({
+    keyId: z.string().optional(),
+    encryptedSeed: z.string()
+  })
+) {}

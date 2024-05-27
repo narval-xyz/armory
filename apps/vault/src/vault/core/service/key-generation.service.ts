@@ -132,7 +132,6 @@ export class KeyGenerationService {
     const rootKey = mnemonicToRootKey(mnemonic)
 
     const rootKeyId = keyId || hdKeyToKid(rootKey)
-
     const backup = await this.#saveMnemonic(clientId, {
       kid: rootKeyId,
       mnemonic,

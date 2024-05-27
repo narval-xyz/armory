@@ -1,22 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsString } from 'class-validator'
-import { Wallet } from '../../../../shared/type/domain.type'
-import { WalletDto } from './wallet-dto'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+import { UserFacingWallet } from '../../../../shared/type/domain.type'
 
-export class GenerateKeyResponseDto {
-  constructor({ wallet, rootKeyId, backup }: { wallet: Wallet; rootKeyId: string; backup?: string }) {
+export class GenerateKeyResponseDto extends createZodDto(
+  z.object({
+    wallet: UserFacingWallet,
+    backup: z.string().optional(),
+    keyId: z.string()
+  })
+) {
+  constructor({ wallet, backup, keyId }: { wallet: UserFacingWallet; backup?: string; keyId: string }) {
+    super()
     this.backup = backup
-    this.keyId = rootKeyId
-    this.wallet = new WalletDto(wallet)
+    this.wallet = wallet
+    this.keyId = keyId
   }
-
-  @IsString()
-  @ApiProperty()
-  keyId: string
-
-  @ApiProperty()
-  wallet: WalletDto
-
-  @ApiProperty()
-  backup?: string
 }

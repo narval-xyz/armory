@@ -1,24 +1,10 @@
-import { Curves, KeyTypes } from '@narval/signature'
-import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString } from 'class-validator'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
 
-export class GenerateKeyDto {
-  constructor(curve?: typeof Curves.SECP256K1, keyId?: string, alg?: typeof KeyTypes.EC) {
-    this.curve = curve
-    this.keyId = keyId
-    this.alg = alg
-  }
-
-  @ApiProperty()
-  @IsOptional()
-  curve?: typeof Curves.SECP256K1
-
-  @ApiProperty()
-  @IsOptional()
-  alg?: typeof KeyTypes.EC
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  keyId?: string
-}
+export class GenerateKeyDto extends createZodDto(
+  z.object({
+    curve: z.string().optional(),
+    alg: z.string().optional(),
+    keyId: z.string().optional()
+  })
+) {}

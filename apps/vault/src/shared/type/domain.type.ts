@@ -1,4 +1,5 @@
-import { Hex, publicKeySchema } from '@narval/signature'
+import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
+import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Client = z.object({
@@ -31,26 +32,35 @@ export const App = z.object({
 })
 export type App = z.infer<typeof App>
 
+const DerivationPathStart = z.string().startsWith(`m/44'/60'/`)
+type DerivationPathStart = `m/44'/60'/${string}`
+
+export const DerivationPath = z.union([
+  z.literal('next'),
+  DerivationPathStart.refine((val): val is DerivationPathStart => val.startsWith(`m/44'/60'/`), {
+    message: "Derivation path must start with m/44'/60'/"
+  })
+])
+export type DerivationPath = z.infer<typeof DerivationPath>
+
 export const Wallet = z.object({
   id: z.string().min(1),
-  privateKey: z
-    .string()
-    .regex(/^(0x)?([A-Fa-f0-9]{64})$/)
-    .transform((val: string): Hex => val as Hex),
-  publicKey: z
-    .string()
-    .regex(/^(0x)?([A-Fa-f0-9]{130})$/)
-    .transform((val: string): Hex => val as Hex),
-  address: z
-    .string()
-    .regex(/^0x([A-Fa-f0-9]{40})$/)
-    .transform((val: string): Hex => val as Hex),
-  // root seed key id
+  privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
+  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
+  address: addressSchema,
   keyId: z.string().min(1).optional(),
-  // If this is derived from a root seed key, this is the derivation path
   derivationPath: z.string().min(1).optional()
 })
 export type Wallet = z.infer<typeof Wallet>
+
+export const UserFacingWallet = z.object({
+  resourceId: z.string().min(1),
+  address: z.string().min(1),
+  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
+  keyId: z.string().min(1).optional(),
+  derivationPath: z.string().min(1).optional()
+})
+export type UserFacingWallet = z.infer<typeof UserFacingWallet>
 
 export const SeedOrigin = {
   IMPORTED: 'imported',
