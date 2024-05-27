@@ -80,10 +80,7 @@ export class ClientService {
     }
 
     try {
-      await this.clientRepository.save({
-        ...client,
-        clientSecret: client.clientSecret
-      })
+      await this.clientRepository.save(client)
 
       if (syncAfter) {
         const hasSynced = await this.syncDataStore(client.clientId)

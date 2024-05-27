@@ -1,4 +1,3 @@
-import { PublicClient } from '@narval/policy-engine-shared'
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -31,7 +30,7 @@ export class ClientController {
       policyDataStore: body.policyDataStore
     })
 
-    return PublicClient.parse(client)
+    return CreateClientResponseDto.create(client)
   }
 
   @Post('/sync')

@@ -20,7 +20,6 @@ describe('SimpleSigningService', () => {
     it('should generate a public and private key pair', async () => {
       const result = await service.generateKey()
       expect(result.publicKey.kid).toBeDefined()
-      expect(result.privateKey).toBeDefined()
       expect(result.publicKey.kid).toEqual(result.privateKey.kid)
     })
 

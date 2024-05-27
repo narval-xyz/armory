@@ -88,7 +88,7 @@ export class MpcSigningService implements SigningService {
       })
     }
 
-    this.logger.log('Generated ECDSA key with ID: ', ecdsaKeyId)
+    this.logger.log('Generated ECDSA key with ID: ', { keyId: ecdsaKeyId })
 
     // This is DER-encoded SPKI public key, so we need to slice off the DER header, which is 23 bytes for secp256k1
     const publicKeyBytes = await tsmClient
@@ -134,8 +134,6 @@ export class MpcSigningService implements SigningService {
         .catch((e: any) => wrapTsmException('Failed to sign message', e))
 
       const hexSignature: Hex = toHex(partialSig)
-
-      this.logger.log(hexSignature)
 
       return hexToBase64Url(hexSignature)
     }
