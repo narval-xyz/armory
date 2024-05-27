@@ -1,5 +1,5 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
-import { publicKeySchema } from '@narval/signature'
+import { publicKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const Client = z.object({
@@ -13,7 +13,7 @@ export const Client = z.object({
   maxTokenAge: z.number().optional(),
 
   // Backup key export options.
-  backupPublicKey: publicKeySchema.optional(),
+  backupPublicKey: rsaPublicKeySchema.optional(),
   allowKeyExport: z.boolean().optional(),
 
   // Override if you want to use a different baseUrl for a single client.

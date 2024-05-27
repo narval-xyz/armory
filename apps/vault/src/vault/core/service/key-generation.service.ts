@@ -1,4 +1,4 @@
-import { Jwk, RsaKey, hash, rsaEncrypt, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
+import { Jwk, RsaKey, hash, rsaEncrypt } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
@@ -30,13 +30,6 @@ export class KeyGenerationService {
   ): Promise<string | undefined> {
     if (!backupPublicKey) {
       this.logger.log('No backup public key provided', { clientId })
-      return
-    }
-    if (
-      rsaPublicKeySchema.safeParse(backupPublicKey).success === false &&
-      rsaPrivateKeySchema.safeParse(backupPublicKey).success === false
-    ) {
-      this.logger.warn('Invalid backup public key provided. Need an RSA key', { clientId })
       return
     }
 
