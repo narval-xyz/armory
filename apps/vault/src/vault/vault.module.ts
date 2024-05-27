@@ -10,7 +10,7 @@ import { ApplicationExceptionFilter } from '../shared/filter/application-excepti
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
-import { PrismaService } from '../shared/module/persistence/service/prisma.service'
+import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
 import { KeyGenerationService } from './core/service/key-generation.service'
@@ -36,6 +36,7 @@ import { VaultService } from './vault.service'
       isGlobal: true
     }),
     HttpModule,
+    PersistenceModule,
     forwardRef(() => KeyValueModule),
     EncryptionModule.registerAsync({
       imports: [VaultModule],
@@ -59,7 +60,6 @@ import { VaultService } from './vault.service'
     BackupRepository,
     VaultService,
     WalletRepository,
-    PrismaService,
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe({ transform: true })
