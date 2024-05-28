@@ -118,7 +118,8 @@ export class AuthorizationRequestService {
       authentication: input.authentication,
       approvals: input.approvals,
       request: input.request,
-      feeds: []
+      feeds: [],
+      sessionId: uuid() // a random sessionId, used for MPC
     })
 
     const status = getStatus(evaluation.decision)

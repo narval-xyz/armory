@@ -42,7 +42,6 @@ describe(ClientRepository.name, () => {
 
     const client: Client = {
       clientId,
-      clientSecret: 'test-client-secret',
       createdAt: now,
       updatedAt: now
     }

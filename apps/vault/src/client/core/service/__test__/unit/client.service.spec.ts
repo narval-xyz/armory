@@ -1,5 +1,4 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
 import { Test } from '@nestjs/testing'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
@@ -16,7 +15,6 @@ describe(ClientService.name, () => {
 
   const client: Client = {
     clientId,
-    clientSecret: 'test-client-secret',
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -43,18 +41,10 @@ describe(ClientService.name, () => {
   })
 
   describe('save', () => {
-    it('returns the given secret key', async () => {
+    it('saves the client', async () => {
       const actualClient = await clientService.save(client)
 
-      expect(actualClient.clientSecret).toEqual(client.clientSecret)
-    })
-
-    it('hashes the secret key', async () => {
-      await clientService.save(client)
-
-      const actualClient = await clientService.findById(client.clientId)
-
-      expect(actualClient?.clientSecret).toEqual(secret.hash(client.clientSecret))
+      expect(actualClient).toEqual(client)
     })
   })
 })

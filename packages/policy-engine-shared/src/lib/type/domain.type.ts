@@ -1,4 +1,5 @@
 import { ZodTypeAny, z } from 'zod'
+import { credentialEntitySchema } from '../schema/entity.schema'
 import { AccountId } from '../util/caip.util'
 import {
   GrantPermissionAction,
@@ -140,6 +141,7 @@ export type Feed<Data> = {
 
 export const EvaluationRequest = z
   .object({
+    sessionId: z.string().optional().describe('An ID for this request session. Used for MPC.'),
     authentication: JwtString.describe('JWT signature of the request property'),
     request: Request.describe('The request to be authorized'),
     approvals: z.array(JwtString).optional(),
@@ -182,6 +184,7 @@ export const EvaluationResponse = z.object({
       satisfied: z.array(ApprovalRequirement).optional()
     })
     .optional(),
+  principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
   transactionRequestIntent: z.unknown().optional()
 })

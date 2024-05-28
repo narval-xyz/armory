@@ -4,7 +4,7 @@ import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
-import { load } from '../policy-engine.config'
+import { Config, load } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
@@ -16,6 +16,8 @@ import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
+import { SimpleSigningService } from './core/service/signing-basic.service'
+import { MpcSigningService } from './core/service/signing-mpc.service'
 import { ClientController } from './http/rest/controller/client.controller'
 import { EngineController } from './http/rest/controller/engine.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
@@ -45,6 +47,18 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     BootstrapService,
     DataStoreRepositoryFactory,
     DataStoreService,
+    {
+      provide: 'SigningService',
+      useFactory: async (configService: ConfigService<Config>) => {
+        const signingProtocol = configService.get('signingProtocol')
+        if (signingProtocol === 'simple') {
+          return new SimpleSigningService()
+        } else if (signingProtocol === 'mpc') {
+          return new MpcSigningService(configService)
+        }
+      },
+      inject: [ConfigService]
+    },
     EngineRepository,
     EngineService,
     EvaluationService,
@@ -53,6 +67,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     ProvisionService,
     ClientRepository,
     ClientService,
+
     {
       // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,

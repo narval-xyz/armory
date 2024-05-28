@@ -47,7 +47,6 @@ describe('Sign', () => {
 
   const client: Client = {
     clientId,
-    clientSecret: adminApiKey,
     engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
