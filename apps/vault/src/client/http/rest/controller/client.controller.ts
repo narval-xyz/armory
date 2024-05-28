@@ -20,6 +20,8 @@ export class ClientController {
       audience: body.audience,
       issuer: body.issuer,
       maxTokenAge: body.maxTokenAge,
+      allowKeyExport: body.allowKeyExport,
+      backupPublicKey: body.backupPublicKey,
       baseUrl: body.baseUrl,
       createdAt: now,
       updatedAt: now

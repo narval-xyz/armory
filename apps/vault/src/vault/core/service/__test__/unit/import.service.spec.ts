@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Wallet } from '../../../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
+import { KeyGenerationService } from '../../key-generation.service'
 
 describe('ImportService', () => {
   let importService: ImportService
@@ -29,6 +30,10 @@ describe('ImportService', () => {
         {
           provide: ImportRepository,
           useValue: {}
+        },
+        {
+          provide: KeyGenerationService,
+          useValue: {}
         }
       ]
     }).compile()
@@ -43,12 +48,15 @@ describe('ImportService', () => {
       const privateKey = PRIVATE_KEY
       const walletId = 'walletId'
 
-      const wallet: Wallet = await importService.importPrivateKey(clientId, privateKey, walletId)
+      const wallet: PrivateWallet = await importService.importPrivateKey(clientId, privateKey, walletId)
 
       expect(wallet).toEqual({ id: 'walletId', address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1', privateKey })
       expect(walletRepository.save).toHaveBeenCalledWith(clientId, {
         id: walletId,
         privateKey,
+        origin: Origin.IMPORTED,
+        publicKey:
+          '0x04b314faec9379289567598cb2ef18453543a4e1bbaf3cbadb1251c18a7b85c2660b30bb20796c0e0f70cfe1aa86d73bf1e0b42045fbe6ea4c82bbe64b753a01de',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
       })
     })

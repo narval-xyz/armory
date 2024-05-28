@@ -1,13 +1,25 @@
 import { Hex } from '@narval/policy-engine-shared'
-import { Alg, RsaPrivateKey, RsaPublicKey, generateJwk, rsaDecrypt, rsaPrivateKeyToPublicKey } from '@narval/signature'
+import {
+  Alg,
+  RsaPrivateKey,
+  RsaPublicKey,
+  generateJwk,
+  privateKeyToJwk,
+  publicKeyToHex,
+  rsaDecrypt,
+  rsaPrivateKeyToPublicKey
+} from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Wallet } from '../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { deriveWallet, getRootKey } from '../util/key-generation'
+import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
 export class ImportService {
@@ -15,7 +27,8 @@ export class ImportService {
 
   constructor(
     private walletRepository: WalletRepository,
-    private importRepository: ImportRepository
+    private importRepository: ImportRepository,
+    private keyGenerationService: KeyGenerationService
   ) {}
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {
@@ -28,28 +41,26 @@ export class ImportService {
     return publicKey
   }
 
-  async importPrivateKey(clientId: string, privateKey: Hex, walletId?: string): Promise<Wallet> {
+  async importPrivateKey(clientId: string, privateKey: Hex, walletId?: string): Promise<PrivateWallet> {
     this.logger.log('Importing private key', {
       clientId
     })
     const address = privateKeyToAddress(privateKey)
     const id = walletId || this.generateWalletId(address)
-
+    const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
     const wallet = await this.walletRepository.save(clientId, {
       id,
       privateKey,
+      origin: Origin.IMPORTED,
+      publicKey,
       address
     })
 
     return wallet
   }
 
-  async importEncryptedPrivateKey(clientId: string, encryptedPrivateKey: string, walletId?: string): Promise<Wallet> {
-    this.logger.log('Importing encrypted private key', {
-      clientId
-    })
-    // Get the kid of the
-    const header = decodeProtectedHeader(encryptedPrivateKey)
+  async #decrypt(clientId: string, encryptedData: string): Promise<string> {
+    const header = decodeProtectedHeader(encryptedData)
     const kid = header.kid
 
     if (!kid) {
@@ -60,15 +71,28 @@ export class ImportService {
     }
 
     const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
-    // TODO: do we want to enforce a time constraint on the createdAt time so you have to use a fresh key?
 
     if (!encryptionPrivateKey) {
       throw new ApplicationException({
         message: 'Encryption Key Not Found',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
       })
     }
-    const privateKey = await rsaDecrypt(encryptedPrivateKey, encryptionPrivateKey.jwk)
+
+    return rsaDecrypt(encryptedData, encryptionPrivateKey.jwk)
+  }
+
+  async importEncryptedPrivateKey(
+    clientId: string,
+    encryptedPrivateKey: string,
+    walletId?: string
+  ): Promise<PrivateWallet> {
+    this.logger.log('Importing encrypted private key', {
+      clientId
+    })
+
+    const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
+
     if (!isHex(privateKey)) {
       throw new ApplicationException({
         message: 'Invalid decrypted private key; must be hex string with 0x prefix',
@@ -81,6 +105,36 @@ export class ImportService {
     })
 
     return this.importPrivateKey(clientId, privateKey as Hex, walletId)
+  }
+
+  async importSeed(
+    clientId: string,
+    body: ImportSeedDto
+  ): Promise<{
+    wallet: PrivateWallet
+    keyId: string
+    backup?: string
+  }> {
+    const { keyId, encryptedSeed, startingIndex } = body
+
+    const mnemonic = await this.#decrypt(clientId, encryptedSeed)
+
+    const { rootKey, kid: rootKeyId } = getRootKey(mnemonic, keyId)
+
+    const backup = await this.keyGenerationService.saveMnemonic(clientId, {
+      kid: rootKeyId,
+      mnemonic,
+      origin: Origin.IMPORTED,
+      nextAddrIndex: startingIndex || 0
+    })
+
+    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
+
+    return {
+      wallet: firstWallet,
+      keyId: rootKeyId,
+      backup
+    }
   }
 
   generateWalletId(address: Hex): string {
