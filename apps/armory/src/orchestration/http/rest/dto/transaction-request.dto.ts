@@ -17,7 +17,6 @@ class AccessListDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   address: Address
 
   @IsString()

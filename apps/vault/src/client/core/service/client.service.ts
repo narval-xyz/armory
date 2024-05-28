@@ -1,4 +1,3 @@
-import { secret } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Client } from '../../../shared/type/domain.type'
@@ -24,10 +23,7 @@ export class ClientService {
     }
 
     try {
-      await this.clientRepository.save({
-        ...client,
-        clientSecret: secret.hash(client.clientSecret)
-      })
+      await this.clientRepository.save(client)
 
       return client
     } catch (error) {
