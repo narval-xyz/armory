@@ -58,16 +58,8 @@ export class ImportService {
     return wallet
   }
 
-  async importEncryptedPrivateKey(
-    clientId: string,
-    encryptedPrivateKey: string,
-    walletId?: string
-  ): Promise<PrivateWallet> {
-    this.logger.log('Importing encrypted private key', {
-      clientId
-    })
-    // Get the kid of the
-    const header = decodeProtectedHeader(encryptedPrivateKey)
+  async #decrypt(clientId: string, encryptedData: string): Promise<string> {
+    const header = decodeProtectedHeader(encryptedData)
     const kid = header.kid
 
     if (!kid) {
@@ -78,14 +70,28 @@ export class ImportService {
     }
 
     const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
-    // TODO: do we want to enforce a time constraint on the createdAt time so you have to use a fresh key?
+
     if (!encryptionPrivateKey) {
       throw new ApplicationException({
         message: 'Encryption Key Not Found',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
       })
     }
-    const privateKey = await rsaDecrypt(encryptedPrivateKey, encryptionPrivateKey.jwk)
+
+    return rsaDecrypt(encryptedData, encryptionPrivateKey.jwk)
+  }
+
+  async importEncryptedPrivateKey(
+    clientId: string,
+    encryptedPrivateKey: string,
+    walletId?: string
+  ): Promise<PrivateWallet> {
+    this.logger.log('Importing encrypted private key', {
+      clientId
+    })
+
+    const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
+
     if (!isHex(privateKey)) {
       throw new ApplicationException({
         message: 'Invalid decrypted private key; must be hex string with 0x prefix',
@@ -110,31 +116,12 @@ export class ImportService {
   }> {
     const { keyId, encryptedSeed, startingIndex } = body
 
-    const header = decodeProtectedHeader(encryptedSeed)
-    const kid = header.kid
-
-    if (!kid) {
-      throw new ApplicationException({
-        message: 'Missing kid in JWE header',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
-      })
-    }
-
-    const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
-
-    if (!encryptionPrivateKey) {
-      throw new ApplicationException({
-        message: 'Encryption Key Not Found',
-        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
-      })
-    }
-
-    const mnemonic = await rsaDecrypt(encryptedSeed, encryptionPrivateKey.jwk)
+    const mnemonic = await this.#decrypt(clientId, encryptedSeed)
 
     const { rootKey, kid: rootKeyId } = getRootKey(mnemonic, keyId)
 
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
-      kid,
+      kid: rootKeyId,
       mnemonic,
       origin: SeedOrigin.IMPORTED,
       nextAddrIndex: startingIndex || 0
