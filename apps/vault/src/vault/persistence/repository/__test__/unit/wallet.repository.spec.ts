@@ -5,7 +5,7 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Wallet } from '../../../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../wallet.repository'
 
 describe(WalletRepository.name, () => {
@@ -40,10 +40,12 @@ describe(WalletRepository.name, () => {
     const clientId = 'test-client-id'
     const privateKey = generatePrivateKey()
     const account = privateKeyToAccount(privateKey)
-    const wallet: Wallet = {
+    const wallet: PrivateWallet = {
       id: 'test-WALLET-ID',
       privateKey,
-      address: account.address
+      address: account.address,
+      origin: Origin.GENERATED,
+      publicKey: account.publicKey
     }
 
     it('uses lower case id in the key', async () => {

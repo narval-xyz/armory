@@ -1,11 +1,11 @@
 import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { PrivateWallet } from '../../../shared/type/domain.type'
+import { RootKey } from '../../../shared/type/domain.type'
 
 @Injectable()
-export class WalletRepository {
-  private KEY_PREFIX = 'wallet'
+export class MnemonicRepository {
+  private KEY_PREFIX = 'mnemonic'
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
@@ -13,19 +13,19 @@ export class WalletRepository {
     return `${this.KEY_PREFIX}:${clientId}:${id}`
   }
 
-  async findById(clientId: string, id: string): Promise<PrivateWallet | null> {
+  async findById(clientId: string, id: string): Promise<RootKey | null> {
     const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
-      return coerce.decode(PrivateWallet, value)
+      return coerce.decode(RootKey, value)
     }
 
     return null
   }
 
-  async save(clientId: string, wallet: PrivateWallet): Promise<PrivateWallet> {
-    await this.keyValueService.set(this.getKey(clientId, wallet.id.toLowerCase()), coerce.encode(PrivateWallet, wallet))
+  async save(clientId: string, key: RootKey): Promise<RootKey> {
+    await this.keyValueService.set(this.getKey(clientId, key.keyId.toLowerCase()), coerce.encode(RootKey, key))
 
-    return wallet
+    return key
   }
 }

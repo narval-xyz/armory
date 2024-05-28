@@ -10,16 +10,21 @@ import { ApplicationExceptionFilter } from '../shared/filter/application-excepti
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
+import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
+import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
+import { GenerationController } from './http/rest/controller/generation.controller'
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
+import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
+import { MnemonicRepository } from './persistence/repository/mnemonic.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
@@ -31,6 +36,7 @@ import { VaultService } from './vault.service'
       isGlobal: true
     }),
     HttpModule,
+    PersistenceModule,
     forwardRef(() => KeyValueModule),
     EncryptionModule.registerAsync({
       imports: [VaultModule],
@@ -39,7 +45,7 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => ClientModule)
   ],
-  controllers: [VaultController, ImportController, SignController, ProvisionController],
+  controllers: [VaultController, ImportController, SignController, ProvisionController, GenerationController],
   providers: [
     AppRepository,
     AppService,
@@ -49,6 +55,9 @@ import { VaultService } from './vault.service'
     NonceService,
     ProvisionService,
     SigningService,
+    KeyGenerationService,
+    MnemonicRepository,
+    BackupRepository,
     VaultService,
     WalletRepository,
     {
