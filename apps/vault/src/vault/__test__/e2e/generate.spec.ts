@@ -158,14 +158,14 @@ describe('Generate', () => {
           {
             id: expect.any(String),
             keyId,
-            derivationPath: "m/44'/60'/0'/0/1",
+            derivationPath: "m/44'/60'/0'/0/0",
             address: expect.any(String),
             publicKey: expect.any(String)
           },
           {
             id: expect.any(String),
             keyId,
-            derivationPath: "m/44'/60'/0'/0/2",
+            derivationPath: "m/44'/60'/0'/0/1",
             address: expect.any(String),
             publicKey: expect.any(String)
           }

@@ -114,7 +114,7 @@ describe('GenerateService', () => {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
       origin: SeedOrigin.GENERATED,
-      nextAddrIndex: 1
+      nextAddrIndex: 0
     })
   })
 })

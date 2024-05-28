@@ -18,6 +18,7 @@ import { PrivateWallet, SeedOrigin } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { deriveWallet, getRootKey } from '../util/key-generation'
 import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
@@ -107,7 +108,7 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
-    const { keyId, encryptedSeed } = body
+    const { keyId, encryptedSeed, startingIndex } = body
 
     const header = decodeProtectedHeader(encryptedSeed)
     const kid = header.kid
@@ -130,14 +131,19 @@ export class ImportService {
 
     const mnemonic = await rsaDecrypt(encryptedSeed, encryptionPrivateKey.jwk)
 
-    const { wallet, backup, rootKeyId } = await this.keyGenerationService.storeRootKeyAndFirstWallet(clientId, {
-      keyId,
+    const { rootKey, kid: rootKeyId } = getRootKey(mnemonic, keyId)
+
+    const backup = await this.keyGenerationService.saveMnemonic(clientId, {
+      kid,
       mnemonic,
-      origin: SeedOrigin.IMPORTED
+      origin: SeedOrigin.IMPORTED,
+      nextAddrIndex: startingIndex || 0
     })
 
+    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
+
     return {
-      wallet,
+      wallet: firstWallet,
       keyId: rootKeyId,
       backup
     }

@@ -65,9 +65,23 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
+export const getRootKey = (
+  mnemonic: string,
+  keyId?: string
+): {
+  rootKey: HDKey
+  kid: string
+} => {
+  const rootKey = mnemonicToRootKey(mnemonic)
+  const kid = keyId || hdKeyToKid(rootKey)
+  return { rootKey, kid }
+}
+
 export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<PrivateWallet> => {
   const path = buildDerivationPath(opts)
   const derivedKey = rootKey.derive(path)
   const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))
   return wallet
 }
+
+export type HDkey = HDKey

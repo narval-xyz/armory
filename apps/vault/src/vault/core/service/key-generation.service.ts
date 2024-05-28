@@ -9,7 +9,7 @@ import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { MnemonicRepository } from '../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { deriveWallet, hdKeyToKid, mnemonicToRootKey } from '../util/key-generation'
+import { deriveWallet, getRootKey, mnemonicToRootKey } from '../util/key-generation'
 
 @Injectable()
 export class KeyGenerationService {
@@ -47,7 +47,7 @@ export class KeyGenerationService {
     return data
   }
 
-  async #saveMnemonic(
+  async saveMnemonic(
     clientId: string,
     {
       kid,
@@ -114,35 +114,6 @@ export class KeyGenerationService {
     return wallets.length === 1 ? wallets[0] : wallets
   }
 
-  async storeRootKeyAndFirstWallet(
-    clientId: string,
-    { mnemonic, keyId, origin }: { mnemonic: string; keyId?: string; origin: SeedOrigin }
-  ): Promise<{
-    wallet: PrivateWallet
-    rootKeyId: string
-    backup?: string
-  }> {
-    const rootKey = mnemonicToRootKey(mnemonic)
-
-    const rootKeyId = keyId || hdKeyToKid(rootKey)
-    const backup = await this.#saveMnemonic(clientId, {
-      kid: rootKeyId,
-      mnemonic,
-      origin,
-      nextAddrIndex: 1
-    })
-
-    this.logger.log('Deriving first wallet', { clientId })
-    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
-    await this.walletRepository.save(clientId, firstWallet)
-
-    return {
-      wallet: firstWallet,
-      rootKeyId,
-      backup
-    }
-  }
-
   async generateMnemonic(
     clientId: string,
     opts: GenerateKeyDto
@@ -154,11 +125,24 @@ export class KeyGenerationService {
     this.logger.log('Generating mnemonic', { clientId })
     const mnemonic = generateMnemonic(english)
 
-    const res = await this.storeRootKeyAndFirstWallet(clientId, {
+    const { rootKey, kid: rootKeyId } = await getRootKey(mnemonic, opts.keyId)
+
+    const backup = await this.saveMnemonic(clientId, {
+      kid: rootKeyId,
       mnemonic,
-      keyId: opts.keyId,
-      origin: SeedOrigin.GENERATED
+      origin: SeedOrigin.GENERATED,
+      nextAddrIndex: 0
     })
-    return res
+
+    this.logger.log('Deriving first wallet', { clientId })
+    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
+
+    await this.walletRepository.save(clientId, firstWallet)
+
+    return {
+      wallet: firstWallet,
+      rootKeyId,
+      backup
+    }
   }
 }
