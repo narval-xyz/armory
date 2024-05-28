@@ -219,7 +219,7 @@ describe('Import', () => {
           publicKey: expect.any(String),
           keyId: 'my-imported-rootKey',
           derivationPath: `m/44'/60'/0'/0/0`,
-          resourceId: resourceId(body.wallet.address)
+          id: resourceId(body.wallet.address)
         },
         keyId: 'my-imported-rootKey'
       })

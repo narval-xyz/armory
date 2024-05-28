@@ -2,6 +2,18 @@ import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { publicKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
+export const CreateClientInput = z.object({
+  clientId: z.string().optional(),
+  engineJwk: publicKeySchema.optional(),
+  audience: z.string().optional(),
+  issuer: z.string().optional(),
+  maxTokenAge: z.number().optional(),
+  backupPublicKey: rsaPublicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
+  baseUrl: z.string().optional()
+})
+export type CreateClientInput = z.infer<typeof CreateClientInput>
+
 export const Client = z.object({
   clientId: z.string(),
   clientSecret: z.string(),
@@ -64,7 +76,7 @@ export const PrivateWallet = z.object({
 export type PrivateWallet = z.infer<typeof PrivateWallet>
 
 export const PublicWallet = z.object({
-  resourceId: z.string().min(1),
+  id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   keyId: z.string().min(1).optional(),

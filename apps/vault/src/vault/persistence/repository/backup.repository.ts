@@ -6,7 +6,7 @@ import { Backup } from '../../../shared/type/domain.type'
 @Injectable()
 export class BackupRepository {
   constructor(private keyValueService: KeyValueService) {}
-  private KEY_PREFIX = 'mnemonic'
+  private KEY_PREFIX = 'backup'
 
   getKey(clientId: string, id: string): string {
     return `${this.KEY_PREFIX}:${clientId}:${id.toLowerCase()}`

@@ -1,41 +1,4 @@
-import { Jwk, RsaPublicKey } from '@narval/signature'
-import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
+import { CreateClientInput } from '../../../../shared/type/domain.type'
+import { createZodDto } from 'nestjs-zod'
 
-export class CreateClientDto {
-  @IsString()
-  @IsOptional()
-  @ApiPropertyOptional()
-  clientId?: string
-
-  @IsOptional()
-  engineJwk?: Jwk
-
-  @IsString()
-  @IsOptional()
-  @ApiPropertyOptional()
-  audience?: string
-
-  @IsString()
-  @IsOptional()
-  @ApiPropertyOptional()
-  issuer?: string
-
-  @IsNumber()
-  @IsOptional()
-  @ApiPropertyOptional()
-  maxTokenAge?: number
-
-  @IsString()
-  @IsOptional()
-  @ApiPropertyOptional()
-  baseUrl?: string
-
-  @IsBoolean()
-  @IsOptional()
-  @ApiPropertyOptional()
-  allowKeyExport?: boolean
-
-  @IsOptional()
-  backupPublicKey?: RsaPublicKey
-}
+export class CreateClientDto extends createZodDto(CreateClientInput) {}
