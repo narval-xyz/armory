@@ -109,14 +109,6 @@ export class EvaluationService {
       })
     }
 
-    if (!client.signer?.publicKey) {
-      throw new ApplicationException({
-        message: 'Client signer is not configured',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        context: { clientId }
-      })
-    }
-
     const [entityStore, policyStore] = await Promise.all([
       this.clientService.findEntityStore(clientId),
       this.clientService.findPolicyStore(clientId)
