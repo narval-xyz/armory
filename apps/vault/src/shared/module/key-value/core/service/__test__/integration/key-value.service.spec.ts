@@ -1,5 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { Test } from '@nestjs/testing'
+import { Collection } from '../../../../../../../shared/type/domain.type'
 import { load } from '../../../../../../../main.config'
 import { InMemoryKeyValueRepository } from '../../../../persistence/repository/in-memory-key-value.repository'
 import { KeyValueRepository } from '../../../repository/key-value.repository'
@@ -36,9 +37,40 @@ describe(KeyValueService.name, () => {
       const key = 'test-key'
       const value = 'plain value'
 
-      await service.set(key, value)
+      await service.set(key, value, { collection: Collection.MNEMONIC })
 
       expect(await service.get(key)).toEqual(value)
+    })
+  })
+
+  describe('findByMetadata', () => {
+    it('returns all values for a given collection', async () => {
+      const key1 = 'test-key-1'
+      const value1 = 'plain value 1'
+      const key2 = 'test-key-2'
+      const value2 = 'plain value 2'
+      const key3 = 'test-key-3'
+      const value3 = 'plain value 3'
+
+      await service.set(key1, value1, { collection: Collection.MNEMONIC })
+      await service.set(key2, value2, { collection: Collection.MNEMONIC })
+      await service.set(key3, value3, { collection: Collection.WALLET })
+
+      expect(await service.findByMetadata({ collection: Collection.MNEMONIC })).toEqual([value1, value2])
+    })
+    it('finds all values for a given collenction and clientId', async () => {
+      const key1 = 'test-key-1'
+      const value1 = 'plain value 1'
+      const key2 = 'test-key-2'
+      const value2 = 'plain value 2'
+      const key3 = 'test-key-3'
+      const value3 = 'plain value 3'
+
+      await service.set(key1, value1, { collection: Collection.MNEMONIC, clientId: 'client-1' })
+      await service.set(key2, value2, { collection: Collection.MNEMONIC, clientId: 'client-2' })
+      await service.set(key3, value3, { collection: Collection.WALLET, clientId: 'client-1' })
+
+      expect(await service.findByMetadata({ collection: Collection.MNEMONIC, clientId: 'client-1' })).toEqual([value1])
     })
   })
 })

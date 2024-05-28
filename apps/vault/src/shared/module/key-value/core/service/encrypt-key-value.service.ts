@@ -1,6 +1,6 @@
 import { EncryptionService } from '@narval/encryption-module'
 import { Inject, Injectable } from '@nestjs/common'
-import { KeyValueRepository } from '../repository/key-value.repository'
+import { KeyMetadata, KeyValueRepository } from '../repository/key-value.repository'
 
 /**
  * The key-value service is the main interface to interact with any storage
@@ -15,6 +15,21 @@ export class EncryptKeyValueService {
     private encryptionService: EncryptionService
   ) {}
 
+  async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
+    const encryptedValues = await this.keyValueRepository.findByMetadata(metadata)
+
+    if (!encryptedValues) {
+      return null
+    }
+    return Promise.all(
+      encryptedValues.map(async (encryptedValue) => {
+        const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue, 'hex'))
+
+        return value.toString()
+      })
+    )
+  }
+
   async get(key: string): Promise<string | null> {
     const encryptedValue = await this.keyValueRepository.get(key)
 
@@ -27,10 +42,10 @@ export class EncryptKeyValueService {
     return null
   }
 
-  async set(key: string, value: string): Promise<boolean> {
+  async set(key: string, value: string, metadata: KeyMetadata): Promise<boolean> {
     const encryptedValue = await this.encryptionService.encrypt(value)
 
-    return this.keyValueRepository.set(key, encryptedValue.toString('hex'))
+    return this.keyValueRepository.set(key, encryptedValue.toString('hex'), metadata)
   }
 
   async delete(key: string): Promise<boolean> {

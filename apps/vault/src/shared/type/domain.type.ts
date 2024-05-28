@@ -105,3 +105,12 @@ export const Backup = z.object({
   createdAt: z.coerce.date().default(() => new Date())
 })
 export type Backup = z.infer<typeof Backup>
+
+export const Collection = {
+  CLIENT: 'CLIENT',
+  APP: 'APP',
+  WALLET: 'WALLET',
+  MNEMONIC: 'MNEMONIC',
+  BACKUP: 'BACKUP'
+} as const
+export type Collection = (typeof Collection)[keyof typeof Collection]

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { KeyValueRepository } from '../repository/key-value.repository'
+import { KeyMetadata, KeyValueRepository } from '../repository/key-value.repository'
 
 @Injectable()
 export class KeyValueService {
@@ -9,8 +9,12 @@ export class KeyValueService {
     return this.keyValueRepository.get(key)
   }
 
-  async set(key: string, value: string): Promise<boolean> {
-    return this.keyValueRepository.set(key, value)
+  async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
+    return this.keyValueRepository.findByMetadata(metadata)
+  }
+
+  async set(key: string, value: string, metadata: KeyMetadata): Promise<boolean> {
+    return this.keyValueRepository.set(key, value, metadata)
   }
 
   async delete(key: string): Promise<boolean> {
