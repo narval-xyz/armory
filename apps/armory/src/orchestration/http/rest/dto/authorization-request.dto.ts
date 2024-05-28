@@ -1,10 +1,13 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, EvaluationMetadata } from '@narval/policy-engine-shared'
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsArray, IsDefined, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { createZodDto } from 'nestjs-zod'
 import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-request.dto'
 import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
 import { GrantPermissionRequestDto } from './grant-permission-request.dto'
+
+const EvaluationMetadataDto = createZodDto(EvaluationMetadata)
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto, GrantPermissionRequestDto)
 export class AuthorizationRequestDto {
@@ -48,4 +51,10 @@ export class AuthorizationRequestDto {
     default: []
   })
   approvals: string[]
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => EvaluationMetadataDto)
+  @ApiProperty()
+  metadata?: EvaluationMetadata
 }

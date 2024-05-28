@@ -10,14 +10,17 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
-  const approvals: string[] = dto.approvals
   const authentication: string = dto.authentication
+  const approvals: string[] = dto.approvals
+  const metadata = dto.metadata
+  const request = body.request
 
   return {
     clientId,
     approvals,
     authentication,
     evaluations: [],
-    request: body.request
+    request,
+    metadata
   }
 }
