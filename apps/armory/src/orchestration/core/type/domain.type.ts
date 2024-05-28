@@ -1,5 +1,5 @@
 import { Json } from '@narval/nestjs-shared'
-import { Action, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
+import { Action, EvaluationMetadata, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
 import { z } from 'zod'
 
@@ -72,6 +72,7 @@ export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError
 
 export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
+  metadata: EvaluationMetadata,
   authentication: JwtString,
   clientId: z.string(),
   createdAt: z.date(),
@@ -89,6 +90,7 @@ export type CreateAuthorizationRequest = OverrideProperties<
   SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
   {
     approvals: JwtString[]
+    metadata: EvaluationMetadata
   }
 >
 
