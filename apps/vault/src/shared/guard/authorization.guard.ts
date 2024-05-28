@@ -55,25 +55,24 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const { request } = req.body
+    const { request: requestHash } = req.body
     const permissions = this.reflector.get(Permissions, context.getHandler())
-
-    const opts: JwtVerifyOptions = {
-      audience: client.audience,
-      issuer: client.issuer,
-      maxTokenAge: client.maxTokenAge || DEFAULT_MAX_TOKEN_AGE,
-      ...(request && {
-        requestHash: request
-      }),
-      ...(permissions &&
-        permissions.length > 0 && {
-          access: [
+    const access =
+      permissions && permissions.length > 0
+        ? [
             {
               resource: 'vault',
               permissions
             }
           ]
-        })
+        : undefined
+
+    const opts: JwtVerifyOptions = {
+      audience: client.audience,
+      issuer: client.issuer,
+      maxTokenAge: client.maxTokenAge || DEFAULT_MAX_TOKEN_AGE,
+      ...(requestHash && { requestHash }),
+      ...(access && { access })
     }
 
     return this.validateToken(context, client, accessToken, opts)

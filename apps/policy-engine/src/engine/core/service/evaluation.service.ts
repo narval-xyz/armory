@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, signJwt } from '@narval/signature'
+import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
@@ -8,6 +8,8 @@ import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
+
+const TEN_MINUTES = 60 * 10
 
 export async function buildPermitTokenPayload(clientId: string, evaluation: EvaluationResponse): Promise<Payload> {
   if (evaluation.decision !== Decision.PERMIT) {
@@ -32,12 +34,14 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
     })
   }
 
-  const payload: Payload = {
+  const iat = nowSeconds()
+
+  let payload: Payload = {
     sub: evaluation.principal.userId,
     // TODO: iat & exp values must be arguments, cannot generate timestamps
     // because of cluster mis-match
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
+    iat,
+    exp: iat + TEN_MINUTES,
     // TODO: allow client-specific; should come from config
     iss: 'https://armory.narval.xyz',
     // aud: TODO
@@ -53,12 +57,26 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
         permissions: evaluation.request.permissions
       }
     ]
+
+    if (evaluation.request.metadata) {
+      const { audience, issuer, expiresIn } = evaluation.request.metadata
+
+      payload = {
+        ...payload,
+        ...(audience && { aud: audience }),
+        ...(issuer && { iss: issuer }),
+        ...(expiresIn && { exp: iat + expiresIn })
+      }
+    }
   }
 
   // Everything that is not GRANT_PERMISSION currently requires a requestHash
   // in the future it's likely more actions will also not needed it.
   if (evaluation.request.action !== Action.GRANT_PERMISSION) {
-    payload.requestHash = hash(evaluation.request)
+    payload = {
+      ...payload,
+      requestHash: hash(evaluation.request)
+    }
   }
 
   return payload
