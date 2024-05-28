@@ -65,11 +65,18 @@ export const DerivationPath = z.union([
 ])
 export type DerivationPath = z.infer<typeof DerivationPath>
 
+export const Origin = {
+  IMPORTED: 'IMPORTED',
+  GENERATED: 'GENERATED'
+} as const
+export type Origin = (typeof Origin)[keyof typeof Origin]
+
 export const PrivateWallet = z.object({
   id: z.string().min(1),
   privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   address: addressSchema,
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)]),
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
@@ -84,16 +91,10 @@ export const PublicWallet = z.object({
 })
 export type PublicWallet = z.infer<typeof PublicWallet>
 
-export const SeedOrigin = {
-  IMPORTED: 'IMPORTED',
-  GENERATED: 'GENERATED'
-} as const
-export type SeedOrigin = (typeof SeedOrigin)[keyof typeof SeedOrigin]
-
 export const RootKey = z.object({
   keyId: z.string().min(1),
   mnemonic: z.string().min(1),
-  origin: z.union([z.literal(SeedOrigin.GENERATED), z.literal(SeedOrigin.IMPORTED)]),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)]),
   nextAddrIndex: z.number().min(0).default(0)
 })
 export type RootKey = z.infer<typeof RootKey>

@@ -9,7 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../../../client/core/service/client.service'
-import { Client, SeedOrigin } from '../../../../../shared/type/domain.type'
+import { Client, Origin } from '../../../../../shared/type/domain.type'
 import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'
@@ -49,7 +49,7 @@ describe('GenerateService', () => {
     mnemonicRepositoryMock.save.mockResolvedValue({
       mnemonic,
       keyId: 'keyId',
-      origin: SeedOrigin.GENERATED,
+      origin: Origin.GENERATED,
       nextAddrIndex: 1
     })
 
@@ -58,7 +58,8 @@ describe('GenerateService', () => {
       id: 'walletId',
       address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
       publicKey: await publicKeyToHex(secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)),
-      privateKey: PRIVATE_KEY
+      privateKey: PRIVATE_KEY,
+      origin: Origin.GENERATED
     })
 
     const module: TestingModule = await Test.createTestingModule({
@@ -113,7 +114,7 @@ describe('GenerateService', () => {
     expect(mnemonicRepositoryMock.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
-      origin: SeedOrigin.GENERATED,
+      origin: Origin.GENERATED,
       nextAddrIndex: 0
     })
   })
