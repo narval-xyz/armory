@@ -53,7 +53,7 @@ export class ImportController {
   async importSeed(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
     const { wallet, keyId, backup } = await this.importService.importSeed(clientId, body)
 
-    const response = new GenerateKeyResponseDto({
+    const response = GenerateKeyResponseDto.create({
       wallet,
       keyId,
       backup
