@@ -143,6 +143,7 @@ export const EvaluationMetadata = z
   .object({
     audience: z.union([z.string(), z.array(z.string())]).optional(),
     issuer: z.string().optional(),
+    iat: z.number().optional(),
     expiresIn: z.number().optional()
   })
   .optional()

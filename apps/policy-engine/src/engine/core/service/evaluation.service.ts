@@ -9,8 +9,6 @@ import { ApplicationException } from '../../../shared/exception/application.exce
 import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
 
-const TEN_MINUTES = 60 * 10
-
 export async function buildPermitTokenPayload(clientId: string, evaluation: EvaluationResponse): Promise<Payload> {
   if (evaluation.decision !== Decision.PERMIT) {
     throw new ApplicationException({
@@ -34,17 +32,18 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
     })
   }
 
-  const iat = nowSeconds()
+  const { audience, issuer } = evaluation.metadata || {}
+  const iat = evaluation.metadata?.iat || nowSeconds()
+  const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
 
-  let payload: Payload = {
+  const payload: Payload = {
     sub: evaluation.principal.userId,
-    // TODO: iat & exp values must be arguments, cannot generate timestamps
-    // because of cluster mis-match
     iat,
-    exp: iat + TEN_MINUTES,
+    ...(exp && { exp }),
+    ...(audience && { aud: audience }),
+    ...(issuer && { iss: issuer }),
     // TODO: allow client-specific; should come from config
     iss: 'https://armory.narval.xyz',
-    // aud: TODO
     // jti: TODO
     cnf: evaluation.principal.key
   }
@@ -57,26 +56,12 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
         permissions: evaluation.request.permissions
       }
     ]
-
-    if (evaluation.metadata) {
-      const { audience, issuer, expiresIn } = evaluation.metadata
-
-      payload = {
-        ...payload,
-        ...(audience && { aud: audience }),
-        ...(issuer && { iss: issuer }),
-        ...(expiresIn && { exp: iat + expiresIn })
-      }
-    }
   }
 
   // Everything that is not GRANT_PERMISSION currently requires a requestHash
   // in the future it's likely more actions will also not needed it.
   if (evaluation.request.action !== Action.GRANT_PERMISSION) {
-    payload = {
-      ...payload,
-      requestHash: hash(evaluation.request)
-    }
+    payload.requestHash = hash(evaluation.request)
   }
 
   return payload
