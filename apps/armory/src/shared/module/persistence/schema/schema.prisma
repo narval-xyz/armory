@@ -64,6 +64,7 @@ model AuthorizationRequest {
 
   evaluationLog EvaluationLog[]
   approvals     AuthorizationRequestApproval[]
+  metadata      Json?
   errors        AuthorizationRequestError[]
 
   @@map("authorization_request")
@@ -81,9 +82,9 @@ model AuthorizationRequestApproval {
 }
 
 model AuthorizationRequestError {
-  id        String   @id @default(uuid()) @db.VarChar(255)
-  clientId  String   @map("client_id")
-  requestId String   @map("request_id")
+  id        String @id @default(uuid()) @db.VarChar(255)
+  clientId  String @map("client_id")
+  requestId String @map("request_id")
   name      String
   message   String
   context   Json?

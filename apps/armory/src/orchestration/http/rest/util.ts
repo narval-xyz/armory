@@ -1,6 +1,9 @@
+import { nowSeconds } from '@narval/signature'
 import { plainToInstance } from 'class-transformer'
 import { CreateAuthorizationRequest } from '../../core/type/domain.type'
 import { AuthorizationRequestDto } from '../../http/rest/dto/authorization-request.dto'
+
+const TEN_MINUTES = 60 * 10
 
 // Not in love with the gymnastics required to bend a DTO to a domain object.
 // Most of the complexity came from the discriminated union type.
@@ -10,14 +13,21 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
-  const approvals: string[] = dto.approvals
   const authentication: string = dto.authentication
+  const approvals: string[] = dto.approvals
+  const metadata = {
+    ...dto.metadata,
+    expiresIn: dto.metadata?.expiresIn || TEN_MINUTES,
+    iat: nowSeconds()
+  }
+  const request = body.request
 
   return {
     clientId,
     approvals,
     authentication,
     evaluations: [],
-    request: body.request
+    request,
+    metadata
   }
 }
