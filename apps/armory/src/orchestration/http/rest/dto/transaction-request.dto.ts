@@ -17,7 +17,6 @@ class AccessListDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   address: Address
 
   @IsString()
@@ -33,7 +32,6 @@ export class TransactionRequestDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   from: Address
 
   @IsNumber()
@@ -53,10 +51,17 @@ export class TransactionRequestDto {
   @Transform(({ value }) => BigInt(value))
   gas?: bigint
 
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  maxFeePerGas?: bigint
+
+  @IsOptional()
+  @Transform(({ value }) => BigInt(value))
+  maxPriorityFeePerGas?: bigint
+
   @IsString()
   @IsEthereumAddress()
   @IsOptional()
-  @Transform(({ value }) => value.toLowerCase())
   to?: Address | null
 
   @IsString()
@@ -83,4 +88,16 @@ export class TransactionResponseDto extends TransactionRequestDto {
   @Transform(({ value }) => value.toString())
   @ApiPropertyOptional({ type: String })
   gas?: bigint
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.toString())
+  @ApiPropertyOptional({ type: String })
+  maxFeePerGas?: bigint
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.toString())
+  @ApiPropertyOptional({ type: String })
+  maxPriorityFeePerGas?: bigint
 }

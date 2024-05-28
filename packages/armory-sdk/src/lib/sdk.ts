@@ -48,15 +48,15 @@ export const sendTransaction = async (
   config: ArmoryClientConfig,
   transactionRequest: TransactionRequest
 ): Promise<Hex | SdkEvaluationResponse> => {
-  const request: EvaluationRequest = {
-    authentication: '',
+  const request = EvaluationRequest.parse({
+    authentication: 'missing',
     request: {
       action: Action.SIGN_TRANSACTION,
       resourceId: resourceId(transactionRequest.from),
       nonce: v4(),
       transactionRequest
     }
-  }
+  })
   const evaluationResponse = await sendEvaluationRequest(config, request)
   const { accessToken } = evaluationResponse
 

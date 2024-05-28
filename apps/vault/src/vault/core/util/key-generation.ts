@@ -5,7 +5,7 @@ import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import { HDOptions, Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { PrivateWallet } from '../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 
 type DeriveOptions = HDOptions & { rootKeyId?: string }
 
@@ -54,6 +54,7 @@ export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Prom
     id: resourceId(address),
     privateKey,
     publicKey,
+    origin: Origin.GENERATED,
     address,
     keyId: kid,
     derivationPath: path

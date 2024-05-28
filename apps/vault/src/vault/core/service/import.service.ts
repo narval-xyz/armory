@@ -14,7 +14,7 @@ import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { PrivateWallet, SeedOrigin } from '../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
@@ -51,6 +51,7 @@ export class ImportService {
     const wallet = await this.walletRepository.save(clientId, {
       id,
       privateKey,
+      origin: Origin.IMPORTED,
       publicKey,
       address
     })
@@ -123,7 +124,7 @@ export class ImportService {
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
       kid: rootKeyId,
       mnemonic,
-      origin: SeedOrigin.IMPORTED,
+      origin: Origin.IMPORTED,
       nextAddrIndex: startingIndex || 0
     })
 

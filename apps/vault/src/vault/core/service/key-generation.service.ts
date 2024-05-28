@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { PrivateWallet, SeedOrigin } from '../../../shared/type/domain.type'
+import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { DeriveWalletDto } from '../../http/rest/dto/derive-wallet-dto'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
@@ -57,7 +57,7 @@ export class KeyGenerationService {
     }: {
       kid: string
       mnemonic: string
-      origin: SeedOrigin
+      origin: Origin
       nextAddrIndex: number
     }
   ): Promise<string | undefined> {
@@ -106,7 +106,7 @@ export class KeyGenerationService {
       await this.mnemonicRepository.save(clientId, {
         keyId: opts.keyId,
         mnemonic,
-        origin: SeedOrigin.IMPORTED,
+        origin: Origin.IMPORTED,
         nextAddrIndex: curr
       })
     }
@@ -130,7 +130,7 @@ export class KeyGenerationService {
     const backup = await this.saveMnemonic(clientId, {
       kid: rootKeyId,
       mnemonic,
-      origin: SeedOrigin.GENERATED,
+      origin: Origin.GENERATED,
       nextAddrIndex: 0
     })
 

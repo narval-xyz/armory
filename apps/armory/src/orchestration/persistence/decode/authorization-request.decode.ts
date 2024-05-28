@@ -1,8 +1,12 @@
+import { Json } from '@narval/nestjs-shared'
 import { Action } from '@narval/policy-engine-shared'
-import { EvaluationLog } from '@prisma/client/armory'
+import {
+  AuthorizationRequestError as AuthorizationRequestErrorModel,
+  EvaluationLog as EvaluationLogModel
+} from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
-import { AuthorizationRequest, Evaluation } from '../../core/type/domain.type'
+import { AuthorizationRequest, AuthorizationRequestError, Evaluation } from '../../core/type/domain.type'
 import { ACTION_REQUEST } from '../../orchestration.constant'
 import { DecodeAuthorizationRequestException } from '../../persistence/exception/decode-authorization-request.exception'
 import { AuthorizationRequestModel } from '../../persistence/type/model.type'
@@ -11,24 +15,34 @@ type Model = SetOptional<AuthorizationRequestModel, 'evaluationLog'>
 
 const actionSchema = z.nativeEnum(Action)
 
-const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLog): Evaluation => ({
+const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLogModel): Evaluation => ({
   id,
   decision,
   signature,
   createdAt
 })
 
-const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => ({
-  id: model.id,
-  clientId: model.clientId,
-  status: model.status,
-  idempotencyKey: model.idempotencyKey,
-  authentication: model.authnSig,
-  approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
-  evaluations: (model.evaluationLog || []).map(buildEvaluation),
-  createdAt: model.createdAt,
-  updatedAt: model.updatedAt
+const buildError = ({ id, message, name, context }: AuthorizationRequestErrorModel): AuthorizationRequestError => ({
+  id,
+  message,
+  name,
+  context: Json.parse(context)
 })
+
+const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => {
+  return {
+    id: model.id,
+    clientId: model.clientId,
+    status: model.status,
+    idempotencyKey: model.idempotencyKey,
+    authentication: model.authnSig,
+    approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
+    evaluations: (model.evaluationLog || []).map(buildEvaluation),
+    errors: (model.errors || []).map(buildError),
+    createdAt: model.createdAt,
+    updatedAt: model.updatedAt
+  }
+}
 
 /**
  * Decodes a given schema with proper error handling.
