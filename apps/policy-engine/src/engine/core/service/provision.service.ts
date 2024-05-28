@@ -21,30 +21,35 @@ export class ProvisionService {
     private engineService: EngineService
   ) {}
 
-  async provision(activate: boolean): Promise<Engine | null> {
+  async provision(): Promise<Engine> {
     const engine = await this.engineService.getEngine()
 
-    const isFirstTime = engine === null
+    const isFirstBoot = engine === null
 
-    // IMPORTANT: The order of internal methods call matters.
-    if (isFirstTime) {
+    if (isFirstBoot) {
       this.logger.log('Start app provision')
 
-      const adminApiKey = this.getOrGenerateAdminApiKey()
-      const newEngine: Engine = {
-        id: this.getEngineId(),
-        adminApiKey,
-        activated: activate
-      }
-
-      const withEncryption = await this.setupEncryption(newEngine)
-
-      await this.engineService.save({
-        ...withEncryption,
-        adminApiKey: secret.hash(adminApiKey)
+      const provisionedEngine: Engine = await this.withMasterKey({
+        id: this.getId()
       })
 
-      return withEncryption
+      const adminApiKey = this.getAdminApiKey()
+
+      if (adminApiKey) {
+        const activatedEngine = {
+          ...provisionedEngine,
+          adminApiKey
+        }
+
+        await this.engineService.save({
+          ...activatedEngine,
+          adminApiKey: secret.hash(adminApiKey)
+        })
+
+        return activatedEngine
+      }
+
+      return this.engineService.save(provisionedEngine)
     } else {
       this.logger.log('App already provisioned')
     }
@@ -52,26 +57,10 @@ export class ProvisionService {
     return engine
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time.
-  // This enables you to provision the engine at first-boot without access to
-  // the console, then to activate it to retrieve the api key through a REST
-  // endpoint.
-  async activate(): Promise<Engine> {
-    this.logger.log('Activate app')
-
-    const adminApiKey = this.getOrGenerateAdminApiKey()
-
-    const app = await this.engineService.update({
-      activated: true,
-      adminApiKey: secret.hash(adminApiKey)
-    })
-
-    return { ...app, adminApiKey }
-  }
-
-  private async setupEncryption(engine: Engine): Promise<Engine> {
+  private async withMasterKey(engine: Engine): Promise<Engine> {
     if (engine.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
+
       return engine
     }
 
@@ -81,7 +70,7 @@ export class ProvisionService {
       this.logger.log('Generate and save engine master key')
 
       const { masterPassword } = keyring
-      const kek = generateKeyEncryptionKey(masterPassword, this.getEngineId())
+      const kek = generateKeyEncryptionKey(masterPassword, this.getId())
       const masterKey = await generateMasterKey(kek)
 
       return { ...engine, masterKey }
@@ -94,11 +83,11 @@ export class ProvisionService {
     return engine
   }
 
-  private getOrGenerateAdminApiKey(): string {
-    return this.configService.get('engine.adminApiKey') || secret.generate()
+  private getAdminApiKey(): string | undefined {
+    return this.configService.get('engine.adminApiKey')
   }
 
-  private getEngineId(): string {
+  private getId(): string {
     return this.configService.get('engine.id')
   }
 }

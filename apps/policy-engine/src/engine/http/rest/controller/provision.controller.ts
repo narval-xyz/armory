@@ -1,16 +1,19 @@
 import { ConfigService } from '@narval/config-module'
-import { Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
+import { secret } from '@narval/nestjs-shared'
+import { Controller, HttpStatus, Post } from '@nestjs/common'
 import { Config } from '../../../../policy-engine.config'
+import { ApplicationException } from '../../../../shared/exception/application.exception'
+import { Engine } from '../../../../shared/type/domain.type'
 import { EngineService } from '../../../core/service/engine.service'
 import { ProvisionService } from '../../../core/service/provision.service'
 
-type AlreadyProvisioned = {
-  alreadyProvisioned: true
+type IsProvisioned = {
+  isProvisioned: true
 }
 
 type State = {
   appId: string
-  adminApiKey: string | undefined
+  adminApiKey?: string
   encryptionType: string
   isMasterPasswordSet?: boolean
   isMasterKeySet?: boolean
@@ -18,11 +21,11 @@ type State = {
 }
 
 type Provisioned = {
-  alreadyProvisioned: false
+  isProvisioned: false
   state: State
 }
 
-type Response = AlreadyProvisioned | Provisioned
+type Response = IsProvisioned | Provisioned
 
 @Controller('/provision')
 export class ProvisionController {
@@ -42,44 +45,62 @@ export class ProvisionController {
         (keyringConfig.type === 'awskms' && keyringConfig?.masterAwsKmsArn)
     )
 
-    if (engine && isProvisioned && engine.activated) {
-      return { alreadyProvisioned: true }
+    if (engine && isProvisioned && engine.adminApiKey) {
+      return { isProvisioned: true }
     }
 
-    let adminApiKey
-    // if we've already provisioned but not activate, just flag it.
-    if (engine && isProvisioned && !engine.activated) {
-      const activatedApp = await this.provisionService.activate()
-      adminApiKey = activatedApp.adminApiKey
-    }
+    if (engine && isProvisioned && !engine.adminApiKey) {
+      const adminApiKey = secret.generate()
 
-    // Provision the engine if it hasn't yet
-    else {
-      const newApp = await this.provisionService.provision(true)
-      adminApiKey = newApp?.adminApiKey
+      await this.engineService.save({
+        ...engine,
+        adminApiKey: secret.hash(adminApiKey)
+      })
+
+      return {
+        isProvisioned: false,
+        state: this.getState({ app: engine, keyringConfig, adminApiKey })
+      }
     }
 
     try {
-      const engine = await this.engineService.getEngineOrThrow()
+      const activatedEngine = await this.provisionService.provision()
 
-      const state: State = {
-        appId: engine.id,
-        adminApiKey,
-        encryptionType: keyringConfig.type
+      return {
+        isProvisioned: false,
+        state: this.getState({
+          app: activatedEngine,
+          keyringConfig,
+          adminApiKey: activatedEngine?.adminApiKey
+        })
       }
-
-      if (keyringConfig.type === 'raw') {
-        state.isMasterPasswordSet = Boolean(keyringConfig.masterPassword)
-        state.isMasterKeySet = Boolean(engine.masterKey)
-      }
-
-      if (keyringConfig.type === 'awskms') {
-        state.isMasterKmsArnSet = Boolean(keyringConfig.masterAwsKmsArn)
-      }
-
-      return { alreadyProvisioned: false, state }
     } catch (error) {
-      throw new HttpException('Something went wrong provisioning the app', HttpStatus.INTERNAL_SERVER_ERROR)
+      throw new ApplicationException({
+        message: 'Something went wrong provisioning the app',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
+  }
+
+  private getState(opt: { app: Engine; keyringConfig: Config['keyring']; adminApiKey?: string }): State {
+    const { app, keyringConfig, adminApiKey } = opt
+
+    return {
+      appId: app.id,
+      adminApiKey,
+      encryptionType: keyringConfig.type,
+      ...(keyringConfig.type === 'raw'
+        ? {
+            isMasterPasswordSet: Boolean(keyringConfig.masterPassword),
+            isMasterKeySet: Boolean(app.masterKey)
+          }
+        : {}),
+      ...(keyringConfig.type === 'awskms'
+        ? {
+            isMasterKmsArnSet: Boolean(keyringConfig.masterAwsKmsArn)
+          }
+        : {})
     }
   }
 }

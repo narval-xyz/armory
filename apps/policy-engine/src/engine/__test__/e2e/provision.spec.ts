@@ -4,8 +4,7 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { load } from '../../../policy-engine.config'
-import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { EngineService } from '../../core/service/engine.service'
 import { EngineModule } from '../../engine.module'
 
@@ -15,8 +14,9 @@ describe('Provision', () => {
   let app: INestApplication
   let module: TestingModule
   let engineService: EngineService
+  let testPrismaService: TestPrismaService
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -25,19 +25,22 @@ describe('Provision', () => {
         }),
         EngineModule
       ]
-    })
-      .overrideProvider(KeyValueRepository)
-      .useClass(InMemoryKeyValueRepository)
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 
     engineService = app.get(EngineService)
+    testPrismaService = app.get(TestPrismaService)
 
     await app.init()
   })
 
+  beforeEach(async () => {
+    await testPrismaService.truncateAll()
+  })
+
   afterAll(async () => {
+    await testPrismaService.truncateAll()
     await module.close()
     await app.close()
   })
@@ -47,7 +50,7 @@ describe('Provision', () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
       expect(body).toEqual({
-        alreadyProvisioned: false,
+        isProvisioned: false,
         state: {
           appId: 'local-dev-engine-instance-1',
           adminApiKey: expect.any(String),
@@ -63,7 +66,7 @@ describe('Provision', () => {
 
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      expect(body).toEqual({ alreadyProvisioned: true })
+      expect(body).toEqual({ isProvisioned: true })
     })
 
     it('does not respond with hashed admin API key', async () => {
