@@ -13,6 +13,7 @@ import { Client } from '../../../../../shared/type/domain.type'
 import { ClientRepository } from '../../../../persistence/repository/client.repository'
 import { ClientService } from '../../client.service'
 import { DataStoreService } from '../../data-store.service'
+import { SimpleSigningService } from '../../signing-basic.service'
 
 describe(ClientService.name, () => {
   let clientService: ClientService
@@ -34,14 +35,13 @@ describe(ClientService.name, () => {
 
   const client: Client = {
     clientId,
-    clientSecret: 'test-client-secret',
+    clientSecret: secret.hash('test-client-secret'),
     dataStore: {
       entity: dataStoreConfiguration,
       policy: dataStoreConfiguration
     },
     signer: {
-      type: 'PRIVATE_KEY',
-      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -79,6 +79,10 @@ describe(ClientService.name, () => {
         {
           provide: KeyValueRepository,
           useClass: InMemoryKeyValueRepository
+        },
+        {
+          provide: 'SigningService',
+          useValue: SimpleSigningService
         }
       ]
     }).compile()
@@ -88,12 +92,12 @@ describe(ClientService.name, () => {
   })
 
   describe('save', () => {
-    it('hashes the secret key', async () => {
+    it('does not hash the client secret because it is already hashed', async () => {
       await clientService.save(client)
 
       const actualClient = await clientService.findById(client.clientId)
 
-      expect(actualClient?.clientSecret).toEqual(secret.hash(client.clientSecret))
+      expect(actualClient?.clientSecret).toEqual(client.clientSecret)
     })
   })
 

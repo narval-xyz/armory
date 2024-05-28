@@ -8,7 +8,7 @@ export class CreateClientRequestDto extends createZodDto(
     createdAt: true,
     updatedAt: true
   }).extend({
-    policyEngineNodes: z.array(z.string().url()).optional()
+    policyEngineNodes: z.array(z.string()).optional()
   })
 ) {}
 

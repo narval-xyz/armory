@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
-import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { PublicKey, verifyJwt } from '@narval/signature'
+import { Decision, EvaluationRequest, EvaluationResponse, toHex } from '@narval/policy-engine-shared'
+import { Hex, PublicKey, base64UrlToHex, eip191Hash, hexToBase64Url, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { hexToBytes } from '@noble/curves/abstract/utils'
+import { secp256k1 } from '@noble/curves/secp256k1'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
@@ -15,6 +18,15 @@ import { ConsensusAgreementNotReachException } from '../exception/consensus-agre
 import { InvalidAttestationSignatureException } from '../exception/invalid-attestation-signature.exception'
 import { PolicyEngineException } from '../exception/policy-engine.exception'
 import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.type'
+
+let TSMClient: any
+const tsmsdkv2 = require('@sepior/tsmsdkv2')
+try {
+  TSMClient = tsmsdkv2.TSMClient
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.log('@sepior/tsmsdkv2 is not installed')
+}
 
 @Injectable()
 export class ClusterService {
@@ -84,12 +96,49 @@ export class ClusterService {
     return this.policyEngineNodeRepository.findByClientId(clientId)
   }
 
+  async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
+    if (!TSMClient) {
+      throw new ApplicationException({
+        message: 'TSM SDK not installed',
+        suggestedHttpStatusCode: 500
+      })
+    }
+    const tsmClient = new TSMClient(null)
+    // Each `evaluation` should have a "signed" accessToken, but it's a partial sig.
+    // It was generated as if it was a real sig, so it's a base64url encoded value.
+
+    const partialSigs = evaluations.map((e) => {
+      const parts = e.accessToken?.value.split('.') || []
+      const sig = parts[2] || ''
+      const hexSig = base64UrlToHex(sig)
+      return hexToBytes(hexSig.slice(2))
+    })
+    // We'll re-create the message to sign based on the JWT. All the JWTs should be the same except the partial sigs
+    // So we can use the first one. If they aren't all the same, the finalizeSignature will fail anywyas,
+    // so no need to check equality specifically.
+    const jwt = evaluations[0].accessToken?.value
+    const parts = jwt?.split('.') || []
+    const message = eip191Hash([parts[0], parts[1]].join('.'))
+    // NOTE TSM returns a DER signature
+    const { signature, recoveryID } = await tsmClient.ECDSA().finalizeSignature(message, partialSigs)
+    const sig = secp256k1.Signature.fromDER(signature)
+
+    const hexSignature: Hex = `0x${sig.toCompactHex()}${toHex(27n + BigInt(recoveryID)).slice(2)}`
+    const jwtSig = hexToBase64Url(hexSignature)
+    const finalJwt = [parts[0], parts[1], jwtSig].join('.')
+    return {
+      ...evaluations[0],
+      accessToken: { value: finalJwt }
+    }
+  }
+
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const nodes = await this.findNodesByClientId(clientId)
 
     if (isEmpty(nodes)) {
       throw new ClusterNotFoundException(clientId)
     }
+    const isMpc = nodes.length > 1
 
     this.logger.log('Sending evaluation request to cluster', {
       clientId,
@@ -115,35 +164,31 @@ export class ClusterService {
       }
 
       if (decision === Decision.PERMIT) {
-        await this.verifyAttestations(nodes, responses)
+        // If MPC, we have multiple partialSig responses to combine.
+        // If they don't have exactly the same decision & accessToken, signature can't be finalized
+        // and it will throw.
+        const finalResponse = isMpc ? await this.finalizeSignature(responses) : responses[0]
+        this.logger.log('Got final response', finalResponse)
+
+        await this.verifyAttestation(nodes[0].publicKey, finalResponse.accessToken?.value)
+        return finalResponse
       }
 
-      // TODO (@wcalderipe, 06/02/25): The final step of the response depends on
-      // the cluster's signing method. Right now, all responses are the same, so
-      // we can return any of them. But if we use MPC, we need to finalize the
-      // cluster signatures and verify the resulted signature before we can
-      // return a final decision.
+      // If it's not a PERMIT, we don't care about all the responses, just the first one.
+      // We already validated that the nodes all agreed on the response.
       return responses[0]
     }
 
     throw new UnreachableClusterException(clientId, nodes)
   }
 
-  private async verifyAttestations(nodes: PolicyEngineNode[], evaluations: EvaluationResponse[]) {
-    for (const [node, evaluation] of zip(nodes, evaluations)) {
-      if (evaluation?.accessToken?.value && node) {
-        await this.verifyAttestation(evaluation.accessToken.value, node.publicKey)
-      } else {
-        throw new PolicyEngineException({
-          message: 'Cannot verify attestation signature without a token',
-          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          context: { nodeId: node?.id, evaluation }
-        })
-      }
+  private async verifyAttestation(publicKey: PublicKey, token?: string) {
+    if (!token) {
+      throw new PolicyEngineException({
+        message: 'Cannot verify attestation signature without a token',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
     }
-  }
-
-  private async verifyAttestation(token: string, publicKey: PublicKey) {
     try {
       await verifyJwt(token, publicKey)
     } catch (error) {

@@ -68,8 +68,7 @@ describe(ClientRepository.name, () => {
       clientId,
       clientSecret: 'test-client-secret',
       signer: {
-        type: 'PRIVATE_KEY',
-        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+        privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
       },
       dataStore: {
         entity: dataStoreConfiguration,

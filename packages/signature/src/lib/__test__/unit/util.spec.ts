@@ -1,6 +1,15 @@
 import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
-import { Alg, Header, Jwk, RsaPrivateKey, Secp256k1PrivateKey, SigningAlg } from '../../types'
+import {
+  Alg,
+  Header,
+  Jwk,
+  RsaPrivateKey,
+  Secp256k1PrivateKey,
+  SigningAlg,
+  p256PublicKeySchema,
+  secp256k1PublicKeySchema
+} from '../../types'
 import {
   ellipticPrivateKeyToHex,
   generateJwk,
@@ -125,7 +134,7 @@ describe('generateKeys', () => {
 
 describe('publicKeyToJwk', () => {
   it('converts a valid ES256K hex public key to JWK', () => {
-    const jwk = publicKeyToJwk(k1HexPublicKey, Alg.ES256K)
+    const jwk = secp256k1PublicKeySchema.parse(publicKeyToJwk(k1HexPublicKey, Alg.ES256K))
     expect(jwk.kty).toBe('EC')
     expect(jwk.crv).toBe('secp256k1')
     expect(jwk.x).toBeDefined()
@@ -133,11 +142,18 @@ describe('publicKeyToJwk', () => {
   })
 
   it('converts a valid ES256 hex public key to JWK', () => {
-    const jwk = publicKeyToJwk(p256HexPublicKey, Alg.ES256)
+    const jwk = p256PublicKeySchema.parse(publicKeyToJwk(p256HexPublicKey, Alg.ES256))
     expect(jwk.kty).toBe('EC')
     expect(jwk.crv).toBe('P-256')
     expect(jwk.x).toBeDefined()
     expect(jwk.y).toBeDefined()
+  })
+
+  it('allows setting the keyId directly', () => {
+    const jwk1 = publicKeyToJwk(k1HexPublicKey, Alg.ES256K, 'myKey1')
+    expect(jwk1.kid).toBe('myKey1')
+    const jwk2 = publicKeyToJwk(p256HexPublicKey, Alg.ES256, 'myKey2')
+    expect(jwk2.kid).toBe('myKey2')
   })
 })
 

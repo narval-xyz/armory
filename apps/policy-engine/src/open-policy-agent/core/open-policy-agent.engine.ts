@@ -1,5 +1,4 @@
 import {
-  Action,
   ApprovalRequirement,
   CredentialEntity,
   Decision,
@@ -11,7 +10,7 @@ import {
   JwtString,
   Policy
 } from '@narval/policy-engine-shared'
-import { Payload, PrivateKey, PublicKey, SigningAlg, decodeJwt, hash, signJwt, verifyJwt } from '@narval/signature'
+import { decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -32,27 +31,19 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private resourcePath: string
 
-  // TODO: (@wcalderipe, 20/03/24) How we store and recover a signing key will
-  // change very soon because we need to support MPC signing.
-  // This code is here just for feature parity with the existing proof of
-  // concept.
-  private privateKey: PrivateKey
-
   private opa?: OpenPolicyAgentInstance
 
-  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string; privateKey: PrivateKey }) {
+  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string }) {
     this.entities = params.entities
     this.policies = params.policies
-    this.privateKey = params.privateKey
     this.resourcePath = params.resourcePath
   }
 
-  static empty(params: { resourcePath: string; privateKey: PrivateKey }): OpenPolicyAgentEngine {
+  static empty(params: { resourcePath: string }): OpenPolicyAgentEngine {
     return new OpenPolicyAgentEngine({
       entities: EntityUtil.empty(),
       policies: [],
-      resourcePath: params.resourcePath,
-      privateKey: params.privateKey
+      resourcePath: params.resourcePath
     })
   }
 
@@ -122,27 +113,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     const response: EvaluationResponse = {
       decision: decision.decision,
       approvals: decision.approvals,
-      request: evaluation.request
-    }
-
-    if (response.decision === Decision.PERMIT) {
-      return {
-        ...response,
-        accessToken: {
-          value: await this.sign({
-            principalCredential,
-            message,
-            ...(evaluation.request.action === Action.GRANT_PERMISSION && {
-              access: [
-                {
-                  resource: evaluation.request.resourceId,
-                  permissions: evaluation.request.permissions
-                }
-              ]
-            })
-          })
-        }
-      }
+      request: evaluation.request,
+      principal: decision.decision === Decision.PERMIT ? principalCredential : undefined
     }
 
     return response
@@ -272,35 +244,5 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private isPermitMissingApproval(result: Result): boolean {
     return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
-  }
-
-  private async sign(params: {
-    principalCredential: CredentialEntity
-    message: string
-    access?: [
-      {
-        resource: string
-        permissions: string[]
-      }
-    ]
-  }): Promise<JwtString> {
-    const principalJwk: PublicKey = params.principalCredential.key
-
-    const payload: Payload = {
-      requestHash: params.message,
-      sub: params.principalCredential.userId,
-      // TODO: iat & exp values must be arguments, cannot generate timestamps
-      // because of cluster mis-match
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
-      // TODO: allow client-specific; should come from config
-      iss: 'https://armory.narval.xyz',
-      // aud: TODO
-      // jti: TODO
-      cnf: principalJwk,
-      ...(params.access && { access: params.access })
-    }
-
-    return signJwt(payload, this.privateKey, { alg: SigningAlg.EIP191 })
   }
 }

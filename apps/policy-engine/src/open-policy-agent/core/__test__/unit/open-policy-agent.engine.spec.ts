@@ -24,10 +24,6 @@ import { Result } from '../../type/open-policy-agent.type'
 
 const ONE_ETH = toHex(BigInt('1000000000000000000'))
 
-const UNSAFE_PRIVATE_KEY = secp256k1PrivateKeyToJwk(
-  '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
-)
-
 const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Promise<JwtString> => {
   const jwk = secp256k1PrivateKeyToJwk(option.privateKey)
   const signer = buildSignerEip191(option.privateKey)
@@ -58,16 +54,14 @@ describe('OpenPolicyAgentEngine', () => {
 
   beforeEach(async () => {
     engine = await OpenPolicyAgentEngine.empty({
-      resourcePath: await getConfig('resourcePath'),
-      privateKey: UNSAFE_PRIVATE_KEY
+      resourcePath: await getConfig('resourcePath')
     }).load()
   })
 
   describe('empty', () => {
     it('starts with an empty state', async () => {
       const e = OpenPolicyAgentEngine.empty({
-        resourcePath: await getConfig('resourcePath'),
-        privateKey: UNSAFE_PRIVATE_KEY
+        resourcePath: await getConfig('resourcePath')
       })
 
       expect(e.getPolicies()).toEqual([])
@@ -144,7 +138,6 @@ describe('OpenPolicyAgentEngine', () => {
       const e = await new OpenPolicyAgentEngine({
         policies,
         entities: FIXTURE.ENTITIES,
-        privateKey: UNSAFE_PRIVATE_KEY,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -177,7 +170,7 @@ describe('OpenPolicyAgentEngine', () => {
       })
     })
 
-    it('adds access token on permit responses', async () => {
+    it('adds principal on permit responses', async () => {
       const policies: Policy[] = [
         {
           id: 'test-permit-policy-uid',
@@ -195,7 +188,6 @@ describe('OpenPolicyAgentEngine', () => {
       const e = await new OpenPolicyAgentEngine({
         policies,
         entities: FIXTURE.ENTITIES,
-        privateKey: UNSAFE_PRIVATE_KEY,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -223,11 +215,7 @@ describe('OpenPolicyAgentEngine', () => {
       const response = await e.evaluate(evaluation)
 
       expect(response.decision).toEqual(Decision.PERMIT)
-      // TODO: (@wcalderipe, 20/03/24) Today we can't assert the signature
-      // because the function isn't pure due to the dependency on Date.now
-      expect(response.accessToken).toMatchObject({
-        value: expect.any(String)
-      })
+      expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
     })
   })
 

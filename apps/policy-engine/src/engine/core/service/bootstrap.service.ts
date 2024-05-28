@@ -42,6 +42,7 @@ export class BootstrapService {
     // TODO: (@wcalderipe, 07/03/24) maybe change the execution to parallel?
     for (const client of clients) {
       await this.clientService.syncDataStore(client.clientId)
+      this.logger.log(`Client public key`, { clientId: client.clientId, publicKey: client.signer.publicKey })
     }
   }
 }
