@@ -90,7 +90,6 @@ export type CreateAuthorizationRequest = OverrideProperties<
   SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
   {
     approvals: JwtString[]
-    metadata: EvaluationMetadata
   }
 >
 
