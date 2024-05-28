@@ -142,14 +142,7 @@ export const GrantPermissionAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.GRANT_PERMISSION),
     resourceId: z.string(),
-    permissions: z.array(z.string()),
-    metadata: z
-      .object({
-        audience: z.union([z.string(), z.array(z.string())]).optional(),
-        issuer: z.string().optional(),
-        expiresIn: z.number().optional()
-      })
-      .optional()
+    permissions: z.array(z.string())
   })
 )
 export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>

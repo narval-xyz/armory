@@ -58,8 +58,8 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
       }
     ]
 
-    if (evaluation.request.metadata) {
-      const { audience, issuer, expiresIn } = evaluation.request.metadata
+    if (evaluation.metadata) {
+      const { audience, issuer, expiresIn } = evaluation.metadata
 
       payload = {
         ...payload,
