@@ -3,21 +3,16 @@ import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
   Payload,
-  RsaPublicKey,
   SigningAlg,
   buildSignerEip191,
-  rsaEncrypt,
-  rsaPublicKeySchema,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
   signJwt
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { english, generateMnemonic } from 'viem/accounts'
 import { ClientModule } from '../../../client/client.module'
 import { ClientService } from '../../../client/core/service/client.service'
 import { Config, load } from '../../../main.config'
@@ -29,7 +24,7 @@ import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('Import', () => {
+describe('Generate', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -38,6 +33,7 @@ describe('Import', () => {
   let configService: ConfigService<Config>
 
   const clientId = uuid()
+  const clientSecret = 'test-client-secret'
 
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
@@ -45,6 +41,7 @@ describe('Import', () => {
 
   const client: Client = {
     clientId,
+    clientSecret,
     engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
@@ -112,116 +109,82 @@ describe('Import', () => {
     await clientService.save(client)
   })
 
-  describe('POST /encryption-keys', () => {
-    it('responds with unauthorized when client secret is missing', async () => {
-      const { status } = await request(app.getHttpServer()).post('/import/encryption-keys').send()
+  describe('POST /generate/key', () => {
+    it('generates a new mnemonic', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
-    })
-
-    it('generates an RSA keypair', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/import/encryption-keys')
+      const { body } = await request(app.getHttpServer())
+        .post('/generate/keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
-        .send({})
-
-      expect(body).toEqual({
-        publicKey: expect.objectContaining({
-          kid: expect.any(String),
-          kty: 'RSA',
-          use: 'enc',
-          alg: 'RS256',
-          n: expect.any(String),
-          e: expect.any(String)
+        .send({
+          keyId: 'rootKeyId'
         })
+
+      expect(body.wallet).toEqual({
+        keyId: 'rootKeyId',
+        derivationPath: "m/44'/60'/0'/0/0",
+        address: expect.any(String),
+        publicKey: expect.any(String),
+        id: expect.any(String)
       })
-      expect(status).toEqual(HttpStatus.CREATED)
     })
   })
+  describe('POST /derive/wallets', () => {
+    it('derives a new wallet from a rootKey', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-  describe('POST /private-keys', () => {
-    it('imports an unencrypted private key', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/import/private-keys')
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/generate/keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          privateKey: PRIVATE_KEY
+          keyId: 'rootKeyId'
+        })
+
+      const { keyId } = generateKeyResponse
+
+      const { body } = await request(app.getHttpServer())
+        .post('/derive/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId,
+          derivationPaths: ['next', 'next']
         })
 
       expect(body).toEqual({
-        id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
-        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+        wallets: [
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/0",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/1",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          }
+        ]
       })
-      expect(status).toEqual(HttpStatus.CREATED)
     })
+    it('responds with not found when rootKey does not exist', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-    it('imports a jwe-encrypted private key', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
-      const { body: keygenBody } = await request(app.getHttpServer())
-        .post('/import/encryption-keys')
+      const { status } = await request(app.getHttpServer())
+        .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
-        .send({})
-
-      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
-
-      const jwe = await rsaEncrypt(PRIVATE_KEY, rsPublicKey)
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/import/private-keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
         .send({
-          encryptedPrivateKey: jwe
+          keyId: 'somekeyId',
+          derivationPaths: ['next', 'next']
         })
 
-      expect(body).toEqual({
-        id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
-        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-  describe('POST /seeds', () => {
-    it('imports a jwe-encrypted mnemonic', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
-      const { body: keygenBody } = await request(app.getHttpServer())
-        .post('/import/encryption-keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({})
-
-      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
-
-      const mnemonic = generateMnemonic(english)
-      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/import/seeds')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
-        .send({
-          encryptedSeed: jwe,
-          keyId: 'my-imported-rootKey'
-        })
-
-      expect(body).toEqual({
-        wallet: {
-          address: expect.any(String),
-          publicKey: expect.any(String),
-          keyId: 'my-imported-rootKey',
-          derivationPath: `m/44'/60'/0'/0/0`,
-          id: resourceId(body.wallet.address)
-        },
-        keyId: 'my-imported-rootKey'
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 })
