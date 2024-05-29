@@ -15,7 +15,7 @@ import { BootstrapService } from './engine/core/service/bootstrap.service'
 import { EngineService } from './engine/core/service/engine.service'
 import { ProvisionService } from './engine/core/service/provision.service'
 import { EngineModule } from './engine/engine.module'
-import { Config, load } from './policy-engine.config'
+import { load } from './policy-engine.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
 
 const INFRASTRUCTURE_MODULES = [
@@ -70,17 +70,9 @@ export class PolicyEngineModule implements OnApplicationBootstrap, NestModule {
   imports: [...INFRASTRUCTURE_MODULES, EngineModule]
 })
 export class ProvisionModule implements OnModuleInit {
-  constructor(
-    private provisionService: ProvisionService,
-    private configService: ConfigService<Config>
-  ) {}
+  constructor(private provisionService: ProvisionService) {}
 
   async onModuleInit() {
-    // In development we use declarative configuration to set the admin API
-    // key. However, in a cloud environment, we provision to then activate via
-    // REST.
-    const shouldActivate = Boolean(this.configService.get('engine.adminApiKey'))
-
-    await this.provisionService.provision(shouldActivate)
+    await this.provisionService.provision()
   }
 }
