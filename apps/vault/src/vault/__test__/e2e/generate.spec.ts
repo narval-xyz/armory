@@ -33,7 +33,6 @@ describe('Generate', () => {
   let configService: ConfigService<Config>
 
   const clientId = uuid()
-  const clientSecret = 'test-client-secret'
 
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
@@ -41,7 +40,6 @@ describe('Generate', () => {
 
   const client: Client = {
     clientId,
-    clientSecret,
     engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
