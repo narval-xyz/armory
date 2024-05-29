@@ -52,7 +52,7 @@ describe('Provision', () => {
       expect(body).toEqual({
         isProvisioned: false,
         state: {
-          appId: 'local-dev-engine-instance-1',
+          appId: 'local-dev-vault-instance-1',
           adminApiKey: expect.any(String),
           encryptionType: 'raw',
           isMasterPasswordSet: true,
