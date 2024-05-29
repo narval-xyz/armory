@@ -26,7 +26,6 @@ const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
 
 const client: Client = {
   clientId,
-  clientSecret,
   engineJwk: clientPublicJWK,
   createdAt: new Date(),
   updatedAt: new Date()
