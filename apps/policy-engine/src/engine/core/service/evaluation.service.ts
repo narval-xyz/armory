@@ -33,7 +33,7 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
   }
 
   const { audience, issuer } = evaluation.metadata || {}
-  const iat = evaluation.metadata?.iat || nowSeconds()
+  const iat = evaluation.metadata?.issuedAt || nowSeconds()
   const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
 
   const payload: Payload = {

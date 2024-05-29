@@ -7,7 +7,7 @@ import { SignMessageRequestDto } from '../../../http/rest/dto/sign-message-reque
 import { SignTransactionRequestDto } from '../../../http/rest/dto/sign-transaction-request.dto'
 import { GrantPermissionRequestDto } from './grant-permission-request.dto'
 
-const EvaluationMetadataDto = createZodDto(EvaluationMetadata)
+const EvaluationMetadataDto = createZodDto(EvaluationMetadata.optional())
 
 @ApiExtraModels(SignTransactionRequestDto, SignMessageRequestDto, GrantPermissionRequestDto)
 export class AuthorizationRequestDto {
@@ -56,5 +56,5 @@ export class AuthorizationRequestDto {
   @ValidateNested()
   @Type(() => EvaluationMetadataDto)
   @ApiProperty()
-  metadata?: EvaluationMetadata
+  metadata?: EvaluationMetadata | undefined
 }
