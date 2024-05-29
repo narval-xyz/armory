@@ -143,10 +143,9 @@ export const EvaluationMetadata = z
   .object({
     audience: z.union([z.string(), z.array(z.string())]).optional(),
     issuer: z.string().optional(),
-    iat: z.number().optional(),
+    issuedAt: z.number().optional(),
     expiresIn: z.number().optional()
   })
-  .optional()
   .describe('Metadata for the grant permission access token')
 export type EvaluationMetadata = z.infer<typeof EvaluationMetadata>
 
@@ -162,7 +161,7 @@ export const EvaluationRequest = z.object({
     .describe(
       'Arbitrary data feeds that are necessary for some policies. These may include, for instance, prices and approved transfers'
     ),
-  metadata: EvaluationMetadata
+  metadata: EvaluationMetadata.optional()
 })
 
 export type EvaluationRequest = z.infer<typeof EvaluationRequest>
@@ -198,7 +197,7 @@ export const EvaluationResponse = z.object({
   principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
   transactionRequestIntent: z.unknown().optional(),
-  metadata: EvaluationMetadata
+  metadata: EvaluationMetadata.optional()
 })
 export type EvaluationResponse = z.infer<typeof EvaluationResponse>
 
