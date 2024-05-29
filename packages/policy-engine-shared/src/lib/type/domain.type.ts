@@ -139,21 +139,31 @@ export type Feed<Data> = {
   data?: Data
 }
 
-export const EvaluationRequest = z
+export const EvaluationMetadata = z
   .object({
-    sessionId: z.string().optional().describe('An ID for this request session. Used for MPC.'),
-    authentication: JwtString.describe('JWT signature of the request property'),
-    request: Request.describe('The request to be authorized'),
-    approvals: z.array(JwtString).optional(),
-    prices: Prices.optional(),
-    feeds: z
-      .array(Feed(z.unknown()))
-      .optional()
-      .describe(
-        'Arbitrary data feeds that are necessary for some policies. These may include, for instance, prices and approved transfers'
-      )
+    audience: z.union([z.string(), z.array(z.string())]).optional(),
+    issuer: z.string().optional(),
+    issuedAt: z.number().optional(),
+    expiresIn: z.number().optional()
   })
-  .describe('The action being authorized')
+  .describe('Metadata for the grant permission access token')
+export type EvaluationMetadata = z.infer<typeof EvaluationMetadata>
+
+export const EvaluationRequest = z.object({
+  sessionId: z.string().optional().describe('An ID for this request session. Used for MPC.'),
+  authentication: JwtString.describe('JWT signature of the request property'),
+  request: Request.describe('The request to be authorized'),
+  approvals: z.array(JwtString).optional(),
+  prices: Prices.optional(),
+  feeds: z
+    .array(Feed(z.unknown()))
+    .optional()
+    .describe(
+      'Arbitrary data feeds that are necessary for some policies. These may include, for instance, prices and approved transfers'
+    ),
+  metadata: EvaluationMetadata.optional()
+})
+
 export type EvaluationRequest = z.infer<typeof EvaluationRequest>
 
 export const SerializedEvaluationRequest = EvaluationRequest.extend({
@@ -186,7 +196,8 @@ export const EvaluationResponse = z.object({
     .optional(),
   principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
-  transactionRequestIntent: z.unknown().optional()
+  transactionRequestIntent: z.unknown().optional(),
+  metadata: EvaluationMetadata.optional()
 })
 export type EvaluationResponse = z.infer<typeof EvaluationResponse>
 

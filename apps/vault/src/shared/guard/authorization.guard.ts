@@ -14,7 +14,7 @@ const AuthorizationHeaderSchema = z.object({
   authorization: z.string()
 })
 
-const DEFAULT_MAX_TOKEN_AGE = 60
+const ONE_MINUTE = 60
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
@@ -55,25 +55,24 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const { request } = req.body
+    const { request: requestHash } = req.body
     const permissions = this.reflector.get(Permissions, context.getHandler())
-
-    const opts: JwtVerifyOptions = {
-      audience: client.audience,
-      issuer: client.issuer,
-      maxTokenAge: client.maxTokenAge || DEFAULT_MAX_TOKEN_AGE,
-      ...(request && {
-        requestHash: request
-      }),
-      ...(permissions &&
-        permissions.length > 0 && {
-          access: [
+    const access =
+      permissions && permissions.length > 0
+        ? [
             {
               resource: 'vault',
               permissions
             }
           ]
-        })
+        : undefined
+
+    const opts: JwtVerifyOptions = {
+      audience: client.audience,
+      issuer: client.issuer,
+      maxTokenAge: client.maxTokenAge,
+      ...(requestHash && { requestHash }),
+      ...(access && { access })
     }
 
     return this.validateToken(context, client, accessToken, opts)
@@ -125,7 +124,7 @@ export class AuthorizationGuard implements CanActivate {
           accessToken: token, // Verify that the ATH matches the access token
           uri: `${client.baseUrl || defaultBaseUrl}${req.url}`, // Verify the request URI
           htm: req.method, // Verify the request method
-          maxTokenAge: DEFAULT_MAX_TOKEN_AGE
+          maxTokenAge: ONE_MINUTE
         })
       } catch (err) {
         throw new ApplicationException({

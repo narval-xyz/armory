@@ -19,7 +19,6 @@ import { KeyGenerationService } from '../../key-generation.service'
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
 const clientId = uuid()
-const clientSecret = 'test-client-secret'
 
 // Engine key used to sign the approval request
 const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)

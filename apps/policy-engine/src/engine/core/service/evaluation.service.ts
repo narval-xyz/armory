@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, signJwt } from '@narval/signature'
+import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
@@ -32,15 +32,18 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
     })
   }
 
+  const { audience, issuer } = evaluation.metadata || {}
+  const iat = evaluation.metadata?.issuedAt || nowSeconds()
+  const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
+
   const payload: Payload = {
     sub: evaluation.principal.userId,
-    // TODO: iat & exp values must be arguments, cannot generate timestamps
-    // because of cluster mis-match
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
+    iat,
+    ...(exp && { exp }),
+    ...(audience && { aud: audience }),
+    ...(issuer && { iss: issuer }),
     // TODO: allow client-specific; should come from config
     iss: 'https://armory.narval.xyz',
-    // aud: TODO
     // jti: TODO
     cnf: evaluation.principal.key
   }

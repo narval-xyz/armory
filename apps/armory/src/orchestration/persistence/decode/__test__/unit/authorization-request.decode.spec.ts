@@ -14,6 +14,7 @@ describe('decodeAuthorizationRequest', () => {
       '0xe24d097cea880a40f8be2cf42f497b9fbda5f9e4a31b596827e051d78dce75c032fa7e5ee3046f7c6f116e5b98cb8d268fa9b9d222ff44719e2ec2a0d9159d0d1c',
     evaluationLog: [],
     approvals: [],
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date()
   }
