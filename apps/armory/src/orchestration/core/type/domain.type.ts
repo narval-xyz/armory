@@ -72,7 +72,7 @@ export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError
 
 export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
-  metadata: EvaluationMetadata,
+  metadata: EvaluationMetadata.optional(),
   authentication: JwtString,
   clientId: z.string(),
   createdAt: z.date(),
