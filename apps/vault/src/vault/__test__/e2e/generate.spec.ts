@@ -2,9 +2,14 @@ import { Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
+  Alg,
   Payload,
+  RsaPrivateKey,
   SigningAlg,
   buildSignerEip191,
+  generateJwk,
+  rsaDecrypt,
+  rsaPublicKeySchema,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
   signJwt
@@ -126,6 +131,30 @@ describe('Generate', () => {
         publicKey: expect.any(String),
         id: expect.any(String)
       })
+    })
+    it('saves a backup when client got a backupKey', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+      const keyId = 'backupKeyId'
+      const backupKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { keyId })
+
+      const clientWithBackupKey: Client = {
+        ...client,
+        clientId: uuid(),
+        backupPublicKey: rsaPublicKeySchema.parse(backupKey)
+      }
+      await clientService.save(clientWithBackupKey)
+
+      const { body } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientWithBackupKey.clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'rootKeyId'
+        })
+
+      const decryptedMnemonic = await rsaDecrypt(body.backup as string, backupKey)
+      const spaceInMnemonic = decryptedMnemonic.split(' ')
+      expect(spaceInMnemonic.length).toBe(12)
     })
   })
   describe('POST /derive/wallets', () => {
