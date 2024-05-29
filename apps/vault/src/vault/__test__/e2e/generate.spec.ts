@@ -41,7 +41,6 @@ describe('Generate', () => {
 
   const client: Client = {
     clientId,
-    clientSecret,
     engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
