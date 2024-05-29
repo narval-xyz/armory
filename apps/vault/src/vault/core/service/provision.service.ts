@@ -4,6 +4,7 @@ import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
+import { ProvisionException } from '../exception/provision.exception'
 import { AppService } from './app.service'
 
 @Injectable()
@@ -15,84 +16,73 @@ export class ProvisionService {
     private appService: AppService
   ) {}
 
-  async provision(activate?: boolean): Promise<App | null> {
-    let app = await this.appService.getApp()
+  async provision(): Promise<App> {
+    const app = await this.appService.getApp()
 
-    const isFirstTime = app === null
+    const isFirstBoot = app === null
 
-    // IMPORTANT: The order of internal methods call matters.
-    if (isFirstTime) {
+    if (isFirstBoot) {
       this.logger.log('Start app provision')
-      app = await this.createApp(activate)
-      app = await this.maybeSetupEncryption()
+
+      const provisionedApp: App = await this.withMasterKey({
+        id: this.getId()
+      })
+
+      const adminApiKey = this.getAdminApiKey()
+
+      if (adminApiKey) {
+        const activatedEngine = {
+          ...provisionedApp,
+          adminApiKey
+        }
+
+        await this.appService.save({
+          ...activatedEngine,
+          adminApiKey: secret.hash(adminApiKey)
+        })
+
+        return activatedEngine
+      }
+
+      return this.appService.save(provisionedApp)
     } else {
-      this.logger.log('app already provisioned')
+      this.logger.log('App already provisioned')
     }
+
     return app
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time.
-  // This enables you to provision the app at first-boot without access to the
-  // console, then to activate it to retrieve the api key through a REST
-  // endpoint.
-  async activate(): Promise<App> {
-    this.logger.log('Activate app')
-
-    const adminApiKey = this.getOrGenerateAdminApiKey()
-
-    const app = await this.appService.update({
-      activated: true,
-      adminApiKey: secret.hash(adminApiKey)
-    })
-
-    return { ...app, adminApiKey }
-  }
-
-  private async createApp(activate?: boolean): Promise<App> {
-    this.logger.log('Generate admin API key and save app')
-
-    const adminApiKey = this.getOrGenerateAdminApiKey()
-    const app = {
-      id: this.getAppId(),
-      adminApiKey: secret.hash(adminApiKey),
-      activated: !!activate
-    }
-
-    await this.appService.save(app)
-
-    return { ...app, adminApiKey }
-  }
-
-  private async maybeSetupEncryption(): Promise<App> {
-    // Get the app's latest state.
-    const app = await this.appService.getAppOrThrow()
-
+  private async withMasterKey(app: App): Promise<App> {
     if (app.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
+
       return app
     }
 
     const keyring = this.configService.get('keyring')
 
     if (keyring.type === 'raw') {
-      this.logger.log('Generate and save app master key')
+      this.logger.log('Generate and save engine master key')
 
       const { masterPassword } = keyring
-      const kek = generateKeyEncryptionKey(masterPassword, this.getAppId())
+      const kek = generateKeyEncryptionKey(masterPassword, this.getId())
       const masterKey = await generateMasterKey(kek)
 
-      return await this.appService.update({ masterKey })
+      return { ...app, masterKey }
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
+
+      return app
+    } else {
+      throw new ProvisionException('Unsupported keyring type')
     }
-    return app
   }
 
-  private getOrGenerateAdminApiKey(): string {
-    return this.configService.get('app.adminApiKey') || secret.generate()
+  private getAdminApiKey(): string | undefined {
+    return this.configService.get('app.adminApiKey')
   }
 
-  private getAppId(): string {
+  private getId(): string {
     return this.configService.get('app.id')
   }
 }

@@ -33,21 +33,12 @@ export class EngineService {
   }
 
   // IMPORTANT: The admin API key is hashed by the caller not the service. That
-  // allows us to have a determistic configuration file which is useful for
+  // allows us to have a declarative configuration file which is useful for
   // automations like development or cloud set up.
   async save(engine: Engine): Promise<Engine> {
     await this.engineRepository.save(engine)
 
     return engine
-  }
-
-  async update(engine: Partial<Engine>): Promise<Engine> {
-    const existingEngine = await this.getEngineOrThrow()
-    const updatedEngine = { ...existingEngine, ...engine }
-
-    await this.engineRepository.save(updatedEngine)
-
-    return updatedEngine
   }
 
   private getId(): string {

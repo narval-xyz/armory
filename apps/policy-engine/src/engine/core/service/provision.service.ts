@@ -76,11 +76,11 @@ export class ProvisionService {
       return { ...engine, masterKey }
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
+
+      return engine
     } else {
       throw new ProvisionException('Unsupported keyring type')
     }
-
-    return engine
   }
 
   private getAdminApiKey(): string | undefined {

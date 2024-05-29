@@ -113,8 +113,7 @@ describe('Sign', () => {
     await appService.save({
       id: 'test-app',
       masterKey: 'unsafe-test-master-key',
-      adminApiKey,
-      activated: true
+      adminApiKey
     })
 
     await clientService.save(client)
