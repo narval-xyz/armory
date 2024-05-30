@@ -33,7 +33,7 @@ export class AppService {
     return this.appRepository.save(app)
   }
 
-  async provision(): Promise<App> {
+  async provision(adminApiKey?: string): Promise<App> {
     const app = await this.getApp()
 
     const isFirstBoot = app === null
@@ -45,17 +45,17 @@ export class AppService {
         id: this.getId()
       }
 
-      const adminApiKey = this.getAdminApiKey()
+      const apiKey = adminApiKey || this.getAdminApiKey()
 
-      if (adminApiKey) {
+      if (apiKey) {
         const activatedApp: App = {
           ...provisionedApp,
-          adminApiKey
+          adminApiKey: apiKey
         }
 
         await this.save({
           ...activatedApp,
-          adminApiKey: secret.hash(adminApiKey)
+          adminApiKey: secret.hash(apiKey)
         })
 
         return activatedApp

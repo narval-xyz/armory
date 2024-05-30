@@ -7,7 +7,9 @@ import { Test, TestingModule } from '@nestjs/testing'
 import nock from 'nock'
 import request from 'supertest'
 import { generatePrivateKey } from 'viem/accounts'
+import { AppService } from '../../../app/core/service/app.service'
 import { Config, load } from '../../../armory.config'
+import { REQUEST_HEADER_API_KEY } from '../../../armory.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { ClientModule } from '../../client.module'
 import { ClientService } from '../../core/service/client.service'
@@ -53,9 +55,12 @@ describe('Client', () => {
   let clientService: ClientService
   let configService: ConfigService<Config>
   let testPrismaService: TestPrismaService
+  let appService: AppService
   let policyEngineNodeUrl: string
 
   const clientId = 'test-client-id'
+
+  const adminApiKey = 'test-admin-api-key'
 
   const entityStorePublicKey = getPublicKey(privateKeyToJwk(generatePrivateKey()))
 
@@ -76,9 +81,10 @@ describe('Client', () => {
 
     app = module.createNestApplication()
 
-    clientService = module.get<ClientService>(ClientService)
-    configService = module.get<ConfigService<Config>>(ConfigService)
-    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+    clientService = module.get(ClientService)
+    configService = module.get(ConfigService)
+    testPrismaService = module.get(TestPrismaService)
+    appService = module.get(AppService)
 
     policyEngineNodeUrl = configService.get('policyEngine.nodes')[0].url
 
@@ -93,6 +99,8 @@ describe('Client', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+
+    await appService.provision(adminApiKey)
   })
 
   describe('POST /clients', () => {
@@ -121,7 +129,10 @@ describe('Client', () => {
     it('creates a new client with a default policy engines', async () => {
       mockPolicyEngineServer(policyEngineNodeUrl, clientId)
 
-      const { status, body } = await request(app.getHttpServer()).post('/clients').send(createClientPayload)
+      const { status, body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(createClientPayload)
 
       const actualClient = await clientService.findById(body.id)
 
@@ -146,7 +157,10 @@ describe('Client', () => {
         policyEngineNodes: [policyEngineNodeUrl, policyEngineNodeUrl]
       }
 
-      const { body } = await request(app.getHttpServer()).post('/clients').send(createClientWithGivenPolicyEngine)
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(createClientWithGivenPolicyEngine)
 
       const actualClient = await clientService.findById(body.id)
 
@@ -154,12 +168,21 @@ describe('Client', () => {
     })
 
     it('responds with unprocessable entity when payload is invalid', async () => {
-      const { status } = await request(app.getHttpServer()).post('/clients').send({})
+      const { status } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({})
 
       expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 
-    it.todo('responds with forbidden when admin api key is missing')
-    it.todo('responds with forbidden when admin api key is invalid')
+    it('responds with forbidden when admin api key is invalid', async () => {
+      const { status } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, 'invalid-admin-api-key')
+        .send({})
+
+      expect(status).toEqual(HttpStatus.FORBIDDEN)
+    })
   })
 })

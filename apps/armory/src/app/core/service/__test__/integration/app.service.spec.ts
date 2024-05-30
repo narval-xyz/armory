@@ -91,6 +91,19 @@ describe(AppService.name, () => {
 
           expect(app?.adminApiKey).toEqual(adminApiKey)
         })
+
+        it('uses given admin api key', async () => {
+          const givenAdminApiKey = 'test-given-admin-api-key'
+
+          await appService.provision(givenAdminApiKey)
+
+          const actualApp = await appService.getApp()
+
+          expect(actualApp).toEqual({
+            id: config.appId,
+            adminApiKey: secret.hash(givenAdminApiKey)
+          })
+        })
       })
 
       describe('when admin api key is not st', () => {
