@@ -48,7 +48,6 @@ describe('Provision', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
-
     await provisionService.provision()
   })
 

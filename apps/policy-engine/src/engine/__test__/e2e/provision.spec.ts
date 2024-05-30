@@ -3,24 +3,39 @@ import { secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { load } from '../../../policy-engine.config'
+import { Config, load } from '../../../policy-engine.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { EngineService } from '../../core/service/engine.service'
+import { ProvisionService } from '../../core/service/provision.service'
 import { EngineModule } from '../../engine.module'
 
 const ENDPOINT = '/provision'
+
+const testConfigLoad = (): Config => ({
+  ...load(),
+  engine: {
+    id: 'local-dev-engine-instance-1',
+    adminApiKeyHash: undefined
+  }
+})
 
 describe('Provision', () => {
   let app: INestApplication
   let module: TestingModule
   let engineService: EngineService
+  let provisionService: ProvisionService
   let testPrismaService: TestPrismaService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          load: [load],
+          load: [
+            () => {
+              console.log('AAAAAAAAAAAAAAaa')
+              return testConfigLoad()
+            }
+          ],
           isGlobal: true
         }),
         EngineModule
@@ -30,6 +45,7 @@ describe('Provision', () => {
     app = module.createNestApplication()
 
     engineService = app.get(EngineService)
+    provisionService = app.get(ProvisionService)
     testPrismaService = app.get(TestPrismaService)
 
     await app.init()
@@ -37,6 +53,7 @@ describe('Provision', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+    await provisionService.provision()
   })
 
   afterAll(async () => {
@@ -50,13 +67,10 @@ describe('Provision', () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
       expect(body).toEqual({
-        isProvisioned: false,
-        state: {
+        state: 'READY',
+        app: {
           appId: 'local-dev-engine-instance-1',
-          adminApiKey: expect.any(String),
-          encryptionType: 'raw',
-          isMasterPasswordSet: true,
-          isMasterKeySet: true
+          adminApiKey: expect.any(String)
         }
       })
     })
@@ -66,15 +80,15 @@ describe('Provision', () => {
 
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      expect(body).toEqual({ isProvisioned: true })
+      expect(body).toEqual({ state: 'ACTIVATED' })
     })
 
     it('does not respond with hashed admin API key', async () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      const engine = await engineService.getEngineOrThrow()
+      const actualEngine = await engineService.getEngineOrThrow()
 
-      expect(secret.hash(body.state.adminApiKey)).toEqual(engine.adminApiKey)
+      expect(secret.hash(body.app.adminApiKey)).toEqual(actualEngine.adminApiKey)
     })
   })
 })

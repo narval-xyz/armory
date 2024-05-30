@@ -10,11 +10,18 @@ import { AppService } from './app.service'
 export class ProvisionService {
   private logger = new Logger(ProvisionService.name)
 
+  // IMPORTANT: The provision service establishes encryption. Therefore, you
+  // cannot have dependencies that rely on encryption to function. If you do,
+  // you'll ran into an error due to a missing keyring.
+  // Any process that requires encryption should be handled in the
+  // BootstrapService.
   constructor(
     private configService: ConfigService<Config>,
     private appService: AppService
   ) {}
 
+  // NOTE: The `adminApiKeyHash` argument is for test convinience in case it
+  // needs to provision the application.
   async provision(adminApiKeyHash?: string): Promise<App> {
     const app = await this.appService.getApp()
 

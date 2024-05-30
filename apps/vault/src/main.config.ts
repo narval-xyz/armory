@@ -45,7 +45,7 @@ export const load = (): Config => {
     },
     app: {
       id: process.env.APP_UID,
-      adminApiKey: process.env.ADMIN_API_KEY,
+      adminApiKeyHash: process.env.ADMIN_API_KEY,
       masterKey: process.env.MASTER_KEY
     },
     keyring: {

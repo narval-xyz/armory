@@ -10,12 +10,12 @@ import { EngineRepository } from '../../../../persistence/repository/engine.repo
 import { EngineService } from '../../engine.service'
 import { ProvisionService } from '../../provision.service'
 
-const mockConfigService = (config: { keyring: Config['keyring']; engineId: string; adminApiKey?: string }) => {
+const mockConfigService = (config: { keyring: Config['keyring']; engineId: string; adminApiKeyHash?: string }) => {
   const m = mock<ConfigService<Config>>()
 
   m.get.calledWith('keyring').mockReturnValue(config.keyring)
   m.get.calledWith('engine.id').mockReturnValue(config.engineId)
-  m.get.calledWith('engine.adminApiKey').mockReturnValue(config.adminApiKey)
+  m.get.calledWith('engine.adminApiKeyHash').mockReturnValue(config.adminApiKeyHash)
 
   return m
 }
@@ -63,7 +63,7 @@ describe(ProvisionService.name, () => {
       const adminApiKey = 'test-admin-api-key'
 
       beforeEach(async () => {
-        configServiceMock.get.calledWith('engine.adminApiKey').mockReturnValue(adminApiKey)
+        configServiceMock.get.calledWith('engine.adminApiKeyHash').mockReturnValue(secret.hash(adminApiKey))
       })
 
       it('saves the activated engine', async () => {
@@ -76,12 +76,6 @@ describe(ProvisionService.name, () => {
           adminApiKey: secret.hash(adminApiKey),
           masterKey: expect.any(String)
         })
-      })
-
-      it('returns the unhashed admin api key', async () => {
-        const engine = await provisionService.provision()
-
-        expect(engine?.adminApiKey).toEqual(adminApiKey)
       })
     })
 

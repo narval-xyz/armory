@@ -1,6 +1,5 @@
 import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
@@ -21,7 +20,9 @@ export class ProvisionService {
     private engineService: EngineService
   ) {}
 
-  async provision(): Promise<Engine> {
+  // NOTE: The `adminApiKeyHash` argument is for test convinience in case it
+  // needs to provision the application.
+  async provision(adminApiKeyHash?: string): Promise<Engine> {
     const engine = await this.engineService.getEngine()
 
     const isFirstBoot = engine === null
@@ -33,26 +34,19 @@ export class ProvisionService {
         id: this.getId()
       })
 
-      const adminApiKey = this.getAdminApiKey()
+      const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
 
-      if (adminApiKey) {
-        const activatedEngine = {
+      if (apiKey) {
+        return this.engineService.save({
           ...provisionedEngine,
-          adminApiKey
-        }
-
-        await this.engineService.save({
-          ...activatedEngine,
-          adminApiKey: secret.hash(adminApiKey)
+          adminApiKey: apiKey
         })
-
-        return activatedEngine
       }
 
       return this.engineService.save(provisionedEngine)
-    } else {
-      this.logger.log('App already provisioned')
     }
+
+    this.logger.log('App already provisioned')
 
     return engine
   }
@@ -83,8 +77,8 @@ export class ProvisionService {
     }
   }
 
-  private getAdminApiKey(): string | undefined {
-    return this.configService.get('engine.adminApiKey')
+  private getAdminApiKeyHash(): string | undefined {
+    return this.configService.get('engine.adminApiKeyHash')
   }
 
   private getId(): string {
