@@ -11,10 +11,12 @@ import {
   SignatureRequest,
   SignatureResponse
 } from '@narval/armory-sdk'
-import { EvaluationRequest } from '@narval/policy-engine-shared'
+import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, useEffect, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'
 import NarButton from '../_design-system/NarButton'
+import NarDialog from '../_design-system/NarDialog'
+import NarInput from '../_design-system/NarInput'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
@@ -51,8 +53,11 @@ const Playground: FC<PlaygroundProps> = ({
   const { engineClientId, vaultClientId } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [domLoaded, setDomLoaded] = useState(false)
+  const [privateKey, setPrivateKey] = useState('')
+  const [accessToken, setAccessToken] = useState('')
 
   useEffect(() => setDomLoaded(true), [])
 
@@ -65,6 +70,8 @@ const Playground: FC<PlaygroundProps> = ({
   useEffect(() => {
     if (response) {
       setResponseEditor(response)
+      const authResponseParsed = AuthorizationRequest.parse(JSON.parse(response))
+      setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
     }
   }, [response])
 
@@ -102,7 +109,11 @@ const Playground: FC<PlaygroundProps> = ({
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = authorize && (await authorize(request))
-      if (response) setResponseEditor(JSON.stringify(response, null, 2))
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+        const authResponseParsed = AuthorizationRequest.parse(response)
+        setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+      }
     } catch (error) {}
 
     setIsProcessing(false)
@@ -117,7 +128,11 @@ const Playground: FC<PlaygroundProps> = ({
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = evaluate && (await evaluate(request))
-      if (response) setResponseEditor(JSON.stringify(response, null, 2))
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+        const evalResponseParsed = SdkEvaluationResponse.parse(response)
+        setAccessToken(evalResponseParsed.accessToken?.value || '')
+      }
     } catch (error) {}
 
     setIsProcessing(false)
@@ -148,11 +163,21 @@ const Playground: FC<PlaygroundProps> = ({
 
     try {
       setResponseEditor(undefined)
-      const response = importPk && (await importPk({ privateKey: generatePrivateKey() }))
+
+      const response =
+        importPk && (await importPk({ privateKey: hexSchema.parse(privateKey), accessToken: { value: accessToken } }))
+
       if (response) setResponseEditor(JSON.stringify(response, null, 2))
+
+      closeDialog()
     } catch (error) {}
 
     setIsProcessing(false)
+  }
+
+  const closeDialog = () => {
+    setIsDialogOpen(false)
+    setPrivateKey('')
   }
 
   if (!domLoaded) return null
@@ -187,12 +212,27 @@ const Playground: FC<PlaygroundProps> = ({
             />
           )}
           {importPk && vaultClientId && (
-            <NarButton
-              label="Import Private Key"
-              leftIcon={<FontAwesomeIcon icon={faUpload} />}
-              onClick={handleImport}
-              disabled={isProcessing}
-            />
+            <NarDialog
+              triggerButton={<NarButton label="Import Private Key" leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
+              title="Import Private Key"
+              primaryButtonLabel="Import"
+              isOpen={isDialogOpen}
+              onOpenChange={(val) => (val ? setIsDialogOpen(val) : closeDialog())}
+              onDismiss={closeDialog}
+              onSave={handleImport}
+              isSaving={isProcessing}
+              isSaveDisabled={!privateKey || isProcessing}
+            >
+              <div className="w-[650px] px-12 py-4">
+                <div className="flex flex-col gap-[8px]">
+                  <div className="flex items-end gap-[8px]">
+                    <NarInput label="Private Key" value={privateKey} onChange={setPrivateKey} />
+                    <NarButton label="Generate" onClick={() => setPrivateKey(generatePrivateKey())} />
+                  </div>
+                  <NarInput label="Access Token (optional)" value={accessToken} onChange={setAccessToken} />
+                </div>
+              </div>
+            </NarDialog>
           )}
           <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
         </div>

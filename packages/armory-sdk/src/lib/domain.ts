@@ -20,7 +20,10 @@ export const Endpoints = {
   },
   vault: {
     sign: '/sign',
-    importPrivateKey: '/import/private-key'
+    importPrivateKey: '/import/private-keys',
+    importSeed: '/import/seeds',
+    generateWallet: '/generate/keys',
+    deriveWallet: '/derive/wallets'
   }
 } as const
 export type Endpoints = (typeof Endpoints)[keyof typeof Endpoints]
@@ -77,7 +80,8 @@ export type SdkEvaluationResponse = z.infer<typeof SdkEvaluationResponse>
 
 export const ImportPrivateKeyRequest = z.object({
   privateKey: hexSchema,
-  walletId: z.string().optional()
+  walletId: z.string().optional(),
+  accessToken: AccessToken.optional()
 })
 export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
 

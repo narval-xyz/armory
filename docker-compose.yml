@@ -7,22 +7,149 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
+    networks:
+      - armory-local
     volumes:
       - ./data/psql:/var/lib/postgresql/data
+
   redis:
     image: 'bitnami/redis:7.0'
     ports:
       - '6379:6379'
     expose:
       - '6379'
+    networks:
+      - armory-local
     environment:
       ALLOW_EMPTY_PASSWORD: 'true'
     logging:
       driver: none
     volumes:
       - ./.data/redis:/data
+
+  armory_app:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: armory_app
+    command: ["/bin/bash", "-c", "make armory/db/migrate/deploy && make armory/start/dev"]
+    ports:
+      - "3005:3010"
+    networks:
+      - armory-local
+    environment:
+      - PORT=3010
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/armory?schema=public
+      - REDIS_HOST=redis
+      - POLICY_ENGINE_URLS=http://policy_engine_0:3010,http://policy_engine_1:3010,http://policy_engine_2:3010
+      - POLICY_ENGINE_ADMIN_API_KEYS=engine-admin-api-key,engine-admin-api-key,engine-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
+
+  policy_engine_0:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: policy-engine-0
+    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    ports:
+      - "3020:3010"
+    networks:
+      - armory-local
+    environment:
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-0?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8500
+      - TSM_API_KEY=apikey0
+      - TSM_PLAYER_COUNT=3
+      - ADMIN_API_KEY=engine-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
+      - armory_app
+
+  policy_engine_1:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: policy-engine-1
+    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    ports:
+      - "3021:3010"
+    networks:
+      - armory-local
+    environment:
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-1?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8501
+      - TSM_API_KEY=apikey1
+      - TSM_PLAYER_COUNT=3
+      - ADMIN_API_KEY=engine-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
+      - armory_app
+
+  policy_engine_2:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: policy-engine-2
+    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    ports:
+      - "3022:3010"
+    networks:
+      - armory-local
+    environment:
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-2?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8502
+      - TSM_API_KEY=apikey2
+      - TSM_PLAYER_COUNT=3
+      - ADMIN_API_KEY=engine-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
+      - armory_app
+
+  vault:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: vault
+    command: ["/bin/bash", "-c", "make vault/db/migrate/deploy && make vault/start/dev"]
+    ports:
+      - "3011:3010"
+    networks:
+      - armory-local
+    environment:
+      - PORT=3010
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/vault?schema=public
+      - ADMIN_API_KEY=vault-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
     driver: local
   redis_data:
     driver: local
+networks:
+  armory-local:

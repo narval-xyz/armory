@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { EvaluationLog } from '@prisma/client/armory'
+import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import {
   AuthorizationRequest,
+  AuthorizationRequestError,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest,
   Evaluation
@@ -16,10 +17,21 @@ export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const { id, clientId, status, idempotencyKey, createdAt, updatedAt, evaluations, approvals, authentication } =
-      this.getDefaults(input)
+    const {
+      id,
+      clientId,
+      status,
+      idempotencyKey,
+      createdAt,
+      updatedAt,
+      evaluations,
+      approvals,
+      metadata,
+      authentication
+    } = this.getDefaults(input)
     const request = createRequestSchema.parse(input.request)
     const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
+    const errors = this.toErrors(clientId, input.errors)
 
     const approvalsData = approvals?.map((approval) => ({
       sig: approval
@@ -36,6 +48,7 @@ export class AuthorizationRequestRepository {
         updatedAt,
         action: request.action,
         authnSig: authentication,
+        metadata,
         approvals: approvals
           ? {
               createMany: {
@@ -43,6 +56,11 @@ export class AuthorizationRequestRepository {
               }
             }
           : undefined,
+        errors: {
+          createMany: {
+            data: errors
+          }
+        },
         evaluationLog: {
           createMany: {
             data: evaluationLogs
@@ -51,11 +69,37 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
+        errors: true,
         evaluationLog: true
       }
     })
 
     return decodeAuthorizationRequest(model)
+  }
+
+  private toEvaluationLogs(clientId?: string, evaluations?: Evaluation[]) {
+    if (clientId && evaluations?.length) {
+      return evaluations.map((evaluation) => ({
+        ...evaluation,
+        clientId
+      }))
+    }
+
+    return []
+  }
+
+  private toErrors(clientId?: string, errors?: AuthorizationRequestError[]) {
+    if (clientId && errors?.length) {
+      return errors.map((error) => ({
+        id: error.id,
+        clientId,
+        name: error.name,
+        message: error.message,
+        context: error.context as Prisma.InputJsonValue
+      }))
+    }
+
+    return []
   }
 
   /**
@@ -68,11 +112,12 @@ export class AuthorizationRequestRepository {
    * @returns {AuthorizationRequest}
    */
   async update(
-    input: Partial<Pick<AuthorizationRequest, 'clientId' | 'status' | 'evaluations' | 'approvals'>> &
+    input: Partial<Pick<AuthorizationRequest, 'clientId' | 'status' | 'evaluations' | 'approvals' | 'errors'>> &
       Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
     const { id, clientId, status, evaluations, approvals } = input
     const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
+    const errors = this.toErrors(clientId, input.errors)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     const model = await this.prismaService.authorizationRequest.update({
@@ -90,11 +135,18 @@ export class AuthorizationRequestRepository {
             data: evaluationLogs,
             skipDuplicates: true
           }
+        },
+        errors: {
+          createMany: {
+            data: errors,
+            skipDuplicates: true
+          }
         }
       },
       include: {
         approvals: true,
-        evaluationLog: true
+        evaluationLog: true,
+        errors: true
       }
     })
 
@@ -106,7 +158,8 @@ export class AuthorizationRequestRepository {
       where: { id },
       include: {
         approvals: true,
-        evaluationLog: true
+        evaluationLog: true,
+        errors: true
       }
     })
 
@@ -126,7 +179,8 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
-        evaluationLog: true
+        evaluationLog: true,
+        errors: true
       }
     })
 
@@ -147,14 +201,5 @@ export class AuthorizationRequestRepository {
       updatedAt: input.updatedAt || now,
       approvals: input.approvals
     }
-  }
-
-  private toEvaluationLogs(clientId?: string, evaluations?: Evaluation[]): Omit<EvaluationLog, 'requestId'>[] {
-    return clientId && evaluations?.length
-      ? evaluations.map((evaluation) => ({
-          ...evaluation,
-          clientId
-        }))
-      : []
   }
 }

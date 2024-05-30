@@ -9,7 +9,6 @@ class AccessListDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   address: Address
 
   @IsString()
@@ -21,7 +20,6 @@ export class TransactionRequestDto {
   @IsString()
   @IsDefined()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     required: true,
     format: 'EthereumAddress'
@@ -30,7 +28,6 @@ export class TransactionRequestDto {
 
   @IsString()
   @IsEthereumAddress()
-  @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     format: 'EthereumAddress'
   })

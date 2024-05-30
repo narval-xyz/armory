@@ -1,6 +1,7 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
+import { Alg, PrivateKey, generateJwk, rsaPublicKeySchema, secp256k1PublicKeySchema } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -85,7 +86,6 @@ describe('Client', () => {
 
       expect(body).toEqual({
         ...actualClient,
-        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
@@ -113,7 +113,6 @@ describe('Client', () => {
 
       expect(body).toEqual({
         ...actualClient,
-        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
@@ -144,6 +143,42 @@ describe('Client', () => {
         statusCode: HttpStatus.FORBIDDEN
       })
       expect(status).toEqual(HttpStatus.FORBIDDEN)
+    })
+
+    it('creates a new client with RSA backup public key', async () => {
+      const rsaBackupKey = rsaPublicKeySchema.parse(await generateJwk(Alg.RS256, { keyId: 'rsaBackupKeyId' }))
+
+      const validClientPayload: CreateClientDto = {
+        ...payload,
+        clientId: uuid(),
+        backupPublicKey: rsaBackupKey
+      }
+
+      const { status: rightKeyStatus } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(validClientPayload)
+
+      expect(rightKeyStatus).toEqual(HttpStatus.CREATED)
+    })
+
+    it('responds with unprocessable entity when backup key is not an RSA key', async () => {
+      const secpBackupKey = secp256k1PublicKeySchema.parse(
+        await generateJwk<PrivateKey>(Alg.ES256K, { keyId: 'secpBackupKeyId' })
+      )
+
+      const invalidClientPayload = {
+        ...payload,
+        clientId: uuid(),
+        backupPublicKey: secpBackupKey
+      }
+
+      const { status: wrongKeyStatus } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(invalidClientPayload)
+
+      expect(wrongKeyStatus).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
   })
 })

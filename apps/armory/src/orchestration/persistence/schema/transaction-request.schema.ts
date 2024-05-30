@@ -14,11 +14,15 @@ export const readTransactionRequestSchema = z.object({
   accessList: z.array(accessListSchema).optional(),
   data: hexSchema.optional(),
   gas: z.coerce.bigint().min(BigInt(0)).optional(),
+  maxFeePerGas: z.coerce.bigint().min(BigInt(0)).optional(),
+  maxPriorityFeePerGas: z.coerce.bigint().min(BigInt(0)).optional(),
   to: addressSchema.optional(),
   type: z.literal('2').optional(),
   value: hexSchema.optional()
 })
 
 export const createTransactionRequestSchema = readTransactionRequestSchema.extend({
-  gas: z.coerce.string().optional()
+  gas: z.coerce.string().optional(),
+  maxFeePerGas: z.coerce.string().optional(),
+  maxPriorityFeePerGas: z.coerce.string().optional()
 })

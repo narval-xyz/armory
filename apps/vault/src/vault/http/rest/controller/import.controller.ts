@@ -6,8 +6,10 @@ import { ApplicationException } from '../../../../shared/exception/application.e
 import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
-import { ImportPrivateKeyDto } from '../dto/import-private-key-dto'
-import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-dto'
+import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
+import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response.dto'
+import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
+import { ImportSeedDto } from '../dto/import-seed.dto'
 
 @Controller('/import')
 @Permissions([Permission.WALLET_IMPORT])
@@ -15,7 +17,7 @@ import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-
 export class ImportController {
   constructor(private importService: ImportService) {}
 
-  @Post('/encryption-key')
+  @Post('/encryption-keys')
   async generateEncryptionKey(@ClientId() clientId: string) {
     const publicKey = await this.importService.generateEncryptionKey(clientId)
 
@@ -24,7 +26,7 @@ export class ImportController {
     return response
   }
 
-  @Post('/private-key')
+  @Post('/private-keys')
   async create(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto) {
     let importedKey
     if (body.encryptedPrivateKey) {
@@ -43,6 +45,19 @@ export class ImportController {
     }
 
     const response = new ImportPrivateKeyResponseDto(importedKey)
+
+    return response
+  }
+
+  @Post('/seeds')
+  async importSeed(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
+    const { wallet, keyId, backup } = await this.importService.importSeed(clientId, body)
+
+    const response = GenerateKeyResponseDto.create({
+      wallet,
+      keyId,
+      backup
+    })
 
     return response
   }

@@ -49,8 +49,7 @@ describe(ClientSecretGuard.name, () => {
         }
       },
       signer: {
-        type: 'PRIVATE_KEY',
-        key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+        privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
       },
       updatedAt: new Date(),
       createdAt: new Date()

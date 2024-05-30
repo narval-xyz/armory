@@ -1,66 +1,90 @@
-import { Action, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
+import { Json } from '@narval/nestjs-shared'
+import { Action, EvaluationMetadata, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
 import { OverrideProperties, SetOptional } from 'type-fest'
+import { z } from 'zod'
 
-export enum AuthorizationRequestStatus {
-  CREATED = 'CREATED',
-  CANCELED = 'CANCELED',
-  FAILED = 'FAILED',
-  PROCESSING = 'PROCESSING',
-  APPROVING = 'APPROVING',
-  PERMITTED = 'PERMITTED',
-  FORBIDDEN = 'FORBIDDEN'
-}
+export const AuthorizationRequestStatus = {
+  CREATED: 'CREATED',
+  CANCELED: 'CANCELED',
+  FAILED: 'FAILED',
+  PROCESSING: 'PROCESSING',
+  APPROVING: 'APPROVING',
+  PERMITTED: 'PERMITTED',
+  FORBIDDEN: 'FORBIDDEN'
+} as const
+export type AuthorizationRequestStatus = (typeof AuthorizationRequestStatus)[keyof typeof AuthorizationRequestStatus]
 
-export type Evaluation = {
-  id: string
-  decision: string
-  signature: string | null
-  createdAt: Date
-}
+export const Evaluation = z.object({
+  id: z.string(),
+  decision: z.string(),
+  signature: z.string().nullable(),
+  createdAt: z.date()
+})
+export type Evaluation = z.infer<typeof Evaluation>
 
 /**
  * AuthZ actions currently supported by the Armory.
  */
-export type SupportedAction =
-  | typeof Action.SIGN_TRANSACTION
-  | typeof Action.SIGN_MESSAGE
-  | typeof Action.GRANT_PERMISSION
+export const SupportedAction = {
+  SIGN_TRANSACTION: Action.SIGN_TRANSACTION,
+  SIGN_MESSAGE: Action.SIGN_MESSAGE,
+  GRANT_PERMISSION: Action.GRANT_PERMISSION
+} as const
+export type SupportedAction = (typeof SupportedAction)[keyof typeof SupportedAction]
 
-export type SharedAuthorizationPayload = {
-  action: SupportedAction
-  resourceId: string
-  nonce: string
-}
+const SharedAuthorizationPayload = z.object({
+  action: z.nativeEnum(SupportedAction),
+  nonce: z.string()
+})
+type SharedAuthorizationPayload = z.infer<typeof SharedAuthorizationPayload>
 
-export type SignTransaction = SharedAuthorizationPayload & {
-  action: typeof Action.SIGN_TRANSACTION
+export const SignTransaction = SharedAuthorizationPayload.extend({
+  action: z.literal(Action.SIGN_TRANSACTION),
+  resourceId: z.string(),
   transactionRequest: TransactionRequest
-}
+})
+export type SignTransaction = z.infer<typeof SignTransaction>
 
-export type SignMessage = SharedAuthorizationPayload & {
-  action: typeof Action.SIGN_MESSAGE
-  message: string
-}
+export const SignMessage = SharedAuthorizationPayload.extend({
+  action: z.literal(Action.SIGN_MESSAGE),
+  resourceId: z.string(),
+  message: z.string()
+})
+export type SignMessage = z.infer<typeof SignMessage>
 
-export type GrantPermission = SharedAuthorizationPayload & {
-  action: typeof Action.GRANT_PERMISSION
-  permissions: string[]
-}
+export const GrantPermission = SharedAuthorizationPayload.extend({
+  action: z.literal(Action.GRANT_PERMISSION),
+  resourceId: z.string(),
+  permissions: z.array(z.string())
+})
+export type GrantPermission = z.infer<typeof GrantPermission>
 
-export type Request = SignTransaction | SignMessage | GrantPermission
+export const Request = z.discriminatedUnion('action', [SignTransaction, SignMessage, GrantPermission])
+export type Request = z.infer<typeof Request>
 
-export type AuthorizationRequest = {
-  id: string
-  clientId: string
-  status: `${AuthorizationRequestStatus}`
-  authentication: JwtString
-  request: Request
-  approvals: JwtString[]
-  evaluations: Evaluation[]
-  idempotencyKey?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
+export const AuthorizationRequestError = z.object({
+  context: Json.optional(),
+  id: z.string(),
+  message: z.string(),
+  name: z.string()
+})
+export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError>
+
+export const AuthorizationRequest = z.object({
+  approvals: z.array(JwtString),
+  metadata: EvaluationMetadata.optional(),
+  authentication: JwtString,
+  clientId: z.string(),
+  createdAt: z.date(),
+  errors: z.array(AuthorizationRequestError).optional(),
+  evaluations: z.array(Evaluation),
+  id: z.string(),
+  idempotencyKey: z.string().nullish(),
+  request: Request,
+  status: z.nativeEnum(AuthorizationRequestStatus),
+  updatedAt: z.date()
+})
+export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>
 
 export type CreateAuthorizationRequest = OverrideProperties<
   SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,

@@ -1,15 +1,31 @@
-import { Hex, publicKeySchema } from '@narval/signature'
+import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
+import { publicKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
+
+export const CreateClientInput = z.object({
+  clientId: z.string().optional(),
+  engineJwk: publicKeySchema.optional(),
+  audience: z.string().optional(),
+  issuer: z.string().optional(),
+  maxTokenAge: z.number().optional(),
+  backupPublicKey: rsaPublicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
+  baseUrl: z.string().optional()
+})
+export type CreateClientInput = z.infer<typeof CreateClientInput>
 
 export const Client = z.object({
   clientId: z.string(),
-  clientSecret: z.string(),
   engineJwk: publicKeySchema.optional(),
 
   // JWT verification options.
   audience: z.string().optional(),
   issuer: z.string().optional(),
   maxTokenAge: z.number().optional(),
+
+  // Backup key export options.
+  backupPublicKey: rsaPublicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
 
   // Override if you want to use a different baseUrl for a single client.
   baseUrl: z.string().optional(),
@@ -26,15 +42,65 @@ export const App = z.object({
 })
 export type App = z.infer<typeof App>
 
-export const Wallet = z.object({
+const DERIVATION_PATH_PREFIX = "m/44'/60'/"
+
+export const DerivationPath = z.union([
+  z.custom<`${typeof DERIVATION_PATH_PREFIX}${string}`>(
+    (value) => {
+      const result = z.string().startsWith(DERIVATION_PATH_PREFIX).safeParse(value)
+
+      if (result.success) {
+        return value
+      }
+
+      return false
+    },
+    {
+      message: `Derivation path must start with ${DERIVATION_PATH_PREFIX}`
+    }
+  ),
+  z.literal('next')
+])
+export type DerivationPath = z.infer<typeof DerivationPath>
+
+export const Origin = {
+  IMPORTED: 'IMPORTED',
+  GENERATED: 'GENERATED'
+} as const
+export type Origin = (typeof Origin)[keyof typeof Origin]
+
+export const PrivateWallet = z.object({
   id: z.string().min(1),
-  privateKey: z
-    .string()
-    .regex(/^(0x)?([A-Fa-f0-9]{64})$/)
-    .transform((val: string): Hex => val as Hex),
-  address: z
-    .string()
-    .regex(/^0x([A-Fa-f0-9]{40})$/)
-    .transform((val: string): Hex => val as Hex)
+  privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
+  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
+  address: addressSchema,
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)]),
+  keyId: z.string().min(1).optional(),
+  derivationPath: z.string().min(1).optional()
 })
-export type Wallet = z.infer<typeof Wallet>
+export type PrivateWallet = z.infer<typeof PrivateWallet>
+
+export const PublicWallet = z.object({
+  id: z.string().min(1),
+  address: z.string().min(1),
+  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
+  keyId: z.string().min(1).optional(),
+  derivationPath: z.string().min(1).optional()
+})
+export type PublicWallet = z.infer<typeof PublicWallet>
+
+export const RootKey = z.object({
+  keyId: z.string().min(1),
+  mnemonic: z.string().min(1),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)]),
+  nextAddrIndex: z.number().min(0).default(0)
+})
+export type RootKey = z.infer<typeof RootKey>
+
+export const Backup = z.object({
+  backupPublicKeyHash: z.string(),
+  keyId: z.string(),
+  data: z.string(),
+  createdAt: z.coerce.date().default(() => new Date())
+})
+export type Backup = z.infer<typeof Backup>

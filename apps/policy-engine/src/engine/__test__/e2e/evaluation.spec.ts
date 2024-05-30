@@ -13,7 +13,7 @@ import {
   SourceType,
   Then
 } from '@narval/policy-engine-shared'
-import { Alg, PrivateKey, privateKeyToJwk, secp256k1PrivateKeyToJwk } from '@narval/signature'
+import { PrivateKey, secp256k1PrivateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
@@ -98,6 +98,7 @@ describe('Evaluation', () => {
       adminApiKey
     })
 
+    const clientSignerKey = generatePrivateKey()
     client = await clientService.save(
       {
         clientId,
@@ -107,8 +108,8 @@ describe('Evaluation', () => {
           policy: dataStoreConfiguration
         },
         signer: {
-          type: 'PRIVATE_KEY',
-          key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+          publicKey: secp256k1PrivateKeyToPublicJwk(clientSignerKey),
+          privateKey: secp256k1PrivateKeyToJwk(clientSignerKey)
         },
         createdAt: new Date(),
         updatedAt: new Date()

@@ -45,8 +45,7 @@ describe(BootstrapService.name, () => {
     clientId: 'test-client-one-id',
     clientSecret: 'unsafe-client-secret',
     signer: {
-      type: 'PRIVATE_KEY',
-      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -57,8 +56,7 @@ describe(BootstrapService.name, () => {
     clientId: 'test-client-two-id',
     clientSecret: 'unsafe-client-secret',
     signer: {
-      type: 'PRIVATE_KEY',
-      key: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
     },
     createdAt: new Date(),
     updatedAt: new Date()

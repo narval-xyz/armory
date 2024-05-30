@@ -7,7 +7,7 @@ export const PolicyEngineNode = z.object({
   // In case of the client ID in the PE is different than the one in the
   // AS.
   clientId: z.string().min(1),
-  clientSecret: z.string().min(1),
+  clientSecret: z.string().min(1).describe('plaintext secret for authenticating to this node'),
   publicKey: publicKeySchema,
   url: z.string().url()
 })
