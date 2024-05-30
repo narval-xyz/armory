@@ -12,12 +12,12 @@ type Response =
       }
     }
 
-@Controller('/provision')
+@Controller('/apps/activate')
 export class ProvisionController {
   constructor(private engineService: EngineService) {}
 
   @Post()
-  async provision(): Promise<Response> {
+  async activate(): Promise<Response> {
     const engine = await this.engineService.getEngineOrThrow()
 
     if (engine.adminApiKey) {

@@ -9,7 +9,7 @@ import { EngineService } from '../../core/service/engine.service'
 import { ProvisionService } from '../../core/service/provision.service'
 import { EngineModule } from '../../engine.module'
 
-const ENDPOINT = '/provision'
+const ENDPOINT = '/apps/activate'
 
 const testConfigLoad = (): Config => ({
   ...load(),
@@ -30,12 +30,7 @@ describe('Provision', () => {
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          load: [
-            () => {
-              console.log('AAAAAAAAAAAAAAaa')
-              return testConfigLoad()
-            }
-          ],
+          load: [testConfigLoad],
           isGlobal: true
         }),
         EngineModule
