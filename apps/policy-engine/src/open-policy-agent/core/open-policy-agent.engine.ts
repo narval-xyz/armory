@@ -114,7 +114,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       decision: decision.decision,
       approvals: decision.approvals,
       request: evaluation.request,
-      principal: decision.decision === Decision.PERMIT ? principalCredential : undefined
+      principal: decision.decision === Decision.PERMIT ? principalCredential : undefined,
+      metadata: evaluation.metadata
     }
 
     return response

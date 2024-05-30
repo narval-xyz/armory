@@ -2,7 +2,8 @@ import { Json } from '@narval/nestjs-shared'
 import { Action } from '@narval/policy-engine-shared'
 import {
   AuthorizationRequestError as AuthorizationRequestErrorModel,
-  EvaluationLog as EvaluationLogModel
+  EvaluationLog as EvaluationLogModel,
+  Prisma
 } from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
@@ -38,6 +39,7 @@ const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action
     authentication: model.authnSig,
     approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
     evaluations: (model.evaluationLog || []).map(buildEvaluation),
+    metadata: model.metadata as Prisma.InputJsonObject,
     errors: (model.errors || []).map(buildError),
     createdAt: model.createdAt,
     updatedAt: model.updatedAt
