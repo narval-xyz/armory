@@ -34,6 +34,10 @@ async function bootstrap() {
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const port = configService.get('port')
 
+  // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
+  // close on exit.
+  application.enableShutdownHooks()
+
   await lastValueFrom(
     of(application).pipe(
       map(
