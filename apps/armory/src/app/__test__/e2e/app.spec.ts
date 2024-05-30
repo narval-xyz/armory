@@ -58,7 +58,7 @@ describe('Provision', () => {
       })
     })
 
-    it('responds already provisioned', async () => {
+    it('responds already activated', async () => {
       await request(app.getHttpServer()).post(ENDPOINT).send()
 
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
@@ -66,7 +66,7 @@ describe('Provision', () => {
       expect(body).toEqual({ isActivated: true })
     })
 
-    it('does not respond with hashed admin API key', async () => {
+    it('does not respond with hashed admin api key', async () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
       const actualApp = await appService.getAppOrThrow()

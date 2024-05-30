@@ -27,7 +27,7 @@ describe(AppService.name, () => {
   let testPrismaService: TestPrismaService
   let configServiceMock: MockProxy<ConfigService<Config>>
 
-  const config = { appId: 'test-engine-id' }
+  const config = { appId: 'test-app-id' }
 
   const adminApiKey = 'test-admin-api-key'
 
@@ -93,7 +93,7 @@ describe(AppService.name, () => {
         })
       })
 
-      describe('when admin api key is not st', () => {
+      describe('when admin api key is not set', () => {
         it('saves app without admin api key', async () => {
           await appService.provision()
 
@@ -108,9 +108,9 @@ describe(AppService.name, () => {
       it('skips provision and returns the existing app', async () => {
         const actualApp = await appService.save({ id: config.appId })
 
-        const engine = await appService.provision()
+        const app = await appService.provision()
 
-        expect(actualApp).toEqual(engine)
+        expect(actualApp).toEqual(app)
       })
     })
   })
