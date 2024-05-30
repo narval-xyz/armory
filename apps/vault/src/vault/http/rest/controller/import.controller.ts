@@ -6,10 +6,10 @@ import { ApplicationException } from '../../../../shared/exception/application.e
 import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
-import { GenerateKeyResponseDto } from '../dto/generate-key-response-dto'
-import { ImportPrivateKeyDto } from '../dto/import-private-key-dto'
-import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response-dto'
-import { ImportSeedDto } from '../dto/import-seed-dto'
+import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
+import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response.dto'
+import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
+import { ImportSeedDto } from '../dto/import-seed.dto'
 
 @Controller('/import')
 @Permissions([Permission.WALLET_IMPORT])
