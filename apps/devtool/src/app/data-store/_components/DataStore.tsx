@@ -1,6 +1,6 @@
 'use client'
 
-import { faArrowRightArrowLeft } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowRightArrowLeft, faPlus } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
@@ -68,8 +68,9 @@ const DataStore = () => {
           <div className="flex items-center gap-[8px]">
             <ErrorStatus label={errors} />
             <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
+            <NarButton variant="primary" label="Add User" leftIcon={<FontAwesomeIcon icon={faPlus} />} />
             <NarButton
-              variant="tertiary"
+              variant="secondary"
               label={`Use ${isUsingManagedDataStore ? 'Local Data Store' : 'Managed Data Store'}`}
               leftIcon={<FontAwesomeIcon icon={faArrowRightArrowLeft} />}
               onClick={switchDataStore}
