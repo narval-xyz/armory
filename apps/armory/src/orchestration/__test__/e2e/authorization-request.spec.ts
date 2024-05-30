@@ -205,6 +205,40 @@ describe('Authorization Request', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
+
+    it('evaluates a grant permission authorization request', async () => {
+      const payload = {
+        request: {
+          action: Action.GRANT_PERMISSION,
+          resourceId: 'vault',
+          nonce: '84cc19b4-85ba-426f-a4e0-f2e6a949d81f',
+          permissions: ['wallet:create', 'wallet:read', 'wallet:import']
+        },
+        metadata: {
+          expiresIn: 600
+        },
+        authentication,
+        approvals
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
+        .send(payload)
+
+      expect(body).toMatchObject({
+        approvals,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        request: payload.request,
+        evaluations: [],
+        metadata: payload.metadata
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
   })
 
   describe(`GET ${ENDPOINT}/:id`, () => {
@@ -218,6 +252,9 @@ describe('Authorization Request', () => {
         nonce: '99',
         resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
         message: 'Testing sign message request'
+      },
+      metadata: {
+        expiresIn: 3600
       },
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       evaluations: [],
