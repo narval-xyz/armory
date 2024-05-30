@@ -16,7 +16,7 @@ const configSchema = z.object({
   }),
   app: z.object({
     id: z.string(),
-    adminApiKey: z.string().optional(),
+    adminApiKeyHash: z.string().optional(),
     masterKey: z.string().optional()
   }),
   keyring: z.union([

@@ -3,24 +3,34 @@ import { secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { load } from '../../../main.config'
+import { Config, load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { AppService } from '../../core/service/app.service'
+import { ProvisionService } from '../../core/service/provision.service'
 import { VaultModule } from '../../vault.module'
 
-const ENDPOINT = '/provision'
+const ENDPOINT = '/apps/activate'
+
+const testConfigLoad = (): Config => ({
+  ...load(),
+  app: {
+    id: 'local-dev-vault-instance-1',
+    adminApiKeyHash: undefined
+  }
+})
 
 describe('Provision', () => {
   let app: INestApplication
   let module: TestingModule
-  let engineService: AppService
+  let appService: AppService
   let testPrismaService: TestPrismaService
+  let provisionService: ProvisionService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          load: [load],
+          load: [testConfigLoad],
           isGlobal: true
         }),
         VaultModule
@@ -29,7 +39,8 @@ describe('Provision', () => {
 
     app = module.createNestApplication()
 
-    engineService = app.get(AppService)
+    appService = app.get(AppService)
+    provisionService = app.get(ProvisionService)
     testPrismaService = app.get(TestPrismaService)
 
     await app.init()
@@ -37,6 +48,8 @@ describe('Provision', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+
+    await provisionService.provision()
   })
 
   afterAll(async () => {
@@ -50,31 +63,28 @@ describe('Provision', () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
       expect(body).toEqual({
-        isProvisioned: false,
-        state: {
+        state: 'READY',
+        app: {
           appId: 'local-dev-vault-instance-1',
-          adminApiKey: expect.any(String),
-          encryptionType: 'raw',
-          isMasterPasswordSet: true,
-          isMasterKeySet: true
+          adminApiKey: expect.any(String)
         }
       })
     })
 
-    it('responds already provisioned', async () => {
+    it('responds already activated', async () => {
       await request(app.getHttpServer()).post(ENDPOINT).send()
 
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      expect(body).toEqual({ isProvisioned: true })
+      expect(body).toEqual({ state: 'ACTIVATED' })
     })
 
     it('does not respond with hashed admin API key', async () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      const engine = await engineService.getAppOrThrow()
+      const actualApp = await appService.getAppOrThrow()
 
-      expect(secret.hash(body.state.adminApiKey)).toEqual(engine.adminApiKey)
+      expect(secret.hash(body.app.adminApiKey)).toEqual(actualApp.adminApiKey)
     })
   })
 })

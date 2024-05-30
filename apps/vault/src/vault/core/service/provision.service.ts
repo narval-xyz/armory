@@ -1,6 +1,5 @@
 import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
@@ -16,7 +15,7 @@ export class ProvisionService {
     private appService: AppService
   ) {}
 
-  async provision(): Promise<App> {
+  async provision(adminApiKeyHash?: string): Promise<App> {
     const app = await this.appService.getApp()
 
     const isFirstBoot = app === null
@@ -28,26 +27,21 @@ export class ProvisionService {
         id: this.getId()
       })
 
-      const adminApiKey = this.getAdminApiKey()
+      const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
 
-      if (adminApiKey) {
-        const activatedEngine = {
+      if (apiKey) {
+        this.logger.log('Import admin API key hash')
+
+        return this.appService.save({
           ...provisionedApp,
-          adminApiKey
-        }
-
-        await this.appService.save({
-          ...activatedEngine,
-          adminApiKey: secret.hash(adminApiKey)
+          adminApiKey: apiKey
         })
-
-        return activatedEngine
       }
 
       return this.appService.save(provisionedApp)
-    } else {
-      this.logger.log('App already provisioned')
     }
+
+    this.logger.log('App already provisioned')
 
     return app
   }
@@ -78,8 +72,8 @@ export class ProvisionService {
     }
   }
 
-  private getAdminApiKey(): string | undefined {
-    return this.configService.get('app.adminApiKey')
+  private getAdminApiKeyHash(): string | undefined {
+    return this.configService.get('app.adminApiKeyHash')
   }
 
   private getId(): string {
