@@ -103,6 +103,9 @@ export const grantPermission = async () => {
       resourceId: Resource.VAULT,
       nonce: uuid(),
       permissions: [Permission.WALLET_CREATE, Permission.WALLET_READ, Permission.WALLET_IMPORT]
+    },
+    metadata: {
+      expiresIn: 600
     }
   }
 }
