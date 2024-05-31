@@ -162,8 +162,8 @@ describe('Data Store', () => {
         policy: {
           data: [
             {
-              id: 'test-permit-policy',
-              description: 'test permit policy',
+              id: 'admins-full-access',
+              description: 'Admins get full access',
               when: [
                 {
                   criterion: Criterion.CHECK_PRINCIPAL_ROLE,
