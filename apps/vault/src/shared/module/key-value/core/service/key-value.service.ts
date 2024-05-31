@@ -9,8 +9,8 @@ export class KeyValueService {
     return this.keyValueRepository.get(key)
   }
 
-  async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
-    return this.keyValueRepository.findByMetadata(metadata)
+  async find(metadata: KeyMetadata): Promise<string[] | null> {
+    return this.keyValueRepository.find(metadata)
   }
 
   async set(key: string, value: string, metadata: KeyMetadata): Promise<boolean> {

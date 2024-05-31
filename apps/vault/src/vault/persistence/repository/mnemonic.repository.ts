@@ -1,16 +1,24 @@
 import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
+import { KeyMetadata } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { RootKey } from '../../../shared/type/domain.type'
+import { Collection, RootKey } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class MnemonicRepository {
-  private KEY_PREFIX = 'mnemonic'
+  private KEY_PREFIX = Collection.MNEMONIC
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
   getKey(clientId: string, id: string): string {
     return `${this.KEY_PREFIX}:${clientId}:${id}`
+  }
+
+  getMetadata(clientId: string): KeyMetadata {
+    return {
+      clientId,
+      collection: this.KEY_PREFIX
+    }
   }
 
   async findById(clientId: string, id: string): Promise<RootKey | null> {
@@ -24,7 +32,11 @@ export class MnemonicRepository {
   }
 
   async save(clientId: string, key: RootKey): Promise<RootKey> {
-    await this.keyValueService.set(this.getKey(clientId, key.keyId.toLowerCase()), coerce.encode(RootKey, key))
+    await this.keyValueService.set(
+      this.getKey(clientId, key.keyId.toLowerCase()),
+      coerce.encode(RootKey, key),
+      this.getMetadata(clientId)
+    )
 
     return key
   }

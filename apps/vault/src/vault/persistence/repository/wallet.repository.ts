@@ -1,16 +1,24 @@
 import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
+import { KeyMetadata } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { PrivateWallet } from '../../../shared/type/domain.type'
+import { Collection, PrivateWallet } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class WalletRepository {
-  private KEY_PREFIX = 'wallet'
+  private KEY_PREFIX = Collection.WALLET
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
   getKey(clientId: string, id: string): string {
     return `${this.KEY_PREFIX}:${clientId}:${id}`
+  }
+
+  getMetadata(clientId: string): KeyMetadata {
+    return {
+      clientId,
+      collection: this.KEY_PREFIX
+    }
   }
 
   async findById(clientId: string, id: string): Promise<PrivateWallet | null> {
@@ -24,7 +32,11 @@ export class WalletRepository {
   }
 
   async save(clientId: string, wallet: PrivateWallet): Promise<PrivateWallet> {
-    await this.keyValueService.set(this.getKey(clientId, wallet.id.toLowerCase()), coerce.encode(PrivateWallet, wallet))
+    await this.keyValueService.set(
+      this.getKey(clientId, wallet.id.toLowerCase()),
+      coerce.encode(PrivateWallet, wallet),
+      this.getMetadata(clientId)
+    )
 
     return wallet
   }

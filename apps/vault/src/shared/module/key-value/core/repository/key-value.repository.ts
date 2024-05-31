@@ -8,7 +8,7 @@ export interface KeyMetadata {
 }
 
 export interface KeyValueRepository {
-  findByMetadata(metadata: KeyMetadata): Promise<string[] | null>
+  find(metadata: KeyMetadata): Promise<string[] | null>
   get(key: string): Promise<string | null>
   set(key: string, value: string, metadata: KeyMetadata): Promise<boolean>
   delete(key: string): Promise<boolean>

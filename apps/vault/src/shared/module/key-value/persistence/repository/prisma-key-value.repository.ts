@@ -6,7 +6,7 @@ import { KeyMetadata, KeyValueRepository } from '../../core/repository/key-value
 export class PrismaKeyValueRepository implements KeyValueRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
+  async find(metadata: KeyMetadata): Promise<string[] | null> {
     const models = await this.prismaService.keyValue.findMany({
       where: { collection: metadata.collection, clientId: metadata.clientId }
     })

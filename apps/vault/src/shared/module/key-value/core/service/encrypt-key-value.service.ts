@@ -16,7 +16,7 @@ export class EncryptKeyValueService {
   ) {}
 
   async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
-    const encryptedValues = await this.keyValueRepository.findByMetadata(metadata)
+    const encryptedValues = await this.keyValueRepository.find(metadata)
 
     if (!encryptedValues) {
       return null
