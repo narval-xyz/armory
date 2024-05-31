@@ -100,7 +100,7 @@ describe('Client', () => {
   beforeEach(async () => {
     await testPrismaService.truncateAll()
 
-    await appService.provision(adminApiKey)
+    await appService.provision(secret.hash(adminApiKey))
   })
 
   describe('POST /clients', () => {
