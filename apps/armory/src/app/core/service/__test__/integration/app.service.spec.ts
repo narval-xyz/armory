@@ -94,7 +94,7 @@ describe(AppService.name, () => {
         })
 
         it('uses given admin api key', async () => {
-          const givenAdminApiKey = 'test-given-admin-api-key'
+          const givenAdminApiKey = secret.hash('test-given-admin-api-key')
 
           await appService.provision(givenAdminApiKey)
 
@@ -102,7 +102,7 @@ describe(AppService.name, () => {
 
           expect(actualApp).toEqual({
             id: config.appId,
-            adminApiKey: secret.hash(givenAdminApiKey)
+            adminApiKey: givenAdminApiKey
           })
         })
       })
