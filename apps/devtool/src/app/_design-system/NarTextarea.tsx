@@ -49,6 +49,7 @@ const NarTextarea: FC<NarTextareaProps> = ({
           )}
           rows={rows}
           placeholder={placeholder}
+          value={value}
           onChange={(e) => {
             if (isError) setIsError(false)
             onChange(e.target.value)
@@ -58,9 +59,7 @@ const NarTextarea: FC<NarTextareaProps> = ({
             else setIsError(false)
           }}
           disabled={disabled}
-        >
-          {value}
-        </textarea>
+        />
       </div>
       {isError && <div className="text-nv-xs text-nv-danger mt-[4px]">{errorMessage}</div>}
     </fieldset>

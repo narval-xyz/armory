@@ -54,6 +54,7 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
 
   const handleClose = () => {
     setIsDialogOpen(false)
+    setIsEngineSynced(false)
     setImportedWallet(undefined)
     setPrivateKey('')
     setCurrentStep(Steps.ImportPrivateKey)
