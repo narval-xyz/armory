@@ -5,7 +5,7 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
+import { Collection, Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../wallet.repository'
 
 describe(WalletRepository.name, () => {
@@ -55,7 +55,11 @@ describe(WalletRepository.name, () => {
 
       expect(inMemoryKeyValueRepository.set).toHaveBeenCalledWith(
         `wallet:${clientId}:${wallet.id.toLowerCase()}`,
-        expect.any(String)
+        expect.any(String),
+        {
+          clientId,
+          collection: Collection.WALLET
+        }
       )
     })
 
