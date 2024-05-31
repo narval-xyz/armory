@@ -101,8 +101,7 @@ describe('Client', () => {
     await engineService.save({
       id: configService.get('engine.id'),
       masterKey: 'unsafe-test-master-key',
-      adminApiKey: secret.hash(adminApiKey),
-      activated: true
+      adminApiKey: secret.hash(adminApiKey)
     })
 
     jest.spyOn(clientService, 'syncDataStore').mockResolvedValue(true)

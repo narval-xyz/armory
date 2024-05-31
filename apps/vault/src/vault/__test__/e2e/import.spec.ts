@@ -105,8 +105,7 @@ describe('Import', () => {
     await appService.save({
       id: configService.get('app.id'),
       masterKey: 'test-master-key',
-      adminApiKey: 'test-admin-api-key',
-      activated: true
+      adminApiKey: 'test-admin-api-key'
     })
 
     await clientService.save(client)
