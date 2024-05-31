@@ -49,6 +49,7 @@ export const DEFAULT_HTTP_MODULE_PROVIDERS = [
 //
 
 export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
+export const REQUEST_HEADER_API_KEY = 'x-api-key'
 
 //
 // Queues

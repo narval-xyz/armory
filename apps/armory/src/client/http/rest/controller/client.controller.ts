@@ -1,11 +1,13 @@
 import { ConfigService } from '@narval/config-module'
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Config } from '../../../../armory.config'
+import { AdminGuard } from '../../../../shared/guard/admin.guard'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
 
 @Controller('/clients')
+@UseGuards(AdminGuard)
 @ApiTags('Client Management')
 export class ClientController {
   constructor(

@@ -7,6 +7,7 @@ import { AppRepository } from './persistence/repository/app.repository'
 @Module({
   imports: [PersistenceModule],
   providers: [AppService, AppRepository],
-  controllers: [AppController]
+  controllers: [AppController],
+  exports: [AppService]
 })
 export class AppModule {}
