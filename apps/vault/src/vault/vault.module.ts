@@ -1,10 +1,9 @@
-import { ConfigModule, ConfigService } from '@narval/config-module'
+import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
 import { ClientModule } from '../client/client.module'
-import { load } from '../main.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { ApplicationExceptionFilter } from '../shared/filter/application-exception.filter'
 import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
@@ -31,10 +30,6 @@ import { VaultService } from './vault.service'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [load],
-      isGlobal: true
-    }),
     HttpModule,
     PersistenceModule,
     forwardRef(() => KeyValueModule),

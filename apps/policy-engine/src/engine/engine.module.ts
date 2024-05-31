@@ -1,10 +1,10 @@
-import { ConfigModule, ConfigService } from '@narval/config-module'
+import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
-import { Config, load } from '../policy-engine.config'
+import { Config } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
@@ -29,10 +29,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [load],
-      isGlobal: true
-    }),
     HttpModule,
     KeyValueModule,
     EncryptionModule.registerAsync({
@@ -67,7 +63,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     ProvisionService,
     ClientRepository,
     ClientService,
-
     {
       // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,

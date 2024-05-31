@@ -1,3 +1,4 @@
+import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { Action } from '@narval/policy-engine-shared'
 import {
@@ -20,6 +21,7 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
 import { ClientService } from '../../../client/core/service/client.service'
+import { load } from '../../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
@@ -94,7 +96,13 @@ describe('Sign', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [VaultModule]
+      imports: [
+        ConfigModule.forRoot({
+          load: [load],
+          isGlobal: true
+        }),
+        VaultModule
+      ]
     })
       .overrideProvider(KeyValueRepository)
       .useValue(new InMemoryKeyValueRepository())
@@ -115,8 +123,7 @@ describe('Sign', () => {
     await appService.save({
       id: 'test-app',
       masterKey: 'unsafe-test-master-key',
-      adminApiKey,
-      activated: true
+      adminApiKey
     })
 
     await clientService.save(client)
