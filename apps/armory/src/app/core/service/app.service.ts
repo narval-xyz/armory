@@ -35,12 +35,14 @@ export class AppService {
   }
 
   async provision(adminApiKeyHash?: string): Promise<App> {
+    this.logger.log('Start app provision')
+
     const app = await this.getApp()
 
     const isFirstBoot = app === null
 
     if (isFirstBoot) {
-      this.logger.log('Start app provision')
+      this.logger.log('Saving app on first boot')
 
       const provisionedApp: App = {
         id: this.getId()
@@ -49,6 +51,8 @@ export class AppService {
       const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
 
       if (apiKey) {
+        this.logger.log('API key detected')
+
         return this.save({
           ...provisionedApp,
           adminApiKey: apiKey
