@@ -41,15 +41,6 @@ export class AppService {
     return app
   }
 
-  async update(engine: Partial<App>): Promise<App> {
-    const existingEngine = await this.getAppOrThrow()
-    const updatedEngine = { ...existingEngine, ...engine }
-
-    await this.appRepository.save(updatedEngine)
-
-    return updatedEngine
-  }
-
   private getId(): string {
     return this.configService.get('app.id')
   }
