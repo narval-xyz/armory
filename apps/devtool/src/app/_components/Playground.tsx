@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 'use client'
 
-import { faArrowsRotate, faFileSignature, faUpload } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   AuthorizationRequest,
@@ -13,13 +13,11 @@ import {
 } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, useEffect, useState } from 'react'
-import { generatePrivateKey } from 'viem/accounts'
 import NarButton from '../_design-system/NarButton'
-import NarDialog from '../_design-system/NarDialog'
-import NarInput from '../_design-system/NarInput'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
+import ImportPrivateKeyModal from './ImportPrivateKeyModal'
 import PlaygroundConfigModal from './PlaygroundConfigModal'
 import ValueWithCopy from './ValueWithCopy'
 
@@ -36,7 +34,7 @@ interface PlaygroundProps {
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SdkEvaluationResponse> | undefined
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
-  importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse | SdkEvaluationResponse> | undefined
+  importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
@@ -53,11 +51,9 @@ const Playground: FC<PlaygroundProps> = ({
   const { engineClientId, vaultClientId } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [accessToken, setAccessToken] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [domLoaded, setDomLoaded] = useState(false)
-  const [privateKey, setPrivateKey] = useState('')
-  const [accessToken, setAccessToken] = useState('')
 
   useEffect(() => setDomLoaded(true), [])
 
@@ -103,9 +99,8 @@ const Playground: FC<PlaygroundProps> = ({
   const handleAuthorization = async () => {
     if (!requestEditor) return
 
-    setIsProcessing(true)
-
     try {
+      setIsProcessing(true)
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = authorize && (await authorize(request))
@@ -114,17 +109,16 @@ const Playground: FC<PlaygroundProps> = ({
         const authResponseParsed = AuthorizationRequest.parse(response)
         setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
       }
-    } catch (error) {}
-
-    setIsProcessing(false)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const handleEvaluation = async () => {
     if (!requestEditor) return
 
-    setIsProcessing(true)
-
     try {
+      setIsProcessing(true)
       setResponseEditor(undefined)
       const request = JSON.parse(requestEditor)
       const response = evaluate && (await evaluate(request))
@@ -133,9 +127,9 @@ const Playground: FC<PlaygroundProps> = ({
         const evalResponseParsed = SdkEvaluationResponse.parse(response)
         setAccessToken(evalResponseParsed.accessToken?.value || '')
       }
-    } catch (error) {}
-
-    setIsProcessing(false)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const handleSign = async () => {
@@ -147,37 +141,32 @@ const Playground: FC<PlaygroundProps> = ({
 
     if (!signatureReq) return
 
-    setIsProcessing(true)
-
     try {
+      setIsProcessing(true)
       setResponseEditor(undefined)
       const response = sign && (await sign(signatureReq))
       if (response) setResponseEditor(JSON.stringify(response, null, 2))
-    } catch (error) {}
-
-    setIsProcessing(false)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
-  const handleImport = async () => {
-    setIsProcessing(true)
-
+  const handleImport = async (privateKey: string, accessToken: string) => {
     try {
+      setIsProcessing(true)
       setResponseEditor(undefined)
 
       const response =
         importPk && (await importPk({ privateKey: hexSchema.parse(privateKey), accessToken: { value: accessToken } }))
 
-      if (response) setResponseEditor(JSON.stringify(response, null, 2))
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
 
-      closeDialog()
-    } catch (error) {}
-
-    setIsProcessing(false)
-  }
-
-  const closeDialog = () => {
-    setIsDialogOpen(false)
-    setPrivateKey('')
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   if (!domLoaded) return null
@@ -211,29 +200,7 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {importPk && vaultClientId && (
-            <NarDialog
-              triggerButton={<NarButton label="Import Private Key" leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
-              title="Import Private Key"
-              primaryButtonLabel="Import"
-              isOpen={isDialogOpen}
-              onOpenChange={(val) => (val ? setIsDialogOpen(val) : closeDialog())}
-              onDismiss={closeDialog}
-              onSave={handleImport}
-              isSaving={isProcessing}
-              isSaveDisabled={!privateKey || isProcessing}
-            >
-              <div className="w-[650px] px-12 py-4">
-                <div className="flex flex-col gap-[8px]">
-                  <div className="flex items-end gap-[8px]">
-                    <NarInput label="Private Key" value={privateKey} onChange={setPrivateKey} />
-                    <NarButton label="Generate" onClick={() => setPrivateKey(generatePrivateKey())} />
-                  </div>
-                  <NarInput label="Access Token (optional)" value={accessToken} onChange={setAccessToken} />
-                </div>
-              </div>
-            </NarDialog>
-          )}
+          {importPk && vaultClientId && <ImportPrivateKeyModal accessToken={accessToken} import={handleImport} />}
           <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
         </div>
       </div>

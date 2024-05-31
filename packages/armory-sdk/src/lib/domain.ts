@@ -81,12 +81,12 @@ export type SdkEvaluationResponse = z.infer<typeof SdkEvaluationResponse>
 export const ImportPrivateKeyRequest = z.object({
   privateKey: hexSchema,
   walletId: z.string().optional(),
-  accessToken: AccessToken.optional()
+  accessToken: AccessToken
 })
 export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
 
 export const ImportPrivateKeyResponse = z.object({
-  walletId: z.string(),
+  id: z.string(),
   address: addressSchema
 })
 export type ImportPrivateKeyResponse = z.infer<typeof ImportPrivateKeyResponse>
