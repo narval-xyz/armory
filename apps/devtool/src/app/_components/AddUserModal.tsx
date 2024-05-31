@@ -156,7 +156,7 @@ const AddUserModal = () => {
       onDismiss={handleClose}
       onSave={handleSave}
       isSaving={isProcessing}
-      isConfirm={isEngineSynced}
+      isConfirm={currentStep === Steps.SyncEngine}
       isSaveDisabled={isProcessing || !isFormValid}
     >
       <div className="w-[650px] px-12 py-4">
@@ -259,7 +259,7 @@ const AddUserModal = () => {
               icon={isEngineSynced ? faCheckCircle : faXmarkCircle}
               size="xl"
             />
-            <p className="text-nv-lg">Engine synced!</p>
+            <p className="text-nv-lg">{isEngineSynced ? 'Engine synced!' : 'Failed to sync engine!'}</p>
           </div>
         )}
       </div>
