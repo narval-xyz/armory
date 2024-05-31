@@ -1,44 +1,49 @@
 import { secret } from '@narval/nestjs-shared'
-import { Controller, Post } from '@nestjs/common'
+import { Controller, HttpStatus, Post } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
+import { ApplicationException } from '../../../../shared/exception/application.exception'
+import { AlreadyActivatedException } from '../../../core/exception/app-already-activated.exception'
 import { AppService } from '../../../core/service/app.service'
 
-type Activated = {
-  isActivated: true
-}
-
-type State = {
-  appId: string
-  adminApiKey?: string
-}
-
-type Ready = {
-  isActivated: false
-  state: State
-}
-
-type ProvisionResponse = Activated | Ready
-
-@Controller()
-export class AppController {
-  constructor(private appService: AppService) {}
-
-  @Post('/provision')
-  async provision(): Promise<ProvisionResponse> {
-    const adminApiKey = secret.generate()
-    const result = await this.appService.activate(adminApiKey)
-
-    if (result.isActivated) {
-      return {
-        isActivated: true
+type ActivateResponse =
+  | { state: 'ACTIVATED' }
+  | {
+      state: 'READY'
+      app: {
+        appId: string
+        adminApiKey?: string
       }
     }
 
-    return {
-      isActivated: false,
-      state: {
-        appId: result.app.id,
-        adminApiKey: result.app.adminApiKey
+@Controller('/apps')
+@ApiExcludeController()
+export class AppController {
+  constructor(private appService: AppService) {}
+
+  @Post('/activate')
+  async activate(): Promise<ActivateResponse> {
+    const adminApiKey = secret.generate()
+
+    try {
+      const app = await this.appService.activate(adminApiKey)
+
+      return {
+        state: 'READY',
+        app: {
+          appId: app.id,
+          adminApiKey
+        }
       }
+    } catch (error) {
+      if (error instanceof AlreadyActivatedException) {
+        return { state: 'ACTIVATED' }
+      }
+
+      throw new ApplicationException({
+        message: 'Something went wrong during the app activation',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
     }
   }
 }

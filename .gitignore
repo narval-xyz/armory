@@ -64,3 +64,6 @@ Thumbs.db
 *.pub
 
 .npmrc
+
+# Docker volumes
+.data/

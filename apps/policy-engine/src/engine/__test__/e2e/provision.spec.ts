@@ -3,25 +3,27 @@ import { secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { Config, load } from '../../../armory.config'
+import { Config, load } from '../../../policy-engine.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { AppModule } from '../../app.module'
-import { AppService } from '../../core/service/app.service'
+import { EngineService } from '../../core/service/engine.service'
+import { ProvisionService } from '../../core/service/provision.service'
+import { EngineModule } from '../../engine.module'
 
 const ENDPOINT = '/apps/activate'
 
 const testConfigLoad = (): Config => ({
   ...load(),
-  app: {
-    id: 'local-dev-armory-instance-1',
+  engine: {
+    id: 'local-dev-engine-instance-1',
     adminApiKeyHash: undefined
   }
 })
 
-describe('App', () => {
+describe('Provision', () => {
   let app: INestApplication
   let module: TestingModule
-  let appService: AppService
+  let engineService: EngineService
+  let provisionService: ProvisionService
   let testPrismaService: TestPrismaService
 
   beforeAll(async () => {
@@ -31,13 +33,14 @@ describe('App', () => {
           load: [testConfigLoad],
           isGlobal: true
         }),
-        AppModule
+        EngineModule
       ]
     }).compile()
 
     app = module.createNestApplication()
 
-    appService = app.get(AppService)
+    engineService = app.get(EngineService)
+    provisionService = app.get(ProvisionService)
     testPrismaService = app.get(TestPrismaService)
 
     await app.init()
@@ -45,6 +48,7 @@ describe('App', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+    await provisionService.provision()
   })
 
   afterAll(async () => {
@@ -54,19 +58,19 @@ describe('App', () => {
   })
 
   describe(`POST ${ENDPOINT}`, () => {
-    it('responds with generated api key', async () => {
+    it('responds with activated app state', async () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
       expect(body).toEqual({
         state: 'READY',
         app: {
-          appId: 'local-dev-armory-instance-1',
+          appId: 'local-dev-engine-instance-1',
           adminApiKey: expect.any(String)
         }
       })
     })
 
-    it('responds already activated', async () => {
+    it('responds already provisioned', async () => {
       await request(app.getHttpServer()).post(ENDPOINT).send()
 
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
@@ -74,12 +78,12 @@ describe('App', () => {
       expect(body).toEqual({ state: 'ACTIVATED' })
     })
 
-    it('does not respond with hashed admin api key', async () => {
+    it('does not respond with hashed admin API key', async () => {
       const { body } = await request(app.getHttpServer()).post(ENDPOINT).send()
 
-      const actualApp = await appService.getAppOrThrow()
+      const actualEngine = await engineService.getEngineOrThrow()
 
-      expect(secret.hash(body.app.adminApiKey)).toEqual(actualApp.adminApiKey)
+      expect(secret.hash(body.app.adminApiKey)).toEqual(actualEngine.adminApiKey)
     })
   })
 })
