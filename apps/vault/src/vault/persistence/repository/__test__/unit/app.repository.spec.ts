@@ -37,8 +37,7 @@ describe(AppRepository.name, () => {
     const app: App = {
       id: 'test-app-id',
       adminApiKey: 'unsafe-test-admin-api-key',
-      masterKey: 'unsafe-test-master-key',
-      activated: true
+      masterKey: 'unsafe-test-master-key'
     }
 
     it('saves a new app', async () => {
