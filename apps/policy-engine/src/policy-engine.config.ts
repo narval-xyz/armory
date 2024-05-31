@@ -16,7 +16,7 @@ const configSchema = z.object({
   }),
   engine: z.object({
     id: z.string(),
-    adminApiKey: z.string().optional(),
+    adminApiKeyHash: z.string().optional(),
     masterKey: z.string().optional()
   }),
   keyring: z.union([
@@ -53,7 +53,7 @@ export const load = (): Config => {
     },
     engine: {
       id: process.env.APP_UID,
-      adminApiKey: process.env.ADMIN_API_KEY,
+      adminApiKeyHash: process.env.ADMIN_API_KEY,
       masterKey: process.env.MASTER_KEY
     },
     keyring: {

@@ -117,6 +117,7 @@ export class AuthorizationRequestService {
     const evaluation = await this.clusterService.evaluate(input.clientId, {
       authentication: input.authentication,
       approvals: input.approvals,
+      metadata: input.metadata,
       request: input.request,
       feeds: [],
       sessionId: uuid() // a random sessionId, used for MPC
