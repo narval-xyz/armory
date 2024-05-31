@@ -1,7 +1,6 @@
 import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { v4 as uuid } from 'uuid'
 import { EntityDataStoreService } from '../../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
 import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
@@ -59,7 +58,7 @@ export class DataStoreController {
       policy: {
         data: [
           {
-            id: uuid(),
+            id: 'admins-full-access',
             description: 'Admins get full access',
             when: [
               {
