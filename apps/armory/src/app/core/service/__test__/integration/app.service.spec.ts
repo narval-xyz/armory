@@ -7,15 +7,16 @@ import { Config, load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { AppRepository } from '../../../../persistence/repository/app.repository'
+import { AlreadyActivatedException } from '../../../exception/app-already-activated.exception'
 import { AppService } from '../../app.service'
 
-const mockConfig = (config: { appId: string; adminApiKey?: string }) => (key: string) => {
+const mockConfig = (config: { appId: string; adminApiKeyHash?: string }) => (key: string) => {
   if (key === 'app.id') {
     return config.appId
   }
 
-  if (key === 'app.adminApiKey') {
-    return config.adminApiKey
+  if (key === 'app.adminApiKeyHash') {
+    return config.adminApiKeyHash
   }
 
   return get(key, config)
@@ -70,12 +71,12 @@ describe(AppService.name, () => {
           configServiceMock.get.mockImplementation(
             mockConfig({
               ...config,
-              adminApiKey
+              adminApiKeyHash: secret.hash(adminApiKey)
             })
           )
         })
 
-        it('saves app with admin api key', async () => {
+        it('saves app with hashed admin api key', async () => {
           await appService.provision()
 
           const actualApp = await appService.getApp()
@@ -86,10 +87,10 @@ describe(AppService.name, () => {
           })
         })
 
-        it('returns the unhashed admin api key', async () => {
+        it('returns the hashed admin api key', async () => {
           const app = await appService.provision()
 
-          expect(app?.adminApiKey).toEqual(adminApiKey)
+          expect(app?.adminApiKey).toEqual(secret.hash(adminApiKey))
         })
       })
 
@@ -121,7 +122,7 @@ describe(AppService.name, () => {
         configServiceMock.get.mockImplementation(
           mockConfig({
             ...config,
-            adminApiKey
+            adminApiKeyHash: adminApiKey
           })
         )
       })
@@ -129,9 +130,7 @@ describe(AppService.name, () => {
       it('returns app is activated when admin api key is set', async () => {
         await appService.provision()
 
-        const result = await appService.activate(adminApiKey)
-
-        expect(result).toEqual({ isActivated: true })
+        await expect(appService.activate(adminApiKey)).rejects.toThrow(AlreadyActivatedException)
       })
     })
 
@@ -144,11 +143,8 @@ describe(AppService.name, () => {
         const result = await appService.activate(adminApiKey)
 
         expect(result).toEqual({
-          isActivated: false,
-          app: {
-            id: config.appId,
-            adminApiKey
-          }
+          id: config.appId,
+          adminApiKey
         })
       })
 

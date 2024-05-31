@@ -3,6 +3,7 @@ import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { Config } from '../../../armory.config'
 import { AppRepository } from '../../persistence/repository/app.repository'
+import { AlreadyActivatedException } from '../exception/app-already-activated.exception'
 import { ProvisionException } from '../exception/provision.exception'
 import { App } from '../type/app.type'
 
@@ -45,20 +46,13 @@ export class AppService {
         id: this.getId()
       }
 
-      const adminApiKey = this.getAdminApiKey()
+      const apiKey = this.getAdminApiKeyHash()
 
-      if (adminApiKey) {
-        const activatedApp: App = {
+      if (apiKey) {
+        return this.save({
           ...provisionedApp,
-          adminApiKey
-        }
-
-        await this.save({
-          ...activatedApp,
-          adminApiKey: secret.hash(adminApiKey)
+          adminApiKey: apiKey
         })
-
-        return activatedApp
       }
 
       return this.save(provisionedApp)
@@ -69,11 +63,11 @@ export class AppService {
     return app
   }
 
-  async activate(adminApiKey: string): Promise<{ isActivated: true } | { isActivated: false; app: App }> {
+  async activate(adminApiKey: string): Promise<App> {
     const app = await this.getOrProvision()
 
-    if (this.isProvisioned(app)) {
-      return { isActivated: true }
+    if (this.isActivated(app)) {
+      throw new AlreadyActivatedException()
     }
 
     await this.appRepository.update({
@@ -81,10 +75,7 @@ export class AppService {
       adminApiKey: secret.hash(adminApiKey)
     })
 
-    return {
-      isActivated: false,
-      app: { ...app, adminApiKey }
-    }
+    return { ...app, adminApiKey }
   }
 
   private async getOrProvision() {
@@ -97,12 +88,12 @@ export class AppService {
     return this.provision()
   }
 
-  isProvisioned(app: App): boolean {
+  private isActivated(app: App): boolean {
     return Boolean(app.adminApiKey)
   }
 
-  private getAdminApiKey(): string | undefined {
-    return this.configService.get('app.adminApiKey')
+  private getAdminApiKeyHash(): string | undefined {
+    return this.configService.get('app.adminApiKeyHash')
   }
 
   private getId(): string {

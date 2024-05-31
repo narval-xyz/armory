@@ -14,7 +14,7 @@ const configSchema = z.object({
   cors: z.array(z.string()).optional(),
   app: z.object({
     id: z.string(),
-    adminApiKey: z.string().optional()
+    adminApiKeyHash: z.string().optional().describe('SHA256 hex encoded API key to import on first boot')
   }),
   policyEngine: z.object({
     nodes: z
@@ -60,7 +60,7 @@ export const load = (): Config => {
     cors: toArray(process.env.CORS),
     app: {
       id: process.env.APP_ID,
-      adminApiKey: process.env.APP_ADMIN_API_KEY
+      adminApiKeyHash: process.env.APP_ADMIN_API_KEY
     },
     policyEngine: {
       nodes: getPolicyEngineNodes()
