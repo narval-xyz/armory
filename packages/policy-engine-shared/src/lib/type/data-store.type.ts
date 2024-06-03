@@ -18,7 +18,7 @@ export const FileSource = z.object({
 export type FileSource = z.infer<typeof FileSource>
 
 export const HttpSource = z.object({
-  type: z.literal(SourceType.HTTP),
+  type: z.enum([SourceType.HTTP, SourceType.HTTPS]),
   url: z.string(),
   headers: z.record(z.string()).optional()
 })

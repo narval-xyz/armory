@@ -1,7 +1,12 @@
-import { EngineClientConfig, pingEngine, sendEvaluationRequest, syncEngine } from '@narval/armory-sdk'
+import {
+  EngineClientConfig,
+  onboardEngineClient,
+  pingEngine,
+  sendEvaluationRequest,
+  syncEngine
+} from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import axios from 'axios'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
@@ -64,39 +69,31 @@ const useEngineApi = () => {
         policyPublicKey
       } = engineClientData
 
-      const { data: client } = await axios.post(
-        `${engineUrl}/clients`,
-        {
-          clientId,
-          entityDataStore: {
-            data: {
-              type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl
-            },
-            signature: {
-              type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl
-            },
-            keys: [JSON.parse(entityPublicKey)]
+      const client = await onboardEngineClient(engineUrl, engineAdminApiKey, {
+        clientId,
+        entityDataStore: {
+          data: {
+            type: getUrlProtocol(entityDataStoreUrl),
+            url: entityDataStoreUrl
           },
-          policyDataStore: {
-            data: {
-              type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
-            },
-            signature: {
-              type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
-            },
-            keys: [JSON.parse(policyPublicKey)]
-          }
+          signature: {
+            type: getUrlProtocol(entityDataStoreUrl),
+            url: entityDataStoreUrl
+          },
+          keys: [JSON.parse(entityPublicKey)]
         },
-        {
-          headers: {
-            'x-api-key': engineAdminApiKey
-          }
+        policyDataStore: {
+          data: {
+            type: getUrlProtocol(policyDataStoreUrl),
+            url: policyDataStoreUrl
+          },
+          signature: {
+            type: getUrlProtocol(policyDataStoreUrl),
+            url: policyDataStoreUrl
+          },
+          keys: [JSON.parse(policyPublicKey)]
         }
-      )
+      })
 
       setIsProcessing(false)
 
