@@ -13,6 +13,7 @@ import { MANAGED_ENTITY_DATA_STORE_URL, MANAGED_POLICY_DATA_STORE_URL } from '..
 
 const initForm: AuthClientData = {
   authServerUrl: '',
+  authAdminApiKey: '',
   id: '',
   name: '',
   entityDataStoreUrl: '',
@@ -24,6 +25,7 @@ const initForm: AuthClientData = {
 const AddAuthClientModal = () => {
   const {
     authServerUrl,
+    authAdminApiKey,
     setEngineClientId,
     setEngineClientSecret,
     setEngineClientSigner,
@@ -80,6 +82,7 @@ const AddAuthClientModal = () => {
 
     updateForm({
       authServerUrl,
+      authAdminApiKey,
       entityDataStoreUrl: `${MANAGED_ENTITY_DATA_STORE_URL}${form.id}`,
       policyDataStoreUrl: `${MANAGED_POLICY_DATA_STORE_URL}${form.id}`,
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
@@ -107,6 +110,11 @@ const AddAuthClientModal = () => {
                 label="Auth Server URL"
                 value={form.authServerUrl}
                 onChange={(authServerUrl) => updateForm({ authServerUrl })}
+              />
+              <NarInput
+                label="Admin API Key"
+                value={form.authAdminApiKey}
+                onChange={(authAdminApiKey) => updateForm({ authAdminApiKey })}
               />
               <NarInput label="Name" value={form.name} onChange={(name) => updateForm({ name })} />
               <div className="flex gap-[8px] items-end">

@@ -3,6 +3,7 @@ import { AUTH_SERVER_URL, ENGINE_URL, LOCAL_DATA_STORE_URL, LOCAL_STORAGE_KEYS, 
 
 const useStore = () => {
   const [authServerUrl, setAuthServerUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.authServerUrl, AUTH_SERVER_URL)
+  const [authAdminApiKey, setAuthAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.authAdminApiKey, '')
 
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
   const [engineClientSigner, setEngineClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSigner, '')
@@ -28,6 +29,8 @@ const useStore = () => {
   return {
     authServerUrl,
     setAuthServerUrl,
+    authAdminApiKey,
+    setAuthAdminApiKey,
     engineUrl,
     setEngineUrl,
     engineClientSigner,
