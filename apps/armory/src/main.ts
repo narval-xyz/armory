@@ -2,6 +2,7 @@ import { ConfigService } from '@narval/config-module'
 import { withCors, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import cookieParser from 'cookie-parser'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
 import { ArmoryModule } from './armory.module'
@@ -53,6 +54,23 @@ const withGlobalFilters =
   }
 
 /**
+ * Adds a cookie parser to the application.
+ *
+ * The cookie capability is needed by the AdminCookieMiddleware used by the
+ * QueueModule to secure the Bull dashboard.
+ *
+ * @param app - The Nest application instance.
+ * @returns The modified Nest application instance.
+ */
+const withCookieParser =
+  (secret: string) =>
+  (app: INestApplication): INestApplication => {
+    app.use(cookieParser(secret))
+
+    return app
+  }
+
+/**
  * Boots up the armory application.
  *
  * @returns {Promise<void>} A promise that resolves when the application is
@@ -81,6 +99,7 @@ async function bootstrap(): Promise<void> {
       map(withGlobalInterceptors),
       map(withGlobalFilters(configService)),
       map(withCors(configService.get('cors'))),
+      map(withCookieParser(configService.get('app.id'))),
       switchMap((app) => app.listen(port))
     )
   )

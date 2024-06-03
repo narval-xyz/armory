@@ -26,7 +26,7 @@ describe(TransferTrackingService.name, () => {
           load: [load],
           isGlobal: true
         }),
-        QueueModule.forRoot(),
+        QueueModule.register(),
         PersistenceModule,
         TransferTrackingModule
       ]

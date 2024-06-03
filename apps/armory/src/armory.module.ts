@@ -4,6 +4,7 @@ import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } fr
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AppModule } from './app/app.module'
 import { AppService } from './app/core/service/app.service'
+import { AdminCookieMiddleware } from './app/http/middleware/admin-cookie.middleware'
 import { load } from './armory.config'
 import { ArmoryController } from './armory.controller'
 import { ClientModule } from './client/client.module'
@@ -17,7 +18,17 @@ const INFRASTRUCTURE_MODULES = [
     load: [load],
     isGlobal: true
   }),
-  QueueModule.forRoot()
+  QueueModule.registerAsync({
+    imports: [AppModule],
+    inject: [AdminCookieMiddleware],
+    useFactory: (adminCookieMiddleware: AdminCookieMiddleware) => {
+      return {
+        dashboard: {
+          auth: adminCookieMiddleware
+        }
+      }
+    }
+  })
 ]
 
 const DOMAIN_MODULES = [AppModule, OrchestrationModule, TransferTrackingModule, ManagedDataStoreModule, ClientModule]

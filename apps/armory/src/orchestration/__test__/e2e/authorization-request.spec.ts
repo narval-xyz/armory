@@ -53,7 +53,7 @@ describe('Authorization Request', () => {
           load: [load],
           isGlobal: true
         }),
-        QueueModule.forRoot(),
+        QueueModule.register(),
         PersistenceModule,
         OrchestrationModule
       ]

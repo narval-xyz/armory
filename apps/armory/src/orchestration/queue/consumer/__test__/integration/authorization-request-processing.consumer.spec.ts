@@ -91,7 +91,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
           load: [load],
           isGlobal: true
         }),
-        QueueModule.forRoot(),
+        QueueModule.register(),
         PersistenceModule,
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE

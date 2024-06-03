@@ -54,7 +54,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
           load: [load],
           isGlobal: true
         }),
-        QueueModule.forRoot(),
+        QueueModule.register(),
         PersistenceModule,
         PolicyEngineModule,
         BullModule.registerQueue({
