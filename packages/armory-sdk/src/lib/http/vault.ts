@@ -1,6 +1,5 @@
-import { Action, EvaluationRequest, SerializedRequest } from '@narval/policy-engine-shared'
+import { SerializedRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { v4 } from 'uuid'
 import { privateKeyToAddress } from 'viem/accounts'
 import {
   ArmoryClientConfig,
@@ -8,15 +7,12 @@ import {
   Htm,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
-  Permission,
-  SdkEvaluationResponse,
   SignatureRequest,
   SignatureResponse,
   VaultClientConfig
 } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { buildGnapVaultHeaders, resourceId, signAccountJwsd } from '../utils'
-import { sendEvaluationRequest } from './policy-engine'
 
 export const pingVault = async (config: VaultClientConfig): Promise<void> => {
   try {
@@ -60,33 +56,32 @@ export const signRequest = async (
 export const importPrivateKey = async (
   config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
-): Promise<SdkEvaluationResponse | ImportPrivateKeyResponse> => {
-  const { privateKey } = request
+): Promise<ImportPrivateKeyResponse> => {
+  const { privateKey, accessToken } = request
   const walletId = resourceId(request.walletId || privateKeyToAddress(privateKey))
   const payload = { privateKey, walletId }
 
   try {
-    let accessToken = request.accessToken
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    if (!accessToken || !accessToken.value) {
-      const grantPermissionRequest = EvaluationRequest.parse({
-        authentication: 'missing',
-        request: {
-          action: Action.GRANT_PERMISSION,
-          resourceId: walletId,
-          nonce: v4(),
-          permissions: [Permission.WALLET_CREATE]
-        }
-      })
-      const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
+    // if (!accessToken || !accessToken.value) {
+    //   const grantPermissionRequest = EvaluationRequest.parse({
+    //     authentication: 'missing',
+    //     request: {
+    //       action: Action.GRANT_PERMISSION,
+    //       resourceId: walletId,
+    //       nonce: v4(),
+    //       permissions: [Permission.WALLET_CREATE]
+    //     }
+    //   })
+    //   const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
 
-      if (!evaluationResponse.accessToken) {
-        return SdkEvaluationResponse.parse(evaluationResponse)
-      }
+    //   if (!evaluationResponse.accessToken) {
+    //     return SdkEvaluationResponse.parse(evaluationResponse)
+    //   }
 
-      accessToken = evaluationResponse.accessToken
-    }
+    //   accessToken = evaluationResponse.accessToken
+    // }
 
     const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`
 

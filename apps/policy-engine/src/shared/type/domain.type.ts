@@ -30,13 +30,8 @@ export type Client = z.infer<typeof Client>
 
 export const Engine = z.object({
   id: z.string().min(1),
-  adminApiKey: z.string().min(1),
-  masterKey: z.string().min(1).optional(),
-  /**
-   * An engine can generate keys and set up encryption at boot, but is not
-   * active until the Admin API Key has been sent.
-   */
-  activated: z.coerce.boolean()
+  adminApiKey: z.string().min(1).optional(),
+  masterKey: z.string().min(1).optional()
 })
 export type Engine = z.infer<typeof Engine>
 

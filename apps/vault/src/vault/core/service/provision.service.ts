@@ -1,90 +1,89 @@
 import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
 import { Injectable, Logger } from '@nestjs/common'
 import { Config } from '../../../main.config'
 import { App } from '../../../shared/type/domain.type'
+import { ProvisionException } from '../exception/provision.exception'
 import { AppService } from './app.service'
 
 @Injectable()
 export class ProvisionService {
   private logger = new Logger(ProvisionService.name)
 
+  // IMPORTANT: The provision service establishes encryption. Therefore, you
+  // cannot have dependencies that rely on encryption to function. If you do,
+  // you'll ran into an error due to a missing keyring.
+  // Any process that requires encryption should be handled in the
+  // BootstrapService.
   constructor(
     private configService: ConfigService<Config>,
     private appService: AppService
   ) {}
 
-  async provision(activate?: boolean): Promise<App | null> {
-    let app = await this.appService.getApp()
+  // NOTE: The `adminApiKeyHash` argument is for test convinience in case it
+  // needs to provision the application.
+  async provision(adminApiKeyHash?: string): Promise<App> {
+    const app = await this.appService.getApp()
 
-    const isFirstTime = app === null
+    const isFirstBoot = app === null
 
-    // IMPORTANT: The order of internal methods call matters.
-    if (isFirstTime) {
+    if (isFirstBoot) {
       this.logger.log('Start app provision')
-      app = await this.createApp(activate)
-      app = await this.maybeSetupEncryption()
-    } else {
-      this.logger.log('app already provisioned')
+
+      const provisionedApp: App = await this.withMasterKey({
+        id: this.getId()
+      })
+
+      const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
+
+      if (apiKey) {
+        this.logger.log('Import admin API key hash')
+
+        return this.appService.save({
+          ...provisionedApp,
+          adminApiKey: apiKey
+        })
+      }
+
+      return this.appService.save(provisionedApp)
     }
+
+    this.logger.log('App already provisioned')
+
     return app
   }
 
-  // Activate is just a boolean that lets you return the adminApiKey one time.
-  // This enables you to provision the app at first-boot without access to the
-  // console, then to activate it to retrieve the api key through a REST
-  // endpoint.
-  async activate(): Promise<App> {
-    this.logger.log('Activate app')
-
-    return this.appService.update({
-      activated: true,
-      adminApiKey: this.getOrGenerateAdminApiKey()
-    })
-  }
-
-  private async createApp(activate?: boolean): Promise<App> {
-    this.logger.log('Generate admin API key and save app')
-
-    const app = await this.appService.save({
-      id: this.getAppId(),
-      adminApiKey: this.getOrGenerateAdminApiKey(),
-      activated: !!activate
-    })
-    return app
-  }
-
-  private async maybeSetupEncryption(): Promise<App> {
-    // Get the app's latest state.
-    const app = await this.appService.getAppOrThrow()
-
+  private async withMasterKey(app: App): Promise<App> {
     if (app.masterKey) {
       this.logger.log('Skip master key set up because it already exists')
+
       return app
     }
 
     const keyring = this.configService.get('keyring')
 
     if (keyring.type === 'raw') {
-      this.logger.log('Generate and save app master key')
+      this.logger.log('Generate and save engine master key')
 
       const { masterPassword } = keyring
-      const kek = generateKeyEncryptionKey(masterPassword, this.getAppId())
+      const kek = generateKeyEncryptionKey(masterPassword, this.getId())
       const masterKey = await generateMasterKey(kek)
 
-      return await this.appService.update({ masterKey })
+      return { ...app, masterKey }
     } else if (keyring.type === 'awskms' && keyring.masterAwsKmsArn) {
       this.logger.log('Using AWS KMS for encryption')
+
+      return app
+    } else {
+      throw new ProvisionException('Unsupported keyring type')
     }
-    return app
   }
 
-  private getOrGenerateAdminApiKey(): string {
-    return secret.hash(this.configService.get('app.adminApiKey') || secret.generate())
+  private getAdminApiKeyHash(): string | undefined {
+    return this.configService.get('app.adminApiKeyHash')
   }
 
-  private getAppId(): string {
+  private getId(): string {
     return this.configService.get('app.id')
   }
 }

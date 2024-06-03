@@ -37,9 +37,8 @@ export type Client = z.infer<typeof Client>
 
 export const App = z.object({
   id: z.string().min(1),
-  adminApiKey: z.string().min(1),
-  masterKey: z.string().min(1).optional(),
-  activated: z.coerce.boolean()
+  adminApiKey: z.string().min(1).optional(),
+  masterKey: z.string().min(1).optional()
 })
 export type App = z.infer<typeof App>
 

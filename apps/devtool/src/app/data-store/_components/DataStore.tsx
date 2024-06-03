@@ -3,6 +3,7 @@
 import { faArrowRightArrowLeft } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
+import AddUserModal from '../../_components/AddUserModal'
 import ErrorStatus from '../../_components/ErrorStatus'
 import SuccessStatus from '../../_components/SuccessStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
@@ -68,8 +69,9 @@ const DataStore = () => {
           <div className="flex items-center gap-[8px]">
             <ErrorStatus label={errors} />
             <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
+            <AddUserModal />
             <NarButton
-              variant="tertiary"
+              variant="secondary"
               label={`Use ${isUsingManagedDataStore ? 'Local Data Store' : 'Managed Data Store'}`}
               leftIcon={<FontAwesomeIcon icon={faArrowRightArrowLeft} />}
               onClick={switchDataStore}

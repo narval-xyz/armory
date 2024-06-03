@@ -53,8 +53,7 @@ describe('Client', () => {
     await appService.save({
       id: configService.get('app.id'),
       masterKey: 'test-master-key',
-      adminApiKey: secret.hash(adminApiKey),
-      activated: true
+      adminApiKey: secret.hash(adminApiKey)
     })
 
     await app.init()

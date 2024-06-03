@@ -160,7 +160,19 @@ describe('Data Store', () => {
 
       expect(body).toEqual({
         policy: {
-          data: [],
+          data: [
+            {
+              id: 'admins-full-access',
+              description: 'Admins get full access',
+              when: [
+                {
+                  criterion: Criterion.CHECK_PRINCIPAL_ROLE,
+                  args: [UserRole.ADMIN]
+                }
+              ],
+              then: Then.PERMIT
+            }
+          ],
           signature: ''
         }
       })

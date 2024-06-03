@@ -1,6 +1,7 @@
 import { Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { secret } from '@narval/nestjs-shared'
 import {
   Alg,
   Payload,
@@ -105,8 +106,7 @@ describe('Generate', () => {
     await appService.save({
       id: configService.get('app.id'),
       masterKey: 'test-master-key',
-      adminApiKey: 'test-admin-api-key',
-      activated: true
+      adminApiKey: secret.hash('test-admin-api-key')
     })
 
     await clientService.save(client)

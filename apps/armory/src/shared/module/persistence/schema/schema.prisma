@@ -12,6 +12,15 @@ datasource db {
   url      = env("APP_DATABASE_URL")
 }
 
+model Application {
+  id              String   @id @default(uuid()) @db.VarChar(255)
+  adminApiKey     String?  @map("admin_api_key")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("application")
+}
+
 model Client {
   id              String   @id @default(uuid()) @db.VarChar(255)
   name            String
