@@ -37,6 +37,18 @@ make docker/up
 make docker/stop
 ```
 
+Optionally, you can run the Armory stack using a policy engine MPC cluster to
+attest decisions.
+
+```bash
+make docker/stack/up
+make docker/stack/down
+```
+
+> [!IMPORTANT]  
+> Today, the MPC cluster depends on a privately licensed TSM software that is
+> not included in this repository.  
+
 ## Testing
 
 To run tests across all existing projects, you can use the following commands:

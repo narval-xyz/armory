@@ -28,7 +28,7 @@ setup:
 	make install
 	make docker/up
 	make armory/setup
-	make vault/setup 
+	make vault/setup
 	make policy-engine/setup
 	@echo ""
 	@echo "${TERM_GREEN}🐋 Applications are ready!${TERM_NO_COLOR}"
@@ -40,6 +40,19 @@ docker/stop:
 
 docker/up:
 	docker-compose up --detach
+
+docker/stack/up:
+	docker-compose --file ./docker-compose.stack.yml up --detach
+
+docker/stack/stop:
+	docker-compose --file ./docker-compose.stack.yml stop
+
+docker/local/build:
+	docker buildx build \
+		--platform linux/arm64 \
+		--file local.dockerfile \
+		--tag armory/local:latest \
+		. --load
 
 # === Code format ===
 
@@ -76,18 +89,3 @@ test:
 	make test/unit
 	make test/integration
 	make test/e2e
-
-# === Docker ===
-
-docker/local/build:
-	docker buildx build \
-		--platform linux/arm64 \
-		--file local.dockerfile \
-		--tag armory/local:latest \
-		. --load
-
-docker/local/start:
-	docker-compose up -d
-
-docker/local/stop:
-	docker-compose stop
