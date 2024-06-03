@@ -1,5 +1,6 @@
 import {
   AccessToken,
+  DataStoreConfiguration,
   Decision,
   EntityData,
   Request,
@@ -7,18 +8,28 @@ import {
   hexSchema,
   policySchema
 } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, jwkSchema, privateKeySchema } from '@narval/signature'
+import {
+  Payload,
+  SigningAlg,
+  jwkSchema,
+  privateKeySchema,
+  publicKeySchema,
+  rsaPublicKeySchema
+} from '@narval/signature'
 import { z } from 'zod'
 
 export const Endpoints = {
   armory: {
+    onboardClient: '/clients',
     authorizeRequest: '/authorization-requests'
   },
   engine: {
+    onboardClient: '/clients',
     evaluations: '/evaluations',
     sync: '/clients/sync'
   },
   vault: {
+    onboardClient: '/clients',
     sign: '/sign',
     importPrivateKey: '/import/private-keys',
     importSeed: '/import/seeds',
@@ -182,3 +193,91 @@ export const AuthorizationRequest = z.object({
   approvals: z.array(z.string())
 })
 export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>
+
+export const PolicyEngineNode = z.object({
+  id: z.string().min(1),
+  clientId: z.string().min(1),
+  clientSecret: z.string().min(1).describe('plaintext secret for authenticating to this node'),
+  publicKey: publicKeySchema,
+  url: z.string().url()
+})
+export type PolicyEngineNode = z.infer<typeof PolicyEngineNode>
+
+export const OnboardArmoryClientRequest = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  dataStore: z.object({
+    entity: DataStoreConfiguration,
+    policy: DataStoreConfiguration
+  })
+})
+export type OnboardArmoryClientRequest = z.infer<typeof OnboardArmoryClientRequest>
+
+export const OnboardArmoryClientResponse = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  dataStore: z.object({
+    entityPublicKey: jwkSchema,
+    policyPublicKey: jwkSchema
+  }),
+  policyEngine: z.object({
+    nodes: z.array(PolicyEngineNode)
+  })
+})
+export type OnboardArmoryClientResponse = z.infer<typeof OnboardArmoryClientResponse>
+
+export const OnboardEngineClientRequest = z.object({
+  clientId: z.string().optional(),
+  clientSecret: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('a secret to be used to authenticate the client, sha256 hex-encoded. If null, will be generated.'), // can be generated with `echo -n "my-api-key" | openssl dgst -sha256 | awk '{print $2}'`
+  keyId: z.string().optional().describe('A unique identifier for key that will be used to sign JWTs'),
+  entityDataStore: DataStoreConfiguration,
+  policyDataStore: DataStoreConfiguration
+})
+export type OnboardEngineClientRequest = z.infer<typeof OnboardEngineClientRequest>
+
+export const OnboardEngineClientResponse = z.object({
+  clientId: z.string(),
+  clientSecret: z.string(),
+  dataStore: z.object({
+    entity: DataStoreConfiguration,
+    policy: DataStoreConfiguration
+  }),
+  signer: z.object({
+    publicKey: publicKeySchema
+  }),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+})
+export type OnboardEngineClientResponse = z.infer<typeof OnboardEngineClientResponse>
+
+export const OnboardVaultClientRequest = z.object({
+  clientId: z.string().optional(),
+  engineJwk: publicKeySchema.optional(),
+  audience: z.string().optional(),
+  issuer: z.string().optional(),
+  maxTokenAge: z.number().optional(),
+  backupPublicKey: rsaPublicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
+  baseUrl: z.string().optional()
+})
+export type OnboardVaultClientRequest = z.infer<typeof OnboardVaultClientRequest>
+
+export const OnboardVaultClientResponse = z.object({
+  clientId: z.string(),
+  engineJwk: publicKeySchema.optional(),
+  audience: z.string().optional(),
+  issuer: z.string().optional(),
+  maxTokenAge: z.number().optional(),
+  backupPublicKey: rsaPublicKeySchema.optional(),
+  allowKeyExport: z.boolean().optional(),
+  baseUrl: z.string().optional(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+})
+export type OnboardVaultClientResponse = z.infer<typeof OnboardVaultClientResponse>
