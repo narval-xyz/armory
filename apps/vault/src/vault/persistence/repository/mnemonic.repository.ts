@@ -31,6 +31,11 @@ export class MnemonicRepository {
     return null
   }
 
+  async findByClientId(clientId: string): Promise<RootKey[]> {
+    const values = await this.keyValueService.find({ clientId, collection: this.KEY_PREFIX })
+    return values ? values.map((value) => coerce.decode(RootKey, value)) : []
+  }
+
   async save(clientId: string, key: RootKey): Promise<RootKey> {
     await this.keyValueService.set(
       this.getKey(clientId, key.keyId.toLowerCase()),

@@ -32,6 +32,11 @@ export class ImportRepository {
     return null
   }
 
+  async findByClientId(clientId: string): Promise<ImportKey[]> {
+    const values = await this.keyValueService.find(this.getMetadata(clientId))
+    return values ? values.map((value) => coerce.decode(ImportKey, value)) : []
+  }
+
   async save(clientId: string, privateKey: RsaPrivateKey): Promise<ImportKey> {
     const createdAt = Date.now() / 1000
     const importKey: ImportKey = {

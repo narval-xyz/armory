@@ -78,6 +78,49 @@ describe(WalletRepository.name, () => {
     })
   })
 
+  describe('findByClientId', () => {
+    const clientId = 'test-client-id'
+    const secondClientId = 'test-client-id-2'
+    const privateKey = generatePrivateKey()
+    const account = privateKeyToAccount(privateKey)
+    const secondPrivateKey = generatePrivateKey()
+    const secondAccount = privateKeyToAccount(secondPrivateKey)
+    const thirdPrivateKey = generatePrivateKey()
+    const thirdAccount = privateKeyToAccount(thirdPrivateKey)
+    const wallet: PrivateWallet = {
+      id: 'test-WALLET-ID',
+      privateKey,
+      address: account.address,
+      origin: Origin.GENERATED,
+      publicKey: account.publicKey
+    }
+    const secondWallet: PrivateWallet = {
+      id: 'test-WALLET-ID-2',
+      privateKey: secondPrivateKey,
+      address: secondAccount.address,
+      origin: Origin.IMPORTED,
+      publicKey: secondAccount.publicKey
+    }
+    const thirdWallet: PrivateWallet = {
+      id: 'test-WALLET-ID-3',
+      privateKey: thirdPrivateKey,
+      address: thirdAccount.address,
+      origin: Origin.IMPORTED,
+      publicKey: thirdAccount.publicKey
+    }
+    it('find all wallets for a given client', async () => {
+      await repository.save(clientId, wallet)
+      await repository.save(clientId, secondWallet)
+      await repository.save(secondClientId, thirdWallet)
+
+      const wallets = await repository.findByClientId(clientId)
+      expect(wallets).toEqual([wallet, secondWallet])
+
+      const secondWallets = await repository.findByClientId(secondClientId)
+      expect(secondWallets).toEqual([thirdWallet])
+    })
+  })
+
   describe('findById', () => {
     it('uses lower case id', async () => {
       jest.spyOn(inMemoryKeyValueRepository, 'get')

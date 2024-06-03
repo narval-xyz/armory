@@ -50,7 +50,7 @@ describe(EncryptKeyValueService.name, () => {
       expect(await service.get(key)).toEqual(value)
     })
   })
-  describe('findByMetadata', () => {
+  describe('findByClientId', () => {
     it('finds all values for a given collection', async () => {
       const key1 = 'test-key-1'
       const value1 = 'plain value 1'
@@ -63,7 +63,7 @@ describe(EncryptKeyValueService.name, () => {
       await service.set(key2, value2, { collection: Collection.MNEMONIC })
       await service.set(key3, value3, { collection: Collection.WALLET })
 
-      expect(await service.findByMetadata({ collection: Collection.MNEMONIC })).toEqual([value1, value2])
+      expect(await service.find({ collection: Collection.MNEMONIC })).toEqual([value1, value2])
     })
 
     it('finds all values for a given collenction and clientId', async () => {
@@ -78,7 +78,7 @@ describe(EncryptKeyValueService.name, () => {
       await service.set(key2, value2, { collection: Collection.MNEMONIC, clientId: 'client-2' })
       await service.set(key3, value3, { collection: Collection.WALLET, clientId: 'client-1' })
 
-      expect(await service.findByMetadata({ collection: Collection.MNEMONIC, clientId: 'client-1' })).toEqual([value1])
+      expect(await service.find({ collection: Collection.MNEMONIC, clientId: 'client-1' })).toEqual([value1])
     })
   })
 })

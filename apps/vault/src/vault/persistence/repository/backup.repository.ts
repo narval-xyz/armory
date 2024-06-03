@@ -30,6 +30,11 @@ export class BackupRepository {
     return null
   }
 
+  async findByClientId(clientId: string): Promise<Backup[]> {
+    const values = await this.keyValueService.find(this.getMetadata(clientId))
+    return values ? values.map((value) => coerce.decode(Backup, value)) : []
+  }
+
   async save(clientId: string, key: Backup): Promise<Backup> {
     await this.keyValueService.set(
       this.getKey(clientId, key.keyId),

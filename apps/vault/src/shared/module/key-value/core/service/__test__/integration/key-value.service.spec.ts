@@ -43,7 +43,7 @@ describe(KeyValueService.name, () => {
     })
   })
 
-  describe('findByMetadata', () => {
+  describe('findByClientId', () => {
     it('returns all values for a given collection', async () => {
       const key1 = 'test-key-1'
       const value1 = 'plain value 1'

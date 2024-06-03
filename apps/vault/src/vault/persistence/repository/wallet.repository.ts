@@ -31,6 +31,11 @@ export class WalletRepository {
     return null
   }
 
+  async findByClientId(clientId: string): Promise<PrivateWallet[]> {
+    const values = await this.keyValueService.find(this.getMetadata(clientId))
+    return values ? values.map((value) => coerce.decode(PrivateWallet, value)) : []
+  }
+
   async save(clientId: string, wallet: PrivateWallet): Promise<PrivateWallet> {
     await this.keyValueService.set(
       this.getKey(clientId, wallet.id.toLowerCase()),

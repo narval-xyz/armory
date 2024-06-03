@@ -15,7 +15,7 @@ export class EncryptKeyValueService {
     private encryptionService: EncryptionService
   ) {}
 
-  async findByMetadata(metadata: KeyMetadata): Promise<string[] | null> {
+  async find(metadata: KeyMetadata): Promise<string[] | null> {
     const encryptedValues = await this.keyValueRepository.find(metadata)
 
     if (!encryptedValues) {
@@ -44,7 +44,6 @@ export class EncryptKeyValueService {
 
   async set(key: string, value: string, metadata: KeyMetadata): Promise<boolean> {
     const encryptedValue = await this.encryptionService.encrypt(value)
-
     return this.keyValueRepository.set(key, encryptedValue.toString('hex'), metadata)
   }
 
