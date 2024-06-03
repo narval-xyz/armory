@@ -13,6 +13,8 @@ import { capitalize } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarButton from '../_design-system/NarButton'
+import NarCollapsible from '../_design-system/NarCollapsible'
+import NarCopyButton from '../_design-system/NarCopyButton'
 import NarDialog from '../_design-system/NarDialog'
 import NarDropdownMenu, { DropdownItem } from '../_design-system/NarDropdownMenu'
 import NarInput from '../_design-system/NarInput'
@@ -22,6 +24,7 @@ import useEngineApi from '../_hooks/useEngineApi'
 
 enum Steps {
   AddUser,
+  AddUserSuccess,
   SignAndPush,
   SyncEngine
 }
@@ -64,6 +67,7 @@ const AddUserModal = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isEngineSynced, setIsEngineSynced] = useState(false)
   const [userForm, setUserForm] = useState<AddUserForm>(initUserFormState)
+  const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
   const isFormValid = useMemo(() => {
     const isValidUserRole = userForm.role && userRoleSchema.safeParse(userForm.role).success
@@ -84,6 +88,13 @@ const AddUserModal = () => {
       setIsEngineSynced(isSynced)
     }
   }, [isSynced])
+
+  const btnLabel = useMemo(() => {
+    if (isEngineSynced) {
+      return 'Ok'
+    }
+    return newEntityStore ? 'Sign and Push' : 'Add'
+  }, [isEngineSynced, newEntityStore])
 
   const handleClose = () => {
     setIsDialogOpen(false)
@@ -134,7 +145,20 @@ const AddUserModal = () => {
         credentials: [...currentCredentials, newUserCredential]
       }
 
-      await signAndPushEntity(entities)
+      setNewEntityStore(entities)
+      setCurrentStep(Steps.AddUserSuccess)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleSignAndPush = async () => {
+    if (!newEntityStore) return
+
+    try {
+      setIsProcessing(true)
+
+      await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.SignAndPush)
 
       await syncEngine()
@@ -150,11 +174,11 @@ const AddUserModal = () => {
     <NarDialog
       triggerButton={<NarButton label="Add User" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
       title="Add User"
-      primaryButtonLabel={isEngineSynced ? 'Ok' : 'Sign and Push'}
+      primaryButtonLabel={btnLabel}
       isOpen={isDialogOpen}
       onOpenChange={(val) => (val ? setIsDialogOpen(val) : handleClose())}
       onDismiss={handleClose}
-      onSave={handleSave}
+      onSave={newEntityStore ? handleSignAndPush : handleSave}
       isSaving={isProcessing}
       isConfirm={currentStep === Steps.SyncEngine}
       isSaveDisabled={isProcessing || !isFormValid}
@@ -241,9 +265,21 @@ const AddUserModal = () => {
                 setIsDropdownOpen(false)
               }}
             />
+          </div>
+        )}
+        {currentStep === Steps.AddUserSuccess && (
+          <div className="flex flex-col gap-[8px]">
             <p className="text-nv-xs italic">
               To add a user with its credentials you must <u>update, sign and push</u> your entity data store.
             </p>
+            <NarCollapsible title="Entity Data Store">
+              <div className="flex flex-col gap-[16px] max-h-[500px]">
+                <div className="flex">
+                  <NarCopyButton variant="primary" copy={JSON.stringify(newEntityStore)} />
+                </div>
+                <pre>{JSON.stringify(newEntityStore, null, 2)}</pre>
+              </div>
+            </NarCollapsible>
           </div>
         )}
         {currentStep === Steps.SignAndPush && (
