@@ -5,6 +5,8 @@ import { AccountType, Entities } from '@narval/policy-engine-shared'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'
 import NarButton from '../_design-system/NarButton'
+import NarCollapsible from '../_design-system/NarCollapsible'
+import NarCopyButton from '../_design-system/NarCopyButton'
 import NarDialog from '../_design-system/NarDialog'
 import NarInput from '../_design-system/NarInput'
 import useDataStoreApi from '../_hooks/useDataStoreApi'
@@ -34,6 +36,7 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
   const [privateKey, setPrivateKey] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [importedWallet, setImportedWallet] = useState<ImportPrivateKeyResponse>()
+  const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
   useEffect(() => {
     setAccessToken(props.accessToken)
@@ -61,27 +64,21 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
   }
 
   const handleSave = async () => {
-    try {
-      setIsProcessing(true)
-      const result = await props.import(privateKey, accessToken)
-      setImportedWallet(result)
-      setCurrentStep(Steps.ImportPrivateKeySuccess)
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
-  const handleSignAndPush = async () => {
-    if (!entityStore || !importedWallet) return
+    if (!entityStore) return
 
     try {
       setIsProcessing(true)
+
+      const wallet = await props.import(privateKey, accessToken)
+
+      if (!wallet) return
 
       const newWallet = {
-        id: importedWallet.id,
-        address: importedWallet.address,
+        id: wallet.id,
+        address: wallet.address,
         accountType: AccountType.EOA
       }
+
       const { wallets: currentWallets } = entityStore.data
 
       const entities: Entities = {
@@ -89,7 +86,21 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
         wallets: [...currentWallets, newWallet]
       }
 
-      await signAndPushEntity(entities)
+      setImportedWallet(wallet)
+      setNewEntityStore(entities)
+      setCurrentStep(Steps.ImportPrivateKeySuccess)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleSignAndPush = async () => {
+    if (!newEntityStore || !importedWallet) return
+
+    try {
+      setIsProcessing(true)
+
+      await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.SignAndPush)
 
       await syncEngine()
@@ -109,7 +120,7 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
       onDismiss={handleClose}
       onSave={importedWallet ? handleSignAndPush : handleSave}
       isSaving={isProcessing}
-      isConfirm={isEngineSynced}
+      isConfirm={currentStep === Steps.SyncEngine}
       isSaveDisabled={!privateKey || isProcessing}
     >
       <div className="w-[650px] px-12 py-4">
@@ -138,6 +149,14 @@ const ImportPrivateKeyModal: FC<ImportPrivateKeyModalProps> = (props) => {
               To start using this wallet you must <u>update, sign and push</u> your entity data store. Do you want to do
               it now?
             </p>
+            <NarCollapsible title="Entity Data Store">
+              <div className="flex flex-col gap-[16px] max-h-[500px]">
+                <div className="flex">
+                  <NarCopyButton variant="primary" copy={JSON.stringify(newEntityStore)} />
+                </div>
+                <pre>{JSON.stringify(newEntityStore, null, 2)}</pre>
+              </div>
+            </NarCollapsible>
           </div>
         )}
         {currentStep === Steps.SignAndPush && (
