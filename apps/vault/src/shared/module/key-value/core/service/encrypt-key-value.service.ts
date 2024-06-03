@@ -21,6 +21,7 @@ export class EncryptKeyValueService {
     if (!encryptedValues) {
       return null
     }
+
     return Promise.all(
       encryptedValues.map(async (encryptedValue) => {
         const value = await this.encryptionService.decrypt(Buffer.from(encryptedValue, 'hex'))

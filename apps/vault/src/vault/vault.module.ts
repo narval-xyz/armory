@@ -10,12 +10,14 @@ import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
+import { AdminService } from './core/service/admin.service'
 import { AppService } from './core/service/app.service'
 import { ImportService } from './core/service/import.service'
 import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
+import { AdminController } from './http/rest/controller/admin.controller'
 import { GenerationController } from './http/rest/controller/generation.controller'
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
@@ -40,10 +42,18 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => ClientModule)
   ],
-  controllers: [VaultController, ImportController, SignController, ProvisionController, GenerationController],
+  controllers: [
+    VaultController,
+    ImportController,
+    SignController,
+    ProvisionController,
+    GenerationController,
+    AdminController
+  ],
   providers: [
     AppRepository,
     AppService,
+    AdminService,
     ImportRepository,
     ImportService,
     NonceGuard,
