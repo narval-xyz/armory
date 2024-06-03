@@ -1,12 +1,15 @@
 import { SerializedRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { privateKeyToAddress } from 'viem/accounts'
+import { HEADER_ADMIN_API_KEY } from '../constants'
 import {
   ArmoryClientConfig,
   Endpoints,
   Htm,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
+  OnboardVaultClientRequest,
+  OnboardVaultClientResponse,
   SignatureRequest,
   SignatureResponse,
   VaultClientConfig
@@ -19,6 +22,25 @@ export const pingVault = async (config: VaultClientConfig): Promise<void> => {
     return axios.get(config.vaultHost)
   } catch (error) {
     throw new NarvalSdkException('Failed to ping vault', { config, error })
+  }
+}
+
+export const onboardVaultClient = async (
+  vaultHost: string,
+  adminApiKey: string,
+  request: OnboardVaultClientRequest
+): Promise<OnboardVaultClientResponse> => {
+  try {
+    const uri = `${vaultHost}${Endpoints.vault.onboardClient}`
+    const { data } = await axios.post<OnboardVaultClientResponse>(uri, request, {
+      headers: {
+        [HEADER_ADMIN_API_KEY]: adminApiKey
+      }
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to onboard client', { vaultHost, request, error })
   }
 }
 
