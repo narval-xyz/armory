@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine
   pullPolicy: IfNotPresent
-  tag: 1273d01
+  tag: 3b1457d
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
