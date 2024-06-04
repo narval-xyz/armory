@@ -60,7 +60,7 @@ export const load = (): Config => {
     cors: toArray(process.env.CORS),
     app: {
       id: process.env.APP_UID,
-      adminApiKeyHash: process.env.APP_ADMIN_API_KEY
+      adminApiKeyHash: process.env.ADMIN_API_KEY
     },
     policyEngine: {
       nodes: getPolicyEngineNodes()
