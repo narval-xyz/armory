@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/vault
   pullPolicy: IfNotPresent
-  tag: 2a9398e
+  tag: 1273d01
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -19,9 +19,6 @@ env:
   APP_UID: staging-vault-instance-1
   KEYRING_TYPE: raw
   BASE_URL: https://vault.armory.narval.xyz
-  # ADMIN_API_KEY: secret
-  # APP_DATABASE_URL: secret
-  # MASTER_PASSWORD: secret
 service:
   type: ClusterIP
   port: 80
