@@ -1,14 +1,9 @@
 import { EvaluationRequest, SerializedEvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
-import {
-  Endpoints,
-  EngineClientConfig,
-  OnboardEngineClientRequest,
-  OnboardEngineClientResponse,
-  SdkEvaluationResponse
-} from '../domain'
+import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
+import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
 import { buildBasicEngineHeaders, signRequest } from '../utils'
 
 export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
@@ -25,8 +20,7 @@ export const onboardEngineClient = async (
   request: OnboardEngineClientRequest
 ): Promise<OnboardEngineClientResponse> => {
   try {
-    const uri = `${authHost}${Endpoints.engine.onboardClient}`
-    const { data } = await axios.post<OnboardEngineClientResponse>(uri, request, {
+    const { data } = await axios.post<OnboardEngineClientResponse>(`${authHost}/clients`, request, {
       headers: {
         [HEADER_ADMIN_API_KEY]: adminApiKey
       }
@@ -41,16 +35,19 @@ export const onboardEngineClient = async (
 export const sendEvaluationRequest = async (
   config: EngineClientConfig,
   request: EvaluationRequest
-): Promise<SdkEvaluationResponse> => {
+): Promise<SendEvaluationResponse> => {
   try {
     const { authHost, authClientId } = config
+
     const body = await signRequest(config, request)
-    const { data } = await axios.post<SdkEvaluationResponse>(
-      `${authHost}${Endpoints.engine.evaluations}`,
+
+    const { data } = await axios.post<SendEvaluationResponse>(
+      `${authHost}/evaluations`,
       SerializedEvaluationRequest.parse(body),
       { headers: { [HEADER_CLIENT_ID]: authClientId } }
     )
-    return SdkEvaluationResponse.parse(data)
+
+    return data
   } catch (error) {
     throw new NarvalSdkException('Failed to evaluate request', { config, request, error })
   }
@@ -59,7 +56,8 @@ export const sendEvaluationRequest = async (
 export const syncEngine = async (config: EngineClientConfig): Promise<boolean> => {
   try {
     const { authHost } = config
-    const { data } = await axios.post(`${authHost}${Endpoints.engine.sync}`, null, {
+
+    const { data } = await axios.post<{ ok: boolean }>(`${authHost}/clients/sync`, null, {
       headers: buildBasicEngineHeaders(config)
     })
 

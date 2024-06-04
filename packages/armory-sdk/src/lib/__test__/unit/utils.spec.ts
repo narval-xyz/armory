@@ -2,7 +2,7 @@ import { Decision, EvaluationResponse, FIXTURE, Request } from '@narval/policy-e
 import { Alg, Payload } from '@narval/signature'
 import { ArmoryClientConfig, Htm } from '../../domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from '../../exceptions'
-import { buildJwsdHeader, buildPayloadFromRequest, checkDecision } from '../../utils'
+import { buildJwsdHeader, buildRequestPayload, checkDecision } from '../../utils'
 import { generateSignTransactionRequest } from './mock'
 
 describe('checkDecision', () => {
@@ -153,25 +153,37 @@ describe('buildPayloadFromRequest', () => {
       iat: expect.any(Number)
     }
 
-    const result = buildPayloadFromRequest(config, request)
+    const result = buildRequestPayload(request, {
+      iss: config.authClientId,
+      sub: config.jwk.kid
+    })
 
     expect(result).toEqual(expectedPayload)
   })
 
   it('should set the sub property to the signer kid', () => {
-    const result = buildPayloadFromRequest(config, request)
+    const result = buildRequestPayload(request, {
+      iss: config.authClientId,
+      sub: config.jwk.kid
+    })
 
     expect(result.sub).toBe(config.jwk.kid)
   })
 
   it('should set the iss property to the authClientId', () => {
-    const result = buildPayloadFromRequest(config, request)
+    const result = buildRequestPayload(request, {
+      iss: config.authClientId,
+      sub: config.jwk.kid
+    })
 
     expect(result.iss).toBe(config.authClientId)
   })
 
   it('should set the iat property to the current timestamp', () => {
-    const result = buildPayloadFromRequest(config, request)
+    const result = buildRequestPayload(request, {
+      iss: config.authClientId,
+      sub: config.jwk.kid
+    })
 
     expect(result.iat).toBeCloseTo(new Date().getTime(), -2)
   })
