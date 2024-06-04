@@ -3,19 +3,14 @@ import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
 import {
-  Alg,
   Payload,
-  RsaPrivateKey,
   SigningAlg,
   buildSignerEip191,
-  generateJwk,
-  rsaDecrypt,
-  rsaPublicKeySchema,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
   signJwt
 } from '@narval/signature'
-import { HttpStatus, INestApplication } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -112,56 +107,18 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('POST /generate/key', () => {
-    it('generates a new mnemonic', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-
-      const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'rootKeyId'
-        })
-
-      expect(body.wallet).toEqual({
-        keyId: 'rootKeyId',
-        derivationPath: "m/44'/60'/0'/0/0",
-        address: expect.any(String),
-        publicKey: expect.any(String),
-        id: expect.any(String)
+  describe('GET wallets', () => {
+    it('list all wallets for a specific client', async () => {
+      const secondClientId = uuid()
+      await clientService.save({
+        clientId: secondClientId,
+        engineJwk: clientPublicJWK,
+        createdAt: new Date(),
+        updatedAt: new Date()
       })
-    })
-    it('saves a backup when client got a backupKey', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-      const keyId = 'backupKeyId'
-      const backupKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { keyId })
 
-      const clientWithBackupKey: Client = {
-        ...client,
-        clientId: uuid(),
-        backupPublicKey: rsaPublicKeySchema.parse(backupKey)
-      }
-      await clientService.save(clientWithBackupKey)
-
-      const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientWithBackupKey.clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'rootKeyId'
-        })
-
-      const decryptedMnemonic = await rsaDecrypt(body.backup as string, backupKey)
-      const spaceInMnemonic = decryptedMnemonic.split(' ')
-      expect(spaceInMnemonic.length).toBe(12)
-    })
-  })
-  describe('POST /derive/wallets', () => {
-    it('derives a new wallet from a rootKey', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-
-      const { body: generateKeyResponse } = await request(app.getHttpServer())
+      const accessToken = await getAccessToken([Permission.WALLET_READ])
+      const { body: firstMnemonicRequest } = await request(app.getHttpServer())
         .post('/generate/keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
@@ -169,49 +126,54 @@ describe('Generate', () => {
           keyId: 'rootKeyId'
         })
 
-      const { keyId } = generateKeyResponse
+      const { body: secondMnemonicRequest } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'rootKeyId-2'
+        })
 
-      const { body } = await request(app.getHttpServer())
+      const { body: firstDeriveRequest } = await request(app.getHttpServer())
         .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId,
-          derivationPaths: ['next', 'next']
+          keyId: 'rootKeyId',
+          derivationPaths: ['next']
         })
 
-      expect(body).toEqual({
-        wallets: [
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/1",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/2",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          }
-        ]
-      })
-    })
-    it('responds with not found when rootKey does not exist', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-
-      const { status } = await request(app.getHttpServer())
+      const { body: secondDeriveRequest } = await request(app.getHttpServer())
         .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'somekeyId',
-          derivationPaths: ['next', 'next']
+          keyId: 'rootKeyId-2',
+          derivationPaths: ['next']
         })
 
-      expect(status).toEqual(HttpStatus.NOT_FOUND)
+      const wallets = [
+        firstMnemonicRequest.wallet,
+        secondMnemonicRequest.wallet,
+        firstDeriveRequest.wallets,
+        secondDeriveRequest.wallets
+      ]
+
+      await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'rootKeyId-second-client'
+        })
+
+      const { body } = await request(app.getHttpServer())
+        .get('/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      expect(body).toEqual({ wallets })
     })
   })
 })
