@@ -59,7 +59,7 @@ export const load = (): Config => {
     port: process.env.PORT,
     cors: toArray(process.env.CORS),
     app: {
-      id: process.env.APP_ID,
+      id: process.env.APP_UID,
       adminApiKeyHash: process.env.APP_ADMIN_API_KEY
     },
     policyEngine: {
