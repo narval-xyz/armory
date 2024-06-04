@@ -27,7 +27,7 @@ export class ImportController {
   }
 
   @Post('/private-keys')
-  async create(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto) {
+  async importPrivateKey(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto) {
     let importedKey
     if (body.encryptedPrivateKey) {
       importedKey = await this.importService.importEncryptedPrivateKey(
