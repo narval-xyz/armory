@@ -23,7 +23,7 @@ env:
   REDIS_PORT: 6379
   PRICE_FEED_PRIVATE_KEY: '0xc7a1b8ba040a238e36058fc5693f801d129aca9f10ed30d0133878f1b9147c01'
   HISTORICAL_TRANSFER_FEED_PRIVATE_KEY: '0xf5c8f17cc09215c5038f6b8d5e557c0d98d341236307fe831efdcdd7faeef134'
-  POLICY_ENGINE_URLS: http://policy-engine-0,http://policy-engine-1,http://policy-engine-2
+  POLICY_ENGINE_URLS: http://policy-engine-node-0,http://policy-engine-node-1,http://policy-engine-node-2
 service:
   type: ClusterIP
   port: 80

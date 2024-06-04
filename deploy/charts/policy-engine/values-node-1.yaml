@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
   tag: 3b1457d
 imagePullSecrets: []
-nameOverride: policy-engine-1
+nameOverride: ''
 fullnameOverride: ''
 serviceAccount:
   create: true
