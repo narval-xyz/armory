@@ -25,9 +25,9 @@ export class ProvisionService {
   async provision(adminApiKeyHash?: string): Promise<App> {
     const app = await this.appService.getApp()
 
-    const isFirstBoot = app === null
+    const isNotProvisioned = !app || !app.adminApiKey
 
-    if (isFirstBoot) {
+    if (isNotProvisioned) {
       this.logger.log('Start app provision')
 
       const provisionedApp: App = await this.withMasterKey({

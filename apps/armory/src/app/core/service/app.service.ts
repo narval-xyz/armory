@@ -39,9 +39,9 @@ export class AppService {
 
     const app = await this.getApp()
 
-    const isFirstBoot = app === null
+    const isNotProvisioned = !app || !app.adminApiKey
 
-    if (isFirstBoot) {
+    if (isNotProvisioned) {
       this.logger.log('Saving app on first boot')
 
       const provisionedApp: App = {

@@ -25,9 +25,9 @@ export class ProvisionService {
   async provision(adminApiKeyHash?: string): Promise<Engine> {
     const engine = await this.engineService.getEngine()
 
-    const isFirstBoot = engine === null
+    const isNotProvisioned = !engine || !engine.adminApiKey
 
-    if (isFirstBoot) {
+    if (isNotProvisioned) {
       this.logger.log('Start app provision')
 
       const provisionedEngine: Engine = await this.withMasterKey({
