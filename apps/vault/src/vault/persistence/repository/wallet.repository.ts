@@ -42,7 +42,6 @@ export class WalletRepository {
       coerce.encode(PrivateWallet, wallet),
       this.getMetadata(clientId)
     )
-
     return wallet
   }
 }
