@@ -12,18 +12,18 @@ import { Curves, KeyTypes, PublicKey, SigningAlg, jwkEoaSchema, publicKeySchema 
 import { capitalize } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../_design-system/NarButton'
-import NarCollapsible from '../_design-system/NarCollapsible'
-import NarCopyButton from '../_design-system/NarCopyButton'
-import NarDialog from '../_design-system/NarDialog'
-import NarDropdownMenu, { DropdownItem } from '../_design-system/NarDropdownMenu'
-import NarInput from '../_design-system/NarInput'
-import NarTextarea from '../_design-system/NarTextarea'
-import useDataStoreApi from '../_hooks/useDataStoreApi'
-import useEngineApi from '../_hooks/useEngineApi'
+import NarButton from '../../_design-system/NarButton'
+import NarCollapsible from '../../_design-system/NarCollapsible'
+import NarCopyButton from '../../_design-system/NarCopyButton'
+import NarDialog from '../../_design-system/NarDialog'
+import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
+import NarInput from '../../_design-system/NarInput'
+import NarTextarea from '../../_design-system/NarTextarea'
+import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import useEngineApi from '../../_hooks/useEngineApi'
 
 enum Steps {
-  AddUser,
+  AddUserForm,
   AddUserSuccess,
   SignAndPush,
   SyncEngine
@@ -60,7 +60,7 @@ const AddUserModal = () => {
   const { entityStore, getEntityStore, signAndPushEntity } = useDataStoreApi()
   const { isSynced, sync: syncEngine } = useEngineApi()
 
-  const [currentStep, setCurrentStep] = useState<Steps>(Steps.AddUser)
+  const [currentStep, setCurrentStep] = useState<Steps>(Steps.AddUserForm)
   const [credentialType, setCredentialType] = useState<CredentialType>(CredentialType.EoaAddress)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -90,17 +90,23 @@ const AddUserModal = () => {
   }, [isSynced])
 
   const btnLabel = useMemo(() => {
-    if (isEngineSynced) {
+    if (currentStep === Steps.AddUserForm) {
+      return 'Add'
+    }
+    if (currentStep === Steps.AddUserSuccess) {
+      return 'Sign and Push'
+    }
+    if (currentStep === Steps.SyncEngine) {
       return 'Ok'
     }
-    return newEntityStore ? 'Sign and Push' : 'Add'
-  }, [isEngineSynced, newEntityStore])
+  }, [currentStep])
 
   const handleClose = () => {
     setIsDialogOpen(false)
     setIsEngineSynced(false)
+    setNewEntityStore(undefined)
     setUserForm(initUserFormState)
-    setCurrentStep(Steps.AddUser)
+    setCurrentStep(Steps.AddUserForm)
     setCredentialType(CredentialType.EoaAddress)
   }
 
@@ -178,13 +184,13 @@ const AddUserModal = () => {
       isOpen={isDialogOpen}
       onOpenChange={(val) => (val ? setIsDialogOpen(val) : handleClose())}
       onDismiss={handleClose}
-      onSave={newEntityStore ? handleSignAndPush : handleSave}
+      onSave={currentStep === Steps.AddUserForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
       isConfirm={currentStep === Steps.SyncEngine}
       isSaveDisabled={isProcessing || !isFormValid}
     >
       <div className="w-[650px] px-12 py-4">
-        {currentStep === Steps.AddUser && (
+        {currentStep === Steps.AddUserForm && (
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-center gap-[8px] mb-[8px]">
               <NarButton
@@ -196,6 +202,7 @@ const AddUserModal = () => {
                 variant="tertiary"
                 label="EOA Address"
                 onClick={() => {
+                  if (credentialType === CredentialType.EoaAddress) return
                   setUserForm((prev) => ({ ...prev, publicKey: '' }))
                   setCredentialType(CredentialType.EoaAddress)
                 }}
@@ -209,6 +216,7 @@ const AddUserModal = () => {
                 variant="tertiary"
                 label="Public JWK"
                 onClick={() => {
+                  if (credentialType === CredentialType.PublicJwk) return
                   setUserForm((prev) => ({ ...prev, publicKey: '' }))
                   setCredentialType(CredentialType.PublicJwk)
                 }}

@@ -1,4 +1,3 @@
-/* eslint-disable no-empty */
 'use client'
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
@@ -7,6 +6,8 @@ import {
   AuthorizationRequest,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
+  ImportSeedRequest,
+  ImportSeedResponse,
   SendEvaluationResponse,
   SignatureRequest,
   SignatureResponse
@@ -17,9 +18,9 @@ import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
-import ImportPrivateKeyModal from './ImportPrivateKeyModal'
-import PlaygroundConfigModal from './PlaygroundConfigModal'
 import ValueWithCopy from './ValueWithCopy'
+import ImportModal from './modals/ImportModal'
+import PlaygroundConfigModal from './modals/PlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -34,7 +35,8 @@ interface PlaygroundProps {
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
-  importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
+  importPrivateKey?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
+  importSeedPhrase?: (req: ImportSeedRequest) => Promise<ImportSeedResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
@@ -45,7 +47,8 @@ const Playground: FC<PlaygroundProps> = ({
   authorize,
   evaluate,
   sign,
-  importPk,
+  importPrivateKey,
+  importSeedPhrase,
   validateResponse
 }) => {
   const { engineClientId, vaultClientId } = useStore()
@@ -151,13 +154,31 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
-  const handleImport = async (privateKey: string, accessToken: string) => {
+  const handlePrivateKeyImport = async (pk: string, accessToken: string) => {
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
 
       const response =
-        importPk && (await importPk({ privateKey: hexSchema.parse(privateKey), accessToken: { value: accessToken } }))
+        importPrivateKey &&
+        (await importPrivateKey({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleSeedImport = async (seed: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response = importSeedPhrase && (await importSeedPhrase({ seed, accessToken: { value: accessToken } }))
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -200,7 +221,13 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {importPk && vaultClientId && <ImportPrivateKeyModal accessToken={accessToken} import={handleImport} />}
+          {(importPrivateKey || importSeedPhrase) && vaultClientId && (
+            <ImportModal
+              accessToken={accessToken}
+              importPrivateKey={handlePrivateKeyImport}
+              importSeedPhrase={handleSeedImport}
+            />
+          )}
           <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
         </div>
       </div>

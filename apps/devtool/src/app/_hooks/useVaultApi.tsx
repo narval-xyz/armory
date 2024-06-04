@@ -1,8 +1,10 @@
 import {
   ArmoryClientConfig,
   ImportPrivateKeyRequest,
+  ImportSeedRequest,
   VaultClientConfig,
   importPrivateKey,
+  importSeed,
   onboardVaultClient,
   pingVault,
   signRequest
@@ -130,7 +132,18 @@ const useVaultApi = () => {
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPk }
+  const importSeedPhrase = (request: ImportSeedRequest) => {
+    if (!sdkArmoryConfig) return
+
+    try {
+      setErrors(undefined)
+      return importSeed(sdkArmoryConfig, request)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
+  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase }
 }
 
 export default useVaultApi

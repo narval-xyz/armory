@@ -8,7 +8,7 @@ import useVaultApi from '../../_hooks/useVaultApi'
 
 const AuthServerPlayground = () => {
   const { errors: evaluationErrors, authorizationResponse, authorize } = useAuthServerApi()
-  const { errors: signatureErrors, sign, importPk } = useVaultApi()
+  const { errors: signatureErrors, sign, importPk, importSeedPhrase } = useVaultApi()
 
   const [errors, setErrors] = useState<string>()
 
@@ -40,7 +40,8 @@ const AuthServerPlayground = () => {
       response={authorizationResponse ? JSON.stringify(authorizationResponse, null, 2) : undefined}
       authorize={authorize}
       sign={sign}
-      importPk={importPk}
+      importPrivateKey={importPk}
+      importSeedPhrase={importSeedPhrase}
       validateResponse={validateResponse}
     />
   )

@@ -8,7 +8,7 @@ import useVaultApi from '../../_hooks/useVaultApi'
 
 const PolicyEnginePlayground = () => {
   const { errors: evaluationErrors, evaluate } = useEngineApi()
-  const { errors: signatureErrors, sign, importPk } = useVaultApi()
+  const { errors: signatureErrors, sign, importPk, importSeedPhrase } = useVaultApi()
 
   const [errors, setErrors] = useState<string>()
 
@@ -38,7 +38,8 @@ const PolicyEnginePlayground = () => {
       errors={errors}
       evaluate={evaluate}
       sign={sign}
-      importPk={importPk}
+      importPrivateKey={importPk}
+      importSeedPhrase={importSeedPhrase}
       validateResponse={validateResponse}
     />
   )
