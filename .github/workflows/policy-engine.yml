@@ -168,10 +168,25 @@ jobs:
         uses: fjogeleit/yaml-update-action@master
         with:
           valueFile: 'deploy/charts/policy-engine/values.yaml'
-          propertyPath: 'image.tag'
-          value: ${{ env.sha7 }}
+          # propertyPath: 'image.tag'
+          # value: ${{ env.sha7 }}
           branch: main
           message: 'Update policy-engine Image Version to ${{ env.sha7 }}'
+          changes: |
+            {
+              "deploy/charts/policy-engine/values.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "deploy/charts/policy-engine/values-node-0.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "deploy/charts/policy-engine/values-node-1.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "deploy/charts/policy-engine/values-node-2.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              }
+            }
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
