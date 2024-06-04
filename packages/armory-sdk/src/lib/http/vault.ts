@@ -1,21 +1,25 @@
 import { SerializedRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { privateKeyToAddress } from 'viem/accounts'
 import { HEADER_ADMIN_API_KEY } from '../constants'
+import { ArmoryClientConfig, Htm, VaultClientConfig } from '../domain'
+import { NarvalSdkException } from '../exceptions'
 import {
-  ArmoryClientConfig,
-  Endpoints,
-  Htm,
+  DeriveWalletRequest,
+  DeriveWalletResponse,
+  GenerateEncryptionKeyRequest,
+  GenerateEncryptionKeyResponse,
+  GenerateKeyRequest,
+  GenerateKeyResponse,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
+  ImportSeedRequest,
+  ImportSeedResponse,
   OnboardVaultClientRequest,
   OnboardVaultClientResponse,
   SignatureRequest,
-  SignatureResponse,
-  VaultClientConfig
-} from '../domain'
-import { NarvalSdkException } from '../exceptions'
-import { buildGnapVaultHeaders, resourceId, signAccountJwsd } from '../utils'
+  SignatureResponse
+} from '../types/vault'
+import { buildGnapVaultHeaders, signAccountJwsd } from '../utils'
 
 export const pingVault = async (config: VaultClientConfig): Promise<void> => {
   try {
@@ -31,8 +35,7 @@ export const onboardVaultClient = async (
   request: OnboardVaultClientRequest
 ): Promise<OnboardVaultClientResponse> => {
   try {
-    const uri = `${vaultHost}${Endpoints.vault.onboardClient}`
-    const { data } = await axios.post<OnboardVaultClientResponse>(uri, request, {
+    const { data } = await axios.post<OnboardVaultClientResponse>(`${vaultHost}/clients`, request, {
       headers: {
         [HEADER_ADMIN_API_KEY]: adminApiKey
       }
@@ -51,7 +54,7 @@ export const signRequest = async (
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}${Endpoints.vault.sign}`
+    const uri = `${vaultHost}/sign`
 
     const detachedJws = await signAccountJwsd({
       payload: { request },
@@ -63,7 +66,7 @@ export const signRequest = async (
       signer
     })
 
-    const { data } = await axios.post(
+    const { data } = await axios.post<SignatureResponse>(
       uri,
       { request: SerializedRequest.parse(request) },
       { headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws) }
@@ -75,37 +78,16 @@ export const signRequest = async (
   }
 }
 
-export const importPrivateKey = async (
-  config: ArmoryClientConfig,
-  request: ImportPrivateKeyRequest
-): Promise<ImportPrivateKeyResponse> => {
-  const { privateKey, accessToken } = request
-  const walletId = resourceId(request.walletId || privateKeyToAddress(privateKey))
-  const payload = { privateKey, walletId }
+export const generateEncryptionKey = async (
+  config: VaultClientConfig,
+  request: GenerateEncryptionKeyRequest
+): Promise<GenerateEncryptionKeyResponse> => {
+  const { accessToken, ...payload } = request
 
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    // if (!accessToken || !accessToken.value) {
-    //   const grantPermissionRequest = EvaluationRequest.parse({
-    //     authentication: 'missing',
-    //     request: {
-    //       action: Action.GRANT_PERMISSION,
-    //       resourceId: walletId,
-    //       nonce: v4(),
-    //       permissions: [Permission.WALLET_CREATE]
-    //     }
-    //   })
-    //   const evaluationResponse = await sendEvaluationRequest(config, grantPermissionRequest)
-
-    //   if (!evaluationResponse.accessToken) {
-    //     return SdkEvaluationResponse.parse(evaluationResponse)
-    //   }
-
-    //   accessToken = evaluationResponse.accessToken
-    // }
-
-    const uri = `${vaultHost}${Endpoints.vault.importPrivateKey}`
+    const uri = `${vaultHost}/import/encryption-keys`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -117,12 +99,133 @@ export const importPrivateKey = async (
       signer
     })
 
-    const { data } = await axios.post(uri, payload, {
+    const { data } = await axios.post<GenerateEncryptionKeyResponse>(uri, payload, {
+      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to generate encryption key', { config, error })
+  }
+}
+
+export const importPrivateKey = async (
+  config: ArmoryClientConfig,
+  request: ImportPrivateKeyRequest
+): Promise<ImportPrivateKeyResponse> => {
+  const { accessToken, ...payload } = request
+
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
+
+    const uri = `${vaultHost}/import/private-keys`
+
+    const detachedJws = await signAccountJwsd({
+      payload,
+      uri,
+      htm: Htm.POST,
+      accessToken,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post<ImportPrivateKeyResponse>(uri, payload, {
       headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
     })
 
     return data
   } catch (error) {
     throw new NarvalSdkException('Failed to import private key', { config, payload, error })
+  }
+}
+
+export const importSeed = async (
+  config: ArmoryClientConfig,
+  request: ImportSeedRequest
+): Promise<ImportSeedResponse> => {
+  const { accessToken, ...payload } = request
+
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
+
+    const uri = `${vaultHost}/import/seeds`
+
+    const detachedJws = await signAccountJwsd({
+      payload,
+      uri,
+      htm: Htm.POST,
+      accessToken,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post<ImportSeedResponse>(uri, payload, {
+      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to import seed', { config, payload, error })
+  }
+}
+
+export const generateKey = async (
+  config: ArmoryClientConfig,
+  request: GenerateKeyRequest
+): Promise<GenerateKeyResponse> => {
+  const { accessToken, ...payload } = request
+
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
+
+    const uri = `${vaultHost}/generate/keys`
+
+    const detachedJws = await signAccountJwsd({
+      payload,
+      uri,
+      htm: Htm.POST,
+      accessToken,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post<GenerateKeyResponse>(uri, payload, {
+      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to generate key', { config, payload, error })
+  }
+}
+
+export const deriveWallet = async (config: ArmoryClientConfig, request: DeriveWalletRequest) => {
+  const { accessToken, ...payload } = request
+
+  try {
+    const { vaultHost, vaultClientId, jwk, alg, signer } = config
+
+    const uri = `${vaultHost}/derive/wallets`
+
+    const detachedJws = await signAccountJwsd({
+      payload,
+      uri,
+      htm: Htm.POST,
+      accessToken,
+      jwk,
+      alg,
+      signer
+    })
+
+    const { data } = await axios.post<DeriveWalletResponse>(uri, payload, {
+      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to derive wallet', { config, payload, error })
   }
 }

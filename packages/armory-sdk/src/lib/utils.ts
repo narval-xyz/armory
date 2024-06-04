@@ -11,9 +11,10 @@ import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
 import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from './constants'
-import { EngineClientConfig, JwsdHeaderArgs, SdkEvaluationResponse, SignAccountJwsdArgs } from './domain'
+import { EngineClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './schema'
+import { SendEvaluationResponse } from './types/policy-engine'
 
 export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, alg, accessToken } = args
@@ -66,26 +67,19 @@ export const resourceId = (walletIdOrAddress: Address | string): string => {
   return walletIdOrAddress
 }
 
-export const buildPayloadFromRequest = (config: EngineClientConfig, request: Request): Payload => {
+export const buildRequestPayload = (
+  request: Request,
+  opts: {
+    iss?: string
+    sub?: string
+    iat?: number
+  } = {}
+): Payload => {
   return {
     requestHash: hash(request),
-    sub: config.jwk.kid,
-    iss: config.authClientId,
-    iat: new Date().getTime()
-  }
-}
-
-export const signRequest = async (
-  config: EngineClientConfig,
-  request: EvaluationRequest
-): Promise<EvaluationRequest> => {
-  const payload = buildPayloadFromRequest(config, request.request)
-  const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
-
-  return {
-    sessionId: v4(), // A unique session id, used in mpc
-    ...request,
-    authentication
+    sub: opts.sub,
+    iss: opts.iss,
+    iat: opts.iat || new Date().getTime()
   }
 }
 
@@ -97,16 +91,32 @@ export const buildDataPayload = (
     iat?: number
   } = {}
 ): Payload => {
-  const hashed = hash(data)
   return {
-    data: hashed,
+    data: hash(data),
     sub: opts.sub,
     iss: opts.iss,
     iat: opts.iat || new Date().getTime()
   }
 }
 
-export const checkDecision = (data: EvaluationResponse, config: EngineClientConfig): SdkEvaluationResponse => {
+export const signRequest = async (
+  config: EngineClientConfig,
+  request: EvaluationRequest
+): Promise<EvaluationRequest> => {
+  const payload = buildRequestPayload(request.request, {
+    sub: config.jwk.kid,
+    iss: config.authClientId
+  })
+  const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
+
+  return {
+    sessionId: v4(), // A unique session id, used in mpc
+    ...request,
+    authentication
+  }
+}
+
+export const checkDecision = (data: EvaluationResponse, config: EngineClientConfig): SendEvaluationResponse => {
   switch (data.decision) {
     case Decision.PERMIT:
       if (!data.accessToken || !data.accessToken.value) {
@@ -116,7 +126,7 @@ export const checkDecision = (data: EvaluationResponse, config: EngineClientConf
           authClientId: config.authClientId
         })
       }
-      return SdkEvaluationResponse.parse(data)
+      return SendEvaluationResponse.parse(data)
     case Decision.FORBID:
       throw new ForbiddenException('Host denied access', {
         evaluation: data,
@@ -147,14 +157,17 @@ export const getChainOrThrow = (chainId: number): Chain => {
       })
   }
 }
+
 export const walletId = (input: { walletId?: string; privateKey: Hex }): { walletId: string; privateKey: Hex } => {
   const { walletId, privateKey } = input
+
   if (!walletId) {
     return {
       ...input,
       walletId: `wallet:${v4()}`
     }
   }
+
   return {
     walletId,
     privateKey
