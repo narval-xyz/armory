@@ -39,19 +39,6 @@ export const SignatureResponse = z.object({
 })
 export type SignatureResponse = z.infer<typeof SignatureResponse>
 
-export const ImportPrivateKeyRequest = z.object({
-  encryptedPrivateKey: z.string().optional(),
-  privateKey: hexSchema.optional(),
-  accessToken: AccessToken
-})
-export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
-
-export const ImportPrivateKeyResponse = z.object({
-  id: z.string(),
-  address: addressSchema
-})
-export type ImportPrivateKeyResponse = z.infer<typeof ImportPrivateKeyResponse>
-
 export const GenerateEncryptionKeyRequest = z.object({
   accessToken: AccessToken
 })
@@ -62,9 +49,21 @@ export const GenerateEncryptionKeyResponse = z.object({
 })
 export type GenerateEncryptionKeyResponse = z.infer<typeof GenerateEncryptionKeyResponse>
 
+export const ImportPrivateKeyRequest = z.object({
+  privateKey: hexSchema,
+  accessToken: AccessToken
+})
+export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
+
+export const ImportPrivateKeyResponse = z.object({
+  id: z.string(),
+  address: addressSchema
+})
+export type ImportPrivateKeyResponse = z.infer<typeof ImportPrivateKeyResponse>
+
 export const ImportSeedRequest = z.object({
+  seed: z.string(),
   keyId: z.string().optional(),
-  encryptedSeed: z.string(),
   startingIndex: z.number().optional(),
   accessToken: AccessToken
 })

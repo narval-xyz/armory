@@ -1,4 +1,5 @@
 import { SerializedRequest } from '@narval/policy-engine-shared'
+import { rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY } from '../constants'
 import { ArmoryClientConfig, Htm, VaultClientConfig } from '../domain'
@@ -113,9 +114,13 @@ export const importPrivateKey = async (
   config: ArmoryClientConfig,
   request: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
-  const { accessToken, ...payload } = request
+  const { accessToken, privateKey } = request
 
   try {
+    const { publicKey: rsaEncryptionKey } = await generateEncryptionKey(config, { accessToken })
+    const encryptedPrivateKey = await rsaEncrypt(privateKey, rsaEncryptionKey)
+    const payload = { encryptedPrivateKey }
+
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
     const uri = `${vaultHost}/import/private-keys`
@@ -136,7 +141,7 @@ export const importPrivateKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import private key', { config, payload, error })
+    throw new NarvalSdkException('Failed to import private key', { config, request, error })
   }
 }
 
@@ -144,9 +149,13 @@ export const importSeed = async (
   config: ArmoryClientConfig,
   request: ImportSeedRequest
 ): Promise<ImportSeedResponse> => {
-  const { accessToken, ...payload } = request
+  const { accessToken, seed } = request
 
   try {
+    const { publicKey: rsaEncryptionKey } = await generateEncryptionKey(config, { accessToken })
+    const encryptedSeed = await rsaEncrypt(seed, rsaEncryptionKey)
+    const payload = { encryptedSeed }
+
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
     const uri = `${vaultHost}/import/seeds`
@@ -167,7 +176,7 @@ export const importSeed = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import seed', { config, payload, error })
+    throw new NarvalSdkException('Failed to import seed', { config, request, error })
   }
 }
 
