@@ -7,6 +7,7 @@ export const LOCAL_DATA_STORE_URL = 'http://localhost:4200/api/data-store'
 
 export const LOCAL_STORAGE_KEYS = {
   authServerUrl: 'narvalAuthServerUrl',
+  authAdminApiKey: 'narvalAuthAdminApiKey',
   engineUrl: 'narvalEngineUrl',
   engineAdminApiKey: 'narvalEngineAdminApiKey',
   engineClientId: 'narvalEngineClientId',

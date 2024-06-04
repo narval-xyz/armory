@@ -4,11 +4,11 @@ import {
   Endpoints,
   EngineClientConfig,
   getAuthorizationRequest,
+  onboardArmoryClient,
   sendAuthorizationRequest
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { AUTH_SERVER_URL } from '../_lib/constants'
@@ -25,6 +25,7 @@ const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
 
 export interface AuthClientData {
   authServerUrl: string
+  authAdminApiKey: string
   id: string
   name: string
   entityDataStoreUrl: string
@@ -80,10 +81,18 @@ const useAuthServerApi = () => {
     setIsProcessing(true)
 
     try {
-      const { authServerUrl, id, name, entityDataStoreUrl, entityPublicKey, policyDataStoreUrl, policyPublicKey } =
-        authClientData
+      const {
+        authServerUrl,
+        authAdminApiKey,
+        id,
+        name,
+        entityDataStoreUrl,
+        entityPublicKey,
+        policyDataStoreUrl,
+        policyPublicKey
+      } = authClientData
 
-      const { data: client } = await axios.post(`${authServerUrl}/clients`, {
+      const client = await onboardArmoryClient(authServerUrl, authAdminApiKey, {
         id,
         name,
         dataStore: {

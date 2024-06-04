@@ -3,12 +3,12 @@ import {
   ImportPrivateKeyRequest,
   VaultClientConfig,
   importPrivateKey,
+  onboardVaultClient,
   pingVault,
   signRequest
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import axios from 'axios'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
@@ -89,23 +89,15 @@ const useVaultApi = () => {
         maxTokenAge
       } = vaultClientData
 
-      const { data: client } = await axios.post(
-        `${vaultUrl}/clients`,
-        {
-          clientId,
-          ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
-          ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
-          ...(allowKeyExport && { allowKeyExport }),
-          ...(audience && { audience }),
-          ...(issuer && { issuer }),
-          ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
-        },
-        {
-          headers: {
-            'x-api-key': vaultAdminApiKey
-          }
-        }
-      )
+      const client = await onboardVaultClient(vaultUrl, vaultAdminApiKey, {
+        clientId,
+        ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
+        ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+        ...(allowKeyExport && { allowKeyExport }),
+        ...(audience && { audience }),
+        ...(issuer && { issuer }),
+        ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
+      })
 
       setIsProcessing(false)
 
