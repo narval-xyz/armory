@@ -1,5 +1,5 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
-import { publicKeySchema, rsaPublicKeySchema } from '@narval/signature'
+import { publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const CreateClientInput = z.object({
@@ -104,3 +104,20 @@ export const Backup = z.object({
   createdAt: z.coerce.date().default(() => new Date())
 })
 export type Backup = z.infer<typeof Backup>
+
+export const ImportKey = z.object({
+  jwk: rsaPrivateKeySchema,
+  createdAt: z.number() // epoch in seconds
+})
+export type ImportKey = z.infer<typeof ImportKey>
+
+export const Collection = {
+  CLIENT: 'client',
+  APP: 'app',
+  WALLET: 'wallet',
+  MNEMONIC: 'mnemonic',
+  IMPORT: 'import',
+  BACKUP: 'backup',
+  REQUEST_NONCE: 'request-nonce'
+} as const
+export type Collection = (typeof Collection)[keyof typeof Collection]

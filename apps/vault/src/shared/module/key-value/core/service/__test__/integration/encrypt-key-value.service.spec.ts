@@ -3,6 +3,7 @@ import { EncryptionModule } from '@narval/encryption-module'
 import { Test } from '@nestjs/testing'
 import { load } from '../../../../../../../main.config'
 import { getTestRawAesKeyring } from '../../../../../../../shared/testing/encryption.testing'
+import { Collection } from '../../../../../../type/domain.type'
 import { InMemoryKeyValueRepository } from '../../../../persistence/repository/in-memory-key-value.repository'
 import { KeyValueRepository } from '../../../repository/key-value.repository'
 import { EncryptKeyValueService } from '../../encrypt-key-value.service'
@@ -43,10 +44,41 @@ describe(EncryptKeyValueService.name, () => {
       const key = 'test-key'
       const value = 'plain value'
 
-      await service.set(key, value)
+      await service.set(key, value, { collection: Collection.WALLET })
 
       expect(await keyValueRepository.get(key)).not.toEqual(value)
       expect(await service.get(key)).toEqual(value)
+    })
+  })
+  describe('findByClientId', () => {
+    it('finds all values for a given collection', async () => {
+      const key1 = 'test-key-1'
+      const value1 = 'plain value 1'
+      const key2 = 'test-key-2'
+      const value2 = 'plain value 2'
+      const key3 = 'test-key-3'
+      const value3 = 'plain value 3'
+
+      await service.set(key1, value1, { collection: Collection.MNEMONIC })
+      await service.set(key2, value2, { collection: Collection.MNEMONIC })
+      await service.set(key3, value3, { collection: Collection.WALLET })
+
+      expect(await service.find({ collection: Collection.MNEMONIC })).toEqual([value1, value2])
+    })
+
+    it('finds all values for a given collenction and clientId', async () => {
+      const key1 = 'test-key-1'
+      const value1 = 'plain value 1'
+      const key2 = 'test-key-2'
+      const value2 = 'plain value 2'
+      const key3 = 'test-key-3'
+      const value3 = 'plain value 3'
+
+      await service.set(key1, value1, { collection: Collection.MNEMONIC, clientId: 'client-1' })
+      await service.set(key2, value2, { collection: Collection.MNEMONIC, clientId: 'client-2' })
+      await service.set(key3, value3, { collection: Collection.WALLET, clientId: 'client-1' })
+
+      expect(await service.find({ collection: Collection.MNEMONIC, clientId: 'client-1' })).toEqual([value1])
     })
   })
 })
