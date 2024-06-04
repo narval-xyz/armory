@@ -110,7 +110,6 @@ export const signRequest = async (
   const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
 
   return {
-    sessionId: v4(), // A unique session id, used in mpc
     ...request,
     authentication
   }
