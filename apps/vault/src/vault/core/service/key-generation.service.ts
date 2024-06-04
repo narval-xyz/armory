@@ -131,7 +131,7 @@ export class KeyGenerationService {
       kid: rootKeyId,
       mnemonic,
       origin: Origin.GENERATED,
-      nextAddrIndex: 0
+      nextAddrIndex: 1
     })
 
     this.logger.log('Deriving first wallet', { clientId })
