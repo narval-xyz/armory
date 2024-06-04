@@ -1,0 +1,66 @@
+replicaCount: 1
+image:
+  repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine
+  pullPolicy: IfNotPresent
+  tag: 2c723f9
+imagePullSecrets: []
+nameOverride: 'policy-engine-0'
+fullnameOverride: ''
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ''
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+env:
+  APP_UID: dev-policy-engine-node-0
+  KEYRING_TYPE: raw
+  SIGNING_PROTOCOL: mpc
+  TSM_URL: http://tsm-node-0
+  TSM_PLAYER_COUNT: 3
+  # APP_DATABASE_URL: secret
+  # MASTER_PASSWORD: secret
+  # TSM_API_KEY: secret
+  # ADMIN_API_KEY: secret
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3010
+ingress:
+  enabled: false
+resources: {}
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+volumes: []
+volumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+database:
+  username:
+    secretKeyRef:
+      name: db-master-credentials
+      key: username
+  password:
+    secretKeyRef:
+      name: db-master-credentials
+      key: password
+  host: armory-dev-db.caenfnzrkfmg.us-east-2.rds.amazonaws.com
+  port: 5432
+  databaseName: engine_node_0
+secretRemoteRef: dev/policy-engine-0/config
+tsmApiSecretRemoteRef: dev/tsm-node-0/api-key
