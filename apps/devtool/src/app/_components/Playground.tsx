@@ -7,7 +7,7 @@ import {
   AuthorizationRequest,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
-  SdkEvaluationResponse,
+  SendEvaluationResponse,
   SignatureRequest,
   SignatureResponse
 } from '@narval/armory-sdk'
@@ -32,7 +32,7 @@ interface PlaygroundProps {
   response?: string
   errors?: string | undefined
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
-  evaluate?: (req: EvaluationRequest) => Promise<SdkEvaluationResponse> | undefined
+  evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
   importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
@@ -124,7 +124,7 @@ const Playground: FC<PlaygroundProps> = ({
       const response = evaluate && (await evaluate(request))
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
-        const evalResponseParsed = SdkEvaluationResponse.parse(response)
+        const evalResponseParsed = SendEvaluationResponse.parse(response)
         setAccessToken(evalResponseParsed.accessToken?.value || '')
       }
     } finally {

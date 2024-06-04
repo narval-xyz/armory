@@ -1,7 +1,6 @@
 import {
   AuthorizationRequest,
   AuthorizationRequestStatus,
-  Endpoints,
   EngineClientConfig,
   getAuthorizationRequest,
   onboardArmoryClient,
@@ -57,7 +56,7 @@ const useAuthServerApi = () => {
   }, [authClientId, authSecret, jwk, signer])
 
   const { data: authorizationResponse } = useSWR(
-    Endpoints.armory.authorizeRequest,
+    '/authorization-requests',
     () => {
       if (!sdkArmoryConfig || !processingRequest) {
         return null
