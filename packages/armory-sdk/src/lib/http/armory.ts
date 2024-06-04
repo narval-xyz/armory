@@ -1,14 +1,9 @@
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
-import {
-  AuthorizationRequest,
-  Endpoints,
-  EngineClientConfig,
-  OnboardArmoryClientRequest,
-  OnboardArmoryClientResponse
-} from '../domain'
+import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
+import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
 import { signRequest } from '../utils'
 
 export const onboardArmoryClient = async (
@@ -17,8 +12,7 @@ export const onboardArmoryClient = async (
   request: OnboardArmoryClientRequest
 ): Promise<OnboardArmoryClientResponse> => {
   try {
-    const uri = `${authHost}${Endpoints.armory.onboardClient}`
-    const { data } = await axios.post<OnboardArmoryClientResponse>(uri, request, {
+    const { data } = await axios.post<OnboardArmoryClientResponse>(`${authHost}/clients`, request, {
       headers: {
         [HEADER_ADMIN_API_KEY]: adminApiKey
       }
@@ -36,9 +30,10 @@ export const getAuthorizationRequest = async (
 ): Promise<AuthorizationRequest> => {
   try {
     const { authHost, authClientId } = config
-    const uri = `${authHost}${Endpoints.armory.authorizeRequest}/${id}`
-    const headers = { [HEADER_CLIENT_ID]: authClientId }
-    const { data } = await axios.get(uri, { headers })
+
+    const { data } = await axios.get<AuthorizationRequest>(`${authHost}/authorization-requests/${id}`, {
+      headers: { [HEADER_CLIENT_ID]: authClientId }
+    })
 
     return data
   } catch (error) {
@@ -52,10 +47,12 @@ export const sendAuthorizationRequest = async (
 ): Promise<AuthorizationRequest> => {
   try {
     const { authHost, authClientId } = config
-    const uri = `${authHost}${Endpoints.armory.authorizeRequest}`
-    const headers = { [HEADER_CLIENT_ID]: authClientId }
+
     const payload = await signRequest(config, request)
-    const { data } = await axios.post(uri, payload, { headers })
+
+    const { data } = await axios.post<AuthorizationRequest>(`${authHost}/authorization-requests`, payload, {
+      headers: { [HEADER_CLIENT_ID]: authClientId }
+    })
 
     return data
   } catch (error) {

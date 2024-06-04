@@ -1,11 +1,9 @@
-import { Action, EvaluationRequest, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
+import { JwtString, TransactionRequest } from '@narval/policy-engine-shared'
 import { signJwt } from '@narval/signature'
-import { v4 } from 'uuid'
 import { Hex, createPublicClient, http } from 'viem'
-import { ArmoryClientConfig, ArmoryClientConfigInput, EngineClientConfig, SdkEvaluationResponse } from './domain'
-import { sendEvaluationRequest } from './http/policy-engine'
-import { signRequest } from './http/vault'
-import { buildDataPayload, getChainOrThrow, resourceId } from './utils'
+import { ArmoryClientConfig, ArmoryClientConfigInput, EngineClientConfig } from './domain'
+import { SendEvaluationResponse } from './types/policy-engine'
+import { buildDataPayload, getChainOrThrow } from './utils'
 
 export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClientConfig => {
   const authClientId = config.authClientId || process.env.ARMORY_CLIENT_ID
@@ -45,27 +43,9 @@ export const signData = async (config: EngineClientConfig, data: unknown): Promi
 }
 
 export const sendTransaction = async (
-  config: ArmoryClientConfig,
-  transactionRequest: TransactionRequest
-): Promise<Hex | SdkEvaluationResponse> => {
-  const request = EvaluationRequest.parse({
-    authentication: 'missing',
-    request: {
-      action: Action.SIGN_TRANSACTION,
-      resourceId: resourceId(transactionRequest.from),
-      nonce: v4(),
-      transactionRequest
-    }
-  })
-  const evaluationResponse = await sendEvaluationRequest(config, request)
-  const { accessToken } = evaluationResponse
-
-  if (!accessToken) {
-    return SdkEvaluationResponse.parse(evaluationResponse)
-  }
-
-  const { signature } = await signRequest(config, { ...request, accessToken })
-
+  transactionRequest: TransactionRequest,
+  signature: Hex
+): Promise<Hex | SendEvaluationResponse> => {
   const chain = getChainOrThrow(transactionRequest.chainId)
 
   const publicClient = createPublicClient({
