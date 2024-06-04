@@ -2,9 +2,9 @@ replicaCount: 1
 image:
   repository: 728783560968.dkr.ecr.us-east-2.amazonaws.com/armory/policy-engine
   pullPolicy: IfNotPresent
-  tag: 2c723f9
+  tag: 1273d01
 imagePullSecrets: []
-nameOverride: 'policy-engine-0'
+nameOverride: policy-engine-0
 fullnameOverride: ''
 serviceAccount:
   create: true
@@ -21,10 +21,6 @@ env:
   SIGNING_PROTOCOL: mpc
   TSM_URL: http://tsm-node-0
   TSM_PLAYER_COUNT: 3
-  # APP_DATABASE_URL: secret
-  # MASTER_PASSWORD: secret
-  # TSM_API_KEY: secret
-  # ADMIN_API_KEY: secret
 service:
   type: ClusterIP
   port: 80
