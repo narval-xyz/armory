@@ -8,8 +8,10 @@ export class AppRepository {
   constructor(private prismaService: PrismaService) {}
 
   async save(app: App): Promise<App> {
-    await this.prismaService.application.create({
-      data: app
+    await this.prismaService.application.upsert({
+      where: { id: app.id },
+      update: app,
+      create: app
     })
 
     return app

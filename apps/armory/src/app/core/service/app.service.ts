@@ -44,7 +44,7 @@ export class AppService {
     if (isNotProvisioned) {
       this.logger.log('Saving app on first boot')
 
-      const provisionedApp: App = {
+      const provisionedApp: App = app || {
         id: this.getId()
       }
 
