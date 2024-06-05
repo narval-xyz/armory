@@ -30,9 +30,11 @@ export class ProvisionService {
     if (isNotProvisioned) {
       this.logger.log('Start app provision')
 
-      const provisionedApp: App = await this.withMasterKey({
-        id: this.getId()
-      })
+      const provisionedApp: App = await this.withMasterKey(
+        app || {
+          id: this.getId()
+        }
+      )
 
       const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
 
