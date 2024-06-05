@@ -10,7 +10,6 @@ import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
-import { AUTH_SERVER_URL } from '../_lib/constants'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
@@ -34,7 +33,7 @@ export interface AuthClientData {
 }
 
 const useAuthServerApi = () => {
-  const { engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
+  const { authUrl: authHost, authClientId, authClientSecret: authSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
@@ -46,14 +45,14 @@ const useAuthServerApi = () => {
     }
 
     return {
-      authHost: AUTH_SERVER_URL,
+      authHost,
       authClientId,
       authSecret,
       jwk,
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authClientId, authSecret, jwk, signer])
+  }, [authHost, authClientId, authSecret, jwk, signer])
 
   const { data: authorizationResponse } = useSWR(
     '/authorization-requests',

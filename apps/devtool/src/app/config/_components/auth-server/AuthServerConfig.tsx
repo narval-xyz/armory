@@ -5,7 +5,7 @@ import useStore from '../../../_hooks/useStore'
 import AddAuthClientModal from './AddAuthClientModal'
 
 const AuthServerConfig = () => {
-  const { authServerUrl, authAdminApiKey, setAuthServerUrl, setAuthAdminApiKey } = useStore()
+  const { authUrl: authServerUrl, authAdminApiKey, setAuthUrl: setAuthServerUrl, setAuthAdminApiKey } = useStore()
 
   return (
     <div className="flex flex-col gap-[48px]">
@@ -14,7 +14,7 @@ const AuthServerConfig = () => {
         <AddAuthClientModal />
       </div>
       <div className="flex flex-col gap-6">
-        <NarInput label="Auth Server URL" value={authServerUrl} onChange={setAuthServerUrl} />
+        <NarInput label="Auth URL" value={authServerUrl} onChange={setAuthServerUrl} />
         <NarInput label="Admin API Key" value={authAdminApiKey} onChange={setAuthAdminApiKey} />
       </div>
     </div>

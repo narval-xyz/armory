@@ -7,20 +7,24 @@ export const MANAGED_ENTITY_DATA_STORE_PATH = 'data/entities?clientId='
 export const MANAGED_POLICY_DATA_STORE_PATH = 'data/policies?clientId='
 
 export const LOCAL_STORAGE_KEYS = {
-  authServerUrl: 'narvalAuthServerUrl',
+  // Auth Server
+  authUrl: 'narvalAuthUrl',
   authAdminApiKey: 'narvalAuthAdminApiKey',
+  authClientId: 'narvalAuthClientId',
+  authClientSecret: 'narvalAuthClientSecret',
+  // Engine
   engineUrl: 'narvalEngineUrl',
   engineAdminApiKey: 'narvalEngineAdminApiKey',
   engineClientId: 'narvalEngineClientId',
   engineClientSecret: 'narvalEngineClientSecret',
   engineClientSigner: 'narvalEngineClientSigner',
+  // Vault
   vaultUrl: 'narvalVaultUrl',
   vaultAdminApiKey: 'narvalVaultAdminApiKey',
   vaultClientId: 'narvalVaultClientId',
   vaultClientSecret: 'narvalVaultClientSecret',
+  vaultAccessToken: 'narvalVaultAccessToken',
+  // Data Store
   entityDataStoreUrl: 'narvalEntityDataStoreUrl',
-  entitySignatureUrl: 'narvalEntitySignatureUrl',
-  policyDataStoreUrl: 'narvalPolicyDataStoreUrl',
-  policySignatureUrl: 'narvalPolicySignatureUrl',
-  vaultAccessToken: 'narvalVaultAccessToken'
+  policyDataStoreUrl: 'narvalPolicyDataStoreUrl'
 }

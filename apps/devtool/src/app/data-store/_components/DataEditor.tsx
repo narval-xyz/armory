@@ -54,11 +54,12 @@ const DataEditor = <T extends Entities | Policy[]>({
   const handleAction = async (action: Action) => {
     if (!editor) return
     const data = JSON.parse(editor)
+
     if (Action.SIGN === action) {
       await sign(data)
     } else if (Action.SIGN_AND_PUSH === action) {
       await signAndPush(data)
-      await resyncEngine()
+      // await resyncEngine()
     }
     await fetch()
     setIsReadOnly(true)

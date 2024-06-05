@@ -30,11 +30,11 @@ const AuthServerPlayground = () => {
   const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
     const response = AuthorizationRequest.safeParse(res)
 
-    if (!response.success || !response.data.evaluations[0].signature) {
+    if (!response.success || !response.data.evaluations[0]?.signature) {
       return undefined
     }
 
-    const accessToken = { value: response.data.evaluations[0].signature }
+    const accessToken = { value: response.data.evaluations[0]?.signature }
     const { request } = response.data
 
     return { accessToken, request }
