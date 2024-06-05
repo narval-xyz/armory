@@ -1,4 +1,4 @@
-import { Permission, Resource } from '@narval-xyz/armory-sdk'
+import { Permission, Resource } from '@narval/armory-sdk'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { Alg, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { getTime } from 'date-fns'

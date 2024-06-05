@@ -1,4 +1,4 @@
-import { Permission } from '@narval-xyz/armory-sdk'
+import { Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {

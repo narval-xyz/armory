@@ -10,7 +10,7 @@ import {
   SdkEvaluationResponse,
   SignatureRequest,
   SignatureResponse
-} from '@narval-xyz/armory-sdk'
+} from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'

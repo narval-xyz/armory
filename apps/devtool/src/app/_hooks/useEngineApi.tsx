@@ -4,7 +4,7 @@ import {
   pingEngine,
   sendEvaluationRequest,
   syncEngine
-} from '@narval-xyz/armory-sdk'
+} from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'

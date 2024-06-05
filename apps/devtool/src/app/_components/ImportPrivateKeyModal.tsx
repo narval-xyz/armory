@@ -1,6 +1,6 @@
 import { faCheckCircle, faSpinner, faUpload, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ImportPrivateKeyResponse } from '@narval-xyz/armory-sdk'
+import { ImportPrivateKeyResponse } from '@narval/armory-sdk'
 import { AccountType, Entities } from '@narval/policy-engine-shared'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { generatePrivateKey } from 'viem/accounts'

@@ -6,7 +6,7 @@ import {
   onboardVaultClient,
   pingVault,
   signRequest
-} from '@narval-xyz/armory-sdk'
+} from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'

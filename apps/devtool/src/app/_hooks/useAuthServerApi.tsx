@@ -5,7 +5,7 @@ import {
   getAuthorizationRequest,
   onboardArmoryClient,
   sendAuthorizationRequest
-} from '@narval-xyz/armory-sdk'
+} from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
