@@ -51,10 +51,9 @@ const Playground: FC<PlaygroundProps> = ({
   importSeedPhrase,
   validateResponse
 }) => {
-  const { engineClientId, vaultClientId } = useStore()
+  const { engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
-  const [accessToken, setAccessToken] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [domLoaded, setDomLoaded] = useState(false)
 
@@ -70,7 +69,7 @@ const Playground: FC<PlaygroundProps> = ({
     if (response) {
       setResponseEditor(response)
       const authResponseParsed = AuthorizationRequest.parse(JSON.parse(response))
-      setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+      setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
     }
   }, [response])
 
@@ -110,7 +109,7 @@ const Playground: FC<PlaygroundProps> = ({
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
         const authResponseParsed = AuthorizationRequest.parse(response)
-        setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+        setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
       }
     } finally {
       setIsProcessing(false)
@@ -128,7 +127,7 @@ const Playground: FC<PlaygroundProps> = ({
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
         const evalResponseParsed = SendEvaluationResponse.parse(response)
-        setAccessToken(evalResponseParsed.accessToken?.value || '')
+        setVaultAccessToken(evalResponseParsed.accessToken?.value || '')
       }
     } finally {
       setIsProcessing(false)
@@ -223,7 +222,7 @@ const Playground: FC<PlaygroundProps> = ({
           )}
           {(importPrivateKey || importSeedPhrase) && vaultClientId && (
             <ImportModal
-              accessToken={accessToken}
+              accessToken={vaultAccessToken}
               importPrivateKey={handlePrivateKeyImport}
               importSeedPhrase={handleSeedImport}
             />

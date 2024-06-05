@@ -21,5 +21,6 @@ export const LOCAL_STORAGE_KEYS = {
   entityDataStoreUrl: 'narvalEntityDataStoreUrl',
   entitySignatureUrl: 'narvalEntitySignatureUrl',
   policyDataStoreUrl: 'narvalPolicyDataStoreUrl',
-  policySignatureUrl: 'narvalPolicySignatureUrl'
+  policySignatureUrl: 'narvalPolicySignatureUrl',
+  vaultAccessToken: 'narvalVaultAccessToken'
 }
