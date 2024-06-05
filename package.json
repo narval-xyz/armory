@@ -4,7 +4,7 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "apps/documentation"
+    "packages/*"
   ],
   "devDependencies": {
     "@automock/adapters.nestjs": "^2.1.0",
