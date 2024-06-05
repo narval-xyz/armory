@@ -9,7 +9,7 @@ const ValueWithCopy = ({
   layout = 'vertical'
 }: {
   label: string
-  value: string
+  value: string | undefined
   layout?: 'horizontal' | 'vertical'
 }) => {
   if (!value) return null

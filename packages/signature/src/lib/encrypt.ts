@@ -2,7 +2,7 @@ import { CompactEncrypt, compactDecrypt, importJWK } from 'jose'
 import { RsaPrivateKey, RsaPublicKey } from './types'
 
 export async function rsaEncrypt(data: string, rsaKey: RsaPrivateKey | RsaPublicKey): Promise<string> {
-  const key = await importJWK(rsaKey)
+  const key = await importJWK(rsaKey, 'RSA-OAEP-256')
   const jwe = await new CompactEncrypt(new TextEncoder().encode(data))
     .setProtectedHeader({
       kid: rsaKey.kid,

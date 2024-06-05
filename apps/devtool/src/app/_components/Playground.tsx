@@ -1,13 +1,18 @@
-/* eslint-disable no-empty */
 'use client'
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   AuthorizationRequest,
+  DeriveWalletRequest,
+  DeriveWalletResponse,
+  GenerateKeyRequest,
+  GenerateKeyResponse,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
-  SdkEvaluationResponse,
+  ImportSeedRequest,
+  ImportSeedResponse,
+  SendEvaluationResponse,
   SignatureRequest,
   SignatureResponse
 } from '@narval/armory-sdk'
@@ -17,9 +22,10 @@ import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
-import ImportPrivateKeyModal from './ImportPrivateKeyModal'
-import PlaygroundConfigModal from './PlaygroundConfigModal'
 import ValueWithCopy from './ValueWithCopy'
+import CreateWalletModal from './modals/CreateWalletModal'
+import ImportWalletModal from './modals/ImportWalletModal'
+import PlaygroundConfigModal from './modals/PlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -32,9 +38,12 @@ interface PlaygroundProps {
   response?: string
   errors?: string | undefined
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
-  evaluate?: (req: EvaluationRequest) => Promise<SdkEvaluationResponse> | undefined
+  evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
-  importPk?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
+  importPrivateKey?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
+  importSeedPhrase?: (req: ImportSeedRequest) => Promise<ImportSeedResponse> | undefined
+  generateKey?: (req: GenerateKeyRequest) => Promise<GenerateKeyResponse> | undefined
+  deriveWallet?: (req: DeriveWalletRequest) => Promise<DeriveWalletResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
@@ -45,13 +54,15 @@ const Playground: FC<PlaygroundProps> = ({
   authorize,
   evaluate,
   sign,
-  importPk,
+  importPrivateKey,
+  importSeedPhrase,
+  generateKey,
+  deriveWallet,
   validateResponse
 }) => {
-  const { engineClientId, vaultClientId } = useStore()
+  const { engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
-  const [accessToken, setAccessToken] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [domLoaded, setDomLoaded] = useState(false)
 
@@ -67,7 +78,7 @@ const Playground: FC<PlaygroundProps> = ({
     if (response) {
       setResponseEditor(response)
       const authResponseParsed = AuthorizationRequest.parse(JSON.parse(response))
-      setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+      setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
     }
   }, [response])
 
@@ -107,7 +118,7 @@ const Playground: FC<PlaygroundProps> = ({
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
         const authResponseParsed = AuthorizationRequest.parse(response)
-        setAccessToken(authResponseParsed.evaluations[0]?.signature || '')
+        setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
       }
     } finally {
       setIsProcessing(false)
@@ -124,8 +135,8 @@ const Playground: FC<PlaygroundProps> = ({
       const response = evaluate && (await evaluate(request))
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
-        const evalResponseParsed = SdkEvaluationResponse.parse(response)
-        setAccessToken(evalResponseParsed.accessToken?.value || '')
+        const evalResponseParsed = SendEvaluationResponse.parse(response)
+        setVaultAccessToken(evalResponseParsed.accessToken?.value || '')
       }
     } finally {
       setIsProcessing(false)
@@ -151,13 +162,14 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
-  const handleImport = async (privateKey: string, accessToken: string) => {
+  const handlePrivateKeyImport = async (pk: string, accessToken: string) => {
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
 
       const response =
-        importPk && (await importPk({ privateKey: hexSchema.parse(privateKey), accessToken: { value: accessToken } }))
+        importPrivateKey &&
+        (await importPrivateKey({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } }))
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -169,6 +181,57 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
+  const handleSeedImport = async (seed: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response = importSeedPhrase && (await importSeedPhrase({ seed, accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleGenerateKey = async (keyId: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response = generateKey && (await generateKey({ keyId, accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleDeriveWallet = async (keyId: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response =
+        deriveWallet && (await deriveWallet({ keyId, derivationPaths: ['next'], accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
   if (!domLoaded) return null
 
   return (
@@ -200,7 +263,20 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {importPk && vaultClientId && <ImportPrivateKeyModal accessToken={accessToken} import={handleImport} />}
+          {(generateKey || deriveWallet) && vaultClientId && (
+            <CreateWalletModal
+              accessToken={vaultAccessToken}
+              generateKey={handleGenerateKey}
+              deriveWallet={handleDeriveWallet}
+            />
+          )}
+          {(importPrivateKey || importSeedPhrase) && vaultClientId && (
+            <ImportWalletModal
+              accessToken={vaultAccessToken}
+              importPrivateKey={handlePrivateKeyImport}
+              importSeedPhrase={handleSeedImport}
+            />
+          )}
           <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
         </div>
       </div>

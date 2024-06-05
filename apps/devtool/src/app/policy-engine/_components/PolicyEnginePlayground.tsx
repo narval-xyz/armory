@@ -1,6 +1,6 @@
 'use client'
 
-import { SdkEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
 import useEngineApi from '../../_hooks/useEngineApi'
@@ -8,7 +8,14 @@ import useVaultApi from '../../_hooks/useVaultApi'
 
 const PolicyEnginePlayground = () => {
   const { errors: evaluationErrors, evaluate } = useEngineApi()
-  const { errors: signatureErrors, sign, importPk } = useVaultApi()
+  const {
+    errors: signatureErrors,
+    sign,
+    importPk,
+    importSeedPhrase,
+    generateWalletKeys,
+    deriveWalletKey
+  } = useVaultApi()
 
   const [errors, setErrors] = useState<string>()
 
@@ -21,7 +28,7 @@ const PolicyEnginePlayground = () => {
   }, [evaluationErrors, signatureErrors])
 
   const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
-    const response = SdkEvaluationResponse.safeParse(res)
+    const response = SendEvaluationResponse.safeParse(res)
 
     if (!response.success || !response.data.accessToken || !response.data.request) {
       return undefined
@@ -38,7 +45,10 @@ const PolicyEnginePlayground = () => {
       errors={errors}
       evaluate={evaluate}
       sign={sign}
-      importPk={importPk}
+      importPrivateKey={importPk}
+      importSeedPhrase={importSeedPhrase}
+      generateKey={generateWalletKeys}
+      deriveWallet={deriveWalletKey}
       validateResponse={validateResponse}
     />
   )
