@@ -28,7 +28,7 @@ export class GenerationController {
 
   @Post('/derive/wallets')
   async deriveWallet(@ClientId() clientId: string, @Body() body: DeriveWalletDto) {
-    const wallets = await this.keyGenService.deriveWallet(clientId, body)
+    const wallets = await this.keyGenService.deriveWallets(clientId, body)
     const response = new DeriveWalletResponseDto(wallets)
 
     return response

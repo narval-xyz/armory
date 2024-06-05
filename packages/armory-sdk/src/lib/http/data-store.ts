@@ -3,7 +3,7 @@ import axios from 'axios'
 import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { signData } from '../sdk'
-import { buildBasicEngineHeaders, isSuccessResponse } from '../utils'
+import { buildBasicEngineHeaders, isSuccessResponse } from '../utils/headers'
 
 export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
   try {

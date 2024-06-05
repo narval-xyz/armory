@@ -48,7 +48,6 @@ describe('GenerateService', () => {
       mnemonic,
       keyId: 'keyId',
       origin: Origin.GENERATED,
-      nextAddrIndex: 1
     })
 
     walletRepositoryMock = mock<WalletRepository>()
@@ -113,7 +112,6 @@ describe('GenerateService', () => {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
       origin: Origin.GENERATED,
-      nextAddrIndex: 1
     })
   })
 })

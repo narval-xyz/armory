@@ -4,7 +4,7 @@ import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
 import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
-import { buildBasicEngineHeaders, signRequest } from '../utils'
+import { buildBasicEngineHeaders, signRequest } from '../utils/headers'
 
 export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
   try {

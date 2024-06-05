@@ -20,6 +20,7 @@ import { ImportRepository } from '../../persistence/repository/import.repository
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { deriveWallet, getRootKey } from '../util/key-generation'
 import { KeyGenerationService } from './key-generation.service'
+import { nextBip44Path } from 'apps/vault/src/vault/core/util/derivation'
 
 @Injectable()
 export class ImportService {
@@ -115,17 +116,16 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
-    const { keyId, encryptedSeed, startingIndex } = body
+    const { keyId, encryptedSeed } = body
 
     const mnemonic = await this.#decrypt(clientId, encryptedSeed)
 
-    const { rootKey, kid: rootKeyId } = getRootKey(mnemonic, keyId)
+    const { rootKey, keyId: rootKeyId } = getRootKey(mnemonic, keyId)
 
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
       kid: rootKeyId,
       mnemonic,
       origin: Origin.IMPORTED,
-      nextAddrIndex: startingIndex || 0
     })
 
     const firstWallet = await deriveWallet(rootKey, { rootKeyId })

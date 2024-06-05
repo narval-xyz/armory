@@ -1,11 +1,12 @@
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
-import { DerivationPath, PrivateWallet, PublicWallet } from '../../../../shared/type/domain.type'
+import { PrivateWallet, PublicWallet } from '../../../../shared/type/domain.type'
 
 export class DeriveWalletDto extends createZodDto(
   z.object({
-    keyId: z.string(),
-    derivationPaths: z.array(DerivationPath)
+    rootKeyId: z.string(),
+    derivations: z.number().optional().default(1),
+    derivationPaths: z.array(z.string()).optional()
   })
 ) {}
 

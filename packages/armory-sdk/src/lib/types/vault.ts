@@ -73,7 +73,7 @@ export const PublicWallet = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
-  keyId: z.string().min(1).optional(),
+  rootKeyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
 export type PublicWallet = z.infer<typeof PublicWallet>
@@ -100,12 +100,35 @@ export const GenerateKeyResponse = z.object({
 })
 export type GenerateKeyResponse = z.infer<typeof GenerateKeyResponse>
 
-const DERIVATION_PATH_PREFIX = "m/44'/60'/"
+export const Bip44Parameters = z.object({
+  coinType: z.number(),
+  accountIndex: z.number(),
+  changeIndex: z.number(),
+  addressIndex: z.number()
+})
+export type Bip44Parameters = z.infer<typeof Bip44Parameters>
 
-export const DerivationPath = z.union([
-  z.custom<`${typeof DERIVATION_PATH_PREFIX}${string}`>(
+export const DeriveOptions = z.object({
+  path: z.string().optional(),
+  prefix: z.string().optional(),
+  addressIndex: z.number().optional(),
+  rootKeyId: z.string().optional()
+})
+export type DeriveOptions = z.infer<typeof DeriveOptions>
+
+export const Bip44Options = z.object({
+  coinType: z.number().optional(),
+  changeIndex: z.number().optional(),
+  accountIndex: z.number().optional(),
+  addressIndex: z.number().optional(),
+  path: z.string().optional()
+})
+export type Bip44Options = z.infer<typeof Bip44Options>
+
+const BIP44_PREFIX = "m/44'/"
+export const Bip44Path = z.custom<`${typeof BIP44_PREFIX}${string}`>(
     (value) => {
-      const result = z.string().startsWith(DERIVATION_PATH_PREFIX).safeParse(value)
+      const result = z.string().startsWith(BIP44_PREFIX).safeParse(value)
 
       if (result.success) {
         return value
@@ -114,16 +137,14 @@ export const DerivationPath = z.union([
       return false
     },
     {
-      message: `Derivation path must start with ${DERIVATION_PATH_PREFIX}`
+      message: `Derivation path must start with ${BIP44_PREFIX}`
     }
-  ),
-  z.literal('next')
-])
-export type DerivationPath = z.infer<typeof DerivationPath>
+  )
+export type Bip44Path = z.infer<typeof Bip44Path>
 
 export const DeriveWalletRequest = z.object({
   keyId: z.string(),
-  derivationPaths: z.array(DerivationPath),
+  derivationPaths: z.array(z.string()).optional(),
   accessToken: AccessToken
 })
 export type DeriveWalletRequest = z.infer<typeof DeriveWalletRequest>

@@ -1,18 +1,13 @@
 import { addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
-import { HDOptions, Hex, toHex } from 'viem'
+import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
-
-type DeriveOptions = HDOptions & { rootKeyId?: string }
-
-export const buildDerivationPath = (opts: HDOptions) => {
-  const { accountIndex = 0, addressIndex = 0, changeIndex = 0, path } = opts
-  return path || `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`
-}
+import { resourceId } from 'packages/armory-sdk/src/lib/utils/domain'
+import { max } from 'lodash/fp'
+import { isBip44Path, nextBip44Path } from 'apps/vault/src/vault/core/util/derivation'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -36,7 +31,15 @@ export const hdKeyToKid = (key: HDKey): string => {
   })
 }
 
-export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<PrivateWallet> => {
+export const hdKeyToWallet = async ({
+  key,
+  rootKeyId,
+  path
+}: {
+  key: HDKey
+  rootKeyId: string
+  path: string
+}): Promise<PrivateWallet> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
@@ -56,9 +59,28 @@ export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Prom
     publicKey,
     origin: Origin.GENERATED,
     address,
-    keyId: kid,
+    rootKeyId,
     derivationPath: path
   }
+}
+
+export const deriveWallet = async (rootKey: HDKey, {
+  rootKeyId,
+  path,
+}: {
+  rootKeyId?: string
+  path?: string
+} = {}): Promise<PrivateWallet> => {
+  rootKeyId = rootKeyId ?? hdKeyToKid(rootKey);
+  path = path ?? nextBip44Path();
+
+  const derivedKey = rootKey.derive(path);
+  const wallet = await hdKeyToWallet({
+    key: derivedKey,
+    rootKeyId,
+    path
+  });
+  return wallet;
 }
 
 export const mnemonicToRootKey = (mnemonic: string): HDKey => {
@@ -71,18 +93,17 @@ export const getRootKey = (
   keyId?: string
 ): {
   rootKey: HDKey
-  kid: string
+  keyId: string
 } => {
   const rootKey = mnemonicToRootKey(mnemonic)
-  const kid = keyId || hdKeyToKid(rootKey)
-  return { rootKey, kid }
+  return { rootKey, keyId: keyId || hdKeyToKid(rootKey) }
 }
 
-export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<PrivateWallet> => {
-  const path = buildDerivationPath(opts)
-  const derivedKey = rootKey.derive(path)
-  const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))
-  return wallet
+export const findNextPath = (paths: (string | undefined)[]): string => {
+  const lastPath = max(paths.filter(isBip44Path));
+  if (isBip44Path(lastPath) || lastPath === undefined) {
+    return nextBip44Path(lastPath);
+  }
 }
 
 export type HDkey = HDKey

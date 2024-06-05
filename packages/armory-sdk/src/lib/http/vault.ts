@@ -20,7 +20,7 @@ import {
   SignatureRequest,
   SignatureResponse
 } from '../types/vault'
-import { buildGnapVaultHeaders, signAccountJwsd } from '../utils'
+import { buildGnapVaultHeaders, signAccountJwsd } from '../utils/headers'
 
 export const pingVault = async (config: VaultClientConfig): Promise<void> => {
   try {

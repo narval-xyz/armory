@@ -4,7 +4,8 @@ import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { Origin } from '../../../../../shared/type/domain.type'
-import { buildDerivationPath, deriveWallet, hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation'
+import { deriveWallet, hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation'
+import { buildBip44DerivationPath } from 'packages/armory-sdk/src/lib/utils'
 
 const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'
 const seed = mnemonicToSeedSync(mnemonic)
@@ -44,19 +45,19 @@ describe('hdKeyToWallet', () => {
 describe('buildDerivationPath', () => {
   it('returns  the default derivation path if no options are provided', () => {
     const expectedPath = "m/44'/60'/0'/0/0"
-    const result = buildDerivationPath({})
+    const result = buildBip44DerivationPath({})
     expect(result).toEqual(expectedPath)
   })
 
   it('returns  the provided derivation path if it is specified in the options', () => {
     const expectedPath = "m/44'/60'/1'/0/0"
-    const result = buildDerivationPath({ path: expectedPath })
+    const result = buildBip44DerivationPath({ path: expectedPath })
     expect(result).toEqual(expectedPath)
   })
 
   it('returns  the derived derivation path based on the provided options', () => {
     const expectedPath = "m/44'/60'/1'/2/3"
-    const result = buildDerivationPath({ accountIndex: 1, changeIndex: 2, addressIndex: 3 })
+    const result = buildBip44DerivationPath({ accountIndex: 1, changeIndex: 2, addressIndex: 3 })
     expect(result).toEqual(expectedPath)
   })
 })
@@ -80,7 +81,7 @@ describe('hdKeyToKid', () => {
 
   it('throws an error if the HDKey does not have a private key', async () => {
     try {
-      await hdKeyToWallet({} as unknown as HDKey, buildDerivationPath({}), 'kid')
+      await hdKeyToWallet({} as unknown as HDKey, buildBip44DerivationPath({}), 'kid')
     } catch (error) {
       expect(error).toBeInstanceOf(ApplicationException)
       expect(error.message).toEqual('HDKey does not have a private key')

@@ -140,7 +140,6 @@ describe('Generate', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send({
           keyId: 'rootKeyId',
-          derivationPaths: ['next']
         })
 
       const { body: secondDeriveRequest } = await request(app.getHttpServer())
@@ -149,7 +148,6 @@ describe('Generate', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send({
           keyId: 'rootKeyId-2',
-          derivationPaths: ['next']
         })
 
       const wallets = [
