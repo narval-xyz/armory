@@ -4,6 +4,10 @@ import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-ic
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   AuthorizationRequest,
+  DeriveWalletRequest,
+  DeriveWalletResponse,
+  GenerateKeyRequest,
+  GenerateKeyResponse,
   ImportPrivateKeyRequest,
   ImportPrivateKeyResponse,
   ImportSeedRequest,
@@ -19,7 +23,8 @@ import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
-import ImportModal from './modals/ImportModal'
+import CreateWalletModal from './modals/CreateWalletModal'
+import ImportWalletModal from './modals/ImportWalletModal'
 import PlaygroundConfigModal from './modals/PlaygroundConfigModal'
 
 enum Template {
@@ -37,6 +42,8 @@ interface PlaygroundProps {
   sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
   importPrivateKey?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
   importSeedPhrase?: (req: ImportSeedRequest) => Promise<ImportSeedResponse> | undefined
+  generateKey?: (req: GenerateKeyRequest) => Promise<GenerateKeyResponse> | undefined
+  deriveWallet?: (req: DeriveWalletRequest) => Promise<DeriveWalletResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
@@ -49,6 +56,8 @@ const Playground: FC<PlaygroundProps> = ({
   sign,
   importPrivateKey,
   importSeedPhrase,
+  generateKey,
+  deriveWallet,
   validateResponse
 }) => {
   const { engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
@@ -189,6 +198,40 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
+  const handleGenerateKey = async (keyId: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response = generateKey && (await generateKey({ keyId, accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleDeriveWallet = async (keyId: string, accessToken: string) => {
+    try {
+      setIsProcessing(true)
+      setResponseEditor(undefined)
+
+      const response =
+        deriveWallet && (await deriveWallet({ keyId, derivationPaths: ['next'], accessToken: { value: accessToken } }))
+
+      if (response) {
+        setResponseEditor(JSON.stringify(response, null, 2))
+      }
+
+      return response
+    } finally {
+      setIsProcessing(false)
+    }
+  }
   if (!domLoaded) return null
 
   return (
@@ -220,8 +263,15 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
+          {(generateKey || deriveWallet) && vaultClientId && (
+            <CreateWalletModal
+              accessToken={vaultAccessToken}
+              generateKey={handleGenerateKey}
+              deriveWallet={handleDeriveWallet}
+            />
+          )}
           {(importPrivateKey || importSeedPhrase) && vaultClientId && (
-            <ImportModal
+            <ImportWalletModal
               accessToken={vaultAccessToken}
               importPrivateKey={handlePrivateKeyImport}
               importSeedPhrase={handleSeedImport}

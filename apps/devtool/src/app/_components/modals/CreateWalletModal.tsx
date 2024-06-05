@@ -1,9 +1,8 @@
-import { faCheckCircle, faSpinner, faUpload, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faCheckCircle, faPlus, faSpinner, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ImportPrivateKeyResponse, ImportSeedResponse } from '@narval/armory-sdk'
+import { DeriveWalletResponse, GenerateKeyResponse, PublicWallet } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'
 import { FC, useEffect, useMemo, useState } from 'react'
-import { english, generateMnemonic, generatePrivateKey } from 'viem/accounts'
 import NarButton from '../../_design-system/NarButton'
 import NarCollapsible from '../../_design-system/NarCollapsible'
 import NarCopyButton from '../../_design-system/NarCopyButton'
@@ -14,37 +13,35 @@ import useEngineApi from '../../_hooks/useEngineApi'
 import ValueWithCopy from '../ValueWithCopy'
 
 enum Steps {
-  ImportForm,
-  ImportSuccess,
+  CreateWalletForm,
+  CreateWalletSuccess,
   SignAndPush,
   SyncEngine
 }
 
-enum ImportType {
-  PrivateKey,
-  Seed
+enum CreateWalletType {
+  GenerateKeys,
+  DeriveWallets
 }
 
-interface ImportModalProps {
+interface CreateWalletModalProps {
   accessToken: string
-  importPrivateKey?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
-  importSeedPhrase?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
+  generateKey?: (keyId: string, accessToken: string) => Promise<GenerateKeyResponse | undefined>
+  deriveWallet?: (keyId: string, accessToken: string) => Promise<DeriveWalletResponse | undefined>
 }
 
-const ImportModal: FC<ImportModalProps> = (props) => {
+const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
   const { entityStore, signAndPushEntity } = useDataStoreApi()
   const { isSynced, sync: syncEngine } = useEngineApi()
-
-  const [currentStep, setCurrentStep] = useState<Steps>(Steps.ImportForm)
-  const [importType, setImportType] = useState<ImportType>(ImportType.PrivateKey)
+  const [currentStep, setCurrentStep] = useState<Steps>(Steps.CreateWalletForm)
+  const [creationType, setCreationType] = useState<CreateWalletType>(CreateWalletType.GenerateKeys)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isEngineSynced, setIsEngineSynced] = useState(false)
-  const [privateKey, setPrivateKey] = useState('')
-  const [seed, setSeed] = useState('')
+  const [key, setKey] = useState('')
   const [accessToken, setAccessToken] = useState('')
-  const [importedWallet, setImportedWallet] = useState<ImportPrivateKeyResponse>()
-  const [importedSeed, setImportedSeed] = useState<ImportSeedResponse>()
+  const [generatedWallet, setGeneratedWallet] = useState<GenerateKeyResponse>()
+  const [derivedWallet, setDerivedWallet] = useState<PublicWallet>()
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
   useEffect(() => {
@@ -58,10 +55,10 @@ const ImportModal: FC<ImportModalProps> = (props) => {
   }, [isSynced])
 
   const btnLabel = useMemo(() => {
-    if (currentStep === Steps.ImportForm) {
-      return 'Import'
+    if (currentStep === Steps.CreateWalletForm) {
+      return 'Create'
     }
-    if (currentStep === Steps.ImportSuccess) {
+    if (currentStep === Steps.CreateWalletSuccess) {
       return 'Sign and Push'
     }
     if (currentStep === Steps.SyncEngine) {
@@ -72,47 +69,22 @@ const ImportModal: FC<ImportModalProps> = (props) => {
   const handleClose = () => {
     setIsDialogOpen(false)
     setIsEngineSynced(false)
-    setImportedWallet(undefined)
-    setImportedSeed(undefined)
+    setGeneratedWallet(undefined)
+    setDerivedWallet(undefined)
     setNewEntityStore(undefined)
-    setPrivateKey('')
-    setSeed('')
-    setCurrentStep(Steps.ImportForm)
-    setImportType(ImportType.PrivateKey)
+    setKey('')
+    setCurrentStep(Steps.CreateWalletForm)
+    setCreationType(CreateWalletType.GenerateKeys)
   }
 
-  const importPrivateKey = async () => {
-    if (!entityStore || !props.importPrivateKey) return
+  const generateKeys = async () => {
+    if (!entityStore || !props.generateKey) return
 
-    const wallet = await props.importPrivateKey(privateKey, accessToken)
+    const generateKeysResponse = await props.generateKey(key, accessToken)
 
-    if (!wallet) return
+    if (!generateKeysResponse) return
 
-    const newWallet = {
-      id: wallet.id,
-      address: wallet.address,
-      accountType: AccountType.EOA
-    }
-
-    const { wallets: currentWallets } = entityStore.data
-
-    const entities: Entities = {
-      ...entityStore.data,
-      wallets: [...currentWallets, newWallet]
-    }
-
-    setImportedWallet(wallet)
-    setNewEntityStore(entities)
-  }
-
-  const importSeedPhrase = async () => {
-    if (!entityStore || !props.importSeedPhrase) return
-
-    const seedWallet = await props.importSeedPhrase(seed, accessToken)
-
-    if (!seedWallet) return
-
-    const { wallet } = seedWallet
+    const { wallet } = generateKeysResponse
 
     const newWallet = {
       id: wallet.id,
@@ -127,7 +99,33 @@ const ImportModal: FC<ImportModalProps> = (props) => {
       wallets: [...currentWallets, newWallet]
     }
 
-    setImportedSeed(seedWallet)
+    setGeneratedWallet(generateKeysResponse)
+    setNewEntityStore(entities)
+  }
+
+  const deriveWallets = async () => {
+    if (!entityStore || !props.deriveWallet) return
+
+    const deriveWalletResponse = await props.deriveWallet(key, accessToken)
+
+    if (!deriveWalletResponse) return
+
+    const wallet = deriveWalletResponse.wallets as PublicWallet
+
+    const newWallet = {
+      id: wallet.id,
+      address: hexSchema.parse(wallet.address),
+      accountType: AccountType.EOA
+    }
+
+    const { wallets: currentWallets } = entityStore.data
+
+    const entities: Entities = {
+      ...entityStore.data,
+      wallets: [...currentWallets, newWallet]
+    }
+
+    setDerivedWallet(wallet)
     setNewEntityStore(entities)
   }
 
@@ -137,13 +135,13 @@ const ImportModal: FC<ImportModalProps> = (props) => {
     try {
       setIsProcessing(true)
 
-      if (importType === ImportType.PrivateKey) {
-        await importPrivateKey()
-      } else if (importType === ImportType.Seed) {
-        await importSeedPhrase()
+      if (creationType === CreateWalletType.GenerateKeys) {
+        await generateKeys()
+      } else if (creationType === CreateWalletType.DeriveWallets) {
+        await deriveWallets()
       }
 
-      setCurrentStep(Steps.ImportSuccess)
+      setCurrentStep(Steps.CreateWalletSuccess)
     } finally {
       setIsProcessing(false)
     }
@@ -167,83 +165,88 @@ const ImportModal: FC<ImportModalProps> = (props) => {
 
   return (
     <NarDialog
-      triggerButton={<NarButton label="Import Wallet" leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
-      title="Import Wallet"
+      triggerButton={<NarButton label="Create Wallet" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
+      title="Create Wallet"
       primaryButtonLabel={btnLabel}
       isOpen={isDialogOpen}
       onOpenChange={(val) => (val ? setIsDialogOpen(val) : handleClose())}
       onDismiss={handleClose}
-      onSave={currentStep === Steps.ImportForm ? handleSave : handleSignAndPush}
+      onSave={currentStep === Steps.CreateWalletForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
       isConfirm={currentStep === Steps.SyncEngine}
-      isSaveDisabled={(!privateKey && !seed) || isProcessing}
+      isSaveDisabled={(!key && creationType === CreateWalletType.DeriveWallets) || isProcessing}
     >
       <div className="w-[750px] px-12 py-4">
-        {currentStep === Steps.ImportForm && (
+        {currentStep === Steps.CreateWalletForm && (
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-center gap-[8px] mb-[8px]">
               <NarButton
                 className={
-                  importType === ImportType.PrivateKey ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
+                  creationType === CreateWalletType.GenerateKeys
+                    ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                    : ''
                 }
                 variant="tertiary"
-                label="Private Key"
+                label="Generate Keys"
                 onClick={() => {
-                  if (importType === ImportType.PrivateKey) return
-                  setPrivateKey('')
-                  setSeed('')
-                  setImportType(ImportType.PrivateKey)
+                  if (creationType === CreateWalletType.GenerateKeys) return
+                  setKey('')
+                  setCreationType(CreateWalletType.GenerateKeys)
                 }}
               />
               <NarButton
                 className={
-                  importType === ImportType.Seed ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
+                  creationType === CreateWalletType.DeriveWallets
+                    ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                    : ''
                 }
                 variant="tertiary"
-                label="Seed"
+                label="Derive Wallets"
                 onClick={() => {
-                  if (importType === ImportType.Seed) return
-                  setPrivateKey('')
-                  setSeed('')
-                  setImportType(ImportType.Seed)
+                  if (creationType === CreateWalletType.DeriveWallets) return
+                  setKey('')
+                  setCreationType(CreateWalletType.DeriveWallets)
                 }}
               />
             </div>
             <NarInput label="Access Token" value={accessToken} onChange={setAccessToken} />
-            {importType === ImportType.PrivateKey && (
+            {creationType === CreateWalletType.GenerateKeys && (
               <div className="flex items-end gap-[8px]">
-                <NarInput label="Private Key" value={privateKey} onChange={setPrivateKey} />
-                <NarButton label="Generate" onClick={() => setPrivateKey(generatePrivateKey())} />
+                <NarInput label="Key ID (optional)" value={key} onChange={setKey} />
               </div>
             )}
-            {importType === ImportType.Seed && (
+            {creationType === CreateWalletType.DeriveWallets && (
               <div className="flex items-end gap-[8px]">
-                <NarInput label="Seed" value={seed} onChange={setSeed} />
-                <NarButton label="Generate" onClick={() => setSeed(generateMnemonic(english))} />
+                <NarInput label="Root Key ID" value={key} onChange={setKey} />
               </div>
             )}
           </div>
         )}
-        {currentStep === Steps.ImportSuccess && (
+        {currentStep === Steps.CreateWalletSuccess && (
           <div className="flex flex-col gap-[16px]">
             <div className="flex items-center gap-[8px]">
               <FontAwesomeIcon className="text-nv-green-500" icon={faCheckCircle} />
-              <div className="text-nv-lg">Private key imported successfully!</div>
+              <div className="text-nv-lg">Wallet created successfully!</div>
             </div>
-            {importedWallet && (
+            {generatedWallet && (
               <div className="flex flex-col gap-[8px]">
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedWallet.id} />
-                <ValueWithCopy layout="horizontal" label="Address" value={importedWallet.address} />
+                <ValueWithCopy layout="horizontal" label="Key ID" value={generatedWallet.keyId} />
+                <ValueWithCopy layout="horizontal" label="Wallet ID" value={generatedWallet.wallet.id} />
+                <ValueWithCopy layout="horizontal" label="Address" value={generatedWallet.wallet.address} />
+                <ValueWithCopy
+                  layout="horizontal"
+                  label="Derivation Path"
+                  value={generatedWallet.wallet.derivationPath}
+                />
+                <ValueWithCopy layout="horizontal" label="Backup" value={generatedWallet.backup} />
               </div>
             )}
-            {importedSeed && (
+            {derivedWallet && (
               <div className="flex flex-col gap-[8px]">
-                <ValueWithCopy layout="horizontal" label="Key ID" value={importedSeed.keyId} />
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedSeed.wallet.id} />
-                <ValueWithCopy layout="horizontal" label="Address" value={importedSeed.wallet.address} />
-                {importedSeed.backup && (
-                  <ValueWithCopy layout="horizontal" label="Backup" value={importedSeed.backup} />
-                )}
+                <ValueWithCopy layout="horizontal" label="Key ID" value={derivedWallet.keyId} />
+                <ValueWithCopy layout="horizontal" label="Wallet ID" value={derivedWallet.id} />
+                <ValueWithCopy layout="horizontal" label="Address" value={derivedWallet.address} />
+                <ValueWithCopy layout="horizontal" label="Derivation Path" value={derivedWallet.derivationPath} />
               </div>
             )}
             <p className="text-nv-lg">
@@ -281,4 +284,4 @@ const ImportModal: FC<ImportModalProps> = (props) => {
   )
 }
 
-export default ImportModal
+export default CreateWalletModal

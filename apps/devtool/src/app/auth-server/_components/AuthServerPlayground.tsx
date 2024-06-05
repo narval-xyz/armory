@@ -8,7 +8,14 @@ import useVaultApi from '../../_hooks/useVaultApi'
 
 const AuthServerPlayground = () => {
   const { errors: evaluationErrors, authorizationResponse, authorize } = useAuthServerApi()
-  const { errors: signatureErrors, sign, importPk, importSeedPhrase } = useVaultApi()
+  const {
+    errors: signatureErrors,
+    sign,
+    importPk,
+    importSeedPhrase,
+    generateWalletKeys,
+    deriveWalletKey
+  } = useVaultApi()
 
   const [errors, setErrors] = useState<string>()
 
@@ -42,6 +49,8 @@ const AuthServerPlayground = () => {
       sign={sign}
       importPrivateKey={importPk}
       importSeedPhrase={importSeedPhrase}
+      generateKey={generateWalletKeys}
+      deriveWallet={deriveWalletKey}
       validateResponse={validateResponse}
     />
   )

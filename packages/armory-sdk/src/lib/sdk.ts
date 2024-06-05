@@ -59,4 +59,12 @@ export const sendTransaction = async (
 export { getAuthorizationRequest, onboardArmoryClient, sendAuthorizationRequest } from './http/armory'
 export { getEntities, getPolicies, setEntities, setPolicies } from './http/data-store'
 export { onboardEngineClient, pingEngine, sendEvaluationRequest, syncEngine } from './http/policy-engine'
-export { importPrivateKey, importSeed, onboardVaultClient, pingVault, signRequest } from './http/vault'
+export {
+  deriveWallet,
+  generateKey,
+  importPrivateKey,
+  importSeed,
+  onboardVaultClient,
+  pingVault,
+  signRequest
+} from './http/vault'

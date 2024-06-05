@@ -1,8 +1,12 @@
 import {
   ArmoryClientConfig,
+  DeriveWalletRequest,
+  GenerateKeyRequest,
   ImportPrivateKeyRequest,
   ImportSeedRequest,
   VaultClientConfig,
+  deriveWallet,
+  generateKey,
   importPrivateKey,
   importSeed,
   onboardVaultClient,
@@ -143,7 +147,29 @@ const useVaultApi = () => {
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase }
+  const generateWalletKeys = (request: GenerateKeyRequest) => {
+    if (!sdkArmoryConfig) return
+
+    try {
+      setErrors(undefined)
+      return generateKey(sdkArmoryConfig, request)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
+  const deriveWalletKey = (request: DeriveWalletRequest) => {
+    if (!sdkArmoryConfig) return
+
+    try {
+      setErrors(undefined)
+      return deriveWallet(sdkArmoryConfig, request)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
+
+  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKeys, deriveWalletKey }
 }
 
 export default useVaultApi
