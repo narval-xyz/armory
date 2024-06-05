@@ -9,7 +9,7 @@ import NarInput from '../../../_design-system/NarInput'
 import useAccountSignature from '../../../_hooks/useAccountSignature'
 import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerApi'
 import useStore from '../../../_hooks/useStore'
-import { MANAGED_ENTITY_DATA_STORE_URL, MANAGED_POLICY_DATA_STORE_URL } from '../../../_lib/constants'
+import { MANAGED_ENTITY_DATA_STORE_PATH, MANAGED_POLICY_DATA_STORE_PATH } from '../../../_lib/constants'
 
 const initForm: AuthClientData = {
   authServerUrl: '',
@@ -72,19 +72,22 @@ const AddAuthClientModal = () => {
     setEngineClientId(clientId)
     setEngineClientSecret(clientSecret)
     setEngineClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(`${MANAGED_ENTITY_DATA_STORE_URL}${clientId}`)
-    setPolicyDataStoreUrl(`${MANAGED_POLICY_DATA_STORE_URL}${clientId}`)
+    setEntityDataStoreUrl(form.entityDataStoreUrl)
+    setPolicyDataStoreUrl(form.policyDataStoreUrl)
     closeDialog()
   }
 
   useEffect(() => {
     if (!isOpen) return
 
+    const initAuthUrl = form.authServerUrl || authServerUrl
+    const initAdminApiKey = form.authAdminApiKey || authAdminApiKey
+
     updateForm({
-      authServerUrl,
-      authAdminApiKey,
-      entityDataStoreUrl: `${MANAGED_ENTITY_DATA_STORE_URL}${form.id}`,
-      policyDataStoreUrl: `${MANAGED_POLICY_DATA_STORE_URL}${form.id}`,
+      authServerUrl: initAuthUrl,
+      authAdminApiKey: initAdminApiKey,
+      entityDataStoreUrl: `${initAuthUrl}/${MANAGED_ENTITY_DATA_STORE_PATH}${form.id}`,
+      policyDataStoreUrl: `${initAuthUrl}/${MANAGED_POLICY_DATA_STORE_PATH}${form.id}`,
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
       policyPublicKey: jwk ? JSON.stringify(jwk) : ''
     })
@@ -109,7 +112,13 @@ const AddAuthClientModal = () => {
               <NarInput
                 label="Auth Server URL"
                 value={form.authServerUrl}
-                onChange={(authServerUrl) => updateForm({ authServerUrl })}
+                onChange={(authServerUrl) =>
+                  updateForm({
+                    authServerUrl,
+                    entityDataStoreUrl: `${authServerUrl}/${MANAGED_ENTITY_DATA_STORE_PATH}${form.id}`,
+                    policyDataStoreUrl: `${authServerUrl}/${MANAGED_POLICY_DATA_STORE_PATH}${form.id}`
+                  })
+                }
               />
               <NarInput
                 label="Admin API Key"
