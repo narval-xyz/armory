@@ -29,10 +29,7 @@ export class ProvisionService {
 
     if (isNotProvisioned) {
       this.logger.log('Start app provision')
-
-      const provisionedEngine: Engine = await this.withMasterKey({
-        id: this.getId()
-      })
+      const provisionedEngine: Engine = await this.withMasterKey(engine || { id: this.getId() })
 
       const apiKey = adminApiKeyHash || this.getAdminApiKeyHash()
 
