@@ -9,13 +9,14 @@ import {
   PolicyStore
 } from '@narval/policy-engine-shared'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LOCAL_DATA_STORE_URL, MANAGED_ENTITY_DATA_STORE_URL, MANAGED_POLICY_DATA_STORE_URL } from '../_lib/constants'
+import { LOCAL_DATA_STORE_URL, MANAGED_ENTITY_DATA_STORE_PATH, MANAGED_POLICY_DATA_STORE_PATH } from '../_lib/constants'
 import { extractErrorMessage } from '../_lib/utils'
 import useEngineApi from './useEngineApi'
 import useStore from './useStore'
 
 const useDataStoreApi = () => {
   const {
+    authServerUrl,
     engineClientId,
     entityDataStoreUrl: entityStoreHost,
     policyDataStoreUrl: policyStoreHost,
@@ -72,13 +73,13 @@ const useDataStoreApi = () => {
     if (!entityStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
       setEntityDataStoreUrl(LOCAL_DATA_STORE_URL)
     } else {
-      setEntityDataStoreUrl(`${MANAGED_ENTITY_DATA_STORE_URL}${engineClientId}`)
+      setEntityDataStoreUrl(`${authServerUrl}/${MANAGED_ENTITY_DATA_STORE_PATH}${engineClientId}`)
     }
 
     if (!policyStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
       setPolicyDataStoreUrl(LOCAL_DATA_STORE_URL)
     } else {
-      setPolicyDataStoreUrl(`${MANAGED_POLICY_DATA_STORE_URL}${engineClientId}`)
+      setPolicyDataStoreUrl(`${authServerUrl}/${MANAGED_POLICY_DATA_STORE_PATH}${engineClientId}`)
     }
   }, [engineClientId, entityStoreHost, policyStoreHost])
 
