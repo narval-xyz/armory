@@ -1,4 +1,4 @@
-import { Permission, Resource } from '@narval/armory-sdk'
+import { Permission, Resource } from '@narval-xyz/armory-sdk'
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { randomBytes } from 'crypto'

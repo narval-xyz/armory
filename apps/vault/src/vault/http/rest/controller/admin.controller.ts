@@ -1,4 +1,4 @@
-import { Permission } from '@narval/armory-sdk'
+import { Permission } from '@narval-xyz/armory-sdk'
 import { Controller, Get, UseGuards } from '@nestjs/common'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'

@@ -1,6 +1,6 @@
 'use client'
 
-import { SdkEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { SdkEvaluationResponse, SignatureRequest } from '@narval-xyz/armory-sdk'
 import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
 import useEngineApi from '../../_hooks/useEngineApi'

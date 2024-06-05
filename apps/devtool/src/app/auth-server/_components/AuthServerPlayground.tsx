@@ -1,6 +1,6 @@
 'use client'
 
-import { AuthorizationRequest, SignatureRequest } from '@narval/armory-sdk'
+import { AuthorizationRequest, SignatureRequest } from '@narval-xyz/armory-sdk'
 import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
 import useAuthServerApi from '../../_hooks/useAuthServerApi'

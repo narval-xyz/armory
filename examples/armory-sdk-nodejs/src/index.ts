@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval/armory-sdk'
+import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval-xyz/armory-sdk'
 import { Action, Policy } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
 import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'

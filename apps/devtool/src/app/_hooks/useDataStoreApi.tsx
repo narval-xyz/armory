@@ -1,4 +1,4 @@
-import { EngineClientConfig, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
+import { EngineClientConfig, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval-xyz/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -42,9 +42,9 @@ const useDataStoreApi = () => {
 
   const sdkDataStoreConfig = useMemo<
     | (EngineClientConfig & {
-        entityStoreHost: string
-        policyStoreHost: string
-      })
+      entityStoreHost: string
+      policyStoreHost: string
+    })
     | null
   >(() => {
     if (!sdkEngineConfig || !entityStoreHost || !policyStoreHost) {

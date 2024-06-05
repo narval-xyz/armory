@@ -1,29 +1,34 @@
-SDK_PROJECT_NAME := armory-sdk
-SDK_PROJECT_DIR := ./packages/armory-sdk
+ARMORY_SDK_PROJECT_NAME := armory-sdk
+ARMORY_SDK_PROJECT_DIR := ./packages/armory-sdk
 
-# == Code format ==
+# === Build ===
+
+armory-sdk/build:
+	npx nx build ${ARMORY_SDK_PROJECT_NAME}
+
+# === Code format ===
 
 armory-sdk/format:
-	 npx nx format:write --projects ${SDK_PROJECT_NAME}
+	 npx nx format:write --projects ${ARMORY_SDK_PROJECT_NAME}
 
 armory-sdk/lint:
-	npx nx lint ${SDK_PROJECT_NAME} -- --fix
+	npx nx lint ${ARMORY_SDK_PROJECT_NAME} -- --fix
 
 armory-sdk/format/check:
-	 npx nx format:check --projects ${SDK_PROJECT_NAME}
+	 npx nx format:check --projects ${ARMORY_SDK_PROJECT_NAME}
 
 armory-sdk/lint/check:
-	npx nx lint ${SDK_PROJECT_NAME}
+	npx nx lint ${ARMORY_SDK_PROJECT_NAME}
 
-# == Testing ==
+# === Testing ===
 
 armory-sdk/test/type:
 	npx tsc \
-		--project ${SDK_PROJECT_DIR}/tsconfig.lib.json \
+		--project ${ARMORY_SDK_PROJECT_DIR}/tsconfig.lib.json \
 		--noEmit
 
 armory-sdk/test/unit:
-	npx nx test:unit ${SDK_PROJECT_NAME} -- ${ARGS}
+	npx nx test:unit ${ARMORY_SDK_PROJECT_NAME} -- ${ARGS}
 
 armory-sdk/test/unit/watch:
 	make armory-sdk/test/unit ARGS=--watch
