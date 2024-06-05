@@ -1,10 +1,13 @@
 ARMORY_SDK_PROJECT_NAME := armory-sdk
 ARMORY_SDK_PROJECT_DIR := ./packages/armory-sdk
 
-# === Build ===
+# === Release ===
 
-armory-sdk/build:
+armory-sdk/release/build:
 	npx nx build ${ARMORY_SDK_PROJECT_NAME}
+
+armory-sdk/release/deploy:
+	npx nx deploy ${ARMORY_SDK_PROJECT_NAME}
 
 # === Code format ===
 
