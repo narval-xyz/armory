@@ -19,20 +19,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Install Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '21'
-      #     cache: 'npm'
-      #
-      # - name: Install dependencies
-      #   run: |
-      #     make install/ci
-      #
-      # - name: Print environment
-      #   run: npx nx report
-      #   shell: bash
-      #
+      - name: install node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          make install/ci
+
+      - name: Print environment
+        run: |
+          npx nx report
+
       # - name: Publish
       #   run: npx nx release publish
       #   shell: bash
