@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '21'
-          cache: 'npm'
+          registry-url: https://npm.pkg.github.com/
 
       - name: Install dependencies
         run: |
