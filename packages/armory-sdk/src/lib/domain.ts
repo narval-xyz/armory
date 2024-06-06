@@ -7,6 +7,7 @@ export const UserSigner = z.object({
   alg: z.nativeEnum(SigningAlg).optional(),
   signer: z.function().args(z.string()).returns(z.promise(z.string()))
 })
+export type UserSigner = z.infer<typeof UserSigner>
 
 export const EngineClientConfig = UserSigner.extend({
   authHost: z.string(),

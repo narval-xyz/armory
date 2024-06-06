@@ -1,4 +1,4 @@
-import { EngineClientConfig, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
+import { UserSigner, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -8,22 +8,21 @@ import {
   PolicyData,
   PolicyStore
 } from '@narval/policy-engine-shared'
+import { SigningAlg } from '@narval/signature'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LOCAL_DATA_STORE_URL, MANAGED_ENTITY_DATA_STORE_PATH, MANAGED_POLICY_DATA_STORE_PATH } from '../_lib/constants'
 import { extractErrorMessage } from '../_lib/utils'
-import useEngineApi from './useEngineApi'
+import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
 const useDataStoreApi = () => {
   const {
-    authServerUrl,
-    engineClientId,
+    authUrl: authHost,
+    authClientId,
+    authClientSecret: authSecret,
     entityDataStoreUrl: entityStoreHost,
-    policyDataStoreUrl: policyStoreHost,
-    setEntityDataStoreUrl,
-    setPolicyDataStoreUrl
+    policyDataStoreUrl: policyStoreHost
   } = useStore()
-  const { sdkEngineConfig } = useEngineApi()
+  const { jwk, signer } = useAccountSignature()
 
   const [processingStatus, setProcessingStatus] = useState({
     isFetchingEntity: false,
@@ -38,26 +37,31 @@ const useDataStoreApi = () => {
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
-  const isUsingManagedDataStore =
-    !entityStoreHost.startsWith(LOCAL_DATA_STORE_URL) && !policyStoreHost.startsWith(LOCAL_DATA_STORE_URL)
-
   const sdkDataStoreConfig = useMemo<
-    | (EngineClientConfig & {
+    | (UserSigner & {
+        authHost: string
+        authClientId: string
+        authSecret: string
         entityStoreHost: string
         policyStoreHost: string
       })
     | null
   >(() => {
-    if (!sdkEngineConfig || !entityStoreHost || !policyStoreHost) {
+    if (!authHost || !authClientId || !authSecret || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
       return null
     }
 
     return {
-      ...sdkEngineConfig,
+      authHost,
+      authClientId,
+      authSecret,
       entityStoreHost,
-      policyStoreHost
+      policyStoreHost,
+      jwk,
+      alg: SigningAlg.EIP191,
+      signer
     }
-  }, [sdkEngineConfig, entityStoreHost, policyStoreHost])
+  }, [authHost, authClientId, authSecret, entityStoreHost, policyStoreHost, jwk, signer])
 
   useEffect(() => {
     getEntityStore()
@@ -66,22 +70,6 @@ const useDataStoreApi = () => {
   useEffect(() => {
     getPolicyStore()
   }, [policyStoreHost])
-
-  const switchDataStore = useCallback(async () => {
-    if (!engineClientId) return
-
-    if (!entityStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
-      setEntityDataStoreUrl(LOCAL_DATA_STORE_URL)
-    } else {
-      setEntityDataStoreUrl(`${authServerUrl}/${MANAGED_ENTITY_DATA_STORE_PATH}${engineClientId}`)
-    }
-
-    if (!policyStoreHost.startsWith(LOCAL_DATA_STORE_URL)) {
-      setPolicyDataStoreUrl(LOCAL_DATA_STORE_URL)
-    } else {
-      setPolicyDataStoreUrl(`${authServerUrl}/${MANAGED_POLICY_DATA_STORE_PATH}${engineClientId}`)
-    }
-  }, [engineClientId, entityStoreHost, policyStoreHost])
 
   const getEntityStore = useCallback(async () => {
     try {
@@ -198,20 +186,18 @@ const useDataStoreApi = () => {
   }
 
   return {
-    sdkDataStoreConfig,
-    isUsingManagedDataStore,
     entityStore,
     policyStore,
     errors,
-    validationErrors,
     processingStatus,
+    sdkDataStoreConfig,
+    validationErrors,
     getEntityStore,
     getPolicyStore,
     signEntityData,
-    signAndPushEntity,
     signPolicyData,
-    signAndPushPolicy,
-    switchDataStore
+    signAndPushEntity,
+    signAndPushPolicy
   }
 }
 

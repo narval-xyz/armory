@@ -24,7 +24,7 @@ const initForm: AuthClientData = {
 
 const AddAuthClientModal = () => {
   const {
-    authServerUrl,
+    authUrl: authServerUrl,
     authAdminApiKey,
     setEngineClientId,
     setEngineClientSecret,
@@ -110,7 +110,7 @@ const AddAuthClientModal = () => {
           <div className="flex flex-col gap-[24px]">
             <div className="flex flex-col gap-[8px]">
               <NarInput
-                label="Auth Server URL"
+                label="Auth URL"
                 value={form.authServerUrl}
                 onChange={(authServerUrl) =>
                   updateForm({
