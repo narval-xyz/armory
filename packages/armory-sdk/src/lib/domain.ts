@@ -2,6 +2,24 @@ import { AccessToken } from '@narval/policy-engine-shared'
 import { Payload, SigningAlg, jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 
+export const AuthAdminConfig = z.object({
+  authHost: z.string(),
+  adminApiKey: z.string()
+})
+export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
+
+export const EngineAdminConfig = z.object({
+  engineHost: z.string(),
+  adminApiKey: z.string()
+})
+export type EngineAdminConfig = z.infer<typeof EngineAdminConfig>
+
+export const VaultAdminConfig = z.object({
+  vaultHost: z.string(),
+  adminApiKey: z.string()
+})
+export type VaultAdminConfig = z.infer<typeof VaultAdminConfig>
+
 export const UserSigner = z.object({
   jwk: jwkSchema,
   alg: z.nativeEnum(SigningAlg).optional(),
@@ -9,10 +27,17 @@ export const UserSigner = z.object({
 })
 export type UserSigner = z.infer<typeof UserSigner>
 
-export const EngineClientConfig = UserSigner.extend({
+export const AuthClientConfig = UserSigner.extend({
   authHost: z.string(),
   authClientId: z.string(),
-  authSecret: z.string().optional()
+  authClientSecret: z.string().optional()
+})
+export type AuthClientConfig = z.infer<typeof AuthClientConfig>
+
+export const EngineClientConfig = UserSigner.extend({
+  engineHost: z.string(),
+  engineClientId: z.string(),
+  engineClientSecret: z.string().optional()
 })
 export type EngineClientConfig = z.infer<typeof EngineClientConfig>
 
@@ -22,27 +47,18 @@ export const VaultClientConfig = UserSigner.extend({
 })
 export type VaultClientConfig = z.infer<typeof VaultClientConfig>
 
-export const DataStoreConfig = z.object({
+export const DataStoreClientConfig = UserSigner.extend({
+  dataStoreClientId: z.string(),
+  dataStoreClientSecret: z.string(),
   entityStoreHost: z.string(),
   policyStoreHost: z.string()
 })
-export type DataStoreConfig = z.infer<typeof DataStoreConfig>
-
-export const ArmoryClientConfigInput = UserSigner.extend({
-  authHost: z.string().optional(),
-  authClientId: z.string().optional(),
-  authSecret: z.string().optional(),
-  vaultHost: z.string().optional(),
-  vaultClientId: z.string().optional(),
-  entityStoreHost: z.string().optional(),
-  policyStoreHost: z.string().optional()
-})
-export type ArmoryClientConfigInput = z.infer<typeof ArmoryClientConfigInput>
+export type DataStoreClientConfig = z.infer<typeof DataStoreClientConfig>
 
 export const ArmoryClientConfig = UserSigner.extend({
-  ...EngineClientConfig.shape,
+  ...AuthClientConfig.shape,
   ...VaultClientConfig.shape,
-  ...DataStoreConfig.shape
+  ...DataStoreClientConfig.shape
 })
 export type ArmoryClientConfig = z.infer<typeof ArmoryClientConfig>
 

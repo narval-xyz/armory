@@ -32,7 +32,7 @@ export interface AuthClientData {
   policyPublicKey: string
 }
 
-const useAuthServerApi = () => {
+const useArmoryApi = () => {
   const { authUrl: authHost, authClientId, authClientSecret: authSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -45,9 +45,9 @@ const useAuthServerApi = () => {
     }
 
     return {
-      authHost,
-      authClientId,
-      authSecret,
+      engineHost: authHost,
+      engineClientId: authClientId,
+      engineClientSecret: authSecret,
       jwk,
       alg: SigningAlg.EIP191,
       signer
@@ -148,4 +148,4 @@ const useAuthServerApi = () => {
   return { errors, isProcessing, authorizationResponse, onboard, authorize }
 }
 
-export default useAuthServerApi
+export default useArmoryApi

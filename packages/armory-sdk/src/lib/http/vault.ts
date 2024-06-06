@@ -2,7 +2,7 @@ import { SerializedRequest } from '@narval/policy-engine-shared'
 import { rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY } from '../constants'
-import { Htm, VaultClientConfig } from '../domain'
+import { Htm, VaultAdminConfig, VaultClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import {
   DeriveWalletRequest,
@@ -31,10 +31,11 @@ export const pingVault = async (config: VaultClientConfig): Promise<void> => {
 }
 
 export const onboardVaultClient = async (
-  vaultHost: string,
-  adminApiKey: string,
+  config: VaultAdminConfig,
   request: OnboardVaultClientRequest
 ): Promise<OnboardVaultClientResponse> => {
+  const { vaultHost, adminApiKey } = config
+
   try {
     const { data } = await axios.post<OnboardVaultClientResponse>(`${vaultHost}/clients`, request, {
       headers: {
@@ -44,7 +45,7 @@ export const onboardVaultClient = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { vaultHost, request, error })
+    throw new NarvalSdkException('Failed to onboard client', { config, error })
   }
 }
 
@@ -70,21 +71,19 @@ export const signRequest = async (
     const { data } = await axios.post<SignatureResponse>(
       uri,
       { request: SerializedRequest.parse(request) },
-      { headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws) }
+      { headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws }) }
     )
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to sign request', { config, payload: { request, accessToken }, error })
+    throw new NarvalSdkException('Failed to sign request', { config, error })
   }
 }
 
 export const generateEncryptionKey = async (
   config: VaultClientConfig,
-  request: GenerateEncryptionKeyRequest
+  { accessToken, ...payload }: GenerateEncryptionKeyRequest
 ): Promise<GenerateEncryptionKeyResponse> => {
-  const { accessToken, ...payload } = request
-
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
@@ -101,7 +100,7 @@ export const generateEncryptionKey = async (
     })
 
     const { data } = await axios.post<GenerateEncryptionKeyResponse>(uri, payload, {
-      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+      headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
     return data
@@ -112,10 +111,8 @@ export const generateEncryptionKey = async (
 
 export const importPrivateKey = async (
   config: VaultClientConfig,
-  request: ImportPrivateKeyRequest
+  { accessToken, privateKey }: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
-  const { accessToken, privateKey } = request
-
   try {
     const { publicKey: rsaEncryptionKey } = await generateEncryptionKey(config, { accessToken })
     const encryptedPrivateKey = await rsaEncrypt(privateKey, rsaEncryptionKey)
@@ -136,21 +133,19 @@ export const importPrivateKey = async (
     })
 
     const { data } = await axios.post<ImportPrivateKeyResponse>(uri, payload, {
-      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+      headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import private key', { config, request, error })
+    throw new NarvalSdkException('Failed to import private key', { config, error })
   }
 }
 
 export const importSeed = async (
   config: VaultClientConfig,
-  request: ImportSeedRequest
+  { accessToken, seed }: ImportSeedRequest
 ): Promise<ImportSeedResponse> => {
-  const { accessToken, seed } = request
-
   try {
     const { publicKey: rsaEncryptionKey } = await generateEncryptionKey(config, { accessToken })
     const encryptedSeed = await rsaEncrypt(seed, rsaEncryptionKey)
@@ -171,21 +166,19 @@ export const importSeed = async (
     })
 
     const { data } = await axios.post<ImportSeedResponse>(uri, payload, {
-      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+      headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import seed', { config, request, error })
+    throw new NarvalSdkException('Failed to import seed', { config, error })
   }
 }
 
 export const generateKey = async (
   config: VaultClientConfig,
-  request: GenerateKeyRequest
+  { accessToken, ...payload }: GenerateKeyRequest
 ): Promise<GenerateKeyResponse> => {
-  const { accessToken, ...payload } = request
-
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
@@ -202,18 +195,16 @@ export const generateKey = async (
     })
 
     const { data } = await axios.post<GenerateKeyResponse>(uri, payload, {
-      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+      headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to generate key', { config, payload, error })
+    throw new NarvalSdkException('Failed to generate key', { config, error })
   }
 }
 
-export const deriveWallet = async (config: VaultClientConfig, request: DeriveWalletRequest) => {
-  const { accessToken, ...payload } = request
-
+export const deriveWallet = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveWalletRequest) => {
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
@@ -230,11 +221,11 @@ export const deriveWallet = async (config: VaultClientConfig, request: DeriveWal
     })
 
     const { data } = await axios.post<DeriveWalletResponse>(uri, payload, {
-      headers: buildGnapVaultHeaders(vaultClientId, accessToken.value, detachedJws)
+      headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to derive wallet', { config, payload, error })
+    throw new NarvalSdkException('Failed to derive wallet', { config, error })
   }
 }

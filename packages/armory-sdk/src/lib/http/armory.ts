@@ -1,16 +1,17 @@
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
-import { EngineClientConfig } from '../domain'
+import { AuthAdminConfig, AuthClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
+import { signRequestPayload } from '../sdk'
 import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
-import { signRequest } from '../utils'
 
 export const onboardArmoryClient = async (
-  authHost: string,
-  adminApiKey: string,
+  config: AuthAdminConfig,
   request: OnboardArmoryClientRequest
 ): Promise<OnboardArmoryClientResponse> => {
+  const { authHost, adminApiKey } = config
+
   try {
     const { data } = await axios.post<OnboardArmoryClientResponse>(`${authHost}/clients`, request, {
       headers: {
@@ -20,14 +21,11 @@ export const onboardArmoryClient = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { authHost, request, error })
+    throw new NarvalSdkException('Failed to onboard client', { config, error })
   }
 }
 
-export const getAuthorizationRequest = async (
-  config: EngineClientConfig,
-  id: string
-): Promise<AuthorizationRequest> => {
+export const getAuthorizationRequest = async (config: AuthClientConfig, id: string): Promise<AuthorizationRequest> => {
   try {
     const { authHost, authClientId } = config
 
@@ -37,25 +35,25 @@ export const getAuthorizationRequest = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to get authorization request', { config, id, error })
+    throw new NarvalSdkException('Failed to get authorization request', { config, error })
   }
 }
 
 export const sendAuthorizationRequest = async (
-  config: EngineClientConfig,
+  config: AuthClientConfig,
   request: EvaluationRequest
 ): Promise<AuthorizationRequest> => {
   try {
-    const { authHost, authClientId } = config
+    const { authHost, authClientId: clientId, jwk, alg, signer } = config
 
-    const payload = await signRequest(config, request)
+    const payload = await signRequestPayload({ clientId, jwk, alg, signer }, request)
 
     const { data } = await axios.post<AuthorizationRequest>(`${authHost}/authorization-requests`, payload, {
-      headers: { [HEADER_CLIENT_ID]: authClientId }
+      headers: { [HEADER_CLIENT_ID]: clientId }
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to send authorization request', { config, request, error })
+    throw new NarvalSdkException('Failed to send authorization request', { config, error })
   }
 }

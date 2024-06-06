@@ -3,11 +3,11 @@
 import { AuthorizationRequest, SignatureRequest } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
-import useAuthServerApi from '../../_hooks/useAuthServerApi'
+import useArmoryApi from '../../_hooks/useArmoryApi'
 import useVaultApi from '../../_hooks/useVaultApi'
 
 const AuthServerPlayground = () => {
-  const { errors: evaluationErrors, authorizationResponse, authorize } = useAuthServerApi()
+  const { errors: evaluationErrors, authorizationResponse, authorize } = useArmoryApi()
   const {
     errors: signatureErrors,
     sign,

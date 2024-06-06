@@ -35,9 +35,9 @@ const useEngineApi = () => {
     }
 
     return {
-      authHost,
-      authClientId,
-      authSecret,
+      engineHost: authHost,
+      engineClientId: authClientId,
+      engineClientSecret: authSecret,
       jwk,
       alg: SigningAlg.EIP191,
       signer
