@@ -73,16 +73,3 @@ export const sendTransaction = async (
 
   return publicClient.sendRawTransaction({ serializedTransaction: signature })
 }
-
-export { getAuthorizationRequest, onboardArmoryClient, sendAuthorizationRequest } from './http/armory'
-export { getEntities, getPolicies, setEntities, setPolicies } from './http/data-store'
-export { onboardEngineClient, pingEngine, sendEvaluationRequest, syncEngine } from './http/policy-engine'
-export {
-  deriveWallet,
-  generateKey,
-  importPrivateKey,
-  importSeed,
-  onboardVaultClient,
-  pingVault,
-  signRequest
-} from './http/vault'

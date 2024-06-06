@@ -34,12 +34,12 @@ export const onboardVaultClient = async (
   config: VaultAdminConfig,
   request: OnboardVaultClientRequest
 ): Promise<OnboardVaultClientResponse> => {
-  const { vaultHost, adminApiKey } = config
+  const { vaultHost, vaultAdminApiKey } = config
 
   try {
     const { data } = await axios.post<OnboardVaultClientResponse>(`${vaultHost}/clients`, request, {
       headers: {
-        [HEADER_ADMIN_API_KEY]: adminApiKey
+        [HEADER_ADMIN_API_KEY]: vaultAdminApiKey
       }
     })
 

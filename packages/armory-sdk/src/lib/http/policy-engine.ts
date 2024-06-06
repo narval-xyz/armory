@@ -19,12 +19,12 @@ export const onboardEngineClient = async (
   config: EngineAdminConfig,
   request: OnboardEngineClientRequest
 ): Promise<OnboardEngineClientResponse> => {
-  const { engineHost, adminApiKey } = config
+  const { engineHost, engineAdminApiKey } = config
 
   try {
     const { data } = await axios.post<OnboardEngineClientResponse>(`${engineHost}/clients`, request, {
       headers: {
-        [HEADER_ADMIN_API_KEY]: adminApiKey
+        [HEADER_ADMIN_API_KEY]: engineAdminApiKey
       }
     })
 

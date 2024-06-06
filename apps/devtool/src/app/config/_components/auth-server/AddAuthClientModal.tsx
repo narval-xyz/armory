@@ -7,7 +7,7 @@ import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
 import useAccountSignature from '../../../_hooks/useAccountSignature'
-import useArmoryApi, { AuthClientData } from '../../../_hooks/useArmoryApi'
+import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerApi'
 import useStore from '../../../_hooks/useStore'
 import { MANAGED_ENTITY_DATA_STORE_PATH, MANAGED_POLICY_DATA_STORE_PATH } from '../../../_lib/constants'
 
@@ -34,7 +34,7 @@ const AddAuthClientModal = () => {
   } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { isProcessing, onboard } = useArmoryApi()
+  const { isProcessing, onboard } = useAuthServerApi()
 
   const [isOpen, setIsOpen] = useState(false)
   const [newClient, setNewClient] = useState<any>()

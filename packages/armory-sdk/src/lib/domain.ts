@@ -4,19 +4,19 @@ import { z } from 'zod'
 
 export const AuthAdminConfig = z.object({
   authHost: z.string(),
-  adminApiKey: z.string()
+  authAdminApiKey: z.string()
 })
 export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 
 export const EngineAdminConfig = z.object({
   engineHost: z.string(),
-  adminApiKey: z.string()
+  engineAdminApiKey: z.string()
 })
 export type EngineAdminConfig = z.infer<typeof EngineAdminConfig>
 
 export const VaultAdminConfig = z.object({
   vaultHost: z.string(),
-  adminApiKey: z.string()
+  vaultAdminApiKey: z.string()
 })
 export type VaultAdminConfig = z.infer<typeof VaultAdminConfig>
 

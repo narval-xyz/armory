@@ -10,12 +10,12 @@ export const onboardArmoryClient = async (
   config: AuthAdminConfig,
   request: OnboardArmoryClientRequest
 ): Promise<OnboardArmoryClientResponse> => {
-  const { authHost, adminApiKey } = config
+  const { authHost, authAdminApiKey } = config
 
   try {
     const { data } = await axios.post<OnboardArmoryClientResponse>(`${authHost}/clients`, request, {
       headers: {
-        [HEADER_ADMIN_API_KEY]: adminApiKey
+        [HEADER_ADMIN_API_KEY]: authAdminApiKey
       }
     })
 

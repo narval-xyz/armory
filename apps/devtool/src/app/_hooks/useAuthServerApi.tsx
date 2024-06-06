@@ -1,7 +1,7 @@
 import {
+  AuthClientConfig,
   AuthorizationRequest,
   AuthorizationRequestStatus,
-  EngineClientConfig,
   getAuthorizationRequest,
   onboardArmoryClient,
   sendAuthorizationRequest
@@ -32,36 +32,36 @@ export interface AuthClientData {
   policyPublicKey: string
 }
 
-const useArmoryApi = () => {
-  const { authUrl: authHost, authClientId, authClientSecret: authSecret } = useStore()
+const useAuthServerApi = () => {
+  const { authUrl: authHost, authClientId, authClientSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
-  const sdkArmoryConfig = useMemo<EngineClientConfig | null>(() => {
-    if (!authClientId || !authSecret || !jwk || !signer) {
+  const sdkAuthClientConfig = useMemo<AuthClientConfig | null>(() => {
+    if (!authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 
     return {
-      engineHost: authHost,
-      engineClientId: authClientId,
-      engineClientSecret: authSecret,
+      authHost,
+      authClientId,
+      authClientSecret,
       jwk,
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authHost, authClientId, authSecret, jwk, signer])
+  }, [authHost, authClientId, authClientSecret, jwk, signer])
 
   const { data: authorizationResponse } = useSWR(
     '/authorization-requests',
     () => {
-      if (!sdkArmoryConfig || !processingRequest) {
+      if (!sdkAuthClientConfig || !processingRequest) {
         return null
       }
 
-      return getAuthorizationRequest(sdkArmoryConfig, processingRequest.id)
+      return getAuthorizationRequest(sdkAuthClientConfig, processingRequest.id)
     },
     { refreshInterval: 1000 }
   )
@@ -75,49 +75,52 @@ const useArmoryApi = () => {
   }, [authorizationResponse])
 
   const onboard = async (authClientData: AuthClientData) => {
-    setErrors(undefined)
-    setIsProcessing(true)
-
     try {
+      setErrors(undefined)
+      setIsProcessing(true)
+
       const {
-        authServerUrl,
-        authAdminApiKey,
         id,
         name,
+        authServerUrl,
+        authAdminApiKey,
         entityDataStoreUrl,
         entityPublicKey,
         policyDataStoreUrl,
         policyPublicKey
       } = authClientData
 
-      const client = await onboardArmoryClient(authServerUrl, authAdminApiKey, {
-        id,
-        name,
-        dataStore: {
-          entity: {
-            data: {
-              type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl
+      const client = await onboardArmoryClient(
+        { authHost: authServerUrl, authAdminApiKey },
+        {
+          id,
+          name,
+          dataStore: {
+            entity: {
+              data: {
+                type: getUrlProtocol(entityDataStoreUrl),
+                url: entityDataStoreUrl
+              },
+              signature: {
+                type: getUrlProtocol(entityDataStoreUrl),
+                url: entityDataStoreUrl
+              },
+              keys: [JSON.parse(entityPublicKey)]
             },
-            signature: {
-              type: getUrlProtocol(entityDataStoreUrl),
-              url: entityDataStoreUrl
-            },
-            keys: [JSON.parse(entityPublicKey)]
-          },
-          policy: {
-            data: {
-              type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
-            },
-            signature: {
-              type: getUrlProtocol(policyDataStoreUrl),
-              url: policyDataStoreUrl
-            },
-            keys: [JSON.parse(policyPublicKey)]
+            policy: {
+              data: {
+                type: getUrlProtocol(policyDataStoreUrl),
+                url: policyDataStoreUrl
+              },
+              signature: {
+                type: getUrlProtocol(policyDataStoreUrl),
+                url: policyDataStoreUrl
+              },
+              keys: [JSON.parse(policyPublicKey)]
+            }
           }
         }
-      })
+      )
 
       setIsProcessing(false)
 
@@ -129,14 +132,15 @@ const useArmoryApi = () => {
   }
 
   const authorize = async (request: EvaluationRequest) => {
-    if (!sdkArmoryConfig) return
-
-    setErrors(undefined)
-    setIsProcessing(true)
+    if (!sdkAuthClientConfig) return
 
     try {
-      const authRequest = await sendAuthorizationRequest(sdkArmoryConfig, request)
+      setErrors(undefined)
+      setIsProcessing(true)
+
+      const authRequest = await sendAuthorizationRequest(sdkAuthClientConfig, request)
       setProcessingRequest(authRequest)
+
       return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -148,4 +152,4 @@ const useArmoryApi = () => {
   return { errors, isProcessing, authorizationResponse, onboard, authorize }
 }
 
-export default useArmoryApi
+export default useAuthServerApi
