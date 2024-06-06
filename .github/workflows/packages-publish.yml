@@ -36,9 +36,20 @@ jobs:
         run: |
           npx nx report
 
-      # - name: Publish
-      #   run: npx nx release publish
-      #   shell: bash
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-      #     NPM_CONFIG_PROVENANCE: true
+      - name: Publish
+        run: npx nx release publish
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Send Slack notification on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: 'Packages release failed'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
