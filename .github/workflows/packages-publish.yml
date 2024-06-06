@@ -1,0 +1,39 @@
+name: Packages Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # - name: Install Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '21'
+      #     cache: 'npm'
+      #
+      # - name: Install dependencies
+      #   run: |
+      #     make install/ci
+      #
+      # - name: Print environment
+      #   run: npx nx report
+      #   shell: bash
+      #
+      # - name: Publish
+      #   run: npx nx release publish
+      #   shell: bash
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      #     NPM_CONFIG_PROVENANCE: true
