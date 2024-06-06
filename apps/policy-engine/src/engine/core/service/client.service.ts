@@ -23,7 +23,7 @@ export class ClientService {
     return this.clientRepository.findById(clientId)
   }
 
-  async create(args: {
+  async create(input: {
     clientId?: string
     clientSecret?: string
     unsafeKeyId?: string
@@ -32,14 +32,25 @@ export class ClientService {
   }): Promise<Client> {
     const now = new Date()
 
-    const { unsafeKeyId, entityDataStore, policyDataStore } = args
-    const clientId = args.clientId || uuid()
-    // If we are generating the secret, we'll want to return the full thing to the user one time.
-    const fullClientSecret = !args.clientSecret ? secret.generate() : undefined
-    const clientSecret = args.clientSecret || secret.hash(fullClientSecret!)
+    const { unsafeKeyId, entityDataStore, policyDataStore } = input
+    const clientId = input.clientId || uuid()
+    // If we are generating the secret, we'll want to return the full thing to
+    // the user one time.
+    const fullClientSecret = !input.clientSecret ? secret.generate() : undefined
+
+    if (!input.clientSecret || !fullClientSecret) {
+      throw new ApplicationException({
+        message: 'Missing client secret',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    }
+
+    const clientSecret = input.clientSecret || secret.hash(fullClientSecret)
     const keyId = unsafeKeyId ? `${clientId}:${unsafeKeyId}` : undefined
 
-    const sessionId = hash(args) // for MPC, we need a unique sessionId; we'll just generate it from the data since this isn't tx signing so it happens just once
+    // For MPC, we need a unique sessionId; we'll just generate it from the data
+    // since this isn't tx signing so it happens just once
+    const sessionId = hash(input)
     const keypair = await this.signingService.generateKey(keyId, sessionId)
     const signer = {
       keyId: keypair.publicKey.kid,
@@ -60,7 +71,9 @@ export class ClientService {
 
     return {
       ...client,
-      ...(fullClientSecret ? { clientSecret: fullClientSecret } : {}) // If we generated a new secret, we need to include it in the response the first time.
+      // If we generated a new secret, we need to include it in the response
+      // the first time.
+      ...(fullClientSecret ? { clientSecret: fullClientSecret } : {})
     }
   }
 
