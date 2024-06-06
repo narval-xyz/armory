@@ -17,7 +17,7 @@ import {
   SignatureResponse
 } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
-import { FC, useEffect, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
@@ -25,7 +25,6 @@ import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
 import ImportWalletModal from './modals/ImportWalletModal'
-import PlaygroundConfigModal from './modals/PlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -35,6 +34,7 @@ enum Template {
 
 interface PlaygroundProps {
   title: string
+  configModal: ReactNode
   response?: string
   errors?: string | undefined
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
@@ -49,6 +49,7 @@ interface PlaygroundProps {
 
 const Playground: FC<PlaygroundProps> = ({
   title,
+  configModal,
   response,
   errors,
   authorize,
@@ -277,7 +278,7 @@ const Playground: FC<PlaygroundProps> = ({
               importSeedPhrase={handleSeedImport}
             />
           )}
-          <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
+          {configModal}
         </div>
       </div>
       <div className="flex items-start">

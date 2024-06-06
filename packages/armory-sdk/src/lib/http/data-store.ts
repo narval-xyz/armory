@@ -1,9 +1,10 @@
 import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import axios from 'axios'
+import { HEADER_CLIENT_ID } from '../constants'
 import { DataStoreClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { signDataPayload } from '../sdk'
-import { builBasicHeaders, isSuccessResponse } from '../utils'
+import { isSuccessResponse } from '../utils'
 
 export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
   try {
@@ -31,13 +32,15 @@ export const getPolicies = async (policyStoreHost: string): Promise<PolicyStore>
 
 export const setEntities = async (config: DataStoreClientConfig, data: Entities): Promise<{ success: boolean }> => {
   try {
-    const { dataStoreClientId: clientId, dataStoreClientSecret: clientSecret, entityStoreHost, ...payload } = config
-    const headersPayload = { clientId, clientSecret, ...payload }
+    const { dataStoreClientId: clientId, entityStoreHost, ...payload } = config
 
-    const headers = builBasicHeaders(headersPayload)
-    const signature = await signDataPayload(headersPayload, data)
+    const signature = await signDataPayload({ clientId, ...payload }, data)
     const entity = EntityStore.parse({ data, signature })
-    const response = await axios.post(entityStoreHost, entity, { headers })
+    const response = await axios.post(entityStoreHost, entity, {
+      headers: {
+        [HEADER_CLIENT_ID]: clientId
+      }
+    })
 
     if (!isSuccessResponse(response.status)) {
       throw new NarvalSdkException('Failed to set entities', {
@@ -60,12 +63,14 @@ export const setEntities = async (config: DataStoreClientConfig, data: Entities)
 export const setPolicies = async (config: DataStoreClientConfig, data: Policy[]): Promise<{ success: boolean }> => {
   try {
     const { dataStoreClientId: clientId, dataStoreClientSecret: clientSecret, policyStoreHost, ...payload } = config
-    const headersPayload = { clientId, clientSecret, ...payload }
 
-    const headers = builBasicHeaders(headersPayload)
-    const signature = await signDataPayload(headersPayload, data)
+    const signature = await signDataPayload({ clientId, ...payload }, data)
     const policy = PolicyStore.parse({ data, signature })
-    const response = await axios.post(policyStoreHost, policy, { headers })
+    const response = await axios.post(policyStoreHost, policy, {
+      headers: {
+        [HEADER_CLIENT_ID]: clientId
+      }
+    })
 
     if (!isSuccessResponse(response.status)) {
       throw new NarvalSdkException('Failed to set policies', {

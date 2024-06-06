@@ -2,7 +2,7 @@
 
 import { faGear } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
@@ -22,7 +22,7 @@ const initForm: ConfigForm = {
   vaultClientId: ''
 }
 
-const PlaygroundConfigModal: FC<{ displayAuthServerUrl: boolean }> = ({ displayAuthServerUrl }) => {
+const AuthConfigModal = () => {
   const { authUrl, authClientId, vaultUrl, vaultClientId, setAuthUrl, setAuthClientId, setVaultUrl, setVaultClientId } =
     useStore()
 
@@ -74,9 +74,7 @@ const PlaygroundConfigModal: FC<{ displayAuthServerUrl: boolean }> = ({ displayA
     >
       <div className="w-[800px] px-12 py-4">
         <div className="flex flex-col gap-[16px]">
-          {displayAuthServerUrl && (
-            <NarInput label="Auth URL" value={form.authUrl} onChange={(authUrl) => updateForm({ authUrl })} />
-          )}
+          <NarInput label="Auth URL" value={form.authUrl} onChange={(authUrl) => updateForm({ authUrl })} />
           <NarInput
             label="Auth Client ID"
             value={form.authClientId}
@@ -94,4 +92,4 @@ const PlaygroundConfigModal: FC<{ displayAuthServerUrl: boolean }> = ({ displayA
   )
 }
 
-export default PlaygroundConfigModal
+export default AuthConfigModal

@@ -40,7 +40,7 @@ const useAuthServerApi = () => {
   const [errors, setErrors] = useState<string>()
 
   const sdkAuthClientConfig = useMemo<AuthClientConfig | null>(() => {
-    if (!authClientId || !authClientSecret || !jwk || !signer) {
+    if (!authClientId || !jwk || !signer) {
       return null
     }
 

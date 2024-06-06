@@ -49,7 +49,7 @@ export type VaultClientConfig = z.infer<typeof VaultClientConfig>
 
 export const DataStoreClientConfig = UserSigner.extend({
   dataStoreClientId: z.string(),
-  dataStoreClientSecret: z.string(),
+  dataStoreClientSecret: z.string().optional(),
   entityStoreHost: z.string(),
   policyStoreHost: z.string()
 })

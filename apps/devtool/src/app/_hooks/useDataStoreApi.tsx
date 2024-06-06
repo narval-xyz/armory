@@ -46,7 +46,7 @@ const useDataStoreApi = () => {
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const sdkDataStoreConfig = useMemo<DataStoreClientConfig | null>(() => {
-    if (!authClientId || !authClientSecret || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
+    if (!authClientId || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
       return null
     }
 

@@ -10,7 +10,7 @@ import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
-import DataStoreConfigModal from './DataStoreConfigModal'
+import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
 
 const DataStore = () => {
   const { authClientId, entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } =
