@@ -3,8 +3,8 @@ import { signJwt } from '@narval/signature'
 import { Hex, createPublicClient, http } from 'viem'
 import { ArmoryClientConfig, ArmoryClientConfigInput, EngineClientConfig } from './domain'
 import { SendEvaluationResponse } from './types/policy-engine'
-import { buildDataPayload } from './utils/jose'
 import { getChainOrThrow } from './utils/domain'
+import { buildDataPayload } from './utils/jose'
 
 export const createArmoryConfig = (config: ArmoryClientConfigInput): ArmoryClientConfig => {
   const authClientId = config.authClientId || process.env.ARMORY_CLIENT_ID

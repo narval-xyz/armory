@@ -18,9 +18,9 @@ import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { deriveWallet, getRootKey } from '../util/key-generation'
-import { KeyGenerationService } from './key-generation.service'
-import { nextBip44Path } from 'apps/vault/src/vault/core/util/derivation'
+import { getRootKey } from '../util/key-generation'
+import { SeedService } from './seed.service'
+import { WalletService } from './wallet.service'
 
 @Injectable()
 export class ImportService {
@@ -29,7 +29,8 @@ export class ImportService {
   constructor(
     private walletRepository: WalletRepository,
     private importRepository: ImportRepository,
-    private keyGenerationService: KeyGenerationService
+    private keyGenerationService: SeedService,
+    private walletService: WalletService
   ) {}
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {
@@ -60,7 +61,7 @@ export class ImportService {
     return wallet
   }
 
-  async #decrypt(clientId: string, encryptedData: string): Promise<string> {
+  private async decrypt(clientId: string, encryptedData: string): Promise<string> {
     const header = decodeProtectedHeader(encryptedData)
     const kid = header.kid
 
@@ -92,7 +93,7 @@ export class ImportService {
       clientId
     })
 
-    const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
+    const privateKey = await this.decrypt(clientId, encryptedPrivateKey)
 
     if (!isHex(privateKey)) {
       throw new ApplicationException({
@@ -116,23 +117,28 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
-    const { keyId, encryptedSeed } = body
+    const { keyId: optionalId, encryptedSeed } = body
 
-    const mnemonic = await this.#decrypt(clientId, encryptedSeed)
+    const mnemonic = await this.decrypt(clientId, encryptedSeed)
 
-    const { rootKey, keyId: rootKeyId } = getRootKey(mnemonic, keyId)
-
-    const backup = await this.keyGenerationService.saveMnemonic(clientId, {
-      kid: rootKeyId,
-      mnemonic,
-      origin: Origin.IMPORTED,
+    const { rootKey, keyId } = getRootKey(mnemonic, {
+      keyId: optionalId
     })
 
-    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
+    const backup = await this.keyGenerationService.save(clientId, {
+      kid: keyId,
+      mnemonic,
+      origin: Origin.IMPORTED
+    })
+
+    const [firstWallet] = await this.walletService.generate(clientId, {
+      keyId,
+      rootKey
+    })
 
     return {
       wallet: firstWallet,
-      keyId: rootKeyId,
+      keyId: keyId,
       backup
     }
   }

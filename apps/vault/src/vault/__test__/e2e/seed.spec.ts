@@ -6,10 +6,12 @@ import {
   Alg,
   Payload,
   RsaPrivateKey,
+  RsaPublicKey,
   SigningAlg,
   buildSignerEip191,
   generateJwk,
   rsaDecrypt,
+  rsaEncrypt,
   rsaPublicKeySchema,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
@@ -17,8 +19,11 @@ import {
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { generateMnemonic } from '@scure/bip39'
+import { resourceId } from 'packages/armory-sdk/src/lib/utils/domain'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { english } from 'viem/accounts'
 import { ClientModule } from '../../../client/client.module'
 import { ClientService } from '../../../client/core/service/client.service'
 import { Config, load } from '../../../main.config'
@@ -30,7 +35,7 @@ import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('Generate', () => {
+describe('Seeds', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -112,20 +117,19 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('POST /generate/key', () => {
+  describe('POST /seeds/generate', () => {
     it('generates a new mnemonic', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-
       const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       expect(body.wallet).toEqual({
-        keyId: 'rootKeyId',
+        keyId: 'keyId',
         derivationPath: "m/44'/60'/0'/0/0",
         address: expect.any(String),
         publicKey: expect.any(String),
@@ -145,38 +149,73 @@ describe('Generate', () => {
       await clientService.save(clientWithBackupKey)
 
       const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientWithBackupKey.clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
-
       const decryptedMnemonic = await rsaDecrypt(body.backup as string, backupKey)
       const spaceInMnemonic = decryptedMnemonic.split(' ')
       expect(spaceInMnemonic.length).toBe(12)
     })
   })
-  describe('POST /derive/wallets', () => {
+  describe('POST /seeds/import', () => {
+    it('imports a jwe-encrypted mnemonic', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+      const { body: keygenBody } = await request(app.getHttpServer())
+        .post('/import/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({})
+
+      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
+
+      const mnemonic = generateMnemonic(english)
+      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/seeds/import')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
+        .send({
+          encryptedSeed: jwe,
+          keyId: 'my-imported-rootKey'
+        })
+
+      expect(body).toEqual({
+        wallet: {
+          address: expect.any(String),
+          publicKey: expect.any(String),
+          keyId: 'my-imported-rootKey',
+          derivationPath: `m/44'/60'/0'/0/0`,
+          id: resourceId(body.wallet.address)
+        },
+        keyId: 'my-imported-rootKey'
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+  })
+
+  describe('POST /seeds/derive', () => {
     it('derives a new wallet from a rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
-
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/seeds/derive')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId,
+          keyId
         })
 
       expect(body).toEqual({
@@ -187,13 +226,6 @@ describe('Generate', () => {
             derivationPath: "m/44'/60'/0'/0/1",
             address: expect.any(String),
             publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/2",
-            address: expect.any(String),
-            publicKey: expect.any(String)
           }
         ]
       })
@@ -202,36 +234,35 @@ describe('Generate', () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { status } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/seeds/derive')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'somekeyId',
+          keyId: 'somekeyId'
         })
-
       expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
     it('derives multiple wallets from a rootKey in one call', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-      .post('/generate/keys')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId: 'rootKeyId'
-      })
+        .post('/seeds/generate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
 
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-      .post('/derive/wallets')
-      .set(REQUEST_HEADER_CLIENT_ID, clientId)
-      .set('authorization', `GNAP ${accessToken}`)
-      .send({
-        keyId,
-        derivations: 2
-      })
+        .post('/seeds/derive')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId,
+          count: 2
+        })
 
       expect(body).toEqual({
         wallets: [
@@ -257,27 +288,27 @@ describe('Generate', () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/seeds/derive')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
           keyId,
           derivationPaths: ["m/44'/60'/0'/0/10", "m/44'/60'/0'/0/11"],
-          derivations: 2
+          count: 2
         })
 
-      expect(body).toEqual({
-        wallets: [
+      expect(body.wallets).toEqual(
+        expect.arrayContaining([
           {
             id: expect.any(String),
             keyId,
@@ -292,8 +323,92 @@ describe('Generate', () => {
             address: expect.any(String),
             publicKey: expect.any(String)
           }
-        ]
-      })
+        ])
+      )
+    })
+    it('derives a new wallet from a rootKey with custom derivation paths and a custom count count', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/seeds/generate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      const { keyId } = generateKeyResponse
+
+      const { body } = await request(app.getHttpServer())
+        .post('/seeds/derive')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId,
+          derivationPaths: ["m/44'/60'/0'/0/10", "m/44'/60'/0'/0/11"],
+          count: 8
+        })
+
+      expect(body.wallets).toEqual(
+        expect.arrayContaining([
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/10",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/11",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/12",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/13",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/14",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/15",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/16",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/17",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          }
+        ])
+      )
     })
   })
 })

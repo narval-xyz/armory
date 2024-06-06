@@ -117,37 +117,37 @@ describe('Generate', () => {
         updatedAt: new Date()
       })
 
-      const accessToken = await getAccessToken([Permission.WALLET_READ])
+      const accessToken = await getAccessToken([Permission.WALLET_READ, Permission.WALLET_CREATE])
       const { body: firstMnemonicRequest } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       const { body: secondMnemonicRequest } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-2'
+          keyId: 'keyId-2'
         })
 
       const { body: firstDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId',
+          keyId: 'keyId'
         })
 
       const { body: secondDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-2',
+          keyId: 'keyId-2'
         })
 
       const wallets = [
@@ -158,11 +158,11 @@ describe('Generate', () => {
       ]
 
       await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/seeds/generate')
         .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-second-client'
+          keyId: 'keyId-second-client'
         })
 
       const { body } = await request(app.getHttpServer())

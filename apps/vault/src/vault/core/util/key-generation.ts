@@ -1,13 +1,13 @@
-import { addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
+import { Alg, Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
+import { max, range } from 'lodash/fp'
+import { resourceId } from 'packages/armory-sdk/src/lib/utils/domain'
 import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils/domain'
-import { max } from 'lodash/fp'
-import { isBip44Path, nextBip44Path } from 'apps/vault/src/vault/core/util/derivation'
+import { BIP44_PREFIX, Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -33,11 +33,11 @@ export const hdKeyToKid = (key: HDKey): string => {
 
 export const hdKeyToWallet = async ({
   key,
-  rootKeyId,
+  keyId,
   path
 }: {
   key: HDKey
-  rootKeyId: string
+  keyId: string
   path: string
 }): Promise<PrivateWallet> => {
   if (!key.privateKey) {
@@ -59,28 +59,15 @@ export const hdKeyToWallet = async ({
     publicKey,
     origin: Origin.GENERATED,
     address,
-    rootKeyId,
+    keyId,
     derivationPath: path
   }
 }
 
-export const deriveWallet = async (rootKey: HDKey, {
-  rootKeyId,
-  path,
-}: {
-  rootKeyId?: string
-  path?: string
-} = {}): Promise<PrivateWallet> => {
-  rootKeyId = rootKeyId ?? hdKeyToKid(rootKey);
-  path = path ?? nextBip44Path();
-
-  const derivedKey = rootKey.derive(path);
-  const wallet = await hdKeyToWallet({
-    key: derivedKey,
-    rootKeyId,
-    path
-  });
-  return wallet;
+export const generateNextPaths = (derivedIndexes: number[], count: number): string[] => {
+  const maxIndex = max(derivedIndexes)
+  const startIndex = maxIndex !== undefined ? maxIndex + 1 : 0
+  return range(startIndex, startIndex + count).map((index) => `${BIP44_PREFIX}${index}`)
 }
 
 export const mnemonicToRootKey = (mnemonic: string): HDKey => {
@@ -88,21 +75,40 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
+export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
+  const { curve = Curves.SECP256K1 } = opts
+  switch (curve) {
+    case Curves.SECP256K1: {
+      const rootKey = mnemonicToRootKey(mnemonic)
+      return { rootKey, keyId: opts.keyId || hdKeyToKid(rootKey) }
+    }
+    default:
+      throw new ApplicationException({
+        message: 'Unsupported curve',
+        suggestedHttpStatusCode: 400,
+        context: { curve: opts.curve }
+      })
+  }
+}
+
 export const getRootKey = (
   mnemonic: string,
-  keyId?: string
+  opts: GenerateKeyDto
 ): {
   rootKey: HDKey
   keyId: string
 } => {
-  const rootKey = mnemonicToRootKey(mnemonic)
-  return { rootKey, keyId: keyId || hdKeyToKid(rootKey) }
-}
+  const { alg = Alg.ES256K } = opts
 
-export const findNextPath = (paths: (string | undefined)[]): string => {
-  const lastPath = max(paths.filter(isBip44Path));
-  if (isBip44Path(lastPath) || lastPath === undefined) {
-    return nextBip44Path(lastPath);
+  switch (alg) {
+    case Alg.ES256K:
+      return getSecp256k1Key(mnemonic, opts)
+    default:
+      throw new ApplicationException({
+        message: 'Unsupported algorithm',
+        suggestedHttpStatusCode: 400,
+        context: { alg }
+      })
   }
 }
 

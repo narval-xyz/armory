@@ -4,7 +4,7 @@ import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
 import { EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
-import { signRequest } from '../utils/headers'
+import { signRequest } from '../utils/jose'
 
 export const onboardArmoryClient = async (
   authHost: string,

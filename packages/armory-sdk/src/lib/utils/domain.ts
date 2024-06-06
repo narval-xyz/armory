@@ -1,8 +1,8 @@
-import { Chain } from 'viem'
-import { ForbiddenException, NarvalSdkException, NotImplementedException } from '../exceptions'
-import { mainnet, optimism, polygon } from 'viem/chains'
 import { Address, Decision, EvaluationResponse, isAddress } from '@narval/policy-engine-shared'
+import { Chain } from 'viem'
+import { mainnet, optimism, polygon } from 'viem/chains'
 import { EngineClientConfig } from '../domain'
+import { ForbiddenException, NarvalSdkException, NotImplementedException } from '../exceptions'
 import { SendEvaluationResponse } from '../types'
 
 export const getChainOrThrow = (chainId: number): Chain => {

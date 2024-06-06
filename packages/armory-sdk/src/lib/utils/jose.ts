@@ -1,16 +1,6 @@
-import {
-  Decision,
-  EvaluationRequest,
-  EvaluationResponse,
-  JwtString,
-  Request,
-  isAddress
-} from '@narval/policy-engine-shared'
-import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt } from '@narval/signature'
-import { Address, Chain, Hex } from 'viem'
-import { EngineClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from '../domain'
-import { buildJwsdHeader } from './headers'
-
+import { EvaluationRequest, Request } from '@narval/policy-engine-shared'
+import { Payload, hash, signJwt } from '@narval/signature'
+import { EngineClientConfig } from '../domain'
 
 export const signRequest = async (
   config: EngineClientConfig,
@@ -26,13 +16,6 @@ export const signRequest = async (
     ...request,
     authentication
   }
-}
-
-export const resourceId = (walletIdOrAddress: Address | string): string => {
-  if (isAddress(walletIdOrAddress)) {
-    return `eip155:eoa:${walletIdOrAddress}`
-  }
-  return walletIdOrAddress
 }
 
 export const buildRequestPayload = (

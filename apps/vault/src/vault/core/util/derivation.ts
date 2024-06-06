@@ -1,54 +1,47 @@
-import { HttpStatusCode } from 'axios';
-import { NarvalSdkException } from '../../../../../../packages/armory-sdk/src/lib/exceptions';
-import { Bip44Path, Bip44Options } from '../../../../../../packages/armory-sdk/src/lib/types/vault'
-import { registeredCoinTypes } from 'slip44';
+import { HttpStatus } from '@nestjs/common'
+import { ApplicationException } from '../../../shared/exception/application.exception'
+import { BIP44_PREFIX, Bip44Index, Bip44Options, Bip44Path } from '../../../shared/type/domain.type'
 
-const ETH = 60
-
-export const isBip44Path = (path?: string): path is Bip44Path => Bip44Path.safeParse(path).success
+export const findBip44Indexes = (path: (string | undefined)[]): number[] => {
+  if (!path.length) {
+    return []
+  }
+  const results = path.map((p) => {
+    const parsedString = Bip44Index.safeParse(p)
+    if (parsedString.success) {
+      return parsedString.data
+    }
+  })
+  return results.filter((index): index is number => index !== undefined)
+}
 
 export const bip44Path = (opts: Bip44Options): Bip44Path => {
-  const { coinType = ETH, accountIndex = 0, addressIndex = 0, changeIndex = 0, path } = opts
-  if (!isBip44Path(path)) {
-    throw new NarvalSdkException('Invalid derivation path', 
-      {
-        code: HttpStatusCode.UnprocessableEntity,
+  const { addressIndex = 0, path } = opts
+  if (path) {
+    try {
+      return Bip44Path.parse(path)
+    } catch (error) {
+      throw new ApplicationException({
+        message: 'Invalid bip44 path',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         context: {
-          derivationOptions: opts,
-          coinType,
-          accountIndex,
-          addressIndex,
-          changeIndex
+          error,
+          path
         }
-      }
-    )
+      })
+    }
   }
-  if (!registeredCoinTypes.find((type) => type[0] === coinType)) {
-    throw new NarvalSdkException(`Invalid coin type: ${coinType}`, 
-      {
-        code: HttpStatusCode.UnprocessableEntity,
-        context: {
-          derivationOptions: opts,
-          coinType,
-          accountIndex,
-          addressIndex,
-          changeIndex
-        }
-      }
-    )
-  }
-  return path || `m/44'/${coinType}'/${accountIndex}'/${changeIndex}/${addressIndex}`
+  return `${BIP44_PREFIX}${addressIndex}`
 }
 
 export const nextBip44Path = (path?: Bip44Path): Bip44Path => {
   if (!path) {
     return bip44Path({})
   }
-  const [_, coinType, accountIndex, changeIndex, addressIndex] = path.split('/')
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const [_m, _purpose, _coinType, _accountIndex, _changeIndex, addressIndex] = path.split('/')
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   return bip44Path({
-    coinType: parseInt(coinType),
-    accountIndex: parseInt(accountIndex),
-    changeIndex: parseInt(changeIndex),
     addressIndex: parseInt(addressIndex) + 1
   })
 }

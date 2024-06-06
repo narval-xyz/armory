@@ -10,22 +10,23 @@ import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
-import { AdminService } from './core/service/admin.service'
 import { AppService } from './core/service/app.service'
+import { BackupService } from './core/service/backup.service'
 import { ImportService } from './core/service/import.service'
-import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
+import { SeedService } from './core/service/seed.service'
 import { SigningService } from './core/service/signing.service'
-import { AdminController } from './http/rest/controller/admin.controller'
-import { GenerationController } from './http/rest/controller/generation.controller'
+import { WalletService } from './core/service/wallet.service'
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
+import { SeedController } from './http/rest/controller/seed.controller'
 import { SignController } from './http/rest/controller/sign.controller'
+import { WalletController } from './http/rest/controller/wallet.controller'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
-import { MnemonicRepository } from './persistence/repository/mnemonic.repository'
+import { SeedRepository } from './persistence/repository/mnemonic.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
@@ -47,21 +48,22 @@ import { VaultService } from './vault.service'
     ImportController,
     SignController,
     ProvisionController,
-    GenerationController,
-    AdminController
+    SeedController,
+    WalletController
   ],
   providers: [
     AppRepository,
     AppService,
-    AdminService,
     ImportRepository,
     ImportService,
     NonceGuard,
     NonceService,
     ProvisionService,
     SigningService,
-    KeyGenerationService,
-    MnemonicRepository,
+    SeedService,
+    WalletService,
+    BackupService,
+    SeedRepository,
     BackupRepository,
     VaultService,
     WalletRepository,

@@ -3,7 +3,8 @@ import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
-import { KeyGenerationService } from '../../key-generation.service'
+import { SeedService } from '../../seed.service'
+import { WalletService } from '../../wallet.service'
 
 describe('ImportService', () => {
   let importService: ImportService
@@ -32,7 +33,11 @@ describe('ImportService', () => {
           useValue: {}
         },
         {
-          provide: KeyGenerationService,
+          provide: SeedService,
+          useValue: {}
+        },
+        {
+          provide: WalletService,
           useValue: {}
         }
       ]

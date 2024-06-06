@@ -141,7 +141,7 @@ describe('Sign', () => {
     await app.close()
   })
 
-  describe('POST /sign', () => {
+  describe('POST /wallets/sign', () => {
     it('validates nested transaction data', async () => {
       const payload = {
         request: {
@@ -166,7 +166,7 @@ describe('Sign', () => {
       const accessToken = await getAccessToken(payload.request)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
@@ -187,7 +187,7 @@ describe('Sign', () => {
       const accessToken = await getAccessToken(payload.request)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
@@ -209,7 +209,7 @@ describe('Sign', () => {
 
       const accessToken = await getAccessToken(messageRequest)
       const { status, body } = await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({ request: messageRequest })
@@ -239,13 +239,13 @@ describe('Sign', () => {
       const accessToken = await getAccessToken(messageRequest)
 
       await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({ request: messageRequest })
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({ request: messageRequest })
@@ -276,7 +276,7 @@ describe('Sign', () => {
       const accessToken = await getAccessToken(payload)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/sign')
+        .post('/wallets/sign')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send(tamperedPayload)
@@ -298,7 +298,7 @@ describe('Sign', () => {
         const accessToken = await getAccessToken(payload.request, { cnf: clientJwk })
 
         const { status, body } = await request(app.getHttpServer())
-          .post('/sign')
+          .post('/wallets/sign')
           .set(REQUEST_HEADER_CLIENT_ID, clientId)
           .set('authorization', `GNAP ${accessToken}`)
           .send(payload)
@@ -321,7 +321,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://vault-test.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/wallets/sign',
           created: now,
           ath: hexToBase64Url(hash(accessToken))
         }
@@ -333,7 +333,7 @@ describe('Sign', () => {
         })
 
         const { status, body } = await request(app.getHttpServer())
-          .post('/sign')
+          .post('/wallets/sign')
           .set(REQUEST_HEADER_CLIENT_ID, clientId)
           .set('authorization', `GNAP ${accessToken}`)
           .set('detached-jws', jwsd)
@@ -361,7 +361,7 @@ describe('Sign', () => {
           kid: clientJwk.kid,
           typ: 'gnap-binding-jwsd',
           htm: 'POST',
-          uri: 'https://vault-test.narval.xyz/sign',
+          uri: 'https://vault-test.narval.xyz/wallets/sign',
           created: now,
           ath: ''
         }
@@ -374,7 +374,7 @@ describe('Sign', () => {
         })
 
         const { status, body } = await request(app.getHttpServer())
-          .post('/sign')
+          .post('/wallets/sign')
           .set(REQUEST_HEADER_CLIENT_ID, clientId)
           .set('authorization', `GNAP ${accessToken}`)
           .set('detached-jws', jwsd)

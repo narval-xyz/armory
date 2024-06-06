@@ -1,6 +1,4 @@
-import {
-  JwtString,
-} from '@narval/policy-engine-shared'
+import { JwtString } from '@narval/policy-engine-shared'
 import { JwsdHeader, buildSignerForAlg, hash, hexToBase64Url, signJwsd } from '@narval/signature'
 import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from '../constants'
 import { EngineClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from '../domain'
@@ -50,7 +48,6 @@ export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
     ath: hexToBase64Url(hash(accessToken.value))
   }
 }
-
 
 export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
   return {

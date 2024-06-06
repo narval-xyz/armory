@@ -2,7 +2,9 @@ import { Decision, EvaluationResponse, FIXTURE, Request } from '@narval/policy-e
 import { Alg, Payload } from '@narval/signature'
 import { ArmoryClientConfig, Htm } from '../../domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from '../../exceptions'
-import { buildJwsdHeader, buildRequestPayload, checkDecision } from '../../utils'
+import { checkDecision } from '../../utils/domain'
+import { buildJwsdHeader } from '../../utils/headers'
+import { buildRequestPayload } from '../../utils/jose'
 import { generateSignTransactionRequest } from './mock'
 
 describe('checkDecision', () => {

@@ -14,10 +14,8 @@ import {
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { english, generateMnemonic } from 'viem/accounts'
 import { ClientModule } from '../../../client/client.module'
 import { ClientService } from '../../../client/core/service/client.service'
 import { Config, load } from '../../../main.config'
@@ -183,42 +181,6 @@ describe('Import', () => {
       expect(body).toEqual({
         id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-    })
-  })
-  describe('POST /seeds', () => {
-    it('imports a jwe-encrypted mnemonic', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
-      const { body: keygenBody } = await request(app.getHttpServer())
-        .post('/import/encryption-keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({})
-
-      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
-
-      const mnemonic = generateMnemonic(english)
-      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/import/seeds')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
-        .send({
-          encryptedSeed: jwe,
-          keyId: 'my-imported-rootKey'
-        })
-
-      expect(body).toEqual({
-        wallet: {
-          address: expect.any(String),
-          publicKey: expect.any(String),
-          keyId: 'my-imported-rootKey',
-          derivationPath: `m/44'/60'/0'/0/0`,
-          id: resourceId(body.wallet.address)
-        },
-        keyId: 'my-imported-rootKey'
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
