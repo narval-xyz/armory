@@ -31,20 +31,11 @@ export class ClientService {
     policyDataStore: DataStoreConfiguration
   }): Promise<Client> {
     const now = new Date()
-
     const { unsafeKeyId, entityDataStore, policyDataStore } = input
     const clientId = input.clientId || uuid()
     // If we are generating the secret, we'll want to return the full thing to
     // the user one time.
-    const fullClientSecret = !input.clientSecret ? secret.generate() : undefined
-
-    if (!input.clientSecret || !fullClientSecret) {
-      throw new ApplicationException({
-        message: 'Missing client secret',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
-    }
-
+    const fullClientSecret = input.clientSecret || secret.generate()
     const clientSecret = input.clientSecret || secret.hash(fullClientSecret)
     const keyId = unsafeKeyId ? `${clientId}:${unsafeKeyId}` : undefined
 
@@ -73,7 +64,7 @@ export class ClientService {
       ...client,
       // If we generated a new secret, we need to include it in the response
       // the first time.
-      ...(fullClientSecret ? { clientSecret: fullClientSecret } : {})
+      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
     }
   }
 
