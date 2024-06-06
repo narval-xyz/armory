@@ -41,7 +41,7 @@ jobs:
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          NPM_CONFIG_PROVENANCE: false
 
       - name: Send Slack notification on failure
         if: failure()
