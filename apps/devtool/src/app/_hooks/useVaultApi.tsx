@@ -52,10 +52,8 @@ const useVaultApi = () => {
   }, [vaultHost, vaultClientId, jwk, signer])
 
   const ping = () => {
-    if (!sdkVaultConfig) return
-
     try {
-      return pingVault(sdkVaultConfig)
+      return pingVault(vaultHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }

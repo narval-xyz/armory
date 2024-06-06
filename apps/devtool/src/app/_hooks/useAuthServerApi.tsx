@@ -4,6 +4,7 @@ import {
   AuthorizationRequestStatus,
   getAuthorizationRequest,
   onboardArmoryClient,
+  pingAuthServer,
   sendAuthorizationRequest
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
@@ -73,6 +74,16 @@ const useAuthServerApi = () => {
       setProcessingRequest(undefined)
     }
   }, [authorizationResponse])
+
+  const ping = () => {
+    if (!authHost) return
+
+    try {
+      return pingAuthServer(authHost)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    }
+  }
 
   const onboard = async (authClientData: AuthClientData) => {
     try {
@@ -149,7 +160,7 @@ const useAuthServerApi = () => {
     setIsProcessing(false)
   }
 
-  return { errors, isProcessing, authorizationResponse, onboard, authorize }
+  return { errors, isProcessing, authorizationResponse, ping, onboard, authorize }
 }
 
 export default useAuthServerApi

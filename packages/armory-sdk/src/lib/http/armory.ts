@@ -6,6 +6,14 @@ import { NarvalSdkException } from '../exceptions'
 import { signRequestPayload } from '../sdk'
 import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
 
+export const pingAuthServer = async (authHost: string): Promise<void> => {
+  try {
+    return axios.get(authHost)
+  } catch (error) {
+    throw new NarvalSdkException('Failed to ping auth server', { authHost, error })
+  }
+}
+
 export const onboardArmoryClient = async (
   config: AuthAdminConfig,
   request: OnboardArmoryClientRequest

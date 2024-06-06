@@ -7,11 +7,11 @@ import { signRequestPayload } from '../sdk'
 import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
 import { builBasicHeaders } from '../utils'
 
-export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
+export const pingEngine = async (engineHost: string): Promise<void> => {
   try {
-    return axios.get(config.engineHost)
+    return axios.get(engineHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping engine', { config, error })
+    throw new NarvalSdkException('Failed to ping engine', { engineHost, error })
   }
 }
 

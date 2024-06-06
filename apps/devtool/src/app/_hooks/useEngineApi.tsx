@@ -30,7 +30,7 @@ const useEngineApi = () => {
   const [errors, setErrors] = useState<string>()
 
   const sdkEngineClientConfig = useMemo<EngineClientConfig | null>(() => {
-    if (!engineHost || !engineClientId || !engineClientSecret || !jwk || !signer) {
+    if (!engineHost || !engineClientId || !jwk || !signer) {
       return null
     }
 
@@ -45,10 +45,8 @@ const useEngineApi = () => {
   }, [engineHost, engineClientId, engineClientSecret, jwk, signer])
 
   const ping = () => {
-    if (!sdkEngineClientConfig) return
-
     try {
-      return pingEngine(sdkEngineClientConfig)
+      return pingEngine(engineHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -108,7 +106,7 @@ const useEngineApi = () => {
   }
 
   const sync = async () => {
-    if (!sdkEngineClientConfig) return
+    if (!sdkEngineClientConfig || !engineClientSecret) return
 
     try {
       setErrors(undefined)

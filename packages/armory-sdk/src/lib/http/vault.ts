@@ -22,11 +22,11 @@ import {
 } from '../types/vault'
 import { buildGnapVaultHeaders, signAccountJwsd } from '../utils'
 
-export const pingVault = async (config: VaultClientConfig): Promise<void> => {
+export const pingVault = async (vaultHost: string): Promise<void> => {
   try {
-    return axios.get(config.vaultHost)
+    return axios.get(vaultHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping vault', { config, error })
+    throw new NarvalSdkException('Failed to ping vault', { vaultHost, error })
   }
 }
 

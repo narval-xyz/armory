@@ -25,14 +25,13 @@ interface DataEditorProps<T> {
   data: { signature: string; data: T } | undefined
   label: string
   url: string
-  setUrl: Dispatch<SetStateAction<string>>
   isFetching: boolean
-  fetch: () => Promise<void>
   isSigning: boolean
-  sign: (data: T) => Promise<string | undefined>
   isSigningAndPushing: boolean
+  setUrl: Dispatch<SetStateAction<string>>
+  fetch: () => Promise<void>
+  sign: (data: T) => Promise<string | undefined>
   signAndPush: (data: T) => Promise<void>
-  resyncEngine: () => Promise<void>
 }
 
 const DataEditor = <T extends Entities | Policy[]>({
@@ -45,8 +44,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   isSigning,
   sign,
   isSigningAndPushing,
-  signAndPush,
-  resyncEngine
+  signAndPush
 }: DataEditorProps<T>) => {
   const [editor, setEditor] = useState<string>()
   const [isReadOnly, setIsReadOnly] = useState(true)
@@ -59,7 +57,6 @@ const DataEditor = <T extends Entities | Policy[]>({
       await sign(data)
     } else if (Action.SIGN_AND_PUSH === action) {
       await signAndPush(data)
-      // await resyncEngine()
     }
     await fetch()
     setIsReadOnly(true)

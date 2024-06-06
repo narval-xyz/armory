@@ -1,4 +1,4 @@
-import { faCheckCircle, faSpinner, faUpload, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faCheckCircle, faSpinner, faUpload } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ImportPrivateKeyResponse, ImportSeedResponse } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'
@@ -10,14 +10,13 @@ import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
-import useEngineApi from '../../_hooks/useEngineApi'
 import ValueWithCopy from '../ValueWithCopy'
 
 enum Steps {
   ImportWalletForm,
   ImportWalletSuccess,
   SignAndPush,
-  SyncEngine
+  Success
 }
 
 enum ImportType {
@@ -33,12 +32,10 @@ interface ImportWalletModalProps {
 
 const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
   const { entityStore, signAndPushEntity } = useDataStoreApi()
-  const { isSynced, sync: syncEngine } = useEngineApi()
   const [currentStep, setCurrentStep] = useState<Steps>(Steps.ImportWalletForm)
   const [importType, setImportType] = useState<ImportType>(ImportType.PrivateKey)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isEngineSynced, setIsEngineSynced] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
   const [seed, setSeed] = useState('')
   const [accessToken, setAccessToken] = useState('')
@@ -50,12 +47,6 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     setAccessToken(props.accessToken)
   }, [props.accessToken])
 
-  useEffect(() => {
-    if (isSynced) {
-      setIsEngineSynced(isSynced)
-    }
-  }, [isSynced])
-
   const btnLabel = useMemo(() => {
     if (currentStep === Steps.ImportWalletForm) {
       return 'Import'
@@ -63,14 +54,13 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     if (currentStep === Steps.ImportWalletSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.SyncEngine) {
+    if (currentStep === Steps.Success) {
       return 'Ok'
     }
   }, [currentStep])
 
   const handleClose = () => {
     setIsDialogOpen(false)
-    setIsEngineSynced(false)
     setImportedWallet(undefined)
     setImportedSeed(undefined)
     setNewEntityStore(undefined)
@@ -153,12 +143,9 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
 
     try {
       setIsProcessing(true)
-
-      await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.SignAndPush)
-
-      await syncEngine()
-      setCurrentStep(Steps.SyncEngine)
+      await signAndPushEntity(newEntityStore)
+      setCurrentStep(Steps.Success)
     } finally {
       setIsProcessing(false)
     }
@@ -174,7 +161,7 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
       onDismiss={handleClose}
       onSave={currentStep === Steps.ImportWalletForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
-      isConfirm={currentStep === Steps.SyncEngine}
+      isConfirm={currentStep === Steps.Success}
       isSaveDisabled={(!privateKey && !seed) || isProcessing}
     >
       <div className="w-[750px] px-12 py-4">
@@ -263,14 +250,10 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
             <p className="text-nv-lg">Signing and pushing entity data store...</p>
           </div>
         )}
-        {currentStep === Steps.SyncEngine && (
+        {currentStep === Steps.Success && (
           <div className="flex flex-col items-center justify-center gap-[8px]">
-            <FontAwesomeIcon
-              className={isEngineSynced ? 'text-nv-green-500' : 'text-nv-red-500'}
-              icon={isEngineSynced ? faCheckCircle : faXmarkCircle}
-              size="xl"
-            />
-            <p className="text-nv-lg">Engine synced!</p>
+            <FontAwesomeIcon className="text-nv-green-500" icon={faCheckCircle} size="xl" />
+            <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
       </div>
