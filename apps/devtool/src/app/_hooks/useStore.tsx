@@ -1,60 +1,67 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { AUTH_SERVER_URL, ENGINE_URL, LOCAL_DATA_STORE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
+import { AUTH_SERVER_URL, ENGINE_URL, LOCAL_STORAGE_KEYS, VAULT_URL } from '../_lib/constants'
 
 const useStore = () => {
-  const [authServerUrl, setAuthServerUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.authServerUrl, AUTH_SERVER_URL)
+  // Auth Server
+  const [authUrl, setAuthUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.authUrl, AUTH_SERVER_URL)
   const [authAdminApiKey, setAuthAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.authAdminApiKey, '')
+  const [authClientId, setAuthClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.authClientId, '')
+  const [authClientSecret, setAuthClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.authClientSecret, '')
 
+  // Engine
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
-  const [engineClientSigner, setEngineClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSigner, '')
   const [engineAdminApiKey, setEngineAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.engineAdminApiKey, '')
   const [engineClientId, setEngineClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientId, '')
   const [engineClientSecret, setEngineClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSecret, '')
+  const [engineClientSigner, setEngineClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.engineClientSigner, '')
 
+  // Vault
   const [vaultUrl, setVaultUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultUrl, VAULT_URL)
   const [vaultAdminApiKey, setVaultAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultAdminApiKey, '')
   const [vaultClientId, setVaultClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientId, '')
   const [vaultClientSecret, setVaultClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientSecret, '')
   const [vaultAccessToken, setVaultAccessToken] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultAccessToken, '')
 
-  const [entityDataStoreUrl, setEntityDataStoreUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.entityDataStoreUrl,
-    LOCAL_DATA_STORE_URL
-  )
-
-  const [policyDataStoreUrl, setPolicyDataStoreUrl] = useLocalStorage(
-    LOCAL_STORAGE_KEYS.policyDataStoreUrl,
-    LOCAL_DATA_STORE_URL
-  )
+  // Data Store
+  const [entityDataStoreUrl, setEntityDataStoreUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.entityDataStoreUrl, '')
+  const [policyDataStoreUrl, setPolicyDataStoreUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.policyDataStoreUrl, '')
 
   return {
-    authServerUrl,
-    setAuthServerUrl,
+    // Auth Server
+    authUrl,
     authAdminApiKey,
+    authClientId,
+    authClientSecret,
+    setAuthUrl,
     setAuthAdminApiKey,
+    setAuthClientId,
+    setAuthClientSecret,
+    // Engine
     engineUrl,
-    setEngineUrl,
-    engineClientSigner,
-    setEngineClientSigner,
     engineAdminApiKey,
-    setEngineAdminApiKey,
     engineClientId,
-    setEngineClientId,
     engineClientSecret,
+    engineClientSigner,
+    setEngineUrl,
+    setEngineAdminApiKey,
+    setEngineClientId,
     setEngineClientSecret,
+    setEngineClientSigner,
+    // Vault
     vaultUrl,
-    setVaultUrl,
     vaultAdminApiKey,
-    setVaultAdminApiKey,
     vaultClientId,
-    setVaultClientId,
     vaultClientSecret,
-    setVaultClientSecret,
     vaultAccessToken,
+    setVaultUrl,
+    setVaultAdminApiKey,
+    setVaultClientId,
+    setVaultClientSecret,
     setVaultAccessToken,
+    // Data Store
     entityDataStoreUrl,
-    setEntityDataStoreUrl,
     policyDataStoreUrl,
+    setEntityDataStoreUrl,
     setPolicyDataStoreUrl
   }
 }

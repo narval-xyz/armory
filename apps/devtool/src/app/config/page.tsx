@@ -5,9 +5,9 @@ import VaultConfig from './_components/vault/VaultConfig'
 export default async function Page() {
   return (
     <div className="grid grid-cols-2 gap-[64px] h-full">
-      <EngineConfig />
-      <VaultConfig />
       <AuthServerConfig />
+      <VaultConfig />
+      <EngineConfig />
     </div>
   )
 }

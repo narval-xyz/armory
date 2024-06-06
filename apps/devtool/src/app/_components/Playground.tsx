@@ -60,7 +60,7 @@ const Playground: FC<PlaygroundProps> = ({
   deriveWallet,
   validateResponse
 }) => {
-  const { engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
+  const { authClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -239,7 +239,7 @@ const Playground: FC<PlaygroundProps> = ({
       <div className="flex items-center">
         <div className="text-nv-2xl grow">{title}</div>
         <div className="flex items-center gap-[8px]">
-          {authorize && engineClientId && (
+          {authorize && authClientId && (
             <NarButton
               label="Authorize"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -247,7 +247,7 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {evaluate && engineClientId && (
+          {evaluate && (
             <NarButton
               label="Evaluate"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -283,7 +283,7 @@ const Playground: FC<PlaygroundProps> = ({
       <div className="flex items-start">
         <div className="grow">
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />
+            <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />
             <ValueWithCopy layout="horizontal" label="Vault Client ID" value={vaultClientId} />
           </div>
         </div>

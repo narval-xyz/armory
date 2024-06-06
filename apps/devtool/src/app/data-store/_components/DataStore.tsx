@@ -1,13 +1,10 @@
 'use client'
 
-import { faArrowRightArrowLeft } from '@fortawesome/pro-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
 import SuccessStatus from '../../_components/SuccessStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
 import AddUserModal from '../../_components/modals/AddUserModal'
-import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useEngineApi from '../../_hooks/useEngineApi'
@@ -15,23 +12,13 @@ import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
 import DataStoreConfigModal from './DataStoreConfigModal'
 
-enum Action {
-  FETCH_ENTITY = 'FETCH_ENTITY',
-  FETCH_POLICY = 'FETCH_POLICY',
-  SIGN_ENTITY = 'SIGN_ENTITY',
-  SIGN_POLICY = 'SIGN_POLICY',
-  SIGN_AND_PUSH_ENTITY = 'SIGN_AND_PUSH_ENTITY',
-  SIGN_AND_PUSH_POLICY = 'SIGN_AND_PUSH_POLICY'
-}
-
 const DataStore = () => {
-  const { engineClientId, entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } =
+  const { authClientId, entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } =
     useStore()
 
   const {
     entityStore,
     policyStore,
-    isUsingManagedDataStore,
     processingStatus: {
       isFetchingEntity,
       isFetchingPolicy,
@@ -46,7 +33,6 @@ const DataStore = () => {
     signPolicyData,
     signAndPushEntity,
     signAndPushPolicy,
-    switchDataStore,
     errors,
     validationErrors
   } = useDataStoreApi()
@@ -70,16 +56,10 @@ const DataStore = () => {
             <ErrorStatus label={errors} />
             <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
             <AddUserModal />
-            <NarButton
-              variant="secondary"
-              label={`Use ${isUsingManagedDataStore ? 'Local Data Store' : 'Managed Data Store'}`}
-              leftIcon={<FontAwesomeIcon icon={faArrowRightArrowLeft} />}
-              onClick={switchDataStore}
-            />
             <DataStoreConfigModal />
           </div>
         </div>
-        <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />
+        <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
         <DataEditor

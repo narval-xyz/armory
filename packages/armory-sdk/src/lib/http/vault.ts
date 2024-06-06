@@ -2,7 +2,7 @@ import { SerializedRequest } from '@narval/policy-engine-shared'
 import { rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY } from '../constants'
-import { ArmoryClientConfig, Htm, VaultClientConfig } from '../domain'
+import { Htm, VaultClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import {
   DeriveWalletRequest,
@@ -111,7 +111,7 @@ export const generateEncryptionKey = async (
 }
 
 export const importPrivateKey = async (
-  config: ArmoryClientConfig,
+  config: VaultClientConfig,
   request: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
   const { accessToken, privateKey } = request
@@ -146,7 +146,7 @@ export const importPrivateKey = async (
 }
 
 export const importSeed = async (
-  config: ArmoryClientConfig,
+  config: VaultClientConfig,
   request: ImportSeedRequest
 ): Promise<ImportSeedResponse> => {
   const { accessToken, seed } = request
@@ -181,7 +181,7 @@ export const importSeed = async (
 }
 
 export const generateKey = async (
-  config: ArmoryClientConfig,
+  config: VaultClientConfig,
   request: GenerateKeyRequest
 ): Promise<GenerateKeyResponse> => {
   const { accessToken, ...payload } = request
@@ -211,7 +211,7 @@ export const generateKey = async (
   }
 }
 
-export const deriveWallet = async (config: ArmoryClientConfig, request: DeriveWalletRequest) => {
+export const deriveWallet = async (config: VaultClientConfig, request: DeriveWalletRequest) => {
   const { accessToken, ...payload } = request
 
   try {
