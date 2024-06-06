@@ -1,5 +1,4 @@
 import {
-  ArmoryClientConfig,
   DeriveWalletRequest,
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
@@ -18,8 +17,6 @@ import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
-import useDataStoreApi from './useDataStoreApi'
-import useEngineApi from './useEngineApi'
 import useStore from './useStore'
 
 export interface VaultClientData {
@@ -37,23 +34,8 @@ export interface VaultClientData {
 const useVaultApi = () => {
   const { vaultUrl: vaultHost, vaultClientId: vaultClientId } = useStore()
   const { jwk, signer } = useAccountSignature()
-  const { sdkEngineConfig } = useEngineApi()
-  const { sdkDataStoreConfig } = useDataStoreApi()
   const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
-
-  const sdkArmoryConfig = useMemo<ArmoryClientConfig | null>(() => {
-    if (!sdkEngineConfig || !sdkDataStoreConfig) {
-      return null
-    }
-
-    return {
-      ...sdkEngineConfig,
-      ...sdkDataStoreConfig,
-      vaultHost,
-      vaultClientId
-    }
-  }, [sdkEngineConfig, sdkDataStoreConfig])
 
   const sdkVaultConfig = useMemo<VaultClientConfig | null>(() => {
     if (!vaultHost || !vaultClientId || !jwk || !signer) {
@@ -126,44 +108,44 @@ const useVaultApi = () => {
   }
 
   const importPk = (request: ImportPrivateKeyRequest) => {
-    if (!sdkArmoryConfig) return
+    if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return importPrivateKey(sdkArmoryConfig, request)
+      return importPrivateKey(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   const importSeedPhrase = (request: ImportSeedRequest) => {
-    if (!sdkArmoryConfig) return
+    if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return importSeed(sdkArmoryConfig, request)
+      return importSeed(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   const generateWalletKeys = (request: GenerateKeyRequest) => {
-    if (!sdkArmoryConfig) return
+    if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return generateKey(sdkArmoryConfig, request)
+      return generateKey(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   const deriveWalletKey = (request: DeriveWalletRequest) => {
-    if (!sdkArmoryConfig) return
+    if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return deriveWallet(sdkArmoryConfig, request)
+      return deriveWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
