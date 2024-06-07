@@ -6,7 +6,6 @@ import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
 import { ClientModule } from '../client/client.module'
 import { PolicyEngineModule } from '../policy-engine/policy-engine.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
-import { EngineService } from './core/service/engine.service'
 import { EntityDataStoreService } from './core/service/entity-data-store.service'
 import { PolicyDataStoreService } from './core/service/policy-data-store.service'
 import { DataStoreController } from './http/rest/controller/data-store.controller'
@@ -28,7 +27,6 @@ const DOMAIN_MODULES = [ClientModule, PolicyEngineModule]
   controllers: [DataStoreController],
   providers: [
     ...DEFAULT_HTTP_MODULE_PROVIDERS,
-    EngineService,
     EntityDataStoreService,
     PolicyDataStoreService,
     EntityDataStoreRepository,
