@@ -1,18 +1,13 @@
-import { addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
+import { resourceId } from '@narval/armory-sdk'
+import { Alg, Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
-import { resourceId } from 'packages/armory-sdk/src/lib/utils'
-import { HDOptions, Hex, toHex } from 'viem'
+import { max, range } from 'lodash/fp'
+import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
-
-type DeriveOptions = HDOptions & { rootKeyId?: string }
-
-export const buildDerivationPath = (opts: HDOptions) => {
-  const { accountIndex = 0, addressIndex = 0, changeIndex = 0, path } = opts
-  return path || `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`
-}
+import { BIP44_PREFIX, Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -36,11 +31,19 @@ export const hdKeyToKid = (key: HDKey): string => {
   })
 }
 
-export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Promise<PrivateWallet> => {
+export const hdKeyToWallet = async ({
+  key,
+  keyId,
+  path
+}: {
+  key: HDKey
+  keyId: string
+  path: string
+}): Promise<PrivateWallet> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
-      suggestedHttpStatusCode: 500,
+      suggestedHttpStatusCode: 400,
       context: { key }
     })
   }
@@ -56,9 +59,15 @@ export const hdKeyToWallet = async (key: HDKey, path: string, kid: string): Prom
     publicKey,
     origin: Origin.GENERATED,
     address,
-    keyId: kid,
+    keyId,
     derivationPath: path
   }
+}
+
+export const generateNextPaths = (derivedIndexes: number[], count: number): string[] => {
+  const maxIndex = max(derivedIndexes)
+  const startIndex = maxIndex !== undefined ? maxIndex + 1 : 0
+  return range(startIndex, startIndex + count).map((index) => `${BIP44_PREFIX}${index}`)
 }
 
 export const mnemonicToRootKey = (mnemonic: string): HDKey => {
@@ -66,23 +75,41 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
-export const getRootKey = (
-  mnemonic: string,
-  keyId?: string
-): {
-  rootKey: HDKey
-  kid: string
-} => {
-  const rootKey = mnemonicToRootKey(mnemonic)
-  const kid = keyId || hdKeyToKid(rootKey)
-  return { rootKey, kid }
+export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
+  const { curve = Curves.SECP256K1 } = opts
+  switch (curve) {
+    case Curves.SECP256K1: {
+      const rootKey = mnemonicToRootKey(mnemonic)
+      return { rootKey, keyId: opts.keyId || hdKeyToKid(rootKey) }
+    }
+    default:
+      throw new ApplicationException({
+        message: 'Unsupported curve',
+        suggestedHttpStatusCode: 400,
+        context: { curve: opts.curve }
+      })
+  }
 }
 
-export const deriveWallet = async (rootKey: HDKey, opts: DeriveOptions = {}): Promise<PrivateWallet> => {
-  const path = buildDerivationPath(opts)
-  const derivedKey = rootKey.derive(path)
-  const wallet = await hdKeyToWallet(derivedKey, path, opts.rootKeyId || hdKeyToKid(rootKey))
-  return wallet
+export const getRootKey = (
+  mnemonic: string,
+  opts: GenerateKeyDto
+): {
+  rootKey: HDKey
+  keyId: string
+} => {
+  const { alg = Alg.ES256K } = opts
+
+  switch (alg) {
+    case Alg.ES256K:
+      return getSecp256k1Key(mnemonic, opts)
+    default:
+      throw new ApplicationException({
+        message: 'Unsupported algorithm',
+        suggestedHttpStatusCode: 400,
+        context: { alg }
+      })
+  }
 }
 
 export type HDkey = HDKey

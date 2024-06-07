@@ -1,5 +1,5 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
-import { publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
+import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const CreateClientInput = z.object({
@@ -42,27 +42,6 @@ export const App = z.object({
 })
 export type App = z.infer<typeof App>
 
-const DERIVATION_PATH_PREFIX = "m/44'/60'/"
-
-export const DerivationPath = z.union([
-  z.custom<`${typeof DERIVATION_PATH_PREFIX}${string}`>(
-    (value) => {
-      const result = z.string().startsWith(DERIVATION_PATH_PREFIX).safeParse(value)
-
-      if (result.success) {
-        return value
-      }
-
-      return false
-    },
-    {
-      message: `Derivation path must start with ${DERIVATION_PATH_PREFIX}`
-    }
-  ),
-  z.literal('next')
-])
-export type DerivationPath = z.infer<typeof DerivationPath>
-
 export const Origin = {
   IMPORTED: 'IMPORTED',
   GENERATED: 'GENERATED'
@@ -92,8 +71,7 @@ export type PublicWallet = z.infer<typeof PublicWallet>
 export const RootKey = z.object({
   keyId: z.string().min(1),
   mnemonic: z.string().min(1),
-  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)]),
-  nextAddrIndex: z.number().min(0).default(0)
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
 })
 export type RootKey = z.infer<typeof RootKey>
 
@@ -104,6 +82,54 @@ export const Backup = z.object({
   createdAt: z.coerce.date().default(() => new Date())
 })
 export type Backup = z.infer<typeof Backup>
+
+export const Bip44Parameters = z.object({
+  coinType: z.number(),
+  accountIndex: z.number(),
+  changeIndex: z.number(),
+  addressIndex: z.number()
+})
+export type Bip44Parameters = z.infer<typeof Bip44Parameters>
+
+export const DeriveOptions = z.object({
+  path: z.string().optional(),
+  prefix: z.string().optional(),
+  addressIndex: z.number().optional(),
+  keyId: z.string().optional()
+})
+export type DeriveOptions = z.infer<typeof DeriveOptions>
+
+export const Bip44Options = z.object({
+  addressIndex: z.number().optional(),
+  path: z.string().optional()
+})
+export type Bip44Options = z.infer<typeof Bip44Options>
+
+export const BIP44_PREFIX = "m/44'/60'/0'/0/"
+export const Bip44Path = z.custom<`${typeof BIP44_PREFIX}${number}`>(
+  (value) => {
+    if (typeof value !== 'string') return false
+
+    if (!value.startsWith(BIP44_PREFIX)) return false
+
+    // Extract the part after the prefix and check if it's a number
+    const suffix = value.slice(BIP44_PREFIX.length)
+    const isNumber = /^\d+$/.test(suffix)
+    return isNumber
+  },
+  {
+    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
+  }
+)
+export type Bip44Path = z.infer<typeof Bip44Path>
+
+export const Bip44Index = Bip44Path.transform((data) => {
+  const suffix = data.slice(BIP44_PREFIX.length)
+  const index = Number(suffix)
+
+  return index
+})
+export type Bip44Index = z.infer<typeof Bip44Index>
 
 export const ImportKey = z.object({
   jwk: rsaPrivateKeySchema,
@@ -121,3 +147,9 @@ export const Collection = {
   REQUEST_NONCE: 'request-nonce'
 } as const
 export type Collection = (typeof Collection)[keyof typeof Collection]
+
+export const Algorithm = z.union([z.literal(Alg.ES256K), z.literal(Alg.ES256K)])
+export type Algorithm = z.infer<typeof Algorithm>
+
+export const Curve = z.union([z.literal(Curves.P256), z.literal(Curves.SECP256K1)])
+export type Curve = z.infer<typeof Curve>

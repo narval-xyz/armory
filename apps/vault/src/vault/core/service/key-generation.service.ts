@@ -1,5 +1,6 @@
 import { Jwk, RsaKey, hash, rsaEncrypt } from '@narval/signature'
 import { Injectable, Logger } from '@nestjs/common'
+import { HDKey } from '@scure/bip32'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -9,7 +10,15 @@ import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { MnemonicRepository } from '../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { deriveWallet, getRootKey, mnemonicToRootKey } from '../util/key-generation'
+import { findBip44Indexes } from '../util/derivation'
+import { generateNextPaths, getRootKey, hdKeyToWallet, mnemonicToRootKey } from '../util/key-generation'
+
+type GenerateArgs = {
+  rootKey: HDKey
+  keyId: string
+  count?: number
+  derivationPaths?: string[]
+}
 
 @Injectable()
 export class KeyGenerationService {
@@ -50,68 +59,85 @@ export class KeyGenerationService {
   async saveMnemonic(
     clientId: string,
     {
-      kid,
+      keyId,
       mnemonic,
-      origin,
-      nextAddrIndex
+      origin
     }: {
-      kid: string
+      keyId: string
       mnemonic: string
       origin: Origin
-      nextAddrIndex: number
     }
   ): Promise<string | undefined> {
     const client = await this.clientService.findById(clientId)
-    const backup = await this.#maybeEncryptAndSaveBackup(clientId, kid, mnemonic, client?.backupPublicKey)
+    const backup = await this.#maybeEncryptAndSaveBackup(clientId, keyId, mnemonic, client?.backupPublicKey)
 
     await this.mnemonicRepository.save(clientId, {
-      keyId: kid,
+      keyId,
       mnemonic,
-      origin,
-      nextAddrIndex
+      origin
     })
 
     return backup
   }
 
-  async deriveWallet(clientId: string, opts: DeriveWalletDto): Promise<PrivateWallet[] | PrivateWallet> {
-    this.logger.log('Deriving wallet', { clientId })
-    const rootKey = await this.mnemonicRepository.findById(clientId, opts.keyId)
+  async getIndexes(clientId: string, keyId: string): Promise<number[]> {
+    const wallets = (await this.walletRepository.findByClientId(clientId)).filter((wallet) => wallet.keyId === keyId)
+    const indexes = findBip44Indexes(wallets.map((wallet) => wallet.derivationPath))
+    return indexes
+  }
 
-    if (!rootKey) {
+  async walletDerive(
+    clientId: string,
+    { rootKey, path, keyId }: { rootKey: HDKey; path: string; keyId: string }
+  ): Promise<PrivateWallet> {
+    const derivedKey = rootKey.derive(path)
+    const wallet = await hdKeyToWallet({
+      key: derivedKey,
+      keyId,
+      path
+    })
+    await this.walletRepository.save(clientId, wallet)
+    return wallet
+  }
+
+  async generate(clientId: string, args: GenerateArgs): Promise<PrivateWallet[]> {
+    const { keyId, count = 1, derivationPaths = [], rootKey } = args
+
+    const dbIndexes = await this.getIndexes(clientId, keyId)
+    const customIndexes = findBip44Indexes(derivationPaths)
+    const indexes = [...dbIndexes, ...customIndexes]
+
+    const remainingDerivations = count - derivationPaths.length
+    const nextPaths = generateNextPaths(indexes, remainingDerivations)
+
+    const allPaths = [...nextPaths, ...derivationPaths]
+    const derivationPromises = allPaths.map((path) => this.walletDerive(clientId, { rootKey, path, keyId }))
+    const wallets = await Promise.all(derivationPromises)
+    return wallets
+  }
+
+  async derive(
+    clientId: string,
+    { derivationPaths, keyId, count }: DeriveWalletDto
+  ): Promise<{ wallets: PrivateWallet[] }> {
+    const seed = await this.mnemonicRepository.findById(clientId, keyId)
+    if (!seed) {
       throw new ApplicationException({
-        message: 'Root key not found',
-        suggestedHttpStatusCode: 404
+        message: 'Mnemonic not found',
+        suggestedHttpStatusCode: 404,
+        context: { clientId, keyId }
       })
     }
-    const { mnemonic, nextAddrIndex } = rootKey
+    const rootKey = mnemonicToRootKey(seed.mnemonic)
 
-    const wallets: PrivateWallet[] = []
+    const wallets = await this.generate(clientId, {
+      keyId,
+      count,
+      rootKey,
+      derivationPaths
+    })
 
-    let curr = nextAddrIndex
-    for (const path of opts.derivationPaths) {
-      let wallet: PrivateWallet
-      if (path === 'next') {
-        wallet = await deriveWallet(mnemonicToRootKey(mnemonic), { rootKeyId: opts.keyId, addressIndex: curr })
-        curr++
-      } else {
-        wallet = await deriveWallet(mnemonicToRootKey(mnemonic), { rootKeyId: opts.keyId, path })
-      }
-
-      wallets.push(wallet)
-      await this.walletRepository.save(clientId, wallet)
-    }
-
-    if (curr !== nextAddrIndex) {
-      await this.mnemonicRepository.save(clientId, {
-        keyId: opts.keyId,
-        mnemonic,
-        origin: Origin.IMPORTED,
-        nextAddrIndex: curr
-      })
-    }
-
-    return wallets.length === 1 ? wallets[0] : wallets
+    return { wallets }
   }
 
   async generateMnemonic(
@@ -119,29 +145,30 @@ export class KeyGenerationService {
     opts: GenerateKeyDto
   ): Promise<{
     wallet: PrivateWallet
-    rootKeyId: string
+    keyId: string
     backup?: string
   }> {
     this.logger.log('Generating mnemonic', { clientId })
     const mnemonic = generateMnemonic(english)
 
-    const { rootKey, kid: rootKeyId } = await getRootKey(mnemonic, opts.keyId)
+    const { rootKey, keyId } = getRootKey(mnemonic, opts)
 
     const backup = await this.saveMnemonic(clientId, {
-      kid: rootKeyId,
+      keyId,
       mnemonic,
-      origin: Origin.GENERATED,
-      nextAddrIndex: 1
+      origin: Origin.GENERATED
     })
 
     this.logger.log('Deriving first wallet', { clientId })
-    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
 
-    await this.walletRepository.save(clientId, firstWallet)
+    const [firstWallet] = await this.generate(clientId, {
+      keyId,
+      rootKey
+    })
 
     return {
       wallet: firstWallet,
-      rootKeyId,
+      keyId,
       backup
     }
   }

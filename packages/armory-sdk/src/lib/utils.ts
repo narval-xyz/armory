@@ -62,7 +62,7 @@ export const signAccountJwsd = async (args: SignAccountJwsdArgs) => {
 
 export const resourceId = (walletIdOrAddress: Address | string): string => {
   if (isAddress(walletIdOrAddress)) {
-    return `eip155:eoa:${walletIdOrAddress}`
+    return `eip155:eoa:${walletIdOrAddress.toLowerCase()}`
   }
   return walletIdOrAddress
 }
