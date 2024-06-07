@@ -30,7 +30,7 @@ interface DataEditorProps<T> {
   isSigningAndPushing: boolean
   setUrl: Dispatch<SetStateAction<string>>
   fetch: () => Promise<void>
-  sign: (data: T) => Promise<string | undefined>
+  sign: (data: T) => Promise<void>
   signAndPush: (data: T) => Promise<void>
 }
 
@@ -38,12 +38,12 @@ const DataEditor = <T extends Entities | Policy[]>({
   data,
   label,
   url,
-  setUrl,
   isFetching,
-  fetch,
   isSigning,
-  sign,
   isSigningAndPushing,
+  fetch,
+  setUrl,
+  sign,
   signAndPush
 }: DataEditorProps<T>) => {
   const [editor, setEditor] = useState<string>()
@@ -57,8 +57,9 @@ const DataEditor = <T extends Entities | Policy[]>({
       await sign(data)
     } else if (Action.SIGN_AND_PUSH === action) {
       await signAndPush(data)
+      await fetch()
     }
-    await fetch()
+
     setIsReadOnly(true)
   }
 

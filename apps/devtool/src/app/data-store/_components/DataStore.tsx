@@ -68,24 +68,24 @@ const DataStore = () => {
           label="Entity Data URL"
           data={entityStore}
           url={entityDataStoreUrl}
-          setUrl={setEntityDataStoreUrl}
           isFetching={isFetchingEntity}
-          fetch={getEntityStore}
           isSigning={isSigningEntity}
-          sign={signEntityData}
           isSigningAndPushing={isSigningAndPushingEntity}
+          fetch={getEntityStore}
+          setUrl={setEntityDataStoreUrl}
+          sign={signEntityData}
           signAndPush={signAndPushEntity}
         />
         <DataEditor
           label="Policy Data URL"
           data={policyStore}
           url={policyDataStoreUrl}
-          setUrl={setPolicyDataStoreUrl}
           isFetching={isFetchingPolicy}
-          fetch={getPolicyStore}
           isSigning={isSigningPolicy}
-          sign={signPolicyData}
           isSigningAndPushing={isSigningAndPushingPolicy}
+          fetch={getPolicyStore}
+          setUrl={setPolicyDataStoreUrl}
+          sign={signPolicyData}
           signAndPush={signAndPushPolicy}
         />
       </div>
