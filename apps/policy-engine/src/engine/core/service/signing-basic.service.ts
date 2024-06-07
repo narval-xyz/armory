@@ -5,7 +5,7 @@ import {
   privateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk
 } from '@narval/signature'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { generatePrivateKey } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { SignerConfig } from '../../../shared/type/domain.type'
@@ -13,10 +13,6 @@ import { SigningService } from './signing.service.interface'
 
 @Injectable()
 export class SimpleSigningService implements SigningService {
-  private logger = new Logger(SimpleSigningService.name)
-
-  constructor() {}
-
   async generateKey(keyId?: string) {
     const privateKey = privateKeyToJwk(generatePrivateKey(), Alg.ES256K, keyId)
     const hex = await privateKeyToHex(privateKey)

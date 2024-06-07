@@ -70,6 +70,22 @@ make format/check
 make lint/check
 ```
 
+## Publishing packages 
+
+This section describes the process to release a new version of publishable
+packages to NPM.
+
+1. Run `make packages/release/build` and follow the prompts to bump the
+   projects' versions.
+1. Run `npm install` to update `package-lock.json`.
+1. Commit and push the changes to your branch.
+1. After your branch is merged, manually trigger the [packages pipeline to
+   publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
+the new version to NPM.
+
+You can find the publishable packages listed in the `release.projects` value in
+the `nx.json`.
+
 ## Generating a new project
 
 NX provides two types of projects: applications and libraries. Run the commands
@@ -87,25 +103,27 @@ npx nx g @nx/nest:application --tags type:application
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
 
-# NPM Auth Variables
+## NPM 
 
-The `.npmrc` file is needed for private registry credentials.
-This file is NOT in git, but it's necessary for the build
+The `.npmrc` file is needed to access a private registry for Font Awesome and
+`@sepior/tsmsdkv2`.
+
+> [!IMPORTANT]
+> This file is NOT in git, but it's necessary for the build.
 
 1. Create a `.npmrc` file in the root of this project.
-2. Get the values from someone who has them.
-3. Now `npm install` should work.
+1. Get the values from someone who has them.
+1. Now `npm install` should work.
 
-# Troubleshooting
-
-## Docker
-
-Common issues you might encounter w/ docker
+## Troubleshooting
 
 ### DB URL in env variable fails when using `docker run`, but works when running outside docker
 
-If using `docker run --env-file .env ...`, the env file cannot include quotes around values. The quotes will be included in the value.
+If using `docker run --env-file .env ...`, the env file cannot include quotes
+around values. The quotes will be included in the value.
 
-### Localhost postgres url cannot connect
+### `localhost` PSQL URL cannot connect
 
-Inside docker, localhost points to the container not your computer. Change `localhost` to `host.docker.internal` to reference your computer's localhost ip.
+Inside docker, `localhost` points to the container not your computer (host).
+Change `localhost` to `host.docker.internal` to reference to the host IP
+address in the local network. 

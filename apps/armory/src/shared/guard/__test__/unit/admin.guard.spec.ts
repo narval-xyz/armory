@@ -20,7 +20,7 @@ describe(AdminGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockAppService = (adminApiKey: string = 'test-admin-api-key') => {
+  const mockAppService = (adminApiKey = 'test-admin-api-key') => {
     const app = {
       adminApiKey: secret.hash(adminApiKey),
       id: 'test-app-id',

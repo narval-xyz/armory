@@ -17,7 +17,7 @@ export class ConfigurationException extends NarvalSdkException {
 export class ForbiddenException extends NarvalSdkException {
   code: number
 
-  constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode: number = 403) {
+  constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode = 403) {
     super(message, context)
     this.code = suggestedHttpCode
     this.name = ForbiddenException.name
@@ -27,7 +27,7 @@ export class ForbiddenException extends NarvalSdkException {
 export class NotImplementedException extends NarvalSdkException {
   code: number
 
-  constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode: number = 501) {
+  constructor(message: string, context: Record<string, unknown> = {}, suggestedHttpCode = 501) {
     super(message, context)
     this.code = suggestedHttpCode
     this.name = 'NotImplementedError'

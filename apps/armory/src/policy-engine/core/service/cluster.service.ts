@@ -67,6 +67,8 @@ export class ClusterService {
             url: node
           }
         }
+
+        return undefined
       })
       .filter((engine): engine is PolicyEngineNode => engine !== undefined)
 

@@ -5,3 +5,4 @@ node_modules/*
 dist/*
 .nx/cache/*
 deploy/charts/*
+/.nx/workspace-data

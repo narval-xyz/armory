@@ -4,6 +4,17 @@
   "sourceRoot": "packages/policy-engine-shared/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/policy-engine-shared",
+        "main": "packages/policy-engine-shared/src/index.ts",
+        "tsConfig": "packages/policy-engine-shared/tsconfig.lib.json",
+        "assets": [],
+        "external": "none"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],

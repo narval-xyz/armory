@@ -17,7 +17,7 @@ on:
 
 jobs:
   test:
-    name: test
+    name: Test
     runs-on: ubuntu-latest
 
     services:
@@ -117,8 +117,8 @@ jobs:
       - name: Test rego
         run: make policy-engine/rego/test
 
-  build:
-    name: buildpush
+  release:
+    name: Release
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
@@ -193,7 +193,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@app/policy-engine CI buildpush failed'
+          author_name: '@app/policy-engine CI release failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:

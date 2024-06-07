@@ -52,6 +52,8 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
         } else if (signingProtocol === 'mpc') {
           return new MpcSigningService(configService)
         }
+
+        throw new Error('Invalid signing protocol')
       },
       inject: [ConfigService]
     },
