@@ -77,8 +77,9 @@ packages to NPM.
 
 1. Run `make packages/release/build` and follow the prompts to bump the
    projects' versions.
-2. Commit and push the changes to your branch.
-3. After your branch is merged, manually trigger the [packages pipeline to
+1. Run `npm install` to update `package-lock.json`.
+1. Commit and push the changes to your branch.
+1. After your branch is merged, manually trigger the [packages pipeline to
    publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
 the new version to NPM.
 
@@ -111,8 +112,8 @@ The `.npmrc` file is needed to access a private registry for Font Awesome and
 > This file is NOT in git, but it's necessary for the build.
 
 1. Create a `.npmrc` file in the root of this project.
-2. Get the values from someone who has them.
-3. Now `npm install` should work.
+1. Get the values from someone who has them.
+1. Now `npm install` should work.
 
 ## Troubleshooting
 
