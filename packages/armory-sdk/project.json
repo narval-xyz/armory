@@ -11,7 +11,7 @@
         "outputPath": "dist/packages/armory-sdk",
         "main": "packages/armory-sdk/src/index.ts",
         "tsConfig": "packages/armory-sdk/tsconfig.lib.json",
-        "assets": ["README.md"],
+        "assets": ["packages/armory-sdk/README.md"],
         "external": "none"
       }
     },
