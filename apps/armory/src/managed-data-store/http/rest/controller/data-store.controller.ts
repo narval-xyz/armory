@@ -85,8 +85,8 @@ export class DataStoreController {
     description: 'The client entities have been successfully set',
     status: HttpStatus.CREATED
   })
-  setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
-    return this.entityDataStoreService.setEntities(clientId, body)
+  setEntities(@Query('clientId') clientId: string, @Body() body: { entity: SetEntityStoreDto }) {
+    return this.entityDataStoreService.setEntities(clientId, body.entity)
   }
 
   @Post('/policies')
@@ -97,8 +97,8 @@ export class DataStoreController {
     description: 'The client policies have been successfully set',
     status: HttpStatus.CREATED
   })
-  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
-    return this.policyDataStoreService.setPolicies(clientId, body)
+  setPolicies(@Query('clientId') clientId: string, @Body() body: { policy: SetPolicyStoreDto }) {
+    return this.policyDataStoreService.setPolicies(clientId, body.policy)
   }
 
   @Post('/sync')
