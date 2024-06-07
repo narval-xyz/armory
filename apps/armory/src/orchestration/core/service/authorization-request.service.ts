@@ -94,9 +94,6 @@ export class AuthorizationRequestService {
     return this.evaluate(authzRequest)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async complete(id: string) {}
-
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
     if (input.status === AuthorizationRequestStatus.PROCESSING) {
       throw new AuthorizationRequestAlreadyProcessingException(input)

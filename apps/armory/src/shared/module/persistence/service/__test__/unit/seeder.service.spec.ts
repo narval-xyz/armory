@@ -5,11 +5,13 @@ import { SeederService } from '../../seeder.service'
 
 @Injectable()
 class TestSeedServiceOne extends SeedService {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   override async germinate(): Promise<void> {}
 }
 
 @Injectable()
 class TestSeedServiceTwo extends SeedService {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   override async germinate(): Promise<void> {}
 }
 

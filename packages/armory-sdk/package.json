@@ -1,11 +1,14 @@
 {
-  "name": "@narval/armory-sdk",
+  "name": "@narval-xyz/armory-sdk",
   "version": "0.0.1",
   "dependencies": {
     "axios": "^1.6.7",
     "tslib": "^2.3.0",
     "uuid": "^9.0.1",
     "viem": "^2.7.16",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "lodash": "^4.17.21",
+    "@noble/curves": "1.4.0",
+    "jose": "^5.2.2"
   }
 }

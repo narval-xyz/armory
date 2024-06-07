@@ -81,8 +81,6 @@ export class AuthorizationRequestProcessingConsumer {
       data: job.data,
       result
     })
-
-    this.authzService.complete(job.id.toString())
   }
 
   @OnQueueFailed()

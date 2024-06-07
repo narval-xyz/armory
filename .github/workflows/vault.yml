@@ -17,7 +17,7 @@ on:
 
 jobs:
   test:
-    name: test
+    name: Test
     runs-on: ubuntu-latest
 
     services:
@@ -94,8 +94,9 @@ jobs:
           fields: message,commit,author
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-  build:
-    name: buildpush
+
+  release:
+    name: Release
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
@@ -155,7 +156,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@app/vault CI buildpush failed'
+          author_name: '@app/vault CI release failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:

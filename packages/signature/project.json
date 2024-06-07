@@ -4,6 +4,17 @@
   "sourceRoot": "packages/signature/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/signature",
+        "main": "packages/signature/src/index.ts",
+        "tsConfig": "packages/signature/tsconfig.lib.json",
+        "assets": [],
+        "external": "none"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
