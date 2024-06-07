@@ -6,8 +6,8 @@ import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard
 import { ImportService } from '../../../core/service/import.service'
 import { SeedService } from '../../../core/service/seed.service'
 import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-wallet.dto'
-import { GenerateKeyDto } from '../dto/generate-key-dto'
-import { GenerateKeyResponseDto } from '../dto/generate-key-response-dto'
+import { GenerateSeedResponseDto } from '../dto/generate-key-response-dto'
+import { GenerateSeedDto } from '../dto/generate-seed-dto'
 import { ImportSeedDto } from '../dto/import-seed-dto'
 
 @Controller('/seeds')
@@ -23,7 +23,7 @@ export class SeedController {
   async importSeed(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
     const { wallet, keyId, backup } = await this.importService.importSeed(clientId, body)
 
-    const response = GenerateKeyResponseDto.create({
+    const response = GenerateSeedResponseDto.create({
       wallet,
       keyId,
       backup
@@ -33,9 +33,9 @@ export class SeedController {
   }
 
   @Post('/generate')
-  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
+  async generateKey(@ClientId() clientId: string, @Body() body: GenerateSeedDto) {
     const { wallet, keyId, backup } = await this.seedService.generate(clientId, body)
-    const response = GenerateKeyResponseDto.create({
+    const response = GenerateSeedResponseDto.create({
       wallet,
       keyId: keyId,
       backup

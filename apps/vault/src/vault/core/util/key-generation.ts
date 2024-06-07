@@ -7,7 +7,7 @@ import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX, Origin, PrivateWallet } from '../../../shared/type/domain.type'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
+import { GenerateSeedDto } from '../../http/rest/dto/generate-seed-dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -75,7 +75,7 @@ export const mnemonicToRootKey = (mnemonic: string): HDKey => {
   return HDKey.fromMasterSeed(seed)
 }
 
-export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
+export const getSecp256k1Key = (mnemonic: string, opts: GenerateSeedDto) => {
   const { curve = Curves.SECP256K1 } = opts
   switch (curve) {
     case Curves.SECP256K1: {
@@ -93,7 +93,7 @@ export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
 
 export const getRootKey = (
   mnemonic: string,
-  opts: GenerateKeyDto
+  opts: GenerateSeedDto
 ): {
   rootKey: HDKey
   keyId: string

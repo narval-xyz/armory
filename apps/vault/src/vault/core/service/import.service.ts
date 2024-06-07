@@ -11,6 +11,7 @@ import {
 } from '@narval/signature'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
+import { resourceId } from 'packages/armory-sdk/src/lib/utils/domain'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -48,7 +49,7 @@ export class ImportService {
       clientId
     })
     const address = privateKeyToAddress(privateKey)
-    const id = walletId || this.generateWalletId(address)
+    const id = walletId || resourceId(address)
     const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
     const wallet = await this.walletRepository.save(clientId, {
       id,
@@ -141,9 +142,5 @@ export class ImportService {
       keyId: keyId,
       backup
     }
-  }
-
-  generateWalletId(address: Hex): string {
-    return `eip155:eoa:${address.toLowerCase()}`
   }
 }

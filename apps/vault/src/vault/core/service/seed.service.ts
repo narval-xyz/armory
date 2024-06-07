@@ -3,7 +3,7 @@ import { english, generateMnemonic } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { DeriveWalletDto } from '../../http/rest/dto/derive-wallet.dto'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
+import { GenerateSeedDto } from '../../http/rest/dto/generate-seed-dto'
 import { SeedRepository } from '../../persistence/repository/mnemonic.repository'
 import { getRootKey, mnemonicToRootKey } from '../util/key-generation'
 import { BackupService } from './backup.service'
@@ -66,7 +66,7 @@ export class SeedService {
 
   async generate(
     clientId: string,
-    opts: GenerateKeyDto
+    opts: GenerateSeedDto
   ): Promise<{
     wallet: PrivateWallet
     keyId: string

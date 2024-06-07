@@ -21,7 +21,6 @@ import { WalletService } from './core/service/wallet.service'
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SeedController } from './http/rest/controller/seed.controller'
-import { SignController } from './http/rest/controller/sign.controller'
 import { WalletController } from './http/rest/controller/wallet.controller'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
@@ -43,14 +42,7 @@ import { VaultService } from './vault.service'
     }),
     forwardRef(() => ClientModule)
   ],
-  controllers: [
-    VaultController,
-    ImportController,
-    SignController,
-    ProvisionController,
-    SeedController,
-    WalletController
-  ],
+  controllers: [VaultController, ImportController, ProvisionController, SeedController, WalletController],
   providers: [
     AppRepository,
     AppService,
