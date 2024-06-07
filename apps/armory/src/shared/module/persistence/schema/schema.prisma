@@ -13,10 +13,11 @@ datasource db {
 }
 
 model Application {
-  id              String   @id @default(uuid()) @db.VarChar(255)
-  adminApiKey     String?  @map("admin_api_key")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  adminApiKey  String?  @map("admin_api_key")
+  clientSecret String?  @map("client_secret")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("application")
 }
