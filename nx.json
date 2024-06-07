@@ -11,12 +11,8 @@
         "createRelease": false
       },
       "projectChangelogs": {
-        "createRelease": "github",
-        "renderOptions": {
-          "authors": true,
-          "commitReferences": true,
-          "versionTitleDate": true
-        }
+        "file": false,
+        "createRelease": false
       }
     }
   },
