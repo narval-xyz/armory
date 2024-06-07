@@ -1,9 +1,7 @@
 name: Packages Publish
 
-# on:
-#   workflow_dispatch:
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -41,14 +39,17 @@ jobs:
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          # NOTE: Disable NPM provenance while the package is still restricted.
+          # We should consider enabling it to enhance supply chain security
+          # when changing the package access to public.
+          # See https://docs.npmjs.com/generating-provenance-statements
           NPM_CONFIG_PROVENANCE: false
 
       - name: Send Slack notification on failure
-        if: failure()
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: 'Packages release failed'
+          author_name: 'Packages release'
           status: ${{ job.status }}
           fields: message,commit,author
         env:
