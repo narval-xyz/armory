@@ -70,18 +70,18 @@ make format/check
 make lint/check
 ```
 
-## Publishing packages 
+## Publishing packages
 
 This section describes the process to release a new version of publishable
 packages to NPM.
 
-1. Run `make packages/release/build` and follow the prompts to bump the
+1. Run `make packages/release` and follow the prompts to bump the
    projects' versions.
 1. Run `npm install` to update `package-lock.json`.
 1. Commit and push the changes to your branch.
 1. After your branch is merged, manually trigger the [packages pipeline to
    publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
-the new version to NPM.
+   the new version to NPM.
 
 You can find the publishable packages listed in the `release.projects` value in
 the `nx.json`.
@@ -103,7 +103,7 @@ npx nx g @nx/nest:application --tags type:application
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
 
-## NPM 
+## NPM
 
 The `.npmrc` file is needed to access a private registry for Font Awesome and
 `@sepior/tsmsdkv2`.
@@ -126,4 +126,4 @@ around values. The quotes will be included in the value.
 
 Inside docker, `localhost` points to the container not your computer (host).
 Change `localhost` to `host.docker.internal` to reference to the host IP
-address in the local network. 
+address in the local network.

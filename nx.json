@@ -11,13 +11,13 @@
         "createRelease": false
       },
       "projectChangelogs": {
-        "createRelease": "github",
-        "renderOptions": {
-          "authors": true,
-          "commitReferences": true,
-          "versionTitleDate": true
-        }
+        "file": false,
+        "createRelease": false
       }
+    },
+    "git": {
+      "commit": false,
+      "tag": false
     }
   },
   "targetDefaults": {
@@ -66,6 +66,12 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "options": {
+        "packageRoot": "dist/packages/{projectName}"
+      }
     }
   },
   "namedInputs": {
