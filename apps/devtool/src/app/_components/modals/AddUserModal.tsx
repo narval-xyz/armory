@@ -1,4 +1,4 @@
-import { faCheckCircle, faChevronDown, faPlus, faSpinner, faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faCheckCircle, faChevronDown, faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   CredentialEntity,
@@ -10,7 +10,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { Curves, KeyTypes, PublicKey, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
 import { capitalize } from 'lodash'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarButton from '../../_design-system/NarButton'
 import NarCollapsible from '../../_design-system/NarCollapsible'
@@ -20,13 +20,12 @@ import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownM
 import NarInput from '../../_design-system/NarInput'
 import NarTextarea from '../../_design-system/NarTextarea'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
-import useEngineApi from '../../_hooks/useEngineApi'
 
 enum Steps {
   AddUserForm,
   AddUserSuccess,
   SignAndPush,
-  SyncEngine
+  Success
 }
 
 enum CredentialType {
@@ -58,14 +57,11 @@ const userRoleDropdownItems: DropdownItem<UserRole>[] = [
 
 const AddUserModal = () => {
   const { entityStore, getEntityStore, signAndPushEntity } = useDataStoreApi()
-  const { isSynced, sync: syncEngine } = useEngineApi()
-
   const [currentStep, setCurrentStep] = useState<Steps>(Steps.AddUserForm)
   const [credentialType, setCredentialType] = useState<CredentialType>(CredentialType.EoaAddress)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isEngineSynced, setIsEngineSynced] = useState(false)
   const [userForm, setUserForm] = useState<AddUserForm>(initUserFormState)
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
@@ -83,12 +79,6 @@ const AddUserModal = () => {
     }
   }, [userForm])
 
-  useEffect(() => {
-    if (isSynced) {
-      setIsEngineSynced(isSynced)
-    }
-  }, [isSynced])
-
   const btnLabel = useMemo(() => {
     if (currentStep === Steps.AddUserForm) {
       return 'Add'
@@ -96,14 +86,13 @@ const AddUserModal = () => {
     if (currentStep === Steps.AddUserSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.SyncEngine) {
+    if (currentStep === Steps.Success) {
       return 'Ok'
     }
   }, [currentStep])
 
   const handleClose = () => {
     setIsDialogOpen(false)
-    setIsEngineSynced(false)
     setNewEntityStore(undefined)
     setUserForm(initUserFormState)
     setCurrentStep(Steps.AddUserForm)
@@ -163,13 +152,9 @@ const AddUserModal = () => {
 
     try {
       setIsProcessing(true)
-
-      await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.SignAndPush)
-
-      await syncEngine()
-      setCurrentStep(Steps.SyncEngine)
-
+      await signAndPushEntity(newEntityStore)
+      setCurrentStep(Steps.Success)
       await getEntityStore()
     } finally {
       setIsProcessing(false)
@@ -186,7 +171,7 @@ const AddUserModal = () => {
       onDismiss={handleClose}
       onSave={currentStep === Steps.AddUserForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
-      isConfirm={currentStep === Steps.SyncEngine}
+      isConfirm={currentStep === Steps.Success}
       isSaveDisabled={isProcessing || !isFormValid}
     >
       <div className="w-[650px] px-12 py-4">
@@ -296,14 +281,10 @@ const AddUserModal = () => {
             <p className="text-nv-lg">Signing and pushing entity data store...</p>
           </div>
         )}
-        {currentStep === Steps.SyncEngine && (
+        {currentStep === Steps.Success && (
           <div className="flex flex-col items-center justify-center gap-[8px]">
-            <FontAwesomeIcon
-              className={isEngineSynced ? 'text-nv-green-500' : 'text-nv-red-500'}
-              icon={isEngineSynced ? faCheckCircle : faXmarkCircle}
-              size="xl"
-            />
-            <p className="text-nv-lg">{isEngineSynced ? 'Engine synced!' : 'Failed to sync engine!'}</p>
+            <FontAwesomeIcon className="text-nv-green-500" icon={faCheckCircle} size="xl" />
+            <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
       </div>

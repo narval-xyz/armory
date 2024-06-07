@@ -22,7 +22,6 @@ export const LOCAL_STORAGE_KEYS = {
   vaultUrl: 'narvalVaultUrl',
   vaultAdminApiKey: 'narvalVaultAdminApiKey',
   vaultClientId: 'narvalVaultClientId',
-  vaultClientSecret: 'narvalVaultClientSecret',
   vaultAccessToken: 'narvalVaultAccessToken',
   // Data Store
   entityDataStoreUrl: 'narvalEntityDataStoreUrl',

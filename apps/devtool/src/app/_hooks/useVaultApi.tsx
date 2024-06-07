@@ -32,7 +32,7 @@ export interface VaultClientData {
 }
 
 const useVaultApi = () => {
-  const { vaultUrl: vaultHost, vaultClientId: vaultClientId } = useStore()
+  const { vaultUrl: vaultHost, vaultClientId } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
@@ -52,19 +52,18 @@ const useVaultApi = () => {
   }, [vaultHost, vaultClientId, jwk, signer])
 
   const ping = () => {
-    if (!sdkVaultConfig) return
-
     try {
-      return pingVault(sdkVaultConfig)
+      return pingVault(vaultHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   const onboard = async (vaultClientData: VaultClientData) => {
-    setErrors(undefined)
-
     try {
+      setErrors(undefined)
+      setIsProcessing(true)
+
       const {
         vaultUrl,
         vaultAdminApiKey,
@@ -77,15 +76,18 @@ const useVaultApi = () => {
         maxTokenAge
       } = vaultClientData
 
-      const client = await onboardVaultClient(vaultUrl, vaultAdminApiKey, {
-        clientId,
-        ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
-        ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
-        ...(allowKeyExport && { allowKeyExport }),
-        ...(audience && { audience }),
-        ...(issuer && { issuer }),
-        ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
-      })
+      const client = await onboardVaultClient(
+        { vaultHost: vaultUrl, vaultAdminApiKey },
+        {
+          clientId,
+          ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
+          ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+          ...(allowKeyExport && { allowKeyExport }),
+          ...(audience && { audience }),
+          ...(issuer && { issuer }),
+          ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
+        }
+      )
 
       setIsProcessing(false)
 

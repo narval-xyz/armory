@@ -2,30 +2,17 @@
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  AuthorizationRequest,
-  DeriveWalletRequest,
-  DeriveWalletResponse,
-  GenerateKeyRequest,
-  GenerateKeyResponse,
-  ImportPrivateKeyRequest,
-  ImportPrivateKeyResponse,
-  ImportSeedRequest,
-  ImportSeedResponse,
-  SendEvaluationResponse,
-  SignatureRequest,
-  SignatureResponse
-} from '@narval/armory-sdk'
+import { AuthorizationRequest, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
-import { FC, useEffect, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
+import useVaultApi from '../_hooks/useVaultApi'
 import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
 import ImportWalletModal from './modals/ImportWalletModal'
-import PlaygroundConfigModal from './modals/PlaygroundConfigModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -35,32 +22,25 @@ enum Template {
 
 interface PlaygroundProps {
   title: string
+  configModal: ReactNode
   response?: string
   errors?: string | undefined
   authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
-  sign?: (req: SignatureRequest) => Promise<SignatureResponse> | undefined
-  importPrivateKey?: (req: ImportPrivateKeyRequest) => Promise<ImportPrivateKeyResponse> | undefined
-  importSeedPhrase?: (req: ImportSeedRequest) => Promise<ImportSeedResponse> | undefined
-  generateKey?: (req: GenerateKeyRequest) => Promise<GenerateKeyResponse> | undefined
-  deriveWallet?: (req: DeriveWalletRequest) => Promise<DeriveWalletResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
 const Playground: FC<PlaygroundProps> = ({
   title,
-  response,
+  configModal,
   errors,
+  response,
   authorize,
   evaluate,
-  sign,
-  importPrivateKey,
-  importSeedPhrase,
-  generateKey,
-  deriveWallet,
   validateResponse
 }) => {
-  const { authClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
+  const { errors: vaultErrors, sign, importPk, importSeedPhrase, generateWalletKeys, deriveWalletKey } = useVaultApi()
+  const { authClientId, engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -85,8 +65,10 @@ const Playground: FC<PlaygroundProps> = ({
   useEffect(() => {
     if (errors) {
       setResponseEditor(`{ errors: ${errors} }`)
+    } else if (vaultErrors) {
+      setResponseEditor(`{ errors: ${vaultErrors} }`)
     }
-  }, [errors])
+  }, [errors, vaultErrors])
 
   const updateTemplate = async (template: Template) => {
     switch (template) {
@@ -155,7 +137,7 @@ const Playground: FC<PlaygroundProps> = ({
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
-      const response = sign && (await sign(signatureReq))
+      const response = await sign(signatureReq)
       if (response) setResponseEditor(JSON.stringify(response, null, 2))
     } finally {
       setIsProcessing(false)
@@ -167,9 +149,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response =
-        importPrivateKey &&
-        (await importPrivateKey({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } }))
+      const response = await importPk({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -186,7 +166,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = importSeedPhrase && (await importSeedPhrase({ seed, accessToken: { value: accessToken } }))
+      const response = await importSeedPhrase({ seed, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -203,7 +183,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = generateKey && (await generateKey({ keyId, accessToken: { value: accessToken } }))
+      const response = await generateWalletKeys({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -220,8 +200,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response =
-        deriveWallet && (await deriveWallet({ keyId, derivationPaths: ['next'], accessToken: { value: accessToken } }))
+      const response = await deriveWalletKey({ keyId, derivationPaths: ['next'], accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -239,7 +218,7 @@ const Playground: FC<PlaygroundProps> = ({
       <div className="flex items-center">
         <div className="text-nv-2xl grow">{title}</div>
         <div className="flex items-center gap-[8px]">
-          {authorize && authClientId && (
+          {authClientId && authorize && (
             <NarButton
               label="Authorize"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -247,7 +226,7 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {evaluate && (
+          {engineClientId && evaluate && (
             <NarButton
               label="Evaluate"
               leftIcon={<FontAwesomeIcon icon={faArrowsRotate} />}
@@ -255,7 +234,7 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {sign && vaultClientId && (
+          {vaultClientId && (
             <NarButton
               label="Sign"
               leftIcon={<FontAwesomeIcon icon={faFileSignature} />}
@@ -263,27 +242,32 @@ const Playground: FC<PlaygroundProps> = ({
               disabled={isProcessing}
             />
           )}
-          {(generateKey || deriveWallet) && vaultClientId && (
+          {vaultClientId && (
             <CreateWalletModal
               accessToken={vaultAccessToken}
               generateKey={handleGenerateKey}
               deriveWallet={handleDeriveWallet}
             />
           )}
-          {(importPrivateKey || importSeedPhrase) && vaultClientId && (
+          {vaultClientId && (
             <ImportWalletModal
               accessToken={vaultAccessToken}
               importPrivateKey={handlePrivateKeyImport}
               importSeedPhrase={handleSeedImport}
             />
           )}
-          <PlaygroundConfigModal displayAuthServerUrl={Boolean(authorize)} />
+          {configModal}
         </div>
       </div>
       <div className="flex items-start">
         <div className="grow">
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />
+            {authClientId && authorize && (
+              <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />
+            )}
+            {engineClientId && evaluate && (
+              <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />
+            )}
             <ValueWithCopy layout="horizontal" label="Vault Client ID" value={vaultClientId} />
           </div>
         </div>

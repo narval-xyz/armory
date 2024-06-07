@@ -19,7 +19,6 @@ const useStore = () => {
   const [vaultUrl, setVaultUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultUrl, VAULT_URL)
   const [vaultAdminApiKey, setVaultAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultAdminApiKey, '')
   const [vaultClientId, setVaultClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientId, '')
-  const [vaultClientSecret, setVaultClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultClientSecret, '')
   const [vaultAccessToken, setVaultAccessToken] = useLocalStorage(LOCAL_STORAGE_KEYS.vaultAccessToken, '')
 
   // Data Store
@@ -51,12 +50,10 @@ const useStore = () => {
     vaultUrl,
     vaultAdminApiKey,
     vaultClientId,
-    vaultClientSecret,
     vaultAccessToken,
     setVaultUrl,
     setVaultAdminApiKey,
     setVaultClientId,
-    setVaultClientSecret,
     setVaultAccessToken,
     // Data Store
     entityDataStoreUrl,

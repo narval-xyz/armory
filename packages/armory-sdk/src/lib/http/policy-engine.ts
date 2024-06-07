@@ -1,34 +1,36 @@
 import { EvaluationRequest, SerializedEvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
-import { EngineClientConfig } from '../domain'
+import { EngineAdminConfig, EngineClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
+import { signRequestPayload } from '../sdk'
 import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
-import { buildBasicEngineHeaders, signRequest } from '../utils'
+import { builBasicHeaders } from '../utils'
 
-export const pingEngine = async (config: EngineClientConfig): Promise<void> => {
+export const pingEngine = async (engineHost: string): Promise<void> => {
   try {
-    return axios.get(config.authHost)
+    return axios.get(engineHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping engine', { config, error })
+    throw new NarvalSdkException('Failed to ping engine', { engineHost, error })
   }
 }
 
 export const onboardEngineClient = async (
-  authHost: string,
-  adminApiKey: string,
+  config: EngineAdminConfig,
   request: OnboardEngineClientRequest
 ): Promise<OnboardEngineClientResponse> => {
+  const { engineHost, engineAdminApiKey } = config
+
   try {
-    const { data } = await axios.post<OnboardEngineClientResponse>(`${authHost}/clients`, request, {
+    const { data } = await axios.post<OnboardEngineClientResponse>(`${engineHost}/clients`, request, {
       headers: {
-        [HEADER_ADMIN_API_KEY]: adminApiKey
+        [HEADER_ADMIN_API_KEY]: engineAdminApiKey
       }
     })
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { authHost, request, error })
+    throw new NarvalSdkException('Failed to onboard client', { config, error })
   }
 }
 
@@ -37,28 +39,32 @@ export const sendEvaluationRequest = async (
   request: EvaluationRequest
 ): Promise<SendEvaluationResponse> => {
   try {
-    const { authHost, authClientId } = config
+    const { engineHost, engineClientId: clientId, jwk, alg, signer } = config
 
-    const body = await signRequest(config, request)
+    const body = await signRequestPayload({ clientId, jwk, alg, signer }, request)
 
     const { data } = await axios.post<SendEvaluationResponse>(
-      `${authHost}/evaluations`,
+      `${engineHost}/evaluations`,
       SerializedEvaluationRequest.parse(body),
-      { headers: { [HEADER_CLIENT_ID]: authClientId } }
+      { headers: { [HEADER_CLIENT_ID]: clientId } }
     )
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to evaluate request', { config, request, error })
+    throw new NarvalSdkException('Failed to evaluate request', { config, error })
   }
 }
 
 export const syncEngine = async (config: EngineClientConfig): Promise<boolean> => {
   try {
-    const { authHost } = config
+    const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
 
-    const { data } = await axios.post<{ ok: boolean }>(`${authHost}/clients/sync`, null, {
-      headers: buildBasicEngineHeaders(config)
+    if (!clientSecret) {
+      throw new NarvalSdkException('Client secret is required to sync engine', { config })
+    }
+
+    const { data } = await axios.post<{ ok: boolean }>(`${engineHost}/clients/sync`, null, {
+      headers: builBasicHeaders({ clientId, clientSecret })
     })
 
     return data.ok

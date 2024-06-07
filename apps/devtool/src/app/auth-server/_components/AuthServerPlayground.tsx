@@ -1,31 +1,12 @@
 'use client'
 
 import { AuthorizationRequest, SignatureRequest } from '@narval/armory-sdk'
-import { useEffect, useState } from 'react'
 import Playground from '../../_components/Playground'
+import AuthConfigModal from '../../_components/modals/AuthConfigModal'
 import useAuthServerApi from '../../_hooks/useAuthServerApi'
-import useVaultApi from '../../_hooks/useVaultApi'
 
 const AuthServerPlayground = () => {
-  const { errors: evaluationErrors, authorizationResponse, authorize } = useAuthServerApi()
-  const {
-    errors: signatureErrors,
-    sign,
-    importPk,
-    importSeedPhrase,
-    generateWalletKeys,
-    deriveWalletKey
-  } = useVaultApi()
-
-  const [errors, setErrors] = useState<string>()
-
-  useEffect(() => {
-    if (evaluationErrors) {
-      setErrors(evaluationErrors)
-    } else if (signatureErrors) {
-      setErrors(signatureErrors)
-    }
-  }, [evaluationErrors, signatureErrors])
+  const { errors: authErrors, authorizationResponse, authorize } = useAuthServerApi()
 
   const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
     const response = AuthorizationRequest.safeParse(res)
@@ -35,6 +16,7 @@ const AuthServerPlayground = () => {
     }
 
     const accessToken = { value: response.data.evaluations[0]?.signature }
+
     const { request } = response.data
 
     return { accessToken, request }
@@ -43,14 +25,10 @@ const AuthServerPlayground = () => {
   return (
     <Playground
       title="Authorization Server"
-      errors={errors}
+      configModal={<AuthConfigModal />}
+      errors={authErrors}
       response={authorizationResponse ? JSON.stringify(authorizationResponse, null, 2) : undefined}
       authorize={authorize}
-      sign={sign}
-      importPrivateKey={importPk}
-      importSeedPhrase={importSeedPhrase}
-      generateKey={generateWalletKeys}
-      deriveWallet={deriveWalletKey}
       validateResponse={validateResponse}
     />
   )

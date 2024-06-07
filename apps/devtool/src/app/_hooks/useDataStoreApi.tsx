@@ -1,4 +1,11 @@
-import { UserSigner, getEntities, getPolicies, setEntities, setPolicies, signData } from '@narval/armory-sdk'
+import {
+  DataStoreClientConfig,
+  getEntities,
+  getPolicies,
+  setEntities,
+  setPolicies,
+  signDataPayload
+} from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -16,12 +23,13 @@ import useStore from './useStore'
 
 const useDataStoreApi = () => {
   const {
-    authUrl: authHost,
+    authUrl,
     authClientId,
-    authClientSecret: authSecret,
+    authClientSecret,
     entityDataStoreUrl: entityStoreHost,
     policyDataStoreUrl: policyStoreHost
   } = useStore()
+
   const { jwk, signer } = useAccountSignature()
 
   const [processingStatus, setProcessingStatus] = useState({
@@ -37,31 +45,21 @@ const useDataStoreApi = () => {
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
-  const sdkDataStoreConfig = useMemo<
-    | (UserSigner & {
-        authHost: string
-        authClientId: string
-        authSecret: string
-        entityStoreHost: string
-        policyStoreHost: string
-      })
-    | null
-  >(() => {
-    if (!authHost || !authClientId || !authSecret || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
+  const sdkDataStoreConfig = useMemo<DataStoreClientConfig | null>(() => {
+    if (!authClientId || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
       return null
     }
 
     return {
-      authHost,
-      authClientId,
-      authSecret,
+      dataStoreClientId: authClientId,
+      dataStoreClientSecret: authClientSecret,
       entityStoreHost,
       policyStoreHost,
       jwk,
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authHost, authClientId, authSecret, entityStoreHost, policyStoreHost, jwk, signer])
+  }, [authClientId, authClientSecret, entityStoreHost, policyStoreHost, jwk, signer])
 
   useEffect(() => {
     getEntityStore()
@@ -121,8 +119,9 @@ const useDataStoreApi = () => {
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
+      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
 
-      return signData(sdkDataStoreConfig, data)
+      return signDataPayload({ clientId, ...config }, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
@@ -148,8 +147,9 @@ const useDataStoreApi = () => {
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
+      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
 
-      return signData(sdkDataStoreConfig, data)
+      return signDataPayload({ clientId, ...config }, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
