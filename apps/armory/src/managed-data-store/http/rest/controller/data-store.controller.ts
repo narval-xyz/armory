@@ -106,7 +106,7 @@ export class DataStoreController {
     summary: 'Sync the client data store with the engine cluster'
   })
   @ApiResponse({
-    description: '',
+    description: 'The client data store has been successfully synced',
     status: HttpStatus.CREATED
   })
   sync(@ClientId('clientId') clientId: string) {
