@@ -20,11 +20,18 @@ jobs:
       - name: Add private .npmrc
         run: echo "${{ secrets.NPMRC }}" > .npmrc
 
-      - name: install node.js
+      - name: install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21'
           registry-url: https://npm.pkg.github.com/
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
 
       - name: Install dependencies
         run: |
