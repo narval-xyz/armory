@@ -34,8 +34,12 @@ jobs:
         run: |
           npx nx report
 
+      - name: Build
+        run: |
+          make packages/release/build
+
       - name: Publish
-        run: npx nx release publish
+        run: make packages/release/publish
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
