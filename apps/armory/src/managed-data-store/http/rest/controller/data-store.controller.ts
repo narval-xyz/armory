@@ -1,6 +1,8 @@
 import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { EngineService } from '../../../core/service/engine.service'
 import { EntityDataStoreService } from '../../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
 import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
@@ -13,7 +15,8 @@ import { SetPolicyStoreDto } from '../dto/set-policy-store.dto'
 export class DataStoreController {
   constructor(
     private entityDataStoreService: EntityDataStoreService,
-    private policyDataStoreService: PolicyDataStoreService
+    private policyDataStoreService: PolicyDataStoreService,
+    private engineService: EngineService
   ) {}
 
   @Get('/entities')
@@ -96,5 +99,17 @@ export class DataStoreController {
   })
   setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
     return this.policyDataStoreService.setPolicies(clientId, body)
+  }
+
+  @Post('/sync')
+  @ApiOperation({
+    summary: 'Sync the client data store with the engine cluster'
+  })
+  @ApiResponse({
+    description: '',
+    status: HttpStatus.CREATED
+  })
+  sync(@ClientId('clientId') clientId: string) {
+    return this.engineService.syncEngineCluster(clientId)
   }
 }
