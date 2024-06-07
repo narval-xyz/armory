@@ -1,17 +1,10 @@
-import {
-  Decision,
-  EvaluationRequest,
-  EvaluationResponse,
-  JwtString,
-  Request,
-  isAddress
-} from '@narval/policy-engine-shared'
-import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd, signJwt } from '@narval/signature'
+import { Decision, EvaluationResponse, JwtString, Request, isAddress } from '@narval/policy-engine-shared'
+import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd } from '@narval/signature'
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
 import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from './constants'
-import { EngineClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from './domain'
+import { ArmoryClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from './domain'
 import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './schema'
 import { SendEvaluationResponse } from './types/policy-engine'
@@ -99,23 +92,7 @@ export const buildDataPayload = (
   }
 }
 
-export const signRequest = async (
-  config: EngineClientConfig,
-  request: EvaluationRequest
-): Promise<EvaluationRequest> => {
-  const payload = buildRequestPayload(request.request, {
-    sub: config.jwk.kid,
-    iss: config.authClientId
-  })
-  const authentication = await signJwt(payload, config.jwk, { alg: config.alg }, config.signer)
-
-  return {
-    ...request,
-    authentication
-  }
-}
-
-export const checkDecision = (data: EvaluationResponse, config: EngineClientConfig): SendEvaluationResponse => {
+export const checkDecision = (data: EvaluationResponse, config: ArmoryClientConfig): SendEvaluationResponse => {
   switch (data.decision) {
     case Decision.PERMIT:
       if (!data.accessToken || !data.accessToken.value) {
@@ -173,22 +150,22 @@ export const walletId = (input: { walletId?: string; privateKey: Hex }): { walle
   }
 }
 
-export const buildBasicEngineHeaders = (config: EngineClientConfig): BasicHeaders => {
+export const builBasicHeaders = (config: { clientId: string; clientSecret: string }): BasicHeaders => {
   return {
-    [HEADER_CLIENT_ID]: config.authClientId,
-    [HEADER_CLIENT_SECRET]: config.authSecret
+    [HEADER_CLIENT_ID]: config.clientId,
+    [HEADER_CLIENT_SECRET]: config.clientSecret
   }
 }
 
-export const buildGnapVaultHeaders = (
-  vaultClientId: string,
-  accessToken: JwtString,
+export const buildGnapVaultHeaders = (config: {
+  vaultClientId: string
+  accessToken: JwtString
   detachedJws: string
-): GnapHeaders => {
+}): GnapHeaders => {
   return {
-    [HEADER_CLIENT_ID]: vaultClientId,
-    [DETACHED_JWS]: detachedJws,
-    authorization: `GNAP ${accessToken}`
+    [HEADER_CLIENT_ID]: config.vaultClientId,
+    [DETACHED_JWS]: config.detachedJws,
+    authorization: `GNAP ${config.accessToken}`
   }
 }
 

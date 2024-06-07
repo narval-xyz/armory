@@ -23,42 +23,40 @@ export interface EngineClientData {
 }
 
 const useEngineApi = () => {
-  const { engineUrl: authHost, engineClientId: authClientId, engineClientSecret: authSecret } = useStore()
+  const { engineUrl: engineHost, engineClientId, engineClientSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const sdkEngineConfig = useMemo<EngineClientConfig | null>(() => {
-    if (!authHost || !authClientId || !authSecret || !jwk || !signer) {
+  const sdkEngineClientConfig = useMemo<EngineClientConfig | null>(() => {
+    if (!engineHost || !engineClientId || !jwk || !signer) {
       return null
     }
 
     return {
-      authHost,
-      authClientId,
-      authSecret,
+      engineHost,
+      engineClientId,
+      engineClientSecret,
       jwk,
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authHost, authClientId, authSecret, jwk, signer])
+  }, [engineHost, engineClientId, engineClientSecret, jwk, signer])
 
   const ping = () => {
-    if (!sdkEngineConfig) return
-
     try {
-      return pingEngine(sdkEngineConfig)
+      return pingEngine(engineHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   const onboard = async (engineClientData: EngineClientData) => {
-    setErrors(undefined)
-    setIsProcessing(true)
-
     try {
+      setErrors(undefined)
+      setIsProcessing(true)
+
       const {
         engineUrl,
         engineAdminApiKey,
@@ -69,31 +67,34 @@ const useEngineApi = () => {
         policyPublicKey
       } = engineClientData
 
-      const client = await onboardEngineClient(engineUrl, engineAdminApiKey, {
-        clientId,
-        entityDataStore: {
-          data: {
-            type: getUrlProtocol(entityDataStoreUrl),
-            url: entityDataStoreUrl
+      const client = await onboardEngineClient(
+        { engineHost: engineUrl, engineAdminApiKey },
+        {
+          clientId,
+          entityDataStore: {
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            keys: [JSON.parse(entityPublicKey)]
           },
-          signature: {
-            type: getUrlProtocol(entityDataStoreUrl),
-            url: entityDataStoreUrl
-          },
-          keys: [JSON.parse(entityPublicKey)]
-        },
-        policyDataStore: {
-          data: {
-            type: getUrlProtocol(policyDataStoreUrl),
-            url: policyDataStoreUrl
-          },
-          signature: {
-            type: getUrlProtocol(policyDataStoreUrl),
-            url: policyDataStoreUrl
-          },
-          keys: [JSON.parse(policyPublicKey)]
+          policyDataStore: {
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            keys: [JSON.parse(policyPublicKey)]
+          }
         }
-      })
+      )
 
       setIsProcessing(false)
 
@@ -105,11 +106,11 @@ const useEngineApi = () => {
   }
 
   const sync = async () => {
-    if (!sdkEngineConfig) return
+    if (!sdkEngineClientConfig || !engineClientSecret) return
 
     try {
       setErrors(undefined)
-      const isSynced = await syncEngine(sdkEngineConfig)
+      const isSynced = await syncEngine(sdkEngineClientConfig)
       setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
@@ -118,18 +119,17 @@ const useEngineApi = () => {
   }
 
   const evaluate = (request: EvaluationRequest) => {
-    if (!sdkEngineConfig) return
+    if (!sdkEngineClientConfig) return
 
     try {
       setErrors(undefined)
-      return sendEvaluationRequest(sdkEngineConfig, request)
+      return sendEvaluationRequest(sdkEngineClientConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
   }
 
   return {
-    sdkEngineConfig,
     isProcessing,
     isSynced,
     errors,
