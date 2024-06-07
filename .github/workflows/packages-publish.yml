@@ -1,0 +1,56 @@
+name: Packages Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add private .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
+
+      - name: install node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install dependencies
+        run: |
+          make install/ci
+
+      - name: Print environment
+        run: |
+          npx nx report
+
+      - name: Publish
+        run: npx nx release publish
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          # NOTE: Disable NPM provenance while the package is still restricted.
+          # We should consider enabling it to enhance supply chain security
+          # when changing the package access to public.
+          # See https://docs.npmjs.com/generating-provenance-statements
+          NPM_CONFIG_PROVENANCE: false
+
+      - name: Send Slack notification on failure
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: 'Packages release'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

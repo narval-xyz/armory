@@ -4,8 +4,6 @@ import { Controller, Get, Logger } from '@nestjs/common'
 export class ArmoryController {
   private logger = new Logger(ArmoryController.name)
 
-  constructor() {}
-
   @Get()
   healthcheck() {
     return 'Running'
