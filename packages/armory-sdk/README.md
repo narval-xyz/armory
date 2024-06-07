@@ -34,6 +34,10 @@ sources into a standalone CommonJS module.
 make armory-sdk/build
 ```
 
+> [!IMPORTANT]
+> Since we bundle other buildable projects into one, the SDK's `package.json`
+> must include the peer dependencies of those other projects.
+
 For more information about the build process, visit [Publishable and Buildable
 NX Libraries](https://nx.dev/concepts/buildable-and-publishable-libraries).
 
