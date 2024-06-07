@@ -6,8 +6,8 @@ import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard
 import { ImportService } from '../../../core/service/import.service'
 import { SeedService } from '../../../core/service/seed.service'
 import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-wallet.dto'
-import { GenerateSeedResponseDto } from '../dto/generate-key-response-dto'
 import { GenerateSeedDto } from '../dto/generate-seed-dto'
+import { GenerateSeedResponseDto } from '../dto/generate-seed-response-dto'
 import { ImportSeedDto } from '../dto/import-seed-dto'
 
 @Controller('/seeds')
