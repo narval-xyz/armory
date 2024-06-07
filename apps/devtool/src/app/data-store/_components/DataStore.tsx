@@ -2,19 +2,23 @@
 
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
-import SuccessStatus from '../../_components/SuccessStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
 import AddUserModal from '../../_components/modals/AddUserModal'
+import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
-import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
-import DataStoreConfigModal from './DataStoreConfigModal'
 
 const DataStore = () => {
-  const { authClientId, entityDataStoreUrl, policyDataStoreUrl, setEntityDataStoreUrl, setPolicyDataStoreUrl } =
-    useStore()
+  const {
+    authClientId,
+    engineClientId,
+    entityDataStoreUrl,
+    policyDataStoreUrl,
+    setEntityDataStoreUrl,
+    setPolicyDataStoreUrl
+  } = useStore()
 
   const {
     entityStore,
@@ -37,8 +41,6 @@ const DataStore = () => {
     validationErrors
   } = useDataStoreApi()
 
-  const { isSynced, sync } = useEngineApi()
-
   const [domLoaded, setDomLoaded] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -54,12 +56,12 @@ const DataStore = () => {
           <div className="text-nv-2xl grow">Data Store</div>
           <div className="flex items-center gap-[8px]">
             <ErrorStatus label={errors} />
-            <SuccessStatus label={isSynced ? 'Engine Synced!' : ''} />
             <AddUserModal />
             <DataStoreConfigModal />
           </div>
         </div>
-        <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />
+        {authClientId && <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />}
+        {engineClientId && <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />}
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
         <DataEditor
@@ -73,7 +75,6 @@ const DataStore = () => {
           sign={signEntityData}
           isSigningAndPushing={isSigningAndPushingEntity}
           signAndPush={signAndPushEntity}
-          resyncEngine={sync}
         />
         <DataEditor
           label="Policy Data URL"
@@ -86,7 +87,6 @@ const DataStore = () => {
           sign={signPolicyData}
           isSigningAndPushing={isSigningAndPushingPolicy}
           signAndPush={signAndPushPolicy}
-          resyncEngine={sync}
         />
       </div>
       {isDialogOpen && (

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import useAuthServerApi from '../_hooks/useAuthServerApi'
 import useDataStoreApi from '../_hooks/useDataStoreApi'
 import useEngineApi from '../_hooks/useEngineApi'
 import useVaultApi from '../_hooks/useVaultApi'
@@ -8,16 +9,18 @@ import { classNames } from '../_lib/utils'
 
 const HealthcheckStatus = () => {
   const [status, setStatus] = useState({
+    armoryConnection: false,
     engineConnection: false,
-    engineDataStore: false,
+    vaultConnection: false,
     entityDataUrl: false,
-    policyDataUrl: false,
-    vaultConnection: false
+    policyDataUrl: false
   })
 
-  const { ping: pingEngine, sync } = useEngineApi()
-  const { getEntityStore, getPolicyStore } = useDataStoreApi()
+  const { ping: pingArmory } = useAuthServerApi()
+  const { ping: pingEngine } = useEngineApi()
   const { ping: pingVault } = useVaultApi()
+
+  const { getEntityStore, getPolicyStore } = useDataStoreApi()
 
   const checkEntityDataConnection = async () => {
     try {
@@ -37,21 +40,21 @@ const HealthcheckStatus = () => {
     }
   }
 
+  const checkArmoryConnection = async () => {
+    try {
+      await pingArmory()
+      setStatus((prev) => ({ ...prev, armoryConnection: true }))
+    } catch (e) {
+      setStatus((prev) => ({ ...prev, armoryConnection: false }))
+    }
+  }
+
   const checkEngineConnection = async () => {
     try {
       await pingEngine()
       setStatus((prev) => ({ ...prev, engineConnection: true }))
     } catch (e) {
       setStatus((prev) => ({ ...prev, engineConnection: false }))
-    }
-  }
-
-  const checkEngineDataStore = async () => {
-    try {
-      await sync()
-      setStatus((prev) => ({ ...prev, engineDataStore: true }))
-    } catch (e) {
-      setStatus((prev) => ({ ...prev, engineDataStore: false }))
     }
   }
 
@@ -67,8 +70,8 @@ const HealthcheckStatus = () => {
   useEffect(() => {
     checkEntityDataConnection()
     checkPolicyDataConnection()
+    checkArmoryConnection()
     checkEngineConnection()
-    checkEngineDataStore()
     checkVaultConnection()
   }, [])
 
@@ -104,6 +107,21 @@ const HealthcheckStatus = () => {
           </div>
         </div>
         <div className="flex flex-col gap-4">
+          <div className="text-nv-xl">Auth Server</div>
+          <div className="flex flex-col gap-2">
+            <div className="text-nv-md underline">Connection</div>
+            <div className="flex items-center gap-4">
+              <div
+                className={classNames(
+                  'h-3 w-3 rounded-full',
+                  status.armoryConnection ? 'bg-nv-green-500' : 'bg-nv-red-500'
+                )}
+              ></div>
+              <div>{status.armoryConnection ? 'Connected' : 'Disconnected'}</div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
           <div className="text-nv-xl">Policy Engine</div>
           <div className="flex flex-col gap-2">
             <div className="text-nv-md underline">Connection</div>
@@ -115,18 +133,6 @@ const HealthcheckStatus = () => {
                 )}
               ></div>
               <div>{status.engineConnection ? 'Connected' : 'Disconnected'}</div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-nv-md underline">Data Store</div>
-            <div className="flex items-center gap-4">
-              <div
-                className={classNames(
-                  'h-3 w-3 rounded-full',
-                  status.engineDataStore ? 'bg-nv-green-500' : 'bg-nv-red-500'
-                )}
-              ></div>
-              <div>{status.engineDataStore ? 'Synced' : 'Unsynced'}</div>
             </div>
           </div>
         </div>
