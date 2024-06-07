@@ -10,7 +10,7 @@
     "@automock/adapters.nestjs": "^2.1.0",
     "@automock/jest": "^2.1.0",
     "@docusaurus/module-type-aliases": "3.0.0",
-    "@docusaurus/tsconfig": "3.0.0",
+    "@docusaurus/tsconfig": "3.4.0",
     "@docusaurus/types": "3.1.0",
     "@faker-js/faker": "^8.4.0",
     "@nestjs/schematics": "^10.0.1",
