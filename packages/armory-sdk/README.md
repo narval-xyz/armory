@@ -39,5 +39,5 @@ NX Libraries](https://nx.dev/concepts/buildable-and-publishable-libraries).
 
 ## Publishing a new version
 
-Head over [Publishing packages](../../README.md#Publishing-packages) section in
+Head over [Publishing packages](../../README.md#publishing-packages) section in
 the monorepo's main README file.
