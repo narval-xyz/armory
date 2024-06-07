@@ -55,7 +55,7 @@ export const sendEvaluationRequest = async (
   }
 }
 
-export const syncEngine = async (config: EngineClientConfig): Promise<boolean> => {
+export const syncPolicyEngine = async (config: EngineClientConfig): Promise<boolean> => {
   try {
     const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
 

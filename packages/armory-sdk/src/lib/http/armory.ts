@@ -5,8 +5,9 @@ import { AuthAdminConfig, AuthClientConfig } from '../domain'
 import { NarvalSdkException } from '../exceptions'
 import { signRequestPayload } from '../sdk'
 import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
+import { builBasicHeaders } from '../utils'
 
-export const pingAuthServer = async (authHost: string): Promise<void> => {
+export const pingArmory = async (authHost: string): Promise<void> => {
   try {
     return axios.get(authHost)
   } catch (error) {
@@ -63,5 +64,23 @@ export const sendAuthorizationRequest = async (
     return data
   } catch (error) {
     throw new NarvalSdkException('Failed to send authorization request', { config, error })
+  }
+}
+
+export const syncArmoryEngine = async (config: AuthClientConfig): Promise<boolean> => {
+  try {
+    const { authHost, authClientId: clientId, authClientSecret: clientSecret } = config
+
+    if (!clientSecret) {
+      throw new NarvalSdkException('Client secret is required to sync engine', { config })
+    }
+
+    const { data } = await axios.post(`${authHost}/data/sync`, null, {
+      headers: builBasicHeaders({ clientId, clientSecret })
+    })
+
+    return data
+  } catch (error) {
+    throw new NarvalSdkException('Failed to sync engine', { config, error })
   }
 }

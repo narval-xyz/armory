@@ -11,6 +11,7 @@ import useStore from '../../_hooks/useStore'
 interface ConfigForm {
   authUrl: string
   authClientId: string
+  authClientSecret: string
   vaultUrl: string
   vaultClientId: string
 }
@@ -18,13 +19,24 @@ interface ConfigForm {
 const initForm: ConfigForm = {
   authUrl: '',
   authClientId: '',
+  authClientSecret: '',
   vaultUrl: '',
   vaultClientId: ''
 }
 
 const AuthConfigModal = () => {
-  const { authUrl, authClientId, vaultUrl, vaultClientId, setAuthUrl, setAuthClientId, setVaultUrl, setVaultClientId } =
-    useStore()
+  const {
+    authUrl,
+    authClientId,
+    authClientSecret,
+    vaultUrl,
+    vaultClientId,
+    setAuthUrl,
+    setAuthClientId,
+    setAuthClientSecret,
+    setVaultUrl,
+    setVaultClientId
+  } = useStore()
 
   const [isOpen, setIsOpen] = useState(false)
   const [form, setForm] = useState(initForm)
@@ -43,6 +55,7 @@ const AuthConfigModal = () => {
 
     setAuthUrl(form.authUrl)
     setAuthClientId(form.authClientId)
+    setAuthClientSecret(form.authClientSecret)
     setVaultUrl(form.vaultUrl)
     setVaultClientId(form.vaultClientId)
     closeDialog()
@@ -54,6 +67,7 @@ const AuthConfigModal = () => {
     updateForm({
       authUrl,
       authClientId,
+      authClientSecret,
       vaultUrl,
       vaultClientId
     })
@@ -79,6 +93,11 @@ const AuthConfigModal = () => {
             label="Auth Client ID"
             value={form.authClientId}
             onChange={(authClientId) => updateForm({ authClientId })}
+          />
+          <NarInput
+            label="Auth Client Secret"
+            value={form.authClientSecret}
+            onChange={(authClientSecret) => updateForm({ authClientSecret })}
           />
           <NarInput label="Vault URL" value={form.vaultUrl} onChange={(vaultUrl) => updateForm({ vaultUrl })} />
           <NarInput
