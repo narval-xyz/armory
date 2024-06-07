@@ -120,8 +120,8 @@ const useDataStoreApi = () => {
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
       const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
-
-      return signDataPayload({ clientId, ...config }, data)
+      const signature = await signDataPayload({ clientId, ...config }, data)
+      setEntityStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
@@ -148,8 +148,8 @@ const useDataStoreApi = () => {
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
       const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
-
-      return signDataPayload({ clientId, ...config }, data)
+      const signature = await signDataPayload({ clientId, ...config }, data)
+      setPolicyStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
@@ -160,10 +160,9 @@ const useDataStoreApi = () => {
     if (!sdkDataStoreConfig) return
 
     try {
-      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
-
-      await setEntities(sdkDataStoreConfig, data)
       setErrors(undefined)
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
+      await setEntities(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -175,8 +174,8 @@ const useDataStoreApi = () => {
     if (!sdkDataStoreConfig) return
 
     try {
+      setErrors(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
-
       await setPolicies(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
