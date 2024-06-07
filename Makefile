@@ -28,7 +28,7 @@ setup:
 	make install
 	make docker/up
 	make armory/setup
-	make vault/setup 
+	make vault/setup
 	make policy-engine/setup
 	@echo ""
 	@echo "${TERM_GREEN}🐋 Applications are ready!${TERM_NO_COLOR}"
@@ -40,6 +40,11 @@ docker/stop:
 
 docker/up:
 	docker-compose up --detach
+
+# === Packages ===
+
+packages/release/build:
+	npx nx release --skip-publish
 
 # === Code format ===
 

@@ -1,13 +1,10 @@
 ARMORY_SDK_PROJECT_NAME := armory-sdk
 ARMORY_SDK_PROJECT_DIR := ./packages/armory-sdk
 
-# === Release ===
+# === Build ===
 
-armory-sdk/release/build:
+armory-sdk/build:
 	npx nx build ${ARMORY_SDK_PROJECT_NAME}
-
-armory-sdk/release/deploy:
-	npx nx deploy ${ARMORY_SDK_PROJECT_NAME}
 
 # === Code format ===
 
@@ -24,6 +21,10 @@ armory-sdk/lint/check:
 	npx nx lint ${ARMORY_SDK_PROJECT_NAME}
 
 # === Testing ===
+
+armory-sdk/test:
+	make armory-sdk/test/type
+	make armory-sdk/test/unit
 
 armory-sdk/test/type:
 	npx tsc \
