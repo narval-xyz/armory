@@ -112,7 +112,7 @@ describe('Data Store', () => {
           {
             id: 'test-node',
             clientId,
-            clientSecret,
+            clientSecret: 'test-node-secret',
             publicKey: getPublicKey(policyEnginePrivateKey),
             url: 'http://mock.test/policy-engine'
           }
