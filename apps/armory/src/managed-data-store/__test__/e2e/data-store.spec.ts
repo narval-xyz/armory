@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { secret } from '@narval/nestjs-shared'
 import {
   Criterion,
   Entities,
@@ -16,6 +17,7 @@ import { MockProxy, mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { generatePrivateKey } from 'viem/accounts'
 import { load } from '../../../armory.config'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../armory.constant'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -33,6 +35,8 @@ describe('Data Store', () => {
   let entityDataStoreRepository: EntityDataStoreRepository
   let clientService: MockProxy<ClientService>
   let clusterService: MockProxy<ClusterService>
+
+  const clientSecret = 'test-client-secret'
 
   const clientId = 'test-client-id'
 
@@ -95,7 +99,7 @@ describe('Data Store', () => {
 
     clientService.findById.mockResolvedValue({
       id: clientId,
-      clientSecret: 'test-client-secret',
+      clientSecret: secret.hash(clientSecret),
       name: 'Test client',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -108,7 +112,7 @@ describe('Data Store', () => {
           {
             id: 'test-node',
             clientId,
-            clientSecret: 'test-client-secret',
+            clientSecret,
             publicKey: getPublicKey(policyEnginePrivateKey),
             url: 'http://mock.test/policy-engine'
           }
@@ -279,6 +283,23 @@ describe('Data Store', () => {
       await request(app.getHttpServer()).post('/data/entities').query({ clientId }).send({ entity })
 
       expect(clusterService.sync).toHaveBeenCalledWith(clientId)
+    })
+  })
+
+  describe('POST /data/sync', () => {
+    beforeEach(async () => {
+      jest.spyOn(clusterService, 'sync').mockResolvedValue({ ok: true })
+    })
+
+    it('calls the client data store sync', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .post('/data/sync')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
+        .send()
+
+      expect(body).toEqual({ ok: true })
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 })

@@ -39,7 +39,7 @@ export class ClientService {
       policyDataStore: input.dataStore.policy
     })
 
-    const client: Client = {
+    const client = await this.clientRepository.save({
       id: clientId,
       clientSecret,
       name: input.name,
@@ -50,11 +50,13 @@ export class ClientService {
       createdAt: input.createdAt || now,
       updatedAt: input.createdAt || now,
       policyEngine: { nodes }
+    })
+
+    return {
+      ...this.addNodes(client, nodes),
+      // If we generated a new secret, we need to include it in the response the first time.
+      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
     }
-
-    await this.clientRepository.save(client)
-
-    return this.addNodes(client, nodes)
   }
 
   private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
