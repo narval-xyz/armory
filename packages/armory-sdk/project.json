@@ -11,17 +11,9 @@
         "outputPath": "dist/packages/armory-sdk",
         "main": "packages/armory-sdk/src/index.ts",
         "tsConfig": "packages/armory-sdk/tsconfig.lib.json",
-        "assets": [],
+        "assets": ["packages/armory-sdk/README.md"],
         "external": "none"
       }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "distFolderPath": "dist/packages/armory-sdk",
-        "access": "restricted"
-      },
-      "dependsOn": ["build"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

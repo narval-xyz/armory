@@ -196,17 +196,17 @@ describe('Data Store', () => {
 
   describe('POST /data/policies', () => {
     it('responds set policy store', async () => {
-      const payload: SetPolicyStoreDto = await buildPolicyStore(clientId, dataStorePrivateKey)
+      const policy: SetPolicyStoreDto = await buildPolicyStore(clientId, dataStorePrivateKey)
 
       const { body, status } = await request(app.getHttpServer())
         .post('/data/policies')
         .query({ clientId })
-        .send(payload)
+        .send({ policy })
 
       expect(body).toEqual({
         clientId,
         version: 1,
-        data: payload,
+        data: policy,
         id: expect.any(String),
         createdAt: expect.any(String)
       })
@@ -214,9 +214,9 @@ describe('Data Store', () => {
     })
 
     it('syncs the client policy engine nodes', async () => {
-      const payload: SetPolicyStoreDto = await buildPolicyStore(clientId, dataStorePrivateKey)
+      const policy: SetPolicyStoreDto = await buildPolicyStore(clientId, dataStorePrivateKey)
 
-      await request(app.getHttpServer()).post('/data/policies').query({ clientId }).send(payload)
+      await request(app.getHttpServer()).post('/data/policies').query({ clientId }).send({ policy })
 
       expect(clusterService.sync).toHaveBeenCalledWith(clientId)
     })
@@ -255,17 +255,17 @@ describe('Data Store', () => {
 
   describe('POST /data/entities', () => {
     it('responds set entity store', async () => {
-      const payload: SetEntityStoreDto = await buildEntityStore(clientId, dataStorePrivateKey)
+      const entity: SetEntityStoreDto = await buildEntityStore(clientId, dataStorePrivateKey)
 
       const { body, status } = await request(app.getHttpServer())
         .post('/data/entities')
         .query({ clientId })
-        .send(payload)
+        .send({ entity })
 
       expect(body).toEqual({
         clientId,
         version: 1,
-        data: payload,
+        data: entity,
         id: expect.any(String),
         createdAt: expect.any(String)
       })
@@ -273,9 +273,9 @@ describe('Data Store', () => {
     })
 
     it('syncs the client policy engine nodes', async () => {
-      const payload: SetEntityStoreDto = await buildEntityStore(clientId, dataStorePrivateKey)
+      const entity: SetEntityStoreDto = await buildEntityStore(clientId, dataStorePrivateKey)
 
-      await request(app.getHttpServer()).post('/data/entities').query({ clientId }).send(payload)
+      await request(app.getHttpServer()).post('/data/entities').query({ clientId }).send({ entity })
 
       expect(clusterService.sync).toHaveBeenCalledWith(clientId)
     })
