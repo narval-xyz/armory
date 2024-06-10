@@ -123,7 +123,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       const { body: secondMnemonicRequest } = await request(app.getHttpServer())
@@ -131,7 +131,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-2'
+          keyId: 'keyId-2'
         })
 
       const { body: firstDeriveRequest } = await request(app.getHttpServer())
@@ -139,7 +139,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId',
+          keyId: 'keyId',
           derivationPaths: ['next']
         })
 
@@ -148,7 +148,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-2',
+          keyId: 'keyId-2',
           derivationPaths: ['next']
         })
 
@@ -164,7 +164,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId-second-client'
+          keyId: 'keyId-second-client'
         })
 
       const { body } = await request(app.getHttpServer())

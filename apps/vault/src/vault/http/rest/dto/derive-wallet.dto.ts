@@ -1,23 +1,23 @@
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
-import { DerivationPath, PrivateWallet, PublicWallet } from '../../../../shared/type/domain.type'
+import { PublicWallet } from '../../../../shared/type/domain.type'
 
 export class DeriveWalletDto extends createZodDto(
   z.object({
     keyId: z.string(),
-    derivationPaths: z.array(DerivationPath)
+    derivationPaths: z
+      .array(
+        z.string().startsWith('m', {
+          message: `Derivation path must start with 'm'`
+        })
+      )
+      .optional(),
+    count: z.number().default(1)
   })
 ) {}
 
 export class DeriveWalletResponseDto extends createZodDto(
   z.object({
-    wallets: z.union([z.array(PublicWallet), PublicWallet])
+    wallets: z.array(PublicWallet)
   })
-) {
-  constructor(wallets: PrivateWallet[] | PrivateWallet) {
-    super()
-    this.wallets = Array.isArray(wallets)
-      ? wallets.map((wallet) => PublicWallet.parse(wallet))
-      : PublicWallet.parse(wallets)
-  }
-}
+) {}
