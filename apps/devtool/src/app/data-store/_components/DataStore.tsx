@@ -4,6 +4,7 @@ import { faRotateRight } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
+import SuccessStatus from '../../_components/SuccessStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
 import AddUserModal from '../../_components/modals/AddUserModal'
 import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
@@ -47,8 +48,8 @@ const DataStore = () => {
     validationErrors
   } = useDataStoreApi()
 
-  const { sync: syncEngine, isProcessing: isEngineSyncing } = useEngineApi()
-  const { sync: syncAuthServer, isProcessing: isAuthServerSyncing } = useAuthServerApi()
+  const { sync: syncAuthServer, isProcessing: isAuthServerSyncing, isSynced: isAuthServerSynced } = useAuthServerApi()
+  const { sync: syncEngine, isProcessing: isEngineSyncing, isSynced: isEngineSynced } = useEngineApi()
 
   const [domLoaded, setDomLoaded] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -66,6 +67,7 @@ const DataStore = () => {
         <div className="flex items-center">
           <div className="text-nv-2xl grow">Data Store</div>
           <div className="flex items-center gap-[8px]">
+            <SuccessStatus label={isAuthServerSynced || isEngineSynced ? 'Engine synced!' : ''} />
             <ErrorStatus label={errors} />
             <AddUserModal />
             <NarButton

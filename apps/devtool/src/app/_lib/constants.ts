@@ -12,6 +12,7 @@ export const LOCAL_STORAGE_KEYS = {
   authAdminApiKey: 'narvalAuthAdminApiKey',
   authClientId: 'narvalAuthClientId',
   authClientSecret: 'narvalAuthClientSecret',
+  authClientSigner: 'narvalAuthClientSigner',
   // Engine
   engineUrl: 'narvalEngineUrl',
   engineAdminApiKey: 'narvalEngineAdminApiKey',
