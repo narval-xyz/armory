@@ -23,7 +23,11 @@ export const Client = z.object({
     policyPublicKey: jwkSchema
   }),
   policyEngine: z.object({
-    nodes: z.array(PolicyEngineNode)
+    nodes: z.array(
+      PolicyEngineNode.extend({
+        clientSecret: z.string().optional()
+      })
+    )
   })
 })
 export type Client = z.infer<typeof Client>

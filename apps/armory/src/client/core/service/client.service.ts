@@ -51,7 +51,9 @@ export class ClientService {
     return this.addNodes(client, nodes)
   }
 
-  private addNodes(client: Client, nodes: PolicyEngineNode[]): Client {
+  private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
+    const nodes = engineNodes.map(({ clientSecret, ...node }) => node)
+
     return {
       ...client,
       policyEngine: { nodes }
