@@ -95,6 +95,7 @@ describe('Data Store', () => {
 
     clientService.findById.mockResolvedValue({
       id: clientId,
+      clientSecret: 'test-client-secret',
       name: 'Test client',
       createdAt: new Date(),
       updatedAt: new Date(),

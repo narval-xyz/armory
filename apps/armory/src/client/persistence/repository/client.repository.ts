@@ -31,6 +31,7 @@ export class ClientRepository {
   private decode(model: Model): Client {
     return {
       id: model.id,
+      clientSecret: model.clientSecret,
       name: model.name,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
@@ -47,6 +48,7 @@ export class ClientRepository {
   private encode(client: Client) {
     return {
       id: client.id,
+      clientSecret: client.clientSecret,
       name: client.name,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt,
