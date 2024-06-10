@@ -58,7 +58,12 @@ export class ClientService {
   }
 
   private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
-    const nodes = engineNodes.map(({ clientSecret, ...node }) => node)
+    const nodes = engineNodes.map(({ id, clientId, publicKey, url }) => ({
+      id,
+      clientId,
+      publicKey,
+      url
+    }))
 
     return {
       ...client,

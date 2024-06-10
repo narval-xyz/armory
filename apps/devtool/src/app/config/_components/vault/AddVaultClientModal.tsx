@@ -23,13 +23,7 @@ const initForm: VaultClientData = {
 }
 
 const AddVaultClientModal = () => {
-  const {
-    vaultUrl,
-    vaultAdminApiKey,
-    engineClientSigner,
-    setVaultClientId,
-    setEngineClientSigner
-  } = useStore()
+  const { vaultUrl, vaultAdminApiKey, engineClientSigner, setVaultClientId, setEngineClientSigner } = useStore()
   const { isProcessing, onboard } = useVaultApi()
 
   const [isOpen, setIsOpen] = useState(false)
