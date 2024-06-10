@@ -1,6 +1,7 @@
 import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ClientSecretGuard } from 'apps/armory/src/shared/guard/client-secret.guard'
 import { ClusterService } from '../../../../policy-engine/core/service/cluster.service'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { EntityDataStoreService } from '../../../core/service/entity-data-store.service'
@@ -102,6 +103,7 @@ export class DataStoreController {
   }
 
   @Post('/sync')
+  @UseGuards(ClientSecretGuard)
   @ApiOperation({
     summary: 'Sync the client data store with the engine cluster'
   })
