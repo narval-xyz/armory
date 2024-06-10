@@ -28,7 +28,6 @@ const AddVaultClientModal = () => {
     vaultAdminApiKey,
     engineClientSigner,
     setVaultClientId,
-    setVaultClientSecret,
     setEngineClientSigner
   } = useStore()
   const { isProcessing, onboard } = useVaultApi()
@@ -58,7 +57,6 @@ const AddVaultClientModal = () => {
     if (!newClient) return
 
     setVaultClientId(newClient.clientId)
-    setVaultClientSecret(newClient.clientSecret)
     setEngineClientSigner(JSON.stringify(newClient.engineJwk))
     closeDialog()
   }
@@ -124,10 +122,10 @@ const AddVaultClientModal = () => {
               />
               <div className="flex items-center gap-[8px]">
                 <NarCheckbox
+                  label="Allow Key Export"
                   checked={form.allowKeyExport}
                   onCheckedChange={(allowKeyExport) => updateForm({ allowKeyExport })}
                 />
-                <div className="text-nv-xs">Allow Key Export</div>
               </div>
             </div>
           </div>

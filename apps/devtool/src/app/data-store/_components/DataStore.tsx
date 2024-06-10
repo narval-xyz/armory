@@ -1,17 +1,23 @@
 'use client'
 
+import { faRotateRight } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'
 import ValueWithCopy from '../../_components/ValueWithCopy'
 import AddUserModal from '../../_components/modals/AddUserModal'
 import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
+import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
+import useAuthServerApi from '../../_hooks/useAuthServerApi'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import useEngineApi from '../../_hooks/useEngineApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from './DataEditor'
 
 const DataStore = () => {
   const {
+    useAuthServer,
     authClientId,
     engineClientId,
     entityDataStoreUrl,
@@ -41,11 +47,16 @@ const DataStore = () => {
     validationErrors
   } = useDataStoreApi()
 
+  const { sync: syncEngine, isProcessing: isEngineSyncing } = useEngineApi()
+  const { sync: syncAuthServer, isProcessing: isAuthServerSyncing } = useAuthServerApi()
+
   const [domLoaded, setDomLoaded] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   useEffect(() => setDomLoaded(true), [])
   useEffect(() => setIsDialogOpen(Boolean(validationErrors && validationErrors.length > 0)), [validationErrors])
+
+  const isSyncing = isAuthServerSyncing || isEngineSyncing
 
   if (!domLoaded) return null
 
@@ -57,11 +68,17 @@ const DataStore = () => {
           <div className="flex items-center gap-[8px]">
             <ErrorStatus label={errors} />
             <AddUserModal />
+            <NarButton
+              label="Sync"
+              leftIcon={<FontAwesomeIcon icon={faRotateRight} spin={isSyncing} />}
+              onClick={useAuthServer ? syncAuthServer : syncEngine}
+              disabled={isSyncing}
+            />
             <DataStoreConfigModal />
           </div>
         </div>
-        {authClientId && <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />}
-        {engineClientId && <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />}
+        {useAuthServer && <ValueWithCopy layout="horizontal" label="Auth Client ID" value={authClientId} />}
+        {!useAuthServer && <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />}
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
         <DataEditor
