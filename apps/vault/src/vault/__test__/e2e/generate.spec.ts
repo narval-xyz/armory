@@ -121,17 +121,18 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       expect(body.wallet).toEqual({
-        keyId: 'rootKeyId',
+        keyId: 'keyId',
         derivationPath: "m/44'/60'/0'/0/0",
         address: expect.any(String),
         publicKey: expect.any(String),
         id: expect.any(String)
       })
     })
+
     it('saves a backup when client got a backupKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
       const keyId = 'backupKeyId'
@@ -149,7 +150,7 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientWithBackupKey.clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
         })
 
       const decryptedMnemonic = await rsaDecrypt(body.backup as string, backupKey)
@@ -166,7 +167,55 @@ describe('Generate', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'rootKeyId'
+          keyId: 'keyId'
+        })
+
+      const { keyId } = generateKeyResponse
+
+      const { body } = await request(app.getHttpServer())
+        .post('/derive/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId
+        })
+
+      expect(body).toEqual({
+        wallets: [
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/1",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          }
+        ]
+      })
+    })
+
+    it('responds with not found when rootKey does not exist', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      const { status } = await request(app.getHttpServer())
+        .post('/derive/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'somekeyId'
+        })
+
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
+    })
+
+    it('derives multiple wallets from a rootKey', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
         })
 
       const { keyId } = generateKeyResponse
@@ -177,11 +226,11 @@ describe('Generate', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send({
           keyId,
-          derivationPaths: ['next', 'next']
+          count: 3
         })
 
-      expect(body).toEqual({
-        wallets: [
+      expect(body.wallets).toEqual(
+        expect.arrayContaining([
           {
             id: expect.any(String),
             keyId,
@@ -195,23 +244,101 @@ describe('Generate', () => {
             derivationPath: "m/44'/60'/0'/0/2",
             address: expect.any(String),
             publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/3",
+            address: expect.any(String),
+            publicKey: expect.any(String)
           }
-        ]
-      })
+        ])
+      )
     })
-    it('responds with not found when rootKey does not exist', async () => {
+
+    it('derives wallets from a rootKey and custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
-      const { status } = await request(app.getHttpServer())
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      const { keyId } = generateKeyResponse
+
+      const { body } = await request(app.getHttpServer())
         .post('/derive/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'somekeyId',
-          derivationPaths: ['next', 'next']
+          keyId,
+          derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
         })
 
-      expect(status).toEqual(HttpStatus.NOT_FOUND)
+      expect(body.wallets).toEqual(
+        expect.arrayContaining([
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/4",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/5",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          }
+        ])
+      )
+    })
+
+    it('derives a combination of wallets from a rootKey and custom derivation paths', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      const { body: generateKeyResponse } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      const { keyId } = generateKeyResponse
+
+      const { body } = await request(app.getHttpServer())
+        .post('/derive/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId,
+          count: 2,
+          derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
+        })
+
+      expect(body.wallets).toEqual(
+        expect.arrayContaining([
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/4",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          },
+          {
+            id: expect.any(String),
+            keyId,
+            derivationPath: "m/44'/60'/0'/0/5",
+            address: expect.any(String),
+            publicKey: expect.any(String)
+          }
+        ])
+      )
     })
   })
 })

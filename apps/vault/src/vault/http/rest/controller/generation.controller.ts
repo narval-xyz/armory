@@ -16,10 +16,10 @@ export class GenerationController {
 
   @Post('/generate/keys')
   async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
-    const { wallet, rootKeyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
+    const { wallet, keyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
     const response = GenerateKeyResponseDto.create({
       wallet,
-      keyId: rootKeyId,
+      keyId: keyId,
       backup
     })
 
@@ -28,8 +28,8 @@ export class GenerationController {
 
   @Post('/derive/wallets')
   async deriveWallet(@ClientId() clientId: string, @Body() body: DeriveWalletDto) {
-    const wallets = await this.keyGenService.deriveWallet(clientId, body)
-    const response = new DeriveWalletResponseDto(wallets)
+    const wallets = await this.keyGenService.derive(clientId, body)
+    const response = DeriveWalletResponseDto.create(wallets)
 
     return response
   }

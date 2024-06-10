@@ -4,7 +4,6 @@ import { z } from 'zod'
 export class ImportSeedDto extends createZodDto(
   z.object({
     keyId: z.string().optional(),
-    encryptedSeed: z.string(),
-    startingIndex: z.number().optional()
+    encryptedSeed: z.string()
   })
 ) {}
