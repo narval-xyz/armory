@@ -22,7 +22,16 @@ const initForm: EngineClientData = {
 }
 
 const AddEngineClientModal = () => {
-  const { engineUrl, engineAdminApiKey, setEngineClientId, setEngineClientSecret, setEngineClientSigner } = useStore()
+  const {
+    engineUrl,
+    engineAdminApiKey,
+    setUseAuthServer,
+    setEngineClientId,
+    setEngineClientSecret,
+    setEngineClientSigner,
+    setEntityDataStoreUrl,
+    setPolicyDataStoreUrl
+  } = useStore()
 
   const { jwk } = useAccountSignature()
   const { isProcessing, onboard } = useEngineApi()
@@ -58,9 +67,12 @@ const AddEngineClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
+    setUseAuthServer(false)
     setEngineClientId(newClient.clientId)
     setEngineClientSecret(newClient.clientSecret)
     setEngineClientSigner(JSON.stringify(newClient.signer.publicKey))
+    setEntityDataStoreUrl(form.entityDataStoreUrl)
+    setPolicyDataStoreUrl(form.policyDataStoreUrl)
     closeDialog()
   }
 
@@ -134,9 +146,9 @@ const AddEngineClientModal = () => {
         )}
         {newClient && (
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy label="Client ID" value={newClient.clientId} />
-            <ValueWithCopy label="Client Secret" value={newClient.clientSecret} />
-            <ValueWithCopy label="Client Signer" value={JSON.stringify(newClient.signer.publicKey, null, 2)} />
+            <ValueWithCopy label="Engine Client ID" value={newClient.clientId} />
+            <ValueWithCopy label="Engine Client Secret" value={newClient.clientSecret} />
+            <ValueWithCopy label="Engine Client Signer" value={JSON.stringify(newClient.signer.publicKey, null, 2)} />
           </div>
         )}
       </div>

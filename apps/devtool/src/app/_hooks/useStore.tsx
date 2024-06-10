@@ -7,6 +7,7 @@ const useStore = () => {
   const [authAdminApiKey, setAuthAdminApiKey] = useLocalStorage(LOCAL_STORAGE_KEYS.authAdminApiKey, '')
   const [authClientId, setAuthClientId] = useLocalStorage(LOCAL_STORAGE_KEYS.authClientId, '')
   const [authClientSecret, setAuthClientSecret] = useLocalStorage(LOCAL_STORAGE_KEYS.authClientSecret, '')
+  const [authClientSigner, setAuthClientSigner] = useLocalStorage(LOCAL_STORAGE_KEYS.authClientSigner, '')
 
   // Engine
   const [engineUrl, setEngineUrl] = useLocalStorage(LOCAL_STORAGE_KEYS.engineUrl, ENGINE_URL)
@@ -32,10 +33,12 @@ const useStore = () => {
     authAdminApiKey,
     authClientId,
     authClientSecret,
+    authClientSigner,
     setAuthUrl,
     setAuthAdminApiKey,
     setAuthClientId,
     setAuthClientSecret,
+    setAuthClientSigner,
     // Engine
     engineUrl,
     engineAdminApiKey,
