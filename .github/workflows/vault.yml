@@ -35,13 +35,15 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Add private .npmrc
         run: echo "${{ secrets.NPMRC }}" > .npmrc
 
-      - name: Install Node.js
+      - name: Install node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21'

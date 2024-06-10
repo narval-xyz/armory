@@ -4,8 +4,9 @@ import {
   AuthorizationRequestStatus,
   getAuthorizationRequest,
   onboardArmoryClient,
-  pingAuthServer,
-  sendAuthorizationRequest
+  pingArmory,
+  sendAuthorizationRequest,
+  syncArmoryEngine
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
@@ -37,6 +38,7 @@ const useAuthServerApi = () => {
   const { authUrl: authHost, authClientId, authClientSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSynced, setIsSynced] = useState(false)
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
@@ -79,7 +81,7 @@ const useAuthServerApi = () => {
     if (!authHost) return
 
     try {
-      return pingAuthServer(authHost)
+      return pingArmory(authHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -133,11 +135,10 @@ const useAuthServerApi = () => {
         }
       )
 
-      setIsProcessing(false)
-
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setIsProcessing(false)
     }
   }
@@ -148,19 +149,33 @@ const useAuthServerApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-
       const authRequest = await sendAuthorizationRequest(sdkAuthClientConfig, request)
       setProcessingRequest(authRequest)
-
       return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
-
-    setIsProcessing(false)
   }
 
-  return { errors, isProcessing, authorizationResponse, ping, onboard, authorize }
+  const sync = async () => {
+    if (!sdkAuthClientConfig || !authClientSecret) return
+
+    try {
+      setErrors(undefined)
+      setIsProcessing(true)
+      const isSynced = await syncArmoryEngine(sdkAuthClientConfig)
+      setIsSynced(isSynced)
+      setTimeout(() => setIsSynced(false), 5000)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  return { errors, isProcessing, isSynced, authorizationResponse, ping, onboard, sync, authorize }
 }
 
 export default useAuthServerApi

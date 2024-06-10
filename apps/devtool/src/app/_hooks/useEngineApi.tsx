@@ -3,7 +3,7 @@ import {
   onboardEngineClient,
   pingEngine,
   sendEvaluationRequest,
-  syncEngine
+  syncPolicyEngine
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
@@ -96,11 +96,10 @@ const useEngineApi = () => {
         }
       )
 
-      setIsProcessing(false)
-
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setIsProcessing(false)
     }
   }
@@ -110,11 +109,14 @@ const useEngineApi = () => {
 
     try {
       setErrors(undefined)
-      const isSynced = await syncEngine(sdkEngineClientConfig)
+      setIsProcessing(true)
+      const isSynced = await syncPolicyEngine(sdkEngineClientConfig)
       setIsSynced(isSynced)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -123,9 +125,12 @@ const useEngineApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return sendEvaluationRequest(sdkEngineClientConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
