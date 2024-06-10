@@ -12,6 +12,7 @@ const clients: Client[] = [
   {
     id: FIXTURE.CLIENT.id,
     name: 'Dev',
+    clientSecret: 'secret',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
