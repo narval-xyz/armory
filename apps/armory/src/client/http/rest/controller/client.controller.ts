@@ -28,6 +28,7 @@ export class ClientController {
     const now = new Date()
     const client = this.clientService.create({
       id: body.id,
+      clientSecret: body.clientSecret,
       name: body.name,
       dataStore: body.dataStore,
       policyEngine: {

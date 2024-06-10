@@ -15,6 +15,7 @@ export type PolicyEngineNode = z.infer<typeof PolicyEngineNode>
 
 export const Client = z.object({
   id: z.string().min(1),
+  clientSecret: z.string().min(1),
   name: z.string().min(1),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -34,6 +35,7 @@ export type Client = z.infer<typeof Client>
 
 export const CreateClient = Client.extend({
   id: z.string().min(1).optional(),
+  clientSecret: z.string().min(1).optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
   dataStore: z.object({
