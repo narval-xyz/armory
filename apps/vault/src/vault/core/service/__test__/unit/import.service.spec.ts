@@ -61,14 +61,4 @@ describe('ImportService', () => {
       })
     })
   })
-
-  describe('generateWalletId', () => {
-    it('should generate a wallet ID based on the address, lowercased', () => {
-      const address = '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
-
-      const walletId: string = importService.generateWalletId(address)
-
-      expect(walletId).toEqual('eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1')
-    })
-  })
 })

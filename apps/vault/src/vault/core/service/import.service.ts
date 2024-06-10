@@ -1,3 +1,4 @@
+import { resourceId } from '@narval/armory-sdk'
 import { Hex } from '@narval/policy-engine-shared'
 import {
   Alg,
@@ -18,7 +19,7 @@ import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { deriveWallet, getRootKey } from '../util/key-generation'
+import { getRootKey } from '../util/key-generation.util'
 import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
@@ -46,7 +47,7 @@ export class ImportService {
       clientId
     })
     const address = privateKeyToAddress(privateKey)
-    const id = walletId || this.generateWalletId(address)
+    const id = walletId || resourceId(address)
     const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
     const wallet = await this.walletRepository.save(clientId, {
       id,
@@ -115,29 +116,24 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
-    const { keyId, encryptedSeed, startingIndex } = body
+    const { keyId: optionalKeyId, encryptedSeed } = body
 
     const mnemonic = await this.#decrypt(clientId, encryptedSeed)
 
-    const { rootKey, kid: rootKeyId } = getRootKey(mnemonic, keyId)
+    const { rootKey, keyId } = getRootKey(mnemonic, { keyId: optionalKeyId })
 
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
-      kid: rootKeyId,
+      keyId,
       mnemonic,
-      origin: Origin.IMPORTED,
-      nextAddrIndex: startingIndex || 0
+      origin: Origin.IMPORTED
     })
 
-    const firstWallet = await deriveWallet(rootKey, { rootKeyId })
+    const [wallet] = await this.keyGenerationService.generate(clientId, { rootKey, keyId })
 
     return {
-      wallet: firstWallet,
-      keyId: rootKeyId,
+      wallet,
+      keyId,
       backup
     }
-  }
-
-  generateWalletId(address: Hex): string {
-    return `eip155:eoa:${address.toLowerCase()}`
   }
 }
