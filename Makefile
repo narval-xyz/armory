@@ -43,8 +43,20 @@ docker/up:
 
 # === Packages ===
 
-packages/release/build:
+packages/release:
 	npx nx release --skip-publish
+
+# TODO: The default override for `dependsOn` of `nx-release-publish` is not
+# working. Ideally, the release target should depend on package's build.
+packages/release/build:
+	npx nx run-many \
+		--target build \
+		--projects armory-sdk
+
+# NOTE: Run the command in dry run mode to see what files are going to be
+# published: `npx nx release publish --dry-run`
+packages/release/publish:
+	npx nx release publish
 
 # === Code format ===
 

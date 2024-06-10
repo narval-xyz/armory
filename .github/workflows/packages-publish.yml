@@ -20,10 +20,13 @@ jobs:
       - name: Add private .npmrc
         run: echo "${{ secrets.NPMRC }}" > .npmrc
 
-      - name: install node.js
+      - name: Install node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21'
+          cache: 'npm'
+          # IMPORTANT: Must point to GitHub packages registry because we
+          # publish through it, not NPM directly.
           registry-url: https://npm.pkg.github.com/
 
       - name: Install dependencies
@@ -34,8 +37,12 @@ jobs:
         run: |
           npx nx report
 
+      - name: Build
+        run: |
+          make packages/release/build
+
       - name: Publish
-        run: npx nx release publish
+        run: make packages/release/publish
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

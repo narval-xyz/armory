@@ -1,4 +1,4 @@
-# Armory SDK 
+# Armory SDK
 
 An SDK to you programmatically interact with the Armory Stack in a seamless way.
 
@@ -16,7 +16,7 @@ make armory-sdk/test/unit/watch
 ## Formatting
 
 ```bash
-# Format and lint. 
+# Format and lint.
 make armory-sdk/format
 make armory-sdk/lint
 
