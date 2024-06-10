@@ -42,6 +42,7 @@ export const findAddressIndexes = (path: (string | undefined)[]): number[] => {
     if (parsedString.success) {
       return parsedString.data
     }
+    return undefined
   })
   return results.filter((index): index is number => index !== undefined)
 }
