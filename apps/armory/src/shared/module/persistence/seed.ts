@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
@@ -12,7 +13,7 @@ const clients: Client[] = [
   {
     id: FIXTURE.CLIENT.id,
     name: 'Dev',
-    clientSecret: 'secret',
+    clientSecret: secret.hash('client-secret'),
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,

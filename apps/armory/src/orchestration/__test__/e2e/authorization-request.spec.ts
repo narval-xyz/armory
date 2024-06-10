@@ -17,6 +17,7 @@ import { AuthorizationRequest } from '../../core/type/domain.type'
 import { OrchestrationModule } from '../../orchestration.module'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '../../queue/consumer/authorization-request-processing.consumer'
+import { secret } from '@narval/nestjs-shared'
 
 const ENDPOINT = '/authorization-requests'
 
@@ -38,7 +39,7 @@ describe('Authorization Request', () => {
   // TODO: Create domain type
   const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
-    clientSecret: 'test-client-secret',
+    clientSecret: secret.hash('test-client-secret'),
     name: 'Test Evaluation',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
