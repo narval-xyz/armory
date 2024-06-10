@@ -7,8 +7,8 @@ export class DeriveWalletDto extends createZodDto(
     keyId: z.string(),
     derivationPaths: z
       .array(
-        z.string().refine((path) => path.startsWith('m') || path.startsWith('M'), {
-          message: `Derivation path must start with 'm' or 'M'`
+        z.string().startsWith('m', {
+          message: `Derivation path must start with 'm'`
         })
       )
       .optional(),

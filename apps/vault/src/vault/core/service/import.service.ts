@@ -19,7 +19,7 @@ import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed-dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { getRootKey } from '../util/key-generation'
+import { getRootKey } from '../util/key-generation.util'
 import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()

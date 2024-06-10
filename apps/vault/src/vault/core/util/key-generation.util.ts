@@ -1,12 +1,14 @@
 import { resourceId } from '@narval/armory-sdk'
 import { Alg, Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
+import { HttpStatus } from '@nestjs/common'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { max, range } from 'lodash/fp'
 import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { BIP44_PREFIX, Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
+import { AddressIndex, Origin, PrivateWallet } from '../../../shared/type/domain.type'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
@@ -26,9 +28,22 @@ export const hdKeyToKid = (key: HDKey): string => {
 
   throw new ApplicationException({
     message: 'HDKey does not have a private or a public key',
-    suggestedHttpStatusCode: 500,
+    suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     context: { key }
   })
+}
+
+export const findAddressIndexes = (path: (string | undefined)[]): number[] => {
+  if (!path.length) {
+    return []
+  }
+  const results = path.map((p) => {
+    const parsedString = AddressIndex.safeParse(p)
+    if (parsedString.success) {
+      return parsedString.data
+    }
+  })
+  return results.filter((index): index is number => index !== undefined)
 }
 
 export const hdKeyToWallet = async ({
@@ -43,7 +58,7 @@ export const hdKeyToWallet = async ({
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
-      suggestedHttpStatusCode: 400,
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: { key }
     })
   }
@@ -85,7 +100,7 @@ export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
     default:
       throw new ApplicationException({
         message: 'Unsupported curve',
-        suggestedHttpStatusCode: 400,
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         context: { curve: opts.curve }
       })
   }

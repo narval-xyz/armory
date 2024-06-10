@@ -4,8 +4,7 @@ import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { Origin } from '../../../../../shared/type/domain.type'
-import { bip44Path } from '../../derivation'
-import { hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation'
+import { generateNextPaths, hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation.util'
 
 const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'
 const seed = mnemonicToSeedSync(mnemonic)
@@ -53,7 +52,7 @@ describe('hdKeyToKid', () => {
     try {
       await hdKeyToWallet({
         key: {} as unknown as HDKey,
-        path: bip44Path({}),
+        path: 'm',
         keyId: 'kid'
       })
     } catch (error) {
@@ -68,5 +67,37 @@ describe('mnemonicToRootKey', () => {
     const expectedRootKey = rootKey
     const result = mnemonicToRootKey(mnemonic)
     expect(result).toEqual(expectedRootKey)
+  })
+})
+
+describe('generateNextPaths', () => {
+  it('returns an array of next paths', () => {
+    const derivedIndexes = [0, 1, 2]
+    const count = 3
+    const expectedPaths = [`m/44'/60'/0'/0/3`, `m/44'/60'/0'/0/4`, `m/44'/60'/0'/0/5`]
+
+    const result = generateNextPaths(derivedIndexes, count)
+
+    expect(result).toEqual(expectedPaths)
+  })
+
+  it('returns an array of next paths starting from 0 if no derived indexes are provided', () => {
+    const derivedIndexes: number[] = []
+    const count = 3
+    const expectedPaths = [`m/44'/60'/0'/0/0`, `m/44'/60'/0'/0/1`, `m/44'/60'/0'/0/2`]
+
+    const result = generateNextPaths(derivedIndexes, count)
+
+    expect(result).toEqual(expectedPaths)
+  })
+
+  it('returns an empty array if count is 0', () => {
+    const derivedIndexes = [0, 1, 2]
+    const count = 0
+    const expectedPaths: string[] = []
+
+    const result = generateNextPaths(derivedIndexes, count)
+
+    expect(result).toEqual(expectedPaths)
   })
 })

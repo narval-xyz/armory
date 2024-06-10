@@ -10,8 +10,13 @@ import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { MnemonicRepository } from '../../persistence/repository/mnemonic.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
-import { findBip44Indexes } from '../util/derivation'
-import { generateNextPaths, getRootKey, hdKeyToWallet, mnemonicToRootKey } from '../util/key-generation'
+import {
+  findAddressIndexes,
+  generateNextPaths,
+  getRootKey,
+  hdKeyToWallet,
+  mnemonicToRootKey
+} from '../util/key-generation.util'
 
 type GenerateArgs = {
   rootKey: HDKey
@@ -82,7 +87,7 @@ export class KeyGenerationService {
 
   async getIndexes(clientId: string, keyId: string): Promise<number[]> {
     const wallets = (await this.walletRepository.findByClientId(clientId)).filter((wallet) => wallet.keyId === keyId)
-    const indexes = findBip44Indexes(wallets.map((wallet) => wallet.derivationPath))
+    const indexes = findAddressIndexes(wallets.map((wallet) => wallet.derivationPath))
     return indexes
   }
 
@@ -104,7 +109,7 @@ export class KeyGenerationService {
     const { keyId, count = 1, derivationPaths = [], rootKey } = args
 
     const dbIndexes = await this.getIndexes(clientId, keyId)
-    const customIndexes = findBip44Indexes(derivationPaths)
+    const customIndexes = findAddressIndexes(derivationPaths)
     const indexes = [...dbIndexes, ...customIndexes]
 
     const remainingDerivations = count - derivationPaths.length

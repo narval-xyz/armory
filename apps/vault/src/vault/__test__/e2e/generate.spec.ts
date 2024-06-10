@@ -132,6 +132,7 @@ describe('Generate', () => {
         id: expect.any(String)
       })
     })
+
     it('saves a backup when client got a backupKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
       const keyId = 'backupKeyId'
@@ -191,6 +192,7 @@ describe('Generate', () => {
         ]
       })
     })
+
     it('responds with not found when rootKey does not exist', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
@@ -204,6 +206,7 @@ describe('Generate', () => {
 
       expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
+
     it('derives multiple wallets from a rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
@@ -252,6 +255,7 @@ describe('Generate', () => {
         ])
       )
     })
+
     it('derives wallets from a rootKey and custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
@@ -293,6 +297,7 @@ describe('Generate', () => {
         ])
       )
     })
+
     it('derives a combination of wallets from a rootKey and custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
