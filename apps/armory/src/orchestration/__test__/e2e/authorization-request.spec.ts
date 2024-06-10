@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { secret } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -17,7 +18,6 @@ import { AuthorizationRequest } from '../../core/type/domain.type'
 import { OrchestrationModule } from '../../orchestration.module'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '../../queue/consumer/authorization-request-processing.consumer'
-import { secret } from '@narval/nestjs-shared'
 
 const ENDPOINT = '/authorization-requests'
 
