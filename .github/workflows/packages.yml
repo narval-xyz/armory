@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -27,17 +27,11 @@ jobs:
       - name: Add private .npmrc
         run: echo "${{ secrets.NPMRC }}" > .npmrc
 
-      - name: Install Node.js
+      - name: Install node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21'
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
+          cache: 'npm'
 
       - name: Install dependencies
         run: |
