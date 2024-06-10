@@ -25,17 +25,9 @@ jobs:
         with:
           node-version: '21'
           cache: 'npm'
-          # IMPORTANT: Must point to GitHub packages
-          # registry because we publish through it,
-          # not NPM directly.
+          # IMPORTANT: Must point to GitHub packages registry because we
+          # publish through it, not NPM directly.
           registry-url: https://npm.pkg.github.com/
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
 
       - name: Install dependencies
         run: |
