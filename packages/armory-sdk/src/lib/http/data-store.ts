@@ -66,7 +66,7 @@ export const setEntities = async (config: DataStoreClientConfig, data: Entities)
 
 export const setPolicies = async (config: DataStoreClientConfig, data: Policy[]): Promise<{ success: boolean }> => {
   try {
-    const { dataStoreClientId: clientId, dataStoreClientSecret: clientSecret, policyStoreHost, ...payload } = config
+    const { dataStoreClientId: clientId, policyStoreHost, ...payload } = config
 
     const signature = await signDataPayload({ clientId, ...payload }, data)
     const policy = PolicyStore.parse({ data, signature })

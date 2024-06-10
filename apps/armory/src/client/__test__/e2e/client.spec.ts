@@ -138,6 +138,7 @@ describe('Client', () => {
 
       expect(body).toEqual({
         ...actualClient,
+        clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
@@ -165,6 +166,19 @@ describe('Client', () => {
       const actualClient = await clientService.findById(body.id)
 
       expect(actualClient?.policyEngine.nodes[0].url).toEqual(policyEngineNodeUrl)
+    })
+
+    it('creates a new client with a given secret', async () => {
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+
+      const clientSecret = 'test-client-secret'
+
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({ ...createClientPayload, clientSecret })
+
+      expect(body.clientSecret).toEqual(clientSecret)
     })
 
     it('responds with unprocessable entity when payload is invalid', async () => {

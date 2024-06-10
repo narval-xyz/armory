@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { secret } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
@@ -21,6 +22,7 @@ describe(AuthorizationRequestRepository.name, () => {
 
   const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
+    clientSecret: secret.hash('test-client-secret'),
     name: 'Test Client',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,

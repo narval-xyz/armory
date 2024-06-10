@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { secret } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -38,6 +39,7 @@ describe('Authorization Request', () => {
   // TODO: Create domain type
   const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
+    clientSecret: secret.hash('test-client-secret'),
     name: 'Test Evaluation',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
