@@ -1,17 +1,17 @@
 import { secret } from '@narval/nestjs-shared'
-import { HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk } from '@narval/signature'
+import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
-import { ClientService } from '../../../../engine/core/service/client.service'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../policy-engine.constant'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../armory.constant'
+import { ClientService } from '../../../../client/core/service/client.service'
+import { Client } from '../../../../client/core/type/client.type'
 import { ApplicationException } from '../../../exception/application.exception'
-import { Client } from '../../../type/domain.type'
 import { ClientSecretGuard } from '../../client-secret.guard'
 
 describe(ClientSecretGuard.name, () => {
   const CLIENT_ID = 'test-client-id'
+  const publicKey = getPublicKey(privateKeyToJwk(generatePrivateKey()))
 
   const mockExecutionContext = ({ clientSecret, clientId }: { clientSecret?: string; clientId?: string }) => {
     const headers = {
@@ -28,28 +28,24 @@ describe(ClientSecretGuard.name, () => {
   }
 
   const mockService = (clientSecret = 'client-a-secret-key') => {
-    const dataStoreSource: HttpSource = {
-      type: SourceType.HTTP,
-      url: 'http://9.9.9.9:99/test-data-store'
-    }
-
     const client: Client = {
-      clientId: CLIENT_ID,
+      id: CLIENT_ID,
+      name: 'Client A',
       clientSecret: secret.hash(clientSecret),
       dataStore: {
-        entity: {
-          data: dataStoreSource,
-          signature: dataStoreSource,
-          keys: []
-        },
-        policy: {
-          data: dataStoreSource,
-          signature: dataStoreSource,
-          keys: []
-        }
+        entityPublicKey: publicKey,
+        policyPublicKey: publicKey
       },
-      signer: {
-        privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      policyEngine: {
+        nodes: [
+          {
+            id: 'test-node-id',
+            clientId: 'test-client',
+            clientSecret: 'test-client-secret',
+            publicKey,
+            url: 'http://foo.bar'
+          }
+        ]
       },
       updatedAt: new Date(),
       createdAt: new Date()

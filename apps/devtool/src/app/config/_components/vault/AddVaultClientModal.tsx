@@ -23,13 +23,8 @@ const initForm: VaultClientData = {
 }
 
 const AddVaultClientModal = () => {
-  const {
-    vaultUrl,
-    vaultAdminApiKey,
-    engineClientSigner,
-    setVaultClientId,
-    setEngineClientSigner
-  } = useStore()
+  const { vaultUrl, vaultAdminApiKey, authClientSigner, engineClientSigner, useAuthServer, setVaultClientId } =
+    useStore()
   const { isProcessing, onboard } = useVaultApi()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -57,7 +52,6 @@ const AddVaultClientModal = () => {
     if (!newClient) return
 
     setVaultClientId(newClient.clientId)
-    setEngineClientSigner(JSON.stringify(newClient.engineJwk))
     closeDialog()
   }
 
@@ -67,7 +61,7 @@ const AddVaultClientModal = () => {
     updateForm({
       vaultUrl,
       vaultAdminApiKey,
-      engineClientSigner
+      engineClientSigner: useAuthServer ? authClientSigner : engineClientSigner
     })
   }, [isOpen])
 
@@ -132,8 +126,8 @@ const AddVaultClientModal = () => {
         )}
         {newClient && (
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy label="Client ID" value={newClient.clientId} />
-            <ValueWithCopy label="Client Secret" value={newClient.clientSecret} />
+            <ValueWithCopy label="Vault Client ID" value={newClient.clientId} />
+            <ValueWithCopy label="Vault Client Secret" value={newClient.clientSecret} />
           </div>
         )}
       </div>

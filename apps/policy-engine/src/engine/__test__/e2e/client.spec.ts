@@ -128,6 +128,17 @@ describe('Client', () => {
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
+    it('creates a new client with a given secret', async () => {
+      const clientSecret = 'test-client-secret'
+
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({ ...createClientPayload, clientSecret })
+
+      expect(body.clientSecret).toEqual(clientSecret)
+    })
+
     it('does not expose the signer private key', async () => {
       const { body } = await request(app.getHttpServer())
         .post('/clients')

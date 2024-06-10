@@ -62,8 +62,7 @@ export class ClientService {
 
     return {
       ...client,
-      // If we generated a new secret, we need to include it in the response
-      // the first time.
+      // If we generated a new secret, we need to include it in the response the first time.
       ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
     }
   }

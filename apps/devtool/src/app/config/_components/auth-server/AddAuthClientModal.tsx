@@ -26,9 +26,10 @@ const AddAuthClientModal = () => {
   const {
     authUrl: authServerUrl,
     authAdminApiKey,
-    setEngineClientId,
-    setEngineClientSecret,
-    setEngineClientSigner,
+    setUseAuthServer,
+    setAuthClientId,
+    setAuthClientSecret,
+    setAuthClientSigner,
     setEntityDataStoreUrl,
     setPolicyDataStoreUrl
   } = useStore()
@@ -67,11 +68,13 @@ const AddAuthClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
-    const { clientId, clientSecret, publicKey } = newClient.policyEngine.nodes[0]
+    const { id, clientSecret } = newClient
+    const { publicKey } = newClient.policyEngine.nodes[0]
 
-    setEngineClientId(clientId)
-    setEngineClientSecret(clientSecret)
-    setEngineClientSigner(JSON.stringify(publicKey))
+    setUseAuthServer(true)
+    setAuthClientId(id)
+    setAuthClientSecret(clientSecret)
+    setAuthClientSigner(JSON.stringify(publicKey))
     setEntityDataStoreUrl(form.entityDataStoreUrl)
     setPolicyDataStoreUrl(form.policyDataStoreUrl)
     closeDialog()
@@ -161,10 +164,10 @@ const AddAuthClientModal = () => {
         )}
         {newClient && (
           <div className="flex flex-col gap-[8px]">
-            <ValueWithCopy label="Client ID" value={newClient.policyEngine.nodes[0].clientId} />
-            <ValueWithCopy label="Client Secret" value={newClient.policyEngine.nodes[0].clientSecret} />
+            <ValueWithCopy label="Auth Client ID" value={newClient.id} />
+            <ValueWithCopy label="Auth Client Secret" value={newClient.clientSecret} />
             <ValueWithCopy
-              label="Client Signer"
+              label="Auth Client Signer"
               value={JSON.stringify(newClient.policyEngine.nodes[0].publicKey, null, 2)}
             />
           </div>

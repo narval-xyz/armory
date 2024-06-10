@@ -1,3 +1,4 @@
+import { secret } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
@@ -26,6 +27,10 @@ export class ClientService {
   async create(input: CreateClient): Promise<Client> {
     const now = new Date()
     const clientId = input.id || uuid()
+    // If we are generating the secret, we'll want to return the full thing to
+    // the user one time.
+    const fullClientSecret = input.clientSecret || secret.generate()
+    const clientSecret = input.clientSecret || secret.hash(fullClientSecret)
 
     const nodes = await this.clusterService.create({
       clientId,
@@ -34,8 +39,9 @@ export class ClientService {
       policyDataStore: input.dataStore.policy
     })
 
-    const client: Client = {
+    const client = await this.clientRepository.save({
       id: clientId,
+      clientSecret,
       name: input.name,
       dataStore: {
         entityPublicKey: input.dataStore.entity.keys[0],
@@ -44,14 +50,23 @@ export class ClientService {
       createdAt: input.createdAt || now,
       updatedAt: input.createdAt || now,
       policyEngine: { nodes }
+    })
+
+    return {
+      ...this.addNodes(client, nodes),
+      // If we generated a new secret, we need to include it in the response the first time.
+      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
     }
-
-    await this.clientRepository.save(client)
-
-    return this.addNodes(client, nodes)
   }
 
-  private addNodes(client: Client, nodes: PolicyEngineNode[]): Client {
+  private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
+    const nodes = engineNodes.map(({ id, clientId, publicKey, url }) => ({
+      id,
+      clientId,
+      publicKey,
+      url
+    }))
+
     return {
       ...client,
       policyEngine: { nodes }
