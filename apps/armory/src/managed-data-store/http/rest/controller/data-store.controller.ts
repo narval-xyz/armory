@@ -8,8 +8,8 @@ import { EntityDataStoreService } from '../../../core/service/entity-data-store.
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
 import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
 import { PolicyDataStoreDto } from '../dto/policy-data-store.dto'
-import { SetEntityStoreDto } from '../dto/set-entity-store.dto'
-import { SetPolicyStoreDto } from '../dto/set-policy-store.dto'
+import { SetEntityStoreDto, SetEntityStoreResponseDto } from '../dto/set-entity-store.dto'
+import { SetPolicyStoreDto, SetPolicyStoreResponseDto } from '../dto/set-policy-store.dto'
 
 @Controller('/data')
 @ApiTags('Managed Data Store')
@@ -84,7 +84,8 @@ export class DataStoreController {
   })
   @ApiResponse({
     description: 'The client entities have been successfully set',
-    status: HttpStatus.CREATED
+    status: HttpStatus.CREATED,
+    type: SetEntityStoreResponseDto
   })
   setEntities(@Query('clientId') clientId: string, @Body() body: { entity: SetEntityStoreDto }) {
     return this.entityDataStoreService.setEntities(clientId, body.entity)
@@ -96,7 +97,8 @@ export class DataStoreController {
   })
   @ApiResponse({
     description: 'The client policies have been successfully set',
-    status: HttpStatus.CREATED
+    status: HttpStatus.CREATED,
+    type: SetPolicyStoreResponseDto
   })
   setPolicies(@Query('clientId') clientId: string, @Body() body: { policy: SetPolicyStoreDto }) {
     return this.policyDataStoreService.setPolicies(clientId, body.policy)
@@ -112,7 +114,7 @@ export class DataStoreController {
     description: 'The client data store has been successfully synced',
     status: HttpStatus.OK
   })
-  sync(@ClientId('clientId') clientId: string): Promise<boolean> {
+  sync(@ClientId('clientId') clientId: string) {
     return this.clusterService.sync(clientId)
   }
 }

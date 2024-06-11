@@ -250,7 +250,7 @@ describe(ClusterService.name, () => {
     const clientSecret = 'test-client-secret'
 
     const mockPolicyEngineClientSync = async (opts: { url: string; clientId: string; clientSecret: string }) => {
-      const mockResponse = { ok: true }
+      const mockResponse = 'true'
 
       const scope = nock(opts.url, {
         reqheaders: {
