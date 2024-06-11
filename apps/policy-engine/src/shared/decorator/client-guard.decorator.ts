@@ -6,11 +6,11 @@ import {
   REQUEST_HEADER_CLIENT_ID,
   REQUEST_HEADER_CLIENT_SECRET
 } from '../../policy-engine.constant'
-import { AdminApiKeyGuard } from '../guard/admin-api-key.guard'
+import { ClientSecretGuard } from '../guard/client-secret.guard'
 
 export function ClientGuard() {
   return applyDecorators(
-    UseGuards(AdminApiKeyGuard),
+    UseGuards(ClientSecretGuard),
     ApiSecurity(CLIENT_SECRET_SECURITY.name),
     ApiSecurity(CLIENT_ID_SECURITY.name),
     // IMPORTANT: The order in which you define the headers also determines the
