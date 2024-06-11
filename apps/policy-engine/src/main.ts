@@ -4,6 +4,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
+import { ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from './policy-engine.constant'
 import { PolicyEngineModule, ProvisionModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
@@ -61,7 +62,8 @@ async function bootstrap() {
         withSwagger({
           title: 'Policy Engine',
           description: 'The next generation of authorization for web3',
-          version: '1.0'
+          version: '1.0',
+          security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
       map(withGlobalPipes),

@@ -3,14 +3,15 @@ import { Controller, Get, HttpStatus } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { Permissions } from '../../../../shared/decorator/permissions.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { AdminService } from '../../../core/service/admin.service'
 import { WalletsDto } from '../dto/wallets.dto'
 
 @Controller()
-@Permissions(Permission.WALLET_READ)
+@PermissionGuard(Permission.WALLET_READ)
 @ApiHeader({
-  name: REQUEST_HEADER_CLIENT_ID
+  name: REQUEST_HEADER_CLIENT_ID,
+  required: true
 })
 export class AdminController {
   constructor(private adminService: AdminService) {}

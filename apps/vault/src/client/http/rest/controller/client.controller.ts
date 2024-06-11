@@ -2,13 +2,13 @@ import { publicKeySchema } from '@narval/signature'
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { v4 as uuid } from 'uuid'
-import { Admin } from '../../../../shared/decorator/admin.decorator'
+import { AdminGuard } from '../../../../shared/decorator/admin-guard.decorator'
 import { ClientService } from '../../../core/service/client.service'
 import { ClientDto } from '../dto/client.dto'
 import { CreateClientDto } from '../dto/create-client.dto'
 
 @Controller('/clients')
-@Admin()
+@AdminGuard()
 export class ClientController {
   constructor(private clientService: ClientService) {}
 

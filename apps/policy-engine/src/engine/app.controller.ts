@@ -1,13 +1,10 @@
-import { FIXTURE } from '@narval/policy-engine-shared'
-import { Controller, Get, Logger, Post } from '@nestjs/common'
-import { generateSignTransactionRequest } from '../shared/testing/evaluation.testing'
-import { EvaluationService } from './core/service/evaluation.service'
+import { Controller, Get, Logger } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 
 @Controller()
+@ApiExcludeController()
 export class AppController {
   private logger = new Logger(AppController.name)
-
-  constructor(private readonly evaluationService: EvaluationService) {}
 
   @Get()
   healthcheck() {
@@ -20,29 +17,5 @@ export class AppController {
       message: 'Received ping'
     })
     return 'pong'
-  }
-
-  @Post('/evaluation-demo')
-  async evaluateDemo() {
-    const evaluation = await generateSignTransactionRequest()
-    this.logger.log('Received evaluation', {
-      evaluation
-    })
-
-    const response = await this.evaluationService.evaluate(FIXTURE.CLIENT.id, evaluation)
-
-    this.logger.log('Evaluation response', {
-      response
-    })
-
-    return {
-      request: evaluation,
-      response
-    }
-  }
-
-  @Get('/generate-inbound-request')
-  generateInboundRequest() {
-    return generateSignTransactionRequest()
   }
 }
