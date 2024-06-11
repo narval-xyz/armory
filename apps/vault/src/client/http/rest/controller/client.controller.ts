@@ -2,7 +2,7 @@ import { publicKeySchema } from '@narval/signature'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger'
 import { v4 as uuid } from 'uuid'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
+import { REQUEST_HEADER_API_KEY } from '../../../../main.constant'
 import { AdminApiKeyGuard } from '../../../../shared/guard/admin-api-key.guard'
 import { ClientService } from '../../../core/service/client.service'
 import { ClientDto } from '../dto/client.dto'
@@ -19,7 +19,7 @@ export class ClientController {
     summary: 'Creates a new client'
   })
   @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID
+    name: REQUEST_HEADER_API_KEY
   })
   @ApiResponse({
     status: HttpStatus.CREATED,

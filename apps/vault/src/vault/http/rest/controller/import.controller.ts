@@ -1,7 +1,7 @@
 import { Permission } from '@narval/armory-sdk'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
+import { REQUEST_HEADER_AUTHORIZATION, REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
@@ -19,15 +19,18 @@ const PERMISSIONS = [Permission.WALLET_IMPORT]
 @Permissions(PERMISSIONS)
 @UseGuards(AuthorizationGuard)
 @ApiSecurity('GNAP', PERMISSIONS)
+@ApiHeader({
+  name: REQUEST_HEADER_AUTHORIZATION
+})
+@ApiHeader({
+  name: REQUEST_HEADER_CLIENT_ID
+})
 export class ImportController {
   constructor(private importService: ImportService) {}
 
   @Post('/encryption-keys')
   @ApiOperation({
     summary: 'Generates an encryption key pair used to secure end-to-end communication containing sensitive information'
-  })
-  @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -44,9 +47,6 @@ export class ImportController {
   @Post('/private-keys')
   @ApiOperation({
     summary: 'Imports a private key'
-  })
-  @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -80,9 +80,6 @@ export class ImportController {
   @Post('/seeds')
   @ApiOperation({
     summary: 'Imports a seed'
-  })
-  @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
