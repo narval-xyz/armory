@@ -1,7 +1,8 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
+import { adminApiKeySecurity, gnapSecurity, withCors, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import { HEADER_ADMIN_API_KEY } from 'packages/armory-sdk/src/lib/constants'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
 import { MainModule, ProvisionModule } from './main.module'
@@ -44,7 +45,8 @@ async function bootstrap() {
         withSwagger({
           title: 'Vault',
           description: 'The next generation of authorization for web3',
-          version: '1.0'
+          version: '1.0',
+          security: [gnapSecurity(), adminApiKeySecurity(HEADER_ADMIN_API_KEY)]
         })
       ),
       map(withGlobalPipes),
