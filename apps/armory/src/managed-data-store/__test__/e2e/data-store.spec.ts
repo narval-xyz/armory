@@ -122,6 +122,8 @@ describe('Data Store', () => {
 
     clusterService = mock<ClusterService>()
 
+    clusterService.sync.mockResolvedValue(true)
+
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -209,11 +211,9 @@ describe('Data Store', () => {
         .send({ policy })
 
       expect(body).toEqual({
-        clientId,
+        policy,
         version: 1,
-        data: policy,
-        id: expect.any(String),
-        createdAt: expect.any(String)
+        synced: true
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -268,11 +268,9 @@ describe('Data Store', () => {
         .send({ entity })
 
       expect(body).toEqual({
-        clientId,
+        entity,
         version: 1,
-        data: entity,
-        id: expect.any(String),
-        createdAt: expect.any(String)
+        synced: true
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -287,18 +285,13 @@ describe('Data Store', () => {
   })
 
   describe('POST /data/sync', () => {
-    beforeEach(async () => {
-      jest.spyOn(clusterService, 'sync').mockResolvedValue({ ok: true })
-    })
-
     it('calls the client data store sync', async () => {
-      const { status, body } = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .post('/data/sync')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set(REQUEST_HEADER_CLIENT_SECRET, clientSecret)
         .send()
 
-      expect(body).toEqual({ ok: true })
       expect(status).toEqual(HttpStatus.OK)
     })
   })

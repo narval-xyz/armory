@@ -112,7 +112,7 @@ export class DataStoreController {
     description: 'The client data store has been successfully synced',
     status: HttpStatus.OK
   })
-  sync(@ClientId('clientId') clientId: string) {
+  sync(@ClientId('clientId') clientId: string): Promise<boolean> {
     return this.clusterService.sync(clientId)
   }
 }

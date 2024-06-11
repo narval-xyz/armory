@@ -40,13 +40,13 @@ export class EntityDataStoreService extends SignatureService {
       date: latestDataStore?.createdAt
     })
 
-    const dataStore = await this.entitydataStoreRepository.setDataStore(clientId, {
+    const { data, version } = await this.entitydataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
       data: EntityStore.parse(payload)
     })
 
-    await this.clusterService.sync(clientId)
+    const synced = await this.clusterService.sync(clientId)
 
-    return dataStore
+    return { entity: EntityStore.parse(data), version, synced }
   }
 }

@@ -198,14 +198,14 @@ export class ClusterService {
     }
   }
 
-  async sync(clientId: string) {
+  async sync(clientId: string): Promise<boolean> {
     const nodes = await this.findNodesByClientId(clientId)
 
     if (isEmpty(nodes)) {
       throw new ClusterNotFoundException(clientId)
     }
 
-    const responses = await Promise.all(
+    const responses: { ok: boolean }[] = await Promise.all(
       nodes.map((node) =>
         this.policyEngineClient.syncClient({
           host: node.url,
@@ -215,8 +215,8 @@ export class ClusterService {
       )
     )
 
-    if (responses.length) {
-      return responses[0]
+    if (responses.length && responses.every((response) => response.ok)) {
+      return true
     }
 
     throw new UnreachableClusterException(clientId, nodes)
