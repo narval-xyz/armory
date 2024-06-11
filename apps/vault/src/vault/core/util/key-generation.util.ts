@@ -9,7 +9,7 @@ import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
 import { AddressIndex, Origin, PrivateWallet } from '../../../shared/type/domain.type'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-key-dto'
+import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
