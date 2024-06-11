@@ -4,6 +4,7 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
+import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './main.constant'
 import { MainModule, ProvisionModule } from './main.module'
 
 /**
@@ -44,7 +45,8 @@ async function bootstrap() {
         withSwagger({
           title: 'Vault',
           description: 'The next generation of authorization for web3',
-          version: '1.0'
+          version: '1.0',
+          security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
         })
       ),
       map(withGlobalPipes),

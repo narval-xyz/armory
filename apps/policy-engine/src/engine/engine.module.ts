@@ -19,7 +19,6 @@ import { ProvisionService } from './core/service/provision.service'
 import { SimpleSigningService } from './core/service/signing-basic.service'
 import { MpcSigningService } from './core/service/signing-mpc.service'
 import { ClientController } from './http/rest/controller/client.controller'
-import { EngineController } from './http/rest/controller/engine.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { ClientRepository } from './persistence/repository/client.repository'
@@ -37,7 +36,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
       useClass: EncryptionModuleOptionFactory
     })
   ],
-  controllers: [ProvisionController, AppController, ClientController, EngineController, EvaluationController],
+  controllers: [ProvisionController, AppController, ClientController, EvaluationController],
   providers: [
     AdminApiKeyGuard,
     BootstrapService,

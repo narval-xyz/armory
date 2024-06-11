@@ -1,5 +1,6 @@
 import { secret } from '@narval/nestjs-shared'
 import { Controller, Post } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { AppService } from '../../../core/service/app.service'
 
 type Response =
@@ -13,6 +14,7 @@ type Response =
     }
 
 @Controller('/apps/activate')
+@ApiExcludeController()
 export class ProvisionController {
   constructor(private appService: AppService) {}
 
