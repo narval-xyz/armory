@@ -1,11 +1,10 @@
 import { Permission } from '@narval/armory-sdk'
-import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger'
-import { REQUEST_HEADER_AUTHORIZATION, REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
+import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
-import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
@@ -13,15 +12,8 @@ import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response.
 import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
 import { ImportSeedDto } from '../dto/import-seed.dto'
 
-const PERMISSIONS = [Permission.WALLET_IMPORT]
-
 @Controller('/import')
-@Permissions(PERMISSIONS)
-@UseGuards(AuthorizationGuard)
-@ApiSecurity('GNAP', PERMISSIONS)
-@ApiHeader({
-  name: REQUEST_HEADER_AUTHORIZATION
-})
+@Permissions(Permission.WALLET_IMPORT)
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID
 })

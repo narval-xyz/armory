@@ -1,5 +1,11 @@
 import { Permission } from '@narval/armory-sdk'
+import { ApiGnapSecurity } from '@narval/nestjs-shared'
+import { UseGuards, applyDecorators } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { AuthorizationGuard } from '../guard/authorization.guard'
 
-// TODO: BEFORE MERGE: Can I combine it with ApiSecurity?
-export const Permissions = Reflector.createDecorator<Permission[]>()
+const RequiredPermission = Reflector.createDecorator<Permission[]>()
+
+export function Permissions(...permissions: Permission[]) {
+  return applyDecorators(RequiredPermission(permissions), UseGuards(AuthorizationGuard), ApiGnapSecurity(permissions))
+}

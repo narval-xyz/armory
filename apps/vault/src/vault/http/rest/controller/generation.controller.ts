@@ -1,26 +1,18 @@
 import { Permission } from '@narval/armory-sdk'
-import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger'
-import { REQUEST_HEADER_AUTHORIZATION, REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
+import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { Permissions } from '../../../../shared/decorator/permissions.decorator'
-import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
 import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-wallet.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
 import { GenerateKeyDto } from '../dto/generate-key.dto'
 
-const PERMISSIONS = [Permission.WALLET_CREATE]
-
 @Controller()
-@Permissions(PERMISSIONS)
-@UseGuards(AuthorizationGuard)
-@ApiSecurity('GNAP', PERMISSIONS)
+@Permissions(Permission.WALLET_CREATE)
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID
-})
-@ApiHeader({
-  name: REQUEST_HEADER_AUTHORIZATION
 })
 export class GenerationController {
   constructor(private keyGenService: KeyGenerationService) {}
