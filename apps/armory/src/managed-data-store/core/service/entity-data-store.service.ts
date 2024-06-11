@@ -41,7 +41,7 @@ export class EntityDataStoreService extends SignatureService {
       date: latestDataStore?.createdAt
     })
 
-    const { data: entity, version } = await this.entitydataStoreRepository.setDataStore(clientId, {
+    const { data, version } = await this.entitydataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
       data: EntityStore.parse(payload)
     })
@@ -50,7 +50,7 @@ export class EntityDataStoreService extends SignatureService {
 
     return SetEntityStoreResponse.parse({
       latestSync: { success },
-      entity,
+      entity: EntityStore.parse(data),
       version
     })
   }

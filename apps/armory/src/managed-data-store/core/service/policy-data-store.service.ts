@@ -3,7 +3,6 @@ import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
-import { SetPolicyStoreResponse } from '../../http/rest/dto/set-policy-store.dto'
 import { PolicyDataStoreRepository } from '../../persistence/repository/policy-data-store.repository'
 import { SignatureService } from './signature.service'
 
@@ -41,17 +40,17 @@ export class PolicyDataStoreService extends SignatureService {
       date: latestDataStore?.createdAt
     })
 
-    const { data: policy, version } = await this.policyDataStoreRepository.setDataStore(clientId, {
+    const { data, version } = await this.policyDataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
       data: PolicyStore.parse(payload)
     })
 
     const success = await this.clusterService.sync(clientId)
 
-    return SetPolicyStoreResponse.parse({
+    return {
       latestSync: { success },
-      policy,
+      policy: PolicyStore.parse(data),
       version
-    })
+    }
   }
 }
