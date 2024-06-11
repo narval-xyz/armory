@@ -1,3 +1,4 @@
+export * from './api-gnap-security.decorator'
 export * from './is-account-id.decorator'
 export * from './is-asset-id.decorator'
 export * from './is-hex-string.decorator'

@@ -1,11 +1,8 @@
 import { Controller, Get, Logger } from '@nestjs/common'
-import { VaultService } from './vault.service'
 
 @Controller()
 export class VaultController {
   private logger = new Logger(VaultController.name)
-
-  constructor(private readonly appService: VaultService) {}
 
   @Get()
   healthcheck() {
