@@ -283,9 +283,9 @@ describe(ClusterService.name, () => {
         clientSecret
       })
 
-      const response = await clusterService.sync(clientId)
+      const ok = await clusterService.sync(clientId)
 
-      expect(response).toEqual(mockResponseOne)
+      expect({ ok }).toEqual(mockResponseOne)
     })
 
     it('throws when client nodes are not found', async () => {

@@ -41,11 +41,19 @@ export class ClientController {
   })
   async sync(@ClientId() clientId: string) {
     try {
-      const ok = await this.clientService.syncDataStore(clientId)
+      const success = await this.clientService.syncDataStore(clientId)
 
-      return { ok }
+      return {
+        latestSync: {
+          success
+        }
+      }
     } catch (error) {
-      return { ok: false }
+      return {
+        latestSync: {
+          success: false
+        }
+      }
     }
   }
 }

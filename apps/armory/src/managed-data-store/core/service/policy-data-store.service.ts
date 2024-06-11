@@ -40,13 +40,17 @@ export class PolicyDataStoreService extends SignatureService {
       date: latestDataStore?.createdAt
     })
 
-    const dataStore = await this.policyDataStoreRepository.setDataStore(clientId, {
+    const { data, version } = await this.policyDataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
       data: PolicyStore.parse(payload)
     })
 
-    await this.clusterService.sync(clientId)
+    const success = await this.clusterService.sync(clientId)
 
-    return dataStore
+    return {
+      latestSync: { success },
+      policy: PolicyStore.parse(data),
+      version
+    }
   }
 }
