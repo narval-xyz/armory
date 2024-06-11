@@ -5,7 +5,9 @@ import { z } from 'zod'
 export const SetPolicyStoreResponse = z.object({
   entity: PolicyStore,
   version: z.number(),
-  synced: z.boolean()
+  latestSync: z.object({
+    success: z.boolean()
+  })
 })
 export type SetPolicyStoreResponse = z.infer<typeof SetPolicyStoreResponse>
 

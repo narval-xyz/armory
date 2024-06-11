@@ -114,7 +114,21 @@ export class DataStoreController {
     description: 'The client data store has been successfully synced',
     status: HttpStatus.OK
   })
-  sync(@ClientId('clientId') clientId: string) {
-    return this.clusterService.sync(clientId)
+  async sync(@ClientId('clientId') clientId: string) {
+    try {
+      const success = await this.clusterService.sync(clientId)
+
+      return {
+        latestSync: {
+          success
+        }
+      }
+    } catch (error) {
+      return {
+        latestSync: {
+          success: false
+        }
+      }
+    }
   }
 }

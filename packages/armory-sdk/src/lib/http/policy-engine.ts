@@ -55,7 +55,7 @@ export const sendEvaluationRequest = async (
   }
 }
 
-export const syncPolicyEngine = async (config: EngineClientConfig): Promise<boolean> => {
+export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ latestSync: { success: boolean } }> => {
   try {
     const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
 
@@ -63,11 +63,11 @@ export const syncPolicyEngine = async (config: EngineClientConfig): Promise<bool
       throw new NarvalSdkException('Client secret is required to sync engine', { config })
     }
 
-    const { data } = await axios.post<{ ok: boolean }>(`${engineHost}/clients/sync`, null, {
+    const { data } = await axios.post<{ latestSync: { success: boolean } }>(`${engineHost}/clients/sync`, null, {
       headers: builBasicHeaders({ clientId, clientSecret })
     })
 
-    return data.ok
+    return data
   } catch (error) {
     throw new NarvalSdkException('Failed to sync engine', { config, error })
   }

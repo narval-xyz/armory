@@ -198,7 +198,7 @@ export class ClusterService {
     }
   }
 
-  async sync(clientId: string): Promise<boolean> {
+  async sync(clientId: string) {
     const nodes = await this.findNodesByClientId(clientId)
 
     if (isEmpty(nodes)) {

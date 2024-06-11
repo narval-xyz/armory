@@ -5,7 +5,9 @@ import { z } from 'zod'
 export const SetEntityStoreResponse = z.object({
   entity: EntityStore,
   version: z.number(),
-  synced: z.boolean()
+  latestSync: z.object({
+    success: z.boolean()
+  })
 })
 export type SetEntityStoreResponse = z.infer<typeof SetEntityStoreResponse>
 

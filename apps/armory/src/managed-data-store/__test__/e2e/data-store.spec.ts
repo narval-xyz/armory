@@ -213,7 +213,9 @@ describe('Data Store', () => {
       expect(body).toEqual({
         policy,
         version: 1,
-        synced: true
+        latestSync: {
+          success: true
+        }
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -270,7 +272,9 @@ describe('Data Store', () => {
       expect(body).toEqual({
         entity,
         version: 1,
-        synced: true
+        latestSync: {
+          success: true
+        }
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })

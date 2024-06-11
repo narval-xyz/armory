@@ -67,7 +67,7 @@ export const sendAuthorizationRequest = async (
   }
 }
 
-export const syncArmoryEngine = async (config: AuthClientConfig): Promise<boolean> => {
+export const syncArmoryEngine = async (config: AuthClientConfig): Promise<{ latestSync: { success: boolean } }> => {
   try {
     const { authHost, authClientId: clientId, authClientSecret: clientSecret } = config
 
@@ -75,7 +75,7 @@ export const syncArmoryEngine = async (config: AuthClientConfig): Promise<boolea
       throw new NarvalSdkException('Client secret is required to sync engine', { config })
     }
 
-    const { data } = await axios.post<boolean>(`${authHost}/data/sync`, null, {
+    const { data } = await axios.post<{ latestSync: { success: boolean } }>(`${authHost}/data/sync`, null, {
       headers: builBasicHeaders({ clientId, clientSecret })
     })
 
