@@ -110,8 +110,8 @@ const useEngineApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const isSynced = await syncPolicyEngine(sdkEngineClientConfig)
-      setIsSynced(isSynced)
+      const { latestSync } = await syncPolicyEngine(sdkEngineClientConfig)
+      setIsSynced(latestSync.success)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
