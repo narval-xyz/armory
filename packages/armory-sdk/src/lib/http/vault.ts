@@ -3,7 +3,7 @@ import { rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY } from '../constants'
 import { Htm, VaultAdminConfig, VaultClientConfig } from '../domain'
-import { NarvalSdkException } from '../exceptions'
+import { ArmorySdkException } from '../exceptions'
 import {
   DeriveWalletRequest,
   DeriveWalletResponse,
@@ -26,7 +26,7 @@ export const pingVault = async (vaultHost: string): Promise<void> => {
   try {
     return axios.get(vaultHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping vault', { vaultHost, error })
+    throw new ArmorySdkException('Failed to ping vault', { vaultHost, error })
   }
 }
 
@@ -45,7 +45,7 @@ export const onboardVaultClient = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { config, error })
+    throw new ArmorySdkException('Failed to onboard client', { config, error })
   }
 }
 
@@ -76,7 +76,7 @@ export const signRequest = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to sign request', { config, error })
+    throw new ArmorySdkException('Failed to sign request', { config, error })
   }
 }
 
@@ -105,7 +105,7 @@ export const generateEncryptionKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to generate encryption key', { config, error })
+    throw new ArmorySdkException('Failed to generate encryption key', { config, error })
   }
 }
 
@@ -138,7 +138,7 @@ export const importPrivateKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import private key', { config, error })
+    throw new ArmorySdkException('Failed to import private key', { config, error })
   }
 }
 
@@ -171,7 +171,7 @@ export const importSeed = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to import seed', { config, error })
+    throw new ArmorySdkException('Failed to import seed', { config, error })
   }
 }
 
@@ -200,7 +200,7 @@ export const generateKey = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to generate key', { config, error })
+    throw new ArmorySdkException('Failed to generate key', { config, error })
   }
 }
 
@@ -226,6 +226,6 @@ export const deriveWallet = async (config: VaultClientConfig, { accessToken, ...
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to derive wallet', { config, error })
+    throw new ArmorySdkException('Failed to derive wallet', { config, error })
   }
 }

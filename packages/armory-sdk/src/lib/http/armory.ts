@@ -2,7 +2,7 @@ import { EvaluationRequest } from '@narval/policy-engine-shared'
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
 import { AuthAdminConfig, AuthClientConfig } from '../domain'
-import { NarvalSdkException } from '../exceptions'
+import { ArmorySdkException } from '../exceptions'
 import { signRequestPayload } from '../sdk'
 import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
 import { builBasicHeaders } from '../utils'
@@ -11,7 +11,7 @@ export const pingArmory = async (authHost: string): Promise<void> => {
   try {
     return axios.get(authHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping auth server', { authHost, error })
+    throw new ArmorySdkException('Failed to ping auth server', { authHost, error })
   }
 }
 
@@ -30,7 +30,7 @@ export const onboardArmoryClient = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { config, error })
+    throw new ArmorySdkException('Failed to onboard client', { config, error })
   }
 }
 
@@ -44,7 +44,7 @@ export const getAuthorizationRequest = async (config: AuthClientConfig, id: stri
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to get authorization request', { config, error })
+    throw new ArmorySdkException('Failed to get authorization request', { config, error })
   }
 }
 
@@ -63,7 +63,7 @@ export const sendAuthorizationRequest = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to send authorization request', { config, error })
+    throw new ArmorySdkException('Failed to send authorization request', { config, error })
   }
 }
 
@@ -72,7 +72,7 @@ export const syncArmoryEngine = async (config: AuthClientConfig): Promise<{ late
     const { authHost, authClientId: clientId, authClientSecret: clientSecret } = config
 
     if (!clientSecret) {
-      throw new NarvalSdkException('Client secret is required to sync engine', { config })
+      throw new ArmorySdkException('Client secret is required to sync engine', { config })
     }
 
     const { data } = await axios.post<{ latestSync: { success: boolean } }>(`${authHost}/data/sync`, null, {
@@ -81,6 +81,6 @@ export const syncArmoryEngine = async (config: AuthClientConfig): Promise<{ late
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine', { config, error })
+    throw new ArmorySdkException('Failed to sync engine', { config, error })
   }
 }
