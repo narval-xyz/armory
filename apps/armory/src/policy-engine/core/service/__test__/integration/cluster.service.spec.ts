@@ -250,7 +250,7 @@ describe(ClusterService.name, () => {
     const clientSecret = 'test-client-secret'
 
     const mockPolicyEngineClientSync = async (opts: { url: string; clientId: string; clientSecret: string }) => {
-      const mockResponse = 'true'
+      const mockResponse = { ok: true }
 
       const scope = nock(opts.url, {
         reqheaders: {
@@ -283,9 +283,9 @@ describe(ClusterService.name, () => {
         clientSecret
       })
 
-      const response = await clusterService.sync(clientId)
+      const ok = await clusterService.sync(clientId)
 
-      expect(response).toEqual(mockResponseOne)
+      expect({ ok }).toEqual(mockResponseOne)
     })
 
     it('throws when client nodes are not found', async () => {
