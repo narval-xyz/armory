@@ -2,7 +2,7 @@ import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engin
 import axios from 'axios'
 import { HEADER_CLIENT_ID } from '../constants'
 import { DataStoreClientConfig } from '../domain'
-import { NarvalSdkException } from '../exceptions'
+import { ArmorySdkException } from '../exceptions'
 import { signDataPayload } from '../sdk'
 import { SetEntitiesResponse, SetPoliciesResponse } from '../types/data-store'
 import { isSuccessResponse } from '../utils'
@@ -15,7 +15,7 @@ export const getEntities = async (entityStoreHost: string): Promise<EntityStore>
 
     return entity
   } catch (error) {
-    throw new NarvalSdkException('Failed to fetch entity store', { entityStoreHost, error })
+    throw new ArmorySdkException('Failed to fetch entity store', { entityStoreHost, error })
   }
 }
 
@@ -27,7 +27,7 @@ export const getPolicies = async (policyStoreHost: string): Promise<PolicyStore>
 
     return policy
   } catch (error) {
-    throw new NarvalSdkException('Failed to fetch policy store', { policyStoreHost, error })
+    throw new ArmorySdkException('Failed to fetch policy store', { policyStoreHost, error })
   }
 }
 
@@ -48,7 +48,7 @@ export const setEntities = async (config: DataStoreClientConfig, data: Entities)
     )
 
     if (!isSuccessResponse(response.status)) {
-      throw new NarvalSdkException('Failed to set entities', {
+      throw new ArmorySdkException('Failed to set entities', {
         config,
         data,
         response
@@ -57,7 +57,7 @@ export const setEntities = async (config: DataStoreClientConfig, data: Entities)
 
     return response.data
   } catch (error) {
-    throw new NarvalSdkException('Failed to set entities', {
+    throw new ArmorySdkException('Failed to set entities', {
       config,
       data,
       error
@@ -82,7 +82,7 @@ export const setPolicies = async (config: DataStoreClientConfig, data: Policy[])
     )
 
     if (!isSuccessResponse(response.status)) {
-      throw new NarvalSdkException('Failed to set policies', {
+      throw new ArmorySdkException('Failed to set policies', {
         config,
         data,
         response
@@ -91,7 +91,7 @@ export const setPolicies = async (config: DataStoreClientConfig, data: Policy[])
 
     return response.data
   } catch (error) {
-    throw new NarvalSdkException('Failed to set policies', {
+    throw new ArmorySdkException('Failed to set policies', {
       config,
       data,
       error
