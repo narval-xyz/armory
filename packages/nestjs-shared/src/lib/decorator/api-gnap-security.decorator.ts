@@ -6,7 +6,8 @@ export function ApiGnapSecurity(permissions?: string[]) {
   return applyDecorators(
     ApiSecurity(gnapSecurity().name, permissions),
     ApiHeader({
-      name: 'Authorization'
+      name: 'Authorization',
+      required: true
     })
   )
 }

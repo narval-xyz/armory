@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { ClientService } from '../../client/core/service/client.service'
 import { Config } from '../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
-import { Permissions } from '../decorator/permissions.decorator'
+import { PermissionGuard } from '../decorator/permission-guard.decorator'
 import { ApplicationException } from '../exception/application.exception'
 import { Client } from '../type/domain.type'
 
@@ -56,7 +56,7 @@ export class AuthorizationGuard implements CanActivate {
     }
 
     const { request: requestHash } = req.body
-    const permissions = this.reflector.get(Permissions, context.getHandler())
+    const permissions = this.reflector.get(PermissionGuard, context.getHandler())
     const access =
       permissions && permissions.length > 0
         ? [

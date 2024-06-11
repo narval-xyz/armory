@@ -6,6 +6,6 @@ import { AuthorizationGuard } from '../guard/authorization.guard'
 
 const RequiredPermission = Reflector.createDecorator<Permission[]>()
 
-export function Permissions(...permissions: Permission[]) {
+export function PermissionGuard(...permissions: Permission[]) {
   return applyDecorators(RequiredPermission(permissions), UseGuards(AuthorizationGuard), ApiGnapSecurity(permissions))
 }
