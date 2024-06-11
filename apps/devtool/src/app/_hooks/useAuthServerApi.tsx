@@ -165,8 +165,8 @@ const useAuthServerApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const isSynced = await syncArmoryEngine(sdkAuthClientConfig)
-      setIsSynced(isSynced)
+      const { latestSync } = await syncArmoryEngine(sdkAuthClientConfig)
+      setIsSynced(latestSync.success)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
