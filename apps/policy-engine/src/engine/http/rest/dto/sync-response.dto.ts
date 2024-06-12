@@ -3,6 +3,6 @@ import { z } from 'zod'
 
 export class SyncResponseDto extends createZodDto(
   z.object({
-    ok: z.boolean()
+    success: z.boolean()
   })
 ) {}
