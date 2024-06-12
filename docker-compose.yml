@@ -33,9 +33,9 @@ services:
       context: ./
       dockerfile: local.dockerfile
     container_name: armory_app
-    command: ["/bin/bash", "-c", "make armory/db/migrate/deploy && make armory/start/dev"]
+    command: ['/bin/bash', '-c', 'make armory/db/migrate/deploy && make armory/start/dev']
     ports:
-      - "3005:3010"
+      - '3005:3010'
     networks:
       - armory-local
     environment:
@@ -56,9 +56,9 @@ services:
       context: ./
       dockerfile: local.dockerfile
     container_name: policy-engine-0
-    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
     ports:
-      - "3020:3010"
+      - '3020:3010'
     networks:
       - armory-local
     environment:
@@ -81,9 +81,9 @@ services:
       context: ./
       dockerfile: local.dockerfile
     container_name: policy-engine-1
-    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
     ports:
-      - "3021:3010"
+      - '3021:3010'
     networks:
       - armory-local
     environment:
@@ -106,9 +106,9 @@ services:
       context: ./
       dockerfile: local.dockerfile
     container_name: policy-engine-2
-    command: ["/bin/bash", "-c", "make policy-engine/db/migrate/deploy && make policy-engine/start/dev"]
+    command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
     ports:
-      - "3022:3010"
+      - '3022:3010'
     networks:
       - armory-local
     environment:
@@ -131,9 +131,9 @@ services:
       context: ./
       dockerfile: local.dockerfile
     container_name: vault
-    command: ["/bin/bash", "-c", "make vault/db/migrate/deploy && make vault/start/dev"]
+    command: ['/bin/bash', '-c', 'make vault/db/migrate/deploy && make vault/start/dev']
     ports:
-      - "3011:3010"
+      - '3011:3010'
     networks:
       - armory-local
     environment:
