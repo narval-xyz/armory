@@ -90,11 +90,13 @@ describe('GenerateService', () => {
     keyGenerationService = module.get<KeyGenerationService>(KeyGenerationService)
     jest.spyOn(keyGenerationService, 'getIndexes').mockResolvedValue([])
   })
+
   it('returns first derived wallet from a generated mnemonic', async () => {
     const { wallet } = await keyGenerationService.generateMnemonic('clientId', {})
 
     expect(wallet.derivationPath).toEqual("m/44'/60'/0'/0/0")
   })
+
   it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
     const rsaBackupKey = await generateJwk<RsaPrivateKey>('RS256')
 
@@ -108,6 +110,7 @@ describe('GenerateService', () => {
     const spaceInMnemonic = decryptedMnemonic.split(' ')
     expect(spaceInMnemonic.length).toBe(12)
   })
+
   it('saves mnemonic to the database', async () => {
     await keyGenerationService.generateMnemonic('clientId', {})
     expect(mnemonicRepositoryMock.save).toHaveBeenCalledWith('clientId', {

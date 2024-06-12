@@ -74,6 +74,16 @@ export class KeyGenerationService {
     }
   ): Promise<string | undefined> {
     const client = await this.clientService.findById(clientId)
+    const lookup = await this.mnemonicRepository.findById(clientId, keyId)
+
+    if (lookup) {
+      throw new ApplicationException({
+        message: 'Mnemonic already exists',
+        suggestedHttpStatusCode: 409,
+        context: { clientId, keyId }
+      })
+    }
+
     const backup = await this.#maybeEncryptAndSaveBackup(clientId, keyId, mnemonic, client?.backupPublicKey)
 
     await this.mnemonicRepository.save(clientId, {

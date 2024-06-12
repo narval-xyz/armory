@@ -222,5 +222,39 @@ describe('Import', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
+
+    it('responds with conflict when importing a seed with an existing keyId', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+      const { body: keygenBody } = await request(app.getHttpServer())
+        .post('/import/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({})
+
+      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
+
+      const mnemonic = generateMnemonic(english)
+      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
+
+      await request(app.getHttpServer())
+        .post('/import/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
+        .send({
+          encryptedSeed: jwe,
+          keyId: 'my-imported-rootKey'
+        })
+
+      const { status } = await request(app.getHttpServer())
+        .post('/import/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
+        .send({
+          encryptedSeed: jwe,
+          keyId: 'my-imported-rootKey'
+        })
+
+      expect(status).toEqual(HttpStatus.CONFLICT)
+    })
   })
 })
