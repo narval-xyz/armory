@@ -208,7 +208,7 @@ describe('Client', () => {
         .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
         .send(createClientPayload)
 
-      expect(body).toEqual({ latestSync: { success: true } })
+      expect(body).toEqual({ success: true })
       expect(status).toEqual(HttpStatus.OK)
     })
   })
