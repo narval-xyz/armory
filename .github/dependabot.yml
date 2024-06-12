@@ -4,3 +4,15 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+registries:
+  npm-fontawesome:
+    type: npm-registry
+    url: https://npm.fontawesome.com/
+    token: ${{secrets.FONTAWESOME_NPM_TOKEN}}
+    replaces-base: true
+  npm-sepior:
+    type: npm-registry
+    url: https://nexus.sepior.net/repository/sepior-nodejs-tsm-sdk-group/
+    username: ${{secrets.SEPIOR_NPM_USERNAME}}
+    password: ${{secrets.SEPIOR_NPM_PASSWORD}}
+    replaces-base: true
