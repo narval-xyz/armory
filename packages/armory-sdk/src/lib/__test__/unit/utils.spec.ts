@@ -1,7 +1,7 @@
 import { Decision, EvaluationResponse, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { Alg, Payload } from '@narval/signature'
 import { ArmoryClientConfig, Htm } from '../../domain'
-import { ForbiddenException, NarvalSdkException, NotImplementedException } from '../../exceptions'
+import { ArmorySdkException, ForbiddenException, NotImplementedException } from '../../exceptions'
 import { buildJwsdHeader, buildRequestPayload, checkDecision } from '../../utils'
 import { generateSignTransactionRequest } from './mock'
 
@@ -41,7 +41,7 @@ describe('checkDecision', () => {
 
     expect(() => {
       checkDecision(data, config)
-    }).toThrow(NarvalSdkException)
+    }).toThrow(ArmorySdkException)
   })
 
   it('throw ForbiddenException when decision is FORBID', () => {
@@ -108,7 +108,7 @@ describe('buildJwsdHeader', () => {
     }
     expect(() => {
       buildJwsdHeader(args)
-    }).toThrow(NarvalSdkException)
+    }).toThrow(ArmorySdkException)
   })
 
   it('throw NarvalSdkException when jwk.kid is missing', () => {
@@ -124,7 +124,7 @@ describe('buildJwsdHeader', () => {
     }
     expect(() => {
       buildJwsdHeader(args)
-    }).toThrow(NarvalSdkException)
+    }).toThrow(ArmorySdkException)
   })
 })
 
