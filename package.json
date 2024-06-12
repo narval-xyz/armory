@@ -13,7 +13,7 @@
     "@docusaurus/tsconfig": "3.4.0",
     "@docusaurus/types": "3.1.0",
     "@faker-js/faker": "^8.4.0",
-    "@nestjs/schematics": "^10.0.1",
+    "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.0.2",
     "@nx-plus/docusaurus": "^15.0.0-rc.0",
     "@nx/devkit": "19.2.0",
