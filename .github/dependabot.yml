@@ -4,6 +4,9 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    registries:
+      - npm-fontawesome
+      - npm-sepior
 registries:
   npm-fontawesome:
     type: npm-registry
