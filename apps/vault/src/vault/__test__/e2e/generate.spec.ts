@@ -157,6 +157,28 @@ describe('Generate', () => {
       const spaceInMnemonic = decryptedMnemonic.split(' ')
       expect(spaceInMnemonic.length).toBe(12)
     })
+
+    it('responds with conflict when keyId already exists', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+
+      await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      const { status } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      expect(status).toEqual(HttpStatus.CONFLICT)
+    })
   })
   describe('POST /derive/wallets', () => {
     it('derives a new wallet from a rootKey', async () => {
