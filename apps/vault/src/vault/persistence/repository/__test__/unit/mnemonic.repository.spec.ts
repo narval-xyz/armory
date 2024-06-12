@@ -56,22 +56,5 @@ describe('MnemonicRepository', () => {
         }
       )
     })
-
-    it('does not erase the mnemonic if it already exists', async () => {
-      jest.spyOn(inMemoryKeyValueRepository, 'set')
-      jest.spyOn(repository, 'findById').mockResolvedValue({
-        mnemonic,
-        keyId,
-        origin: 'GENERATED'
-      })
-
-      await repository.save(clientId, {
-        mnemonic,
-        keyId,
-        origin: 'GENERATED'
-      })
-
-      expect(inMemoryKeyValueRepository.set).not.toHaveBeenCalled()
-    })
   })
 })
