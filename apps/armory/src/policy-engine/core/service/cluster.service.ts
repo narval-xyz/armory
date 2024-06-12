@@ -205,7 +205,7 @@ export class ClusterService {
       throw new ClusterNotFoundException(clientId)
     }
 
-    const responses: { ok: boolean }[] = await Promise.all(
+    const responses: { success: boolean }[] = await Promise.all(
       nodes.map((node) =>
         this.policyEngineClient.syncClient({
           host: node.url,
@@ -215,7 +215,7 @@ export class ClusterService {
       )
     )
 
-    if (responses.length && responses.every((response) => response.ok)) {
+    if (responses.length && responses.every((response) => response.success)) {
       return true
     }
 
