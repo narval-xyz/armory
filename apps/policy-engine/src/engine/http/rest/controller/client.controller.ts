@@ -47,17 +47,9 @@ export class ClientController {
     try {
       const success = await this.clientService.syncDataStore(clientId)
 
-      return {
-        latestSync: {
-          success
-        }
-      }
+      return { success }
     } catch (error) {
-      return {
-        latestSync: {
-          success: false
-        }
-      }
+      return { success: false }
     }
   }
 }
