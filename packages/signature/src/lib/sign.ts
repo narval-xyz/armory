@@ -3,7 +3,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { subtle } from 'crypto'
-import { isHex, signatureToHex, toBytes, toHex } from 'viem'
+import { isHex, serializeSignature, toBytes, toHex } from 'viem'
 import { JwtError } from './error'
 import { hash } from './hash'
 import { canonicalize } from './json.util'
@@ -188,7 +188,7 @@ export const buildSignerEs256k =
     const hash = sha256Hash(messageToSign)
 
     const signature = signSecp256k1(hash, privateKey)
-    const hexSignature = signatureToHex(signature)
+    const hexSignature = serializeSignature(signature)
     return hexToBase64Url(hexSignature)
   }
 
@@ -209,7 +209,7 @@ export const buildSignerEip191 =
   async (messageToSign: string): Promise<string> => {
     const hash = eip191Hash(messageToSign)
     const signature = signSecp256k1(hash, privateKey, true)
-    const hexSignature = signatureToHex(signature)
+    const hexSignature = serializeSignature(signature)
     return hexToBase64Url(hexSignature)
   }
 
@@ -220,7 +220,7 @@ export const buildSignerEs256 =
 
     const signature = signP256(hash, privateKey)
 
-    const hexSignature = signatureToHex(signature)
+    const hexSignature = serializeSignature(signature)
     return hexToBase64Url(hexSignature)
   }
 
