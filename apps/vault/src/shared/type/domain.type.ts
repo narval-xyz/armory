@@ -1,8 +1,7 @@
+import { BIP44_PREFIX, DerivationPath, Origin } from '@narval/armory-sdk'
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-
-export const BIP44_PREFIX = "m/44'/60'/0'/0/"
 
 export const CreateClientInput = z.object({
   clientId: z.string().optional(),
@@ -44,12 +43,6 @@ export const App = z.object({
 })
 export type App = z.infer<typeof App>
 
-export const Origin = {
-  IMPORTED: 'IMPORTED',
-  GENERATED: 'GENERATED'
-} as const
-export type Origin = (typeof Origin)[keyof typeof Origin]
-
 export const PrivateWallet = z.object({
   id: z.string().min(1),
   privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
@@ -60,23 +53,6 @@ export const PrivateWallet = z.object({
   derivationPath: z.string().min(1).optional()
 })
 export type PrivateWallet = z.infer<typeof PrivateWallet>
-
-export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
-  (value) => {
-    if (typeof value !== 'string') return false
-
-    if (!value.startsWith(BIP44_PREFIX)) return false
-
-    // Extract the part after the prefix and check if it's a number
-    const suffix = value.slice(BIP44_PREFIX.length)
-    const isNumber = /^\d+$/.test(suffix)
-    return isNumber
-  },
-  {
-    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
-  }
-)
-export type DerivationPath = z.infer<typeof DerivationPath>
 
 export const AddressIndex = DerivationPath.transform((data) => {
   const suffix = data.slice(BIP44_PREFIX.length)

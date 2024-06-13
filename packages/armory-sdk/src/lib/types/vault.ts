@@ -78,6 +78,18 @@ export const PublicWallet = z.object({
 })
 export type PublicWallet = z.infer<typeof PublicWallet>
 
+export const Origin = {
+  IMPORTED: 'IMPORTED',
+  GENERATED: 'GENERATED'
+} as const
+export type Origin = (typeof Origin)[keyof typeof Origin]
+
+export const PublicSeed = z.object({
+  keyId: z.string(),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
+})
+export type PublicSeed = z.infer<typeof PublicSeed>
+
 export const ImportSeedResponse = z.object({
   wallet: PublicWallet,
   backup: z.string().optional(),
@@ -100,25 +112,23 @@ export const GenerateKeyResponse = z.object({
 })
 export type GenerateKeyResponse = z.infer<typeof GenerateKeyResponse>
 
-const DERIVATION_PATH_PREFIX = "m/44'/60'/"
+export const BIP44_PREFIX = "m/44'/60'/0'/0/"
 
-export const DerivationPath = z.union([
-  z.custom<`${typeof DERIVATION_PATH_PREFIX}${string}`>(
-    (value) => {
-      const result = z.string().startsWith(DERIVATION_PATH_PREFIX).safeParse(value)
+export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
+  (value) => {
+    if (typeof value !== 'string') return false
 
-      if (result.success) {
-        return value
-      }
+    if (!value.startsWith(BIP44_PREFIX)) return false
 
-      return false
-    },
-    {
-      message: `Derivation path must start with ${DERIVATION_PATH_PREFIX}`
-    }
-  ),
-  z.literal('next')
-])
+    // Extract the part after the prefix and check if it's a number
+    const suffix = value.slice(BIP44_PREFIX.length)
+    const isNumber = /^\d+$/.test(suffix)
+    return isNumber
+  },
+  {
+    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
+  }
+)
 export type DerivationPath = z.infer<typeof DerivationPath>
 
 export const DeriveWalletRequest = z.object({
