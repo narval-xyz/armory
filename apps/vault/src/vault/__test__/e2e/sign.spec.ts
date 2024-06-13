@@ -27,9 +27,9 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Client, Origin, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
+import { Client, Origin, PrivateAccount } from '../../../shared/type/domain.type'
 import { AppService } from '../../core/service/app.service'
-import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 import { VaultModule } from '../../vault.module'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -54,7 +54,7 @@ describe('Sign', () => {
     updatedAt: new Date()
   }
 
-  const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
+  const account: PrivateAccount = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',
@@ -118,7 +118,7 @@ describe('Sign', () => {
 
     const appService = module.get<AppService>(AppService)
     const clientService = module.get<ClientService>(ClientService)
-    const _OLD_WALLET_Repository = module.get<WalletRepository>(WalletRepository)
+    const accountRepository = module.get<AccountRepository>(AccountRepository)
 
     await appService.save({
       id: 'test-app',
@@ -128,7 +128,7 @@ describe('Sign', () => {
 
     await clientService.save(client)
 
-    await _OLD_WALLET_Repository.save(clientId, _OLD_WALLET_)
+    await accountRepository.save(clientId, account)
 
     await testPrismaService.truncateAll()
 
@@ -215,7 +215,7 @@ describe('Sign', () => {
         .send({ request: messageRequest })
 
       const isVerified = await verifyMessage({
-        address: _OLD_WALLET_.address,
+        address: account.address,
         message: messageRequest.message,
         signature: body.signature
       })

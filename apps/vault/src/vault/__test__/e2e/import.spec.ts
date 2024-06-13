@@ -211,12 +211,12 @@ describe('Import', () => {
         })
 
       expect(body).toEqual({
-        _OLD_WALLET_: {
+        account: {
           address: expect.any(String),
           publicKey: expect.any(String),
           keyId: 'my-imported-rootKey',
           derivationPath: `m/44'/60'/0'/0/0`,
-          id: resourceId(body._OLD_WALLET_.address)
+          id: resourceId(body.account.address)
         },
         keyId: 'my-imported-rootKey'
       })

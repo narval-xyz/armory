@@ -4,17 +4,17 @@ import { HDKey } from '@scure/bip32'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
-import { DeriveWalletDto } from '../../http/rest/dto/derive-_OLD_WALLET_.dto'
+import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { DeriveAccountDto } from '../../http/rest/dto/derive-account.dto'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
-import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { RootKeyRepository } from '../../persistence/repository/root-key.repository'
 import {
   findAddressIndexes,
   generateNextPaths,
   getRootKey,
-  hdKeyToWallet,
+  hdKeyToAccount,
   mnemonicToRootKey
 } from '../util/key-generation.util'
 
@@ -30,7 +30,7 @@ export class KeyGenerationService {
   private logger = new Logger(KeyGenerationService.name)
 
   constructor(
-    private _OLD_WALLET_Repository: WalletRepository,
+    private accountRepository: AccountRepository,
     private rootKeyRepository: RootKeyRepository,
     private backupRepository: BackupRepository,
     private clientService: ClientService
@@ -96,28 +96,28 @@ export class KeyGenerationService {
   }
 
   async getIndexes(clientId: string, keyId: string): Promise<number[]> {
-    const _OLD_WALLETS_ = (await this._OLD_WALLET_Repository.findByClientId(clientId)).filter(
-      (_OLD_WALLET_) => _OLD_WALLET_.keyId === keyId
+    const accounts = (await this.accountRepository.findByClientId(clientId)).filter(
+      (account) => account.keyId === keyId
     )
-    const indexes = findAddressIndexes(_OLD_WALLETS_.map((_OLD_WALLET_) => _OLD_WALLET_.derivationPath))
+    const indexes = findAddressIndexes(accounts.map((account) => account.derivationPath))
     return indexes
   }
 
-  async _OLD_WALLET_Derive(
+  async accountDerive(
     clientId: string,
     { rootKey, path, keyId }: { rootKey: HDKey; path: string; keyId: string }
-  ): Promise<_OLD_PRIVATE_WALLET_> {
+  ): Promise<PrivateAccount> {
     const derivedKey = rootKey.derive(path)
-    const _OLD_WALLET_ = await hdKeyToWallet({
+    const account = await hdKeyToAccount({
       key: derivedKey,
       keyId,
       path
     })
-    await this._OLD_WALLET_Repository.save(clientId, _OLD_WALLET_)
-    return _OLD_WALLET_
+    await this.accountRepository.save(clientId, account)
+    return account
   }
 
-  async generateWallet(clientId: string, args: GenerateArgs): Promise<_OLD_PRIVATE_WALLET_[]> {
+  async generateAccount(clientId: string, args: GenerateArgs): Promise<PrivateAccount[]> {
     const { keyId, count = 1, derivationPaths = [], rootKey } = args
 
     const dbIndexes = await this.getIndexes(clientId, keyId)
@@ -128,15 +128,15 @@ export class KeyGenerationService {
     const nextPaths = generateNextPaths(indexes, remainingDerivations)
 
     const allPaths = [...nextPaths, ...derivationPaths]
-    const derivationPromises = allPaths.map((path) => this._OLD_WALLET_Derive(clientId, { rootKey, path, keyId }))
-    const _OLD_WALLETS_ = await Promise.all(derivationPromises)
-    return _OLD_WALLETS_
+    const derivationPromises = allPaths.map((path) => this.accountDerive(clientId, { rootKey, path, keyId }))
+    const accounts = await Promise.all(derivationPromises)
+    return accounts
   }
 
   async derive(
     clientId: string,
-    { derivationPaths, keyId, count }: DeriveWalletDto
-  ): Promise<{ _OLD_WALLETS_: _OLD_PRIVATE_WALLET_[] }> {
+    { derivationPaths, keyId, count }: DeriveAccountDto
+  ): Promise<{ accounts: PrivateAccount[] }> {
     const seed = await this.rootKeyRepository.findById(clientId, keyId)
     if (!seed) {
       throw new ApplicationException({
@@ -147,21 +147,21 @@ export class KeyGenerationService {
     }
     const rootKey = mnemonicToRootKey(seed.mnemonic)
 
-    const _OLD_WALLETS_ = await this.generateWallet(clientId, {
+    const accounts = await this.generateAccount(clientId, {
       keyId,
       count,
       rootKey,
       derivationPaths
     })
 
-    return { _OLD_WALLETS_ }
+    return { accounts }
   }
 
-  async generateMnemonic(
+  async generateWallet(
     clientId: string,
     opts: GenerateKeyDto
   ): Promise<{
-    _OLD_WALLET_: _OLD_PRIVATE_WALLET_
+    account: PrivateAccount
     keyId: string
     backup?: string
   }> {
@@ -176,15 +176,15 @@ export class KeyGenerationService {
       origin: Origin.GENERATED
     })
 
-    this.logger.log('Deriving first _OLD_WALLET_', { clientId })
+    this.logger.log('Deriving first account', { clientId })
 
-    const [firstWallet] = await this.generateWallet(clientId, {
+    const [firstAccount] = await this.generateAccount(clientId, {
       keyId,
       rootKey
     })
 
     return {
-      _OLD_WALLET_: firstWallet,
+      account: firstAccount,
       keyId,
       backup
     }

@@ -26,7 +26,7 @@ If you want a better understanding of the following concepts, you can go to [bip
 - Account
   It is the abstraction around a `privateKey` used on chain. It is to be understood as defined in [bip32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) specification. It can be the child of a `wallet` if it was generated in the vault using `POST /wallets/derive`, or it can be imported alone through `POST /accounts/import`.
 
-- Wallet
+- Account
   It is a structure that organizes a collection of accounts. It wraps a `rootKey`, from which all `account` children's `privateKeys` are derived.
 
 ## Requirements

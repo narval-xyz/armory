@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
-import { WalletRepository } from '../../../../persistence/repository/_OLD_WALLET_.repository'
+import { Origin, PrivateAccount } from '../../../../../shared/type/domain.type'
+import { AccountRepository } from '../../../../persistence/repository/account.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { ImportService } from '../../import.service'
 import { KeyGenerationService } from '../../key-generation.service'
 
 describe('ImportService', () => {
   let importService: ImportService
-  let _OLD_WALLET_Repository: WalletRepository
+  let accountRepository: AccountRepository
 
   const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -16,12 +16,12 @@ describe('ImportService', () => {
       providers: [
         ImportService,
         {
-          provide: WalletRepository,
+          provide: AccountRepository,
           useValue: {
-            // mock the methods of WalletRepository that are used in ImportService
+            // mock the methods of AccountRepository that are used in ImportService
             // for example:
             save: jest.fn().mockResolvedValue({
-              id: '_OLD_WALLET_Id',
+              id: 'accountId',
               address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
               privateKey: PRIVATE_KEY
             })
@@ -39,28 +39,24 @@ describe('ImportService', () => {
     }).compile()
 
     importService = module.get<ImportService>(ImportService)
-    _OLD_WALLET_Repository = module.get<WalletRepository>(WalletRepository)
+    accountRepository = module.get<AccountRepository>(AccountRepository)
   })
 
   describe('importPrivateKey', () => {
-    it('should import private key and return a _OLD_WALLET_', async () => {
+    it('should import private key and return a account', async () => {
       const clientId = 'clientId'
       const privateKey = PRIVATE_KEY
-      const _OLD_WALLET_Id = '_OLD_WALLET_Id'
+      const accountId = 'accountId'
 
-      const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = await importService.importPrivateKey(
-        clientId,
-        privateKey,
-        _OLD_WALLET_Id
-      )
+      const account: PrivateAccount = await importService.importPrivateKey(clientId, privateKey, accountId)
 
-      expect(_OLD_WALLET_).toEqual({
-        id: '_OLD_WALLET_Id',
+      expect(account).toEqual({
+        id: 'accountId',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
         privateKey
       })
-      expect(_OLD_WALLET_Repository.save).toHaveBeenCalledWith(clientId, {
-        id: _OLD_WALLET_Id,
+      expect(accountRepository.save).toHaveBeenCalledWith(clientId, {
+        id: accountId,
         privateKey,
         origin: Origin.IMPORTED,
         publicKey:

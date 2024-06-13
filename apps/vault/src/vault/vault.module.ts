@@ -22,7 +22,7 @@ import { GenerationController } from './http/rest/controller/generation.controll
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
-import { WalletRepository } from './persistence/repository/_OLD_WALLET_.repository'
+import { AccountRepository } from './persistence/repository/account.repository'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
@@ -64,7 +64,7 @@ import { VaultService } from './vault.service'
     RootKeyRepository,
     BackupRepository,
     VaultService,
-    WalletRepository,
+    AccountRepository,
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe({ transform: true })

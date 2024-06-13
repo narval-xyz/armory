@@ -2,11 +2,11 @@ import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { KeyMetadata } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { Collection, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
+import { Collection, PrivateAccount } from '../../../shared/type/domain.type'
 
 @Injectable()
-export class WalletRepository {
-  private KEY_PREFIX = Collection.WALLET
+export class AccountRepository {
+  private KEY_PREFIX = Collection.account
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
@@ -21,27 +21,27 @@ export class WalletRepository {
     }
   }
 
-  async findById(clientId: string, id: string): Promise<_OLD_PRIVATE_WALLET_ | null> {
+  async findById(clientId: string, id: string): Promise<PrivateAccount | null> {
     const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
-      return coerce.decode(_OLD_PRIVATE_WALLET_, value)
+      return coerce.decode(PrivateAccount, value)
     }
 
     return null
   }
 
-  async findByClientId(clientId: string): Promise<_OLD_PRIVATE_WALLET_[]> {
+  async findByClientId(clientId: string): Promise<PrivateAccount[]> {
     const values = await this.keyValueService.find(this.getMetadata(clientId))
-    return values ? values.map((value) => coerce.decode(_OLD_PRIVATE_WALLET_, value)) : []
+    return values ? values.map((value) => coerce.decode(PrivateAccount, value)) : []
   }
 
-  async save(clientId: string, _OLD_WALLET_: _OLD_PRIVATE_WALLET_): Promise<_OLD_PRIVATE_WALLET_> {
+  async save(clientId: string, account: PrivateAccount): Promise<PrivateAccount> {
     await this.keyValueService.set(
-      this.getKey(clientId, _OLD_WALLET_.id.toLowerCase()),
-      coerce.encode(_OLD_PRIVATE_WALLET_, _OLD_WALLET_),
+      this.getKey(clientId, account.id.toLowerCase()),
+      coerce.encode(PrivateAccount, account),
       this.getMetadata(clientId)
     )
-    return _OLD_WALLET_
+    return account
   }
 }

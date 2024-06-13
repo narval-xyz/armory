@@ -5,11 +5,11 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Collection, Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
-import { WalletRepository } from '../../_OLD_WALLET_.repository'
+import { Collection, Origin, PrivateAccount } from '../../../../../shared/type/domain.type'
+import { AccountRepository } from '../../account.repository'
 
-describe(WalletRepository.name, () => {
-  let repository: WalletRepository
+describe(AccountRepository.name, () => {
+  let repository: AccountRepository
   let inMemoryKeyValueRepository: InMemoryKeyValueRepository
   let encryptionService: EncryptionService
 
@@ -24,7 +24,7 @@ describe(WalletRepository.name, () => {
       ],
       providers: [
         EncryptKeyValueService,
-        WalletRepository,
+        AccountRepository,
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
@@ -32,49 +32,49 @@ describe(WalletRepository.name, () => {
       ]
     }).compile()
 
-    repository = module.get<WalletRepository>(WalletRepository)
+    repository = module.get<AccountRepository>(AccountRepository)
     encryptionService = module.get<EncryptionService>(EncryptionService)
   })
 
   describe('save', () => {
     const clientId = 'test-client-id'
     const privateKey = generatePrivateKey()
-    const account = privateKeyToAccount(privateKey)
-    const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
+    const viemAcc = privateKeyToAccount(privateKey)
+    const account: PrivateAccount = {
       id: 'test-WALLET-ID',
       privateKey,
-      address: account.address,
+      address: viemAcc.address,
       origin: Origin.GENERATED,
-      publicKey: account.publicKey
+      publicKey: viemAcc.publicKey
     }
 
     it('uses lower case id in the key', async () => {
       jest.spyOn(inMemoryKeyValueRepository, 'set')
 
-      await repository.save(clientId, _OLD_WALLET_)
+      await repository.save(clientId, account)
 
       expect(inMemoryKeyValueRepository.set).toHaveBeenCalledWith(
-        `_OLD_WALLET_:${clientId}:${_OLD_WALLET_.id.toLowerCase()}`,
+        `account:${clientId}:${account.id.toLowerCase()}`,
         expect.any(String),
         {
           clientId,
-          collection: Collection.WALLET
+          collection: Collection.account
         }
       )
     })
 
-    it('encrypts _OLD_WALLET_ data', async () => {
-      await repository.save(clientId, _OLD_WALLET_)
+    it('encrypts account data', async () => {
+      await repository.save(clientId, account)
 
-      const actualEncryptedWallet = await inMemoryKeyValueRepository.get(
-        `_OLD_WALLET_:${clientId}:${_OLD_WALLET_.id.toLowerCase()}`
+      const actualEncryptedAccount = await inMemoryKeyValueRepository.get(
+        `account:${clientId}:${account.id.toLowerCase()}`
       )
 
-      const actualWallet = await encryptionService
-        .decrypt(Buffer.from(actualEncryptedWallet as string, 'hex'))
+      const actualAccount = await encryptionService
+        .decrypt(Buffer.from(actualEncryptedAccount as string, 'hex'))
         .then((v) => JSON.parse(v.toString()))
 
-      expect(actualWallet).toEqual(_OLD_WALLET_)
+      expect(actualAccount).toEqual(account)
     })
   })
 
@@ -82,42 +82,42 @@ describe(WalletRepository.name, () => {
     const clientId = 'test-client-id'
     const secondClientId = 'test-client-id-2'
     const privateKey = generatePrivateKey()
-    const account = privateKeyToAccount(privateKey)
+    const viemAcc = privateKeyToAccount(privateKey)
     const secondPrivateKey = generatePrivateKey()
-    const secondAccount = privateKeyToAccount(secondPrivateKey)
+    const secondViemAccount = privateKeyToAccount(secondPrivateKey)
     const thirdPrivateKey = generatePrivateKey()
-    const thirdAccount = privateKeyToAccount(thirdPrivateKey)
-    const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
+    const thirdViemAccount = privateKeyToAccount(thirdPrivateKey)
+    const account: PrivateAccount = {
       id: 'test-WALLET-ID',
       privateKey,
-      address: account.address,
+      address: viemAcc.address,
       origin: Origin.GENERATED,
-      publicKey: account.publicKey
+      publicKey: viemAcc.publicKey
     }
-    const secondWallet: _OLD_PRIVATE_WALLET_ = {
+    const secondAccount: PrivateAccount = {
       id: 'test-WALLET-ID-2',
       privateKey: secondPrivateKey,
-      address: secondAccount.address,
+      address: secondViemAccount.address,
       origin: Origin.IMPORTED,
-      publicKey: secondAccount.publicKey
+      publicKey: secondViemAccount.publicKey
     }
-    const thirdWallet: _OLD_PRIVATE_WALLET_ = {
+    const thirdAccount: PrivateAccount = {
       id: 'test-WALLET-ID-3',
       privateKey: thirdPrivateKey,
-      address: thirdAccount.address,
+      address: thirdViemAccount.address,
       origin: Origin.IMPORTED,
-      publicKey: thirdAccount.publicKey
+      publicKey: thirdViemAccount.publicKey
     }
-    it('find all _OLD_WALLETS_ for a given client', async () => {
-      await repository.save(clientId, _OLD_WALLET_)
-      await repository.save(clientId, secondWallet)
-      await repository.save(secondClientId, thirdWallet)
+    it('find all accounts for a given client', async () => {
+      await repository.save(clientId, account)
+      await repository.save(clientId, secondAccount)
+      await repository.save(secondClientId, thirdAccount)
 
-      const _OLD_WALLETS_ = await repository.findByClientId(clientId)
-      expect(_OLD_WALLETS_).toEqual([_OLD_WALLET_, secondWallet])
+      const accounts = await repository.findByClientId(clientId)
+      expect(accounts).toEqual([account, secondAccount])
 
-      const secondWallets = await repository.findByClientId(secondClientId)
-      expect(secondWallets).toEqual([thirdWallet])
+      const secondAccounts = await repository.findByClientId(secondClientId)
+      expect(secondAccounts).toEqual([thirdAccount])
     })
   })
 
@@ -126,12 +126,12 @@ describe(WalletRepository.name, () => {
       jest.spyOn(inMemoryKeyValueRepository, 'get')
 
       const clientId = 'test-client-id'
-      const caseSensitiveWalletId = 'test-WALLET-ID'
+      const caseSensitiveAccountId = 'test-WALLET-ID'
 
-      await repository.findById(clientId, caseSensitiveWalletId)
+      await repository.findById(clientId, caseSensitiveAccountId)
 
       expect(inMemoryKeyValueRepository.get).toHaveBeenCalledWith(
-        `_OLD_WALLET_:${clientId}:${caseSensitiveWalletId.toLowerCase()}`
+        `account:${clientId}:${caseSensitiveAccountId.toLowerCase()}`
       )
     })
   })

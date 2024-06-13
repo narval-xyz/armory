@@ -5,7 +5,7 @@ import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { AdminService } from '../../../core/service/admin.service'
-import { WalletsDto } from '../dto/_OLD_WALLETS_.dto'
+import { AccountsDto } from '../dto/accounts.dto'
 
 @Controller()
 @PermissionGuard(Permission.WALLET_READ)
@@ -16,17 +16,17 @@ import { WalletsDto } from '../dto/_OLD_WALLETS_.dto'
 export class AdminController {
   constructor(private adminService: AdminService) {}
 
-  @Get('/_OLD_WALLETS_')
+  @Get('/accounts')
   @ApiOperation({
-    summary: 'Lists the client _OLD_WALLETS_'
+    summary: 'Lists the client accounts'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: WalletsDto
+    type: AccountsDto
   })
-  async getWallets(@ClientId() clientId: string): Promise<WalletsDto> {
-    const _OLD_WALLETS_ = await this.adminService.getWallets(clientId)
+  async getAccounts(@ClientId() clientId: string): Promise<AccountsDto> {
+    const accounts = await this.adminService.getAccounts(clientId)
 
-    return WalletsDto.create({ _OLD_WALLETS_ })
+    return AccountsDto.create({ accounts })
   }
 }

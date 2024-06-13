@@ -124,7 +124,7 @@ describe('Generate', () => {
           keyId: 'keyId'
         })
 
-      expect(body._OLD_WALLET_).toEqual({
+      expect(body.account).toEqual({
         keyId: 'keyId',
         derivationPath: "m/44'/60'/0'/0/0",
         address: expect.any(String),
@@ -180,8 +180,8 @@ describe('Generate', () => {
       expect(status).toEqual(HttpStatus.CONFLICT)
     })
   })
-  describe('POST /derive/_OLD_WALLETS_', () => {
-    it('derives a new _OLD_WALLET_ from a rootKey', async () => {
+  describe('POST /derive/accounts', () => {
+    it('derives a new account from a rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
@@ -195,7 +195,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/_OLD_WALLETS_')
+        .post('/derive/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -203,7 +203,7 @@ describe('Generate', () => {
         })
 
       expect(body).toEqual({
-        _OLD_WALLETS_: [
+        accounts: [
           {
             id: expect.any(String),
             keyId,
@@ -219,7 +219,7 @@ describe('Generate', () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { status } = await request(app.getHttpServer())
-        .post('/derive/_OLD_WALLETS_')
+        .post('/derive/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -229,7 +229,7 @@ describe('Generate', () => {
       expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
 
-    it('derives multiple _OLD_WALLETS_ from a rootKey', async () => {
+    it('derives multiple accounts from a rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
@@ -243,7 +243,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/_OLD_WALLETS_')
+        .post('/derive/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -251,7 +251,7 @@ describe('Generate', () => {
           count: 3
         })
 
-      expect(body._OLD_WALLETS_).toEqual(
+      expect(body.accounts).toEqual(
         expect.arrayContaining([
           {
             id: expect.any(String),
@@ -278,7 +278,7 @@ describe('Generate', () => {
       )
     })
 
-    it('derives _OLD_WALLETS_ from a rootKey and custom derivation paths', async () => {
+    it('derives accounts from a rootKey and custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
@@ -292,7 +292,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/_OLD_WALLETS_')
+        .post('/derive/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -300,7 +300,7 @@ describe('Generate', () => {
           derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
         })
 
-      expect(body._OLD_WALLETS_).toEqual(
+      expect(body.accounts).toEqual(
         expect.arrayContaining([
           {
             id: expect.any(String),
@@ -320,7 +320,7 @@ describe('Generate', () => {
       )
     })
 
-    it('derives a combination of _OLD_WALLETS_ from a rootKey and custom derivation paths', async () => {
+    it('derives a combination of accounts from a rootKey and custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
@@ -334,7 +334,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/_OLD_WALLETS_')
+        .post('/derive/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -343,7 +343,7 @@ describe('Generate', () => {
           derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
         })
 
-      expect(body._OLD_WALLETS_).toEqual(
+      expect(body.accounts).toEqual(
         expect.arrayContaining([
           {
             id: expect.any(String),

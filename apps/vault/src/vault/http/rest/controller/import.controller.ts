@@ -54,10 +54,10 @@ export class ImportController {
       importedKey = await this.importService.importEncryptedPrivateKey(
         clientId,
         body.encryptedPrivateKey,
-        body._OLD_WALLET_Id
+        body.accountId
       )
     } else if (body.privateKey) {
-      importedKey = await this.importService.importPrivateKey(clientId, body.privateKey, body._OLD_WALLET_Id)
+      importedKey = await this.importService.importPrivateKey(clientId, body.privateKey, body.accountId)
     } else {
       throw new ApplicationException({
         message: 'Missing privateKey or encryptedPrivateKey',
@@ -79,10 +79,10 @@ export class ImportController {
     type: GenerateKeyResponseDto
   })
   async importSeed(@ClientId() clientId: string, @Body() body: ImportSeedDto): Promise<GenerateKeyResponseDto> {
-    const { _OLD_WALLET_, keyId, backup } = await this.importService.importSeed(clientId, body)
+    const { account, keyId, backup } = await this.importService.importSeed(clientId, body)
 
     const response = GenerateKeyResponseDto.create({
-      _OLD_WALLET_,
+      account,
       keyId,
       backup
     })

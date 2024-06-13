@@ -14,8 +14,8 @@ import {
   verifyMessage,
   verifyTypedData
 } from 'viem'
-import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
-import { WalletRepository } from '../../../../persistence/repository/_OLD_WALLET_.repository'
+import { Origin, PrivateAccount } from '../../../../../shared/type/domain.type'
+import { AccountRepository } from '../../../../persistence/repository/account.repository'
 import { NonceService } from '../../nonce.service'
 import { SigningService } from '../../signing.service'
 
@@ -23,7 +23,7 @@ describe('SigningService', () => {
   let signingService: SigningService
   let nonceServiceMock: MockProxy<NonceService>
 
-  const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
+  const account: PrivateAccount = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',
@@ -31,7 +31,7 @@ describe('SigningService', () => {
       '0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba',
     origin: Origin.GENERATED
   }
-  const privateKey: Jwk = secp256k1PrivateKeyToJwk(_OLD_WALLET_.privateKey)
+  const privateKey: Jwk = secp256k1PrivateKeyToJwk(account.privateKey)
 
   beforeEach(async () => {
     nonceServiceMock = mock<NonceService>()
@@ -44,9 +44,9 @@ describe('SigningService', () => {
           useValue: nonceServiceMock
         },
         {
-          provide: WalletRepository,
+          provide: AccountRepository,
           useValue: {
-            findById: jest.fn().mockResolvedValue(_OLD_WALLET_)
+            findById: jest.fn().mockResolvedValue(account)
           }
         }
       ]
@@ -109,7 +109,7 @@ describe('SigningService', () => {
       const result = await signingService.sign(clientId, eip191Request)
 
       const isVerified = await verifyMessage({
-        address: _OLD_WALLET_.address,
+        address: account.address,
         message: eip191Request.message,
         signature: result
       })
@@ -134,7 +134,7 @@ describe('SigningService', () => {
       const result = await signingService.sign(clientId, messageRequest)
 
       const isVerified = await verifyMessage({
-        address: _OLD_WALLET_.address,
+        address: account.address,
         message: messageRequest.message,
         signature: result
       })
@@ -159,7 +159,7 @@ describe('SigningService', () => {
       },
       message: {
         contents: 'UNICOOOORN :)',
-        _OLD_WALLET_: '0xdd4d43575a5eff17ec814da6ea810a0cc39ff23e',
+        account: '0xdd4d43575a5eff17ec814da6ea810a0cc39ff23e',
         nonce: '0e01c9bd-94a0-4ba1-925d-ab02688e65de'
       },
       primaryType: 'Validator',
@@ -184,7 +184,7 @@ describe('SigningService', () => {
             type: 'string'
           },
           {
-            name: '_OLD_WALLET_',
+            name: 'account',
             type: 'address'
           },
           {
@@ -209,7 +209,7 @@ describe('SigningService', () => {
       const result = await signingService.sign(clientId, typedDataRequest)
 
       const isVerified = await verifyTypedData({
-        address: _OLD_WALLET_.address,
+        address: account.address,
         signature: result,
         ...typedData
       })

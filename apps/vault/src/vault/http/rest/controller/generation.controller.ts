@@ -5,7 +5,7 @@ import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-_OLD_WALLET_.dto'
+import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
 import { GenerateKeyDto } from '../dto/generate-key.dto'
 
@@ -27,9 +27,9 @@ export class GenerationController {
     type: GenerateKeyResponseDto
   })
   async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<GenerateKeyResponseDto> {
-    const { _OLD_WALLET_, keyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
+    const { account, keyId, backup } = await this.keyGenService.generateWallet(clientId, body)
     const response = GenerateKeyResponseDto.create({
-      _OLD_WALLET_,
+      account,
       keyId: keyId,
       backup
     })
@@ -37,17 +37,17 @@ export class GenerationController {
     return response
   }
 
-  @Post('/derive/_OLD_WALLETS_')
+  @Post('/derive/accounts')
   @ApiOperation({
-    summary: 'Derives a new _OLD_WALLET_'
+    summary: 'Derives a new account'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: DeriveWalletResponseDto
+    type: DeriveAccountResponseDto
   })
-  async deriveWallet(@ClientId() clientId: string, @Body() body: DeriveWalletDto): Promise<DeriveWalletResponseDto> {
-    const _OLD_WALLETS_ = await this.keyGenService.derive(clientId, body)
-    const response = DeriveWalletResponseDto.create(_OLD_WALLETS_)
+  async deriveAccount(@ClientId() clientId: string, @Body() body: DeriveAccountDto): Promise<DeriveAccountResponseDto> {
+    const accounts = await this.keyGenService.derive(clientId, body)
+    const response = DeriveAccountResponseDto.create(accounts)
 
     return response
   }

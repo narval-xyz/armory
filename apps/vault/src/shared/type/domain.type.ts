@@ -49,7 +49,7 @@ export const Origin = {
 } as const
 export type Origin = (typeof Origin)[keyof typeof Origin]
 
-export const _OLD_PRIVATE_WALLET_ = z.object({
+export const PrivateAccount = z.object({
   id: z.string().min(1),
   privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
@@ -58,7 +58,7 @@ export const _OLD_PRIVATE_WALLET_ = z.object({
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type _OLD_PRIVATE_WALLET_ = z.infer<typeof _OLD_PRIVATE_WALLET_>
+export type PrivateAccount = z.infer<typeof PrivateAccount>
 
 export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
   (value) => {
@@ -85,14 +85,14 @@ export const AddressIndex = DerivationPath.transform((data) => {
 })
 export type AddressIndex = z.infer<typeof AddressIndex>
 
-export const _OLD_PUBLIC_WALLET_ = z.object({
+export const PublicAccount = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type _OLD_PUBLIC_WALLET_ = z.infer<typeof _OLD_PUBLIC_WALLET_>
+export type PublicAccount = z.infer<typeof PublicAccount>
 
 export const RootKey = z.object({
   keyId: z.string().min(1),
@@ -126,7 +126,7 @@ export type ImportKey = z.infer<typeof ImportKey>
 export const Collection = {
   CLIENT: 'client',
   APP: 'app',
-  WALLET: '_OLD_WALLET_',
+  account: 'account',
   ROOT_KEY: 'root-key',
   IMPORT: 'import',
   BACKUP: 'backup',
