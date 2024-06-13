@@ -219,6 +219,10 @@ export class ClusterService {
       return true
     }
 
+    if (responses.some((response) => response.success === false)) {
+      return false
+    }
+
     throw new UnreachableClusterException(clientId, nodes)
   }
 }

@@ -5,7 +5,7 @@ import { REQUEST_HEADER_API_KEY } from '../../armory.constant'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class AdminApiKeyGuard implements CanActivate {
   constructor(private appService: AppService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
