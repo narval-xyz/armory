@@ -1,4 +1,4 @@
-import { Permission } from '@narval/armory-sdk'
+import { GenerateEncryptionKeyResponse, Origin, Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
@@ -6,6 +6,7 @@ import {
   Payload,
   SigningAlg,
   buildSignerEip191,
+  rsaEncrypt,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
   signJwt
@@ -14,6 +15,7 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { english, generateMnemonic } from 'viem/accounts'
 import { ClientModule } from '../../../client/client.module'
 import { ClientService } from '../../../client/core/service/client.service'
 import { Config, load } from '../../../main.config'
@@ -174,6 +176,112 @@ describe('Generate', () => {
         .send()
 
       expect(body).toEqual({ wallets })
+    })
+  })
+
+  describe('GET seeds', () => {
+    it('list all seeds by client', async () => {
+      const secondClientId = uuid()
+      await clientService.save({
+        clientId: secondClientId,
+        engineJwk: clientPublicJWK,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+
+      const accessToken = await getAccessToken([Permission.WALLET_READ, Permission.WALLET_IMPORT])
+
+      const response = await request(app.getHttpServer())
+        .post('/import/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      const { publicKey: firstClientPublicKey } = GenerateEncryptionKeyResponse.parse(response.body)
+
+      const secondResponse = await request(app.getHttpServer())
+        .post('/import/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      const { publicKey: secondClientPublicKey } = GenerateEncryptionKeyResponse.parse(secondResponse.body)
+
+      const { body: firstMnemonicRequest } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId'
+        })
+
+      const { body: secondMnemonicRequest } = await request(app.getHttpServer())
+        .post('/generate/keys')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId-2'
+        })
+
+      const firstGeneratedSeed = generateMnemonic(english)
+      const firstEncryptedSeed = await rsaEncrypt(firstGeneratedSeed, firstClientPublicKey)
+      const { body: firstImportRequest } = await request(app.getHttpServer())
+        .post('/import/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId-imported-1',
+          encryptedSeed: firstEncryptedSeed
+        })
+
+      const secondGeneratedSeed = generateMnemonic(english)
+      const secondEncryptedSeed = await rsaEncrypt(secondGeneratedSeed, secondClientPublicKey)
+
+      const { body: secondImportRequest } = await request(app.getHttpServer())
+        .post('/import/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId-imported-2',
+          encryptedSeed: secondEncryptedSeed
+        })
+
+      const expectedFirstClientSeeds = [
+        {
+          keyId: firstMnemonicRequest.keyId,
+          origin: Origin.GENERATED
+        },
+        {
+          keyId: firstImportRequest.keyId,
+          origin: Origin.IMPORTED
+        }
+      ]
+
+      const expectedSecondClientSeeds = [
+        {
+          keyId: secondMnemonicRequest.keyId,
+          origin: Origin.GENERATED
+        },
+        {
+          keyId: secondImportRequest.keyId,
+          origin: Origin.IMPORTED
+        }
+      ]
+
+      const { body: firstClientGetRequest } = await request(app.getHttpServer())
+        .get('/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      const { body: secondClientGetRequest } = await request(app.getHttpServer())
+        .get('/seeds')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      expect(firstClientGetRequest).toEqual({ seeds: expectedFirstClientSeeds })
+      expect(secondClientGetRequest).toEqual({ seeds: expectedSecondClientSeeds })
     })
   })
 })

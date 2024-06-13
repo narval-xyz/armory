@@ -1,4 +1,4 @@
-import { resourceId, BIP44_PREFIX, Origin } from '@narval/armory-sdk'
+import { BIP44_PREFIX, Origin, resourceId } from '@narval/armory-sdk'
 import { Alg, Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { HDKey } from '@scure/bip32'

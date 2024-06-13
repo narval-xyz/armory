@@ -1,4 +1,4 @@
-import { resourceId } from '@narval/armory-sdk'
+import { Origin, resourceId } from '@narval/armory-sdk'
 import { Hex } from '@narval/policy-engine-shared'
 import {
   Alg,
@@ -15,7 +15,7 @@ import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../shared/type/domain.type'
 import { ImportSeedDto } from '../../http/rest/dto/import-seed.dto'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'

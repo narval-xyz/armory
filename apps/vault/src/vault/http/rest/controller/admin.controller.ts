@@ -5,6 +5,7 @@ import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { AdminService } from '../../../core/service/admin.service'
+import { SeedsDto } from '../dto/seeds-dto'
 import { WalletsDto } from '../dto/wallets.dto'
 
 @Controller()
@@ -28,5 +29,18 @@ export class AdminController {
     const wallets = await this.adminService.getWallets(clientId)
 
     return WalletsDto.create({ wallets })
+  }
+
+  @Get('/seeds')
+  @ApiOperation({
+    summary: 'Get all seeds'
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SeedsDto
+  })
+  async getSeeds(@ClientId() clientId: string): Promise<SeedsDto> {
+    const seeds = await this.adminService.getSeeds(clientId)
+    return SeedsDto.create({ seeds })
   }
 }
