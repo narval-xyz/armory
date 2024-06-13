@@ -76,8 +76,12 @@ export const addressBookAccountEntitySchema = z.object({
 })
 
 export const tokenEntitySchema = z.object({
-  // TODO: Can I make AssetId to work with Open API generator?
-  // The AddressSchema is also a z.custom and it maps to `any`
+  // TODO: (@wcalderipe, 13/06/24) For some reason the Open API generator maps
+  // the `AssetId` schema to nothing.
+  // I thought it was because it uses `z.custom`, but the Address is also a
+  // custom schema. The main difference is that AssetId is a union of three
+  // different custom schemas `z.union([NonCollectableAssetId,
+  // CollectableAssetId, CoinAssetId])` and maybe that is causing the issue.
   id: z.string(),
   address: addressSchema,
   symbol: z.string().nullable(),
