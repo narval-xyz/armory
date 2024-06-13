@@ -243,14 +243,20 @@ describe(ClusterService.name, () => {
   })
 
   describe('sync', () => {
-    const nodeUrl = 'http://mock.test/policy-engine'
+    const nodeOneUrl = 'http://mock.test/policy-engine-node-one'
+    const nodeTwoUrl = 'http://mock.test/policy-engine-node-two'
 
     const clientId = 'test-client-id'
 
     const clientSecret = 'test-client-secret'
 
-    const mockPolicyEngineClientSync = async (opts: { url: string; clientId: string; clientSecret: string }) => {
-      const mockResponse = { success: true }
+    const mockPolicyEngineClientSync = async (opts: {
+      url: string
+      clientId: string
+      clientSecret: string
+      success: boolean
+    }) => {
+      const mockResponse = { success: opts.success }
 
       const scope = nock(opts.url, {
         reqheaders: {
@@ -270,22 +276,55 @@ describe(ClusterService.name, () => {
           id: uuid(),
           clientId,
           clientSecret,
-          url: nodeUrl,
+          url: nodeOneUrl,
+          publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
+        },
+        {
+          id: uuid(),
+          clientId,
+          clientSecret,
+          url: nodeTwoUrl,
           publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
         }
       ])
     })
 
-    it('responds with the first response from the cluster', async () => {
-      const { mockResponse: mockResponseOne } = await mockPolicyEngineClientSync({
-        url: nodeUrl,
+    it('returns success true when all nodes synced successfuly', async () => {
+      await mockPolicyEngineClientSync({
+        url: nodeOneUrl,
         clientId,
-        clientSecret
+        clientSecret,
+        success: true
+      })
+      await mockPolicyEngineClientSync({
+        url: nodeTwoUrl,
+        clientId,
+        clientSecret,
+        success: true
       })
 
       const success = await clusterService.sync(clientId)
 
-      expect({ success }).toEqual(mockResponseOne)
+      expect(success).toEqual(true)
+    })
+
+    it('returns success false when one node synced failed', async () => {
+      await mockPolicyEngineClientSync({
+        url: nodeOneUrl,
+        clientId,
+        clientSecret,
+        success: true
+      })
+      await mockPolicyEngineClientSync({
+        url: nodeTwoUrl,
+        clientId,
+        clientSecret,
+        success: false
+      })
+
+      const success = await clusterService.sync(clientId)
+
+      expect(success).toEqual(false)
     })
 
     it('throws when client nodes are not found', async () => {
