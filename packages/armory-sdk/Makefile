@@ -36,3 +36,9 @@ armory-sdk/test/unit:
 
 armory-sdk/test/unit/watch:
 	make armory-sdk/test/unit ARGS=--watch
+
+armory-sdk/test/e2e:
+	npx nx test:e2e ${ARMORY_SDK_PROJECT_NAME} -- ${ARGS}
+
+armory-sdk/test/e2e/watch:
+	make armory-sdk/test/e2e ARGS=--watch

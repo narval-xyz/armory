@@ -1,6 +1,6 @@
 import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { AccountId, AssetId } from '../util/caip.util'
+import { AccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 
 export const userRoleSchema = z.nativeEnum({
@@ -76,7 +76,13 @@ export const addressBookAccountEntitySchema = z.object({
 })
 
 export const tokenEntitySchema = z.object({
-  id: AssetId,
+  // TODO: (@wcalderipe, 13/06/24) For some reason the Open API generator maps
+  // the `AssetId` schema to nothing.
+  // I thought it was because it uses `z.custom`, but the Address is also a
+  // custom schema. The main difference is that AssetId is a union of three
+  // different custom schemas `z.union([NonCollectableAssetId,
+  // CollectableAssetId, CoinAssetId])` and maybe that is causing the issue.
+  id: z.string(),
   address: addressSchema,
   symbol: z.string().nullable(),
   chainId: z.number(),

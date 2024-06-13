@@ -123,7 +123,7 @@ export const spendingLimitTimeWindowSchema = z.object({
 })
 
 export const spendingLimitFiltersSchema = z.object({
-  tokens: z.array(AssetId).min(1).optional(),
+  tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
   resources: z.array(AccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
@@ -231,7 +231,7 @@ export const intentContractCriterionSchema = z.object({
 
 export const intentTokenCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_TOKEN),
-  args: z.array(AssetId).min(1)
+  args: z.array(z.string()).min(1)
 })
 
 export const intentSpenderCriterionSchema = z.object({
@@ -256,12 +256,12 @@ export const intentAmountCriterionSchema = z.object({
 
 export const erc721TokenIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ERC721_TOKEN_ID),
-  args: z.array(AssetId).min(1)
+  args: z.array(z.string()).min(1)
 })
 
 export const erc1155TokenIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ERC1155_TOKEN_ID),
-  args: z.array(AssetId).min(1)
+  args: z.array(z.string()).min(1)
 })
 
 export const erc1155TransfersCriterionSchema = z.object({
@@ -321,41 +321,41 @@ export const spendingLimitCriterionSchema = z.object({
 
 export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   actionCriterionSchema,
-  resourceCriterionSchema,
-  permissionCriterionSchema,
-  resourceIntegrityCriterionSchema,
-  principalIdCriterionSchema,
-  principalRoleCriterionSchema,
-  principalGroupCriterionSchema,
-  walletIdCriterionSchema,
-  walletAddressCriterionSchema,
-  walletAccountTypeCriterionSchema,
-  walletGroupCriterionSchema,
-  intentTypeCriterionSchema,
-  destinationIdCriterionSchema,
-  destinationAddressCriterionSchema,
+  approvalsCriterionSchema,
+  chainIdCriterionSchema,
   destinationAccountTypeCriterionSchema,
+  destinationAddressCriterionSchema,
   destinationClassificationCriterionSchema,
-  intentContractCriterionSchema,
-  intentTokenCriterionSchema,
-  intentSpenderCriterionSchema,
-  intentChainIdCriterionSchema,
-  intentHexSignatureCriterionSchema,
-  intentAmountCriterionSchema,
-  erc721TokenIdCriterionSchema,
+  destinationIdCriterionSchema,
   erc1155TokenIdCriterionSchema,
   erc1155TransfersCriterionSchema,
+  erc721TokenIdCriterionSchema,
+  gasFeeAmountCriterionSchema,
+  intentAlgorithmCriterionSchema,
+  intentAmountCriterionSchema,
+  intentChainIdCriterionSchema,
+  intentContractCriterionSchema,
+  intentDomainCriterionSchema,
+  intentHexSignatureCriterionSchema,
   intentMessageCriterionSchema,
   intentPayloadCriterionSchema,
-  intentAlgorithmCriterionSchema,
-  intentDomainCriterionSchema,
-  permitDeadlineCriterionSchema,
-  chainIdCriterionSchema,
-  gasFeeAmountCriterionSchema,
-  nonceRequiredCriterionSchema,
+  intentSpenderCriterionSchema,
+  intentTokenCriterionSchema,
+  intentTypeCriterionSchema,
   nonceNotRequiredCriterionSchema,
-  approvalsCriterionSchema,
-  spendingLimitCriterionSchema
+  nonceRequiredCriterionSchema,
+  permissionCriterionSchema,
+  permitDeadlineCriterionSchema,
+  principalGroupCriterionSchema,
+  principalIdCriterionSchema,
+  principalRoleCriterionSchema,
+  resourceCriterionSchema,
+  resourceIntegrityCriterionSchema,
+  spendingLimitCriterionSchema,
+  walletAccountTypeCriterionSchema,
+  walletAddressCriterionSchema,
+  walletGroupCriterionSchema,
+  walletIdCriterionSchema
 ])
 
 export const policySchema = z.object({

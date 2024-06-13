@@ -1,14 +1,13 @@
 import { ConfigService } from '@narval/config-module'
-import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Config } from '../../../../armory.config'
-import { AdminGuard } from '../../../../shared/guard/admin.guard'
+import { AdminGuard } from '../../../../shared/decorator/admin-guard.decorator'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
 
 @Controller('/clients')
-@UseGuards(AdminGuard)
-@ApiTags('Client Management')
+@ApiTags('Client')
 export class ClientController {
   constructor(
     private clientService: ClientService,
@@ -16,6 +15,7 @@ export class ClientController {
   ) {}
 
   @Post()
+  @AdminGuard()
   @ApiOperation({
     summary: 'Creates a new client'
   })

@@ -1,6 +1,11 @@
 import { Json } from '@narval/nestjs-shared'
-import { Action, EvaluationMetadata, JwtString, TransactionRequest } from '@narval/policy-engine-shared'
-import { OverrideProperties, SetOptional } from 'type-fest'
+import {
+  Action,
+  EvaluationMetadata,
+  JwtString,
+  SerializedTransactionRequest,
+  TransactionRequest
+} from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const AuthorizationRequestStatus = {
@@ -45,6 +50,11 @@ export const SignTransaction = SharedAuthorizationPayload.extend({
 })
 export type SignTransaction = z.infer<typeof SignTransaction>
 
+export const SerializedSignTransaction = SignTransaction.extend({
+  transactionRequest: SerializedTransactionRequest
+})
+export type SerializedSignTransaction = z.infer<typeof SerializedSignTransaction>
+
 export const SignMessage = SharedAuthorizationPayload.extend({
   action: z.literal(Action.SIGN_MESSAGE),
   resourceId: z.string(),
@@ -72,7 +82,6 @@ export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError
 
 export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
-  metadata: EvaluationMetadata.optional(),
   authentication: JwtString,
   clientId: z.string(),
   createdAt: z.date(),
@@ -80,18 +89,21 @@ export const AuthorizationRequest = z.object({
   evaluations: z.array(Evaluation),
   id: z.string(),
   idempotencyKey: z.string().nullish(),
+  metadata: EvaluationMetadata.optional(),
   request: Request,
   status: z.nativeEnum(AuthorizationRequestStatus),
   updatedAt: z.date()
 })
 export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>
 
-export type CreateAuthorizationRequest = OverrideProperties<
-  SetOptional<AuthorizationRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
-  {
-    approvals: JwtString[]
-  }
->
+export const CreateAuthorizationRequest = AuthorizationRequest.extend({
+  id: AuthorizationRequest.shape.id.optional(),
+  status: AuthorizationRequest.shape.status.optional(),
+  createdAt: AuthorizationRequest.shape.createdAt.optional(),
+  updatedAt: AuthorizationRequest.shape.updatedAt.optional(),
+  approvals: z.array(JwtString)
+})
+export type CreateAuthorizationRequest = z.infer<typeof CreateAuthorizationRequest>
 
 export type AuthorizationRequestProcessingJob = {
   id: string
