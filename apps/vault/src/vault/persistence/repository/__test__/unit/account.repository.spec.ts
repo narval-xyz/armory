@@ -58,7 +58,7 @@ describe(AccountRepository.name, () => {
         expect.any(String),
         {
           clientId,
-          collection: Collection.account
+          collection: Collection.ACCOUNT
         }
       )
     })

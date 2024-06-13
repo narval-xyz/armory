@@ -109,7 +109,7 @@ export const generateEncryptionKey = async (
   }
 }
 
-export const importPrivateKey = async (
+export const importAccount = async (
   config: VaultClientConfig,
   { accessToken, privateKey }: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
@@ -142,7 +142,7 @@ export const importPrivateKey = async (
   }
 }
 
-export const importSeed = async (
+export const importWallet = async (
   config: VaultClientConfig,
   { accessToken, seed }: ImportSeedRequest
 ): Promise<ImportSeedResponse> => {
@@ -175,7 +175,7 @@ export const importSeed = async (
   }
 }
 
-export const generateKey = async (
+export const generateWallet = async (
   config: VaultClientConfig,
   { accessToken, ...payload }: GenerateKeyRequest
 ): Promise<GenerateKeyResponse> => {
@@ -204,11 +204,11 @@ export const generateKey = async (
   }
 }
 
-export const deriveWallet = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveWalletRequest) => {
+export const generateAccount = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveWalletRequest) => {
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/derive/wallets`
+    const uri = `${vaultHost}/accounts`
 
     const detachedJws = await signAccountJwsd({
       payload,

@@ -94,11 +94,24 @@ export const PublicAccount = z.object({
 })
 export type PublicAccount = z.infer<typeof PublicAccount>
 
-export const RootKey = z.object({
+export const LocalKey = z.object({
   keyId: z.string().min(1),
   mnemonic: z.string().min(1),
+  curve: z.string(),
+  keyType: z.literal('local'),
   origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
 })
+export type LocalKey = z.infer<typeof LocalKey>
+
+export const RemoteKey = z.object({
+  keyId: z.string().min(1),
+  curve: z.string(),
+  keyType: z.literal('remote'),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
+})
+export type RemoteKey = z.infer<typeof RemoteKey>
+
+export const RootKey = z.discriminatedUnion('keyType', [LocalKey, RemoteKey])
 export type RootKey = z.infer<typeof RootKey>
 
 export const Backup = z.object({
@@ -126,7 +139,7 @@ export type ImportKey = z.infer<typeof ImportKey>
 export const Collection = {
   CLIENT: 'client',
   APP: 'app',
-  account: 'account',
+  ACCOUNT: 'account',
   ROOT_KEY: 'root-key',
   IMPORT: 'import',
   BACKUP: 'backup',

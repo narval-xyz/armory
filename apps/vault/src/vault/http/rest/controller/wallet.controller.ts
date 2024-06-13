@@ -6,9 +6,9 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
-import { GenerateKeyDto } from '../dto/generate-key.dto'
-import { ImportSeedDto } from '../dto/import-seed.dto'
+import { GenerateKeyResponseDto } from '../dto/generate-wallet-response.dto'
+import { GenerateKeyDto } from '../dto/generate-wallet.dto'
+import { ImportSeedDto } from '../dto/import-wallet.dto'
 
 @Controller('/wallets')
 @ApiHeader({

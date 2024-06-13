@@ -16,7 +16,7 @@ import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
-import { ImportSeedDto } from '../../http/rest/dto/import-seed.dto'
+import { ImportSeedDto } from '../../http/rest/dto/import-wallet.dto'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { getRootKey } from '../util/key-generation.util'
@@ -116,16 +116,17 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
-    const { keyId: optionalKeyId, encryptedSeed } = body
+    const { keyId: optionalKeyId, encryptedSeed, curve } = body
 
     const mnemonic = await this.#decrypt(clientId, encryptedSeed)
 
-    const { rootKey, keyId } = getRootKey(mnemonic, { keyId: optionalKeyId })
+    const { rootKey, keyId } = getRootKey(mnemonic, { curve, keyId: optionalKeyId })
 
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
       keyId,
       mnemonic,
-      origin: Origin.IMPORTED
+      origin: Origin.IMPORTED,
+      curve: body.curve
     })
 
     const [account] = await this.keyGenerationService.generateAccount(clientId, { rootKey, keyId })

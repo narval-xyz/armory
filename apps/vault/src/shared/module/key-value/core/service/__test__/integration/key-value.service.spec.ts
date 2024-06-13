@@ -54,7 +54,7 @@ describe(KeyValueService.name, () => {
 
       await service.set(key1, value1, { collection: Collection.ROOT_KEY })
       await service.set(key2, value2, { collection: Collection.ROOT_KEY })
-      await service.set(key3, value3, { collection: Collection.account })
+      await service.set(key3, value3, { collection: Collection.ACCOUNT })
 
       expect(await service.find({ collection: Collection.ROOT_KEY })).toEqual([value1, value2])
     })
@@ -68,7 +68,7 @@ describe(KeyValueService.name, () => {
 
       await service.set(key1, value1, { collection: Collection.ROOT_KEY, clientId: 'client-1' })
       await service.set(key2, value2, { collection: Collection.ROOT_KEY, clientId: 'client-2' })
-      await service.set(key3, value3, { collection: Collection.account, clientId: 'client-1' })
+      await service.set(key3, value3, { collection: Collection.ACCOUNT, clientId: 'client-1' })
 
       expect(await service.find({ collection: Collection.ROOT_KEY, clientId: 'client-1' })).toEqual([value1])
     })

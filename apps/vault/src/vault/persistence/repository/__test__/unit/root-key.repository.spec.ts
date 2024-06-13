@@ -44,7 +44,9 @@ describe('MnemonicRepository', () => {
       await repository.save(clientId, {
         mnemonic,
         keyId,
-        origin: 'GENERATED'
+        origin: 'GENERATED',
+        curve: 'secp256k1',
+        keyType: 'local'
       })
 
       expect(inMemoryKeyValueRepository.set).toHaveBeenCalledWith(

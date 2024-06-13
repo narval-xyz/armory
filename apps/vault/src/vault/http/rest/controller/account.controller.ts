@@ -10,9 +10,9 @@ import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
 import { AccountsDto } from '../dto/accounts.dto'
 import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
-import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
-import { ImportPrivateKeyResponseDto } from '../dto/import-private-key-response.dto'
-import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
+import { GenerateKeyResponseDto } from '../dto/generate-wallet-response.dto'
+import { ImportPrivateKeyResponseDto } from '../dto/import-account-response.dto'
+import { ImportPrivateKeyDto } from '../dto/import-account.dto'
 
 @Controller('/accounts')
 @ApiHeader({

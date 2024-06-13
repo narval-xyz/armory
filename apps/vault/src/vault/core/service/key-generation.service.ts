@@ -4,9 +4,9 @@ import { HDKey } from '@scure/bip32'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { Curve, Origin, PrivateAccount } from '../../../shared/type/domain.type'
 import { DeriveAccountDto } from '../../http/rest/dto/derive-account.dto'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
+import { GenerateKeyDto } from '../../http/rest/dto/generate-wallet.dto'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { RootKeyRepository } from '../../persistence/repository/root-key.repository'
@@ -66,11 +66,13 @@ export class KeyGenerationService {
     {
       keyId,
       mnemonic,
-      origin
+      origin,
+      curve
     }: {
       keyId: string
       mnemonic: string
       origin: Origin
+      curve: Curve
     }
   ): Promise<string | undefined> {
     const client = await this.clientService.findById(clientId)
@@ -89,7 +91,9 @@ export class KeyGenerationService {
     await this.rootKeyRepository.save(clientId, {
       keyId,
       mnemonic,
-      origin
+      origin,
+      keyType: 'local',
+      curve
     })
 
     return backup
@@ -140,8 +144,15 @@ export class KeyGenerationService {
     const seed = await this.rootKeyRepository.findById(clientId, keyId)
     if (!seed) {
       throw new ApplicationException({
-        message: 'Mnemonic not found',
+        message: 'Root Key not found',
         suggestedHttpStatusCode: 404,
+        context: { clientId, keyId }
+      })
+    }
+    if (seed.keyType !== 'local') {
+      throw new ApplicationException({
+        message: 'Cannot derive accounts from remote key',
+        suggestedHttpStatusCode: 400,
         context: { clientId, keyId }
       })
     }
@@ -173,7 +184,8 @@ export class KeyGenerationService {
     const backup = await this.saveMnemonic(clientId, {
       keyId,
       mnemonic,
-      origin: Origin.GENERATED
+      origin: Origin.GENERATED,
+      curve: opts.curve
     })
 
     this.logger.log('Deriving first account', { clientId })

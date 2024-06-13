@@ -6,7 +6,7 @@ import { Collection, PrivateAccount } from '../../../shared/type/domain.type'
 
 @Injectable()
 export class AccountRepository {
-  private KEY_PREFIX = Collection.account
+  private KEY_PREFIX = Collection.ACCOUNT
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 

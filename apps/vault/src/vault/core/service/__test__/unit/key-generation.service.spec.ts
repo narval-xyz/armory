@@ -47,7 +47,9 @@ describe('GenerateService', () => {
     rootKeyRepositoryMock.save.mockResolvedValue({
       mnemonic,
       keyId: 'keyId',
-      origin: Origin.GENERATED
+      origin: Origin.GENERATED,
+      curve: 'secp256k1',
+      keyType: 'local'
     })
 
     accountRepositoryMock = mock<AccountRepository>()
@@ -68,7 +70,7 @@ describe('GenerateService', () => {
         },
         {
           provide: ImportRepository,
-          useValue: {}
+          useValue: { curve: 'secp256k1' }
         },
         {
           provide: ClientService,
@@ -92,7 +94,7 @@ describe('GenerateService', () => {
   })
 
   it('returns first derived account from a generated rootKey', async () => {
-    const { account } = await keyGenerationService.generateWallet('clientId', {})
+    const { account } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
 
     expect(account.derivationPath).toEqual("m/44'/60'/0'/0/0")
   })
@@ -105,18 +107,20 @@ describe('GenerateService', () => {
       backupPublicKey: rsaBackupKey
     })
 
-    const { backup } = await keyGenerationService.generateWallet('clientId', {})
+    const { backup } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
     const decryptedMnemonic = await rsaDecrypt(backup as string, rsaBackupKey)
     const spaceInMnemonic = decryptedMnemonic.split(' ')
     expect(spaceInMnemonic.length).toBe(12)
   })
 
   it('saves rootKey to the database', async () => {
-    await keyGenerationService.generateWallet('clientId', {})
+    await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
     expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
-      origin: Origin.GENERATED
+      origin: Origin.GENERATED,
+      curve: 'secp256k1',
+      keyType: 'local'
     })
   })
 })
