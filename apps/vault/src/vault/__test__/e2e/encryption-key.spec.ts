@@ -1,7 +1,6 @@
 import { Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
 import {
   Payload,
   SigningAlg,
@@ -10,7 +9,7 @@ import {
   secp256k1PrivateKeyToPublicJwk,
   signJwt
 } from '@narval/signature'
-import { INestApplication } from '@nestjs/common'
+import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -25,7 +24,7 @@ import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('Generate', () => {
+describe('Encryption-keys', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -101,79 +100,39 @@ describe('Generate', () => {
     await appService.save({
       id: configService.get('app.id'),
       masterKey: 'test-master-key',
-      adminApiKey: secret.hash('test-admin-api-key')
+      adminApiKey: 'test-admin-api-key'
     })
 
     await clientService.save(client)
   })
 
-  describe('GET accounts', () => {
-    it('list all accounts for a specific client', async () => {
-      const secondClientId = uuid()
-      await clientService.save({
-        clientId: secondClientId,
-        engineJwk: clientPublicJWK,
-        createdAt: new Date(),
-        updatedAt: new Date()
+  describe('POST', () => {
+    it('responds with unauthorized when client secret is missing', async () => {
+      const { status } = await request(app.getHttpServer()).post('/encryption-keys').send()
+
+      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('generates an RSA keypair', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({})
+
+      expect(body).toEqual({
+        publicKey: expect.objectContaining({
+          kid: expect.any(String),
+          kty: 'RSA',
+          use: 'enc',
+          alg: 'RS256',
+          n: expect.any(String),
+          e: expect.any(String)
+        })
       })
-
-      const accessToken = await getAccessToken([Permission.WALLET_READ])
-      const { body: firstMnemonicRequest } = await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId'
-        })
-
-      const { body: secondMnemonicRequest } = await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId-2'
-        })
-
-      const { body: firstDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/accounts')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId',
-          derivationPaths: ['next']
-        })
-
-      const { body: secondDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/accounts')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId-2',
-          derivationPaths: ['next']
-        })
-
-      const accounts = [
-        firstMnemonicRequest.account,
-        secondMnemonicRequest.account,
-        firstDeriveRequest.accounts,
-        secondDeriveRequest.accounts
-      ]
-
-      await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId-second-client'
-        })
-
-      const { body } = await request(app.getHttpServer())
-        .get('/accounts')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set('authorization', `GNAP ${accessToken}`)
-        .send()
-
-      expect(body).toEqual({ accounts })
+      expect(status).toEqual(HttpStatus.CREATED)
     })
   })
 })

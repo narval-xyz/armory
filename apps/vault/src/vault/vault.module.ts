@@ -17,11 +17,11 @@ import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SigningService } from './core/service/signing.service'
-import { AdminController } from './http/rest/controller/admin.controller'
-import { GenerationController } from './http/rest/controller/generation.controller'
-import { ImportController } from './http/rest/controller/import.controller'
+import { AccountController } from './http/rest/controller/account.controller'
+import { EncryptionKeyController } from './http/rest/controller/encryption-key.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
+import { WalletController } from './http/rest/controller/wallet.controller'
 import { AccountRepository } from './persistence/repository/account.repository'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
@@ -44,11 +44,11 @@ import { VaultService } from './vault.service'
   ],
   controllers: [
     VaultController,
-    ImportController,
+    WalletController,
     SignController,
     ProvisionController,
-    GenerationController,
-    AdminController
+    AccountController,
+    EncryptionKeyController
   ],
   providers: [
     AppRepository,

@@ -87,7 +87,7 @@ export const generateEncryptionKey = async (
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/encryption-keys`
+    const uri = `${vaultHost}/encryption-keys`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -120,7 +120,7 @@ export const importPrivateKey = async (
 
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/private-keys`
+    const uri = `${vaultHost}/accounts/import`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -153,7 +153,7 @@ export const importSeed = async (
 
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/seeds`
+    const uri = `${vaultHost}/wallets/import`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -182,7 +182,7 @@ export const generateKey = async (
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/generate/keys`
+    const uri = `${vaultHost}/wallets`
 
     const detachedJws = await signAccountJwsd({
       payload,

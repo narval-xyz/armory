@@ -92,7 +92,7 @@ describe('GenerateService', () => {
   })
 
   it('returns first derived account from a generated rootKey', async () => {
-    const { account } = await keyGenerationService.generateAccount('clientId', {})
+    const { account } = await keyGenerationService.generateWallet('clientId', {})
 
     expect(account.derivationPath).toEqual("m/44'/60'/0'/0/0")
   })
@@ -105,14 +105,14 @@ describe('GenerateService', () => {
       backupPublicKey: rsaBackupKey
     })
 
-    const { backup } = await keyGenerationService.generateAccount('clientId', {})
+    const { backup } = await keyGenerationService.generateWallet('clientId', {})
     const decryptedMnemonic = await rsaDecrypt(backup as string, rsaBackupKey)
     const spaceInMnemonic = decryptedMnemonic.split(' ')
     expect(spaceInMnemonic.length).toBe(12)
   })
 
   it('saves rootKey to the database', async () => {
-    await keyGenerationService.generateAccount('clientId', {})
+    await keyGenerationService.generateWallet('clientId', {})
     expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
       keyId: expect.any(String),

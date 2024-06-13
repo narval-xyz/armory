@@ -4,29 +4,33 @@ import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
 import { GenerateKeyDto } from '../dto/generate-key.dto'
+import { ImportSeedDto } from '../dto/import-seed.dto'
 
-@Controller()
-@PermissionGuard(Permission.WALLET_CREATE)
+@Controller('/wallets')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,
   required: true
 })
-export class GenerationController {
-  constructor(private keyGenService: KeyGenerationService) {}
+export class WalletController {
+  constructor(
+    private keyGenService: KeyGenerationService,
+    private importService: ImportService
+  ) {}
 
-  @Post('/generate/keys')
+  @Post()
+  @PermissionGuard(Permission.WALLET_CREATE)
   @ApiOperation({
-    summary: 'Generates a new private key from the given key ID'
+    summary: 'Generates a new wallet'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: GenerateKeyResponseDto
   })
-  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<GenerateKeyResponseDto> {
+  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
     const { account, keyId, backup } = await this.keyGenService.generateWallet(clientId, body)
     const response = GenerateKeyResponseDto.create({
       account,
@@ -37,17 +41,22 @@ export class GenerationController {
     return response
   }
 
-  @Post('/derive/accounts')
+  @Post('/import')
+  @PermissionGuard(Permission.WALLET_IMPORT)
   @ApiOperation({
-    summary: 'Derives a new account'
+    summary: 'Imports a wallet'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: DeriveAccountResponseDto
+    type: GenerateKeyResponseDto
   })
-  async deriveAccount(@ClientId() clientId: string, @Body() body: DeriveAccountDto): Promise<DeriveAccountResponseDto> {
-    const accounts = await this.keyGenService.derive(clientId, body)
-    const response = DeriveAccountResponseDto.create(accounts)
+  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
+    const { account, keyId, backup } = await this.importService.importSeed(clientId, body)
+    const response = GenerateKeyResponseDto.create({
+      account,
+      keyId: keyId,
+      backup
+    })
 
     return response
   }

@@ -3,13 +3,11 @@ import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
 import {
-  Alg,
   Payload,
-  RsaPrivateKey,
+  RsaPublicKey,
   SigningAlg,
   buildSignerEip191,
-  generateJwk,
-  rsaDecrypt,
+  rsaEncrypt,
   rsaPublicKeySchema,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
@@ -30,7 +28,7 @@ import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('Generate', () => {
+describe('Accounts', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -112,80 +110,82 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('POST /generate/key', () => {
-    it('generates a new rootKey', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+  describe('GET', () => {
+    it('list all accounts for a specific client', async () => {
+      const secondClientId = uuid()
+      await clientService.save({
+        clientId: secondClientId,
+        engineJwk: clientPublicJWK,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
 
-      const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
+      const accessToken = await getAccessToken([Permission.WALLET_READ])
+      const { body: firstMnemonicRequest } = await request(app.getHttpServer())
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
           keyId: 'keyId'
         })
 
-      expect(body.account).toEqual({
-        keyId: 'keyId',
-        derivationPath: "m/44'/60'/0'/0/0",
-        address: expect.any(String),
-        publicKey: expect.any(String),
-        id: expect.any(String)
-      })
-    })
-
-    it('saves a backup when client got a backupKey', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
-      const keyId = 'backupKeyId'
-      const backupKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { keyId })
-
-      const clientWithBackupKey: Client = {
-        ...client,
-        clientId: uuid(),
-        backupPublicKey: rsaPublicKeySchema.parse(backupKey)
-      }
-      await clientService.save(clientWithBackupKey)
-
-      const { body } = await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientWithBackupKey.clientId)
+      const { body: secondMnemonicRequest } = await request(app.getHttpServer())
+        .post('/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'keyId'
+          keyId: 'keyId-2'
         })
 
-      const decryptedMnemonic = await rsaDecrypt(body.backup as string, backupKey)
-      const spaceInMnemonic = decryptedMnemonic.split(' ')
-      expect(spaceInMnemonic.length).toBe(12)
-    })
+      const { body: firstDeriveRequest } = await request(app.getHttpServer())
+        .post('/accounts')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId',
+          derivationPaths: ['next']
+        })
 
-    it('responds with conflict when keyId already exists', async () => {
-      const accessToken = await getAccessToken([Permission.WALLET_CREATE])
+      const { body: secondDeriveRequest } = await request(app.getHttpServer())
+        .post('/accounts')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          keyId: 'keyId-2',
+          derivationPaths: ['next']
+        })
+
+      const accounts = [
+        firstMnemonicRequest.account,
+        secondMnemonicRequest.account,
+        firstDeriveRequest.accounts,
+        secondDeriveRequest.accounts
+      ]
 
       await request(app.getHttpServer())
-        .post('/generate/keys')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .post('/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, secondClientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
-          keyId: 'keyId'
+          keyId: 'keyId-second-client'
         })
 
-      const { status } = await request(app.getHttpServer())
-        .post('/generate/keys')
+      const { body } = await request(app.getHttpServer())
+        .get('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
-        .send({
-          keyId: 'keyId'
-        })
+        .send()
 
-      expect(status).toEqual(HttpStatus.CONFLICT)
+      expect(body).toEqual({ accounts })
     })
   })
-  describe('POST /derive/accounts', () => {
-    it('derives a new account from a rootKey', async () => {
+
+  describe('POST', () => {
+    it('derives a new account from a wallet', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -195,7 +195,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/accounts')
+        .post('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -215,11 +215,11 @@ describe('Generate', () => {
       })
     })
 
-    it('responds with not found when rootKey does not exist', async () => {
+    it('responds with not found when wallet does not exist', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { status } = await request(app.getHttpServer())
-        .post('/derive/accounts')
+        .post('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -229,11 +229,11 @@ describe('Generate', () => {
       expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
 
-    it('derives multiple accounts from a rootKey', async () => {
+    it('derives multiple accounts from a wallet', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -243,7 +243,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/accounts')
+        .post('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -278,11 +278,11 @@ describe('Generate', () => {
       )
     })
 
-    it('derives accounts from a rootKey and custom derivation paths', async () => {
+    it('derives accounts from a wallet with custom derivation paths', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -292,7 +292,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/accounts')
+        .post('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -320,11 +320,11 @@ describe('Generate', () => {
       )
     })
 
-    it('derives a combination of accounts from a rootKey and custom derivation paths', async () => {
+    it('derives a combination of custom derivation paths and next possible accounts', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body: generateKeyResponse } = await request(app.getHttpServer())
-        .post('/generate/keys')
+        .post('/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -334,7 +334,7 @@ describe('Generate', () => {
       const { keyId } = generateKeyResponse
 
       const { body } = await request(app.getHttpServer())
-        .post('/derive/accounts')
+        .post('/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -361,6 +361,53 @@ describe('Generate', () => {
           }
         ])
       )
+    })
+  })
+
+  describe('POST /import', () => {
+    it('imports an unencrypted private key', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/accounts/import')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({
+          privateKey: PRIVATE_KEY
+        })
+
+      expect(body).toEqual({
+        id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
+        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+
+    it('imports a jwe-encrypted private key', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+      const { body: keygenBody } = await request(app.getHttpServer())
+        .post('/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({})
+
+      const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
+
+      const jwe = await rsaEncrypt(PRIVATE_KEY, rsPublicKey)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/accounts/import')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('Authorization', `GNAP ${await getAccessToken([Permission.WALLET_IMPORT])}`)
+        .send({
+          encryptedPrivateKey: jwe
+        })
+
+      expect(body).toEqual({
+        id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
+        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
     })
   })
 })

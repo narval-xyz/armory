@@ -204,7 +204,7 @@ describe('SigningService', () => {
 
     it('signs EIP712 typed data', async () => {
       const expectedSignature =
-        '0xbe42104616b1ba99ef8a3497660f47387110297f5a2f90080ec42f2674fe3fdf01d65502d13a106544e2a4bd8504c2b38208b141fe3b02e8ae3354181cce284e1b'
+        '0xea6ce84f494775a0b65fc3f95d23021a6c83052c3ac02f2c028aa35e7643569b7f592a435bf83bc00802bf72285e226ac7cfcb06844f74e9814e39940808808a1c'
 
       const result = await signingService.sign(clientId, typedDataRequest)
 
