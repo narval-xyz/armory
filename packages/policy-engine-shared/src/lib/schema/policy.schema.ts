@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Action } from '../type/action.type'
 import { EntityType, FiatCurrency, IdentityOperators, ValueOperators } from '../type/domain.type'
 import { AccountType, UserRole } from '../type/entity.type'
-import { AccountId, AssetId } from '../util/caip.util'
+import { AccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 import { hexSchema } from './hex.schema'
 
@@ -86,7 +86,7 @@ export const amountConditionSchema = z.object({
 })
 
 export const erc1155AmountConditionSchema = z.object({
-  tokenId: AssetId,
+  tokenId: z.string(),
   operator: z.nativeEnum(ValueOperators),
   value: z.string()
 })

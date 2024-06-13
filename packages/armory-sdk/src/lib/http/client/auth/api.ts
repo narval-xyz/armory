@@ -3068,10 +3068,10 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf8CriterionEnum = type
 export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf8ArgsInner {
     /**
      * 
-     * @type {}
+     * @type {string}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf8ArgsInner
      */
-    'tokenId':  | null;
+    'tokenId': string;
     /**
      * 
      * @type {string}
