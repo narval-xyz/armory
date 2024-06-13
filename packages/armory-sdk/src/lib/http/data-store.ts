@@ -37,15 +37,11 @@ export const setEntities = async (config: DataStoreClientConfig, data: Entities)
 
     const signature = await signDataPayload({ clientId, ...payload }, data)
     const entity = EntityStore.parse({ data, signature })
-    const response = await axios.post<SetEntitiesResponse>(
-      entityStoreHost,
-      { entity },
-      {
-        headers: {
-          [HEADER_CLIENT_ID]: clientId
-        }
+    const response = await axios.post<SetEntitiesResponse>(entityStoreHost, entity, {
+      headers: {
+        [HEADER_CLIENT_ID]: clientId
       }
-    )
+    })
 
     if (!isSuccessResponse(response.status)) {
       throw new ArmorySdkException('Failed to set entities', {
@@ -71,15 +67,11 @@ export const setPolicies = async (config: DataStoreClientConfig, data: Policy[])
 
     const signature = await signDataPayload({ clientId, ...payload }, data)
     const policy = PolicyStore.parse({ data, signature })
-    const response = await axios.post<SetPoliciesResponse>(
-      policyStoreHost,
-      { policy },
-      {
-        headers: {
-          [HEADER_CLIENT_ID]: clientId
-        }
+    const response = await axios.post<SetPoliciesResponse>(policyStoreHost, policy, {
+      headers: {
+        [HEADER_CLIENT_ID]: clientId
       }
-    )
+    })
 
     if (!isSuccessResponse(response.status)) {
       throw new ArmorySdkException('Failed to set policies', {
