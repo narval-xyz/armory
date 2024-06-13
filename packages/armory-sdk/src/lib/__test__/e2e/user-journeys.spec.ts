@@ -1,10 +1,22 @@
-import { Entities, EntityUtil, HttpSource, SourceType, UserEntity, UserRole } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Criterion,
+  Entities,
+  EntityType,
+  EntityUtil,
+  HttpSource,
+  Policy,
+  SourceType,
+  Then,
+  UserEntity,
+  UserRole
+} from '@narval/policy-engine-shared'
 import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 import { AuthClient } from '../../auth/client'
 import { AuthConfig } from '../../auth/type'
-import { EntityStoreClient } from '../../data-store/client'
+import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { credential } from '../../data-store/util'
 import { CreateClientResponseDto } from '../../http/client/auth'
@@ -37,6 +49,39 @@ describe('User Journeys', () => {
     users: [user],
     credentials: [credential(user, userPublicKey)]
   }
+
+  const policies: Policy[] = [
+    {
+      id: uuid(),
+      description: 'Required approval for an admin to transfer ERC-721 or ERC-1155 tokens',
+      when: [
+        {
+          criterion: Criterion.CHECK_PRINCIPAL_ROLE,
+          args: [UserRole.ADMIN]
+        },
+        {
+          criterion: Criterion.CHECK_ACTION,
+          args: [Action.SIGN_TRANSACTION]
+        },
+        {
+          criterion: Criterion.CHECK_INTENT_TYPE,
+          args: ['transferErc721', 'transferErc1155']
+        },
+        {
+          criterion: Criterion.CHECK_APPROVALS,
+          args: [
+            {
+              approvalCount: 2,
+              countPrincipal: false,
+              approvalEntityType: EntityType.User,
+              entityIds: ['test-bob-user-uid', 'test-carol-user-uid']
+            }
+          ]
+        }
+      ],
+      then: Then.PERMIT
+    }
+  ]
 
   describe('As an admin, I want to create a new client', () => {
     let authClient: AuthClient
@@ -179,6 +224,79 @@ describe('User Journeys', () => {
               ...EntityUtil.empty(),
               ...entities
             },
+            signature
+          },
+          version: 2,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
+        })
+      })
+    })
+  })
+
+  describe('As a client, I want to set up my policy data store', () => {
+    let dataStoreConfig: DataStoreConfig
+    let policyStoreClient: PolicyStoreClient
+
+    beforeEach(async () => {
+      dataStoreConfig = {
+        host: getAuthHost(),
+        clientId,
+        signer: {
+          jwk: userPrivateKey,
+          sign: await buildSignerForAlg(dataStorePrivateKey)
+        }
+      }
+      policyStoreClient = new PolicyStoreClient(dataStoreConfig)
+    })
+
+    describe('sign', () => {
+      it('signs policies', async () => {
+        const issuedAt = new Date()
+
+        const signature = await policyStoreClient.sign(policies, { issuedAt })
+
+        const expectedSignature = await sign({
+          data: policies,
+          clientId: dataStoreConfig.clientId,
+          signer: dataStoreConfig.signer,
+          issuedAt
+        })
+
+        expect(signature).toEqual(expectedSignature)
+      })
+    })
+
+    describe('push', () => {
+      it('sends policies and signature to data store server', async () => {
+        const signature = await policyStoreClient.sign(policies)
+
+        const store = await policyStoreClient.push(policies, signature)
+
+        expect(store).toEqual({
+          policy: {
+            data: policies,
+            signature
+          },
+          version: 1,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
+        })
+      })
+    })
+
+    describe('signAndPush', () => {
+      it('sends entities and signature to data store server', async () => {
+        const signOptions = { issuedAt: new Date() }
+        const signature = await policyStoreClient.sign(policies, signOptions)
+
+        const store = await policyStoreClient.signAndPush(policies, signOptions)
+
+        expect(store).toEqual({
+          policy: {
+            data: policies,
             signature
           },
           version: 2,

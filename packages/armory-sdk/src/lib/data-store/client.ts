@@ -6,7 +6,6 @@ import {
   ManagedDataStoreApiFactory,
   PolicyDataStoreDto,
   SetEntityStoreResponseDto,
-  SetPolicyStoreDto,
   SetPolicyStoreResponseDto
 } from '../http/client/auth'
 import { sign } from '../jose/sign'
@@ -84,11 +83,12 @@ export class PolicyStoreClient {
     this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
   }
 
-  async sign(policies: Policy[]): Promise<string> {
+  async sign(policies: Policy[], opts?: SignOptions): Promise<string> {
     return sign({
       data: policies,
       clientId: this.config.clientId,
-      signer: this.config.signer
+      signer: this.config.signer,
+      issuedAt: opts?.issuedAt
     })
   }
 
@@ -96,14 +96,13 @@ export class PolicyStoreClient {
     const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, {
       data: policies,
       signature
-      // TODO: BEFORE MERGE, ensure the types are working and remove the cast.
-    } as SetPolicyStoreDto)
+    })
 
     return data
   }
 
-  async signAndPush(policies: Policy[]): Promise<SetPolicyStoreResponseDto> {
-    const signature = await this.sign(policies)
+  async signAndPush(policies: Policy[], opts?: SignOptions): Promise<SetPolicyStoreResponseDto> {
+    const signature = await this.sign(policies, opts)
 
     return this.push(policies, signature)
   }
