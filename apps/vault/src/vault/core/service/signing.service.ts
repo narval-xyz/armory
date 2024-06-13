@@ -13,11 +13,11 @@ import {
   TransactionRequest,
   checksumAddress,
   createWalletClient,
+  custom,
   extractChain,
   hexToBigInt,
   hexToBytes,
-  http,
-  signatureToHex,
+  serializeSignature,
   transactionType
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -71,10 +71,7 @@ export class SigningService {
       value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
     }
 
-    const signature = await client.signTransaction({
-      ...txRequest,
-      chain
-    })
+    const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
     //   TEMPORARY
     //   for testing, uncomment the below lines to actually SEND the tx to the chain.
@@ -121,7 +118,7 @@ export class SigningService {
     const wallet = await this.findWallet(clientId, resourceId)
     const message = hexToBytes(rawMessage)
     const signature = signSecp256k1(message, wallet.privateKey, true)
-    const hexSignature = signatureToHex(signature)
+    const hexSignature = serializeSignature(signature)
 
     await this.maybeSaveNonce(clientId, action)
 
@@ -146,12 +143,17 @@ export class SigningService {
     const wallet = await this.findWallet(clientId, resourceId)
 
     const account = privateKeyToAccount(wallet.privateKey)
-
     const client = createWalletClient({
       account,
       chain,
-      // TODO: (@wcalderipe) implement a no-op custom transport.
-      transport: http('') // clear the RPC so we don't call any chain stuff here.
+      transport: custom({
+        // a noop transport provider; we do not want to make real RPC calls out of the server
+        // so just stub ones that are needed internally, like chainId
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_chainId') return chain?.id
+          return
+        }
+      })
     })
 
     return client
