@@ -53,7 +53,11 @@ export class SigningService {
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
-    const client = await this.buildClient(clientId, resourceId, transactionRequest.chainId)
+    const chain = extractChain<chains.Chain[], number>({
+      chains: Object.values(chains),
+      id: transactionRequest.chainId
+    })
+    const client = await this.buildClient(clientId, resourceId, chain)
 
     const txRequest: TransactionRequest = {
       from: checksumAddress(client.account.address),
@@ -67,7 +71,10 @@ export class SigningService {
       value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
     }
 
-    const signature = await client.signTransaction(txRequest)
+    const signature = await client.signTransaction({
+      ...txRequest,
+      chain
+    })
     // /*
     //   TEMPORARY
     //   for testing, uncomment the below lines to actually SEND the tx to the chain.
@@ -135,14 +142,10 @@ export class SigningService {
     return wallet
   }
 
-  private async buildClient(clientId: string, resourceId: string, chainId?: number) {
+  private async buildClient(clientId: string, resourceId: string, chain?: chains.Chain) {
     const wallet = await this.findWallet(clientId, resourceId)
 
     const account = privateKeyToAccount(wallet.privateKey)
-    const chain = extractChain<chains.Chain[], number>({
-      chains: Object.values(chains),
-      id: chainId || 1
-    })
 
     const client = createWalletClient({
       account,
