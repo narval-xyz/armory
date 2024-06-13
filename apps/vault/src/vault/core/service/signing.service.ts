@@ -139,14 +139,10 @@ export class SigningService {
     return _OLD_WALLET_
   }
 
-  private async buildClient(clientId: string, resourceId: string, chainId?: number) {
+  private async buildClient(clientId: string, resourceId: string, chain?: chains.Chain) {
     const _OLD_WALLET_ = await this.findWallet(clientId, resourceId)
 
     const account = privateKeyToAccount(_OLD_WALLET_.privateKey)
-    const chain = extractChain<chains.Chain[], number>({
-      chains: Object.values(chains),
-      id: chainId || 1
-    })
 
     const client = createWalletClient({
       account,
