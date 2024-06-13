@@ -188,7 +188,7 @@ describe('Import', () => {
     })
   })
   describe('POST /seeds', () => {
-    it('imports a jwe-encrypted mnemonic', async () => {
+    it('imports a jwe-encrypted rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
       const { body: keygenBody } = await request(app.getHttpServer())
         .post('/import/encryption-keys')
@@ -198,8 +198,8 @@ describe('Import', () => {
 
       const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
 
-      const mnemonic = generateMnemonic(english)
-      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
+      const rootKey = generateMnemonic(english)
+      const jwe = await rsaEncrypt(rootKey, rsPublicKey)
 
       const { status, body } = await request(app.getHttpServer())
         .post('/import/seeds')
@@ -233,8 +233,8 @@ describe('Import', () => {
 
       const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
 
-      const mnemonic = generateMnemonic(english)
-      const jwe = await rsaEncrypt(mnemonic, rsPublicKey)
+      const rootKey = generateMnemonic(english)
+      const jwe = await rsaEncrypt(rootKey, rsPublicKey)
 
       await request(app.getHttpServer())
         .post('/import/seeds')

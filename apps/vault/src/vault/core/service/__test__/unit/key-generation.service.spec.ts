@@ -12,7 +12,7 @@ import { ClientService } from '../../../../../client/core/service/client.service
 import { Client, Origin } from '../../../../../shared/type/domain.type'
 import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
-import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'
+import { RootKeyRepository } from '../../../../persistence/repository/root-key.repository'
 import { WalletRepository } from '../../../../persistence/repository/_OLD_WALLET_.repository'
 import { KeyGenerationService } from '../../key-generation.service'
 
@@ -32,7 +32,7 @@ const client: Client = {
 
 describe('GenerateService', () => {
   let _OLD_WALLET_RepositoryMock: MockProxy<WalletRepository>
-  let mnemonicRepositoryMock: MockProxy<MnemonicRepository>
+  let rootKeyRepositoryMock: MockProxy<RootKeyRepository>
   let clientServiceMock: MockProxy<ClientService>
 
   let keyGenerationService: KeyGenerationService
@@ -43,8 +43,8 @@ describe('GenerateService', () => {
     clientServiceMock = mock<ClientService>()
     clientServiceMock.findById.mockResolvedValue(client)
 
-    mnemonicRepositoryMock = mock<MnemonicRepository>()
-    mnemonicRepositoryMock.save.mockResolvedValue({
+    rootKeyRepositoryMock = mock<RootKeyRepository>()
+    rootKeyRepositoryMock.save.mockResolvedValue({
       mnemonic,
       keyId: 'keyId',
       origin: Origin.GENERATED
@@ -75,8 +75,8 @@ describe('GenerateService', () => {
           useValue: clientServiceMock
         },
         {
-          provide: MnemonicRepository,
-          useValue: mnemonicRepositoryMock
+          provide: RootKeyRepository,
+          useValue: rootKeyRepositoryMock
         },
         {
           provide: BackupRepository,
@@ -91,7 +91,7 @@ describe('GenerateService', () => {
     jest.spyOn(keyGenerationService, 'getIndexes').mockResolvedValue([])
   })
 
-  it('returns first derived _OLD_WALLET_ from a generated mnemonic', async () => {
+  it('returns first derived _OLD_WALLET_ from a generated rootKey', async () => {
     const { _OLD_WALLET_ } = await keyGenerationService.generateMnemonic('clientId', {})
 
     expect(_OLD_WALLET_.derivationPath).toEqual("m/44'/60'/0'/0/0")
@@ -111,9 +111,9 @@ describe('GenerateService', () => {
     expect(spaceInMnemonic.length).toBe(12)
   })
 
-  it('saves mnemonic to the database', async () => {
+  it('saves rootKey to the database', async () => {
     await keyGenerationService.generateMnemonic('clientId', {})
-    expect(mnemonicRepositoryMock.save).toHaveBeenCalledWith('clientId', {
+    expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
       origin: Origin.GENERATED

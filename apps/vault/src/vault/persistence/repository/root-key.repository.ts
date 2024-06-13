@@ -5,8 +5,8 @@ import { EncryptKeyValueService } from '../../../shared/module/key-value/core/se
 import { Collection, RootKey } from '../../../shared/type/domain.type'
 
 @Injectable()
-export class MnemonicRepository {
-  private KEY_PREFIX = Collection.MNEMONIC
+export class RootKeyRepository {
+  private KEY_PREFIX = Collection.ROOT_KEY
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 

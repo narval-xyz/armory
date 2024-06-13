@@ -127,7 +127,7 @@ export const Collection = {
   CLIENT: 'client',
   APP: 'app',
   WALLET: '_OLD_WALLET_',
-  MNEMONIC: 'mnemonic',
+  ROOT_KEY: 'root-key',
   IMPORT: 'import',
   BACKUP: 'backup',
   REQUEST_NONCE: 'request-nonce'

@@ -62,8 +62,8 @@ describe('hdKeyToKid', () => {
   })
 })
 
-describe('mnemonicToRootKey', () => {
-  it('converts mnemonic to root key', () => {
+describe('rootKeyToRootKey', () => {
+  it('converts rootKey to root key', () => {
     const expectedRootKey = rootKey
     const result = mnemonicToRootKey(mnemonic)
     expect(result).toEqual(expectedRootKey)

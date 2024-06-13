@@ -113,7 +113,7 @@ describe('Generate', () => {
   })
 
   describe('POST /generate/key', () => {
-    it('generates a new mnemonic', async () => {
+    it('generates a new rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
       const { body } = await request(app.getHttpServer())

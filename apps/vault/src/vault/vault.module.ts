@@ -25,10 +25,10 @@ import { SignController } from './http/rest/controller/sign.controller'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
-import { MnemonicRepository } from './persistence/repository/mnemonic.repository'
 import { WalletRepository } from './persistence/repository/_OLD_WALLET_.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
+import { RootKeyRepository } from './persistence/repository/root-key.repository'
 
 @Module({
   imports: [
@@ -61,7 +61,7 @@ import { VaultService } from './vault.service'
     ProvisionService,
     SigningService,
     KeyGenerationService,
-    MnemonicRepository,
+    RootKeyRepository,
     BackupRepository,
     VaultService,
     WalletRepository,

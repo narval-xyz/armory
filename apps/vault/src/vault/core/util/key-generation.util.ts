@@ -86,8 +86,8 @@ export const generateNextPaths = (derivedIndexes: number[], count: number): stri
   return range(startIndex, startIndex + count).map((index) => `${BIP44_PREFIX}${index}`)
 }
 
-export const mnemonicToRootKey = (mnemonic: string): HDKey => {
-  const seed = mnemonicToSeedSync(mnemonic)
+export const mnemonicToRootKey = (rootKey: string): HDKey => {
+  const seed = mnemonicToSeedSync(rootKey)
   return HDKey.fromMasterSeed(seed)
 }
 
@@ -108,7 +108,7 @@ export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
 }
 
 export const getRootKey = (
-  mnemonic: string,
+  rootKey: string,
   opts: GenerateKeyDto
 ): {
   rootKey: HDKey
@@ -118,7 +118,7 @@ export const getRootKey = (
 
   switch (alg) {
     case Alg.ES256K:
-      return getSecp256k1Key(mnemonic, opts)
+      return getSecp256k1Key(rootKey, opts)
     default:
       throw new ApplicationException({
         message: 'Unsupported algorithm',

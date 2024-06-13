@@ -4,10 +4,10 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { MnemonicRepository } from '../../mnemonic.repository'
+import { RootKeyRepository } from '../../root-key.repository'
 
 describe('MnemonicRepository', () => {
-  let repository: MnemonicRepository
+  let repository: RootKeyRepository
 
   let inMemoryKeyValueRepository: InMemoryKeyValueRepository
 
@@ -22,7 +22,7 @@ describe('MnemonicRepository', () => {
       ],
       providers: [
         EncryptKeyValueService,
-        MnemonicRepository,
+        RootKeyRepository,
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
@@ -30,7 +30,7 @@ describe('MnemonicRepository', () => {
       ]
     }).compile()
 
-    repository = module.get<MnemonicRepository>(MnemonicRepository)
+    repository = module.get<RootKeyRepository>(RootKeyRepository)
   })
 
   describe('save', () => {
@@ -48,11 +48,11 @@ describe('MnemonicRepository', () => {
       })
 
       expect(inMemoryKeyValueRepository.set).toHaveBeenCalledWith(
-        `mnemonic:${clientId}:${keyId.toLowerCase()}`,
+        `root-key:${clientId}:${keyId.toLowerCase()}`,
         expect.any(String),
         {
           clientId,
-          collection: 'mnemonic'
+          collection: 'root-key'
         }
       )
     })

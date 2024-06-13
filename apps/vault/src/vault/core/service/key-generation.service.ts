@@ -8,7 +8,7 @@ import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
 import { DeriveWalletDto } from '../../http/rest/dto/derive-_OLD_WALLET_.dto'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
-import { MnemonicRepository } from '../../persistence/repository/mnemonic.repository'
+import { RootKeyRepository } from '../../persistence/repository/root-key.repository'
 import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
 import {
   findAddressIndexes,
@@ -31,7 +31,7 @@ export class KeyGenerationService {
 
   constructor(
     private _OLD_WALLET_Repository: WalletRepository,
-    private mnemonicRepository: MnemonicRepository,
+    private rootKeyRepository: RootKeyRepository,
     private backupRepository: BackupRepository,
     private clientService: ClientService
   ) {}
@@ -39,7 +39,7 @@ export class KeyGenerationService {
   async #maybeEncryptAndSaveBackup(
     clientId: string,
     kid: string,
-    mnemonic: string,
+    rootKey: string,
     backupPublicKey?: Jwk
   ): Promise<string | undefined> {
     if (!backupPublicKey) {
@@ -49,7 +49,7 @@ export class KeyGenerationService {
 
     this.logger.log('Encrypting backup', { clientId })
     const backupPublicKeyHash = hash(backupPublicKey)
-    const data = await rsaEncrypt(mnemonic, backupPublicKey as RsaKey)
+    const data = await rsaEncrypt(rootKey, backupPublicKey as RsaKey)
 
     await this.backupRepository.save(clientId, {
       backupPublicKeyHash,
@@ -74,7 +74,7 @@ export class KeyGenerationService {
     }
   ): Promise<string | undefined> {
     const client = await this.clientService.findById(clientId)
-    const lookup = await this.mnemonicRepository.findById(clientId, keyId)
+    const lookup = await this.rootKeyRepository.findById(clientId, keyId)
 
     if (lookup) {
       throw new ApplicationException({
@@ -86,10 +86,10 @@ export class KeyGenerationService {
 
     const backup = await this.#maybeEncryptAndSaveBackup(clientId, keyId, mnemonic, client?.backupPublicKey)
 
-    await this.mnemonicRepository.save(clientId, {
+    await this.rootKeyRepository.save(clientId, {
       keyId,
       mnemonic,
-      origin
+      origin,
     })
 
     return backup
@@ -115,7 +115,7 @@ export class KeyGenerationService {
     return _OLD_WALLET_
   }
 
-  async generate(clientId: string, args: GenerateArgs): Promise<_OLD_PRIVATE_WALLET_[]> {
+  async generateWallet(clientId: string, args: GenerateArgs): Promise<_OLD_PRIVATE_WALLET_[]> {
     const { keyId, count = 1, derivationPaths = [], rootKey } = args
 
     const dbIndexes = await this.getIndexes(clientId, keyId)
@@ -135,7 +135,7 @@ export class KeyGenerationService {
     clientId: string,
     { derivationPaths, keyId, count }: DeriveWalletDto
   ): Promise<{ _OLD_WALLETS_: _OLD_PRIVATE_WALLET_[] }> {
-    const seed = await this.mnemonicRepository.findById(clientId, keyId)
+    const seed = await this.rootKeyRepository.findById(clientId, keyId)
     if (!seed) {
       throw new ApplicationException({
         message: 'Mnemonic not found',
@@ -145,7 +145,7 @@ export class KeyGenerationService {
     }
     const rootKey = mnemonicToRootKey(seed.mnemonic)
 
-    const _OLD_WALLETS_ = await this.generate(clientId, {
+    const _OLD_WALLETS_ = await this.generateWallet(clientId, {
       keyId,
       count,
       rootKey,
@@ -163,7 +163,7 @@ export class KeyGenerationService {
     keyId: string
     backup?: string
   }> {
-    this.logger.log('Generating mnemonic', { clientId })
+    this.logger.log('Generating rootKey', { clientId })
     const mnemonic = generateMnemonic(english)
 
     const { rootKey, keyId } = getRootKey(mnemonic, opts)
@@ -176,7 +176,7 @@ export class KeyGenerationService {
 
     this.logger.log('Deriving first _OLD_WALLET_', { clientId })
 
-    const [firstWallet] = await this.generate(clientId, {
+    const [firstWallet] = await this.generateWallet(clientId, {
       keyId,
       rootKey
     })

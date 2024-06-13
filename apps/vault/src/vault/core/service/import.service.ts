@@ -128,7 +128,7 @@ export class ImportService {
       origin: Origin.IMPORTED
     })
 
-    const [_OLD_WALLET_] = await this.keyGenerationService.generate(clientId, { rootKey, keyId })
+    const [_OLD_WALLET_] = await this.keyGenerationService.generateWallet(clientId, { rootKey, keyId })
 
     return {
       _OLD_WALLET_,
