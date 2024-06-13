@@ -1,6 +1,6 @@
 import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { AccountId, AssetId } from '../util/caip.util'
+import { AccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 
 export const userRoleSchema = z.nativeEnum({
@@ -76,7 +76,9 @@ export const addressBookAccountEntitySchema = z.object({
 })
 
 export const tokenEntitySchema = z.object({
-  id: AssetId,
+  // TODO: Can I make AssetId to work with Open API generator?
+  // The AddressSchema is also a z.custom and it maps to `any`
+  id: z.string(),
   address: addressSchema,
   symbol: z.string().nullable(),
   chainId: z.number(),

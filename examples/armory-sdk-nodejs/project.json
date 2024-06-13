@@ -42,6 +42,34 @@
       "options": {
         "lintFilePatterns": ["examples/armory-sdk-nodejs/**/*.ts"]
       }
+    },
+    "build:create-client": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/examples/armory-sdk-nodejs",
+        "main": "examples/armory-sdk-nodejs/src/create-client.ts",
+        "tsConfig": "examples/armory-sdk-nodejs/tsconfig.app.json",
+        "webpackConfig": "examples/armory-sdk-nodejs/webpack.config.js"
+      },
+      "configurations": {
+        "development": {}
+      }
+    },
+    "serve:create-client": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "armory-sdk-nodejs:build:create-client"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "armory-sdk-nodejs:build:create-client:development"
+        }
+      }
     }
   },
   "tags": ["type:application"]
