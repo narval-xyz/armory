@@ -2,7 +2,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, importPKCS8 } from 'jose'
 import { createPublicKey } from 'node:crypto'
-import { serializeSignature, toHex, verifyMessage } from 'viem'
+import { signatureToHex, toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
 import { buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1 } from '../../sign'
 import { Alg, Curves, Jwk, KeyTypes, Payload, PrivateKey, SigningAlg } from '../../types'
@@ -202,7 +202,7 @@ describe('sign', () => {
         const key = await privateKeyToHex(privateKeyMaterial)
 
         const signature = signSecp256k1(hash, key)
-        const hexSignature = serializeSignature(signature)
+        const hexSignature = signatureToHex(signature)
         return hexToBase64Url(hexSignature)
       }
     }
