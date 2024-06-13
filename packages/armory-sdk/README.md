@@ -13,6 +13,27 @@ make armory-sdk/test/unit
 make armory-sdk/test/unit/watch
 ```
 
+### E2E
+
+The E2E tests cover user journeys from the SDK users' perspective. Because of
+this, they depend on running servers to function correctly.
+
+```bash
+# Start the servers
+make armory/start/dev
+make policy-engine/start/dev
+make vault/start/dev
+
+make armory-sdk/test/e2e
+make armory-sdk/test/e2e/watch
+```
+
+The tests MUST run in series because each step depends on state changes from
+the previous ones.
+
+The tests are configured to generate a unique client on every run to prevent
+state clashes. If you want to reset your local state, run `make setup`.
+
 ## Formatting
 
 ```bash
