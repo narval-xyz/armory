@@ -1,4 +1,4 @@
-import { serializeSignature, toBytes } from 'viem'
+import { signatureToHex, toBytes } from 'viem'
 import { JwtError } from '../../error'
 import { hash } from '../../hash'
 import { secp256k1PublicKeySchema } from '../../schemas'
@@ -196,7 +196,7 @@ describe('verifySecp256k1', () => {
     })
 
     const signature = await signSecp256k1(msg, ENGINE_PRIVATE_KEY, true)
-    const hexSignature = serializeSignature(signature)
+    const hexSignature = signatureToHex(signature)
     const isVerified = await verifySecp256k1(hexSignature, msg, pubKey)
     expect(isVerified).toEqual(true)
   })
