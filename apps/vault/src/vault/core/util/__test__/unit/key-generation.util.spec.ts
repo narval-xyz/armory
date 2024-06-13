@@ -26,8 +26,8 @@ describe('hdKeyToWallet', () => {
     const path = 'm'
     const keyId = 'root-key-id'
 
-    const wallet = await hdKeyToWallet({ key: rootKey, path, keyId })
-    expect(wallet).toEqual(rootKeyWallet)
+    const _OLD_WALLET_ = await hdKeyToWallet({ key: rootKey, path, keyId })
+    expect(_OLD_WALLET_).toEqual(rootKeyWallet)
   })
 })
 

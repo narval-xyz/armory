@@ -14,8 +14,8 @@ import {
   verifyMessage,
   verifyTypedData
 } from 'viem'
-import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
-import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
+import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
+import { WalletRepository } from '../../../../persistence/repository/_OLD_WALLET_.repository'
 import { NonceService } from '../../nonce.service'
 import { SigningService } from '../../signing.service'
 
@@ -23,7 +23,7 @@ describe('SigningService', () => {
   let signingService: SigningService
   let nonceServiceMock: MockProxy<NonceService>
 
-  const wallet: PrivateWallet = {
+  const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
     privateKey: '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5',
@@ -31,7 +31,7 @@ describe('SigningService', () => {
       '0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b865af3107a400080c080a00de78cbb96f83ef1b8d6be4d55b4046b2706c7d63ce0a815bae2b1ea4f891e6ba',
     origin: Origin.GENERATED
   }
-  const privateKey: Jwk = secp256k1PrivateKeyToJwk(wallet.privateKey)
+  const privateKey: Jwk = secp256k1PrivateKeyToJwk(_OLD_WALLET_.privateKey)
 
   beforeEach(async () => {
     nonceServiceMock = mock<NonceService>()
@@ -46,7 +46,7 @@ describe('SigningService', () => {
         {
           provide: WalletRepository,
           useValue: {
-            findById: jest.fn().mockResolvedValue(wallet)
+            findById: jest.fn().mockResolvedValue(_OLD_WALLET_)
           }
         }
       ]
@@ -109,7 +109,7 @@ describe('SigningService', () => {
       const result = await signingService.sign(clientId, eip191Request)
 
       const isVerified = await verifyMessage({
-        address: wallet.address,
+        address: _OLD_WALLET_.address,
         message: eip191Request.message,
         signature: result
       })
@@ -134,7 +134,7 @@ describe('SigningService', () => {
       const result = await signingService.sign(clientId, messageRequest)
 
       const isVerified = await verifyMessage({
-        address: wallet.address,
+        address: _OLD_WALLET_.address,
         message: messageRequest.message,
         signature: result
       })
@@ -159,7 +159,7 @@ describe('SigningService', () => {
       },
       message: {
         contents: 'UNICOOOORN :)',
-        wallet: '0xdd4d43575a5eff17ec814da6ea810a0cc39ff23e',
+        _OLD_WALLET_: '0xdd4d43575a5eff17ec814da6ea810a0cc39ff23e',
         nonce: '0e01c9bd-94a0-4ba1-925d-ab02688e65de'
       },
       primaryType: 'Validator',
@@ -184,7 +184,7 @@ describe('SigningService', () => {
             type: 'string'
           },
           {
-            name: 'wallet',
+            name: '_OLD_WALLET_',
             type: 'address'
           },
           {
@@ -204,12 +204,12 @@ describe('SigningService', () => {
 
     it('signs EIP712 typed data', async () => {
       const expectedSignature =
-        '0x1f6b8ebbd066c5a849e37fc890c1f2f1b6b0a91e3dd3e8279c646948e8f14b030a13a532fd04c6b5d92e11e008558b0b60b6d061c8f34483af7deab0591317da1b'
+        '0xbe42104616b1ba99ef8a3497660f47387110297f5a2f90080ec42f2674fe3fdf01d65502d13a106544e2a4bd8504c2b38208b141fe3b02e8ae3354181cce284e1b'
 
       const result = await signingService.sign(clientId, typedDataRequest)
 
       const isVerified = await verifyTypedData({
-        address: wallet.address,
+        address: _OLD_WALLET_.address,
         signature: result,
         ...typedData
       })

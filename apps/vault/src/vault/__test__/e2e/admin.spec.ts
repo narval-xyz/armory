@@ -107,8 +107,8 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('GET wallets', () => {
-    it('list all wallets for a specific client', async () => {
+  describe('GET _OLD_WALLETS_', () => {
+    it('list all _OLD_WALLETS_ for a specific client', async () => {
       const secondClientId = uuid()
       await clientService.save({
         clientId: secondClientId,
@@ -135,7 +135,7 @@ describe('Generate', () => {
         })
 
       const { body: firstDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/derive/_OLD_WALLETS_')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -144,7 +144,7 @@ describe('Generate', () => {
         })
 
       const { body: secondDeriveRequest } = await request(app.getHttpServer())
-        .post('/derive/wallets')
+        .post('/derive/_OLD_WALLETS_')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send({
@@ -152,11 +152,11 @@ describe('Generate', () => {
           derivationPaths: ['next']
         })
 
-      const wallets = [
-        firstMnemonicRequest.wallet,
-        secondMnemonicRequest.wallet,
-        firstDeriveRequest.wallets,
-        secondDeriveRequest.wallets
+      const _OLD_WALLETS_ = [
+        firstMnemonicRequest._OLD_WALLET_,
+        secondMnemonicRequest._OLD_WALLET_,
+        firstDeriveRequest._OLD_WALLETS_,
+        secondDeriveRequest._OLD_WALLETS_
       ]
 
       await request(app.getHttpServer())
@@ -168,12 +168,12 @@ describe('Generate', () => {
         })
 
       const { body } = await request(app.getHttpServer())
-        .get('/wallets')
+        .get('/_OLD_WALLETS_')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
         .send()
 
-      expect(body).toEqual({ wallets })
+      expect(body).toEqual({ _OLD_WALLETS_ })
     })
   })
 })

@@ -69,17 +69,17 @@ export const ImportSeedRequest = z.object({
 })
 export type ImportSeedRequest = z.infer<typeof ImportSeedRequest>
 
-export const PublicWallet = z.object({
+export const _OLD_PUBLIC_WALLET_ = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type PublicWallet = z.infer<typeof PublicWallet>
+export type _OLD_PUBLIC_WALLET_ = z.infer<typeof _OLD_PUBLIC_WALLET_>
 
 export const ImportSeedResponse = z.object({
-  wallet: PublicWallet,
+  wallet: _OLD_PUBLIC_WALLET_,
   backup: z.string().optional(),
   keyId: z.string()
 })
@@ -94,7 +94,7 @@ export const GenerateKeyRequest = z.object({
 export type GenerateKeyRequest = z.infer<typeof GenerateKeyRequest>
 
 export const GenerateKeyResponse = z.object({
-  wallet: PublicWallet,
+  wallet: _OLD_PUBLIC_WALLET_,
   backup: z.string().optional(),
   keyId: z.string()
 })
@@ -129,6 +129,6 @@ export const DeriveWalletRequest = z.object({
 export type DeriveWalletRequest = z.infer<typeof DeriveWalletRequest>
 
 export const DeriveWalletResponse = z.object({
-  wallets: z.union([z.array(PublicWallet), PublicWallet])
+  wallets: z.union([z.array(_OLD_PUBLIC_WALLET_), _OLD_PUBLIC_WALLET_])
 })
 export type DeriveWalletResponse = z.infer<typeof DeriveWalletResponse>

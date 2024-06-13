@@ -5,8 +5,8 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Collection, Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
-import { WalletRepository } from '../../wallet.repository'
+import { Collection, Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
+import { WalletRepository } from '../../_OLD_WALLET_.repository'
 
 describe(WalletRepository.name, () => {
   let repository: WalletRepository
@@ -40,7 +40,7 @@ describe(WalletRepository.name, () => {
     const clientId = 'test-client-id'
     const privateKey = generatePrivateKey()
     const account = privateKeyToAccount(privateKey)
-    const wallet: PrivateWallet = {
+    const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
       id: 'test-WALLET-ID',
       privateKey,
       address: account.address,
@@ -51,10 +51,10 @@ describe(WalletRepository.name, () => {
     it('uses lower case id in the key', async () => {
       jest.spyOn(inMemoryKeyValueRepository, 'set')
 
-      await repository.save(clientId, wallet)
+      await repository.save(clientId, _OLD_WALLET_)
 
       expect(inMemoryKeyValueRepository.set).toHaveBeenCalledWith(
-        `wallet:${clientId}:${wallet.id.toLowerCase()}`,
+        `_OLD_WALLET_:${clientId}:${_OLD_WALLET_.id.toLowerCase()}`,
         expect.any(String),
         {
           clientId,
@@ -63,18 +63,18 @@ describe(WalletRepository.name, () => {
       )
     })
 
-    it('encrypts wallet data', async () => {
-      await repository.save(clientId, wallet)
+    it('encrypts _OLD_WALLET_ data', async () => {
+      await repository.save(clientId, _OLD_WALLET_)
 
       const actualEncryptedWallet = await inMemoryKeyValueRepository.get(
-        `wallet:${clientId}:${wallet.id.toLowerCase()}`
+        `_OLD_WALLET_:${clientId}:${_OLD_WALLET_.id.toLowerCase()}`
       )
 
       const actualWallet = await encryptionService
         .decrypt(Buffer.from(actualEncryptedWallet as string, 'hex'))
         .then((v) => JSON.parse(v.toString()))
 
-      expect(actualWallet).toEqual(wallet)
+      expect(actualWallet).toEqual(_OLD_WALLET_)
     })
   })
 
@@ -87,34 +87,34 @@ describe(WalletRepository.name, () => {
     const secondAccount = privateKeyToAccount(secondPrivateKey)
     const thirdPrivateKey = generatePrivateKey()
     const thirdAccount = privateKeyToAccount(thirdPrivateKey)
-    const wallet: PrivateWallet = {
+    const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = {
       id: 'test-WALLET-ID',
       privateKey,
       address: account.address,
       origin: Origin.GENERATED,
       publicKey: account.publicKey
     }
-    const secondWallet: PrivateWallet = {
+    const secondWallet: _OLD_PRIVATE_WALLET_ = {
       id: 'test-WALLET-ID-2',
       privateKey: secondPrivateKey,
       address: secondAccount.address,
       origin: Origin.IMPORTED,
       publicKey: secondAccount.publicKey
     }
-    const thirdWallet: PrivateWallet = {
+    const thirdWallet: _OLD_PRIVATE_WALLET_ = {
       id: 'test-WALLET-ID-3',
       privateKey: thirdPrivateKey,
       address: thirdAccount.address,
       origin: Origin.IMPORTED,
       publicKey: thirdAccount.publicKey
     }
-    it('find all wallets for a given client', async () => {
-      await repository.save(clientId, wallet)
+    it('find all _OLD_WALLETS_ for a given client', async () => {
+      await repository.save(clientId, _OLD_WALLET_)
       await repository.save(clientId, secondWallet)
       await repository.save(secondClientId, thirdWallet)
 
-      const wallets = await repository.findByClientId(clientId)
-      expect(wallets).toEqual([wallet, secondWallet])
+      const _OLD_WALLETS_ = await repository.findByClientId(clientId)
+      expect(_OLD_WALLETS_).toEqual([_OLD_WALLET_, secondWallet])
 
       const secondWallets = await repository.findByClientId(secondClientId)
       expect(secondWallets).toEqual([thirdWallet])
@@ -131,7 +131,7 @@ describe(WalletRepository.name, () => {
       await repository.findById(clientId, caseSensitiveWalletId)
 
       expect(inMemoryKeyValueRepository.get).toHaveBeenCalledWith(
-        `wallet:${clientId}:${caseSensitiveWalletId.toLowerCase()}`
+        `_OLD_WALLET_:${clientId}:${caseSensitiveWalletId.toLowerCase()}`
       )
     })
   })

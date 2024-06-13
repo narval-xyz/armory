@@ -23,13 +23,13 @@ import {
 import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
 import { NonceService } from './nonce.service'
 
 @Injectable()
 export class SigningService {
   constructor(
-    private walletRepository: WalletRepository,
+    private _OLD_WALLET_Repository: WalletRepository,
     private nonceService: NonceService
   ) {}
 
@@ -115,9 +115,9 @@ export class SigningService {
   // ecdsa signature on the byte representation of the hex-encoded raw message
   async signRaw(clientId: string, action: SignRawAction): Promise<Hex> {
     const { rawMessage, resourceId } = action
-    const wallet = await this.findWallet(clientId, resourceId)
+    const _OLD_WALLET_ = await this.findWallet(clientId, resourceId)
     const message = hexToBytes(rawMessage)
-    const signature = signSecp256k1(message, wallet.privateKey, true)
+    const signature = signSecp256k1(message, _OLD_WALLET_.privateKey, true)
     const hexSignature = signatureToHex(signature)
 
     await this.maybeSaveNonce(clientId, action)
@@ -126,9 +126,9 @@ export class SigningService {
   }
 
   private async findWallet(clientId: string, resourceId: string) {
-    const wallet = await this.walletRepository.findById(clientId, resourceId)
+    const _OLD_WALLET_ = await this._OLD_WALLET_Repository.findById(clientId, resourceId)
 
-    if (!wallet) {
+    if (!_OLD_WALLET_) {
       throw new ApplicationException({
         message: 'Wallet not found',
         suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
@@ -136,13 +136,18 @@ export class SigningService {
       })
     }
 
-    return wallet
+    return _OLD_WALLET_
   }
 
-  private async buildClient(clientId: string, resourceId: string, chain?: chains.Chain) {
-    const wallet = await this.findWallet(clientId, resourceId)
+  private async buildClient(clientId: string, resourceId: string, chainId?: number) {
+    const _OLD_WALLET_ = await this.findWallet(clientId, resourceId)
 
-    const account = privateKeyToAccount(wallet.privateKey)
+    const account = privateKeyToAccount(_OLD_WALLET_.privateKey)
+    const chain = extractChain<chains.Chain[], number>({
+      chains: Object.values(chains),
+      id: chainId || 1
+    })
+
     const client = createWalletClient({
       account,
       chain,

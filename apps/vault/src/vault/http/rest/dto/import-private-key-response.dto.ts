@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEthereumAddress, IsString } from 'class-validator'
-import { PrivateWallet } from '../../../../shared/type/domain.type'
+import { _OLD_PRIVATE_WALLET_ } from '../../../../shared/type/domain.type'
 
 export class ImportPrivateKeyResponseDto {
-  constructor(wallet: PrivateWallet) {
-    this.id = wallet.id
-    this.address = wallet.address
+  constructor(_OLD_WALLET_: _OLD_PRIVATE_WALLET_) {
+    this.id = _OLD_WALLET_.id
+    this.address = _OLD_WALLET_.address
   }
 
   @IsString()

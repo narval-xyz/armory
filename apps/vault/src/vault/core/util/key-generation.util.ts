@@ -8,7 +8,7 @@ import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
-import { AddressIndex, Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { AddressIndex, Origin, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
@@ -55,7 +55,7 @@ export const hdKeyToWallet = async ({
   key: HDKey
   keyId: string
   path: string
-}): Promise<PrivateWallet> => {
+}): Promise<_OLD_PRIVATE_WALLET_> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',

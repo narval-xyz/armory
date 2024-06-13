@@ -5,7 +5,7 @@ import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-wallet.dto'
+import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-_OLD_WALLET_.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
 import { GenerateKeyDto } from '../dto/generate-key.dto'
 
@@ -27,9 +27,9 @@ export class GenerationController {
     type: GenerateKeyResponseDto
   })
   async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<GenerateKeyResponseDto> {
-    const { wallet, keyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
+    const { _OLD_WALLET_, keyId, backup } = await this.keyGenService.generateMnemonic(clientId, body)
     const response = GenerateKeyResponseDto.create({
-      wallet,
+      _OLD_WALLET_,
       keyId: keyId,
       backup
     })
@@ -37,17 +37,17 @@ export class GenerationController {
     return response
   }
 
-  @Post('/derive/wallets')
+  @Post('/derive/_OLD_WALLETS_')
   @ApiOperation({
-    summary: 'Derives a new wallet'
+    summary: 'Derives a new _OLD_WALLET_'
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: DeriveWalletResponseDto
   })
   async deriveWallet(@ClientId() clientId: string, @Body() body: DeriveWalletDto): Promise<DeriveWalletResponseDto> {
-    const wallets = await this.keyGenService.derive(clientId, body)
-    const response = DeriveWalletResponseDto.create(wallets)
+    const _OLD_WALLETS_ = await this.keyGenService.derive(clientId, body)
+    const response = DeriveWalletResponseDto.create(_OLD_WALLETS_)
 
     return response
   }

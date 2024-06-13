@@ -21,5 +21,5 @@ export class ImportPrivateKeyDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
-  walletId?: string // If not provided, it will be derived as `eip155:eoa:${address}:`
+  _OLD_WALLET_Id?: string // If not provided, it will be derived as `eip155:eoa:${address}:`
 }
