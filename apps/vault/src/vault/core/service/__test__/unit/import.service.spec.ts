@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../../../shared/type/domain.type'
-import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/_OLD_WALLET_.repository'
+import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { ImportService } from '../../import.service'
 import { KeyGenerationService } from '../../key-generation.service'
 
@@ -48,9 +48,17 @@ describe('ImportService', () => {
       const privateKey = PRIVATE_KEY
       const _OLD_WALLET_Id = '_OLD_WALLET_Id'
 
-      const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = await importService.importPrivateKey(clientId, privateKey, _OLD_WALLET_Id)
+      const _OLD_WALLET_: _OLD_PRIVATE_WALLET_ = await importService.importPrivateKey(
+        clientId,
+        privateKey,
+        _OLD_WALLET_Id
+      )
 
-      expect(_OLD_WALLET_).toEqual({ id: '_OLD_WALLET_Id', address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1', privateKey })
+      expect(_OLD_WALLET_).toEqual({
+        id: '_OLD_WALLET_Id',
+        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+        privateKey
+      })
       expect(_OLD_WALLET_Repository.save).toHaveBeenCalledWith(clientId, {
         id: _OLD_WALLET_Id,
         privateKey,

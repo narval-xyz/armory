@@ -7,9 +7,9 @@ import { ApplicationException } from '../../../shared/exception/application.exce
 import { Origin, _OLD_PRIVATE_WALLET_ } from '../../../shared/type/domain.type'
 import { DeriveWalletDto } from '../../http/rest/dto/derive-_OLD_WALLET_.dto'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
+import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { RootKeyRepository } from '../../persistence/repository/root-key.repository'
-import { WalletRepository } from '../../persistence/repository/_OLD_WALLET_.repository'
 import {
   findAddressIndexes,
   generateNextPaths,
@@ -89,14 +89,16 @@ export class KeyGenerationService {
     await this.rootKeyRepository.save(clientId, {
       keyId,
       mnemonic,
-      origin,
+      origin
     })
 
     return backup
   }
 
   async getIndexes(clientId: string, keyId: string): Promise<number[]> {
-    const _OLD_WALLETS_ = (await this._OLD_WALLET_Repository.findByClientId(clientId)).filter((_OLD_WALLET_) => _OLD_WALLET_.keyId === keyId)
+    const _OLD_WALLETS_ = (await this._OLD_WALLET_Repository.findByClientId(clientId)).filter(
+      (_OLD_WALLET_) => _OLD_WALLET_.keyId === keyId
+    )
     const indexes = findAddressIndexes(_OLD_WALLETS_.map((_OLD_WALLET_) => _OLD_WALLET_.derivationPath))
     return indexes
   }

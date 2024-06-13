@@ -22,13 +22,13 @@ import { GenerationController } from './http/rest/controller/generation.controll
 import { ImportController } from './http/rest/controller/import.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
 import { SignController } from './http/rest/controller/sign.controller'
+import { WalletRepository } from './persistence/repository/_OLD_WALLET_.repository'
 import { AppRepository } from './persistence/repository/app.repository'
 import { BackupRepository } from './persistence/repository/backup.repository'
 import { ImportRepository } from './persistence/repository/import.repository'
-import { WalletRepository } from './persistence/repository/_OLD_WALLET_.repository'
+import { RootKeyRepository } from './persistence/repository/root-key.repository'
 import { VaultController } from './vault.controller'
 import { VaultService } from './vault.service'
-import { RootKeyRepository } from './persistence/repository/root-key.repository'
 
 @Module({
   imports: [
