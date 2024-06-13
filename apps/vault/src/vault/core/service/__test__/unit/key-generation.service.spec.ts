@@ -1,3 +1,4 @@
+import { Origin } from '@narval/armory-sdk'
 import {
   RsaPrivateKey,
   generateJwk,
@@ -9,7 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../../../client/core/service/client.service'
-import { Client, Origin } from '../../../../../shared/type/domain.type'
+import { Client } from '../../../../../shared/type/domain.type'
 import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'

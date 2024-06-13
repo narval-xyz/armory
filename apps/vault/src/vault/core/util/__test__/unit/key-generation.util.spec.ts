@@ -3,7 +3,8 @@ import { publicKeyToHex } from '@narval/signature'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
-import { Origin } from '../../../../../shared/type/domain.type'
+
+import { Origin } from '@narval/armory-sdk'
 import { generateNextPaths, hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation.util'
 
 const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'

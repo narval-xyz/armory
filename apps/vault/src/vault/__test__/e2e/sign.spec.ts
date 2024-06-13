@@ -1,3 +1,4 @@
+import { Origin } from '@narval/armory-sdk'
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { Action } from '@narval/policy-engine-shared'
@@ -27,7 +28,7 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Client, Origin, PrivateWallet } from '../../../shared/type/domain.type'
+import { Client, PrivateWallet } from '../../../shared/type/domain.type'
 import { AppService } from '../../core/service/app.service'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { VaultModule } from '../../vault.module'

@@ -1,3 +1,4 @@
+import { Origin } from '@narval/armory-sdk'
 import { EncryptionModule, EncryptionService } from '@narval/encryption-module'
 import { Test } from '@nestjs/testing'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -5,7 +6,7 @@ import { KeyValueRepository } from '../../../../../shared/module/key-value/core/
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Collection, Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
+import { Collection, PrivateWallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../wallet.repository'
 
 describe(WalletRepository.name, () => {

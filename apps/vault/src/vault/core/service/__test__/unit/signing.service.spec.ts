@@ -1,3 +1,4 @@
+import { Origin } from '@narval/armory-sdk'
 import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
 import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySecp256k1 } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -14,7 +15,7 @@ import {
   verifyMessage,
   verifyTypedData
 } from 'viem'
-import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../../../shared/type/domain.type'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { NonceService } from '../../nonce.service'
 import { SigningService } from '../../signing.service'

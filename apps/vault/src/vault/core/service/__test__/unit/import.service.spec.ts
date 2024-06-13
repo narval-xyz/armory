@@ -1,5 +1,6 @@
+import { Origin } from '@narval/armory-sdk'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Origin, PrivateWallet } from '../../../../../shared/type/domain.type'
+import { PrivateWallet } from '../../../../../shared/type/domain.type'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ImportService } from '../../import.service'
