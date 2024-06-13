@@ -1,7 +1,8 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { BIP44_PREFIX } from './bip44.type'
+
+export const BIP44_PREFIX = "m/44'/60'/0'/0/"
 
 export const CreateClientInput = z.object({
   clientId: z.string().optional(),
@@ -84,15 +85,6 @@ export const AddressIndex = DerivationPath.transform((data) => {
   return index
 })
 export type AddressIndex = z.infer<typeof AddressIndex>
-
-export const PublicWallet = z.object({
-  id: z.string().min(1),
-  address: z.string().min(1),
-  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
-  keyId: z.string().min(1).optional(),
-  derivationPath: z.string().min(1).optional()
-})
-export type PublicWallet = z.infer<typeof PublicWallet>
 
 export const RootKey = z.object({
   keyId: z.string().min(1),
