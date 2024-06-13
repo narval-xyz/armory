@@ -17,7 +17,7 @@ import {
   extractChain,
   hexToBigInt,
   hexToBytes,
-  serializeSignature,
+  signatureToHex,
   transactionType
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -118,7 +118,7 @@ export class SigningService {
     const wallet = await this.findWallet(clientId, resourceId)
     const message = hexToBytes(rawMessage)
     const signature = signSecp256k1(message, wallet.privateKey, true)
-    const hexSignature = serializeSignature(signature)
+    const hexSignature = signatureToHex(signature)
 
     await this.maybeSaveNonce(clientId, action)
 
