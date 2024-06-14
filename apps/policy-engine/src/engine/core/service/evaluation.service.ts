@@ -58,10 +58,10 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
     ]
   }
 
-  // Everything that is not GRANT_PERMISSION currently requires a requestHash
+  // Everything that is not GRANT_PERMISSION currently requires a hash
   // in the future it's likely more actions will also not needed it.
   if (evaluation.request.action !== Action.GRANT_PERMISSION) {
-    payload.requestHash = hash(evaluation.request)
+    payload.hash = hash(evaluation.request)
   }
 
   return payload

@@ -30,7 +30,7 @@ export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): b
     ...(opts.issuer ? ['iss'] : []),
     ...(opts.audience ? ['aud'] : []),
     ...(opts.subject ? ['sub'] : []),
-    ...(opts.requestHash ? ['requestHash'] : []),
+    ...(opts.hash ? ['hash'] : []),
     ...(opts.data ? ['data'] : []),
     ...(opts.requiredClaims || []),
     ...(opts.access ? ['access'] : [])
@@ -108,10 +108,10 @@ export const checkAuthorizedParty = (payload: Payload, opts: JwtVerifyOptions): 
   return true
 }
 
-export const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
-  if (opts.requestHash) {
-    const requestHash = typeof opts.requestHash === 'string' ? opts.requestHash : hash(opts.requestHash)
-    if (!payload.requestHash || requestHash !== payload.requestHash) {
+export const checkHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
+  if (opts.hash) {
+    const h = typeof opts.hash === 'string' ? opts.hash : hash(opts.hash)
+    if (!payload.hash || h !== payload.hash) {
       throw new JwtError({ message: 'Invalid request hash', context: { payload } })
     }
   }
@@ -354,7 +354,7 @@ export async function verifyJwt(jwt: string, jwk: Jwk, opts: JwtVerifyOptions = 
 
   checkAuthorizedParty(payload, opts)
 
-  checkRequestHash(payload, opts)
+  checkHash(payload, opts)
 
   checkDataHash(payload, opts)
 

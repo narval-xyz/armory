@@ -14,6 +14,7 @@ import {
   generateJwk,
   hexToBase64Url,
   privateKeyToHex,
+  privateKeyToJwk,
   secp256k1PrivateKeyToJwk,
   secp256k1PublicKeyToJwk
 } from '../../utils'
@@ -24,7 +25,7 @@ describe('sign', () => {
   const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
   const payload: Payload = {
-    requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+    hash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
     sub: 'test-root-user-uid',
     iss: 'https://armory.narval.xyz',
     cnf: {
@@ -127,22 +128,8 @@ describe('sign', () => {
   })
 
   it('should be able to verify an EIP191-signed JWT', async () => {
-    const jwt =
-      'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFUzI1NkstS0VDQ0FLIiwidHlwIjoiSldUIn0.eyJyZXF1ZXN0SGFzaCI6IjYwOGFiZTkwOGNmZmVhYjFmYzMzZWRkZTZiNDQ1ODZmOWRhY2JjOWM2ZmU2ZjBhMTNmYTMwNzIzNzI5MGNlNWEiLCJzdWIiOiJ0ZXN0LXJvb3QtdXNlci11aWQiLCJpYXQiOjE3MDk3NjAyMTEsImV4cCI6MTcwOTc2MDgxMSwiaXNzIjoiaHR0cHM6Ly9hcm1vcnkubmFydmFsLnh5eiIsImNuZiI6eyJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsImFsZyI6IkVTMjU2SyIsInVzZSI6InNpZyIsImtpZCI6IjB4MDAwYzBkMTkxMzA4QTMzNjM1NkJFZTM4MTNDQzE3RjY4Njg5NzJDNCIsIngiOiIwNGE5ZjNiY2Y2NTA1MDU5NTk3ZjZmMjdhZDhjMGYwM2EzYmQ3YTE3NjM1MjBiMGJmZWMyMDQ0ODhiOGU1ODQwIiwieSI6IjdlZTkyODQ1YWIxYzM1YTc4NGIwNWZkZmE1Njc3MTVjNTNiYjJmMjk5NDliMjc3MTRlM2MxNzYwZTM3MDkwMDlhNiJ9fQ.9toU-AkKVqbLvguKt85s28VsdXDpjmVVJhQPyzX_OdJaVo5LZkGG8gRNrEWSjgM54RgIid09mHXcGU4vu1-Wchs'
-    const [headerStr, payloadStr, jwtSig] = jwt.split('.')
-    const sigBuff = base64UrlToBytes(jwtSig)
-
-    const verified = await verifyMessage({
-      address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-      message: [headerStr, payloadStr].join('.'),
-      signature: sigBuff
-    })
-    expect(verified).toBe(true)
-
-    const payload = base64UrlToBytes(payloadStr).toString('utf-8')
-
-    expect(JSON.parse(payload)).toEqual({
-      requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+    const payload: Payload = {
+      hash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       sub: 'test-root-user-uid',
       iat: 1709760211,
       exp: 1709760811,
@@ -156,7 +143,23 @@ describe('sign', () => {
         x: '04a9f3bcf6505059597f6f27ad8c0f03a3bd7a1763520b0bfec204488b8e5840',
         y: '7ee92845ab1c35a784b05fdfa567715c53bb2f29949b27714e3c1760e3709009a6'
       }
+    }
+    const jwt = await signJwt(payload, privateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`), { alg: Alg.ES256K })
+
+    const [headerStr, payloadStr, jwtSig] = jwt.split('.')
+    const sigBuff = base64UrlToBytes(jwtSig)
+
+    const verified = await verifyMessage({
+      address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+      message: [headerStr, payloadStr].join('.'),
+      signature: sigBuff
     })
+
+    expect(verified).toBe(true)
+
+    const actualPayload = base64UrlToBytes(payloadStr).toString('utf-8')
+
+    expect(JSON.parse(actualPayload)).toEqual(payload)
   })
 
   // This is testing that we can turn a private key into a JWK, and the way we know it's a "correct" JWK is by using the `createPublicKey` function from node's crypto module. If it throws an error, that means it's not a valid JWK
@@ -167,7 +170,7 @@ describe('sign', () => {
 
     const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
 
-    const k = await createPublicKey({
+    const k = createPublicKey({
       format: 'jwk',
       key: jwk
     })

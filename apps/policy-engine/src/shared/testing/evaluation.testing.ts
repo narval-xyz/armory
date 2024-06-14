@@ -11,7 +11,7 @@ export const ONE_ETH = BigInt('1000000000000000000')
 const sign = async (request: Request) => {
   const message = hash(request)
   const payload: Payload = {
-    requestHash: message
+    hash: message
   }
 
   const aliceSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K))

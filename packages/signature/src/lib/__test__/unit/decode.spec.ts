@@ -5,7 +5,7 @@ import { privateKeyToJwk } from '../../utils'
 
 describe('decodeJwt', () => {
   const payload = {
-    requestHash: '68631bb22b171d296a522bb6c3248055597bf63eac2ba95f1fd02a48ae1edf8c',
+    hash: '68631bb22b171d296a522bb6c3248055597bf63eac2ba95f1fd02a48ae1edf8c',
     iat: 1733875200,
     exp: 1733961600
   }

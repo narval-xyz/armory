@@ -11,9 +11,9 @@ import {
   checkAudience,
   checkAuthorizedParty,
   checkDataHash,
+  checkHash,
   checkIssuer,
   checkNbf,
-  checkRequestHash,
   checkRequiredClaims,
   checkSubject,
   checkTokenExpiration,
@@ -27,7 +27,7 @@ const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b08472
 
 describe('verifyJwt', () => {
   const payload: Payload = {
-    requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+    hash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
     sub: 'test-root-user-uid',
     iss: 'https://armory.narval.xyz',
     cnf: {
@@ -471,14 +471,14 @@ describe('checkRequiredClaims', () => {
     expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
   })
 
-  it('requires requesthash if requestHash verify option is passed', () => {
+  it('requires hash if hash verify option is passed', () => {
     const payload: Payload = {
       iss: 'https://example.com',
       exp: 1635638400
     }
 
     const opts: JwtVerifyOptions = {
-      requestHash: '0x1234567890'
+      hash: '0x1234567890'
     }
 
     expect(() => checkRequiredClaims(payload, opts)).toThrow(JwtError)
@@ -708,32 +708,32 @@ describe('checkAuthorizedParty', () => {
   })
 })
 
-describe('checkRequestHash', () => {
-  it('returns true when the requestHash is a string & matches', () => {
+describe('checkHash', () => {
+  it('returns true when the hash is a string & matches', () => {
     const payload: Payload = {
-      requestHash: '0x1234567890'
+      hash: '0x1234567890'
     }
 
     expect(
-      checkRequestHash(payload, {
-        requestHash: '0x1234567890'
+      checkHash(payload, {
+        hash: '0x1234567890'
       })
     ).toEqual(true)
   })
 
-  it('throws JwtError when the requestHash does not match', () => {
+  it('throws JwtError when the hash does not match', () => {
     const payload: Payload = {
-      requestHash: '0x1234567890'
+      hash: '0x1234567890'
     }
 
     const opts: JwtVerifyOptions = {
-      requestHash: '0x0987654321'
+      hash: '0x0987654321'
     }
 
-    expect(() => checkRequestHash(payload, opts)).toThrow(JwtError)
+    expect(() => checkHash(payload, opts)).toThrow(JwtError)
   })
 
-  it('hashes a request object and compares it to the requestHash', () => {
+  it('hashes a request object and compares it to the hash', () => {
     const request = {
       method: 'POST',
       url: 'https://example.com',
@@ -742,13 +742,13 @@ describe('checkRequestHash', () => {
     const requestHash = hash(request)
 
     const payload: Payload = {
-      requestHash
+      hash: requestHash
     }
 
     const opts: JwtVerifyOptions = {
-      requestHash: request
+      hash: request
     }
-    const result = checkRequestHash(payload, opts)
+    const result = checkHash(payload, opts)
     expect(result).toEqual(true)
   })
 })

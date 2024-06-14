@@ -83,7 +83,7 @@ describe('Sign', () => {
 
   const getAccessToken = async (request: unknown, opts: object = {}) => {
     const payload: Payload = {
-      requestHash: hash(request),
+      hash: hash(request),
       sub: 'test-root-user-uid',
       iss: 'https://armory.narval.xyz',
       iat: Math.floor(Date.now() / 1000),

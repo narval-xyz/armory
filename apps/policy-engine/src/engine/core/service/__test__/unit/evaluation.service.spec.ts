@@ -70,7 +70,7 @@ describe('buildPermitTokenPayload for signTransaction action', () => {
       cnf,
       iat: nowSeconds(),
       iss: 'https://armory.narval.xyz',
-      requestHash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+      hash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       sub: 'test-alice-user-uid'
     })
   })

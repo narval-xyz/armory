@@ -151,7 +151,7 @@ describe('buildPayloadFromRequest', () => {
 
   it('should return a payload object with the correct properties', () => {
     const expectedPayload: Payload = {
-      requestHash: expect.any(String),
+      hash: expect.any(String),
       sub: config.jwk.kid,
       iss: config.authClientId,
       iat: expect.any(Number)

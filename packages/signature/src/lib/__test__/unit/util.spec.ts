@@ -102,7 +102,7 @@ describe('generateKeys', () => {
     const key = await generateJwk(Alg.ES256K)
     const message = 'test message'
     const payload = {
-      requestHash: message
+      hash: message
     }
     const validatedKey = validateJwk<Secp256k1PrivateKey>({
       schema: secp256k1PrivateKeySchema,

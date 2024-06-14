@@ -206,7 +206,6 @@ export type PayloadAccessSchema = z.infer<typeof PayloadAccessSchema>
 /**
  * Defines the payload of JWT.
  *
- * @param {string} requestHash - The hashed request.
  * @param {string} [iss] - The issuer of the JWT.
  * @param {number} [iat] - The time the JWT was issued.
  * @param {number} [exp] - The time the JWT expires.
@@ -215,6 +214,7 @@ export type PayloadAccessSchema = z.infer<typeof PayloadAccessSchema>
  * @param {string | string[]} [aud] - The audience of the JWT.
  * @param {string} [azp] - The authorized party of the JWT. Typically a client-id.
  * @param {string} [jti] - The JWT ID.
+ * @param {string} [hash] - An arbitrary hash used to ensure data integrity.
  * @param {Jwk} cnf - The client-bound key.
  *
  */
@@ -230,7 +230,7 @@ export const Payload = z.intersection(
     jti: z.string().optional(),
     azp: z.string().optional(),
     cnf: publicKeySchema.optional(),
-    requestHash: z.string().optional(),
+    hash: z.string().optional().describe('An arbitrary hash used for data integrity'),
     data: z.string().optional(),
     access: z.array(PayloadAccessSchema).optional()
   })
@@ -287,9 +287,9 @@ export type JwtVerifyOptions = {
   crit?: string[]
 
   /**
-   * Hash of the request body, or the body itself which will be hashed then compared
+   * An arbitrary hash used to ensure data integrity
    */
-  requestHash?: Hex | object
+  hash?: Hex | object
 
   /**
    * Hash of the data, or the data itself which will be hashed then compared

@@ -30,7 +30,7 @@ const getJwt = (option: { privateKey: Hex; request: Request; sub: string }): Pro
 
   return signJwt(
     {
-      requestHash: hash(option.request),
+      hash: hash(option.request),
       sub: option.sub
     },
     jwk,

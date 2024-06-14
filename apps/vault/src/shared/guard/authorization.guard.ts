@@ -55,7 +55,7 @@ export class AuthorizationGuard implements CanActivate {
       })
     }
 
-    const { request: requestHash } = req.body
+    const { request: hash } = req.body
     const permissions = this.reflector.get(PermissionGuard, context.getHandler())
     const access =
       permissions && permissions.length > 0
@@ -71,7 +71,7 @@ export class AuthorizationGuard implements CanActivate {
       audience: client.audience,
       issuer: client.issuer,
       maxTokenAge: client.maxTokenAge,
-      ...(requestHash && { requestHash }),
+      ...(hash && { hash }),
       ...(access && { access })
     }
 

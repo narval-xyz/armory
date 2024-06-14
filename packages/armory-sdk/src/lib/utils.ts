@@ -69,7 +69,7 @@ export const buildRequestPayload = (
   } = {}
 ): Payload => {
   return {
-    requestHash: hash(request),
+    hash: hash(request),
     sub: opts.sub,
     iss: opts.iss,
     iat: opts.iat || new Date().getTime()

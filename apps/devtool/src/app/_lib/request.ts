@@ -25,7 +25,7 @@ export const erc20 = async () => {
     {
       iss: FIXTURE.USER.Bob.id,
       sub: request.resourceId,
-      requestHash: hash(request)
+      hash: hash(request)
     },
     privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K)
   )
@@ -34,7 +34,7 @@ export const erc20 = async () => {
     {
       iss: FIXTURE.USER.Carol.id,
       sub: request.resourceId,
-      requestHash: hash(request)
+      hash: hash(request)
     },
     privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K)
   )

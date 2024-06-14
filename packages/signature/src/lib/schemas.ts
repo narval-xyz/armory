@@ -161,15 +161,14 @@ export const JwsdHeader = z.object({
 /**
  * Defines the payload of JWT.
  *
- * @param {string} requestHash - The hashed request.
- * @param {string} [iss] - The issuer of the JWT.
- * @param {number} [iat] - The time the JWT was issued.
- * @param {number} [exp] - The time the JWT expires.
- * @param {string} sub - The subject of the JWT.
- * @param {string} [aud] - The audience of the JWT.
- * @param {string} [jti] - The JWT ID.
- * @param {Jwk} cnf - The client-bound key.
- *
+ * @param {string} [iss] The issuer of the JWT.
+ * @param {number} [iat] The time the JWT was issued.
+ * @param {number} [exp] The time the JWT expires.
+ * @param {string} [sub] The subject of the JWT.
+ * @param {string} [aud] The audience of the JWT.
+ * @param {string} [jti] The JWT ID.
+ * @param {string} [hash] An arbitrary hash.
+ * @param {Jwk} [cnf] The client-bound key.
  */
 export const Payload = z.object({
   sub: z.string().optional(),
@@ -179,7 +178,7 @@ export const Payload = z.object({
   aud: z.string().optional(),
   jti: z.string().optional(),
   cnf: publicKeySchema.optional(),
-  requestHash: z.string().optional(),
+  hash: z.string().optional().describe('An arbitrary hash'),
   data: z.string().optional()
 })
 

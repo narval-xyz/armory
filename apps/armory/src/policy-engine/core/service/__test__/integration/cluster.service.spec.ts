@@ -157,7 +157,7 @@ describe(ClusterService.name, () => {
       const requestHash = hash(opts.request)
       const token = await signJwt(
         {
-          requestHash
+          hash: requestHash
         },
         opts.attestationPrivateKey,
         { alg: SigningAlg.EIP191 }

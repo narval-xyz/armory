@@ -137,7 +137,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
     const validJwt = await verifyJwt(signature, key)
 
-    if (validJwt.payload.requestHash !== message) {
+    if (validJwt.payload.hash !== message) {
       throw new OpenPolicyAgentException({
         message: 'Signature hash mismatch',
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN
