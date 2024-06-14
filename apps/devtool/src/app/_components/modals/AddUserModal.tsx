@@ -1,4 +1,6 @@
-import { faCheckCircle, faChevronDown, faPlus, faSpinner } from '@fortawesome/pro-regular-svg-icons'
+'use client'
+
+import { faCheckCircle, faChevronDown, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   CredentialEntity,

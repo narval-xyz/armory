@@ -1,4 +1,4 @@
-import { faChevronDown, faSearch, faSpinnerThird } from '@fortawesome/pro-regular-svg-icons'
+import { faChevronDown, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { ALIGN_OPTIONS, SIDE_OPTIONS } from '@radix-ui/react-popper'
@@ -83,7 +83,7 @@ const NarDropdownMenu: FC<NarDropdownMenuProps> = ({
             )}
             {!data && (
               <div className="flex flex-col items-center justify-center min-h-[150px] min-w-[100px]">
-                <FontAwesomeIcon className="text-nv-white" size="lg" icon={faSpinnerThird} spin />
+                <FontAwesomeIcon className="text-nv-white" size="lg" icon={faSpinner} spin />
               </div>
             )}
             <div

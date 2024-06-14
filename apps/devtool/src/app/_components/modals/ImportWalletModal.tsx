@@ -1,4 +1,6 @@
-import { faCheckCircle, faSpinner, faUpload } from '@fortawesome/pro-regular-svg-icons'
+'use client'
+
+import { faCheckCircle, faSpinner, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ImportPrivateKeyResponse, ImportSeedResponse } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'

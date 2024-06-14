@@ -1,4 +1,4 @@
-import { faPlus } from '@fortawesome/pro-regular-svg-icons'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
