@@ -1,4 +1,4 @@
-import { faChevronDown } from '@fortawesome/pro-regular-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserEntity, UserRole } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useState } from 'react'

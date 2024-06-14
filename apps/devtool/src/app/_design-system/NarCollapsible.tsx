@@ -1,4 +1,4 @@
-import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons'
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { FC, ReactNode, useState } from 'react'
 import { classNames } from '../_lib/utils'

@@ -1,6 +1,6 @@
 'use client'
 
-import { faPlus } from '@fortawesome/pro-regular-svg-icons'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { capitalize } from 'lodash'
 import { FC, ReactNode } from 'react'

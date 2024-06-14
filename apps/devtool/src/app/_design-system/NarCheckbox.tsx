@@ -1,4 +1,4 @@
-import { faCheck } from '@fortawesome/pro-regular-svg-icons'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { FC, MouseEvent } from 'react'

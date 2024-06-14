@@ -1,6 +1,6 @@
 'use client'
 
-import { faPenCircle, faTrashCan } from '@fortawesome/pro-regular-svg-icons'
+import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, ReactNode } from 'react'
 
@@ -16,7 +16,7 @@ const DataCard: FC<DataCardProps> = ({ children, buttons, onEdit, onDelete }) =>
     <div className="flex items-center gap-4 grow">{children}</div>
     <div className="hidden group-hover:flex group-hover:items-center group-hover:gap-4">
       {buttons}
-      <FontAwesomeIcon className="cursor-pointer" icon={faPenCircle} size="lg" onClick={onEdit} />
+      <FontAwesomeIcon className="cursor-pointer" icon={faPen} size="lg" onClick={onEdit} />
       <FontAwesomeIcon className="cursor-pointer" icon={faTrashCan} size="lg" onClick={onDelete} />
     </div>
   </div>
