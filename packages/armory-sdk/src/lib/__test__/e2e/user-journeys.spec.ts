@@ -142,6 +142,8 @@ describe('User Journeys', () => {
     let dataStoreConfig: DataStoreConfig
     let entityStoreClient: EntityStoreClient
 
+    const fullEntities: Entities = { ...EntityUtil.empty(), ...entities }
+
     beforeEach(async () => {
       dataStoreConfig = {
         host: getAuthHost(),
@@ -174,7 +176,6 @@ describe('User Journeys', () => {
 
       it('signs entities', async () => {
         const issuedAt = new Date()
-        const fullEntities: Entities = { ...EntityUtil.empty(), ...entities }
 
         const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
 
@@ -233,6 +234,19 @@ describe('User Journeys', () => {
         })
       })
     })
+
+    describe('get', () => {
+      it('returns latest entities and signature', async () => {
+        const actualEntities = await entityStoreClient.get()
+
+        expect(actualEntities).toEqual({
+          entity: {
+            data: fullEntities,
+            signature: expect.any(String)
+          }
+        })
+      })
+    })
   })
 
   describe('As a client, I want to set up my policy data store', () => {
@@ -269,7 +283,7 @@ describe('User Journeys', () => {
     })
 
     describe('push', () => {
-      it('sends policies and signature to data store server', async () => {
+      it('sends policies and signature to data store managed host', async () => {
         const signature = await policyStoreClient.sign(policies)
 
         const store = await policyStoreClient.push(policies, signature)
@@ -288,7 +302,7 @@ describe('User Journeys', () => {
     })
 
     describe('signAndPush', () => {
-      it('sends entities and signature to data store server', async () => {
+      it('sends entities and signature to data store managed host', async () => {
         const signOptions = { issuedAt: new Date() }
         const signature = await policyStoreClient.sign(policies, signOptions)
 
@@ -302,6 +316,19 @@ describe('User Journeys', () => {
           version: 2,
           latestSync: {
             success: expect.any(Boolean)
+          }
+        })
+      })
+    })
+
+    describe('get', () => {
+      it('returns latest policies and signature', async () => {
+        const actualPolicies = await policyStoreClient.get()
+
+        expect(actualPolicies).toEqual({
+          policy: {
+            data: policies,
+            signature: expect.any(String)
           }
         })
       })
