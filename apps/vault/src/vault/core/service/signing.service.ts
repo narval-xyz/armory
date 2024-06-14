@@ -13,10 +13,10 @@ import {
   TransactionRequest,
   checksumAddress,
   createWalletClient,
+  custom,
   extractChain,
   hexToBigInt,
   hexToBytes,
-  http,
   signatureToHex,
   transactionType
 } from 'viem'
@@ -53,7 +53,11 @@ export class SigningService {
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
-    const client = await this.buildClient(clientId, resourceId, transactionRequest.chainId)
+    const chain = extractChain<chains.Chain[], number>({
+      chains: Object.values(chains),
+      id: transactionRequest.chainId
+    })
+    const client = await this.buildClient(clientId, resourceId, chain)
 
     const txRequest: TransactionRequest = {
       from: checksumAddress(client.account.address),
@@ -67,7 +71,7 @@ export class SigningService {
       value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
     }
 
-    const signature = await client.signTransaction(txRequest)
+    const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
     //   TEMPORARY
     //   for testing, uncomment the below lines to actually SEND the tx to the chain.
@@ -135,20 +139,21 @@ export class SigningService {
     return wallet
   }
 
-  private async buildClient(clientId: string, resourceId: string, chainId?: number) {
+  private async buildClient(clientId: string, resourceId: string, chain?: chains.Chain) {
     const wallet = await this.findWallet(clientId, resourceId)
 
     const account = privateKeyToAccount(wallet.privateKey)
-    const chain = extractChain<chains.Chain[], number>({
-      chains: Object.values(chains),
-      id: chainId || 1
-    })
-
     const client = createWalletClient({
       account,
       chain,
-      // TODO: (@wcalderipe) implement a no-op custom transport.
-      transport: http('') // clear the RPC so we don't call any chain stuff here.
+      transport: custom({
+        // a noop transport provider; we do not want to make real RPC calls out of the server
+        // so just stub ones that are needed internally, like chainId
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_chainId') return chain?.id
+          return
+        }
+      })
     })
 
     return client

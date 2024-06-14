@@ -3,7 +3,7 @@ import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { Permissions } from '../../../../shared/decorator/permissions.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
 import { ImportService } from '../../../core/service/import.service'
 import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
@@ -13,9 +13,10 @@ import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
 import { ImportSeedDto } from '../dto/import-seed.dto'
 
 @Controller('/import')
-@Permissions(Permission.WALLET_IMPORT)
+@PermissionGuard(Permission.WALLET_IMPORT)
 @ApiHeader({
-  name: REQUEST_HEADER_CLIENT_ID
+  name: REQUEST_HEADER_CLIENT_ID,
+  required: true
 })
 export class ImportController {
   constructor(private importService: ImportService) {}

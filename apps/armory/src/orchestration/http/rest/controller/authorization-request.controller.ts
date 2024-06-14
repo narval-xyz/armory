@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../../src/armory.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
@@ -9,37 +9,36 @@ import { AuthorizationResponseDto } from '../../../http/rest/dto/authorization-r
 import { toCreateAuthorizationRequest } from '../../../http/rest/util'
 
 @Controller('/authorization-requests')
-@ApiTags('Authorization Request')
+@ApiTags('Authorization')
 export class AuthorizationRequestController {
   constructor(private authorizationRequestService: AuthorizationRequestService) {}
 
   @Post('/')
+  @ApiSecurity('CLIENT_ID')
   @ApiOperation({
     summary: 'Submits a new authorization request for evaluation by the policy engine'
   })
   @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID
+    name: REQUEST_HEADER_CLIENT_ID,
+    required: true
   })
   @ApiResponse({
     description: 'The authorization request has been successfully submitted for evaluation',
     status: HttpStatus.CREATED,
     type: AuthorizationResponseDto
   })
-  async evaluation(
+  async evaluate(
     @ClientId() clientId: string,
     @Body() body: AuthorizationRequestDto
   ): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.create(toCreateAuthorizationRequest(clientId, body))
 
-    // TODO (@wcalderipe, 23/01/24): Validate if the signed hash is the same
-    // hash used internally.
-
-    return new AuthorizationResponseDto(authzRequest)
+    return AuthorizationResponseDto.create(authzRequest)
   }
 
   @Get('/:id')
   @ApiOperation({
-    summary: 'Gets an authorization request by its ID'
+    summary: 'Gets an authorization request by ID'
   })
   @ApiResponse({
     description: 'The authorization request',
@@ -51,11 +50,11 @@ export class AuthorizationRequestController {
     status: HttpStatus.NOT_FOUND,
     type: ErrorResponseDto
   })
-  async getBydId(@Param('id') id: string): Promise<AuthorizationResponseDto> {
+  async getById(@Param('id') id: string): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.findById(id)
 
     if (authzRequest) {
-      return new AuthorizationResponseDto(authzRequest)
+      return AuthorizationResponseDto.create(authzRequest)
     }
 
     throw new NotFoundException('Authorization request not found')
@@ -73,6 +72,6 @@ export class AuthorizationRequestController {
   async approve(@Param('id') id: string, @Body() body: string): Promise<AuthorizationResponseDto> {
     const authzRequest = await this.authorizationRequestService.approve(id, body)
 
-    return new AuthorizationResponseDto(authzRequest)
+    return AuthorizationResponseDto.create(authzRequest)
   }
 }

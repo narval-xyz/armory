@@ -35,6 +35,15 @@
         "jestConfig": "packages/armory-sdk/jest.unit.ts",
         "verbose": true
       }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/armory-sdk/jest.e2e.ts",
+        "verbose": true,
+        "runInBand": true
+      }
     }
   },
   "tags": ["package"]

@@ -13,7 +13,8 @@ import { SignatureDto } from '../dto/signature.dto'
 @UseGuards(AuthorizationGuard, NonceGuard)
 @ApiGnapSecurity()
 @ApiHeader({
-  name: REQUEST_HEADER_CLIENT_ID
+  name: REQUEST_HEADER_CLIENT_ID,
+  required: true
 })
 export class SignController {
   constructor(private signingService: SigningService) {}

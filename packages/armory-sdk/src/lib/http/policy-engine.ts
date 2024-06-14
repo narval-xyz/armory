@@ -2,7 +2,7 @@ import { EvaluationRequest, SerializedEvaluationRequest } from '@narval/policy-e
 import axios from 'axios'
 import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
 import { EngineAdminConfig, EngineClientConfig } from '../domain'
-import { NarvalSdkException } from '../exceptions'
+import { ArmorySdkException } from '../exceptions'
 import { signRequestPayload } from '../sdk'
 import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
 import { builBasicHeaders } from '../utils'
@@ -11,7 +11,7 @@ export const pingEngine = async (engineHost: string): Promise<void> => {
   try {
     return axios.get(engineHost)
   } catch (error) {
-    throw new NarvalSdkException('Failed to ping engine', { engineHost, error })
+    throw new ArmorySdkException('Failed to ping engine', { engineHost, error })
   }
 }
 
@@ -30,7 +30,7 @@ export const onboardEngineClient = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to onboard client', { config, error })
+    throw new ArmorySdkException('Failed to onboard client', { config, error })
   }
 }
 
@@ -51,7 +51,7 @@ export const sendEvaluationRequest = async (
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to evaluate request', { config, error })
+    throw new ArmorySdkException('Failed to evaluate request', { config, error })
   }
 }
 
@@ -60,7 +60,7 @@ export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ la
     const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
 
     if (!clientSecret) {
-      throw new NarvalSdkException('Client secret is required to sync engine', { config })
+      throw new ArmorySdkException('Client secret is required to sync engine', { config })
     }
 
     const { data } = await axios.post<{ latestSync: { success: boolean } }>(`${engineHost}/clients/sync`, null, {
@@ -69,6 +69,6 @@ export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ la
 
     return data
   } catch (error) {
-    throw new NarvalSdkException('Failed to sync engine', { config, error })
+    throw new ArmorySdkException('Failed to sync engine', { config, error })
   }
 }

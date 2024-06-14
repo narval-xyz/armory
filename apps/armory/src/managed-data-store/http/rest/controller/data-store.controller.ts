@@ -83,12 +83,11 @@ export class DataStoreController {
     summary: 'Sets the client entities'
   })
   @ApiResponse({
-    description: 'The client entities have been successfully set',
     status: HttpStatus.CREATED,
     type: SetEntityStoreResponseDto
   })
   setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
-    return this.entityDataStoreService.setEntities(clientId, body.entity)
+    return this.entityDataStoreService.setEntities(clientId, body)
   }
 
   @Post('/policies')
@@ -96,12 +95,11 @@ export class DataStoreController {
     summary: 'Sets the client policies'
   })
   @ApiResponse({
-    description: 'The client policies have been successfully set',
     status: HttpStatus.CREATED,
     type: SetPolicyStoreResponseDto
   })
   setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
-    return this.policyDataStoreService.setPolicies(clientId, body.policy)
+    return this.policyDataStoreService.setPolicies(clientId, body)
   }
 
   @Post('/sync')
@@ -111,7 +109,6 @@ export class DataStoreController {
     summary: 'Sync the client data store with the engine cluster'
   })
   @ApiResponse({
-    description: 'The client data store has been successfully synced',
     status: HttpStatus.OK
   })
   async sync(@ClientId('clientId') clientId: string) {

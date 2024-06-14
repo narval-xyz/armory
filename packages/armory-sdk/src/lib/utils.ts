@@ -5,7 +5,7 @@ import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
 import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from './constants'
 import { ArmoryClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from './domain'
-import { ForbiddenException, NarvalSdkException, NotImplementedException } from './exceptions'
+import { ArmorySdkException, ForbiddenException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './schema'
 import { SendEvaluationResponse } from './types/policy-engine'
 
@@ -13,7 +13,7 @@ export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
   const { uri, htm, jwk, alg, accessToken } = args
 
   if (!jwk.kid || !alg) {
-    throw new NarvalSdkException('kid and alg are required', {
+    throw new ArmorySdkException('kid and alg are required', {
       context: {
         kid: jwk.kid,
         alg,
@@ -96,7 +96,7 @@ export const checkDecision = (data: EvaluationResponse, config: ArmoryClientConf
   switch (data.decision) {
     case Decision.PERMIT:
       if (!data.accessToken || !data.accessToken.value) {
-        throw new NarvalSdkException('Access token or validated request is missing', {
+        throw new ArmorySdkException('Access token or validated request is missing', {
           evaluation: data,
           authHost: config.authHost,
           authClientId: config.authClientId
@@ -128,7 +128,7 @@ export const getChainOrThrow = (chainId: number): Chain => {
     case 10:
       return optimism
     default:
-      throw new NarvalSdkException('Unsupported chain', {
+      throw new ArmorySdkException('Unsupported chain', {
         chainId
       })
   }

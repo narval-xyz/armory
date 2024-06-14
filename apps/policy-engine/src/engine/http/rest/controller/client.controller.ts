@@ -1,23 +1,23 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { AdminGuard } from '../../../../shared/decorator/admin-guard.decorator'
+import { ClientGuard } from '../../../../shared/decorator/client-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { AdminApiKeyGuard } from '../../../../shared/guard/admin-api-key.guard'
-import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
+import { SyncResponseDto } from '../dto/sync-response.dto'
 
 @Controller('/clients')
-@ApiTags('Client Management')
+@ApiTags('Client')
 export class ClientController {
   constructor(private clientService: ClientService) {}
 
   @Post()
-  @UseGuards(AdminApiKeyGuard)
+  @AdminGuard()
   @ApiOperation({
     summary: 'Creates a new client'
   })
   @ApiResponse({
-    description: 'The client has been successfully created',
     status: HttpStatus.CREATED,
     type: CreateClientResponseDto
   })
@@ -35,25 +35,21 @@ export class ClientController {
 
   @Post('/sync')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(ClientSecretGuard)
+  @ClientGuard()
   @ApiOperation({
-    summary: 'Initiate the client data stores synchronization'
+    summary: 'Initiates the data stores synchronization'
   })
-  async sync(@ClientId() clientId: string) {
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SyncResponseDto
+  })
+  async sync(@ClientId() clientId: string): Promise<SyncResponseDto> {
     try {
       const success = await this.clientService.syncDataStore(clientId)
 
-      return {
-        latestSync: {
-          success
-        }
-      }
+      return { success }
     } catch (error) {
-      return {
-        latestSync: {
-          success: false
-        }
-      }
+      return { success: false }
     }
   }
 }

@@ -208,7 +208,7 @@ describe('Data Store', () => {
       const { body, status } = await request(app.getHttpServer())
         .post('/data/policies')
         .query({ clientId })
-        .send({ policy })
+        .send(policy)
 
       expect(body).toEqual({
         policy,
@@ -267,7 +267,7 @@ describe('Data Store', () => {
       const { body, status } = await request(app.getHttpServer())
         .post('/data/entities')
         .query({ clientId })
-        .send({ entity })
+        .send(entity)
 
       expect(body).toEqual({
         entity,

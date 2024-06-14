@@ -3,16 +3,17 @@ import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { Permissions } from '../../../../shared/decorator/permissions.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
 import { DeriveWalletDto, DeriveWalletResponseDto } from '../dto/derive-wallet.dto'
 import { GenerateKeyResponseDto } from '../dto/generate-key-response.dto'
 import { GenerateKeyDto } from '../dto/generate-key.dto'
 
 @Controller()
-@Permissions(Permission.WALLET_CREATE)
+@PermissionGuard(Permission.WALLET_CREATE)
 @ApiHeader({
-  name: REQUEST_HEADER_CLIENT_ID
+  name: REQUEST_HEADER_CLIENT_ID,
+  required: true
 })
 export class GenerationController {
   constructor(private keyGenService: KeyGenerationService) {}
