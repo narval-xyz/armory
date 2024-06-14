@@ -14,8 +14,8 @@ import {
 import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
-import { AuthClient } from '../../auth/client'
-import { AuthConfig } from '../../auth/type'
+import { AuthAdminClient } from '../../auth/client'
+import { AuthAdminConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { credential } from '../../data-store/util'
@@ -83,27 +83,20 @@ describe('User Journeys', () => {
     }
   ]
 
-  describe('As an admin, I want to create a new client', () => {
-    let authClient: AuthClient
-    let authConfig: AuthConfig
+  describe('As an admin', () => {
+    describe('I want to create a new client', () => {
+      let authAdminClient: AuthAdminClient
+      let authAdminConfig: AuthAdminConfig
 
-    beforeEach(async () => {
-      authConfig = {
-        host: getAuthHost(),
-        // TODO: I don't need the client ID and secret for admin operations.
-        // User and Admin are different journeys.
-        clientId: 'foo',
-        adminApiKey: getAuthAdminApiKey(),
-        signer: {
-          jwk: userPrivateKey,
-          sign: await buildSignerForAlg(dataStorePrivateKey)
+      beforeEach(async () => {
+        authAdminConfig = {
+          host: getAuthHost(),
+          adminApiKey: getAuthAdminApiKey()
         }
-      }
 
-      authClient = new AuthClient(authConfig)
-    })
+        authAdminClient = new AuthAdminClient(authAdminConfig)
+      })
 
-    describe('createClient', () => {
       it('creates a new client', async () => {
         const entityStoreSource: HttpSource = {
           type: SourceType.HTTP,
@@ -116,7 +109,7 @@ describe('User Journeys', () => {
           url: `${getAuthHost()}/data/policies?clientId=${clientId}`
         }
 
-        client = await authClient.createClient({
+        client = await authAdminClient.createClient({
           name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
           id: clientId,
           dataStore: {
@@ -138,198 +131,198 @@ describe('User Journeys', () => {
     })
   })
 
-  describe('As a client, I want to set up my entity data store', () => {
-    let dataStoreConfig: DataStoreConfig
-    let entityStoreClient: EntityStoreClient
+  describe('As a client', () => {
+    describe('I want to set up my entity data store', () => {
+      let dataStoreConfig: DataStoreConfig
+      let entityStoreClient: EntityStoreClient
 
-    const fullEntities: Entities = { ...EntityUtil.empty(), ...entities }
+      const fullEntities: Entities = { ...EntityUtil.empty(), ...entities }
 
-    beforeEach(async () => {
-      dataStoreConfig = {
-        host: getAuthHost(),
-        clientId,
-        // TODO: DevEx - Can I simplify this? I'd rather only have signer as a function
-        // to avoid redundancy.
-        signer: {
-          jwk: userPrivateKey,
-          sign: await buildSignerForAlg(dataStorePrivateKey)
+      beforeEach(async () => {
+        dataStoreConfig = {
+          host: getAuthHost(),
+          clientId,
+          signer: {
+            jwk: userPrivateKey,
+            sign: await buildSignerForAlg(dataStorePrivateKey)
+          }
         }
-      }
-      entityStoreClient = new EntityStoreClient(dataStoreConfig)
-    })
-
-    describe('sign', () => {
-      it('fills a partial entities object before sign', async () => {
-        const issuedAt = new Date()
-
-        const signature = await entityStoreClient.sign(entities, { issuedAt })
-
-        const expectedSignature = await sign({
-          data: { ...EntityUtil.empty(), ...entities },
-          clientId: dataStoreConfig.clientId,
-          signer: dataStoreConfig.signer,
-          issuedAt
-        })
-
-        expect(signature).toEqual(expectedSignature)
+        entityStoreClient = new EntityStoreClient(dataStoreConfig)
       })
 
-      it('signs entities', async () => {
-        const issuedAt = new Date()
+      describe('sign', () => {
+        it('fills a partial entities object before sign', async () => {
+          const issuedAt = new Date()
 
-        const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
+          const signature = await entityStoreClient.sign(entities, { issuedAt })
 
-        const expectedSignature = await sign({
-          data: fullEntities,
-          clientId: dataStoreConfig.clientId,
-          signer: dataStoreConfig.signer,
-          issuedAt
+          const expectedSignature = await sign({
+            data: { ...EntityUtil.empty(), ...entities },
+            clientId: dataStoreConfig.clientId,
+            signer: dataStoreConfig.signer,
+            issuedAt
+          })
+
+          expect(signature).toEqual(expectedSignature)
         })
 
-        expect(signature).toEqual(expectedSignature)
-      })
-    })
+        it('signs entities', async () => {
+          const issuedAt = new Date()
 
-    describe('push', () => {
-      it('sends entities and signature to data store server', async () => {
-        const signature = await entityStoreClient.sign(entities)
+          const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
 
-        const store = await entityStoreClient.push(entities, signature)
-
-        expect(store).toEqual({
-          entity: {
-            data: {
-              ...EntityUtil.empty(),
-              ...entities
-            },
-            signature
-          },
-          version: 1,
-          latestSync: {
-            success: expect.any(Boolean)
-          }
-        })
-      })
-    })
-
-    describe('signAndPush', () => {
-      it('sends entities and signature to data store server', async () => {
-        const signOptions = { issuedAt: new Date() }
-        const signature = await entityStoreClient.sign(entities, signOptions)
-
-        const store = await entityStoreClient.signAndPush(entities, signOptions)
-
-        expect(store).toEqual({
-          entity: {
-            data: {
-              ...EntityUtil.empty(),
-              ...entities
-            },
-            signature
-          },
-          version: 2,
-          latestSync: {
-            success: expect.any(Boolean)
-          }
-        })
-      })
-    })
-
-    describe('get', () => {
-      it('returns latest entities and signature', async () => {
-        const actualEntities = await entityStoreClient.get()
-
-        expect(actualEntities).toEqual({
-          entity: {
+          const expectedSignature = await sign({
             data: fullEntities,
-            signature: expect.any(String)
-          }
+            clientId: dataStoreConfig.clientId,
+            signer: dataStoreConfig.signer,
+            issuedAt
+          })
+
+          expect(signature).toEqual(expectedSignature)
+        })
+      })
+
+      describe('push', () => {
+        it('sends entities and signature to data store server', async () => {
+          const signature = await entityStoreClient.sign(entities)
+
+          const store = await entityStoreClient.push(entities, signature)
+
+          expect(store).toEqual({
+            entity: {
+              data: {
+                ...EntityUtil.empty(),
+                ...entities
+              },
+              signature
+            },
+            version: 1,
+            latestSync: {
+              success: expect.any(Boolean)
+            }
+          })
+        })
+      })
+
+      describe('signAndPush', () => {
+        it('sends entities and signature to data store server', async () => {
+          const signOptions = { issuedAt: new Date() }
+          const signature = await entityStoreClient.sign(entities, signOptions)
+
+          const store = await entityStoreClient.signAndPush(entities, signOptions)
+
+          expect(store).toEqual({
+            entity: {
+              data: {
+                ...EntityUtil.empty(),
+                ...entities
+              },
+              signature
+            },
+            version: 2,
+            latestSync: {
+              success: expect.any(Boolean)
+            }
+          })
+        })
+      })
+
+      describe('get', () => {
+        it('returns latest entities and signature', async () => {
+          const actualEntities = await entityStoreClient.get()
+
+          expect(actualEntities).toEqual({
+            entity: {
+              data: fullEntities,
+              signature: expect.any(String)
+            }
+          })
         })
       })
     })
-  })
 
-  describe('As a client, I want to set up my policy data store', () => {
-    let dataStoreConfig: DataStoreConfig
-    let policyStoreClient: PolicyStoreClient
+    describe('I want to set up my policy data store', () => {
+      let dataStoreConfig: DataStoreConfig
+      let policyStoreClient: PolicyStoreClient
 
-    beforeEach(async () => {
-      dataStoreConfig = {
-        host: getAuthHost(),
-        clientId,
-        signer: {
-          jwk: userPrivateKey,
-          sign: await buildSignerForAlg(dataStorePrivateKey)
+      beforeEach(async () => {
+        dataStoreConfig = {
+          host: getAuthHost(),
+          clientId,
+          signer: {
+            jwk: userPrivateKey,
+            sign: await buildSignerForAlg(dataStorePrivateKey)
+          }
         }
-      }
-      policyStoreClient = new PolicyStoreClient(dataStoreConfig)
-    })
-
-    describe('sign', () => {
-      it('signs policies', async () => {
-        const issuedAt = new Date()
-
-        const signature = await policyStoreClient.sign(policies, { issuedAt })
-
-        const expectedSignature = await sign({
-          data: policies,
-          clientId: dataStoreConfig.clientId,
-          signer: dataStoreConfig.signer,
-          issuedAt
-        })
-
-        expect(signature).toEqual(expectedSignature)
+        policyStoreClient = new PolicyStoreClient(dataStoreConfig)
       })
-    })
 
-    describe('push', () => {
-      it('sends policies and signature to data store managed host', async () => {
-        const signature = await policyStoreClient.sign(policies)
+      describe('sign', () => {
+        it('signs policies', async () => {
+          const issuedAt = new Date()
 
-        const store = await policyStoreClient.push(policies, signature)
+          const signature = await policyStoreClient.sign(policies, { issuedAt })
 
-        expect(store).toEqual({
-          policy: {
+          const expectedSignature = await sign({
             data: policies,
-            signature
-          },
-          version: 1,
-          latestSync: {
-            success: expect.any(Boolean)
-          }
+            clientId: dataStoreConfig.clientId,
+            signer: dataStoreConfig.signer,
+            issuedAt
+          })
+
+          expect(signature).toEqual(expectedSignature)
         })
       })
-    })
 
-    describe('signAndPush', () => {
-      it('sends entities and signature to data store managed host', async () => {
-        const signOptions = { issuedAt: new Date() }
-        const signature = await policyStoreClient.sign(policies, signOptions)
+      describe('push', () => {
+        it('sends policies and signature to data store managed host', async () => {
+          const signature = await policyStoreClient.sign(policies)
 
-        const store = await policyStoreClient.signAndPush(policies, signOptions)
+          const store = await policyStoreClient.push(policies, signature)
 
-        expect(store).toEqual({
-          policy: {
-            data: policies,
-            signature
-          },
-          version: 2,
-          latestSync: {
-            success: expect.any(Boolean)
-          }
+          expect(store).toEqual({
+            policy: {
+              data: policies,
+              signature
+            },
+            version: 1,
+            latestSync: {
+              success: expect.any(Boolean)
+            }
+          })
         })
       })
-    })
 
-    describe('get', () => {
-      it('returns latest policies and signature', async () => {
-        const actualPolicies = await policyStoreClient.get()
+      describe('signAndPush', () => {
+        it('sends entities and signature to data store managed host', async () => {
+          const signOptions = { issuedAt: new Date() }
+          const signature = await policyStoreClient.sign(policies, signOptions)
 
-        expect(actualPolicies).toEqual({
-          policy: {
-            data: policies,
-            signature: expect.any(String)
-          }
+          const store = await policyStoreClient.signAndPush(policies, signOptions)
+
+          expect(store).toEqual({
+            policy: {
+              data: policies,
+              signature
+            },
+            version: 2,
+            latestSync: {
+              success: expect.any(Boolean)
+            }
+          })
+        })
+      })
+
+      describe('get', () => {
+        it('returns latest policies and signature', async () => {
+          const actualPolicies = await policyStoreClient.get()
+
+          expect(actualPolicies).toEqual({
+            policy: {
+              data: policies,
+              signature: expect.any(String)
+            }
+          })
         })
       })
     })

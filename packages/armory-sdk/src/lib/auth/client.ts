@@ -1,14 +1,14 @@
 import assert from 'assert'
 import axios from 'axios'
 import { ClientApiFactory, Configuration, CreateClientRequestDto, CreateClientResponseDto } from '../http/client/auth'
-import { AuthConfig, ClientHttp } from './type'
+import { AuthAdminConfig, ClientHttp } from './type'
 
-export class AuthClient {
-  private config: AuthConfig
+export class AuthAdminClient {
+  private config: AuthAdminConfig
 
   private clientHttp: ClientHttp
 
-  constructor(config: AuthConfig) {
+  constructor(config: AuthAdminConfig) {
     const httpConfig = new Configuration({
       basePath: config.host
     })

@@ -12,10 +12,15 @@ export const AuthConfig = z.object({
   host: z.string(),
   signer: Signer,
   clientId: z.string(),
-  clientSecret: z.string().optional(),
-  adminApiKey: z.string().optional()
+  clientSecret: z.string().optional()
 })
 export type AuthConfig = z.infer<typeof AuthConfig>
+
+export const AuthAdminConfig = z.object({
+  host: z.string(),
+  adminApiKey: z.string().optional()
+})
+export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 
 export type AuthorizationHttp = {
   /**
