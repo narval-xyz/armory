@@ -1,6 +1,6 @@
 'use client'
 
-import { faXmarkCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const ErrorStatus = ({ label }: { label: string | undefined }) => {

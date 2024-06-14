@@ -87,7 +87,7 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetEntityStoreResponseDto
   })
-  setEntities(@Query('clientId') clientId: string, @Body() body: { entity: SetEntityStoreDto }) {
+  setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
     return this.entityDataStoreService.setEntities(clientId, body.entity)
   }
 
@@ -100,7 +100,7 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetPolicyStoreResponseDto
   })
-  setPolicies(@Query('clientId') clientId: string, @Body() body: { policy: SetPolicyStoreDto }) {
+  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
     return this.policyDataStoreService.setPolicies(clientId, body.policy)
   }
 

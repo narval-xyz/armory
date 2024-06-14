@@ -11,6 +11,6 @@ export const SetEntityStoreResponse = z.object({
 })
 export type SetEntityStoreResponse = z.infer<typeof SetEntityStoreResponse>
 
-export class SetEntityStoreDto extends createZodDto(EntityStore) {}
+export class SetEntityStoreDto extends createZodDto(z.object({ entity: EntityStore })) {}
 
 export class SetEntityStoreResponseDto extends createZodDto(SetEntityStoreResponse) {}

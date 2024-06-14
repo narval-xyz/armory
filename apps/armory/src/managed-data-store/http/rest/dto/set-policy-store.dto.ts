@@ -11,6 +11,6 @@ export const SetPolicyStoreResponse = z.object({
 })
 export type SetPolicyStoreResponse = z.infer<typeof SetPolicyStoreResponse>
 
-export class SetPolicyStoreDto extends createZodDto(PolicyStore) {}
+export class SetPolicyStoreDto extends createZodDto(z.object({ policy: PolicyStore })) {}
 
 export class SetPolicyStoreResponseDto extends createZodDto(SetPolicyStoreResponse) {}
