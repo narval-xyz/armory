@@ -4,9 +4,7 @@ import {
   Entities,
   EntityType,
   EntityUtil,
-  HttpSource,
   Policy,
-  SourceType,
   Then,
   UserEntity,
   UserRole
@@ -18,7 +16,7 @@ import { AuthAdminClient } from '../../auth/client'
 import { AuthAdminConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
-import { credential } from '../../data-store/util'
+import { createHttpDataStore, credential } from '../../data-store/util'
 import { CreateClientResponseDto } from '../../http/client/auth'
 import { sign } from '../../jose/sign'
 
@@ -98,32 +96,14 @@ describe('User Journeys', () => {
       })
 
       it('creates a new client', async () => {
-        const entityStoreSource: HttpSource = {
-          type: SourceType.HTTP,
-          url: `${getAuthHost()}/data/entities?clientId=${clientId}`
-        }
-
-        const policyStoreSource: HttpSource = {
-          type: SourceType.HTTP,
-          // TODO: DevEx - Need util for these URLs
-          url: `${getAuthHost()}/data/policies?clientId=${clientId}`
-        }
-
         client = await authAdminClient.createClient({
           name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
           id: clientId,
-          dataStore: {
-            entity: {
-              data: entityStoreSource,
-              signature: entityStoreSource,
-              keys: [getPublicKey(dataStorePrivateKey)]
-            },
-            policy: {
-              data: policyStoreSource,
-              signature: policyStoreSource,
-              keys: [getPublicKey(dataStorePrivateKey)]
-            }
-          }
+          dataStore: createHttpDataStore({
+            host: getAuthHost(),
+            clientId,
+            keys: [getPublicKey(dataStorePrivateKey)]
+          })
         })
 
         expect(client).not.toEqual(undefined)
