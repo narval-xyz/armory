@@ -87,7 +87,7 @@ export class DataStoreController {
     type: SetEntityStoreResponseDto
   })
   setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
-    return this.entityDataStoreService.setEntities(clientId, body)
+    return this.entityDataStoreService.setEntities(clientId, body.entity)
   }
 
   @Post('/policies')
@@ -99,7 +99,7 @@ export class DataStoreController {
     type: SetPolicyStoreResponseDto
   })
   setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
-    return this.policyDataStoreService.setPolicies(clientId, body)
+    return this.policyDataStoreService.setPolicies(clientId, body.policy)
   }
 
   @Post('/sync')
