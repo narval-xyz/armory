@@ -52,6 +52,8 @@ const useVaultApi = () => {
   }, [vaultHost, vaultClientId, jwk, signer])
 
   const ping = () => {
+    if (!vaultHost) return
+
     try {
       return pingVault(vaultHost)
     } catch (error) {
@@ -89,11 +91,10 @@ const useVaultApi = () => {
         }
       )
 
-      setIsProcessing(false)
-
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setIsProcessing(false)
     }
   }
@@ -103,9 +104,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return signRequest(sdkVaultConfig, payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -114,9 +118,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return importPrivateKey(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -125,9 +132,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return importSeed(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -136,9 +146,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return generateKey(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -147,9 +160,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return deriveWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
