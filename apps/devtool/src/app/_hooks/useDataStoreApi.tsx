@@ -115,15 +115,14 @@ const useDataStoreApi = () => {
       return
     }
 
-    setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
-
     try {
-      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
       const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
       const signature = await signDataPayload({ clientId, ...config }, data)
       setEntityStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
   }
@@ -143,15 +142,14 @@ const useDataStoreApi = () => {
       return
     }
 
-    setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
-
     try {
-      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
       const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
       const signature = await signDataPayload({ clientId, ...config }, data)
       setPolicyStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
   }
@@ -165,9 +163,9 @@ const useDataStoreApi = () => {
       await setEntities(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
   }
 
   const signAndPushPolicy = async (data: Policy[]) => {
@@ -179,9 +177,9 @@ const useDataStoreApi = () => {
       await setPolicies(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
   }
 
   return {

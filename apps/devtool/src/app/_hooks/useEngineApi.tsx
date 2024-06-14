@@ -45,6 +45,8 @@ const useEngineApi = () => {
   }, [engineHost, engineClientId, engineClientSecret, jwk, signer])
 
   const ping = () => {
+    if (!engineHost) return
+
     try {
       return pingEngine(engineHost)
     } catch (error) {
