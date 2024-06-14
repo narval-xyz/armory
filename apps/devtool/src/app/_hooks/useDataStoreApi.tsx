@@ -93,71 +93,77 @@ const useDataStoreApi = () => {
     setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
   }, [policyStoreHost])
 
-  const signEntityData = async (data: Entities) => {
-    if (!sdkDataStoreConfig) return
-
-    setErrors(undefined)
-    setValidationErrors(undefined)
-
+  const validateEntityData = (data: Entities) => {
     const entityValidationResult = EntityData.safeParse({ entity: { data } })
 
     if (!entityValidationResult.success) {
       setValidationErrors(
         entityValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
       )
-      return
+      return false
     }
 
     const validation = EntityUtil.validate(data)
 
     if (!validation.success) {
       setValidationErrors(validation.issues.map((issue) => issue.message).join(', '))
-      return
+      return false
     }
 
-    setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
-
-    try {
-      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
-      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
-      const signature = await signDataPayload({ clientId, ...config }, data)
-      setEntityStore({ signature, data })
-    } catch (error) {
-      setErrors(extractErrorMessage(error))
-      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
-    }
+    return true
   }
 
-  const signPolicyData = async (data: Policy[]) => {
-    if (!sdkDataStoreConfig) return
-
-    setErrors(undefined)
-    setValidationErrors(undefined)
-
+  const validatePolicyData = (data: Policy[]) => {
     const policyValidationResult = PolicyData.safeParse({ policy: { data } })
 
     if (!policyValidationResult.success) {
       setValidationErrors(
         policyValidationResult.error.errors.map((error) => `${error.path.join('.')}:${error.message}`).join(', ')
       )
-      return
+      return false
     }
 
-    setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
+    return true
+  }
+
+  const signEntityData = async (data: Entities) => {
+    if (!sdkDataStoreConfig || !validateEntityData(data)) return
+
+    setErrors(undefined)
+    setValidationErrors(undefined)
 
     try {
-      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
+      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
+      const signature = await signDataPayload({ clientId, ...config }, data)
+      setEntityStore({ signature, data })
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
+    }
+  }
+
+  const signPolicyData = async (data: Policy[]) => {
+    if (!sdkDataStoreConfig || !validatePolicyData(data)) return
+
+    setErrors(undefined)
+    setValidationErrors(undefined)
+
+    try {
+      setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
       const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
       const signature = await signDataPayload({ clientId, ...config }, data)
       setPolicyStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
   }
 
   const signAndPushEntity = async (data: Entities) => {
-    if (!sdkDataStoreConfig) return
+    if (!sdkDataStoreConfig || !validateEntityData(data)) return
 
     try {
       setErrors(undefined)
@@ -165,13 +171,13 @@ const useDataStoreApi = () => {
       await setEntities(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
   }
 
   const signAndPushPolicy = async (data: Policy[]) => {
-    if (!sdkDataStoreConfig) return
+    if (!sdkDataStoreConfig || !validatePolicyData(data)) return
 
     try {
       setErrors(undefined)
@@ -179,9 +185,9 @@ const useDataStoreApi = () => {
       await setPolicies(sdkDataStoreConfig, data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
   }
 
   return {
