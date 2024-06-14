@@ -1,4 +1,4 @@
-import { IconDefinition } from '@fortawesome/pro-regular-svg-icons'
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, KeyboardEvent, useState } from 'react'
 import { classNames } from '../_lib/utils'

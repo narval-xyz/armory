@@ -1,6 +1,6 @@
 'use client'
 
-import { faRotateRight } from '@fortawesome/pro-regular-svg-icons'
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ErrorStatus from '../../_components/ErrorStatus'

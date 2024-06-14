@@ -1,6 +1,6 @@
 'use client'
 
-import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowsRotate, faFileSignature } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AuthorizationRequest, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
