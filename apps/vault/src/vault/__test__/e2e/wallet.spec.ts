@@ -123,9 +123,8 @@ describe('Generate', () => {
   })
 
   describe('GET', () => {
-    const accessToken = getAccessToken([Permission.WALLET_READ])
-
     it('responds with a list of wallets by client', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_READ])
       const secondClientId = uuid()
       await clientService.save({
         clientId: secondClientId,

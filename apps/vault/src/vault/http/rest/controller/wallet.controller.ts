@@ -25,6 +25,7 @@ export class WalletController {
   ) {}
 
   @Get()
+  @PermissionGuard(Permission.WALLET_READ)
   @ApiOperation({
     summary: 'List the client wallets'
   })
