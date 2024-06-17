@@ -9,18 +9,22 @@ import {
 import { Signer } from '../shared/type'
 
 export const AuthConfig = z.object({
-  host: z.string(),
-  signer: Signer,
-  clientId: z.string(),
-  clientSecret: z.string().optional(),
-  pollingInterval: z.number().optional(),
-  pollingTimeout: z.number().optional()
+  host: z.string().describe('Authorization Server host URL'),
+  signer: Signer.describe('Configuration for the authentication signer'),
+  clientId: z.string().describe('The client ID'),
+  clientSecret: z.string().optional().describe('The client secret (used for a few operations)'),
+  pollingIntervalMs: z
+    .number()
+    .default(10_000)
+    .optional()
+    .describe("The polling interval in milliseconds for fetching the authorization request until it's processed"),
+  pollingTimeoutMs: z.number().default(250).optional().describe('The polling timeout in milliseconds')
 })
 export type AuthConfig = z.infer<typeof AuthConfig>
 
 export const AuthAdminConfig = z.object({
-  host: z.string(),
-  adminApiKey: z.string().optional()
+  host: z.string().describe('Authorization Server host URL'),
+  adminApiKey: z.string().optional().describe('Authorization Server admin API key')
 })
 export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 

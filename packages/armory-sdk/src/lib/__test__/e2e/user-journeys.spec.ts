@@ -24,7 +24,9 @@ import {
 } from '../../http/client/auth'
 import { SignOptions, Signer } from '../../shared/type'
 
-jest.setTimeout(25_000)
+const TEST_TIMEOUT_MS = 30_000
+
+jest.setTimeout(TEST_TIMEOUT_MS)
 
 const userPrivateKey = privateKeyToJwk('0xb248d01c1726beee3dc1f6d7291b5b040a19e60fafae954e9814f50334ec35a8')
 
@@ -234,7 +236,7 @@ describe('User Journeys', () => {
 
       describe('get', () => {
         it('returns latest entities and signature', async () => {
-          const actualEntities = await entityStoreClient.get()
+          const actualEntities = await entityStoreClient.fetch()
 
           expect(actualEntities).toEqual({
             entity: {
@@ -319,7 +321,7 @@ describe('User Journeys', () => {
 
       describe('get', () => {
         it('returns latest policies and signature', async () => {
-          const actualPolicies = await policyStoreClient.get()
+          const actualPolicies = await policyStoreClient.fetch()
 
           expect(actualPolicies).toEqual({
             policy: {
@@ -342,7 +344,11 @@ describe('User Journeys', () => {
           signer: {
             jwk: userPrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
-          }
+          },
+          pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
+          // In a local AS and PE, 250 ms is equivalent to ~3 requests until
+          // the request is processed.
+          pollingIntervalMs: 250
         }
 
         authClient = new AuthClient(authConfig)

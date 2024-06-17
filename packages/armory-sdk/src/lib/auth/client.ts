@@ -72,8 +72,8 @@ export class AuthClient {
       shouldStop: ({ status }) =>
         status !== AuthorizationResponseDtoStatusEnum.Created &&
         status !== AuthorizationResponseDtoStatusEnum.Processing,
-      timeoutMs: 10_000,
-      intervalMs: 250
+      timeoutMs: this.getPollingTimeoutMs(),
+      intervalMs: this.getPollingIntervalMs()
     })
   }
 
@@ -96,5 +96,13 @@ export class AuthClient {
     const { signer } = this.config
 
     return signJwt(payload, signer.jwk, { alg: signer.alg }, signer.sign)
+  }
+
+  private getPollingTimeoutMs(): number {
+    return this.config.pollingTimeoutMs || 10_000
+  }
+
+  private getPollingIntervalMs(): number {
+    return this.config.pollingIntervalMs || 250
   }
 }

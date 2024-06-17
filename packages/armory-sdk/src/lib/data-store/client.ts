@@ -62,7 +62,7 @@ export class EntityStoreClient {
     return this.push(entities, signature)
   }
 
-  async get(): Promise<EntityDataStoreDto> {
+  async fetch(): Promise<EntityDataStoreDto> {
     const { data } = await this.dataStoreHttp.getEntities(this.config.clientId)
 
     return data
@@ -112,7 +112,7 @@ export class PolicyStoreClient {
     return this.push(policies, signature)
   }
 
-  async get(): Promise<PolicyDataStoreDto> {
+  async fetch(): Promise<PolicyDataStoreDto> {
     const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
 
     return data
