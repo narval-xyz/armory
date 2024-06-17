@@ -2,11 +2,11 @@ import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { KeyMetadata } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { Collection, PrivateWallet } from '../../../shared/type/domain.type'
+import { Collection, RootKey } from '../../../shared/type/domain.type'
 
 @Injectable()
-export class WalletRepository {
-  private KEY_PREFIX = Collection.WALLET
+export class RootKeyRepository {
+  private KEY_PREFIX = Collection.ROOT_KEY
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
@@ -21,27 +21,28 @@ export class WalletRepository {
     }
   }
 
-  async findById(clientId: string, id: string): Promise<PrivateWallet | null> {
+  async findById(clientId: string, id: string): Promise<RootKey | null> {
     const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
-      return coerce.decode(PrivateWallet, value)
+      return coerce.decode(RootKey, value)
     }
 
     return null
   }
 
-  async findByClientId(clientId: string): Promise<PrivateWallet[]> {
-    const values = await this.keyValueService.find(this.getMetadata(clientId))
-    return values ? values.map((value) => coerce.decode(PrivateWallet, value)) : []
+  async findByClientId(clientId: string): Promise<RootKey[]> {
+    const values = await this.keyValueService.find({ clientId, collection: this.KEY_PREFIX })
+    return values ? values.map((value) => coerce.decode(RootKey, value)) : []
   }
 
-  async save(clientId: string, wallet: PrivateWallet): Promise<PrivateWallet> {
+  async save(clientId: string, key: RootKey): Promise<RootKey> {
     await this.keyValueService.set(
-      this.getKey(clientId, wallet.id.toLowerCase()),
-      coerce.encode(PrivateWallet, wallet),
+      this.getKey(clientId, key.keyId.toLowerCase()),
+      coerce.encode(RootKey, key),
       this.getMetadata(clientId)
     )
-    return wallet
+
+    return key
   }
 }

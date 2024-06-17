@@ -23,13 +23,13 @@ import {
 import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 import { NonceService } from './nonce.service'
 
 @Injectable()
 export class SigningService {
   constructor(
-    private walletRepository: WalletRepository,
+    private accountRepository: AccountRepository,
     private nonceService: NonceService
   ) {}
 
@@ -77,7 +77,7 @@ export class SigningService {
     //   for testing, uncomment the below lines to actually SEND the tx to the chain.
     // */
 
-    // const c2 = createWalletClient({
+    // const c2 = createAccountClient({
     //   account,
     //   chain,
     //   transport: http('https://polygon-mainnet.g.alchemy.com/v2/zBfj-qB2fQVXyTlbD8DRitsNn_ukCJAp') // clear the RPC so we don't call any chain stuff here.
@@ -115,9 +115,9 @@ export class SigningService {
   // ecdsa signature on the byte representation of the hex-encoded raw message
   async signRaw(clientId: string, action: SignRawAction): Promise<Hex> {
     const { rawMessage, resourceId } = action
-    const wallet = await this.findWallet(clientId, resourceId)
+    const account = await this.findAccount(clientId, resourceId)
     const message = hexToBytes(rawMessage)
-    const signature = signSecp256k1(message, wallet.privateKey, true)
+    const signature = signSecp256k1(message, account.privateKey, true)
     const hexSignature = signatureToHex(signature)
 
     await this.maybeSaveNonce(clientId, action)
@@ -125,24 +125,25 @@ export class SigningService {
     return hexSignature
   }
 
-  private async findWallet(clientId: string, resourceId: string) {
-    const wallet = await this.walletRepository.findById(clientId, resourceId)
+  private async findAccount(clientId: string, resourceId: string) {
+    const account = await this.accountRepository.findById(clientId, resourceId)
 
-    if (!wallet) {
+    if (!account) {
       throw new ApplicationException({
-        message: 'Wallet not found',
+        message: 'Account not found',
         suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
         context: { clientId, resourceId }
       })
     }
 
-    return wallet
+    return account
   }
 
   private async buildClient(clientId: string, resourceId: string, chain?: chains.Chain) {
-    const wallet = await this.findWallet(clientId, resourceId)
+    const { privateKey } = await this.findAccount(clientId, resourceId)
 
-    const account = privateKeyToAccount(wallet.privateKey)
+    const account = privateKeyToAccount(privateKey)
+
     const client = createWalletClient({
       account,
       chain,

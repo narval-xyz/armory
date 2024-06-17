@@ -2,11 +2,11 @@ import { coerce } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { KeyMetadata } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../shared/module/key-value/core/service/encrypt-key-value.service'
-import { Collection, RootKey } from '../../../shared/type/domain.type'
+import { Collection, PrivateAccount } from '../../../shared/type/domain.type'
 
 @Injectable()
-export class MnemonicRepository {
-  private KEY_PREFIX = Collection.MNEMONIC
+export class AccountRepository {
+  private KEY_PREFIX = Collection.ACCOUNT
 
   constructor(private keyValueService: EncryptKeyValueService) {}
 
@@ -21,28 +21,27 @@ export class MnemonicRepository {
     }
   }
 
-  async findById(clientId: string, id: string): Promise<RootKey | null> {
+  async findById(clientId: string, id: string): Promise<PrivateAccount | null> {
     const value = await this.keyValueService.get(this.getKey(clientId, id.toLowerCase()))
 
     if (value) {
-      return coerce.decode(RootKey, value)
+      return coerce.decode(PrivateAccount, value)
     }
 
     return null
   }
 
-  async findByClientId(clientId: string): Promise<RootKey[]> {
-    const values = await this.keyValueService.find({ clientId, collection: this.KEY_PREFIX })
-    return values ? values.map((value) => coerce.decode(RootKey, value)) : []
+  async findByClientId(clientId: string): Promise<PrivateAccount[]> {
+    const values = await this.keyValueService.find(this.getMetadata(clientId))
+    return values ? values.map((value) => coerce.decode(PrivateAccount, value)) : []
   }
 
-  async save(clientId: string, key: RootKey): Promise<RootKey> {
+  async save(clientId: string, account: PrivateAccount): Promise<PrivateAccount> {
     await this.keyValueService.set(
-      this.getKey(clientId, key.keyId.toLowerCase()),
-      coerce.encode(RootKey, key),
+      this.getKey(clientId, account.id.toLowerCase()),
+      coerce.encode(PrivateAccount, account),
       this.getMetadata(clientId)
     )
-
-    return key
+    return account
   }
 }

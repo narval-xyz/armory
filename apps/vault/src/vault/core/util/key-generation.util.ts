@@ -1,5 +1,5 @@
-import { resourceId } from '@narval/armory-sdk'
-import { Alg, Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
+import { AddressIndex, resourceId } from '@narval/armory-sdk'
+import { Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
@@ -8,8 +8,8 @@ import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
-import { AddressIndex, Origin, PrivateWallet } from '../../../shared/type/domain.type'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-key.dto'
+import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { GenerateKeyDto } from '../../http/rest/dto/generate-wallet.dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -47,7 +47,7 @@ export const findAddressIndexes = (path: (string | undefined)[]): number[] => {
   return results.filter((index): index is number => index !== undefined)
 }
 
-export const hdKeyToWallet = async ({
+export const hdKeyToAccount = async ({
   key,
   keyId,
   path
@@ -55,7 +55,7 @@ export const hdKeyToWallet = async ({
   key: HDKey
   keyId: string
   path: string
-}): Promise<PrivateWallet> => {
+}): Promise<PrivateAccount> => {
   if (!key.privateKey) {
     throw new ApplicationException({
       message: 'HDKey does not have a private key',
@@ -86,12 +86,18 @@ export const generateNextPaths = (derivedIndexes: number[], count: number): stri
   return range(startIndex, startIndex + count).map((index) => `${BIP44_PREFIX}${index}`)
 }
 
-export const mnemonicToRootKey = (mnemonic: string): HDKey => {
-  const seed = mnemonicToSeedSync(mnemonic)
+export const mnemonicToRootKey = (rootKey: string): HDKey => {
+  const seed = mnemonicToSeedSync(rootKey)
   return HDKey.fromMasterSeed(seed)
 }
 
-export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
+export const getRootKey = (
+  mnemonic: string,
+  opts: GenerateKeyDto
+): {
+  rootKey: HDKey
+  keyId: string
+} => {
   const { curve = Curves.SECP256K1 } = opts
   switch (curve) {
     case Curves.SECP256K1: {
@@ -103,27 +109,6 @@ export const getSecp256k1Key = (mnemonic: string, opts: GenerateKeyDto) => {
         message: 'Unsupported curve',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         context: { curve: opts.curve }
-      })
-  }
-}
-
-export const getRootKey = (
-  mnemonic: string,
-  opts: GenerateKeyDto
-): {
-  rootKey: HDKey
-  keyId: string
-} => {
-  const { alg = Alg.ES256K } = opts
-
-  switch (alg) {
-    case Alg.ES256K:
-      return getSecp256k1Key(mnemonic, opts)
-    default:
-      throw new ApplicationException({
-        message: 'Unsupported algorithm',
-        suggestedHttpStatusCode: 400,
-        context: { alg }
       })
   }
 }

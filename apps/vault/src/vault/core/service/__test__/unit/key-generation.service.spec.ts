@@ -10,10 +10,10 @@ import { MockProxy, mock } from 'jest-mock-extended'
 import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../../../client/core/service/client.service'
 import { Client, Origin } from '../../../../../shared/type/domain.type'
+import { AccountRepository } from '../../../../persistence/repository/account.repository'
 import { BackupRepository } from '../../../../persistence/repository/backup.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
-import { MnemonicRepository } from '../../../../persistence/repository/mnemonic.repository'
-import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
+import { RootKeyRepository } from '../../../../persistence/repository/root-key.repository'
 import { KeyGenerationService } from '../../key-generation.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -31,8 +31,8 @@ const client: Client = {
 }
 
 describe('GenerateService', () => {
-  let walletRepositoryMock: MockProxy<WalletRepository>
-  let mnemonicRepositoryMock: MockProxy<MnemonicRepository>
+  let accountRepositoryMock: MockProxy<AccountRepository>
+  let rootKeyRepositoryMock: MockProxy<RootKeyRepository>
   let clientServiceMock: MockProxy<ClientService>
 
   let keyGenerationService: KeyGenerationService
@@ -43,16 +43,18 @@ describe('GenerateService', () => {
     clientServiceMock = mock<ClientService>()
     clientServiceMock.findById.mockResolvedValue(client)
 
-    mnemonicRepositoryMock = mock<MnemonicRepository>()
-    mnemonicRepositoryMock.save.mockResolvedValue({
+    rootKeyRepositoryMock = mock<RootKeyRepository>()
+    rootKeyRepositoryMock.save.mockResolvedValue({
       mnemonic,
       keyId: 'keyId',
-      origin: Origin.GENERATED
+      origin: Origin.GENERATED,
+      curve: 'secp256k1',
+      keyType: 'local'
     })
 
-    walletRepositoryMock = mock<WalletRepository>()
-    walletRepositoryMock.save.mockResolvedValue({
-      id: 'walletId',
+    accountRepositoryMock = mock<AccountRepository>()
+    accountRepositoryMock.save.mockResolvedValue({
+      id: 'accountId',
       address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
       publicKey: await publicKeyToHex(secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)),
       privateKey: PRIVATE_KEY,
@@ -63,20 +65,20 @@ describe('GenerateService', () => {
       providers: [
         KeyGenerationService,
         {
-          provide: WalletRepository,
-          useValue: walletRepositoryMock
+          provide: AccountRepository,
+          useValue: accountRepositoryMock
         },
         {
           provide: ImportRepository,
-          useValue: {}
+          useValue: { curve: 'secp256k1' }
         },
         {
           provide: ClientService,
           useValue: clientServiceMock
         },
         {
-          provide: MnemonicRepository,
-          useValue: mnemonicRepositoryMock
+          provide: RootKeyRepository,
+          useValue: rootKeyRepositoryMock
         },
         {
           provide: BackupRepository,
@@ -91,10 +93,10 @@ describe('GenerateService', () => {
     jest.spyOn(keyGenerationService, 'getIndexes').mockResolvedValue([])
   })
 
-  it('returns first derived wallet from a generated mnemonic', async () => {
-    const { wallet } = await keyGenerationService.generateMnemonic('clientId', {})
+  it('returns first derived account from a generated rootKey', async () => {
+    const { account } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
 
-    expect(wallet.derivationPath).toEqual("m/44'/60'/0'/0/0")
+    expect(account.derivationPath).toEqual("m/44'/60'/0'/0/0")
   })
 
   it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
@@ -105,18 +107,20 @@ describe('GenerateService', () => {
       backupPublicKey: rsaBackupKey
     })
 
-    const { backup } = await keyGenerationService.generateMnemonic('clientId', {})
+    const { backup } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
     const decryptedMnemonic = await rsaDecrypt(backup as string, rsaBackupKey)
     const spaceInMnemonic = decryptedMnemonic.split(' ')
     expect(spaceInMnemonic.length).toBe(12)
   })
 
-  it('saves mnemonic to the database', async () => {
-    await keyGenerationService.generateMnemonic('clientId', {})
-    expect(mnemonicRepositoryMock.save).toHaveBeenCalledWith('clientId', {
+  it('saves rootKey to the database', async () => {
+    await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
+    expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith('clientId', {
       mnemonic: expect.any(String),
       keyId: expect.any(String),
-      origin: Origin.GENERATED
+      origin: Origin.GENERATED,
+      curve: 'secp256k1',
+      keyType: 'local'
     })
   })
 })
