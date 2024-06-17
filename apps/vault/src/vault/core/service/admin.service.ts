@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 
 @Injectable()
 export class AdminService {
-  constructor(private walletRepository: WalletRepository) {}
+  constructor(private accountRepository: AccountRepository) {}
 
-  async getWallets(clientId: string) {
-    const wallets = await this.walletRepository.findByClientId(clientId)
-    return wallets
+  async getAccounts(clientId: string) {
+    const accounts = await this.accountRepository.findByClientId(clientId)
+    return accounts
   }
 }
