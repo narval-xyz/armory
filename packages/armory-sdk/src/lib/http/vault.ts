@@ -5,8 +5,8 @@ import { HEADER_ADMIN_API_KEY } from '../constants'
 import { Htm, VaultAdminConfig, VaultClientConfig } from '../domain'
 import { ArmorySdkException } from '../exceptions'
 import {
-  DeriveWalletRequest,
-  DeriveWalletResponse,
+  DeriveAccountRequest,
+  DeriveAccountResponse,
   GenerateEncryptionKeyRequest,
   GenerateEncryptionKeyResponse,
   GenerateKeyRequest,
@@ -204,7 +204,7 @@ export const generateWallet = async (
   }
 }
 
-export const generateAccount = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveWalletRequest) => {
+export const generateAccount = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveAccountRequest) => {
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
@@ -220,7 +220,7 @@ export const generateAccount = async (config: VaultClientConfig, { accessToken, 
       signer
     })
 
-    const { data } = await axios.post<DeriveWalletResponse>(uri, payload, {
+    const { data } = await axios.post<DeriveAccountResponse>(uri, payload, {
       headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 

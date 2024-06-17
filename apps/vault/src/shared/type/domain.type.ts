@@ -1,7 +1,6 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { BIP44_PREFIX } from './bip44.type'
 
 export const CreateClientInput = z.object({
   clientId: z.string().optional(),
@@ -60,31 +59,6 @@ export const PrivateAccount = z.object({
 })
 export type PrivateAccount = z.infer<typeof PrivateAccount>
 
-export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
-  (value) => {
-    if (typeof value !== 'string') return false
-
-    if (!value.startsWith(BIP44_PREFIX)) return false
-
-    // Extract the part after the prefix and check if it's a number
-    const suffix = value.slice(BIP44_PREFIX.length)
-    const isNumber = /^\d+$/.test(suffix)
-    return isNumber
-  },
-  {
-    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
-  }
-)
-export type DerivationPath = z.infer<typeof DerivationPath>
-
-export const AddressIndex = DerivationPath.transform((data) => {
-  const suffix = data.slice(BIP44_PREFIX.length)
-  const index = Number(suffix)
-
-  return index
-})
-export type AddressIndex = z.infer<typeof AddressIndex>
-
 export const PublicAccount = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
@@ -94,24 +68,24 @@ export const PublicAccount = z.object({
 })
 export type PublicAccount = z.infer<typeof PublicAccount>
 
-export const LocalKey = z.object({
+export const LocalRootKey = z.object({
   keyId: z.string().min(1),
   mnemonic: z.string().min(1),
   curve: z.string(),
   keyType: z.literal('local'),
   origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
 })
-export type LocalKey = z.infer<typeof LocalKey>
+export type LocalRootKey = z.infer<typeof LocalRootKey>
 
-export const RemoteKey = z.object({
+export const RemoteRootKey = z.object({
   keyId: z.string().min(1),
   curve: z.string(),
   keyType: z.literal('remote'),
   origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
 })
-export type RemoteKey = z.infer<typeof RemoteKey>
+export type RemoteRootKey = z.infer<typeof RemoteRootKey>
 
-export const RootKey = z.discriminatedUnion('keyType', [LocalKey, RemoteKey])
+export const RootKey = z.discriminatedUnion('keyType', [LocalRootKey, RemoteRootKey])
 export type RootKey = z.infer<typeof RootKey>
 
 export const Backup = z.object({

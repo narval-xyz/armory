@@ -10,8 +10,7 @@ export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
 
 export const Curves = {
   SECP256K1: 'secp256k1',
-  P256: 'P-256',
-  ED25519: 'ed25519'
+  P256: 'P-256'
 } as const
 
 export type Curves = (typeof Curves)[keyof typeof Curves]
