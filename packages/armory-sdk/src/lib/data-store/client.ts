@@ -43,10 +43,23 @@ export class EntityStoreClient {
     this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
   }
 
+  /**
+   * Signs the provided entities and returns a JWT token.
+   *
+   * @param entities - The entities to sign.
+   * @param opts - Optional sign options.
+   * @returns A promise that resolves to a JWT token.
+   */
   async sign(entities: Partial<Entities>, opts?: SignOptions): Promise<string> {
     return signJwtPayload(this.config, buildJwtPayload(this.config, this.populate(entities), opts))
   }
 
+  /**
+   * Pushes entities and signature to the data store.
+   *
+   * @param store - The store object containing the entities data and signature.
+   * @returns A promise that resolves to the response.
+   */
   async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponseDto> {
     const { data } = await this.dataStoreHttp.setEntities(this.config.clientId, {
       data: this.populate(store.data),
@@ -56,6 +69,13 @@ export class EntityStoreClient {
     return data
   }
 
+  /**
+   * Signs the given entities and pushes them to the data store.
+   *
+   * @param entities - The entities to sign and push.
+   * @param opts - Optional sign options.
+   * @returns A promise that resolves to the response containing the latest entity store.
+   */
   async signAndPush(entities: Partial<Entities>, opts?: SignOptions): Promise<SetEntityStoreResponseDto> {
     const signature = await this.sign(entities, opts)
 
@@ -65,6 +85,11 @@ export class EntityStoreClient {
     })
   }
 
+  /**
+   * Fetches the entity data store.
+   *
+   * @returns A promise that resolves to the entity data store.
+   */
   async fetch(): Promise<EntityDataStoreDto> {
     const { data } = await this.dataStoreHttp.getEntities(this.config.clientId)
 
@@ -96,22 +121,47 @@ export class PolicyStoreClient {
     this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
   }
 
+  /**
+   * Signs the provided policies and returns a JWT token.
+   *
+   * @param entities - The policies to sign.
+   * @param opts - Optional sign options.
+   * @returns A promise that resolves to a JWT token.
+   */
   async sign(policies: Policy[], opts?: SignOptions): Promise<string> {
     return signJwtPayload(this.config, buildJwtPayload(this.config, policies, opts))
   }
 
+  /**
+   * Pushes policies and signature to the data store.
+   *
+   * @param store - The store object containing the policies data and signature.
+   * @returns A promise that resolves to the response.
+   */
   async push(store: PolicyStore): Promise<SetPolicyStoreResponseDto> {
     const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, store)
 
     return data
   }
 
+  /**
+   * Signs the given policies and pushes them to the data store.
+   *
+   * @param entities - The policies to sign and push.
+   * @param opts - Optional sign options.
+   * @returns A promise that resolves to the response containing the latest policy store.
+   */
   async signAndPush(policies: Policy[], opts?: SignOptions): Promise<SetPolicyStoreResponseDto> {
     const signature = await this.sign(policies, opts)
 
     return this.push({ data: policies, signature })
   }
 
+  /**
+   * Fetches the latest policies data store.
+   *
+   * @returns A promise that resolves to the policy data store.
+   */
   async fetch(): Promise<PolicyDataStoreDto> {
     const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
 

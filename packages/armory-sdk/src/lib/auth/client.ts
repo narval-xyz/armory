@@ -33,6 +33,13 @@ export class AuthAdminClient {
     this.clientHttp = ClientApiFactory(httpConfig, config.host, axiosInstance)
   }
 
+  /**
+   * Creates a new client.
+   *
+   * @param input - The input data for creating the client.
+   * @returns A promise that resolves to the created client.
+   * @throws {Error} If the admin API key is missing.
+   */
   async createClient(input: CreateClientRequestDto): Promise<CreateClientResponseDto> {
     assert(this.config.adminApiKey !== undefined, 'Missing admin API key')
 
@@ -58,6 +65,13 @@ export class AuthClient {
     this.authorizationHttp = AuthorizationApiFactory(httpConfig, config.host, axiosInstance)
   }
 
+  /**
+   * Evaluates an authorization request and polls the processed the authorization.
+   *
+   * @param input - The authorization request input.
+   * @param opts - Optional sign options.
+   * @returns A promise that resolves to the authorization response.
+   */
   async evaluate(input: AuthorizationRequest, opts?: SignOptions): Promise<AuthorizationResponseDto> {
     const jwtPayload = this.buildJwtPayload(input, opts)
     const authentication = await this.signJwtPayload(jwtPayload)
@@ -77,6 +91,12 @@ export class AuthClient {
     })
   }
 
+  /**
+   * Gets an authorization by ID.
+   *
+   * @param id - The ID of the authorization to retrieve.
+   * @returns A Promise that resolves to the retrieved AuthorizationResponseDto.
+   */
   async getAuthorizationById(id: string): Promise<AuthorizationResponseDto> {
     const { data } = await this.authorizationHttp.getById(id)
 

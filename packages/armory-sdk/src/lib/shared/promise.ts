@@ -1,5 +1,11 @@
 export class ArmoryPromiseError extends Error {}
 
+/**
+ * Pauses the execution for a specified amount of time.
+ *
+ * @param time - The duration to pause in milliseconds.
+ * @returns A Promise that resolves after the specified time has elapsed.
+ */
 export const sleep = (time: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), time)
@@ -13,6 +19,13 @@ export type PollingOptions = {
   exponentialBackoffAfterMs?: number
 }
 
+/**
+ * Executes a polling function until a condition is met or a timeout occurs.
+ *
+ * @param input - The input object containing the polling function and options.
+ * @returns A promise that resolves with the result of the polling function.
+ * @throws {ArmoryPromiseError} If the polling times out or ends unexpectedly.
+ */
 export const polling = async <T>(
   input: {
     fn: () => Promise<T>
