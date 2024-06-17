@@ -64,7 +64,9 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"tokens": tokens},
+		"filters": {
+			"tokens": tokens
+		},
 	})
 
 	reason = {
@@ -97,7 +99,9 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"resources": resources},
+		"filters": {	
+			"resources": resources
+		},
 	})
 
 	reason = {
@@ -129,7 +133,9 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"userGroups": userGroups},
+		"filters": {
+			"userGroups": userGroups
+		},
 	})
 
 	reason = {
@@ -161,7 +167,9 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"walletGroups": walletGroups},
+		"filters": {
+			"walletGroups": walletGroups
+		},
 	})
 
 	reason = {
@@ -202,7 +210,10 @@ permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"tokens": tokens},
+		"filters": {
+			"tokens": tokens, 
+			"users": users
+		},
 	})
 
 	approvals = checkApprovals(approvalsRequired)
