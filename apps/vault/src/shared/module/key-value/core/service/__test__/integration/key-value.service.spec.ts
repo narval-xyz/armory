@@ -37,7 +37,7 @@ describe(KeyValueService.name, () => {
       const key = 'test-key'
       const value = 'plain value'
 
-      await service.set(key, value, { collection: Collection.MNEMONIC })
+      await service.set(key, value, { collection: Collection.ROOT_KEY })
 
       expect(await service.get(key)).toEqual(value)
     })
@@ -52,11 +52,11 @@ describe(KeyValueService.name, () => {
       const key3 = 'test-key-3'
       const value3 = 'plain value 3'
 
-      await service.set(key1, value1, { collection: Collection.MNEMONIC })
-      await service.set(key2, value2, { collection: Collection.MNEMONIC })
-      await service.set(key3, value3, { collection: Collection.WALLET })
+      await service.set(key1, value1, { collection: Collection.ROOT_KEY })
+      await service.set(key2, value2, { collection: Collection.ROOT_KEY })
+      await service.set(key3, value3, { collection: Collection.ACCOUNT })
 
-      expect(await service.find({ collection: Collection.MNEMONIC })).toEqual([value1, value2])
+      expect(await service.find({ collection: Collection.ROOT_KEY })).toEqual([value1, value2])
     })
     it('finds all values for a given collenction and clientId', async () => {
       const key1 = 'test-key-1'
@@ -66,11 +66,11 @@ describe(KeyValueService.name, () => {
       const key3 = 'test-key-3'
       const value3 = 'plain value 3'
 
-      await service.set(key1, value1, { collection: Collection.MNEMONIC, clientId: 'client-1' })
-      await service.set(key2, value2, { collection: Collection.MNEMONIC, clientId: 'client-2' })
-      await service.set(key3, value3, { collection: Collection.WALLET, clientId: 'client-1' })
+      await service.set(key1, value1, { collection: Collection.ROOT_KEY, clientId: 'client-1' })
+      await service.set(key2, value2, { collection: Collection.ROOT_KEY, clientId: 'client-2' })
+      await service.set(key3, value3, { collection: Collection.ACCOUNT, clientId: 'client-1' })
 
-      expect(await service.find({ collection: Collection.MNEMONIC, clientId: 'client-1' })).toEqual([value1])
+      expect(await service.find({ collection: Collection.ROOT_KEY, clientId: 'client-1' })).toEqual([value1])
     })
   })
 })

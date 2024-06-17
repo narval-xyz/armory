@@ -1,7 +1,6 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { BIP44_PREFIX } from './bip44.type'
 
 export const CreateClientInput = z.object({
   clientId: z.string().optional(),
@@ -49,7 +48,7 @@ export const Origin = {
 } as const
 export type Origin = (typeof Origin)[keyof typeof Origin]
 
-export const PrivateWallet = z.object({
+export const PrivateAccount = z.object({
   id: z.string().min(1),
   privateKey: hexSchema.refine((val) => val.length === 66, 'Invalid hex privateKey'),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
@@ -58,47 +57,35 @@ export const PrivateWallet = z.object({
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type PrivateWallet = z.infer<typeof PrivateWallet>
+export type PrivateAccount = z.infer<typeof PrivateAccount>
 
-export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
-  (value) => {
-    if (typeof value !== 'string') return false
-
-    if (!value.startsWith(BIP44_PREFIX)) return false
-
-    // Extract the part after the prefix and check if it's a number
-    const suffix = value.slice(BIP44_PREFIX.length)
-    const isNumber = /^\d+$/.test(suffix)
-    return isNumber
-  },
-  {
-    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
-  }
-)
-export type DerivationPath = z.infer<typeof DerivationPath>
-
-export const AddressIndex = DerivationPath.transform((data) => {
-  const suffix = data.slice(BIP44_PREFIX.length)
-  const index = Number(suffix)
-
-  return index
-})
-export type AddressIndex = z.infer<typeof AddressIndex>
-
-export const PublicWallet = z.object({
+export const PublicAccount = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type PublicWallet = z.infer<typeof PublicWallet>
+export type PublicAccount = z.infer<typeof PublicAccount>
 
-export const RootKey = z.object({
+export const LocalRootKey = z.object({
   keyId: z.string().min(1),
   mnemonic: z.string().min(1),
+  curve: z.string(),
+  keyType: z.literal('local'),
   origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
 })
+export type LocalRootKey = z.infer<typeof LocalRootKey>
+
+export const RemoteRootKey = z.object({
+  keyId: z.string().min(1),
+  curve: z.string(),
+  keyType: z.literal('remote'),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
+})
+export type RemoteRootKey = z.infer<typeof RemoteRootKey>
+
+export const RootKey = z.discriminatedUnion('keyType', [LocalRootKey, RemoteRootKey])
 export type RootKey = z.infer<typeof RootKey>
 
 export const Backup = z.object({
@@ -126,8 +113,8 @@ export type ImportKey = z.infer<typeof ImportKey>
 export const Collection = {
   CLIENT: 'client',
   APP: 'app',
-  WALLET: 'wallet',
-  MNEMONIC: 'mnemonic',
+  ACCOUNT: 'account',
+  ROOT_KEY: 'root-key',
   IMPORT: 'import',
   BACKUP: 'backup',
   REQUEST_NONCE: 'request-nonce'

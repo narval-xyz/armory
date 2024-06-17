@@ -5,8 +5,8 @@ import { HEADER_ADMIN_API_KEY } from '../constants'
 import { Htm, VaultAdminConfig, VaultClientConfig } from '../domain'
 import { ArmorySdkException } from '../exceptions'
 import {
-  DeriveWalletRequest,
-  DeriveWalletResponse,
+  DeriveAccountRequest,
+  DeriveAccountResponse,
   GenerateEncryptionKeyRequest,
   GenerateEncryptionKeyResponse,
   GenerateKeyRequest,
@@ -87,7 +87,7 @@ export const generateEncryptionKey = async (
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/encryption-keys`
+    const uri = `${vaultHost}/encryption-keys`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -109,7 +109,7 @@ export const generateEncryptionKey = async (
   }
 }
 
-export const importPrivateKey = async (
+export const importAccount = async (
   config: VaultClientConfig,
   { accessToken, privateKey }: ImportPrivateKeyRequest
 ): Promise<ImportPrivateKeyResponse> => {
@@ -120,7 +120,7 @@ export const importPrivateKey = async (
 
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/private-keys`
+    const uri = `${vaultHost}/accounts/import`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -142,7 +142,7 @@ export const importPrivateKey = async (
   }
 }
 
-export const importSeed = async (
+export const importWallet = async (
   config: VaultClientConfig,
   { accessToken, seed }: ImportSeedRequest
 ): Promise<ImportSeedResponse> => {
@@ -153,7 +153,7 @@ export const importSeed = async (
 
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/import/seeds`
+    const uri = `${vaultHost}/wallets/import`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -175,14 +175,14 @@ export const importSeed = async (
   }
 }
 
-export const generateKey = async (
+export const generateWallet = async (
   config: VaultClientConfig,
   { accessToken, ...payload }: GenerateKeyRequest
 ): Promise<GenerateKeyResponse> => {
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/generate/keys`
+    const uri = `${vaultHost}/wallets`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -204,11 +204,11 @@ export const generateKey = async (
   }
 }
 
-export const deriveWallet = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveWalletRequest) => {
+export const generateAccount = async (config: VaultClientConfig, { accessToken, ...payload }: DeriveAccountRequest) => {
   try {
     const { vaultHost, vaultClientId, jwk, alg, signer } = config
 
-    const uri = `${vaultHost}/derive/wallets`
+    const uri = `${vaultHost}/accounts`
 
     const detachedJws = await signAccountJwsd({
       payload,
@@ -220,7 +220,7 @@ export const deriveWallet = async (config: VaultClientConfig, { accessToken, ...
       signer
     })
 
-    const { data } = await axios.post<DeriveWalletResponse>(uri, payload, {
+    const { data } = await axios.post<DeriveAccountResponse>(uri, payload, {
       headers: buildGnapVaultHeaders({ vaultClientId, accessToken: accessToken.value, detachedJws })
     })
 
