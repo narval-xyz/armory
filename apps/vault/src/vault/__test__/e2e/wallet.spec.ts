@@ -4,6 +4,7 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { secret } from '@narval/nestjs-shared'
 import {
   Alg,
+  Curves,
   Payload,
   RsaPrivateKey,
   RsaPublicKey,
@@ -29,8 +30,10 @@ import { Config, load } from '../../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Client } from '../../../shared/type/domain.type'
+import { Client, Origin } from '../../../shared/type/domain.type'
 import { AppService } from '../../core/service/app.service'
+import { ImportService } from '../../core/service/import.service'
+import { KeyGenerationService } from '../../core/service/key-generation.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -40,7 +43,9 @@ describe('Generate', () => {
   let testPrismaService: TestPrismaService
   let appService: AppService
   let clientService: ClientService
+  let keyGenService: KeyGenerationService
   let configService: ConfigService<Config>
+  let importService: ImportService
 
   const clientId = uuid()
 
@@ -94,7 +99,8 @@ describe('Generate', () => {
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     clientService = module.get<ClientService>(ClientService)
     configService = module.get<ConfigService<Config>>(ConfigService)
-
+    keyGenService = module.get<KeyGenerationService>(KeyGenerationService)
+    importService = module.get<ImportService>(ImportService)
     await app.init()
   })
 
@@ -116,6 +122,61 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
+  describe('GET', () => {
+    const accessToken = getAccessToken([Permission.WALLET_READ])
+
+    it('responds with a list of wallets by client', async () => {
+      const secondClientId = uuid()
+      await clientService.save({
+        clientId: secondClientId,
+        engineJwk: clientPublicJWK,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+
+      const { keyId: firstKeyId } = await keyGenService.generateWallet(clientId, {
+        keyId: 'first-keyId',
+        curve: Curves.SECP256K1
+      })
+
+      await keyGenService.generateWallet(secondClientId, {
+        keyId: 'second-keyId',
+        curve: Curves.SECP256K1
+      })
+
+      const seed = generateMnemonic(english)
+      const pubKey = await importService.generateEncryptionKey(clientId)
+      const encryptedSeed = await rsaEncrypt(seed, pubKey)
+      const importedWallet = await importService.importSeed(clientId, {
+        encryptedSeed,
+        keyId: 'imported-keyId',
+        curve: Curves.SECP256K1
+      })
+
+      const expectedFirstClientWallets = [
+        {
+          keyId: firstKeyId,
+          origin: Origin.GENERATED,
+          curve: Curves.SECP256K1,
+          keyType: 'local'
+        },
+        {
+          keyId: importedWallet.keyId,
+          origin: Origin.IMPORTED,
+          curve: Curves.SECP256K1,
+          keyType: 'local'
+        }
+      ]
+
+      const { body: firstClientGetRequest } = await request(app.getHttpServer())
+        .get('/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send()
+
+      expect(firstClientGetRequest).toEqual({ wallets: expectedFirstClientWallets })
+    })
+  })
   describe('POST', () => {
     it('generates a new rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
