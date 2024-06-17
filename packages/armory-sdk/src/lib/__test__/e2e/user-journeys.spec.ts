@@ -193,7 +193,10 @@ describe('User Journeys', () => {
         it('sends entities and signature to data store server', async () => {
           const signature = await entityStoreClient.sign(entities)
 
-          const store = await entityStoreClient.push(entities, signature)
+          const store = await entityStoreClient.push({
+            data: entities,
+            signature
+          })
 
           expect(store).toEqual({
             entity: {
@@ -284,7 +287,10 @@ describe('User Journeys', () => {
         it('sends policies and signature to data store managed host', async () => {
           const signature = await policyStoreClient.sign(policies)
 
-          const store = await policyStoreClient.push(policies, signature)
+          const store = await policyStoreClient.push({
+            data: policies,
+            signature
+          })
 
           expect(store).toEqual({
             policy: {

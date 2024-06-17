@@ -1,4 +1,4 @@
-import { Entities, EntityUtil, Policy } from '@narval/policy-engine-shared'
+import { Entities, EntityUtil, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import {
@@ -47,10 +47,10 @@ export class EntityStoreClient {
     return signJwtPayload(this.config, buildJwtPayload(this.config, this.populate(entities), opts))
   }
 
-  async push(entities: Partial<Entities>, signature: string): Promise<SetEntityStoreResponseDto> {
+  async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponseDto> {
     const { data } = await this.dataStoreHttp.setEntities(this.config.clientId, {
-      data: this.populate(entities),
-      signature
+      data: this.populate(store.data),
+      signature: store.signature
     })
 
     return data
@@ -59,7 +59,10 @@ export class EntityStoreClient {
   async signAndPush(entities: Partial<Entities>, opts?: SignOptions): Promise<SetEntityStoreResponseDto> {
     const signature = await this.sign(entities, opts)
 
-    return this.push(entities, signature)
+    return this.push({
+      data: entities,
+      signature
+    })
   }
 
   async fetch(): Promise<EntityDataStoreDto> {
@@ -97,11 +100,8 @@ export class PolicyStoreClient {
     return signJwtPayload(this.config, buildJwtPayload(this.config, policies, opts))
   }
 
-  async push(policies: Policy[], signature: string): Promise<SetPolicyStoreResponseDto> {
-    const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, {
-      data: policies,
-      signature
-    })
+  async push(store: PolicyStore): Promise<SetPolicyStoreResponseDto> {
+    const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, store)
 
     return data
   }
@@ -109,7 +109,7 @@ export class PolicyStoreClient {
   async signAndPush(policies: Policy[], opts?: SignOptions): Promise<SetPolicyStoreResponseDto> {
     const signature = await this.sign(policies, opts)
 
-    return this.push(policies, signature)
+    return this.push({ data: policies, signature })
   }
 
   async fetch(): Promise<PolicyDataStoreDto> {
