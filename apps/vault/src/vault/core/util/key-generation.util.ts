@@ -1,4 +1,4 @@
-import { resourceId } from '@narval/armory-sdk'
+import { AddressIndex, resourceId } from '@narval/armory-sdk'
 import { Curves, addressToKid, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
 import { HDKey } from '@scure/bip32'
@@ -8,7 +8,7 @@ import { Hex, toHex } from 'viem'
 import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
-import { AddressIndex, Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
 import { GenerateKeyDto } from '../../http/rest/dto/generate-wallet.dto'
 
 export const hdKeyToKid = (key: HDKey): string => {

@@ -137,4 +137,3 @@ export const DeriveAccountResponse = z.object({
   accounts: z.array(PublicAccount)
 })
 export type DeriveAccountResponse = z.infer<typeof DeriveAccountResponse>
-
