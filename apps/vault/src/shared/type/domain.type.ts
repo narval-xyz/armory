@@ -88,6 +88,14 @@ export type RemoteRootKey = z.infer<typeof RemoteRootKey>
 export const RootKey = z.discriminatedUnion('keyType', [LocalRootKey, RemoteRootKey])
 export type RootKey = z.infer<typeof RootKey>
 
+export const WalletResponse = z.object({
+  keyId: z.string().min(1),
+  curve: z.string(),
+  keyType: z.union([z.literal('local'), z.literal('remote')]),
+  origin: z.union([z.literal(Origin.GENERATED), z.literal(Origin.IMPORTED)])
+})
+export type WalletResponse = z.infer<typeof WalletResponse>
+
 export const Backup = z.object({
   backupPublicKeyHash: z.string(),
   keyId: z.string(),
