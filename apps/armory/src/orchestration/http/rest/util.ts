@@ -14,10 +14,11 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
-  const authentication: string = dto.authentication
-  const approvals: string[] = dto.approvals
+  const authentication = dto.authentication
+  const approvals = dto.approvals || []
   const metadata: EvaluationMetadata = {
     ...dto.metadata,
+    issuer: dto.metadata?.issuer || `${clientId}.armory.narval.xyz`,
     expiresIn: dto.metadata?.expiresIn || TEN_MINUTES,
     issuedAt: nowSeconds()
   }
