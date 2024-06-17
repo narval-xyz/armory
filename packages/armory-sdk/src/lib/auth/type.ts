@@ -12,7 +12,9 @@ export const AuthConfig = z.object({
   host: z.string(),
   signer: Signer,
   clientId: z.string(),
-  clientSecret: z.string().optional()
+  clientSecret: z.string().optional(),
+  pollingInterval: z.number().optional(),
+  pollingTimeout: z.number().optional()
 })
 export type AuthConfig = z.infer<typeof AuthConfig>
 
@@ -24,14 +26,14 @@ export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 
 export type AuthorizationHttp = {
   /**
-   * Submits a new authorization request for evaluation by the policy engine.
+   * Submits a new authorization request for evaluation.
    *
    * @param {string} clientId
    * @param {AuthorizationRequestDto} data
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  evaluation(
+  evaluate(
     clientId: string,
     data: AuthorizationRequestDto,
     options?: RawAxiosRequestConfig

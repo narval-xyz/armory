@@ -9,16 +9,22 @@ import {
   UserEntity,
   UserRole
 } from '@narval/policy-engine-shared'
-import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
-import { AuthAdminClient } from '../../auth/client'
-import { AuthAdminConfig } from '../../auth/type'
+import { AuthAdminClient, AuthClient } from '../../auth/client'
+import { AuthAdminConfig, AuthConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { createHttpDataStore, credential } from '../../data-store/util'
-import { CreateClientResponseDto } from '../../http/client/auth'
-import { sign } from '../../jose/sign'
+import {
+  AuthorizationRequestDto,
+  AuthorizationResponseDtoStatusEnum,
+  CreateClientResponseDto
+} from '../../http/client/auth'
+import { SignOptions, Signer } from '../../shared/type'
+
+jest.setTimeout(25_000)
 
 const userPrivateKey = privateKeyToJwk('0xb248d01c1726beee3dc1f6d7291b5b040a19e60fafae954e9814f50334ec35a8')
 
@@ -29,6 +35,24 @@ const dataStorePrivateKey = privateKeyToJwk('0x2c26498d58150922a4e040fabd4aa7367
 const getAuthHost = () => 'http://localhost:3005'
 
 const getAuthAdminApiKey = () => '2cfa9d09a28f1de9108d18c38f5d5304e6708744c7d7194cbc754aef3455edc7e9270e2f28f052622257'
+
+const getExpectedSignature = (input: { data: unknown; signer: Signer; clientId: string } & SignOptions) => {
+  const { data, signer, clientId, issuedAt } = input
+
+  return signJwt(
+    {
+      data: hash(data),
+      sub: signer.jwk.kid,
+      iss: clientId,
+      iat: issuedAt?.getTime()
+    },
+    signer.jwk,
+    {
+      alg: signer.alg
+    },
+    signer.sign
+  )
+}
 
 // IMPORTANT: The order of tests matters.
 // These tests are meant to be run in series, not in parallel, because they
@@ -136,11 +160,13 @@ describe('User Journeys', () => {
 
           const signature = await entityStoreClient.sign(entities, { issuedAt })
 
-          const expectedSignature = await sign({
-            data: { ...EntityUtil.empty(), ...entities },
-            clientId: dataStoreConfig.clientId,
-            signer: dataStoreConfig.signer,
-            issuedAt
+          const expectedSignature = await getExpectedSignature({
+            // If the input is a partial entities, the client will populate it
+            // pushing to the server. Thus, the expected data hash is from the
+            // full entities not the partial.
+            data: fullEntities,
+            issuedAt,
+            ...dataStoreConfig
           })
 
           expect(signature).toEqual(expectedSignature)
@@ -151,11 +177,10 @@ describe('User Journeys', () => {
 
           const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
 
-          const expectedSignature = await sign({
+          const expectedSignature = await getExpectedSignature({
             data: fullEntities,
-            clientId: dataStoreConfig.clientId,
-            signer: dataStoreConfig.signer,
-            issuedAt
+            issuedAt,
+            ...dataStoreConfig
           })
 
           expect(signature).toEqual(expectedSignature)
@@ -243,11 +268,10 @@ describe('User Journeys', () => {
 
           const signature = await policyStoreClient.sign(policies, { issuedAt })
 
-          const expectedSignature = await sign({
+          const expectedSignature = await getExpectedSignature({
             data: policies,
-            clientId: dataStoreConfig.clientId,
-            signer: dataStoreConfig.signer,
-            issuedAt
+            issuedAt,
+            ...dataStoreConfig
           })
 
           expect(signature).toEqual(expectedSignature)
@@ -304,6 +328,51 @@ describe('User Journeys', () => {
             }
           })
         })
+      })
+    })
+
+    describe('I want to request authorization', () => {
+      let authConfig: AuthConfig
+      let authClient: AuthClient
+
+      beforeEach(async () => {
+        authConfig = {
+          host: getAuthHost(),
+          clientId,
+          signer: {
+            jwk: userPrivateKey,
+            sign: await buildSignerForAlg(dataStorePrivateKey)
+          }
+        }
+
+        authClient = new AuthClient(authConfig)
+      })
+
+      it('evaluates an authorization and polls until processed', async () => {
+        const input: Omit<AuthorizationRequestDto, 'authentication'> = {
+          approvals: [],
+          request: {
+            action: Action.SIGN_TRANSACTION,
+            nonce: uuid(),
+            resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
+            transactionRequest: {
+              chainId: 1,
+              data: '0x',
+              from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+              // TODO: Open API generator transforms bigint to number
+              gas: 5000,
+              nonce: 0,
+              to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+              type: '2',
+              value: '0x'
+            }
+          }
+        }
+
+        const authorization = await authClient.evaluate(input)
+
+        expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Created)
+        expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Processing)
       })
     })
   })

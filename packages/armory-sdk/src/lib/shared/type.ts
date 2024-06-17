@@ -7,3 +7,7 @@ export const Signer = z.object({
   sign: z.function(z.tuple([z.string()]), z.promise(z.string()))
 })
 export type Signer = z.infer<typeof Signer>
+
+export type SignOptions = {
+  issuedAt?: Date
+}

@@ -1,4 +1,5 @@
 import { Entities, EntityUtil, Policy } from '@narval/policy-engine-shared'
+import { Payload, hash, signJwt } from '@narval/signature'
 import axios from 'axios'
 import {
   Configuration,
@@ -8,8 +9,22 @@ import {
   SetEntityStoreResponseDto,
   SetPolicyStoreResponseDto
 } from '../http/client/auth'
-import { sign } from '../jose/sign'
 import { DataStoreConfig, DataStoreHttp, SignOptions } from './type'
+
+const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
+  return {
+    data: hash(data),
+    sub: config.signer.jwk.kid,
+    iss: config.clientId,
+    iat: opts?.issuedAt?.getTime() || new Date().getTime()
+  }
+}
+
+const signJwtPayload = (config: DataStoreConfig, payload: Payload): Promise<string> => {
+  const { signer } = config
+
+  return signJwt(payload, signer.jwk, { alg: signer.alg }, signer.sign)
+}
 
 export class EntityStoreClient {
   private config: DataStoreConfig
@@ -29,12 +44,7 @@ export class EntityStoreClient {
   }
 
   async sign(entities: Partial<Entities>, opts?: SignOptions): Promise<string> {
-    return sign({
-      data: this.populate(entities),
-      clientId: this.config.clientId,
-      signer: this.config.signer,
-      issuedAt: opts?.issuedAt
-    })
+    return signJwtPayload(this.config, buildJwtPayload(this.config, this.populate(entities), opts))
   }
 
   async push(entities: Partial<Entities>, signature: string): Promise<SetEntityStoreResponseDto> {
@@ -84,12 +94,7 @@ export class PolicyStoreClient {
   }
 
   async sign(policies: Policy[], opts?: SignOptions): Promise<string> {
-    return sign({
-      data: policies,
-      clientId: this.config.clientId,
-      signer: this.config.signer,
-      issuedAt: opts?.issuedAt
-    })
+    return signJwtPayload(this.config, buildJwtPayload(this.config, policies, opts))
   }
 
   async push(policies: Policy[], signature: string): Promise<SetPolicyStoreResponseDto> {
