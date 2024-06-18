@@ -69,15 +69,15 @@ const AddAuthClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
-    const { id, clientSecret, dataApiKey } = newClient
+    const { id, clientSecret, dataSecret } = newClient
     const { publicKey } = newClient.policyEngine.nodes[0]
 
     setUseAuthServer(true)
     setAuthClientId(id)
     setAuthClientSecret(clientSecret)
     setAuthClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(`${form.entityDataStoreUrl}&dataApiKey=${dataApiKey}`)
-    setPolicyDataStoreUrl(`${form.policyDataStoreUrl}&dataApiKey=${dataApiKey}`)
+    setEntityDataStoreUrl(`${form.entityDataStoreUrl}&dataSecret=${dataSecret}`)
+    setPolicyDataStoreUrl(`${form.policyDataStoreUrl}&dataSecret=${dataSecret}`)
     closeDialog()
   }
 

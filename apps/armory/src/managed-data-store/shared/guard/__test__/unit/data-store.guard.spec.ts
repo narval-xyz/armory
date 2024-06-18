@@ -3,10 +3,10 @@ import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../armory.constant'
-import { ClientService } from '../../../../client/core/service/client.service'
-import { Client } from '../../../../client/core/type/client.type'
-import { ApplicationException } from '../../../exception/application.exception'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../../../armory.constant'
+import { ClientService } from '../../../../../client/core/service/client.service'
+import { Client } from '../../../../../client/core/type/client.type'
+import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { DataStoreGuard } from '../../data-store.guard'
 
 describe(DataStoreGuard.name, () => {
@@ -16,11 +16,11 @@ describe(DataStoreGuard.name, () => {
   const mockExecutionContext = ({
     clientId,
     clientSecret,
-    dataApiKey
+    dataSecret
   }: {
     clientId?: string
     clientSecret?: string
-    dataApiKey?: string
+    dataSecret?: string
   }) => {
     const headers = {
       [REQUEST_HEADER_CLIENT_ID]: clientId,
@@ -28,7 +28,7 @@ describe(DataStoreGuard.name, () => {
     }
     const query = {
       clientId,
-      ...(dataApiKey && { dataApiKey })
+      ...(dataSecret && { dataSecret })
     }
     const request = { headers, query }
 
@@ -39,12 +39,12 @@ describe(DataStoreGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockService = (clientSecret = 'client-a-secret-key', dataApiKey = 'client-a-data-api-key') => {
+  const mockService = (clientSecret = 'client-a-secret-key', dataSecret = 'client-a-data-secret') => {
     const client: Client = {
       id: clientId,
       name: 'Client A',
       clientSecret: secret.hash(clientSecret),
-      dataApiKey: secret.hash(dataApiKey),
+      dataSecret: secret.hash(dataSecret),
       dataStore: {
         entityPublicKey: publicKey,
         policyPublicKey: publicKey
@@ -76,7 +76,7 @@ describe(DataStoreGuard.name, () => {
     await expect(guard.canActivate(mockExecutionContext({}))).rejects.toThrow(ApplicationException)
   })
 
-  it(`throws an error when ${REQUEST_HEADER_CLIENT_SECRET} header and dataApiKey are missing`, async () => {
+  it(`throws an error when ${REQUEST_HEADER_CLIENT_SECRET} header and dataSecret are missing`, async () => {
     const guard = new DataStoreGuard(mockService())
 
     await expect(guard.canActivate(mockExecutionContext({ clientId }))).rejects.toThrow(ApplicationException)
@@ -89,11 +89,11 @@ describe(DataStoreGuard.name, () => {
     expect(await guard.canActivate(mockExecutionContext({ clientId, clientSecret }))).toEqual(true)
   })
 
-  it(`returns true when dataApiKey matches the client dataApiKey`, async () => {
-    const dataApiKey = 'test-data-api-key'
-    const guard = new DataStoreGuard(mockService(undefined, dataApiKey))
+  it(`returns true when dataSecret matches the client dataSecret`, async () => {
+    const dataSecret = 'test-data-secret'
+    const guard = new DataStoreGuard(mockService(undefined, dataSecret))
 
-    expect(await guard.canActivate(mockExecutionContext({ clientId, dataApiKey }))).toEqual(true)
+    expect(await guard.canActivate(mockExecutionContext({ clientId, dataSecret }))).toEqual(true)
   })
 
   it(`returns false when ${REQUEST_HEADER_CLIENT_SECRET} does not match the client secret key`, async () => {
@@ -102,9 +102,9 @@ describe(DataStoreGuard.name, () => {
     expect(await guard.canActivate(mockExecutionContext({ clientId, clientSecret: 'wrong-secret' }))).toEqual(false)
   })
 
-  it(`returns false when dataApiKey does not match the client dataApiKey`, async () => {
-    const guard = new DataStoreGuard(mockService(undefined, 'test-data-api-key'))
+  it(`returns false when dataSecret does not match the client dataSecret`, async () => {
+    const guard = new DataStoreGuard(mockService(undefined, 'test-data-secret'))
 
-    expect(await guard.canActivate(mockExecutionContext({ clientId, dataApiKey: 'wrong-data-api-key' }))).toEqual(false)
+    expect(await guard.canActivate(mockExecutionContext({ clientId, dataSecret: 'wrong-data-secret' }))).toEqual(false)
   })
 })

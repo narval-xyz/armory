@@ -30,14 +30,14 @@ export class ClientService {
     const clientId = input.id || uuid()
 
     // If we are generating the clientSecret, we'll want to return the full thing to the user one time.
-    const fullClientSecret = input.clientSecret || secret.generate()
-    const clientSecret = input.clientSecret || secret.hash(fullClientSecret)
+    const plainClientSecret = input.clientSecret || secret.generate()
+    const hashClientSecret = secret.hash(plainClientSecret)
 
-    // If we are generating the dataApiKey, we'll want to return the full thing to the user one time.
-    const fullDataApiKey = input.dataApiKey || secret.generate()
-    const dataApiKey = secret.hash(fullDataApiKey)
+    // If we are generating the dataSecret, we'll want to return the full thing to the user one time.
+    const plainDataSecret = input.dataSecret || secret.generate()
+    const hashDataSecret = secret.hash(plainDataSecret)
 
-    const entityDataStoreUrl = `${input.dataStore.entity.data.url}&dataApiKey=${fullDataApiKey}`
+    const entityDataStoreUrl = `${input.dataStore.entity.data.url}&dataSecret=${plainDataSecret}`
     const entityDataStore: DataStoreConfiguration = {
       ...input.dataStore.entity,
       data: {
@@ -50,7 +50,7 @@ export class ClientService {
       }
     }
 
-    const policyDataStoreUrl = `${input.dataStore.policy.data.url}&dataApiKey=${fullDataApiKey}`
+    const policyDataStoreUrl = `${input.dataStore.policy.data.url}&dataSecret=${plainDataSecret}`
     const policyDataStore: DataStoreConfiguration = {
       ...input.dataStore.policy,
       data: {
@@ -72,8 +72,8 @@ export class ClientService {
 
     const client = await this.clientRepository.save({
       id: clientId,
-      clientSecret,
-      dataApiKey,
+      clientSecret: hashClientSecret,
+      dataSecret: hashDataSecret,
       name: input.name,
       dataStore: {
         entityPublicKey: input.dataStore.entity.keys[0],
@@ -86,9 +86,8 @@ export class ClientService {
 
     return {
       ...this.addNodes(client, nodes),
-      // If we generated a new secret, we need to include it in the response the first time.
-      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {}),
-      ...(!input.dataApiKey ? { dataApiKey: fullDataApiKey } : {})
+      clientSecret: plainClientSecret,
+      dataSecret: plainDataSecret
     }
   }
 

@@ -1,8 +1,8 @@
 import { secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../armory.constant'
-import { ClientService } from '../../client/core/service/client.service'
-import { ApplicationException } from '../exception/application.exception'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../armory.constant'
+import { ClientService } from '../../../client/core/service/client.service'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 
 @Injectable()
 export class DataStoreGuard implements CanActivate {
@@ -13,7 +13,7 @@ export class DataStoreGuard implements CanActivate {
 
     const clientId = req.query.clientId || req.headers[REQUEST_HEADER_CLIENT_ID]
     const clientSecret = req.headers[REQUEST_HEADER_CLIENT_SECRET]
-    const dataApiKey = req.query.dataApiKey
+    const dataSecret = req.query.dataSecret
 
     if (!clientId) {
       throw new ApplicationException({
@@ -22,9 +22,9 @@ export class DataStoreGuard implements CanActivate {
       })
     }
 
-    if (!clientSecret && !dataApiKey) {
+    if (!clientSecret && !dataSecret) {
       throw new ApplicationException({
-        message: 'Missing clientSecret or dataApiKey',
+        message: 'Missing clientSecret or dataSecret',
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
@@ -35,6 +35,6 @@ export class DataStoreGuard implements CanActivate {
       return client?.clientSecret === secret.hash(clientSecret)
     }
 
-    return client?.dataApiKey === secret.hash(dataApiKey)
+    return client?.dataSecret === secret.hash(dataSecret)
   }
 }

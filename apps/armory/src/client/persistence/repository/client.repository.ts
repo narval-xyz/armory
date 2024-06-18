@@ -32,7 +32,7 @@ export class ClientRepository {
     return {
       id: model.id,
       clientSecret: model.clientSecret,
-      dataApiKey: model.dataApiKey,
+      dataSecret: model.dataSecret,
       name: model.name,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
@@ -50,7 +50,7 @@ export class ClientRepository {
     return {
       id: client.id,
       clientSecret: client.clientSecret,
-      dataApiKey: client.dataApiKey,
+      dataSecret: client.dataSecret,
       name: client.name,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt,
