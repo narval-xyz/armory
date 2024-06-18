@@ -129,7 +129,7 @@ export type AddressIndex = z.infer<typeof AddressIndex>
 
 export const DeriveAccountRequest = z.object({
   keyId: z.string(),
-  derivationPaths: z.array(DerivationPath),
+  derivationPaths: z.array(DerivationPath).optional(),
   accessToken: AccessToken
 })
 export type DeriveAccountRequest = z.infer<typeof DeriveAccountRequest>

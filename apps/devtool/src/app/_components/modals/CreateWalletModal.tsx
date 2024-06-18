@@ -2,7 +2,7 @@
 
 import { faCheckCircle, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DeriveWalletResponse, GenerateKeyResponse, PublicWallet } from '@narval/armory-sdk'
+import { DeriveAccountResponse, GenerateKeyResponse, PublicAccount } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'
 import { FC, useEffect, useMemo, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
@@ -28,7 +28,7 @@ enum CreateWalletType {
 interface CreateWalletModalProps {
   accessToken: string
   generateKey?: (keyId: string, accessToken: string) => Promise<GenerateKeyResponse | undefined>
-  deriveWallet?: (keyId: string, accessToken: string) => Promise<DeriveWalletResponse | undefined>
+  deriveWallet?: (keyId: string, accessToken: string) => Promise<DeriveAccountResponse | undefined>
 }
 
 const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
@@ -40,7 +40,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
   const [key, setKey] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [generatedWallet, setGeneratedWallet] = useState<GenerateKeyResponse>()
-  const [derivedWallet, setDerivedWallet] = useState<PublicWallet>()
+  const [derivedWallet, setDerivedWallet] = useState<PublicAccount>()
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
   useEffect(() => {
@@ -72,15 +72,15 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
   const generateKeys = async () => {
     if (!entityStore || !props.generateKey) return
 
-    const generateKeysResponse = await props.generateKey(key, accessToken)
+    const generateKeyResponse = await props.generateKey(key, accessToken)
 
-    if (!generateKeysResponse) return
+    if (!generateKeyResponse) return
 
-    const { wallet } = generateKeysResponse
+    const { account } = generateKeyResponse
 
     const newWallet = {
-      id: wallet.id,
-      address: hexSchema.parse(wallet.address),
+      id: account.id,
+      address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
@@ -91,7 +91,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       wallets: [...currentWallets, newWallet]
     }
 
-    setGeneratedWallet(generateKeysResponse)
+    setGeneratedWallet(generateKeyResponse)
     setNewEntityStore(entities)
   }
 
@@ -102,11 +102,11 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
 
     if (!deriveWalletResponse) return
 
-    const wallet = deriveWalletResponse.wallets as PublicWallet
+    const account = deriveWalletResponse.accounts[0]
 
     const newWallet = {
-      id: wallet.id,
-      address: hexSchema.parse(wallet.address),
+      id: account.id,
+      address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
@@ -117,7 +117,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       wallets: [...currentWallets, newWallet]
     }
 
-    setDerivedWallet(wallet)
+    setDerivedWallet(account)
     setNewEntityStore(entities)
   }
 
@@ -220,12 +220,12 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
             {generatedWallet && (
               <div className="flex flex-col gap-[8px]">
                 <ValueWithCopy layout="horizontal" label="Key ID" value={generatedWallet.keyId} />
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={generatedWallet.wallet.id} />
-                <ValueWithCopy layout="horizontal" label="Address" value={generatedWallet.wallet.address} />
+                <ValueWithCopy layout="horizontal" label="Wallet ID" value={generatedWallet.account.id} />
+                <ValueWithCopy layout="horizontal" label="Address" value={generatedWallet.account.address} />
                 <ValueWithCopy
                   layout="horizontal"
                   label="Derivation Path"
-                  value={generatedWallet.wallet.derivationPath}
+                  value={generatedWallet.account.derivationPath}
                 />
                 <ValueWithCopy layout="horizontal" label="Backup" value={generatedWallet.backup} />
               </div>

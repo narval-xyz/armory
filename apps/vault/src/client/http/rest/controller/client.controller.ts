@@ -25,11 +25,12 @@ export class ClientController {
     const now = new Date()
     const engineJwk = body.engineJwk ? publicKeySchema.parse(body.engineJwk) : undefined // Validate the JWK, instead of in DTO
     const clientId = body.clientId || uuid()
+
     const client = await this.clientService.save({
       clientId,
       engineJwk,
       audience: body.audience,
-      issuer: body.issuer || `${clientId}.armory.narval.xyz`,
+      issuer: body.issuer,
       maxTokenAge: body.maxTokenAge,
       allowKeyExport: body.allowKeyExport,
       backupPublicKey: body.backupPublicKey,

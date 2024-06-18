@@ -1,4 +1,4 @@
-import { EntityStore, FIXTURE, PolicyStore } from '@narval/policy-engine-shared'
+import { Entities, EntityStore, FIXTURE, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { existsSync } from 'fs'
 import { JSONFilePreset } from 'lowdb/node'
 import { NextRequest, NextResponse } from 'next/server'
@@ -36,20 +36,20 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
 }
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
-  const { entity: newEntity, policy: newPolicy } = await req.json()
+  const body = await req.json()
+  const signature = body.signature as string
+  const data = body.data as Entities | Policy[]
 
   const db = await JSONFilePreset('./storage.json', {
-    entity: { signature: '', data: {} },
-    policy: { signature: '', data: [] }
+    entity: { signature: '', data: {} as Entities },
+    policy: { signature: '', data: [] as Policy[] }
   })
 
-  const savedEntity = db.data.entity
-  const savedPolicy = db.data.policy
+  const newDataStore = !Array.isArray(data)
+    ? { entity: { signature, data: data as Entities } }
+    : { policy: { signature, data: data as Policy[] } }
 
-  const entity = newEntity ? { ...savedEntity, ...newEntity } : savedEntity
-  const policy = newPolicy ? { ...savedPolicy, ...newPolicy } : savedPolicy
-
-  db.data = { entity, policy }
+  db.data = { ...db.data, ...newDataStore }
 
   await db.write()
 

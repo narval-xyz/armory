@@ -170,26 +170,46 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.NARVAL_HELM_APP_ID }}
+          private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          repositories: "armory,armory-platform"
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v2
+        with:
+          repository: narval-xyz/armory-platform
+          ref: main
+          path: platform
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+
       - name: Update Image Version in the worker HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@master
         with:
-          valueFile: 'deploy/charts/policy-engine/values.yaml'
+          valueFile: 'apps/charts/policy-engine/values.yaml'
           # propertyPath: 'image.tag'
           # value: ${{ env.sha7 }}
-          branch: main
           message: 'Update policy-engine Image Version to ${{ env.sha7 }}'
+          repository: narval-xyz/armory-platform
+          branch: main
+          token: ${{ steps.app-token.outputs.token }}
+          workDir: platform
           changes: |
             {
-              "deploy/charts/policy-engine/values.yaml": {
+              "apps/charts/policy-engine/values.yaml": {
                 "image.tag": "${{ env.sha7 }}"
               },
-              "deploy/charts/policy-engine/values-node-0.yaml": {
+              "apps/charts/policy-engine/values-node-0.yaml": {
                 "image.tag": "${{ env.sha7 }}"
               },
-              "deploy/charts/policy-engine/values-node-1.yaml": {
+              "apps/charts/policy-engine/values-node-1.yaml": {
                 "image.tag": "${{ env.sha7 }}"
               },
-              "deploy/charts/policy-engine/values-node-2.yaml": {
+              "apps/charts/policy-engine/values-node-2.yaml": {
                 "image.tag": "${{ env.sha7 }}"
               }
             }
