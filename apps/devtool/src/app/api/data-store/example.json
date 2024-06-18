@@ -92,7 +92,7 @@
       },
       {
         "id": "a68e8d20-0419-475c-8fcc-b17d4de8c955",
-        "description": "Authorized any admin to transfer ERC721 or ERC1155 tokens",
+        "description": "Require 2 approvals to authorize any admin to transfer ERC721 or ERC1155 tokens",
         "when": [
           {
             "criterion": "checkPrincipalRole",
@@ -122,7 +122,7 @@
       },
       {
         "id": "a68e8d20-0519-475c-9fcc-b17d4de8c955",
-        "description": "Authorized transfers <= 1 MATIC on a 24h sliding window",
+        "description": "Authorized to transfer <= 1 MATIC on a 12h sliding window",
         "when": [
           {
             "criterion": "checkAction",
@@ -133,6 +133,10 @@
             "args": ["transferNative"]
           },
           {
+            "criterion": "checkIntentToken",
+            "args": ["eip155:137/slip44:966"]
+          },
+          {
             "criterion": "checkSpendingLimit",
             "args": {
               "limit": "1000000000000000000",
@@ -140,6 +144,9 @@
               "timeWindow": {
                 "type": "rolling",
                 "value": 43200
+              },
+              "filters": {
+                "tokens": ["eip155:137/slip44:966"]
               }
             }
           }
