@@ -1,11 +1,5 @@
 import { Json } from '@narval/nestjs-shared'
-import {
-  Action,
-  EvaluationMetadata,
-  JwtString,
-  SerializedTransactionRequest,
-  TransactionRequest
-} from '@narval/policy-engine-shared'
+import { Action, JwtString, SerializedTransactionRequest, TransactionRequest } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const AuthorizationRequestStatus = {
@@ -80,6 +74,12 @@ export const AuthorizationRequestError = z.object({
 })
 export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError>
 
+export const AuthorizationRequestMetadata = z.object({
+  audience: z.union([z.string(), z.array(z.string())]).optional(),
+  expiresIn: z.number().optional()
+})
+export type AuthorizationRequestMetadata = z.infer<typeof AuthorizationRequestMetadata>
+
 export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
   authentication: JwtString,
@@ -89,7 +89,7 @@ export const AuthorizationRequest = z.object({
   evaluations: z.array(Evaluation),
   id: z.string(),
   idempotencyKey: z.string().nullish(),
-  metadata: EvaluationMetadata.optional(),
+  metadata: AuthorizationRequestMetadata.optional(),
   request: Request,
   status: z.nativeEnum(AuthorizationRequestStatus),
   updatedAt: z.date()
