@@ -163,6 +163,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: narval-xyz/armory-platform
+          ref: main
           path: platform
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
