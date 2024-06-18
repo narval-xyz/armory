@@ -158,6 +158,7 @@ jobs:
         with:
           app-id: ${{ vars.NARVAL_HELM_APP_ID }}
           private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          repositories: "armory,armory-platform"
 
       - name: Checkout Target Repository
         uses: actions/checkout@v4
