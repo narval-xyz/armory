@@ -6,6 +6,7 @@ on:
       - packages/**
       - apps/vault/**
       - .github/workflows/vault.yml
+      - .github/workflows/vault-prod.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
