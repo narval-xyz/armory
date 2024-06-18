@@ -2,6 +2,8 @@ name: '@app/vault CI'
 
 on:
   push:
+    branches:
+      - **
     paths:
       - packages/**
       - apps/vault/**
