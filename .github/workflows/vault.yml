@@ -15,6 +15,10 @@ on:
       - package-lock.json
       - deploy/vault.dockerfile
       - deploy/charts/vault/**
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   test:
