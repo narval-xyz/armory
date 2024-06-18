@@ -1,0 +1,20 @@
+{
+  "name": "fantasy-app-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "implicitDependencies": ["fantasy-app"],
+  "targets": {
+    "e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "options": {
+        "jestConfig": "examples/fantasy-app-e2e/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["fantasy-app:build"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
