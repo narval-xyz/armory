@@ -33,9 +33,8 @@ export const validateContractInteractionInput = (txRequest: TransactionRequest, 
       }
     })
   }
-  const dataWithoutMethodId = `0x${data.slice(10)}` as Hex
 
-  return { data: dataWithoutMethodId, to, chainId, from, nonce, methodId }
+  return { data, to, chainId, from, nonce, methodId }
 }
 
 export const validateContractDeploymentInput = (txRequest: TransactionRequest): ContractDeploymentInput => {

@@ -3,37 +3,53 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/fantasy-app/src",
   "projectType": "application",
-  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "platform": "node",
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/examples/fantasy-app",
-        "format": ["cjs"],
-        "bundle": false,
-        "main": "examples/fantasy-app/src/main.ts",
+        "main": "examples/fantasy-app/src/index.ts",
         "tsConfig": "examples/fantasy-app/tsconfig.app.json",
-        "assets": ["examples/fantasy-app/src/assets"],
-        "generatePackageJson": true,
-        "esbuildOptions": {
-          "sourcemap": true,
-          "outExtension": {
-            ".js": ".js"
-          }
-        }
+        "webpackConfig": "examples/fantasy-app/webpack.config.js"
       },
       "configurations": {
         "development": {},
+        "production": {}
+      }
+    },
+    "prerequisites:build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/examples/fantasy-app",
+        "main": "examples/fantasy-app/src/prerequisites.ts",
+        "tsConfig": "examples/fantasy-app/tsconfig.app.json",
+        "webpackConfig": "examples/fantasy-app/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "prerequisites": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "fantasy-app:prerequisites:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "fantasy-app:prerequisites:build:development"
+        },
         "production": {
-          "esbuildOptions": {
-            "sourcemap": false,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "buildTarget": "fantasy-app:prerequisites:build:production"
         }
       }
     },
@@ -53,14 +69,12 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "jestConfig": "examples/fantasy-app/jest.config.ts"
+        "lintFilePatterns": ["examples/fantasy-app/**/*.ts"]
       }
     }
-  }
+  },
+  "tags": ["type:application"]
 }
