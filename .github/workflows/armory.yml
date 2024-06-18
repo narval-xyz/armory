@@ -2,6 +2,8 @@ name: '@app/armory CI'
 
 on:
   push:
+    branches:
+      - '*'
     paths:
       - packages/**
       - apps/armory/**
@@ -14,6 +16,10 @@ on:
       - package-lock.json
       - deploy/armory.dockerfile
       - deploy/charts/armory/**
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   test:

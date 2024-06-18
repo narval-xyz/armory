@@ -1,9 +1,9 @@
-name: '@app/vault Production CI'
+name: '@app/armory Production CI'
 
 on:
   push:
     tags:
-      - vault-v*
+      - armory-v*
 
 jobs:
   release:
@@ -31,15 +31,15 @@ jobs:
         id: slug
         run: echo "sha7=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-        # Strip the "vault-v" prefix from the tag, so we just get the version number
+        # Strip the "armory-v" prefix from the tag, so we just get the version number
       - name: Get tag
         id: tag
-        run: echo "tag=${GITHUB_REF#refs/*/vault-v}" >> $GITHUB_OUTPUT
+        run: echo "tag=${GITHUB_REF#refs/*/armory-v}" >> $GITHUB_OUTPUT
 
       - name: Promote image to production version tag
         uses: abronin/ecr-retag-action@v1
         with:
-          repository: armory/vault
+          repository: armory/armory
           tag: ${{ env.sha7 }}
           new-tags: ${{ steps.tag.outputs.tag }}
 
@@ -49,17 +49,17 @@ jobs:
         with:
           appId: ${{ vars.NARVAL_HELM_APP_ID }}
           privateKey: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
-          valueFile: 'apps/charts/vault/values-prod.yaml'
+          valueFile: 'apps/charts/armory/values-prod.yaml'
           propertyPath: 'image.tag'
           value: ${{ steps.tag.outputs.tag }}
-          message: 'Update Vault Production Image Version to ${{ steps.tag.outputs.tag }}'
+          message: 'Update Armory Production Image Version to ${{ steps.tag.outputs.tag }}'
 
       - name: Send Slack notification on failure
         if: failure()
         uses: 8398a7/action-slack@v3
         with:
           username: GitHub
-          author_name: '@app/vault Production CI release failed'
+          author_name: '@app/armory Production CI release failed'
           status: ${{ job.status }}
           fields: message,commit,author
         env:

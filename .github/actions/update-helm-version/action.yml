@@ -33,7 +33,7 @@ runs:
         repositories: "armory,armory-platform"
 
     - name: Checkout Target Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: narval-xyz/armory-platform
         ref: main
