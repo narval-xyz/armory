@@ -69,17 +69,17 @@ export const ImportSeedRequest = z.object({
 })
 export type ImportSeedRequest = z.infer<typeof ImportSeedRequest>
 
-export const PublicWallet = z.object({
+export const PublicAccount = z.object({
   id: z.string().min(1),
   address: z.string().min(1),
   publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
   keyId: z.string().min(1).optional(),
   derivationPath: z.string().min(1).optional()
 })
-export type PublicWallet = z.infer<typeof PublicWallet>
+export type PublicAccount = z.infer<typeof PublicAccount>
 
 export const ImportSeedResponse = z.object({
-  wallet: PublicWallet,
+  account: PublicAccount,
   backup: z.string().optional(),
   keyId: z.string()
 })
@@ -94,41 +94,46 @@ export const GenerateKeyRequest = z.object({
 export type GenerateKeyRequest = z.infer<typeof GenerateKeyRequest>
 
 export const GenerateKeyResponse = z.object({
-  wallet: PublicWallet,
+  account: PublicAccount,
   backup: z.string().optional(),
   keyId: z.string()
 })
 export type GenerateKeyResponse = z.infer<typeof GenerateKeyResponse>
 
-const DERIVATION_PATH_PREFIX = "m/44'/60'/"
+export const BIP44_PREFIX = "m/44'/60'/0'/0/"
+export const DerivationPath = z.custom<`${typeof BIP44_PREFIX}${number}`>(
+  (value) => {
+    if (typeof value !== 'string') return false
 
-export const DerivationPath = z.union([
-  z.custom<`${typeof DERIVATION_PATH_PREFIX}${string}`>(
-    (value) => {
-      const result = z.string().startsWith(DERIVATION_PATH_PREFIX).safeParse(value)
+    if (!value.startsWith(BIP44_PREFIX)) return false
 
-      if (result.success) {
-        return value
-      }
-
-      return false
-    },
-    {
-      message: `Derivation path must start with ${DERIVATION_PATH_PREFIX}`
-    }
-  ),
-  z.literal('next')
-])
+    // Extract the part after the prefix and check if it's a number
+    const suffix = value.slice(BIP44_PREFIX.length)
+    const isNumber = /^\d+$/.test(suffix)
+    return isNumber
+  },
+  {
+    message: `Derivation path must start with ${BIP44_PREFIX} and end with an index`
+  }
+)
 export type DerivationPath = z.infer<typeof DerivationPath>
 
-export const DeriveWalletRequest = z.object({
+export const AddressIndex = DerivationPath.transform((data) => {
+  const suffix = data.slice(BIP44_PREFIX.length)
+  const index = Number(suffix)
+
+  return index
+})
+export type AddressIndex = z.infer<typeof AddressIndex>
+
+export const DeriveAccountRequest = z.object({
   keyId: z.string(),
   derivationPaths: z.array(DerivationPath),
   accessToken: AccessToken
 })
-export type DeriveWalletRequest = z.infer<typeof DeriveWalletRequest>
+export type DeriveAccountRequest = z.infer<typeof DeriveAccountRequest>
 
-export const DeriveWalletResponse = z.object({
-  wallets: z.union([z.array(PublicWallet), PublicWallet])
+export const DeriveAccountResponse = z.object({
+  accounts: z.array(PublicAccount)
 })
-export type DeriveWalletResponse = z.infer<typeof DeriveWalletResponse>
+export type DeriveAccountResponse = z.infer<typeof DeriveAccountResponse>
