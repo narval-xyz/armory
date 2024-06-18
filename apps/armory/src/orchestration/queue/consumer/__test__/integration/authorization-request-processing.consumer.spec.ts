@@ -48,6 +48,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   const client: Client = {
     id: 'ac1374c2-fd62-4b6e-bd49-a4afcdcb91cc',
     clientSecret: secret.hash('test-client-secret'),
+    dataApiKey: secret.hash('test-data-api-key'),
     name: 'Test Client',
     enginePublicKey: {},
     entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,

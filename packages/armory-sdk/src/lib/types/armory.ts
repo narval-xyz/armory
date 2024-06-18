@@ -24,6 +24,8 @@ export type OnboardArmoryClientRequest = z.infer<typeof OnboardArmoryClientReque
 export const OnboardArmoryClientResponse = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  clientSecret: z.string(),
+  dataApiKey: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   dataStore: z.object({

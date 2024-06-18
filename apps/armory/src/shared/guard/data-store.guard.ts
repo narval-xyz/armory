@@ -5,30 +5,36 @@ import { ClientService } from '../../client/core/service/client.service'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()
-export class ClientSecretGuard implements CanActivate {
+export class DataStoreGuard implements CanActivate {
   constructor(private clientService: ClientService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest()
+
+    const clientId = req.query.clientId || req.headers[REQUEST_HEADER_CLIENT_ID]
     const clientSecret = req.headers[REQUEST_HEADER_CLIENT_SECRET]
-    const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
+    const dataApiKey = req.query.dataApiKey
 
     if (!clientId) {
       throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_ID} header`,
+        message: 'Missing clientId',
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
 
-    if (!clientSecret) {
+    if (!clientSecret && !dataApiKey) {
       throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
+        message: 'Missing clientSecret or dataApiKey',
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }
 
     const client = await this.clientService.findById(clientId)
 
-    return client?.clientSecret === secret.hash(clientSecret)
+    if (clientSecret) {
+      return client?.clientSecret === secret.hash(clientSecret)
+    }
+
+    return client?.dataApiKey === secret.hash(dataApiKey)
   }
 }

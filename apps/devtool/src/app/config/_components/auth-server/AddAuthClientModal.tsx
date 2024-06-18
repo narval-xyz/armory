@@ -1,5 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { OnboardArmoryClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -38,7 +39,7 @@ const AddAuthClientModal = () => {
   const { isProcessing, onboard } = useAuthServerApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<any>()
+  const [newClient, setNewClient] = useState<OnboardArmoryClientResponse>()
   const [form, setForm] = useState<AuthClientData>(initForm)
 
   const isFormValid =
@@ -68,15 +69,15 @@ const AddAuthClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
-    const { id, clientSecret } = newClient
+    const { id, clientSecret, dataApiKey } = newClient
     const { publicKey } = newClient.policyEngine.nodes[0]
 
     setUseAuthServer(true)
     setAuthClientId(id)
     setAuthClientSecret(clientSecret)
     setAuthClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(form.entityDataStoreUrl)
-    setPolicyDataStoreUrl(form.policyDataStoreUrl)
+    setEntityDataStoreUrl(`${form.entityDataStoreUrl}&dataApiKey=${dataApiKey}`)
+    setPolicyDataStoreUrl(`${form.policyDataStoreUrl}&dataApiKey=${dataApiKey}`)
     closeDialog()
   }
 

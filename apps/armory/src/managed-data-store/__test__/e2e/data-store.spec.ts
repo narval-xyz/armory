@@ -38,6 +38,8 @@ describe('Data Store', () => {
 
   const clientSecret = 'test-client-secret'
 
+  const dataApiKey = 'test-data-api-key'
+
   const clientId = 'test-client-id'
 
   const dataStorePrivateKey = privateKeyToJwk(generatePrivateKey())
@@ -100,6 +102,7 @@ describe('Data Store', () => {
     clientService.findById.mockResolvedValue({
       id: clientId,
       clientSecret: secret.hash(clientSecret),
+      dataApiKey: secret.hash(dataApiKey),
       name: 'Test client',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -159,10 +162,10 @@ describe('Data Store', () => {
   })
 
   describe('GET /data/policies', () => {
-    it('responds with empty policy store when client does not exist', async () => {
+    it('responds with empty policy store it does not exist yet', async () => {
       const { body, status } = await request(app.getHttpServer())
         .get('/data/policies')
-        .query({ clientId: 'does-not-exist' })
+        .query({ clientId, dataApiKey })
         .send()
 
       expect(body).toEqual({
@@ -186,7 +189,7 @@ describe('Data Store', () => {
       expect(status).toEqual(HttpStatus.OK)
     })
 
-    it('responds with policy store when client exists', async () => {
+    it('responds with policy store when it exists', async () => {
       const dataStore = await buildPolicyStore(clientId, dataStorePrivateKey)
 
       await policyDataStoreRepository.setDataStore(clientId, {
@@ -194,7 +197,10 @@ describe('Data Store', () => {
         data: dataStore
       })
 
-      const { body, status } = await request(app.getHttpServer()).get('/data/policies').query({ clientId }).send()
+      const { body, status } = await request(app.getHttpServer())
+        .get('/data/policies')
+        .query({ clientId, dataApiKey })
+        .send()
 
       expect(body).toEqual({ policy: dataStore })
       expect(status).toEqual(HttpStatus.OK)
@@ -230,10 +236,10 @@ describe('Data Store', () => {
   })
 
   describe('GET /data/entities', () => {
-    it('responds with empty entity store when client does not exist', async () => {
+    it('responds with empty entity store when it does not exist yet', async () => {
       const { body, status } = await request(app.getHttpServer())
         .get('/data/entities')
-        .query({ clientId: 'does-not-exist' })
+        .query({ clientId, dataApiKey })
         .send()
 
       expect(body).toEqual({
@@ -245,7 +251,7 @@ describe('Data Store', () => {
       expect(status).toEqual(HttpStatus.OK)
     })
 
-    it('responds with policy data store when client exists', async () => {
+    it('responds with policy data store when it exists', async () => {
       const dataStore = await buildEntityStore(clientId, dataStorePrivateKey)
 
       await entityDataStoreRepository.setDataStore(clientId, {
@@ -253,7 +259,10 @@ describe('Data Store', () => {
         data: dataStore
       })
 
-      const { body, status } = await request(app.getHttpServer()).get('/data/entities').query({ clientId }).send()
+      const { body, status } = await request(app.getHttpServer())
+        .get('/data/entities')
+        .query({ clientId, dataApiKey })
+        .send()
 
       expect(body).toEqual({ entity: dataStore })
       expect(status).toEqual(HttpStatus.OK)
