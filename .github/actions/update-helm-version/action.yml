@@ -14,6 +14,12 @@ inputs:
   message:
     description: 'The commit message'
     required: true
+  appId:
+    description: 'The GitHub App ID'
+    required: true
+  privateKey:
+    description: 'The GitHub App Private Key'
+    required: true
 
 runs:
   using: composite
@@ -22,8 +28,8 @@ runs:
       uses: actions/create-github-app-token@v1
       id: app-token
       with:
-        app-id: ${{ vars.NARVAL_HELM_APP_ID }}
-        private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+        app-id: ${{ inputs.appId }}
+        private-key: ${{ inputs.privateKey }}
         repositories: "armory,armory-platform"
 
     - name: Checkout Target Repository

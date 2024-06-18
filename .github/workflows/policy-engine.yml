@@ -194,6 +194,62 @@ jobs:
               }
             }
 
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.NARVAL_HELM_APP_ID }}
+          private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          repositories: "armory,armory-platform"
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v2
+        with:
+          repository: narval-xyz/armory-platform
+          ref: main
+          path: platform
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+
+      - name: Update Image Version in the related HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: ${{ inputs.valueFile }}
+          propertyPath: ${{ inputs.propertyPath }}
+          value: ${{ inputs.value }}
+          message: ${{ inputs.message }}
+          repository: narval-xyz/armory-platform
+          branch: main
+          token: ${{ steps.app-token.outputs.token }}
+          workDir: platform
+
+      - name: Update Image Version in the worker HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: 'apps/charts/policy-engine/values.yaml'
+          # propertyPath: 'image.tag'
+          # value: ${{ env.sha7 }}
+          message: 'Update policy-engine Image Version to ${{ env.sha7 }}'
+          changes: |
+            {
+              "apps/charts/policy-engine/values.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "apps/charts/policy-engine/values-node-0.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "apps/charts/policy-engine/values-node-1.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              },
+              "apps/charts/policy-engine/values-node-2.yaml": {
+                "image.tag": "${{ env.sha7 }}"
+              }
+            }
+          repository: narval-xyz/armory-platform
+          branch: main
+          token: ${{ steps.app-token.outputs.token }}
+          workDir: platform
+
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
         uses: 8398a7/action-slack@v3

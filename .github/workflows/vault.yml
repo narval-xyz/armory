@@ -157,6 +157,8 @@ jobs:
         name: "Update Helm Version"
         uses: ./.github/actions/update-helm-version
         with:
+          appId: ${{ vars.NARVAL_HELM_APP_ID }}
+          privateKey: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
           valueFile: 'apps/charts/vault/values.yaml'
           propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
