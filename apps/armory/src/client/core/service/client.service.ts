@@ -29,39 +29,14 @@ export class ClientService {
     const now = new Date()
     const clientId = input.id || uuid()
 
-    // If we are generating the clientSecret, we'll want to return the full thing to the user one time.
     const plainClientSecret = input.clientSecret || secret.generate()
     const hashClientSecret = secret.hash(plainClientSecret)
 
-    // If we are generating the dataSecret, we'll want to return the full thing to the user one time.
     const plainDataSecret = input.dataSecret || secret.generate()
     const hashDataSecret = secret.hash(plainDataSecret)
 
-    const entityDataStoreUrl = `${input.dataStore.entity.data.url}&dataSecret=${plainDataSecret}`
-    const entityDataStore: DataStoreConfiguration = {
-      ...input.dataStore.entity,
-      data: {
-        ...input.dataStore.entity.data,
-        url: entityDataStoreUrl
-      },
-      signature: {
-        ...input.dataStore.entity.signature,
-        url: entityDataStoreUrl
-      }
-    }
-
-    const policyDataStoreUrl = `${input.dataStore.policy.data.url}&dataSecret=${plainDataSecret}`
-    const policyDataStore: DataStoreConfiguration = {
-      ...input.dataStore.policy,
-      data: {
-        ...input.dataStore.policy.data,
-        url: policyDataStoreUrl
-      },
-      signature: {
-        ...input.dataStore.policy.signature,
-        url: policyDataStoreUrl
-      }
-    }
+    const entityDataStore = this.updateDataStoreUrl(input.dataStore.entity, plainDataSecret)
+    const policyDataStore = this.updateDataStoreUrl(input.dataStore.policy, plainDataSecret)
 
     const nodes = await this.clusterService.create({
       clientId,
@@ -102,6 +77,22 @@ export class ClientService {
     return {
       ...client,
       policyEngine: { nodes }
+    }
+  }
+
+  private updateDataStoreUrl(dataStore: DataStoreConfiguration, dataSecret: string): DataStoreConfiguration {
+    const url = `${dataStore.data.url}&dataSecret=${dataSecret}`
+
+    return {
+      ...dataStore,
+      data: {
+        ...dataStore.data,
+        url
+      },
+      signature: {
+        ...dataStore.signature,
+        url
+      }
     }
   }
 }
