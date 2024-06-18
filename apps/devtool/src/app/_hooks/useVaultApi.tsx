@@ -1,13 +1,13 @@
 import {
-  DeriveWalletRequest,
+  DeriveAccountRequest,
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
   ImportSeedRequest,
   VaultClientConfig,
-  deriveWallet,
-  generateKey,
-  importPrivateKey,
-  importSeed,
+  generateAccount,
+  generateWallet,
+  importAccount,
+  importWallet,
   onboardVaultClient,
   pingVault,
   signRequest
@@ -119,7 +119,7 @@ const useVaultApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return importPrivateKey(sdkVaultConfig, request)
+      return importAccount(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -133,7 +133,7 @@ const useVaultApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return importSeed(sdkVaultConfig, request)
+      return importWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -141,13 +141,13 @@ const useVaultApi = () => {
     }
   }
 
-  const generateWalletKeys = (request: GenerateKeyRequest) => {
+  const generateWalletKey = (request: GenerateKeyRequest) => {
     if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return generateKey(sdkVaultConfig, request)
+      return generateWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -155,13 +155,13 @@ const useVaultApi = () => {
     }
   }
 
-  const deriveWalletKey = (request: DeriveWalletRequest) => {
+  const deriveWalletKey = (request: DeriveAccountRequest) => {
     if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return deriveWallet(sdkVaultConfig, request)
+      return generateAccount(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -169,7 +169,7 @@ const useVaultApi = () => {
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKeys, deriveWalletKey }
+  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKey, deriveWalletKey }
 }
 
 export default useVaultApi
