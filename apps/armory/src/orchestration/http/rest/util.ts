@@ -1,4 +1,3 @@
-import { EvaluationMetadata } from '@narval/policy-engine-shared'
 import { nowSeconds } from '@narval/signature'
 import { plainToInstance } from 'class-transformer'
 import { CreateAuthorizationRequest } from '../../core/type/domain.type'
@@ -14,15 +13,16 @@ export const toCreateAuthorizationRequest = (
   body: AuthorizationRequestDto
 ): CreateAuthorizationRequest => {
   const dto = plainToInstance(AuthorizationRequestDto, body)
+  const request = body.request
   const authentication = dto.authentication
   const approvals = dto.approvals || []
-  const metadata: EvaluationMetadata = {
-    ...dto.metadata,
-    issuer: dto.metadata?.issuer || `${clientId}.armory.narval.xyz`,
+  const audience = dto.metadata?.audience
+  const metadata = {
+    ...(audience && { audience }),
     expiresIn: dto.metadata?.expiresIn || TEN_MINUTES,
-    issuedAt: nowSeconds()
+    issuedAt: nowSeconds(),
+    issuer: `${clientId}.armory.narval.xyz`
   }
-  const request = body.request
 
   return {
     clientId,
