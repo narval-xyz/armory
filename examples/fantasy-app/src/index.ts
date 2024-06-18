@@ -296,9 +296,9 @@ const main = async () => {
      // account is derived from the wallet
   })
 
-  const newCredential = await generateJwk<PrivateKey>(Alg.ES256K)
-  const newCredentialPrivateKey = await privateKeyToHex(newCredential)
-  const newCredentialPublicKey = getPublicKey(newCredential)
+  const intiator = await generateJwk<PrivateKey>(Alg.ES256K)
+  const intiatorPrivateKey = await privateKeyToHex(intiator)
+  const intiatorPublicKey = getPublicKey(intiator)
 
   const entities2 = await getEntities(entityStoreHost);
   await setEntities({
@@ -320,9 +320,9 @@ const main = async () => {
     credentials: [
       ...entities2.data.credentials,
       {
-        id: newCredential.kid,
+        id: intiator.kid,
         userId: `initiator-${accounts[0].id}`,
-        key: newCredentialPublicKey as PublicKey,
+        key: intiatorPublicKey as PublicKey,
       }
     ],
   });
@@ -368,6 +368,14 @@ const main = async () => {
   }, policies)
 
 
+  const buildTransactionRequest = (data: Hex) => ({
+    from: accounts[0].address as Hex,
+    chainId: 1,
+    to: '0x3f843E606C79312718477F9bC020F3fC5b7264C2'.toLowerCase() as Hex,
+    data,
+  })
+
+  
   const buildErc20TransferAuthRequest = async (reward: Identification & Erc20Reward) => {
     const encodedParams = encodeAbiParameters(Erc20TransferAbiParameters,
       [reward.address as Hex, BigInt(reward.amount)]
@@ -399,12 +407,6 @@ const main = async () => {
     return authRequest
   }
 
-  const buildTransactionRequest = (data: Hex) => ({
-    from: accounts[0].address as Hex,
-    chainId: 1,
-    to: '0x3f843E606C79312718477F9bC020F3fC5b7264C2'.toLowerCase() as Hex,
-    data,
-  })
 
   const buildErc721TransferAuthRequest = async (reward: Identification & NftReward) => {
     const encodedParams = encodeAbiParameters(Erc721SafeTransferFromAbiParameters, [
@@ -435,7 +437,7 @@ const main = async () => {
   }
 
 
-  const newCredentialSigner = await buildSignerForAlg(newCredential)
+  const intiatorSigner = await buildSignerForAlg(intiator)
 
   const authRequests = await Promise.all(rewards.map(async (reward) => {
     console.log('reward', reward)
@@ -454,8 +456,8 @@ const main = async () => {
       authClientSecret,
       authClientId,
       authHost,
-      jwk: newCredential,
-      signer: newCredentialSigner,
+      jwk: intiator,
+      signer: intiatorSigner,
     }, authRequest)
     return response.id
   }))
@@ -468,9 +470,9 @@ const main = async () => {
       authClientSecret,
       authClientId,
       authHost,
-      jwk: newCredential,
-      alg: newCredential.alg,
-      signer: newCredentialSigner,
+      jwk: intiator,
+      alg: intiator.alg,
+      signer: intiatorSigner,
     }, id)
 
     while (res.status === 'CREATED' || res.status === 'PROCESSING') {
@@ -479,9 +481,9 @@ const main = async () => {
         authClientSecret,
         authClientId,
         authHost,
-        jwk: newCredential,
-        alg: newCredential.alg,
-        signer: newCredentialSigner,
+        jwk: intiator,
+        alg: intiator.alg,
+        signer: intiatorSigner,
       }, id);
     }
 
@@ -502,9 +504,9 @@ const main = async () => {
       const { signature } = await signRequest({
         vaultClientId,
         vaultHost,
-        jwk: newCredential,
-        alg: newCredential.alg,
-        signer: newCredentialSigner,
+        jwk: intiator,
+        alg: intiator.alg,
+        signer: intiatorSigner,
       }, {
         accessToken: {
           value: tx.evaluations[0].signature as string,
