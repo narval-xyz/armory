@@ -39,7 +39,7 @@ jobs:
       - name: Promote image to production version tag
         uses: abronin/ecr-retag-action@v1
         with:
-          repository: ${{ steps.login-ecr.outputs.registry }}/armory/vault
+          repository: armory/vault
           tag: ${{ env.sha7 }}
           new-tags: ${{ steps.tag.outputs.tag }}
 
