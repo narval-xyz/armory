@@ -170,7 +170,7 @@ jobs:
       - name: Update Image Version in the related HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
-          valueFile: 'deploy/charts/vault/values.yaml'
+          valueFile: 'apps/charts/vault/values.yaml'
           propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
           message: 'Update Vault Image Version to ${{ env.sha7 }}'
