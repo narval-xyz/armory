@@ -1,0 +1,97 @@
+name: '@app/policy-engine Production CI'
+
+on:
+  push:
+    tags:
+      - policy-engine-v*
+
+jobs:
+  release:
+    name: Release Prod
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ACTIONS_ECR_ROLE_ARN }} # Organization variable
+          aws-region: ${{ vars.ACTIONS_ECR_REGION }} # Organization variable
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get short SHA
+        id: slug
+        run: echo "sha7=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+        # Strip the "policy-engine-v" prefix from the tag, so we just get the version number
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/*/policy-engine-v}" >> $GITHUB_OUTPUT
+
+      - name: Promote image to production version tag
+        uses: abronin/ecr-retag-action@v1
+        with:
+          repository: armory/policy-engine
+          tag: ${{ env.sha7 }}
+          new-tags: ${{ steps.tag.outputs.tag }}
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.NARVAL_HELM_APP_ID }}
+          private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          repositories: "armory,armory-platform"
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          repository: narval-xyz/armory-platform
+          ref: main
+          path: platform
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+
+      - name: "Update Helm Version"
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'apps/charts/policy-engine/values.yaml'
+          message: 'Update Policy Engine Production Image Version to ${{ steps.tag.outputs.tag }}'
+          repository: narval-xyz/armory-platform
+          branch: main
+          token: ${{ steps.app-token.outputs.token }}
+          workDir: platform
+          changes: |
+            {
+              "apps/charts/policy-engine/values-prod.yaml": {
+                "image.tag": "${{ steps.tag.outputs.tag }}"
+              },
+              "apps/charts/policy-engine/values-prod-node-0.yaml": {
+                "image.tag": "${{ steps.tag.outputs.tag }}"
+              },
+              "apps/charts/policy-engine/values-prod-node-1.yaml": {
+                "image.tag": "${{ steps.tag.outputs.tag }}"
+              },
+              "apps/charts/policy-engine/values-prod-node-2.yaml": {
+                "image.tag": "${{ steps.tag.outputs.tag }}"
+              }
+            }
+
+      - name: Send Slack notification on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          username: GitHub
+          author_name: '@app/policy-engine Production CI release failed'
+          status: ${{ job.status }}
+          fields: message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

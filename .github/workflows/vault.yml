@@ -21,7 +21,6 @@ on:
       - vault-v*
       - armory-v*
       - policy-engine-v*
-      - test
 
 jobs:
   test:
