@@ -2,10 +2,13 @@ name: '@app/vault CI'
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - packages/**
       - apps/vault/**
       - .github/workflows/vault.yml
+      - .github/workflows/vault-prod.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
@@ -14,6 +17,10 @@ on:
       - package-lock.json
       - deploy/vault.dockerfile
       - deploy/charts/vault/**
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   test:

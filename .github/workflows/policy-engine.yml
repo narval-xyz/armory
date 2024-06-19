@@ -2,6 +2,8 @@ name: '@app/policy-engine CI'
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - packages/**
       - apps/policy-engine/**
@@ -14,6 +16,10 @@ on:
       - package-lock.json
       - deploy/policy-engine.dockerfile
       - deploy/charts/policy-engine/**
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   test:
@@ -179,7 +185,7 @@ jobs:
           repositories: "armory,armory-platform"
 
       - name: Checkout Target Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: narval-xyz/armory-platform
           ref: main
@@ -188,7 +194,7 @@ jobs:
           persist-credentials: false
 
       - name: Update Image Version in the worker HelmChart values.yaml
-        uses: fjogeleit/yaml-update-action@master
+        uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'apps/charts/policy-engine/values.yaml'
           # propertyPath: 'image.tag'
