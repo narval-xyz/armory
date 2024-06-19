@@ -3,7 +3,7 @@ name: Packages CI
 on:
   push:
     branches:
-      - '*'
+      - '**'
     paths:
       - packages/**
       - .github/workflows/packages.yml
