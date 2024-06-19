@@ -1,6 +1,6 @@
 import { Permission } from '@narval/armory-sdk'
 import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
@@ -13,6 +13,7 @@ import { ImportSeedDto } from '../dto/import-wallet.dto'
 import { WalletsDto } from '../dto/wallets.dto'
 
 @Controller('/wallets')
+@ApiTags('Wallet')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,
   required: true
@@ -47,15 +48,14 @@ export class WalletController {
     status: HttpStatus.CREATED,
     type: GenerateKeyResponseDto
   })
-  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto) {
+  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<GenerateKeyResponseDto> {
     const { account, keyId, backup } = await this.keyGenService.generateWallet(clientId, body)
-    const response = GenerateKeyResponseDto.create({
+
+    return GenerateKeyResponseDto.create({
       account,
       keyId: keyId,
       backup
     })
-
-    return response
   }
 
   @Post('/import')
@@ -67,14 +67,13 @@ export class WalletController {
     status: HttpStatus.CREATED,
     type: GenerateKeyResponseDto
   })
-  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto) {
+  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto): Promise<GenerateKeyResponseDto> {
     const { account, keyId, backup } = await this.importService.importSeed(clientId, body)
-    const response = GenerateKeyResponseDto.create({
+
+    return GenerateKeyResponseDto.create({
       account,
       keyId: keyId,
       backup
     })
-
-    return response
   }
 }
