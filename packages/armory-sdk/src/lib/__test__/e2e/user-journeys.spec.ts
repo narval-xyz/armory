@@ -329,7 +329,10 @@ describe('User Journeys', () => {
             chainId: 1,
             data: '0x',
             from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-            // TODO: Open API generator transforms bigint to number
+            // It's crucial to test an E2E flow that includes a bigint value.
+            // This is because we convert it into a string before transmitting
+            // it, and decode it on the server side. A discrepancy between the
+            // SDK and server types can result in an invalid hash.
             gas: 5000n,
             nonce: 0,
             to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
