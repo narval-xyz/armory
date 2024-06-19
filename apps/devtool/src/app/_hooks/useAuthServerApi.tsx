@@ -28,6 +28,7 @@ export interface AuthClientData {
   authAdminApiKey: string
   id: string
   name: string
+  useManagedDataStore: boolean
   entityDataStoreUrl: string
   entityPublicKey: string
   policyDataStoreUrl: string
@@ -97,6 +98,7 @@ const useAuthServerApi = () => {
         name,
         authServerUrl,
         authAdminApiKey,
+        useManagedDataStore,
         entityDataStoreUrl,
         entityPublicKey,
         policyDataStoreUrl,
@@ -108,6 +110,7 @@ const useAuthServerApi = () => {
         {
           id,
           name,
+          useManagedDataStore,
           dataStore: {
             entity: {
               data: {

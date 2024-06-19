@@ -14,6 +14,7 @@ export type PolicyEngineNode = z.infer<typeof PolicyEngineNode>
 export const OnboardArmoryClientRequest = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  useManagedDataStore: z.boolean(),
   dataStore: z.object({
     entity: DataStoreConfiguration,
     policy: DataStoreConfiguration
@@ -34,7 +35,9 @@ export const OnboardArmoryClientResponse = z.object({
   }),
   policyEngine: z.object({
     nodes: z.array(PolicyEngineNode)
-  })
+  }),
+  entityDataUrl: z.string(),
+  policyDataUrl: z.string()
 })
 export type OnboardArmoryClientResponse = z.infer<typeof OnboardArmoryClientResponse>
 

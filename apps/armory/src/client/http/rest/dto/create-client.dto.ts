@@ -8,6 +8,7 @@ export class CreateClientRequestDto extends createZodDto(
     createdAt: true,
     updatedAt: true
   }).extend({
+    useManagedDataStore: z.boolean().optional(),
     policyEngineNodes: z.array(z.string()).optional()
   })
 ) {}

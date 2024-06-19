@@ -15,7 +15,7 @@ export type PolicyEngineNode = z.infer<typeof PolicyEngineNode>
 export const Client = z.object({
   id: z.string().min(1),
   clientSecret: z.string().min(1).describe('plaintext secret for authenticating to armory'),
-  dataSecret: z.string().min(1).describe('plaintext secret for authenticating to data store'),
+  dataSecret: z.string().min(1).nullable().describe('plaintext secret for authenticating to data store'),
   name: z.string().min(1),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -35,6 +35,7 @@ export type Client = z.infer<typeof Client>
 
 export const CreateClient = Client.extend({
   id: z.string().min(1).optional(),
+  useManagedDataStore: z.boolean().optional(),
   clientSecret: z.string().min(1).optional(),
   dataSecret: z.string().min(1).optional(),
   createdAt: z.date().optional(),

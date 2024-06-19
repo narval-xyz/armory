@@ -1,33 +1,41 @@
 import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { HEADER_CLIENT_ID } from '../constants'
+import { HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from '../constants'
 import { DataStoreClientConfig } from '../domain'
 import { ArmorySdkException } from '../exceptions'
 import { signDataPayload } from '../sdk'
 import { SetEntitiesResponse, SetPoliciesResponse } from '../types/data-store'
 import { isSuccessResponse } from '../utils'
 
-export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
+export const getEntities = async (config: DataStoreClientConfig): Promise<EntityStore> => {
   try {
     const {
       data: { entity }
-    } = await axios.get(entityStoreHost)
+    } = await axios.get(config.entityStoreHost, {
+      headers: {
+        [HEADER_CLIENT_SECRET]: config.dataStoreClientSecret
+      }
+    })
 
     return entity
   } catch (error) {
-    throw new ArmorySdkException('Failed to fetch entity store', { entityStoreHost, error })
+    throw new ArmorySdkException('Failed to fetch entity store', { config, error })
   }
 }
 
-export const getPolicies = async (policyStoreHost: string): Promise<PolicyStore> => {
+export const getPolicies = async (config: DataStoreClientConfig): Promise<PolicyStore> => {
   try {
     const {
       data: { policy }
-    } = await axios.get(policyStoreHost)
+    } = await axios.get(config.policyStoreHost, {
+      headers: {
+        [HEADER_CLIENT_SECRET]: config.dataStoreClientSecret
+      }
+    })
 
     return policy
   } catch (error) {
-    throw new ArmorySdkException('Failed to fetch policy store', { policyStoreHost, error })
+    throw new ArmorySdkException('Failed to fetch policy store', { config, error })
   }
 }
 

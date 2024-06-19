@@ -139,9 +139,10 @@ describe('Client', () => {
       expect(body).toEqual({
         ...actualClient,
         clientSecret: expect.any(String),
-        dataSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
-        updatedAt: actualClient?.updatedAt.toISOString()
+        updatedAt: actualClient?.updatedAt.toISOString(),
+        entityDataUrl: dataStoreSource.url,
+        policyDataUrl: dataStoreSource.url
       })
 
       expect(actualClient?.dataStore.entityPublicKey).toEqual(createClientPayload.dataStore.entity.keys[0])
@@ -180,6 +181,27 @@ describe('Client', () => {
         .send({ ...createClientPayload, clientSecret })
 
       expect(body.clientSecret).toEqual(clientSecret)
+    })
+
+    it('creates a new client with a managed data store', async () => {
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({ ...createClientPayload, useManagedDataStore: true })
+
+      const actualClient = await clientService.findById(body.id)
+
+      expect(body).toEqual({
+        ...actualClient,
+        clientSecret: expect.any(String),
+        dataSecret: expect.any(String),
+        entityDataUrl: 'http://localhost:3005/data/entities?clientId=test-client-id',
+        policyDataUrl: 'http://localhost:3005/data/policies?clientId=test-client-id',
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
+      })
     })
 
     it('responds with unprocessable entity when payload is invalid', async () => {
