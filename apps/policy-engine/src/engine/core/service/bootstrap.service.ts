@@ -1,5 +1,6 @@
 import { EncryptionService } from '@narval/encryption-module'
-import { Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { ApplicationException } from 'apps/policy-engine/src/shared/exception/application.exception'
 import { BootstrapException } from '../exception/bootstrap.exception'
 import { ClientService } from './client.service'
 
@@ -16,8 +17,9 @@ export class BootstrapService {
     this.logger.log('Start bootstrap')
 
     await this.checkEncryptionConfiguration()
-    await this.syncClients()
+    const success = await this.syncClients()
 
+    this.logger.log('Boostrap sync status', { success })
     this.logger.log('Bootstrap end')
   }
 
@@ -32,17 +34,46 @@ export class BootstrapService {
     }
   }
 
-  private async syncClients(): Promise<void> {
+  private async syncClients(): Promise<boolean> {
+    const SYNC_ATTEMPTS = 3
+
     const clients = await this.clientService.findAll()
 
     this.logger.log('Start syncing clients data stores', {
       clientsCount: clients.length
     })
 
-    // TODO: (@wcalderipe, 07/03/24) maybe change the execution to parallel?
-    for (const client of clients) {
-      await this.clientService.syncDataStore(client.clientId)
-      this.logger.log(`Client public key`, { clientId: client.clientId, publicKey: client.signer.publicKey })
-    }
+    const clientsSyncStatus = await Promise.all(
+      clients.map(async (client) => {
+        let isSynced = false
+
+        for (let i = 0; i <= SYNC_ATTEMPTS; i++) {
+          try {
+            isSynced = await this.clientService.syncDataStore(client.clientId)
+            if (!isSynced) {
+              throw new ApplicationException({
+                message: 'Failed to sync client data store',
+                suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                context: { clientId: client.clientId }
+              })
+            }
+            break
+          } catch (error) {
+            if (i < SYNC_ATTEMPTS) {
+              this.logger.warn('Failed to sync client data store, retrying', {
+                clientId: client.clientId,
+                attempt: i + 1
+              })
+              await new Promise((resolve) => setTimeout(resolve, 5000))
+              continue
+            }
+          }
+        }
+
+        return isSynced
+      })
+    )
+
+    return clientsSyncStatus.every((isSynced) => isSynced)
   }
 }
