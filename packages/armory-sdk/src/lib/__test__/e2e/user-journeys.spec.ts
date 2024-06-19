@@ -14,12 +14,14 @@ import { buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from 
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 import { AuthAdminClient, AuthClient } from '../../auth/client'
-import { AuthAdminConfig, AuthConfig } from '../../auth/type'
+import { AuthConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { createHttpDataStore, credential } from '../../data-store/util'
 import { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from '../../http/client/auth'
+import { ClientDto } from '../../http/client/vault'
 import { SignOptions, Signer } from '../../shared/type'
+import { VaultAdminClient } from '../../vault/client'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -34,6 +36,10 @@ const dataStorePrivateKey = privateKeyToJwk('0x2c26498d58150922a4e040fabd4aa7367
 const getAuthHost = () => 'http://localhost:3005'
 
 const getAuthAdminApiKey = () => '2cfa9d09a28f1de9108d18c38f5d5304e6708744c7d7194cbc754aef3455edc7e9270e2f28f052622257'
+
+const getVaultHost = () => 'http://localhost:3011'
+
+const getVaultAdminApiKey = () => 'b8795927715a31131072b3b6490f9705d56895aa2d1f89d9bdd39b1c815cb3dfe71e5f72c6ef174f00ca'
 
 const getExpectedSignature = (input: { data: unknown; signer: Signer; clientId: string } & SignOptions) => {
   const { data, signer, clientId, issuedAt } = input
@@ -57,7 +63,8 @@ const getExpectedSignature = (input: { data: unknown; signer: Signer; clientId: 
 // These tests are meant to be run in series, not in parallel, because they
 // represent an end-to-end user journey.
 describe('User Journeys', () => {
-  let client: CreateClientResponseDto
+  let authClient: CreateClientResponseDto
+  let vaultClient: ClientDto
 
   const clientId = uuid()
 
@@ -87,19 +94,22 @@ describe('User Journeys', () => {
 
   describe('As an admin', () => {
     let authAdminClient: AuthAdminClient
-    let authAdminConfig: AuthAdminConfig
+    let vaultAdminClient: VaultAdminClient
 
     beforeEach(async () => {
-      authAdminConfig = {
+      authAdminClient = new AuthAdminClient({
         host: getAuthHost(),
         adminApiKey: getAuthAdminApiKey()
-      }
+      })
 
-      authAdminClient = new AuthAdminClient(authAdminConfig)
+      vaultAdminClient = new VaultAdminClient({
+        host: getVaultHost(),
+        adminApiKey: getVaultAdminApiKey()
+      })
     })
 
     it('I can create a new client in the authorization server', async () => {
-      client = await authAdminClient.createClient({
+      authClient = await authAdminClient.createClient({
         name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
         id: clientId,
         dataStore: createHttpDataStore({
@@ -109,7 +119,39 @@ describe('User Journeys', () => {
         })
       })
 
-      expect(client).not.toEqual(undefined)
+      expect(authClient).toEqual({
+        id: clientId,
+        name: expect.any(String),
+        clientSecret: expect.any(String),
+        dataStore: {
+          entityPublicKey: getPublicKey(dataStorePrivateKey),
+          policyPublicKey: getPublicKey(dataStorePrivateKey)
+        },
+        policyEngine: {
+          nodes: [
+            {
+              id: expect.any(String),
+              clientId: clientId,
+              publicKey: expect.any(Object),
+              url: expect.any(String)
+            }
+          ]
+        },
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
+    })
+
+    it('I can create a new client in the vault', async () => {
+      vaultClient = await vaultAdminClient.createClient({
+        clientId: authClient.id
+      })
+
+      expect(vaultClient).toEqual({
+        clientId: authClient.id,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
     })
   })
 
@@ -123,8 +165,8 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId: client.id,
-          clientSecret: client.clientSecret,
+          clientId: authClient.id,
+          clientSecret: authClient.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
@@ -233,8 +275,8 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId: client.id,
-          clientSecret: client.clientSecret,
+          clientId: authClient.id,
+          clientSecret: authClient.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)

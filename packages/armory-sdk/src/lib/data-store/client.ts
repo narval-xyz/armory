@@ -10,6 +10,7 @@ import {
   SetEntityStoreResponseDto,
   SetPolicyStoreResponseDto
 } from '../http/client/auth'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../shared/constant'
 import { DataStoreConfig, DataStoreHttp, SignOptions } from './type'
 
 const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
@@ -110,8 +111,8 @@ export class EntityStoreClient {
     // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
     await this.dataStoreHttp.sync({
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
@@ -189,8 +190,8 @@ export class PolicyStoreClient {
     // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
     await this.dataStoreHttp.sync({
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
