@@ -1,6 +1,6 @@
 import { EncryptionService } from '@narval/encryption-module'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { ApplicationException } from 'apps/policy-engine/src/shared/exception/application.exception'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BootstrapException } from '../exception/bootstrap.exception'
 import { ClientService } from './client.service'
 
