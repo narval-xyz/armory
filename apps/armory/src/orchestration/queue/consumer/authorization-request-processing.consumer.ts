@@ -1,3 +1,4 @@
+import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
@@ -12,7 +13,6 @@ import { InvalidAttestationSignatureException } from '../../../policy-engine/cor
 import { UnreachableClusterException } from '../../../policy-engine/core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestAlreadyProcessingException } from '../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../core/service/authorization-request.service'
-import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '../../core/type/domain.type'
 
 @Processor(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
 export class AuthorizationRequestProcessingConsumer {

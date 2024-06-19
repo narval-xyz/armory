@@ -13,7 +13,8 @@ import { Signer } from '../shared/type'
 export const DataStoreConfig = z.object({
   host: z.string(),
   signer: Signer,
-  clientId: z.string()
+  clientId: z.string(),
+  clientSecret: z.string().optional()
 })
 export type DataStoreConfig = z.infer<typeof DataStoreConfig>
 
@@ -65,4 +66,12 @@ export type DataStoreHttp = {
     data: SetPolicyStoreDto,
     options?: RawAxiosRequestConfig
   ): AxiosPromise<SetPolicyStoreResponseDto>
+
+  /**
+   * Syncs the client data stores.
+   *
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  sync(options?: RawAxiosRequestConfig): AxiosPromise<void>
 }

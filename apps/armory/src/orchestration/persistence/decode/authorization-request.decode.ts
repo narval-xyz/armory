@@ -1,5 +1,5 @@
 import { Json } from '@narval/nestjs-shared'
-import { Action } from '@narval/policy-engine-shared'
+import { Action, AuthorizationRequest, AuthorizationRequestError, Evaluation } from '@narval/policy-engine-shared'
 import {
   AuthorizationRequestError as AuthorizationRequestErrorModel,
   EvaluationLog as EvaluationLogModel,
@@ -7,7 +7,6 @@ import {
 } from '@prisma/client/armory'
 import { SetOptional } from 'type-fest'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
-import { AuthorizationRequest, AuthorizationRequestError, Evaluation } from '../../core/type/domain.type'
 import { ACTION_REQUEST } from '../../orchestration.constant'
 import { DecodeAuthorizationRequestException } from '../../persistence/exception/decode-authorization-request.exception'
 import { AuthorizationRequestModel } from '../../persistence/type/model.type'

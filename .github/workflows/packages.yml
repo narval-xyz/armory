@@ -58,7 +58,13 @@ jobs:
 
       - name: Test end-to-end
         run: |
-          npx nx affected --target test:e2e --exclude tag:type:application
+          # TODO: (@wcalderipe, 19/06/24) Ignore the SDK user journeys test as
+          # it requires a running server. Ideally, once we've got Docker images
+          # for each part of the stack, we can switch the storage to something
+          # in-memory. It'd be a good time to revisit this TODO and think about
+          # using testcontainers.
+          npx nx affected --target test:e2e --exclude tag:type:application \
+            --testPathIgnorePatterns=packages/armory-sdk/src/lib/__test__/e2e/user-journeys.spec.ts
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'

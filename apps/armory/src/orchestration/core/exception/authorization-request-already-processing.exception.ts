@@ -1,6 +1,6 @@
+import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { AuthorizationRequest } from '../type/domain.type'
 
 export class AuthorizationRequestAlreadyProcessingException extends ApplicationException {
   constructor(authzRequest: AuthorizationRequest) {

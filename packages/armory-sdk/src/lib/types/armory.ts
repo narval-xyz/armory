@@ -47,7 +47,9 @@ export const AuthorizationRequestStatus = {
 } as const
 export type AuthorizationRequestStatus = (typeof AuthorizationRequestStatus)[keyof typeof AuthorizationRequestStatus]
 
-export const AuthorizationRequest = z.object({
+// TODO: Why is this duplicated?
+// LOL, it's an AuthorizationResponse not request
+export const AuthorizationResponse = z.object({
   id: z.string(),
   clientId: z.string(),
   idempotencyKey: z.string().nullable(),
@@ -63,4 +65,4 @@ export const AuthorizationRequest = z.object({
   request: Request,
   approvals: z.array(z.string())
 })
-export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>
+export type AuthorizationResponse = z.infer<typeof AuthorizationResponse>

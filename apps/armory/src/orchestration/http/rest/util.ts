@@ -1,7 +1,6 @@
-import { EvaluationMetadata } from '@narval/policy-engine-shared'
+import { CreateAuthorizationRequest, EvaluationMetadata, Request } from '@narval/policy-engine-shared'
 import { nowSeconds } from '@narval/signature'
 import { plainToInstance } from 'class-transformer'
-import { CreateAuthorizationRequest } from '../../core/type/domain.type'
 import { AuthorizationRequestDto } from '../../http/rest/dto/authorization-request.dto'
 
 const TEN_MINUTES = 60 * 10
@@ -28,7 +27,7 @@ export const toCreateAuthorizationRequest = (
     approvals,
     authentication,
     evaluations: [],
-    request,
+    request: Request.parse(request),
     metadata
   }
 }

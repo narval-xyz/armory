@@ -95,7 +95,7 @@ export type AuthorizationRequestDtoMetadataAudience = Array<string> | string;
  * @type AuthorizationRequestDtoRequest
  * @export
  */
-export type AuthorizationRequestDtoRequest = AuthorizationRequestDtoRequestOneOf | AuthorizationRequestDtoRequestOneOf1 | AuthorizationRequestDtoRequestOneOf2;
+export type AuthorizationRequestDtoRequest = AuthorizationRequestDtoRequestOneOf | AuthorizationRequestDtoRequestOneOf1 | AuthorizationRequestDtoRequestOneOf2 | AuthorizationRequestDtoRequestOneOf3 | AuthorizationRequestDtoRequestOneOf4;
 
 /**
  * 
@@ -161,10 +161,10 @@ export interface AuthorizationRequestDtoRequestOneOf1 {
     'resourceId': string;
     /**
      * 
-     * @type {string}
+     * @type {AuthorizationRequestDtoRequestOneOf1Message}
      * @memberof AuthorizationRequestDtoRequestOneOf1
      */
-    'message': string;
+    'message': AuthorizationRequestDtoRequestOneOf1Message;
 }
 
 export const AuthorizationRequestDtoRequestOneOf1ActionEnum = {
@@ -173,6 +173,25 @@ export const AuthorizationRequestDtoRequestOneOf1ActionEnum = {
 
 export type AuthorizationRequestDtoRequestOneOf1ActionEnum = typeof AuthorizationRequestDtoRequestOneOf1ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf1ActionEnum];
 
+/**
+ * @type AuthorizationRequestDtoRequestOneOf1Message
+ * @export
+ */
+export type AuthorizationRequestDtoRequestOneOf1Message = AuthorizationRequestDtoRequestOneOf1MessageOneOf | string;
+
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf1MessageOneOf
+ */
+export interface AuthorizationRequestDtoRequestOneOf1MessageOneOf {
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf1MessageOneOf
+     */
+    'raw': any;
+}
 /**
  * 
  * @export
@@ -199,17 +218,180 @@ export interface AuthorizationRequestDtoRequestOneOf2 {
     'resourceId': string;
     /**
      * 
-     * @type {Array<string>}
+     * @type {AuthorizationRequestDtoRequestOneOf2TypedData}
      * @memberof AuthorizationRequestDtoRequestOneOf2
+     */
+    'typedData': AuthorizationRequestDtoRequestOneOf2TypedData;
+}
+
+export const AuthorizationRequestDtoRequestOneOf2ActionEnum = {
+    SignTypedData: 'signTypedData'
+} as const;
+
+export type AuthorizationRequestDtoRequestOneOf2ActionEnum = typeof AuthorizationRequestDtoRequestOneOf2ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf2ActionEnum];
+
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf2TypedData
+ */
+export interface AuthorizationRequestDtoRequestOneOf2TypedData {
+    /**
+     * 
+     * @type {AuthorizationRequestDtoRequestOneOf2TypedDataDomain}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
+     */
+    'domain': AuthorizationRequestDtoRequestOneOf2TypedDataDomain;
+    /**
+     * 
+     * @type {{ [key: string]: Array<AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner>; }}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
+     */
+    'types': { [key: string]: Array<AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner>; };
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
+     */
+    'primaryType': string;
+    /**
+     * 
+     * @type {{ [key: string]: any; }}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
+     */
+    'message': { [key: string]: any; };
+}
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+ */
+export interface AuthorizationRequestDtoRequestOneOf2TypedDataDomain {
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+     */
+    'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+     */
+    'version'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+     */
+    'chainId'?: number;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+     */
+    'verifyingContract'?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataDomain
+     */
+    'salt'?: any;
+}
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner
+ */
+export interface AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf2TypedDataTypesValueInner
+     */
+    'type': string;
+}
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf3
+ */
+export interface AuthorizationRequestDtoRequestOneOf3 {
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf3
+     */
+    'action': AuthorizationRequestDtoRequestOneOf3ActionEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf3
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf3
+     */
+    'resourceId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf3
+     */
+    'rawMessage': any;
+}
+
+export const AuthorizationRequestDtoRequestOneOf3ActionEnum = {
+    SignRaw: 'signRaw'
+} as const;
+
+export type AuthorizationRequestDtoRequestOneOf3ActionEnum = typeof AuthorizationRequestDtoRequestOneOf3ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf3ActionEnum];
+
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf4
+ */
+export interface AuthorizationRequestDtoRequestOneOf4 {
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4
+     */
+    'action': AuthorizationRequestDtoRequestOneOf4ActionEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4
+     */
+    'resourceId': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof AuthorizationRequestDtoRequestOneOf4
      */
     'permissions': Array<string>;
 }
 
-export const AuthorizationRequestDtoRequestOneOf2ActionEnum = {
+export const AuthorizationRequestDtoRequestOneOf4ActionEnum = {
     GrantPermission: 'grantPermission'
 } as const;
 
-export type AuthorizationRequestDtoRequestOneOf2ActionEnum = typeof AuthorizationRequestDtoRequestOneOf2ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf2ActionEnum];
+export type AuthorizationRequestDtoRequestOneOf4ActionEnum = typeof AuthorizationRequestDtoRequestOneOf4ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf4ActionEnum];
 
 /**
  * 
@@ -249,22 +431,22 @@ export interface AuthorizationRequestDtoRequestOneOfTransactionRequest {
     'data'?: any;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
      */
-    'gas'?: number;
+    'gas'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
      */
-    'maxFeePerGas'?: number;
+    'maxFeePerGas'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
      */
-    'maxPriorityFeePerGas'?: number;
+    'maxPriorityFeePerGas'?: string;
     /**
      * 
      * @type {any}
@@ -372,10 +554,10 @@ export interface AuthorizationResponseDto {
     'metadata'?: AuthorizationRequestDtoMetadata;
     /**
      * 
-     * @type {AuthorizationResponseDtoRequest}
+     * @type {AuthorizationRequestDtoRequest}
      * @memberof AuthorizationResponseDto
      */
-    'request': AuthorizationResponseDtoRequest;
+    'request': AuthorizationRequestDtoRequest;
     /**
      * 
      * @type {string}
@@ -410,10 +592,10 @@ export type AuthorizationResponseDtoStatusEnum = typeof AuthorizationResponseDto
 export interface AuthorizationResponseDtoErrorsInner {
     /**
      * 
-     * @type {AuthorizationResponseDtoErrorsInnerContext}
+     * @type {any}
      * @memberof AuthorizationResponseDtoErrorsInner
      */
-    'context'?: AuthorizationResponseDtoErrorsInnerContext;
+    'context'?: any;
     /**
      * 
      * @type {string}
@@ -433,18 +615,6 @@ export interface AuthorizationResponseDtoErrorsInner {
      */
     'name': string;
 }
-/**
- * @type AuthorizationResponseDtoErrorsInnerContext
- * @export
- */
-export type AuthorizationResponseDtoErrorsInnerContext = Array<any> | AuthorizationResponseDtoErrorsInnerContextOneOf | { [key: string]: any; };
-
-/**
- * @type AuthorizationResponseDtoErrorsInnerContextOneOf
- * @export
- */
-export type AuthorizationResponseDtoErrorsInnerContextOneOf = boolean | number | string;
-
 /**
  * 
  * @export
@@ -476,130 +646,6 @@ export interface AuthorizationResponseDtoEvaluationsInner {
      */
     'createdAt': any;
 }
-/**
- * @type AuthorizationResponseDtoRequest
- * @export
- */
-export type AuthorizationResponseDtoRequest = AuthorizationRequestDtoRequestOneOf1 | AuthorizationRequestDtoRequestOneOf2 | AuthorizationResponseDtoRequestOneOf;
-
-/**
- * 
- * @export
- * @interface AuthorizationResponseDtoRequestOneOf
- */
-export interface AuthorizationResponseDtoRequestOneOf {
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOf
-     */
-    'action': AuthorizationResponseDtoRequestOneOfActionEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOf
-     */
-    'nonce': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOf
-     */
-    'resourceId': string;
-    /**
-     * 
-     * @type {AuthorizationResponseDtoRequestOneOfTransactionRequest}
-     * @memberof AuthorizationResponseDtoRequestOneOf
-     */
-    'transactionRequest': AuthorizationResponseDtoRequestOneOfTransactionRequest;
-}
-
-export const AuthorizationResponseDtoRequestOneOfActionEnum = {
-    SignTransaction: 'signTransaction'
-} as const;
-
-export type AuthorizationResponseDtoRequestOneOfActionEnum = typeof AuthorizationResponseDtoRequestOneOfActionEnum[keyof typeof AuthorizationResponseDtoRequestOneOfActionEnum];
-
-/**
- * 
- * @export
- * @interface AuthorizationResponseDtoRequestOneOfTransactionRequest
- */
-export interface AuthorizationResponseDtoRequestOneOfTransactionRequest {
-    /**
-     * 
-     * @type {number}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'chainId': number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'from': any;
-    /**
-     * 
-     * @type {number}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'nonce'?: number;
-    /**
-     * 
-     * @type {Array<AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner>}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'accessList'?: Array<AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner>;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'data'?: any;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'gas'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'maxFeePerGas'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'maxPriorityFeePerGas'?: string;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'to'?: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'type'?: AuthorizationResponseDtoRequestOneOfTransactionRequestTypeEnum;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationResponseDtoRequestOneOfTransactionRequest
-     */
-    'value'?: any;
-}
-
-export const AuthorizationResponseDtoRequestOneOfTransactionRequestTypeEnum = {
-    _2: '2'
-} as const;
-
-export type AuthorizationResponseDtoRequestOneOfTransactionRequestTypeEnum = typeof AuthorizationResponseDtoRequestOneOfTransactionRequestTypeEnum[keyof typeof AuthorizationResponseDtoRequestOneOfTransactionRequestTypeEnum];
-
 /**
  * 
  * @export

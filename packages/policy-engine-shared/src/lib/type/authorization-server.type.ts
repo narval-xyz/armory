@@ -1,12 +1,6 @@
-import { Json } from '@narval/nestjs-shared'
-import {
-  Action,
-  EvaluationMetadata,
-  JwtString,
-  SerializedTransactionRequest,
-  TransactionRequest
-} from '@narval/policy-engine-shared'
 import { z } from 'zod'
+import { Action, SerializedTransactionRequest, TransactionRequest } from './action.type'
+import { EvaluationMetadata, JwtString, Request, SerializedRequest } from './domain.type'
 
 export const AuthorizationRequestStatus = {
   CREATED: 'CREATED',
@@ -23,7 +17,7 @@ export const Evaluation = z.object({
   id: z.string(),
   decision: z.string(),
   signature: z.string().nullable(),
-  createdAt: z.date()
+  createdAt: z.coerce.date()
 })
 export type Evaluation = z.infer<typeof Evaluation>
 
@@ -69,11 +63,8 @@ export const GrantPermission = SharedAuthorizationPayload.extend({
 })
 export type GrantPermission = z.infer<typeof GrantPermission>
 
-export const Request = z.discriminatedUnion('action', [SignTransaction, SignMessage, GrantPermission])
-export type Request = z.infer<typeof Request>
-
 export const AuthorizationRequestError = z.object({
-  context: Json.optional(),
+  context: z.any().optional(),
   id: z.string(),
   message: z.string(),
   name: z.string()
@@ -84,7 +75,7 @@ export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
   authentication: JwtString,
   clientId: z.string(),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
   errors: z.array(AuthorizationRequestError).optional(),
   evaluations: z.array(Evaluation),
   id: z.string(),
@@ -92,16 +83,22 @@ export const AuthorizationRequest = z.object({
   metadata: EvaluationMetadata.optional(),
   request: Request,
   status: z.nativeEnum(AuthorizationRequestStatus),
-  updatedAt: z.date()
+  updatedAt: z.coerce.date()
 })
 export type AuthorizationRequest = z.infer<typeof AuthorizationRequest>
 
+export const SerializedAuthorizationRequest = AuthorizationRequest.extend({
+  request: SerializedRequest
+})
+export type SerializedAuthorizationRequest = z.infer<typeof SerializedAuthorizationRequest>
+
 export const CreateAuthorizationRequest = AuthorizationRequest.extend({
+  approvals: z.array(JwtString),
+  createdAt: AuthorizationRequest.shape.createdAt.optional(),
+  evaluations: AuthorizationRequest.shape.evaluations.optional(),
   id: AuthorizationRequest.shape.id.optional(),
   status: AuthorizationRequest.shape.status.optional(),
-  createdAt: AuthorizationRequest.shape.createdAt.optional(),
-  updatedAt: AuthorizationRequest.shape.updatedAt.optional(),
-  approvals: z.array(JwtString)
+  updatedAt: AuthorizationRequest.shape.updatedAt.optional()
 })
 export type CreateAuthorizationRequest = z.infer<typeof CreateAuthorizationRequest>
 

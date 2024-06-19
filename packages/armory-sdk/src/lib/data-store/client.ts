@@ -1,5 +1,6 @@
 import { Entities, EntityUtil, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
+import assert from 'assert'
 import axios from 'axios'
 import {
   Configuration,
@@ -54,6 +55,13 @@ export class EntityStoreClient {
     return signJwtPayload(this.config, buildJwtPayload(this.config, this.populate(entities), opts))
   }
 
+  private populate(entities: Partial<Entities>): Entities {
+    return {
+      ...EntityUtil.empty(),
+      ...entities
+    }
+  }
+
   /**
    * Pushes entities and signature to the data store.
    *
@@ -96,11 +104,18 @@ export class EntityStoreClient {
     return data
   }
 
-  private populate(entities: Partial<Entities>): Entities {
-    return {
-      ...EntityUtil.empty(),
-      ...entities
-    }
+  async sync(): Promise<boolean> {
+    assert(this.config.clientSecret !== undefined, 'Missing client secret')
+
+    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
+    await this.dataStoreHttp.sync({
+      headers: {
+        'x-client-id': this.config.clientId,
+        'x-client-secret': this.config.clientSecret
+      }
+    })
+
+    return true
   }
 }
 
@@ -166,5 +181,19 @@ export class PolicyStoreClient {
     const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
 
     return data
+  }
+
+  async sync(): Promise<boolean> {
+    assert(this.config.clientSecret !== undefined, 'Missing client secret')
+
+    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
+    await this.dataStoreHttp.sync({
+      headers: {
+        'x-client-id': this.config.clientId,
+        'x-client-secret': this.config.clientSecret
+      }
+    })
+
+    return true
   }
 }

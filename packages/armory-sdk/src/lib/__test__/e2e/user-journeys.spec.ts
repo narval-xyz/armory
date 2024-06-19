@@ -1,8 +1,9 @@
 import {
   Action,
+  CreateAuthorizationRequest,
   Criterion,
+  Decision,
   Entities,
-  EntityType,
   EntityUtil,
   Policy,
   Then,
@@ -17,11 +18,7 @@ import { AuthAdminConfig, AuthConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { createHttpDataStore, credential } from '../../data-store/util'
-import {
-  AuthorizationRequestDto,
-  AuthorizationResponseDtoStatusEnum,
-  CreateClientResponseDto
-} from '../../http/client/auth'
+import { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from '../../http/client/auth'
 import { SignOptions, Signer } from '../../shared/type'
 
 const TEST_TIMEOUT_MS = 30_000
@@ -82,25 +79,6 @@ describe('User Journeys', () => {
         {
           criterion: Criterion.CHECK_PRINCIPAL_ROLE,
           args: [UserRole.ADMIN]
-        },
-        {
-          criterion: Criterion.CHECK_ACTION,
-          args: [Action.SIGN_TRANSACTION]
-        },
-        {
-          criterion: Criterion.CHECK_INTENT_TYPE,
-          args: ['transferErc721', 'transferErc1155']
-        },
-        {
-          criterion: Criterion.CHECK_APPROVALS,
-          args: [
-            {
-              approvalCount: 2,
-              countPrincipal: false,
-              approvalEntityType: EntityType.User,
-              entityIds: ['test-bob-user-uid', 'test-carol-user-uid']
-            }
-          ]
         }
       ],
       then: Then.PERMIT
@@ -108,32 +86,30 @@ describe('User Journeys', () => {
   ]
 
   describe('As an admin', () => {
-    describe('I want to create a new client', () => {
-      let authAdminClient: AuthAdminClient
-      let authAdminConfig: AuthAdminConfig
+    let authAdminClient: AuthAdminClient
+    let authAdminConfig: AuthAdminConfig
 
-      beforeEach(async () => {
-        authAdminConfig = {
+    beforeEach(async () => {
+      authAdminConfig = {
+        host: getAuthHost(),
+        adminApiKey: getAuthAdminApiKey()
+      }
+
+      authAdminClient = new AuthAdminClient(authAdminConfig)
+    })
+
+    it('I can create a new client in the authorization server', async () => {
+      client = await authAdminClient.createClient({
+        name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
+        id: clientId,
+        dataStore: createHttpDataStore({
           host: getAuthHost(),
-          adminApiKey: getAuthAdminApiKey()
-        }
-
-        authAdminClient = new AuthAdminClient(authAdminConfig)
-      })
-
-      it('creates a new client', async () => {
-        client = await authAdminClient.createClient({
-          name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
-          id: clientId,
-          dataStore: createHttpDataStore({
-            host: getAuthHost(),
-            clientId,
-            keys: [getPublicKey(dataStorePrivateKey)]
-          })
+          clientId,
+          keys: [getPublicKey(dataStorePrivateKey)]
         })
-
-        expect(client).not.toEqual(undefined)
       })
+
+      expect(client).not.toEqual(undefined)
     })
   })
 
@@ -147,107 +123,108 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId,
+          clientId: client.id,
+          clientSecret: client.clientSecret,
           signer: {
-            jwk: userPrivateKey,
+            jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
           }
         }
         entityStoreClient = new EntityStoreClient(dataStoreConfig)
       })
 
-      describe('sign', () => {
-        it('fills a partial entities object before sign', async () => {
-          const issuedAt = new Date()
+      it('I can sign a partial entities object', async () => {
+        const issuedAt = new Date()
 
-          const signature = await entityStoreClient.sign(entities, { issuedAt })
+        const signature = await entityStoreClient.sign(entities, { issuedAt })
 
-          const expectedSignature = await getExpectedSignature({
-            // If the input is a partial entities, the client will populate it
-            // pushing to the server. Thus, the expected data hash is from the
-            // full entities not the partial.
-            data: fullEntities,
-            issuedAt,
-            ...dataStoreConfig
-          })
-
-          expect(signature).toEqual(expectedSignature)
+        const expectedSignature = await getExpectedSignature({
+          // If the input is a partial entities, the client will populate it
+          // pushing to the server. Thus, the expected data hash is from the
+          // full entities not the partial.
+          data: fullEntities,
+          issuedAt,
+          ...dataStoreConfig
         })
 
-        it('signs entities', async () => {
-          const issuedAt = new Date()
-
-          const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
-
-          const expectedSignature = await getExpectedSignature({
-            data: fullEntities,
-            issuedAt,
-            ...dataStoreConfig
-          })
-
-          expect(signature).toEqual(expectedSignature)
-        })
+        expect(signature).toEqual(expectedSignature)
       })
 
-      describe('push', () => {
-        it('sends entities and signature to data store server', async () => {
-          const signature = await entityStoreClient.sign(entities)
+      it('I can sign a complete entities object', async () => {
+        const issuedAt = new Date()
 
-          const store = await entityStoreClient.push({
-            data: entities,
+        const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
+
+        const expectedSignature = await getExpectedSignature({
+          data: fullEntities,
+          issuedAt,
+          ...dataStoreConfig
+        })
+
+        expect(signature).toEqual(expectedSignature)
+      })
+
+      it('I can push entities and signature to a managed data store', async () => {
+        const signature = await entityStoreClient.sign(entities)
+
+        const store = await entityStoreClient.push({
+          data: entities,
+          signature
+        })
+
+        expect(store).toEqual({
+          entity: {
+            data: {
+              ...EntityUtil.empty(),
+              ...entities
+            },
             signature
-          })
-
-          expect(store).toEqual({
-            entity: {
-              data: {
-                ...EntityUtil.empty(),
-                ...entities
-              },
-              signature
-            },
-            version: 1,
-            latestSync: {
-              success: expect.any(Boolean)
-            }
-          })
+          },
+          version: 1,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
         })
       })
 
-      describe('signAndPush', () => {
-        it('sends entities and signature to data store server', async () => {
-          const signOptions = { issuedAt: new Date() }
-          const signature = await entityStoreClient.sign(entities, signOptions)
+      it('I can sign and push entities and signature to a managed data store', async () => {
+        const signOptions = { issuedAt: new Date() }
+        const signature = await entityStoreClient.sign(entities, signOptions)
 
-          const store = await entityStoreClient.signAndPush(entities, signOptions)
+        const store = await entityStoreClient.signAndPush(entities, signOptions)
 
-          expect(store).toEqual({
-            entity: {
-              data: {
-                ...EntityUtil.empty(),
-                ...entities
-              },
-              signature
+        // console.dir({ clientId, client, store }, { depth: null })
+
+        expect(store).toEqual({
+          entity: {
+            data: {
+              ...EntityUtil.empty(),
+              ...entities
             },
-            version: 2,
-            latestSync: {
-              success: expect.any(Boolean)
-            }
-          })
+            signature
+          },
+          version: 2,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
         })
       })
 
-      describe('get', () => {
-        it('returns latest entities and signature', async () => {
-          const actualEntities = await entityStoreClient.fetch()
+      it('I can fetch the latest version of the data store', async () => {
+        const actualEntities = await entityStoreClient.fetch()
 
-          expect(actualEntities).toEqual({
-            entity: {
-              data: fullEntities,
-              signature: expect.any(String)
-            }
-          })
+        expect(actualEntities).toEqual({
+          entity: {
+            data: fullEntities,
+            signature: expect.any(String)
+          }
         })
+      })
+
+      it('I can trigger a data store sync', async () => {
+        const result = await entityStoreClient.sync()
+
+        expect(result).toEqual(true)
       })
     })
 
@@ -258,90 +235,111 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId,
+          clientId: client.id,
+          clientSecret: client.clientSecret,
           signer: {
-            jwk: userPrivateKey,
+            jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
           }
         }
         policyStoreClient = new PolicyStoreClient(dataStoreConfig)
       })
 
-      describe('sign', () => {
-        it('signs policies', async () => {
-          const issuedAt = new Date()
+      it('I can sign policies', async () => {
+        const issuedAt = new Date()
 
-          const signature = await policyStoreClient.sign(policies, { issuedAt })
+        const signature = await policyStoreClient.sign(policies, { issuedAt })
 
-          const expectedSignature = await getExpectedSignature({
-            data: policies,
-            issuedAt,
-            ...dataStoreConfig
-          })
-
-          expect(signature).toEqual(expectedSignature)
+        const expectedSignature = await getExpectedSignature({
+          data: policies,
+          issuedAt,
+          ...dataStoreConfig
         })
+
+        expect(signature).toEqual(expectedSignature)
       })
 
-      describe('push', () => {
-        it('sends policies and signature to data store managed host', async () => {
-          const signature = await policyStoreClient.sign(policies)
+      it('I can push policies and signature to a managed data store', async () => {
+        const signature = await policyStoreClient.sign(policies)
 
-          const store = await policyStoreClient.push({
+        const store = await policyStoreClient.push({
+          data: policies,
+          signature
+        })
+
+        expect(store).toEqual({
+          policy: {
             data: policies,
             signature
-          })
-
-          expect(store).toEqual({
-            policy: {
-              data: policies,
-              signature
-            },
-            version: 1,
-            latestSync: {
-              success: expect.any(Boolean)
-            }
-          })
+          },
+          version: 1,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
         })
       })
 
-      describe('signAndPush', () => {
-        it('sends entities and signature to data store managed host', async () => {
-          const signOptions = { issuedAt: new Date() }
-          const signature = await policyStoreClient.sign(policies, signOptions)
+      it('I can sign and push policies and signature to a managed data store', async () => {
+        const signOptions = { issuedAt: new Date() }
+        const signature = await policyStoreClient.sign(policies, signOptions)
 
-          const store = await policyStoreClient.signAndPush(policies, signOptions)
+        const store = await policyStoreClient.signAndPush(policies, signOptions)
 
-          expect(store).toEqual({
-            policy: {
-              data: policies,
-              signature
-            },
-            version: 2,
-            latestSync: {
-              success: expect.any(Boolean)
-            }
-          })
+        expect(store).toEqual({
+          policy: {
+            data: policies,
+            signature
+          },
+          version: 2,
+          latestSync: {
+            success: expect.any(Boolean)
+          }
         })
       })
 
-      describe('get', () => {
-        it('returns latest policies and signature', async () => {
-          const actualPolicies = await policyStoreClient.fetch()
+      it('I can fetch the latest version of the data store', async () => {
+        const actualPolicies = await policyStoreClient.fetch()
 
-          expect(actualPolicies).toEqual({
-            policy: {
-              data: policies,
-              signature: expect.any(String)
-            }
-          })
+        expect(actualPolicies).toEqual({
+          policy: {
+            data: policies,
+            signature: expect.any(String)
+          }
         })
+      })
+
+      it('I can trigger a data store sync', async () => {
+        const result = await policyStoreClient.sync()
+
+        expect(result).toEqual(true)
       })
     })
 
-    describe('I want to request authorization', () => {
+    describe('I want to request an access token', () => {
       let authConfig: AuthConfig
       let authClient: AuthClient
+
+      const signTransaction: Omit<CreateAuthorizationRequest, 'authentication'> = {
+        approvals: [],
+        clientId,
+        id: uuid(),
+        request: {
+          action: Action.SIGN_TRANSACTION,
+          nonce: uuid(),
+          resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
+          transactionRequest: {
+            chainId: 1,
+            data: '0x',
+            from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
+            // TODO: Open API generator transforms bigint to number
+            gas: 5000n,
+            nonce: 0,
+            to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
+            type: '2',
+            value: '0x'
+          }
+        }
+      }
 
       beforeEach(async () => {
         authConfig = {
@@ -349,7 +347,7 @@ describe('User Journeys', () => {
           clientId,
           signer: {
             jwk: userPrivateKey,
-            sign: await buildSignerForAlg(dataStorePrivateKey)
+            sign: await buildSignerForAlg(userPrivateKey)
           },
           pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
           // In a local AS and PE, 250 ms is equivalent to ~3 requests until
@@ -360,31 +358,18 @@ describe('User Journeys', () => {
         authClient = new AuthClient(authConfig)
       })
 
-      it('evaluates an authorization and polls until processed', async () => {
-        const input: Omit<AuthorizationRequestDto, 'authentication'> = {
-          approvals: [],
-          request: {
-            action: Action.SIGN_TRANSACTION,
-            nonce: uuid(),
-            resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
-            transactionRequest: {
-              chainId: 1,
-              data: '0x',
-              from: '0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43',
-              // TODO: Open API generator transforms bigint to number
-              gas: 5000,
-              nonce: 0,
-              to: '0xbbb7be636c3ad8cf9d08ba8bdba4abd2ef29bd23',
-              type: '2',
-              value: '0x'
-            }
-          }
-        }
+      it('I can request an access token to sign a transaction', async () => {
+        const accessToken = await authClient.requestAccessToken(signTransaction)
 
-        const authorization = await authClient.evaluate(input)
+        expect(accessToken).toEqual(expect.any(String))
+      })
+
+      it('I can evaluate a sign transaction authorization request to get an access token', async () => {
+        const authorization = await authClient.evaluate(signTransaction)
 
         expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Created)
         expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Processing)
+        expect(authorization.evaluations[0].decision).toEqual(Decision.PERMIT)
       })
     })
   })

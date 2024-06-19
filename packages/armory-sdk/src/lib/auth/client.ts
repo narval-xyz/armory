@@ -1,9 +1,16 @@
+import {
+  AuthorizationRequest,
+  CreateAuthorizationRequest,
+  Decision,
+  SerializedAuthorizationRequest
+} from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
 import assert from 'assert'
 import axios from 'axios'
+import { reverse } from 'lodash'
+import { ArmorySdkException } from '../exceptions'
 import {
   AuthorizationApiFactory,
-  AuthorizationRequestDto,
   AuthorizationResponseDto,
   AuthorizationResponseDtoStatusEnum,
   ClientApiFactory,
@@ -14,8 +21,6 @@ import {
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
 import { AuthAdminConfig, AuthConfig, AuthorizationHttp, ClientHttp } from './type'
-
-type AuthorizationRequest = Omit<AuthorizationRequestDto, 'authentication'>
 
 export class AuthAdminClient {
   private config: AuthAdminConfig
@@ -72,17 +77,26 @@ export class AuthClient {
    * @param opts - Optional sign options.
    * @returns A promise that resolves to the authorization response.
    */
-  async evaluate(input: AuthorizationRequest, opts?: SignOptions): Promise<AuthorizationResponseDto> {
+  async evaluate(
+    input: Omit<CreateAuthorizationRequest, 'authentication'>,
+    opts?: SignOptions
+  ): Promise<AuthorizationRequest> {
     const jwtPayload = this.buildJwtPayload(input, opts)
     const authentication = await this.signJwtPayload(jwtPayload)
-
-    const { data } = await this.authorizationHttp.evaluate(this.config.clientId, {
+    const request = SerializedAuthorizationRequest.pick({
+      authentication: true,
+      request: true,
+      approvals: true,
+      metadata: true
+    }).parse({
       ...input,
       authentication
     })
 
-    return polling<AuthorizationResponseDto>({
-      fn: () => this.getAuthorizationById(data.id),
+    const { data } = await this.authorizationHttp.evaluate(this.config.clientId, request)
+
+    return polling<AuthorizationRequest>({
+      fn: async () => AuthorizationRequest.parse(await this.getAuthorizationById(data.id)),
       shouldStop: ({ status }) =>
         status !== AuthorizationResponseDtoStatusEnum.Created &&
         status !== AuthorizationResponseDtoStatusEnum.Processing,
@@ -103,7 +117,7 @@ export class AuthClient {
     return data
   }
 
-  private buildJwtPayload(input: AuthorizationRequest, opts?: SignOptions): Payload {
+  private buildJwtPayload(input: Omit<CreateAuthorizationRequest, 'authentication'>, opts?: SignOptions): Payload {
     return {
       requestHash: hash(input.request),
       sub: this.config.signer.jwk.kid,
@@ -124,5 +138,20 @@ export class AuthClient {
 
   private getPollingIntervalMs(): number {
     return this.config.pollingIntervalMs || 250
+  }
+
+  async requestAccessToken(
+    input: Omit<CreateAuthorizationRequest, 'authentication'>,
+    opts?: SignOptions
+  ): Promise<string> {
+    const authorization = await this.evaluate(input, opts)
+
+    const permit = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.PERMIT)
+
+    if (permit && permit.signature) {
+      return permit.signature
+    }
+
+    throw new ArmorySdkException('Unauthorized', { authorization })
   }
 }
