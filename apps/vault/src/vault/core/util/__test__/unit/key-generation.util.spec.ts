@@ -4,13 +4,13 @@ import { HDKey } from '@scure/bip32'
 import { mnemonicToSeedSync } from '@scure/bip39'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
 import { Origin } from '../../../../../shared/type/domain.type'
-import { generateNextPaths, hdKeyToKid, hdKeyToWallet, mnemonicToRootKey } from '../../key-generation.util'
+import { generateNextPaths, hdKeyToAccount, hdKeyToKid, mnemonicToRootKey } from '../../key-generation.util'
 
 const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'
 const seed = mnemonicToSeedSync(mnemonic)
 const rootKey = HDKey.fromMasterSeed(seed)
 
-const rootKeyWallet = {
+const rootKeyAccount = {
   id: 'eip155:eoa:0xcfad06bec03d2769fc4fe6055b7a55dbb05edc33',
   address: '0xcfad06bec03d2769fc4fe6055b7a55dbb05edc33',
   privateKey: '0x7e56ecf5943d79e1f5f87e11c768253d7f3fcf30ae71335611e366c578b4564e',
@@ -21,13 +21,13 @@ const rootKeyWallet = {
   derivationPath: 'm'
 }
 
-describe('hdKeyToWallet', () => {
-  it('convert HDKey to Wallet', async () => {
+describe('hdKeyToAccount', () => {
+  it('convert HDKey to Account', async () => {
     const path = 'm'
     const keyId = 'root-key-id'
 
-    const wallet = await hdKeyToWallet({ key: rootKey, path, keyId })
-    expect(wallet).toEqual(rootKeyWallet)
+    const account = await hdKeyToAccount({ key: rootKey, path, keyId })
+    expect(account).toEqual(rootKeyAccount)
   })
 })
 
@@ -50,7 +50,7 @@ describe('hdKeyToKid', () => {
 
   it('throws an error if the HDKey does not have a private key', async () => {
     try {
-      await hdKeyToWallet({
+      await hdKeyToAccount({
         key: {} as unknown as HDKey,
         path: 'm',
         keyId: 'kid'
@@ -62,8 +62,8 @@ describe('hdKeyToKid', () => {
   })
 })
 
-describe('mnemonicToRootKey', () => {
-  it('converts mnemonic to root key', () => {
+describe('rootKeyToRootKey', () => {
+  it('converts rootKey to root key', () => {
     const expectedRootKey = rootKey
     const result = mnemonicToRootKey(mnemonic)
     expect(result).toEqual(expectedRootKey)

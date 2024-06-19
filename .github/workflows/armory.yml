@@ -2,6 +2,8 @@ name: '@app/armory CI'
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - packages/**
       - apps/armory/**
@@ -14,6 +16,10 @@ on:
       - package-lock.json
       - deploy/armory.dockerfile
       - deploy/charts/armory/**
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   test:
@@ -155,13 +161,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Update Image Version in the worker HelmChart values.yaml
-        uses: fjogeleit/yaml-update-action@master
+      - id: update-helm-version
+        name: "Update Helm Version"
+        uses: ./.github/actions/update-helm-version
         with:
-          valueFile: 'deploy/charts/armory/values.yaml'
+          appId: ${{ vars.NARVAL_HELM_APP_ID }}
+          privateKey: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          valueFile: 'apps/charts/armory/values.yaml'
           propertyPath: 'image.tag'
           value: ${{ env.sha7 }}
-          branch: main
           message: 'Update Armory Image Version to ${{ env.sha7 }}'
 
       - name: Send Slack notification on failure

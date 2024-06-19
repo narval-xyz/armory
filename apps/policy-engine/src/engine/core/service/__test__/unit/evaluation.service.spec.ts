@@ -69,7 +69,6 @@ describe('buildPermitTokenPayload for signTransaction action', () => {
     expect(payload).toEqual({
       cnf,
       iat: nowSeconds(),
-      iss: 'https://armory.narval.xyz',
       requestHash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       sub: 'test-alice-user-uid'
     })
@@ -88,7 +87,8 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
     ...baseResponse,
     request,
     metadata: {
-      expiresIn: ONE_DAY
+      expiresIn: ONE_DAY,
+      issuer: 'clientId.armory.narval.xyz'
     }
   }
   it('should throw an error if decision is not PERMIT', async () => {
@@ -114,7 +114,7 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
       cnf,
       iat,
       exp: iat + ONE_DAY,
-      iss: 'https://armory.narval.xyz',
+      iss: 'clientId.armory.narval.xyz',
       sub: 'test-alice-user-uid',
       access: [
         {

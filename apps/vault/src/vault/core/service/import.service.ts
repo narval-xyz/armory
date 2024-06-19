@@ -15,10 +15,10 @@ import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { Origin, PrivateWallet } from '../../../shared/type/domain.type'
-import { ImportSeedDto } from '../../http/rest/dto/import-seed.dto'
+import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { ImportSeedDto } from '../../http/rest/dto/import-wallet.dto'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 import { ImportRepository } from '../../persistence/repository/import.repository'
-import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { getRootKey } from '../util/key-generation.util'
 import { KeyGenerationService } from './key-generation.service'
 
@@ -27,7 +27,7 @@ export class ImportService {
   private logger = new Logger(ImportService.name)
 
   constructor(
-    private walletRepository: WalletRepository,
+    private accountRepository: AccountRepository,
     private importRepository: ImportRepository,
     private keyGenerationService: KeyGenerationService
   ) {}
@@ -42,14 +42,14 @@ export class ImportService {
     return publicKey
   }
 
-  async importPrivateKey(clientId: string, privateKey: Hex, walletId?: string): Promise<PrivateWallet> {
+  async importPrivateKey(clientId: string, privateKey: Hex, accountId?: string): Promise<PrivateAccount> {
     this.logger.log('Importing private key', {
       clientId
     })
     const address = privateKeyToAddress(privateKey)
-    const id = walletId || resourceId(address)
+    const id = accountId || resourceId(address)
     const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
-    const wallet = await this.walletRepository.save(clientId, {
+    const account = await this.accountRepository.save(clientId, {
       id,
       privateKey,
       origin: Origin.IMPORTED,
@@ -57,7 +57,7 @@ export class ImportService {
       address
     })
 
-    return wallet
+    return account
   }
 
   async #decrypt(clientId: string, encryptedData: string): Promise<string> {
@@ -86,8 +86,8 @@ export class ImportService {
   async importEncryptedPrivateKey(
     clientId: string,
     encryptedPrivateKey: string,
-    walletId?: string
-  ): Promise<PrivateWallet> {
+    accountId?: string
+  ): Promise<PrivateAccount> {
     this.logger.log('Importing encrypted private key', {
       clientId
     })
@@ -105,33 +105,34 @@ export class ImportService {
       clientId
     })
 
-    return this.importPrivateKey(clientId, privateKey as Hex, walletId)
+    return this.importPrivateKey(clientId, privateKey as Hex, accountId)
   }
 
   async importSeed(
     clientId: string,
     body: ImportSeedDto
   ): Promise<{
-    wallet: PrivateWallet
+    account: PrivateAccount
     keyId: string
     backup?: string
   }> {
-    const { keyId: optionalKeyId, encryptedSeed } = body
+    const { keyId: optionalKeyId, encryptedSeed, curve } = body
 
     const mnemonic = await this.#decrypt(clientId, encryptedSeed)
 
-    const { rootKey, keyId } = getRootKey(mnemonic, { keyId: optionalKeyId })
+    const { rootKey, keyId } = getRootKey(mnemonic, { curve, keyId: optionalKeyId })
 
     const backup = await this.keyGenerationService.saveMnemonic(clientId, {
       keyId,
       mnemonic,
-      origin: Origin.IMPORTED
+      origin: Origin.IMPORTED,
+      curve: body.curve
     })
 
-    const [wallet] = await this.keyGenerationService.generate(clientId, { rootKey, keyId })
+    const [account] = await this.keyGenerationService.generateAccount(clientId, { rootKey, keyId })
 
     return {
-      wallet,
+      account,
       keyId,
       backup
     }

@@ -1,13 +1,13 @@
 import {
-  DeriveWalletRequest,
+  DeriveAccountRequest,
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
   ImportSeedRequest,
   VaultClientConfig,
-  deriveWallet,
-  generateKey,
-  importPrivateKey,
-  importSeed,
+  generateAccount,
+  generateWallet,
+  importAccount,
+  importWallet,
   onboardVaultClient,
   pingVault,
   signRequest
@@ -52,6 +52,8 @@ const useVaultApi = () => {
   }, [vaultHost, vaultClientId, jwk, signer])
 
   const ping = () => {
+    if (!vaultHost) return
+
     try {
       return pingVault(vaultHost)
     } catch (error) {
@@ -89,11 +91,10 @@ const useVaultApi = () => {
         }
       )
 
-      setIsProcessing(false)
-
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
       setIsProcessing(false)
     }
   }
@@ -103,9 +104,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
+      setIsProcessing(true)
       return signRequest(sdkVaultConfig, payload)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -114,9 +118,12 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
-      return importPrivateKey(sdkVaultConfig, request)
+      setIsProcessing(true)
+      return importAccount(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -125,35 +132,44 @@ const useVaultApi = () => {
 
     try {
       setErrors(undefined)
-      return importSeed(sdkVaultConfig, request)
+      setIsProcessing(true)
+      return importWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
-  const generateWalletKeys = (request: GenerateKeyRequest) => {
+  const generateWalletKey = (request: GenerateKeyRequest) => {
     if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return generateKey(sdkVaultConfig, request)
+      setIsProcessing(true)
+      return generateWallet(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
-  const deriveWalletKey = (request: DeriveWalletRequest) => {
+  const deriveWalletKey = (request: DeriveAccountRequest) => {
     if (!sdkVaultConfig) return
 
     try {
       setErrors(undefined)
-      return deriveWallet(sdkVaultConfig, request)
+      setIsProcessing(true)
+      return generateAccount(sdkVaultConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+    } finally {
+      setIsProcessing(false)
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKeys, deriveWalletKey }
+  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKey, deriveWalletKey }
 }
 
 export default useVaultApi

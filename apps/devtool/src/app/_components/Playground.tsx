@@ -1,6 +1,6 @@
 'use client'
 
-import { faArrowsRotate, faFileSignature } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowsRotate, faFileSignature } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AuthorizationRequest, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
@@ -39,7 +39,7 @@ const Playground: FC<PlaygroundProps> = ({
   evaluate,
   validateResponse
 }) => {
-  const { errors: vaultErrors, sign, importPk, importSeedPhrase, generateWalletKeys, deriveWalletKey } = useVaultApi()
+  const { errors: vaultErrors, sign, importPk, importSeedPhrase, generateWalletKey, deriveWalletKey } = useVaultApi()
   const { authClientId, engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
@@ -183,7 +183,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await generateWalletKeys({ keyId, accessToken: { value: accessToken } })
+      const response = await generateWalletKey({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -200,7 +200,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await deriveWalletKey({ keyId, derivationPaths: ['next'], accessToken: { value: accessToken } })
+      const response = await deriveWalletKey({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))

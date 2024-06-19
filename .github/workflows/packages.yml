@@ -2,6 +2,8 @@ name: Packages CI
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - packages/**
       - .github/workflows/packages.yml
@@ -11,6 +13,10 @@ on:
       - .prettierrc
       - package.json
       - package-lock.json
+    tags-ignore:
+      - vault-v*
+      - armory-v*
+      - policy-engine-v*
 
 jobs:
   build-and-test:

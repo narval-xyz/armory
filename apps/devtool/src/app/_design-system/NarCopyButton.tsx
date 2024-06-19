@@ -1,4 +1,4 @@
-import { faCheck, faCopy } from '@fortawesome/pro-regular-svg-icons'
+import { faCheck, faCopy } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, useState } from 'react'
 import { classNames } from '../_lib/utils'

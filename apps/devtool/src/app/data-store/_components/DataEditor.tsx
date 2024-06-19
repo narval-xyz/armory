@@ -7,7 +7,7 @@ import {
   faSpinner,
   faUpload,
   faXmarkCircle
-} from '@fortawesome/pro-regular-svg-icons'
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities, Policy } from '@narval/policy-engine-shared'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Action, SerializedTransactionRequest, TransactionRequest } from './action.type'
-import { EvaluationMetadata, JwtString, Request, SerializedRequest } from './domain.type'
+import { JwtString, Request, SerializedRequest } from './domain.type'
 
 export const AuthorizationRequestStatus = {
   CREATED: 'CREATED',
@@ -71,6 +71,12 @@ export const AuthorizationRequestError = z.object({
 })
 export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError>
 
+export const AuthorizationRequestMetadata = z.object({
+  audience: z.union([z.string(), z.array(z.string())]).optional(),
+  expiresIn: z.number().optional()
+})
+export type AuthorizationRequestMetadata = z.infer<typeof AuthorizationRequestMetadata>
+
 export const AuthorizationRequest = z.object({
   approvals: z.array(JwtString),
   authentication: JwtString,
@@ -80,7 +86,7 @@ export const AuthorizationRequest = z.object({
   evaluations: z.array(Evaluation),
   id: z.string(),
   idempotencyKey: z.string().nullish(),
-  metadata: EvaluationMetadata.optional(),
+  metadata: AuthorizationRequestMetadata.optional(),
   request: Request,
   status: z.nativeEnum(AuthorizationRequestStatus),
   updatedAt: z.coerce.date()

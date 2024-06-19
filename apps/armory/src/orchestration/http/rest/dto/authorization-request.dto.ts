@@ -5,7 +5,8 @@ export class AuthorizationRequestDto extends createZodDto(
   SerializedAuthorizationRequest.pick({
     authentication: true,
     request: true,
-    approvals: true,
     metadata: true
+  }).extend({
+    approvals: AuthorizationRequest.shape.approvals.optional()
   })
 ) {}

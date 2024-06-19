@@ -1,4 +1,6 @@
-import { faCheckCircle, faSpinner, faUpload } from '@fortawesome/pro-regular-svg-icons'
+'use client'
+
+import { faCheckCircle, faSpinner, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ImportPrivateKeyResponse, ImportSeedResponse } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'
@@ -101,11 +103,11 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
 
     if (!seedWallet) return
 
-    const { wallet } = seedWallet
+    const { account } = seedWallet
 
     const newWallet = {
-      id: wallet.id,
-      address: hexSchema.parse(wallet.address),
+      id: account.id,
+      address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
@@ -225,8 +227,8 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
             {importedSeed && (
               <div className="flex flex-col gap-[8px]">
                 <ValueWithCopy layout="horizontal" label="Key ID" value={importedSeed.keyId} />
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedSeed.wallet.id} />
-                <ValueWithCopy layout="horizontal" label="Address" value={importedSeed.wallet.address} />
+                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedSeed.account.id} />
+                <ValueWithCopy layout="horizontal" label="Address" value={importedSeed.account.address} />
                 <ValueWithCopy layout="horizontal" label="Backup" value={importedSeed.backup} />
               </div>
             )}

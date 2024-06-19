@@ -1,6 +1,6 @@
 'use client'
 
-import { faCheckCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const SuccessStatus = ({ label }: { label: string }) => {

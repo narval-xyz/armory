@@ -42,8 +42,6 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
     ...(exp && { exp }),
     ...(audience && { aud: audience }),
     ...(issuer && { iss: issuer }),
-    // TODO: allow client-specific; should come from config
-    iss: 'https://armory.narval.xyz',
     // jti: TODO
     cnf: evaluation.principal.key
   }

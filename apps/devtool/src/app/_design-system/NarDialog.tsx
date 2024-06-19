@@ -1,4 +1,4 @@
-import { faSpinner, faXmark } from '@fortawesome/pro-regular-svg-icons'
+import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as Dialog from '@radix-ui/react-dialog'
 import { FC, ReactNode } from 'react'
