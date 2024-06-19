@@ -1,4 +1,4 @@
-import { SerializedAuthorizationRequest } from '@narval/policy-engine-shared'
+import { AuthorizationRequest, SerializedAuthorizationRequest } from '@narval/policy-engine-shared'
 import { createZodDto } from 'nestjs-zod'
 
 export class AuthorizationRequestDto extends createZodDto(
