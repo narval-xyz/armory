@@ -193,8 +193,6 @@ describe('User Journeys', () => {
 
         const store = await entityStoreClient.signAndPush(entities, signOptions)
 
-        // console.dir({ clientId, client, store }, { depth: null })
-
         expect(store).toEqual({
           entity: {
             data: {
@@ -351,7 +349,7 @@ describe('User Journeys', () => {
           },
           pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
           // In a local AS and PE, 250 ms is equivalent to ~3 requests until
-          // the request is processed.
+          // the job is processed.
           pollingIntervalMs: 250
         }
 
@@ -359,9 +357,11 @@ describe('User Journeys', () => {
       })
 
       it('I can request an access token to sign a transaction', async () => {
-        const accessToken = await authClient.requestAccessToken(signTransaction)
+        const result = await authClient.requestAccessToken(signTransaction)
 
-        expect(accessToken).toEqual(expect.any(String))
+        expect(result).toEqual({
+          token: expect.any(String)
+        })
       })
 
       it('I can evaluate a sign transaction authorization request to get an access token', async () => {

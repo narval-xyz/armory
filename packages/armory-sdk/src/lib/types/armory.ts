@@ -1,3 +1,6 @@
+// TODO: (@wcalderipe, 19/06/24) Replace all the types here for src/lib/auth
+// Ideally, this file shouldn't exist.
+
 import { DataStoreConfiguration, Decision, Request } from '@narval/policy-engine-shared'
 import { jwkSchema, publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
@@ -48,7 +51,6 @@ export const AuthorizationRequestStatus = {
 export type AuthorizationRequestStatus = (typeof AuthorizationRequestStatus)[keyof typeof AuthorizationRequestStatus]
 
 // TODO: Why is this duplicated?
-// LOL, it's an AuthorizationResponse not request
 export const AuthorizationResponse = z.object({
   id: z.string(),
   clientId: z.string(),
