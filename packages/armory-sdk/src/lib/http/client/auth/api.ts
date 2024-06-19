@@ -43,19 +43,19 @@ export interface AuthorizationRequestDto {
     'request': AuthorizationRequestDtoRequest;
     /**
      * 
-     * @type {Array<string>}
-     * @memberof AuthorizationRequestDto
-     */
-    'approvals': Array<string>;
-    /**
-     * 
      * @type {AuthorizationRequestDtoMetadata}
      * @memberof AuthorizationRequestDto
      */
     'metadata'?: AuthorizationRequestDtoMetadata;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof AuthorizationRequestDto
+     */
+    'approvals'?: Array<string>;
 }
 /**
- * Metadata for the grant permission access token
+ * 
  * @export
  * @interface AuthorizationRequestDtoMetadata
  */
@@ -66,18 +66,6 @@ export interface AuthorizationRequestDtoMetadata {
      * @memberof AuthorizationRequestDtoMetadata
      */
     'audience'?: AuthorizationRequestDtoMetadataAudience;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationRequestDtoMetadata
-     */
-    'issuer'?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof AuthorizationRequestDtoMetadata
-     */
-    'issuedAt'?: number;
     /**
      * 
      * @type {number}
