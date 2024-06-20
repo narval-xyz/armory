@@ -31,10 +31,10 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 export interface AccountsDto {
     /**
      * 
-     * @type {Array<GenerateKeyResponseDtoAccount>}
+     * @type {Array<WalletDtoAccount>}
      * @memberof AccountsDto
      */
-    'accounts': Array<GenerateKeyResponseDtoAccount>;
+    'accounts': Array<WalletDtoAccount>;
 }
 /**
  * 
@@ -486,10 +486,10 @@ export interface DeriveAccountDto {
 export interface DeriveAccountResponseDto {
     /**
      * 
-     * @type {Array<GenerateKeyResponseDtoAccount>}
+     * @type {Array<WalletDtoAccount>}
      * @memberof DeriveAccountResponseDto
      */
-    'accounts': Array<GenerateKeyResponseDtoAccount>;
+    'accounts': Array<WalletDtoAccount>;
 }
 /**
  * 
@@ -529,68 +529,6 @@ export interface GenerateKeyDto {
  */
 export type GenerateKeyDtoCurve = string;
 
-/**
- * 
- * @export
- * @interface GenerateKeyResponseDto
- */
-export interface GenerateKeyResponseDto {
-    /**
-     * 
-     * @type {GenerateKeyResponseDtoAccount}
-     * @memberof GenerateKeyResponseDto
-     */
-    'account': GenerateKeyResponseDtoAccount;
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDto
-     */
-    'backup'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDto
-     */
-    'keyId': string;
-}
-/**
- * 
- * @export
- * @interface GenerateKeyResponseDtoAccount
- */
-export interface GenerateKeyResponseDtoAccount {
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDtoAccount
-     */
-    'id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDtoAccount
-     */
-    'address': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof GenerateKeyResponseDtoAccount
-     */
-    'publicKey': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDtoAccount
-     */
-    'keyId'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof GenerateKeyResponseDtoAccount
-     */
-    'derivationPath'?: string;
-}
 /**
  * 
  * @export
@@ -1109,6 +1047,68 @@ export interface SignatureDto {
      * @memberof SignatureDto
      */
     'signature': any;
+}
+/**
+ * 
+ * @export
+ * @interface WalletDto
+ */
+export interface WalletDto {
+    /**
+     * 
+     * @type {WalletDtoAccount}
+     * @memberof WalletDto
+     */
+    'account': WalletDtoAccount;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDto
+     */
+    'backup'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDto
+     */
+    'keyId': string;
+}
+/**
+ * 
+ * @export
+ * @interface WalletDtoAccount
+ */
+export interface WalletDtoAccount {
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDtoAccount
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDtoAccount
+     */
+    'address': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof WalletDtoAccount
+     */
+    'publicKey': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDtoAccount
+     */
+    'keyId'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletDtoAccount
+     */
+    'derivationPath'?: string;
 }
 /**
  * 
@@ -1865,13 +1865,13 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateKey: async (xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        generate: async (xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('generateKey', 'xClientId', xClientId)
+            assertParamExists('generate', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('generateKey', 'authorization', authorization)
+            assertParamExists('generate', 'authorization', authorization)
             // verify required parameter 'generateKeyDto' is not null or undefined
-            assertParamExists('generateKey', 'generateKeyDto', generateKeyDto)
+            assertParamExists('generate', 'generateKeyDto', generateKeyDto)
             const localVarPath = `/wallets`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1904,54 +1904,6 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(generateKeyDto, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary List the client wallets
-         * @param {string} xClientId 
-         * @param {string} authorization 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getSeeds: async (xClientId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('getSeeds', 'xClientId', xClientId)
-            // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('getSeeds', 'authorization', authorization)
-            const localVarPath = `/wallets`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (xClientId != null) {
-                localVarHeaderParameter['x-client-id'] = String(xClientId);
-            }
-
-            if (authorization != null) {
-                localVarHeaderParameter['Authorization'] = String(authorization);
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2012,6 +1964,54 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} xClientId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('list', 'authorization', authorization)
+            const localVarPath = `/wallets`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2031,24 +2031,10 @@ export const WalletApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async generateKey(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenerateKeyResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.generateKey(xClientId, authorization, generateKeyDto, options);
+        async generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.generate(xClientId, authorization, generateKeyDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WalletApi.generateKey']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary List the client wallets
-         * @param {string} xClientId 
-         * @param {string} authorization 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getSeeds(xClientId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSeeds(xClientId, authorization, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WalletApi.getSeeds']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.generate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2060,10 +2046,24 @@ export const WalletApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenerateKeyResponseDto>> {
+        async importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.importKey(xClientId, authorization, importSeedDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['WalletApi.importKey']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} xClientId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -2085,19 +2085,8 @@ export const WalletApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateKey(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: any): AxiosPromise<GenerateKeyResponseDto> {
-            return localVarFp.generateKey(xClientId, authorization, generateKeyDto, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary List the client wallets
-         * @param {string} xClientId 
-         * @param {string} authorization 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getSeeds(xClientId: string, authorization: string, options?: any): AxiosPromise<WalletsDto> {
-            return localVarFp.getSeeds(xClientId, authorization, options).then((request) => request(axios, basePath));
+        generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: any): AxiosPromise<WalletDto> {
+            return localVarFp.generate(xClientId, authorization, generateKeyDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2108,8 +2097,19 @@ export const WalletApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: any): AxiosPromise<GenerateKeyResponseDto> {
+        importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: any): AxiosPromise<WalletDto> {
             return localVarFp.importKey(xClientId, authorization, importSeedDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} xClientId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(xClientId: string, authorization: string, options?: any): AxiosPromise<WalletsDto> {
+            return localVarFp.list(xClientId, authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2131,21 +2131,8 @@ export class WalletApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof WalletApi
      */
-    public generateKey(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig) {
-        return WalletApiFp(this.configuration).generateKey(xClientId, authorization, generateKeyDto, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary List the client wallets
-     * @param {string} xClientId 
-     * @param {string} authorization 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WalletApi
-     */
-    public getSeeds(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
-        return WalletApiFp(this.configuration).getSeeds(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
+    public generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).generate(xClientId, authorization, generateKeyDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2160,6 +2147,19 @@ export class WalletApi extends BaseAPI {
      */
     public importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: RawAxiosRequestConfig) {
         return WalletApiFp(this.configuration).importKey(xClientId, authorization, importSeedDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the client wallets
+     * @param {string} xClientId 
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletApi
+     */
+    public list(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).list(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

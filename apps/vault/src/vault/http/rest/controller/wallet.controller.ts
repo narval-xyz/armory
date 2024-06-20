@@ -7,9 +7,9 @@ import { PermissionGuard } from '../../../../shared/decorator/permission-guard.d
 import { AdminService } from '../../../core/service/admin.service'
 import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { GenerateKeyResponseDto } from '../dto/generate-wallet-response.dto'
 import { GenerateKeyDto } from '../dto/generate-wallet.dto'
 import { ImportSeedDto } from '../dto/import-wallet.dto'
+import { WalletDto } from '../dto/wallet.dto'
 import { WalletsDto } from '../dto/wallets.dto'
 
 @Controller('/wallets')
@@ -34,7 +34,7 @@ export class WalletController {
     status: HttpStatus.OK,
     type: WalletsDto
   })
-  async getSeeds(@ClientId() clientId: string): Promise<WalletsDto> {
+  async list(@ClientId() clientId: string): Promise<WalletsDto> {
     const wallets = await this.adminService.getWallets(clientId)
     return WalletsDto.create({ wallets })
   }
@@ -46,12 +46,12 @@ export class WalletController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: GenerateKeyResponseDto
+    type: WalletDto
   })
-  async generateKey(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<GenerateKeyResponseDto> {
+  async generate(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<WalletDto> {
     const { account, keyId, backup } = await this.keyGenService.generateWallet(clientId, body)
 
-    return GenerateKeyResponseDto.create({
+    return WalletDto.create({
       account,
       keyId: keyId,
       backup
@@ -65,12 +65,12 @@ export class WalletController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: GenerateKeyResponseDto
+    type: WalletDto
   })
-  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto): Promise<GenerateKeyResponseDto> {
+  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto): Promise<WalletDto> {
     const { account, keyId, backup } = await this.importService.importSeed(clientId, body)
 
-    return GenerateKeyResponseDto.create({
+    return WalletDto.create({
       account,
       keyId: keyId,
       backup

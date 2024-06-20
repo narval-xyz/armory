@@ -1,4 +1,5 @@
 import {
+  AccessToken,
   Action,
   CreateAuthorizationRequest,
   Criterion,
@@ -10,18 +11,19 @@ import {
   UserEntity,
   UserRole
 } from '@narval/policy-engine-shared'
-import { buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import { RsaPublicKey, buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
+import { english, generateMnemonic } from 'viem/accounts'
 import { AuthAdminClient, AuthClient } from '../../auth/client'
-import { AuthConfig } from '../../auth/type'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
 import { createHttpDataStore, credential } from '../../data-store/util'
+import { Permission } from '../../domain'
 import { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from '../../http/client/auth'
-import { ClientDto } from '../../http/client/vault'
+import { ClientDto, WalletDto } from '../../http/client/vault'
 import { SignOptions, Signer } from '../../shared/type'
-import { VaultAdminClient } from '../../vault/client'
+import { VaultAdminClient, VaultClient } from '../../vault/client'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -63,8 +65,8 @@ const getExpectedSignature = (input: { data: unknown; signer: Signer; clientId: 
 // These tests are meant to be run in series, not in parallel, because they
 // represent an end-to-end user journey.
 describe('User Journeys', () => {
-  let authClient: CreateClientResponseDto
-  let vaultClient: ClientDto
+  let clientAuth: CreateClientResponseDto
+  let clientVault: ClientDto
 
   const clientId = uuid()
 
@@ -81,7 +83,7 @@ describe('User Journeys', () => {
   const policies: Policy[] = [
     {
       id: uuid(),
-      description: 'Required approval for an admin to transfer ERC-721 or ERC-1155 tokens',
+      description: 'Allows admin to do anything',
       when: [
         {
           criterion: Criterion.CHECK_PRINCIPAL_ROLE,
@@ -109,7 +111,7 @@ describe('User Journeys', () => {
     })
 
     it('I can create a new client in the authorization server', async () => {
-      authClient = await authAdminClient.createClient({
+      clientAuth = await authAdminClient.createClient({
         name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
         id: clientId,
         dataStore: createHttpDataStore({
@@ -119,7 +121,7 @@ describe('User Journeys', () => {
         })
       })
 
-      expect(authClient).toEqual({
+      expect(clientAuth).toEqual({
         id: clientId,
         name: expect.any(String),
         clientSecret: expect.any(String),
@@ -143,12 +145,14 @@ describe('User Journeys', () => {
     })
 
     it('I can create a new client in the vault', async () => {
-      vaultClient = await vaultAdminClient.createClient({
-        clientId: authClient.id
+      clientVault = await vaultAdminClient.createClient({
+        clientId: clientAuth.id,
+        engineJwk: clientAuth.policyEngine.nodes[0].publicKey
       })
 
-      expect(vaultClient).toEqual({
-        clientId: authClient.id,
+      expect(clientVault).toEqual({
+        clientId: clientAuth.id,
+        engineJwk: clientAuth.policyEngine.nodes[0].publicKey,
         createdAt: expect.any(String),
         updatedAt: expect.any(String)
       })
@@ -156,6 +160,34 @@ describe('User Journeys', () => {
   })
 
   describe('As a client', () => {
+    let vaultClient: VaultClient
+    let authClient: AuthClient
+
+    beforeEach(async () => {
+      authClient = new AuthClient({
+        host: getAuthHost(),
+        clientId,
+        signer: {
+          jwk: userPrivateKey,
+          sign: await buildSignerForAlg(userPrivateKey)
+        },
+        pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
+        // In a local AS and PE, 250 ms is equivalent to ~3 requests until
+        // the job is processed.
+        pollingIntervalMs: 250
+      })
+
+      vaultClient = new VaultClient({
+        host: getVaultHost(),
+        clientId,
+        signer: {
+          jwk: userPrivateKey,
+          alg: userPrivateKey.alg,
+          sign: await buildSignerForAlg(userPrivateKey)
+        }
+      })
+    })
+
     describe('I want to set up my entity data store', () => {
       let dataStoreConfig: DataStoreConfig
       let entityStoreClient: EntityStoreClient
@@ -165,8 +197,8 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId: authClient.id,
-          clientSecret: authClient.clientSecret,
+          clientId: clientAuth.id,
+          clientSecret: clientAuth.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
@@ -275,8 +307,8 @@ describe('User Journeys', () => {
       beforeEach(async () => {
         dataStoreConfig = {
           host: getAuthHost(),
-          clientId: authClient.id,
-          clientSecret: authClient.clientSecret,
+          clientId: clientAuth.id,
+          clientSecret: clientAuth.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
             sign: await buildSignerForAlg(dataStorePrivateKey)
@@ -356,9 +388,6 @@ describe('User Journeys', () => {
     })
 
     describe('I want to request an access token', () => {
-      let authConfig: AuthConfig
-      let authClient: AuthClient
-
       const signTransaction: Omit<CreateAuthorizationRequest, 'authentication'> = {
         approvals: [],
         clientId,
@@ -384,28 +413,11 @@ describe('User Journeys', () => {
         }
       }
 
-      beforeEach(async () => {
-        authConfig = {
-          host: getAuthHost(),
-          clientId,
-          signer: {
-            jwk: userPrivateKey,
-            sign: await buildSignerForAlg(userPrivateKey)
-          },
-          pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
-          // In a local AS and PE, 250 ms is equivalent to ~3 requests until
-          // the job is processed.
-          pollingIntervalMs: 250
-        }
-
-        authClient = new AuthClient(authConfig)
-      })
-
       it('I can request an access token to sign a transaction', async () => {
-        const result = await authClient.requestAccessToken(signTransaction)
+        const accessToken = await authClient.requestAccessToken(signTransaction)
 
-        expect(result).toEqual({
-          token: expect.any(String)
+        expect(accessToken).toEqual({
+          value: expect.any(String)
         })
       })
 
@@ -415,6 +427,68 @@ describe('User Journeys', () => {
         expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Created)
         expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Processing)
         expect(authorization.evaluations[0].decision).toEqual(Decision.PERMIT)
+      })
+    })
+
+    describe('I want to interact with the vault', () => {
+      let accessToken: AccessToken
+      let encryptionKey: RsaPublicKey
+      let wallet: WalletDto
+
+      beforeAll(async () => {
+        accessToken = await authClient.requestAccessToken({
+          // TODO: NOT GREAT. Why do I have to pass clientId, Id, approvals?
+          approvals: [],
+          clientId,
+          id: uuid(),
+          request: {
+            action: Action.GRANT_PERMISSION,
+            resourceId: 'vault',
+            nonce: uuid(),
+            permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
+          }
+        })
+      })
+
+      it('I can generate an encryption key', async () => {
+        encryptionKey = await vaultClient.generateEncryptionKey({ accessToken })
+
+        expect(encryptionKey.alg).toEqual('RS256')
+        expect(encryptionKey.kty).toEqual('RSA')
+        expect(encryptionKey.use).toEqual('enc')
+      })
+
+      it('I can generate a wallet', async () => {
+        wallet = await vaultClient.generateWallet({ accessToken })
+
+        expect(wallet.keyId).toEqual(expect.any(String))
+        expect(wallet.account.derivationPath).toEqual("m/44'/60'/0'/0/0")
+      })
+
+      it('I can import a wallet', async () => {
+        const importedWallet = await vaultClient.importWallet({
+          data: {
+            seed: generateMnemonic(english)
+          },
+          encryptionKey,
+          accessToken
+        })
+
+        expect(importedWallet.keyId).toEqual(expect.any(String))
+        expect(importedWallet.account.derivationPath).toEqual("m/44'/60'/0'/0/0")
+      })
+
+      it('I can list wallets', async () => {
+        const { wallets } = await vaultClient.listWallets({ accessToken })
+
+        expect(wallets).toMatchObject([
+          {
+            origin: 'GENERATED'
+          },
+          {
+            origin: 'IMPORTED'
+          }
+        ])
       })
     })
   })

@@ -1,4 +1,5 @@
 import {
+  AccessToken,
   AuthorizationRequest,
   CreateAuthorizationRequest,
   Decision,
@@ -143,13 +144,13 @@ export class AuthClient {
   async requestAccessToken(
     input: Omit<CreateAuthorizationRequest, 'authentication'>,
     opts?: SignOptions
-  ): Promise<{ token: string }> {
+  ): Promise<AccessToken> {
     const authorization = await this.evaluate(input, opts)
 
     const permit = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.PERMIT)
 
     if (permit && permit.signature) {
-      return { token: permit.signature }
+      return { value: permit.signature }
     }
 
     throw new ArmorySdkException('Unauthorized', { authorization })
