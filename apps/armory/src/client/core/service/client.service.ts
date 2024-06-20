@@ -86,7 +86,8 @@ export class ClientService {
         nodes
       }),
       // Return the plain client secret only if it was generated
-      ...(!input.clientSecret && { clientSecret: plainClientSecret })
+      ...(!input.clientSecret && { clientSecret: plainClientSecret }),
+      dataSecret: null
     }
   }
 

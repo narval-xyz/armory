@@ -226,8 +226,8 @@ describe('Client', () => {
       expect(body).toEqual({
         ...actualClient,
         dataStore,
+        dataSecret: null,
         clientSecret: expect.any(String),
-        dataSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })

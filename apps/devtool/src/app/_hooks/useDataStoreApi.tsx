@@ -45,7 +45,7 @@ const useDataStoreApi = () => {
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const sdkDataStoreConfig = useMemo<DataStoreClientConfig | null>(() => {
-    if (!authClientId || !authClientSecret || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
+    if (!authClientId || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
       return null
     }
 
@@ -58,47 +58,47 @@ const useDataStoreApi = () => {
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authClientId, authClientSecret, entityStoreHost, policyStoreHost, jwk, signer])
+  }, [authClientId, entityStoreHost, policyStoreHost, jwk, signer])
 
   useEffect(() => {
-    if (!sdkDataStoreConfig) return
+    if (!entityStoreHost) return
 
     getEntityStore()
-  }, [sdkDataStoreConfig?.entityStoreHost, sdkDataStoreConfig?.dataStoreClientSecret])
+  }, [entityStoreHost, authClientSecret])
 
   useEffect(() => {
-    if (!sdkDataStoreConfig) return
+    if (!policyStoreHost) return
 
     getPolicyStore()
-  }, [sdkDataStoreConfig?.policyStoreHost, sdkDataStoreConfig?.dataStoreClientSecret])
+  }, [policyStoreHost, authClientSecret])
 
   const getEntityStore = useCallback(async () => {
-    if (!sdkDataStoreConfig) return
+    if (!entityStoreHost) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-      const entity = await getEntities(sdkDataStoreConfig)
+      const entity = await getEntities(entityStoreHost, authClientSecret)
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
-  }, [sdkDataStoreConfig, entityStoreHost])
+  }, [entityStoreHost])
 
   const getPolicyStore = useCallback(async () => {
-    if (!sdkDataStoreConfig) return
+    if (!policyStoreHost) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-      const policy = await getPolicies(sdkDataStoreConfig)
+      const policy = await getPolicies(policyStoreHost, authClientSecret)
       setPolicyStore(policy)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
-  }, [sdkDataStoreConfig, policyStoreHost])
+  }, [policyStoreHost])
 
   const validateEntityData = (data: Entities) => {
     const entityValidationResult = EntityData.safeParse({ entity: { data } })

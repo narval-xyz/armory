@@ -11,6 +11,13 @@ import NarInput from '../../../_design-system/NarInput'
 import useAccountSignature from '../../../_hooks/useAccountSignature'
 import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerApi'
 import useStore from '../../../_hooks/useStore'
+import { MANAGED_DATASTORE_BASE_URL } from '../../../_lib/constants'
+
+const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?client_id=${clientId}` : ''
+
+const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?client_id=${clientId}` : ''
 
 const initForm: AuthClientData = {
   authServerUrl: '',
@@ -43,11 +50,14 @@ const AddAuthClientModal = () => {
   const [newClient, setNewClient] = useState<OnboardArmoryClientResponse>()
   const [form, setForm] = useState<AuthClientData>(initForm)
 
-  const areFormUrlsValid =
-    form.useManagedDataStore || (!form.useManagedDataStore && form.entityDataStoreUrl && form.policyDataStoreUrl)
-
   const isFormValid =
-    areFormUrlsValid && form.authServerUrl && form.id && form.name && form.entityPublicKey && form.policyPublicKey
+    form.authServerUrl &&
+    form.id &&
+    form.name &&
+    form.entityDataStoreUrl &&
+    form.entityPublicKey &&
+    form.policyDataStoreUrl &&
+    form.policyPublicKey
 
   const closeDialog = () => {
     setIsOpen(false)
@@ -67,15 +77,15 @@ const AddAuthClientModal = () => {
   const setConfig = () => {
     if (!newClient) return
 
-    const { id, clientSecret, entityDataUrl, policyDataUrl } = newClient
+    const { id, clientSecret, dataStore } = newClient
     const { publicKey } = newClient.policyEngine.nodes[0]
 
     setUseAuthServer(true)
     setAuthClientId(id)
     setAuthClientSecret(clientSecret)
     setAuthClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(entityDataUrl)
-    setPolicyDataStoreUrl(policyDataUrl)
+    setEntityDataStoreUrl(dataStore.entityDataUrl)
+    setPolicyDataStoreUrl(dataStore.policyDataUrl)
     closeDialog()
   }
 
@@ -88,6 +98,8 @@ const AddAuthClientModal = () => {
     updateForm({
       authServerUrl: initAuthUrl,
       authAdminApiKey: initAdminApiKey,
+      entityDataStoreUrl: initEntityDataStoreUrl(form.id, form.useManagedDataStore),
+      policyDataStoreUrl: initPolicyDataStoreUrl(form.id, form.useManagedDataStore),
       entityPublicKey: jwk ? JSON.stringify(jwk) : '',
       policyPublicKey: jwk ? JSON.stringify(jwk) : ''
     })
@@ -128,17 +140,21 @@ const AddAuthClientModal = () => {
             <NarCheckbox
               label="Use managed data store"
               checked={form.useManagedDataStore}
-              onCheckedChange={(useManagedDataStore) => updateForm({ useManagedDataStore })}
+              onCheckedChange={(useManagedDataStore) =>
+                updateForm({
+                  useManagedDataStore,
+                  entityDataStoreUrl: initEntityDataStoreUrl(form.id, useManagedDataStore),
+                  policyDataStoreUrl: initPolicyDataStoreUrl(form.id, useManagedDataStore)
+                })
+              }
             />
             <div className="flex gap-[24px]">
               <div className="flex flex-col gap-[8px] w-1/2">
-                {!form.useManagedDataStore && (
-                  <NarInput
-                    label="Entity Data Store URL"
-                    value={form.entityDataStoreUrl}
-                    onChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
-                  />
-                )}
+                <NarInput
+                  label="Entity Data Store URL"
+                  value={form.entityDataStoreUrl}
+                  onChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
+                />
                 <NarInput
                   label="Entity Public Key"
                   value={form.entityPublicKey}
@@ -146,13 +162,11 @@ const AddAuthClientModal = () => {
                 />
               </div>
               <div className="flex flex-col gap-[8px] w-1/2">
-                {!form.useManagedDataStore && (
-                  <NarInput
-                    label="Policy Data Store URL"
-                    value={form.policyDataStoreUrl}
-                    onChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
-                  />
-                )}
+                <NarInput
+                  label="Policy Data Store URL"
+                  value={form.policyDataStoreUrl}
+                  onChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
+                />
                 <NarInput
                   label="Policy Public Key"
                   value={form.policyPublicKey}

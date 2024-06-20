@@ -7,35 +7,35 @@ import { signDataPayload } from '../sdk'
 import { SetEntitiesResponse, SetPoliciesResponse } from '../types/data-store'
 import { isSuccessResponse } from '../utils'
 
-export const getEntities = async (config: DataStoreClientConfig): Promise<EntityStore> => {
+export const getEntities = async (entityStoreHost: string, clientSecret?: string): Promise<EntityStore> => {
   try {
+    const headers = {
+      ...(clientSecret && { [HEADER_CLIENT_SECRET]: clientSecret })
+    }
+
     const {
       data: { entity }
-    } = await axios.get(config.entityStoreHost, {
-      headers: {
-        [HEADER_CLIENT_SECRET]: config.dataStoreClientSecret
-      }
-    })
+    } = await axios.get(entityStoreHost, { headers })
 
     return entity
   } catch (error) {
-    throw new ArmorySdkException('Failed to fetch entity store', { config, error })
+    throw new ArmorySdkException('Failed to fetch entity store', { entityStoreHost, error })
   }
 }
 
-export const getPolicies = async (config: DataStoreClientConfig): Promise<PolicyStore> => {
+export const getPolicies = async (policyStoreHost: string, clientSecret?: string): Promise<PolicyStore> => {
   try {
+    const headers = {
+      ...(clientSecret && { [HEADER_CLIENT_SECRET]: clientSecret })
+    }
+
     const {
       data: { policy }
-    } = await axios.get(config.policyStoreHost, {
-      headers: {
-        [HEADER_CLIENT_SECRET]: config.dataStoreClientSecret
-      }
-    })
+    } = await axios.get(policyStoreHost, { headers })
 
     return policy
   } catch (error) {
-    throw new ArmorySdkException('Failed to fetch policy store', { config, error })
+    throw new ArmorySdkException('Failed to fetch policy store', { policyStoreHost, error })
   }
 }
 
