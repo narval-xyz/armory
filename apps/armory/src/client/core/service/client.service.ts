@@ -1,7 +1,9 @@
 import { secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { v4 as uuid } from 'uuid'
+import { Config } from '../../../armory.config'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 import { Client, CreateClient, PolicyEngineNode } from '../type/client.type'
@@ -10,7 +12,8 @@ import { Client, CreateClient, PolicyEngineNode } from '../type/client.type'
 export class ClientService {
   constructor(
     private clientRepository: ClientRepository,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    private configService: ConfigService<Config>
   ) {}
 
   async findById(id: string): Promise<Client | null> {
@@ -29,8 +32,8 @@ export class ClientService {
     const now = new Date()
     const clientId = input.id || uuid()
 
-    const plainClientSecret = input.clientSecret || secret.generate()
-    const hashClientSecret = secret.hash(plainClientSecret)
+    const plainClientSecret = secret.generate()
+    const hashClientSecret = input.clientSecret || secret.hash(plainClientSecret)
 
     let entityDataStore = input.dataStore.entity
     let policyDataStore = input.dataStore.policy
@@ -77,7 +80,7 @@ export class ClientService {
 
     return {
       ...this.addNodes(createdClient, nodes),
-      clientSecret: plainClientSecret,
+      ...(!input.clientSecret && { clientSecret: plainClientSecret }),
       entityDataUrl,
       policyDataUrl
     }
@@ -109,8 +112,8 @@ export class ClientService {
     const plainDataSecret = secret.generate()
     const hashDataSecret = secret.hash(plainDataSecret)
 
-    const publicEntityDataUrl = `${process.env.MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}`
-    const publicPolicyDataUrl = `${process.env.MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}`
+    const publicEntityDataUrl = `${this.configService.get('managedDataStoreBaseUrl')}/entities?clientId=${clientId}`
+    const publicPolicyDataUrl = `${this.configService.get('managedDataStoreBaseUrl')}/policies?clientId=${clientId}`
 
     return {
       entityDataStore: this.updateDataStoreUrl(entityDataStore, `${publicEntityDataUrl}&dataSecret=${plainDataSecret}`),

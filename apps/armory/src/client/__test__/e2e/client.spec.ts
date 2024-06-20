@@ -57,6 +57,7 @@ describe('Client', () => {
   let testPrismaService: TestPrismaService
   let appService: AppService
   let policyEngineNodeUrl: string
+  let managedDataStoreBaseUrl: string
 
   const clientId = 'test-client-id'
 
@@ -87,6 +88,7 @@ describe('Client', () => {
     appService = module.get(AppService)
 
     policyEngineNodeUrl = configService.get('policyEngine.nodes')[0].url
+    managedDataStoreBaseUrl = configService.get('managedDataStoreBaseUrl')
 
     await app.init()
   })
@@ -215,8 +217,8 @@ describe('Client', () => {
         ...actualClient,
         clientSecret: expect.any(String),
         dataSecret: expect.any(String),
-        entityDataUrl: 'http://localhost:3005/data/entities?clientId=test-client-id',
-        policyDataUrl: 'http://localhost:3005/data/policies?clientId=test-client-id',
+        entityDataUrl: `${managedDataStoreBaseUrl}/entities?clientId=test-client-id`,
+        policyDataUrl: `${managedDataStoreBaseUrl}/policies?clientId=test-client-id`,
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
