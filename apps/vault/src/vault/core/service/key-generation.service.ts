@@ -129,7 +129,7 @@ export class KeyGenerationService {
     const indexes = [...dbIndexes, ...customIndexes]
 
     const remainingDerivations = count - derivationPaths.length
-    const nextPaths = generateNextPaths(indexes, remainingDerivations)
+    const nextPaths = remainingDerivations > 0 ? generateNextPaths(indexes, remainingDerivations) : []
 
     const allPaths = [...nextPaths, ...derivationPaths]
     const derivationPromises = allPaths.map((path) => this.accountDerive(clientId, { rootKey, path, keyId }))
