@@ -42,3 +42,23 @@ armory-sdk/test/e2e:
 
 armory-sdk/test/e2e/watch:
 	make armory-sdk/test/e2e ARGS=--watch
+
+# === Code generation ===
+
+armory-sdk/generate/-http-client:
+	npx @openapitools/openapi-generator-cli generate \
+		--input-spec ${INPUT_SPEC} \
+		--output ${OUTPUT_DIR} \
+		--generator-name typescript-axios \
+		--remove-operation-id-prefix
+
+	rm -rf ./${OUTPUT_DIR}/.openapi-generator \
+		./${OUTPUT_DIR}/.gitignore \
+		./${OUTPUT_DIR}/.npmignore \
+		./${OUTPUT_DIR}/.openapi-generator-ignore \
+		./${OUTPUT_DIR}/git_push.sh
+
+armory-sdk/generate/auth-client:
+		INPUT_SPEC=http://localhost:3005/docs-yaml \
+		OUTPUT_DIR=packages/armory-sdk/src/lib/http/client/auth \
+		make armory-sdk/generate/-http-client

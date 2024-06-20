@@ -1,3 +1,8 @@
+import {
+  AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '@narval/policy-engine-shared'
 import { InjectQueue } from '@nestjs/bull'
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { BackoffOptions, Job, Queue } from 'bull'
@@ -6,11 +11,6 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
 } from '../../../armory.constant'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 
 type JobOption = {

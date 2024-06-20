@@ -1,5 +1,10 @@
 import { ConfigModule } from '@narval/config-module'
-import { Action } from '@narval/policy-engine-shared'
+import {
+  Action,
+  AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '@narval/policy-engine-shared'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Queue } from 'bull'
@@ -9,11 +14,6 @@ import { PolicyEngineModule } from '../../../../../policy-engine/policy-engine.m
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { QueueModule } from '../../../../../shared/module/queue/queue.module'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import {
   AuthorizationRequestProcessingProducer,

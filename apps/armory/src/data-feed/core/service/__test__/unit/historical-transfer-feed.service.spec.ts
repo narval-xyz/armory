@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
@@ -9,7 +10,6 @@ import {
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
 import { load } from '../../../../../armory.config'
-import { AuthorizationRequest } from '../../../../../orchestration/core/type/domain.type'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'

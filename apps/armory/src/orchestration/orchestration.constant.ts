@@ -1,6 +1,5 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, SupportedAction } from '@narval/policy-engine-shared'
 import { ZodType } from 'zod'
-import { SupportedAction } from './core/type/domain.type'
 import { createGrantPermissionSchema, readGrantPermissionSchema } from './persistence/schema/grant-permission.schema'
 import { createSignMessageSchema, readSignMessageSchema } from './persistence/schema/sign-message.schema'
 import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'

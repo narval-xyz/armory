@@ -98,6 +98,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   async evaluate(evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const message = hash(evaluation.request)
+
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
 
     const approvalsCredential = await Promise.all(
@@ -148,6 +149,12 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   }
 
   private getCredential(id: string): CredentialEntity | null {
+    // TODO: BEFORE MERGE, I just spend a bunch of time debugging this but
+    // there's an implicity assumption the entity ID is the same as the JWK ID.
+    // That's redundant and error-prone. If we always have an ID in the key, we
+    // should just drop the top level ID.
+    // Drop the top-level ID will cascade in the logic to associate an user to
+    // a cred.
     return this.getEntities().credentials.find((cred) => cred.id.toLowerCase() === id.toLowerCase()) || null
   }
 
