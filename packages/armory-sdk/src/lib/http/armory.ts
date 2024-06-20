@@ -4,7 +4,7 @@ import { HEADER_ADMIN_API_KEY, HEADER_CLIENT_ID } from '../constants'
 import { AuthAdminConfig, AuthClientConfig } from '../domain'
 import { ArmorySdkException } from '../exceptions'
 import { signRequestPayload } from '../sdk'
-import { AuthorizationRequest, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
+import { AuthorizationResponse, OnboardArmoryClientRequest, OnboardArmoryClientResponse } from '../types/armory'
 import { builBasicHeaders } from '../utils'
 
 export const pingArmory = async (authHost: string): Promise<void> => {
@@ -34,11 +34,11 @@ export const onboardArmoryClient = async (
   }
 }
 
-export const getAuthorizationRequest = async (config: AuthClientConfig, id: string): Promise<AuthorizationRequest> => {
+export const getAuthorizationRequest = async (config: AuthClientConfig, id: string): Promise<AuthorizationResponse> => {
   try {
     const { authHost, authClientId } = config
 
-    const { data } = await axios.get<AuthorizationRequest>(`${authHost}/authorization-requests/${id}`, {
+    const { data } = await axios.get<AuthorizationResponse>(`${authHost}/authorization-requests/${id}`, {
       headers: { [HEADER_CLIENT_ID]: authClientId }
     })
 
@@ -51,13 +51,13 @@ export const getAuthorizationRequest = async (config: AuthClientConfig, id: stri
 export const sendAuthorizationRequest = async (
   config: AuthClientConfig,
   request: EvaluationRequest
-): Promise<AuthorizationRequest> => {
+): Promise<AuthorizationResponse> => {
   try {
     const { authHost, authClientId: clientId, jwk, alg, signer } = config
 
     const payload = await signRequestPayload({ clientId, jwk, alg, signer }, request)
 
-    const { data } = await axios.post<AuthorizationRequest>(`${authHost}/authorization-requests`, payload, {
+    const { data } = await axios.post<AuthorizationResponse>(`${authHost}/authorization-requests`, payload, {
       headers: { [HEADER_CLIENT_ID]: clientId }
     })
 

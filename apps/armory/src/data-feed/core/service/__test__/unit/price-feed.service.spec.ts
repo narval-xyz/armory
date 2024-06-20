@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { Prices } from '@narval/policy-engine-shared'
+import { AuthorizationRequest, Prices } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import {
@@ -9,7 +9,6 @@ import {
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { load } from '../../../../../armory.config'
 import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
-import { AuthorizationRequest } from '../../../../../orchestration/core/type/domain.type'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { PriceFeedService } from '../../../../core/service/price-feed.service'

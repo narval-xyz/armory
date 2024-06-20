@@ -1,6 +1,4 @@
-import { Feed } from '@narval/policy-engine-shared'
-// TODO (@wcalderipe, 06/02/24): Move the AuthorizationRequest type to shared
-import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
+import { AuthorizationRequest, Feed } from '@narval/policy-engine-shared'
 
 export interface DataFeed<Data> {
   getId(): string

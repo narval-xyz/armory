@@ -10,7 +10,6 @@ import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
 import { AccountsDto } from '../dto/accounts.dto'
 import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
-import { GenerateKeyResponseDto } from '../dto/generate-wallet-response.dto'
 import { ImportPrivateKeyResponseDto } from '../dto/import-account-response.dto'
 import { ImportPrivateKeyDto } from '../dto/import-account.dto'
 
@@ -47,13 +46,12 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: GenerateKeyResponseDto
+    type: DeriveAccountResponseDto
   })
-  async generateKey(@ClientId() clientId: string, @Body() body: DeriveAccountDto) {
+  async generateKey(@ClientId() clientId: string, @Body() body: DeriveAccountDto): Promise<DeriveAccountResponseDto> {
     const accounts = await this.keyGenService.derive(clientId, body)
-    const response = DeriveAccountResponseDto.create(accounts)
 
-    return response
+    return DeriveAccountResponseDto.create(accounts)
   }
 
   @Post('/import')
@@ -63,7 +61,7 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: GenerateKeyResponseDto
+    type: ImportPrivateKeyResponseDto
   })
   async importPrivateKey(
     @ClientId() clientId: string,
