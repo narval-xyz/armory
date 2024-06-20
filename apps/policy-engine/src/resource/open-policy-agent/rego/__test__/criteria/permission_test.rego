@@ -5,7 +5,7 @@ test_permission {
     "action": "grantPermission",
     "principal": {"userId": "test-bar-uid"},
     "resource": {"uid": "vault"},
-    "permissions": ["wallet:read","wallet:create","wallet:import"]
+    "permissions": ["account:read","account:create","account:import"]
   }
 
   checkAction({"grantPermission"}) 
@@ -17,6 +17,6 @@ test_permission {
   checkResource({"vault"}) 
     with input as grantPermissionRequest with data.entities as entities
 
-	checkPermission({"wallet:read","wallet:create","wallet:import"}) 
+	checkPermission({"account:read","account:create","account:import"}) 
     with input as grantPermissionRequest with data.entities as entities
 }

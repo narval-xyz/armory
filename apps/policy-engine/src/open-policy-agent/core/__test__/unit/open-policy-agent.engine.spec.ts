@@ -71,11 +71,11 @@ describe('OpenPolicyAgentEngine', () => {
         tokens: [],
         userGroupMembers: [],
         userGroups: [],
-        userWallets: [],
+        userAccounts: [],
         users: [],
-        walletGroupMembers: [],
-        walletGroups: [],
-        wallets: []
+        accountGroupMembers: [],
+        accountGroups: [],
+        accounts: []
       })
     })
   })

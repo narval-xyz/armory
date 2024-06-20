@@ -9,11 +9,11 @@ describe('validate', () => {
     tokens: [],
     userGroupMembers: [],
     userGroups: [],
-    userWallets: [],
+    userAccounts: [],
     users: [],
-    walletGroupMembers: [],
-    walletGroups: [],
-    wallets: []
+    accountGroupMembers: [],
+    accountGroups: [],
+    accounts: []
   }
 
   describe('association integrity', () => {
@@ -65,13 +65,13 @@ describe('validate', () => {
       })
     })
 
-    it('fails when group from wallet group member does not exist', () => {
+    it('fails when group from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering],
-        walletGroupMembers: [
+        accounts: [WALLET.Engineering],
+        accountGroupMembers: [
           {
-            walletId: WALLET.Engineering.id,
+            accountId: WALLET.Engineering.id,
             groupId: WALLET_GROUP.Engineering.id
           }
         ]
@@ -83,19 +83,19 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the wallet group member because the group test-engineering-wallet-group-uid is undefined"
+              "couldn't create the account group member because the group test-engineering-account-group-uid is undefined"
           }
         ]
       })
     })
 
-    it('fails when wallet from wallet group member does not exist', () => {
+    it('fails when account from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        walletGroups: [WALLET_GROUP.Engineering],
-        walletGroupMembers: [
+        accountGroups: [WALLET_GROUP.Engineering],
+        accountGroupMembers: [
           {
-            walletId: WALLET.Engineering.id,
+            accountId: WALLET.Engineering.id,
             groupId: WALLET_GROUP.Engineering.id
           }
         ]
@@ -107,20 +107,20 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
+              "couldn't create the account group member for group test-engineering-account-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
           }
         ]
       })
     })
 
-    it('fails when user from user wallet does not exist', () => {
+    it('fails when user from user account does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering],
-        userWallets: [
+        accounts: [WALLET.Engineering],
+        userAccounts: [
           {
             userId: USER.Alice.id,
-            walletId: WALLET.Engineering.id
+            accountId: WALLET.Engineering.id
           }
         ]
       })
@@ -130,20 +130,20 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the wallet ${WALLET.Engineering.id} because the user ${USER.Alice.id} is undefined`
+            message: `couldn't assign the account ${WALLET.Engineering.id} because the user ${USER.Alice.id} is undefined`
           }
         ]
       })
     })
 
-    it('fails when wallet from user wallet does not exist', () => {
+    it('fails when account from user account does not exist', () => {
       const result = validate({
         ...emptyEntities,
         users: [USER.Alice],
-        userWallets: [
+        userAccounts: [
           {
             userId: USER.Alice.id,
-            walletId: WALLET.Engineering.id
+            accountId: WALLET.Engineering.id
           }
         ]
       })
@@ -153,7 +153,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the wallet ${WALLET.Engineering.id} because it's undefined`
+            message: `couldn't assign the account ${WALLET.Engineering.id} because it's undefined`
           }
         ]
       })
@@ -246,10 +246,10 @@ describe('validate', () => {
       })
     })
 
-    it('fails when wallet group uids are not unique', () => {
+    it('fails when account group uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        walletGroups: [WALLET_GROUP.Engineering, WALLET_GROUP.Engineering, WALLET_GROUP.Treasury]
+        accountGroups: [WALLET_GROUP.Engineering, WALLET_GROUP.Engineering, WALLET_GROUP.Treasury]
       })
 
       expect(result).toEqual({
@@ -257,16 +257,16 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the wallet group ${WALLET_GROUP.Engineering.id} is duplicated`
+            message: `the account group ${WALLET_GROUP.Engineering.id} is duplicated`
           }
         ]
       })
     })
 
-    it('fails when wallets uids are not unique', () => {
+    it('fails when accounts uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering, WALLET.Engineering, WALLET.Treasury]
+        accounts: [WALLET.Engineering, WALLET.Engineering, WALLET.Treasury]
       })
 
       expect(result).toEqual({
@@ -274,7 +274,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the wallet ${WALLET.Engineering.id} is duplicated`
+            message: `the account ${WALLET.Engineering.id} is duplicated`
           }
         ]
       })

@@ -14,7 +14,7 @@ test_principal {
 	isPrincipalRootUser with input as request
 		with data.entities as entities
 
-	isPrincipalAssignedToWallet with input as request
+	isPrincipalAssignedToAccount with input as request
 		with data.entities as entities
 
 	checkPrincipalId({"test-bob-uid", "test-alice-uid"}) with input as request

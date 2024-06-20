@@ -19,7 +19,7 @@ export const accountClassificationSchema = z.nativeEnum({
   EXTERNAL: 'external',
   COUNTERPARTY: 'counterparty',
   INTERNAL: 'internal',
-  WALLET: 'wallet'
+  WALLET: 'account'
 } as const)
 
 export const credentialEntitySchema = z.object({
@@ -42,9 +42,9 @@ export const userGroupEntitySchema = z.object({
   id: z.string()
 })
 
-export const userWalletEntitySchema = z.object({
+export const userAccountEntitySchema = z.object({
   userId: z.string(),
-  walletId: z.string()
+  accountId: z.string()
 })
 
 export const userGroupMemberEntitySchema = z.object({
@@ -52,19 +52,19 @@ export const userGroupMemberEntitySchema = z.object({
   groupId: z.string()
 })
 
-export const walletEntitySchema = z.object({
+export const accountEntitySchema = z.object({
   id: z.string(),
   address: addressSchema,
   accountType: accountTypeSchema,
   chainId: z.number().optional()
 })
 
-export const walletGroupEntitySchema = z.object({
+export const accountGroupEntitySchema = z.object({
   id: z.string()
 })
 
-export const walletGroupMemberEntitySchema = z.object({
-  walletId: z.string(),
+export const accountGroupMemberEntitySchema = z.object({
+  accountId: z.string(),
   groupId: z.string()
 })
 
@@ -95,9 +95,9 @@ export const entitiesSchema = z.object({
   tokens: z.array(tokenEntitySchema),
   userGroupMembers: z.array(userGroupMemberEntitySchema),
   userGroups: z.array(userGroupEntitySchema),
-  userWallets: z.array(userWalletEntitySchema),
+  userAccounts: z.array(userAccountEntitySchema),
   users: z.array(userEntitySchema),
-  walletGroupMembers: z.array(walletGroupMemberEntitySchema),
-  walletGroups: z.array(walletGroupEntitySchema),
-  wallets: z.array(walletEntitySchema)
+  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
+  accountGroups: z.array(accountGroupEntitySchema),
+  accounts: z.array(accountEntitySchema)
 })

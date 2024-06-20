@@ -126,7 +126,7 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
       types: {
         Person: [
           { name: 'name', type: 'string' },
-          { name: 'wallet', type: 'address' }
+          { name: 'account', type: 'address' }
         ],
         Mail: [
           { name: 'from', type: 'Person' },
@@ -137,11 +137,11 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
       message: {
         from: {
           name: 'Alice',
-          wallet: FIXTURE.ACCOUNT.Alice.address
+          account: FIXTURE.ACCOUNT.Alice.address
         },
         to: {
           name: 'Bob',
-          wallet: FIXTURE.ACCOUNT.Bob.address
+          account: FIXTURE.ACCOUNT.Bob.address
         },
         contents: "Dear Bob, today we're going to the moon"
       }

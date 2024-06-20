@@ -35,46 +35,46 @@ const validateUserGroupMemberIntegrity: Validator = (entities: Entities): Valida
   return [...userIssues, ...groupIssues]
 }
 
-const validateWalletGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
-  const wallets = indexBy('id', entities.wallets)
-  const walletGroups = indexBy('id', entities.walletGroups)
+const validateAccountGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+  const accounts = indexBy('id', entities.accounts)
+  const accountGroups = indexBy('id', entities.accountGroups)
 
-  const walletIssues: ValidationIssue[] = entities.walletGroupMembers
-    .filter(({ walletId }) => !wallets[walletId])
-    .map(({ walletId, groupId }) => ({
+  const accountIssues: ValidationIssue[] = entities.accountGroupMembers
+    .filter(({ accountId: accountId }) => !accounts[accountId])
+    .map(({ accountId: accountId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the wallet group member for group ${groupId} because the wallet ${walletId} is undefined`
+      message: `couldn't create the account group member for group ${groupId} because the account ${accountId} is undefined`
     }))
 
-  const groupIssues: ValidationIssue[] = entities.walletGroupMembers
-    .filter(({ groupId }) => !walletGroups[groupId])
+  const groupIssues: ValidationIssue[] = entities.accountGroupMembers
+    .filter(({ groupId }) => !accountGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the wallet group member because the group ${groupId} is undefined`
+      message: `couldn't create the account group member because the group ${groupId} is undefined`
     }))
 
-  return [...walletIssues, ...groupIssues]
+  return [...accountIssues, ...groupIssues]
 }
 
-const validateUserWalletIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
-  const wallets = indexBy('id', entities.wallets)
+const validateUserAccountIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+  const accounts = indexBy('id', entities.accounts)
   const users = indexBy('id', entities.users)
 
-  const userIssues: ValidationIssue[] = entities.userWallets
+  const userIssues: ValidationIssue[] = entities.userAccounts
     .filter(({ userId }) => !users[userId])
-    .map(({ userId, walletId }) => ({
+    .map(({ userId, accountId: accountId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't assign the wallet ${walletId} because the user ${userId} is undefined`
+      message: `couldn't assign the account ${accountId} because the user ${userId} is undefined`
     }))
 
-  const walletIssues: ValidationIssue[] = entities.userWallets
-    .filter(({ walletId }) => !wallets[walletId])
-    .map(({ walletId }) => ({
+  const accountIssues: ValidationIssue[] = entities.userAccounts
+    .filter(({ accountId: accountId }) => !accounts[accountId])
+    .map(({ accountId: accountId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't assign the wallet ${walletId} because it's undefined`
+      message: `couldn't assign the account ${accountId} because it's undefined`
     }))
 
-  return [...userIssues, ...walletIssues]
+  return [...userIssues, ...accountIssues]
 }
 
 const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationIssue[] => {
@@ -96,15 +96,15 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
     findIssues(entities.tokens, (id) => `the token ${id} is duplicated`),
     findIssues(entities.userGroups, (id) => `the user group ${id} is duplicated`),
     findIssues(entities.users, (id) => `the user ${id} is duplicated`),
-    findIssues(entities.walletGroups, (id) => `the wallet group ${id} is duplicated`),
-    findIssues(entities.wallets, (id) => `the wallet ${id} is duplicated`)
+    findIssues(entities.accountGroups, (id) => `the account group ${id} is duplicated`),
+    findIssues(entities.accounts, (id) => `the account ${id} is duplicated`)
   ])
 }
 
 export const DEFAULT_VALIDATORS: Validator[] = [
   validateUserGroupMemberIntegrity,
-  validateWalletGroupMemberIntegrity,
-  validateUserWalletIntegrity,
+  validateAccountGroupMemberIntegrity,
+  validateUserAccountIntegrity,
   validateUniqueIdDuplication
   // TODO (@wcalderipe, 21/02/25): Missing domain invariants to be validate
   // - fails when root user does not have a credential
@@ -134,9 +134,9 @@ export const empty = (): Entities => ({
   tokens: [],
   userGroupMembers: [],
   userGroups: [],
-  userWallets: [],
+  userAccounts: [],
   users: [],
-  walletGroupMembers: [],
-  walletGroups: [],
-  wallets: []
+  accountGroupMembers: [],
+  accountGroups: [],
+  accounts: []
 })

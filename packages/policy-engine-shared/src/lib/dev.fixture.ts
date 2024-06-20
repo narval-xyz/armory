@@ -14,20 +14,20 @@ import { Action } from './type/action.type'
 import { EntityType, ValueOperators } from './type/domain.type'
 import {
   AccountClassification,
+  AccountEntity,
+  AccountGroupEntity,
+  AccountGroupMemberEntity,
   AccountType,
   AddressBookAccountEntity,
   ClientEntity,
   CredentialEntity,
   Entities,
   TokenEntity,
+  UserAccountEntity,
   UserEntity,
   UserGroupEntity,
   UserGroupMemberEntity,
-  UserRole,
-  UserWalletEntity,
-  WalletEntity,
-  WalletGroupEntity,
-  WalletGroupMemberEntity
+  UserRole
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
@@ -37,7 +37,7 @@ const WALLETS = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
 type Personas = (typeof PERSONAS)[number]
 type Groups = (typeof GROUPS)[number]
-type Wallets = (typeof WALLETS)[number]
+type Accounts = (typeof WALLETS)[number]
 
 export const CLIENT: ClientEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
@@ -205,21 +205,21 @@ export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   }
 ]
 
-export const UNSAFE_WALLET_PRIVATE_KEY: Record<Wallets, Hex> = {
+export const UNSAFE_WALLET_PRIVATE_KEY: Record<Accounts, Hex> = {
   Engineering: '0x1c2813a646825e89229434ad424c973e0fd043e4e99976abf6c7938419ca70b2',
   Testing: '0x84daac66f32f715deded36d3cd22cd35a2f2b286d1205886899fff827dc1f3f2',
   Treasury: '0x136f85910606e14fc69ffad7f1d77efc0f08284d1d9ac3369e51aeef81c8316e',
   Operation: '0x2743f953c8912cbfec84702744b43937cfcb71b3d1fba7a1e6c08a2d6d726991'
 }
 
-export const WALLET_ACCOUNT: Record<Wallets, PrivateKeyAccount> = {
+export const WALLET_ACCOUNT: Record<Accounts, PrivateKeyAccount> = {
   Engineering: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Engineering),
   Testing: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Testing),
   Treasury: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Treasury),
   Operation: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Operation)
 }
 
-export const WALLET: Record<Wallets, WalletEntity> = {
+export const WALLET: Record<Accounts, AccountEntity> = {
   Testing: {
     id: `eip155:eoa:${WALLET_ACCOUNT.Testing.address}`,
     address: WALLET_ACCOUNT.Testing.address,
@@ -242,45 +242,45 @@ export const WALLET: Record<Wallets, WalletEntity> = {
   }
 }
 
-export const WALLET_GROUP: Record<Groups, WalletGroupEntity> = {
+export const WALLET_GROUP: Record<Groups, AccountGroupEntity> = {
   Engineering: {
-    id: 'test-engineering-wallet-group-uid'
+    id: 'test-engineering-account-group-uid'
   },
   Treasury: {
-    id: 'test-treasury-wallet-group-uid'
+    id: 'test-treasury-account-group-uid'
   }
 }
 
-export const WALLET_GROUP_MEMBER: WalletGroupMemberEntity[] = [
+export const WALLET_GROUP_MEMBER: AccountGroupMemberEntity[] = [
   {
     groupId: WALLET_GROUP.Engineering.id,
-    walletId: WALLET.Engineering.id
+    accountId: WALLET.Engineering.id
   },
   {
     groupId: WALLET_GROUP.Engineering.id,
-    walletId: WALLET.Testing.id
+    accountId: WALLET.Testing.id
   },
   {
     groupId: WALLET_GROUP.Treasury.id,
-    walletId: WALLET.Treasury.id
+    accountId: WALLET.Treasury.id
   },
   {
     groupId: WALLET_GROUP.Treasury.id,
-    walletId: WALLET.Operation.id
+    accountId: WALLET.Operation.id
   }
 ]
 
-export const USER_WALLET: UserWalletEntity[] = [
+export const USER_WALLET: UserAccountEntity[] = [
   {
-    walletId: WALLET.Operation.id,
+    accountId: WALLET.Operation.id,
     userId: USER.Alice.id
   },
   {
-    walletId: WALLET.Testing.id,
+    accountId: WALLET.Testing.id,
     userId: USER.Alice.id
   },
   {
-    walletId: WALLET.Treasury.id,
+    accountId: WALLET.Treasury.id,
     userId: USER.Alice.id
   }
 ]
@@ -341,11 +341,11 @@ export const ENTITIES: Entities = {
   tokens: Object.values(TOKEN),
   userGroupMembers: USER_GROUP_MEMBER,
   userGroups: Object.values(USER_GROUP),
-  userWallets: USER_WALLET,
+  userAccounts: USER_WALLET,
   users: Object.values(USER),
-  walletGroupMembers: WALLET_GROUP_MEMBER,
-  walletGroups: Object.values(WALLET_GROUP),
-  wallets: Object.values(WALLET)
+  accountGroupMembers: WALLET_GROUP_MEMBER,
+  accountGroups: Object.values(WALLET_GROUP),
+  accounts: Object.values(WALLET)
 }
 
 export const POLICIES: Policy[] = [

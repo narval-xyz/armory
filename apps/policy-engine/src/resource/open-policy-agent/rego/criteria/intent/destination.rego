@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-destination = data.entities.wallets[input.intent.to]
+destination = data.entities.accounts[input.intent.to]
 
 destination = data.entities.addressBook[input.intent.to]
 
