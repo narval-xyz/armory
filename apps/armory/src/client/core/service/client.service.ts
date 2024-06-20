@@ -78,12 +78,16 @@ export class ClientService {
 
     const createdClient = await this.clientRepository.save(client)
 
-    return this.buildPublicClient({
-      client: createdClient,
-      entityDataUrl,
-      policyDataUrl,
-      nodes
-    })
+    return {
+      ...this.buildPublicClient({
+        client: createdClient,
+        entityDataUrl,
+        policyDataUrl,
+        nodes
+      }),
+      // Return the plain client secret only if it was generated
+      ...(!input.clientSecret && { clientSecret: plainClientSecret })
+    }
   }
 
   private buildPublicClient({
