@@ -47,11 +47,11 @@ describe('transpileCriterion', () => {
 
   it('returns criterion if args is an array of strings', () => {
     const item: AccountAddressCriterion = {
-      criterion: Criterion.CHECK_WALLET_ADDRESS,
+      criterion: Criterion.CHECK_ACCOUNT_ADDRESS,
       args: ['0x123', '0x456']
     }
 
-    expect(transpileCriterion(item)).toEqual(`${Criterion.CHECK_WALLET_ADDRESS}({"0x123", "0x456"})`)
+    expect(transpileCriterion(item)).toEqual(`${Criterion.CHECK_ACCOUNT_ADDRESS}({"0x123", "0x456"})`)
   })
 
   it('returns criterion if args is an array of objects', () => {
