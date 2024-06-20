@@ -1,6 +1,5 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
@@ -28,7 +27,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
-    HttpModule,
     KeyValueModule,
     EncryptionModule.registerAsync({
       imports: [EngineModule],
