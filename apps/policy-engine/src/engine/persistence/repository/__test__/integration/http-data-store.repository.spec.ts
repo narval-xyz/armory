@@ -43,5 +43,28 @@ describe(HttpDataStoreRepository.name, () => {
 
       await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
     })
+
+    it('should retry 3 times and fail on the 4th attempt', async () => {
+      nock(dataStoreHost)
+        .get(dataStoreEndpoint)
+        .times(3)
+        .reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
+        .get(dataStoreEndpoint)
+        .reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
+
+      await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
+    })
+
+    it('should succeed on the 2nd retry', async () => {
+      nock(dataStoreHost)
+        .get(dataStoreEndpoint)
+        .reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
+        .get(dataStoreEndpoint)
+        .reply(HttpStatus.OK, entityData)
+
+      const data = await repository.fetch(source)
+
+      expect(data).toEqual(entityData)
+    })
   })
 })
