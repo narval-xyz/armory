@@ -1,7 +1,5 @@
-import { ConfigService } from '@narval/config-module'
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Config } from '../../../../armory.config'
 import { AdminGuard } from '../../../../shared/decorator/admin-guard.decorator'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
@@ -9,10 +7,7 @@ import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-c
 @Controller('/clients')
 @ApiTags('Client')
 export class ClientController {
-  constructor(
-    private clientService: ClientService,
-    private configService: ConfigService<Config>
-  ) {}
+  constructor(private clientService: ClientService) {}
 
   @Post()
   @AdminGuard()
@@ -25,24 +20,8 @@ export class ClientController {
     type: CreateClientResponseDto
   })
   async create(@Body() body: CreateClientRequestDto): Promise<CreateClientResponseDto> {
-    const now = new Date()
-    const client = this.clientService.create({
-      id: body.id,
-      useManagedDataStore: body.useManagedDataStore,
-      clientSecret: body.clientSecret,
-      name: body.name,
-      dataStore: body.dataStore,
-      policyEngine: {
-        nodes: body.policyEngineNodes || this.getDefaultPolicyEngineNodes()
-      },
-      createdAt: now,
-      updatedAt: now
-    })
+    const client = this.clientService.create(body)
 
     return client
-  }
-
-  private getDefaultPolicyEngineNodes() {
-    return this.configService.get('policyEngine.nodes').map(({ url }) => url)
   }
 }

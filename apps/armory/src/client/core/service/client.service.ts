@@ -1,12 +1,12 @@
+import { ConfigService } from '@narval/config-module'
 import { secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { v4 as uuid } from 'uuid'
 import { Config } from '../../../armory.config'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { ClientRepository } from '../../persistence/repository/client.repository'
-import { Client, CreateClient, PolicyEngineNode } from '../type/client.type'
+import { Client, CreateClientInput, PolicyEngineNode, PublicClient } from '../type/client.type'
 
 @Injectable()
 export class ClientService {
@@ -16,19 +16,19 @@ export class ClientService {
     private configService: ConfigService<Config>
   ) {}
 
-  async findById(id: string): Promise<Client | null> {
+  async findById(id: string): Promise<PublicClient | null> {
     const client = await this.clientRepository.findById(id)
 
     if (client) {
       const nodes = await this.clusterService.findNodesByClientId(id)
 
-      return this.addNodes(client, nodes)
+      return this.buildPublicClient({ client, nodes })
     }
 
     return null
   }
 
-  async create(input: CreateClient): Promise<Client & { entityDataUrl: string; policyDataUrl: string }> {
+  async create(input: CreateClientInput): Promise<PublicClient> {
     const now = new Date()
     const clientId = input.id || uuid()
 
@@ -50,8 +50,8 @@ export class ClientService {
         policyPublicKey: policyDataStore.keys[0]
       },
       policyEngine: { nodes: [] },
-      createdAt: input.createdAt || now,
-      updatedAt: input.createdAt || now
+      createdAt: now,
+      updatedAt: now
     }
 
     if (input.useManagedDataStore) {
@@ -69,7 +69,7 @@ export class ClientService {
 
     const nodes = await this.clusterService.create({
       clientId,
-      nodes: input.policyEngine.nodes,
+      nodes: input.policyEngineNodes || this.getDefaultPolicyEngineNodes(),
       entityDataStore,
       policyDataStore
     })
@@ -78,16 +78,32 @@ export class ClientService {
 
     const createdClient = await this.clientRepository.save(client)
 
-    return {
-      ...this.addNodes(createdClient, nodes),
-      ...(!input.clientSecret && { clientSecret: plainClientSecret }),
+    return this.buildPublicClient({
+      client: createdClient,
       entityDataUrl,
-      policyDataUrl
-    }
+      policyDataUrl,
+      nodes
+    })
   }
 
-  private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
-    const nodes = engineNodes.map(({ id, clientId, publicKey, url }) => ({
+  private buildPublicClient({
+    client,
+    entityDataUrl,
+    policyDataUrl,
+    nodes
+  }: {
+    client: Client
+    nodes: PolicyEngineNode[]
+    entityDataUrl?: string
+    policyDataUrl?: string
+  }): PublicClient {
+    const dataStore = {
+      ...client.dataStore,
+      ...(entityDataUrl && { entityDataUrl }),
+      ...(policyDataUrl && { policyDataUrl })
+    }
+
+    const publicEngineNodes = nodes.map(({ id, clientId, publicKey, url }) => ({
       id,
       clientId,
       publicKey,
@@ -96,7 +112,10 @@ export class ClientService {
 
     return {
       ...client,
-      policyEngine: { nodes }
+      dataStore,
+      policyEngine: {
+        nodes: publicEngineNodes
+      }
     }
   }
 
@@ -130,5 +149,9 @@ export class ClientService {
       data: { ...dataStore.data, url },
       signature: { ...dataStore.signature, url }
     }
+  }
+
+  private getDefaultPolicyEngineNodes() {
+    return this.configService.get('policyEngine.nodes').map(({ url }) => url)
   }
 }

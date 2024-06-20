@@ -112,8 +112,8 @@ describe('Client', () => {
     }
 
     const createClientPayload: CreateClientRequestDto = {
-      name: 'Acme',
       id: clientId,
+      name: 'Acme',
       dataStore: {
         entity: {
           data: dataStoreSource,
@@ -138,13 +138,18 @@ describe('Client', () => {
 
       const actualClient = await clientService.findById(body.id)
 
-      expect(body).toEqual({
-        ...actualClient,
-        clientSecret: expect.any(String),
-        createdAt: actualClient?.createdAt.toISOString(),
-        updatedAt: actualClient?.updatedAt.toISOString(),
+      const dataStore = {
+        ...actualClient?.dataStore,
         entityDataUrl: dataStoreSource.url,
         policyDataUrl: dataStoreSource.url
+      }
+
+      expect(body).toEqual({
+        ...actualClient,
+        dataStore,
+        clientSecret: expect.any(String),
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
       })
 
       expect(actualClient?.dataStore.entityPublicKey).toEqual(createClientPayload.dataStore.entity.keys[0])
@@ -212,13 +217,17 @@ describe('Client', () => {
         .send({ ...createClientPayload, useManagedDataStore: true })
 
       const actualClient = await clientService.findById(body.id)
+      const dataStore = {
+        ...actualClient?.dataStore,
+        entityDataUrl: `${managedDataStoreBaseUrl}/entities?clientId=${body.id}`,
+        policyDataUrl: `${managedDataStoreBaseUrl}/policies?clientId=${body.id}`
+      }
 
       expect(body).toEqual({
         ...actualClient,
+        dataStore,
         clientSecret: expect.any(String),
         dataSecret: expect.any(String),
-        entityDataUrl: `${managedDataStoreBaseUrl}/entities?clientId=test-client-id`,
-        policyDataUrl: `${managedDataStoreBaseUrl}/policies?clientId=test-client-id`,
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
       })
