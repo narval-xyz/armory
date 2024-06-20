@@ -173,14 +173,32 @@ describe('Client', () => {
     it('creates a new client with a given secret', async () => {
       mockPolicyEngineServer(policyEngineNodeUrl, clientId)
 
-      const clientSecret = 'test-client-secret'
+      // When a client passes in a secret, they'll send it hashed already.
+      const clientSecret = secret.hash('test-client-secret')
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
         .set(REQUEST_HEADER_API_KEY, adminApiKey)
         .send({ ...createClientPayload, clientSecret })
 
-      expect(body.clientSecret).toEqual(clientSecret)
+      const actualClient = await clientService.findById(body.id)
+
+      expect(body.clientSecret).toEqual(clientSecret) // Assert we have the same secret responded
+      expect(actualClient?.clientSecret).toEqual(clientSecret) // assert the db actually stored the exact one passed, and did not re-hash the secret.
+    })
+
+    it('creates a new client with a generated secret, stored hashed', async () => {
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(createClientPayload)
+
+      const actualClient = await clientService.findById(body.id)
+      const hashedSecret = secret.hash(body.clientSecret)
+      // Assert the plaintext was returned while the hashed was saved in db
+      expect(hashedSecret).toEqual(actualClient?.clientSecret) // Assert we have the same secret responded
     })
 
     it('creates a new client with a managed data store', async () => {
