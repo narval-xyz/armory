@@ -1,5 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import {
+  AccountAddressCriterion,
   ApprovalsCriterion,
   Criterion,
   ERC1155TransfersCriterion,
@@ -8,8 +9,7 @@ import {
   IntentAmountCriterion,
   NonceRequiredCriterion,
   Then,
-  ValueOperators,
-  WalletAddressCriterion
+  ValueOperators
 } from '@narval/policy-engine-shared'
 import { Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -46,7 +46,7 @@ describe('transpileCriterion', () => {
   })
 
   it('returns criterion if args is an array of strings', () => {
-    const item: WalletAddressCriterion = {
+    const item: AccountAddressCriterion = {
       criterion: Criterion.CHECK_WALLET_ADDRESS,
       args: ['0x123', '0x456']
     }

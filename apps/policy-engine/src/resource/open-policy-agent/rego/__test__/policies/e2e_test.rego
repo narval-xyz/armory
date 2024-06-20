@@ -133,7 +133,7 @@ e2e_entities = {
 			"users": ["bb@narval.xyz", "matt@narval.xyz"],
 		},
 	},
-	"wallets": {
+	"accounts": {
 		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -158,16 +158,16 @@ e2e_entities = {
 			"assignees": ["matt@narval.xyz"],
 		},
 	},
-	"walletGroups": {
+	"accountGroups": {
 		"wg:dev-group": {
 			"uid": "wg:dev-group",
 			"name": "Dev",
-			"wallets": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
+			"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
 		},
 		"wg:treasury-group": {
 			"uid": "wg:treasury-group",
 			"name": "Treasury",
-			"wallets": ["eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"],
+			"accounts": ["eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"],
 		},
 	},
 	"addressBook": {
@@ -175,13 +175,13 @@ e2e_entities = {
 			"uid": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 137,
-			"classification": "wallet",
+			"classification": "account",
 		},
 		"eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"uid": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 1,
-			"classification": "wallet",
+			"classification": "account",
 		},
 		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
 			"uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -193,7 +193,7 @@ e2e_entities = {
 			"uid": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"address": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"classification": "wallet",
+			"classification": "account",
 		},
 	},
 }

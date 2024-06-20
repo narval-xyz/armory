@@ -94,6 +94,8 @@ export class ImportService {
 
     const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
 
+    console.log('###privateKey', privateKey)
+
     if (!isHex(privateKey)) {
       throw new ApplicationException({
         message: 'Invalid decrypted private key; must be hex string with 0x prefix',

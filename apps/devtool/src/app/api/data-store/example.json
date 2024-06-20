@@ -41,10 +41,10 @@
       "tokens": [],
       "userGroupMembers": [],
       "userGroups": [],
-      "userWallets": [
+      "userAccounts": [
         {
           "userId": "61e775a9-5f68-41ab-a775-5806845e6e72",
-          "walletId": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f"
+          "accountId": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f"
         }
       ],
       "users": [
@@ -61,9 +61,9 @@
           "role": "admin"
         }
       ],
-      "walletGroupMembers": [],
-      "walletGroups": [],
-      "wallets": [
+      "accountGroupMembers": [],
+      "accountGroups": [],
+      "accounts": [
         {
           "id": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f",
           "address": "0x494042504a8148a6d00ab10ed26043f5579ce00f",

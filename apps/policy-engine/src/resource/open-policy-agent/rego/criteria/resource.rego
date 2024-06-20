@@ -4,7 +4,7 @@ import future.keywords.in
 
 resource = result {
 	input.action in {actions.signTransaction, actions.signRaw, actions.signMessage, actions.signTypedData}
-	result = data.entities.wallets[input.resource.uid]
+	result = data.entities.accounts[input.resource.uid]
 }
 
 checkResourceIntegrity {
@@ -17,26 +17,26 @@ checkResourceIntegrity {
 	resourceAddress == intentFromAddress
 }
 
-walletGroups = {group.uid |
-	group = data.entities.walletGroups[_]
-	input.resource.uid in group.wallets
+accountGroups = {group.uid |
+	group = data.entities.accountGroups[_]
+	input.resource.uid in group.accounts
 }
 
-getWalletGroups(id) = {group.uid |
-	group = data.entities.walletGroups[_]
-	id in group.wallets
+getAccountGroups(id) = {group.uid |
+	group = data.entities.accountGroups[_]
+	id in group.accounts
 }
 
-checkWalletId(values) = resource.uid in values
+checkAccountId(values) = resource.uid in values
 
-checkWalletAddress(values) = resource.address in values
+checkAccountAddress(values) = resource.address in values
 
-checkWalletAccountType(values) = resource.accountType in values
+checkAccountAccountType(values) = resource.accountType in values
 
-checkWalletChainId(values) = numberToString(resource.chainId) in values
+checkAccountChainId(values) = numberToString(resource.chainId) in values
 
-checkWalletGroup(values) {
-	group = walletGroups[_]
+checkAccountGroup(values) {
+	group = accountGroups[_]
 	group in values
 }
 

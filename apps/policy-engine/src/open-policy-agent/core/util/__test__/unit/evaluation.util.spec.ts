@@ -268,11 +268,11 @@ describe('toData', () => {
       expect(entities.users[alice.id]).toEqual(alice)
     })
 
-    it('indexes wallets by id', () => {
+    it('indexes accounts by id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
-      const wallet = FIXTURE.WALLET.Testing
+      const account = FIXTURE.WALLET.Testing
 
-      expect(entities.wallets[wallet.id]).toEqual(wallet)
+      expect(entities.accounts[account.id]).toEqual(account)
     })
 
     it('indexes user groups with members by id', () => {
@@ -285,14 +285,14 @@ describe('toData', () => {
       })
     })
 
-    it('indexes wallet groups with members by id', () => {
+    it('indexes account groups with members by id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const group = FIXTURE.WALLET_GROUP.Treasury
 
-      expect(entities.walletGroups[group.id]).toEqual({
+      expect(entities.accountGroups[group.id]).toEqual({
         id: group.id,
-        wallets: FIXTURE.WALLET_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(
-          ({ walletId }) => walletId
+        accounts: FIXTURE.WALLET_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(
+          ({ accountId }) => accountId
         )
       })
     })
