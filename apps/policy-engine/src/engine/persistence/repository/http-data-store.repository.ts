@@ -38,21 +38,4 @@ export class HttpDataStoreRepository implements DataStoreRepository {
         )
     )
   }
-
-  // async fetch<Data>(source: HttpSource): Promise<Data> {
-  //   try {
-  //     const client = axios.create()
-  //     axiosRetry(client, { retries: MAX_RETRIES, retryDelay: axiosRetry.exponentialDelay })
-  //     const { data } = await client.get<Data>(source.url, { headers: source.headers })
-
-  //     return data
-  //   } catch (error) {
-  //     throw new DataStoreException({
-  //       message: 'Unable to fetch remote data source via HTTP',
-  //       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-  //       context: { source },
-  //       origin: error
-  //     })
-  //   }
-  // }
 }
