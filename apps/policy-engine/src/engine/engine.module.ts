@@ -1,8 +1,8 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
+import { AxiosRetryModule } from '@narval/nestjs-shared'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { AxiosRetryModule } from 'nestjs-axios-retry'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
 import { Config } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
@@ -28,11 +28,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
-    AxiosRetryModule.forRoot({
-      axiosRetryConfig: {
-        retries: 0
-      }
-    }),
+    AxiosRetryModule.forRoot(),
     KeyValueModule,
     EncryptionModule.registerAsync({
       imports: [EngineModule],

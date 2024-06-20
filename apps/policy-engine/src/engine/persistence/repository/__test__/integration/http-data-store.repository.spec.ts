@@ -1,5 +1,5 @@
+import { AxiosRetryModule } from '@narval/nestjs-shared'
 import { EntityData, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
@@ -24,7 +24,7 @@ describe(HttpDataStoreRepository.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [HttpModule],
+      imports: [AxiosRetryModule.forRoot()],
       providers: [HttpDataStoreRepository]
     }).compile()
 
