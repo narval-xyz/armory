@@ -1,4 +1,5 @@
 import { EntityData, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
+import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
@@ -23,6 +24,7 @@ describe(HttpDataStoreRepository.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
+      imports: [HttpModule],
       providers: [HttpDataStoreRepository]
     }).compile()
 
@@ -44,7 +46,7 @@ describe(HttpDataStoreRepository.name, () => {
       await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
     })
 
-    it('should retry 3 times and fail on the 4th attempt', async () => {
+    it('retries 3 times and fail on the 4th attempt', async () => {
       nock(dataStoreHost)
         .get(dataStoreEndpoint)
         .times(3)
@@ -55,7 +57,7 @@ describe(HttpDataStoreRepository.name, () => {
       await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
     })
 
-    it('should succeed on the 2nd retry', async () => {
+    it('succeeds on the 2nd retry', async () => {
       nock(dataStoreHost)
         .get(dataStoreEndpoint)
         .reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
