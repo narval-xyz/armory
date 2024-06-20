@@ -16,7 +16,7 @@ import {
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { VIEM_ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
+import { UNSAFE_PRIVATE_KEY, VIEM_ACCOUNT } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
