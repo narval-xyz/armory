@@ -105,51 +105,38 @@ export class ClientService {
   }
 
   async syncDataStore(clientId: string): Promise<boolean> {
-    const SYNC_ATTEMPTS = 3
-    let isSynced = false
-
     this.logger.log('Start syncing client data stores', { clientId })
 
-    for (let i = 0; i <= SYNC_ATTEMPTS; i++) {
-      try {
-        const client = await this.findById(clientId)
+    try {
+      const client = await this.findById(clientId)
 
-        if (!client) {
-          throw new ApplicationException({
-            message: 'Client not found',
-            suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
-            context: { clientId }
-          })
-        }
+      if (client) {
+        this.logger.log('Sync client data stores', {
+          dataStore: client.dataStore
+        })
 
-        const { dataStore } = client
+        const stores = await this.dataStoreService.fetch(client.dataStore)
 
-        this.logger.log('Sync client data stores', { dataStore })
-
-        const { entity, policy } = await this.dataStoreService.fetch(dataStore)
-
-        await Promise.all([this.saveEntityStore(clientId, entity), this.savePolicyStore(clientId, policy)])
-
-        isSynced = true
+        await Promise.all([
+          this.saveEntityStore(clientId, stores.entity),
+          this.savePolicyStore(clientId, stores.policy)
+        ])
 
         this.logger.log('Client data stores synced', { clientId })
 
-        break
-      } catch (error) {
-        if (i < SYNC_ATTEMPTS) {
-          this.logger.error('Failed to sync client data store, retrying', {
-            attempt: i + 1,
-            clientId,
-            message: error.message,
-            stack: error.stack
-          })
-          await new Promise((resolve) => setTimeout(resolve, 5000))
-          continue
-        }
+        return true
       }
-    }
 
-    return isSynced
+      return false
+    } catch (error) {
+      this.logger.error('Failed to sync client data store', {
+        message: error.message,
+        stack: error.stack,
+        clientId
+      })
+
+      return false
+    }
   }
 
   async saveEntityStore(clientId: string, store: EntityStore): Promise<EntityStore> {
