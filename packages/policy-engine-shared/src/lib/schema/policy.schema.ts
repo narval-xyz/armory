@@ -22,8 +22,8 @@ const intentSchema = z.nativeEnum({
   RETRY_TRANSACTION: 'retryTransaction',
   CANCEL_TRANSACTION: 'cancelTransaction',
   DEPLOY_CONTRACT: 'deployContract',
-  DEPLOY_ERC_4337_WALLET: 'deployErc4337Account',
-  DEPLOY_SAFE_WALLET: 'deploySafeAccount',
+  DEPLOY_ERC_4337_ACCOUNT: 'deployErc4337Account',
+  DEPLOY_SAFE_ACCOUNT: 'deploySafeAccount',
   SIGN_MESSAGE: 'signMessage',
   SIGN_RAW: 'signRaw',
   SIGN_TYPED_DATA: 'signTypedData',
@@ -43,10 +43,10 @@ export const criterionSchema = z.nativeEnum({
   CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
   CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
-  CHECK_WALLET_ID: 'checkAccountId',
-  CHECK_WALLET_ADDRESS: 'checkAccountAddress',
-  CHECK_WALLET_ACCOUNT_TYPE: 'checkAccountAccountType',
-  CHECK_WALLET_GROUP: 'checkAccountGroup',
+  CHECK_ACCOUNT_ID: 'checkAccountId',
+  CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress',
+  CHECK_ACCOUNT_ACCOUNT_TYPE: 'checkAccountAccountType',
+  CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_DESTINATION_ID: 'checkDestinationId',
   CHECK_DESTINATION_ADDRESS: 'checkDestinationAddress',
@@ -175,17 +175,17 @@ export const principalGroupCriterionSchema = z.object({
 })
 
 export const accountIdCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ID),
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ID),
   args: z.array(z.string().min(1)).min(1)
 })
 
 export const accountAddressCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ADDRESS),
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ADDRESS),
   args: z.array(z.string().min(1)).min(1)
 })
 
 export const accountAccountTypeCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ACCOUNT_TYPE),
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ACCOUNT_TYPE),
   args: z.array(z.nativeEnum(AccountType)).min(1)
 })
 
@@ -195,7 +195,7 @@ export const chainIdCriterionSchema = z.object({
 })
 
 export const accountGroupCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_GROUP),
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_GROUP),
   args: z.array(z.string().min(1)).min(1)
 })
 

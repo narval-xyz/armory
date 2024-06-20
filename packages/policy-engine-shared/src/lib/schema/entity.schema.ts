@@ -19,7 +19,7 @@ export const accountClassificationSchema = z.nativeEnum({
   EXTERNAL: 'external',
   COUNTERPARTY: 'counterparty',
   INTERNAL: 'internal',
-  WALLET: 'account'
+  VAULT: 'vault'
 } as const)
 
 export const credentialEntitySchema = z.object({
