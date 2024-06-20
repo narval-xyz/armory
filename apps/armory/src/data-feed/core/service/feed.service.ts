@@ -1,10 +1,9 @@
-import { Feed } from '@narval/policy-engine-shared'
+import { AuthorizationRequest, Feed } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { HistoricalTransferFeedService } from '../../../data-feed/core/service/historical-transfer-feed.service'
 import { PriceFeedService } from '../../../data-feed/core/service/price-feed.service'
-import { AuthorizationRequest } from '../../../orchestration/core/type/domain.type'
 import { DataFeedException } from '../../../shared/core/exception/data-feed.exception'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 

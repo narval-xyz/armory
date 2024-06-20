@@ -1,4 +1,12 @@
-import { Action, Decision, EvaluationResponse, getAccountId } from '@narval/policy-engine-shared'
+import {
+  Action,
+  AuthorizationRequest,
+  AuthorizationRequestStatus,
+  Decision,
+  EvaluationResponse,
+  SignTransaction,
+  getAccountId
+} from '@narval/policy-engine-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -18,7 +26,6 @@ import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
-import { AuthorizationRequest, AuthorizationRequestStatus, SignTransaction } from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
 

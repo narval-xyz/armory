@@ -1,0 +1,70 @@
+import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
+import { z } from 'zod'
+import {
+  AuthorizationRequestDto,
+  AuthorizationResponseDto,
+  CreateClientRequestDto,
+  CreateClientResponseDto
+} from '../http/client/auth'
+import { Signer } from '../shared/type'
+
+export const AuthConfig = z.object({
+  host: z.string().describe('Authorization Server host URL'),
+  signer: Signer.describe('Configuration for the authentication signer'),
+  clientId: z.string().describe('The client ID'),
+  clientSecret: z.string().optional().describe('The client secret (used for a few operations)'),
+  pollingIntervalMs: z
+    .number()
+    .default(10_000)
+    .optional()
+    .describe("The polling interval in milliseconds for fetching the authorization request until it's processed"),
+  pollingTimeoutMs: z.number().default(250).optional().describe('The polling timeout in milliseconds')
+})
+export type AuthConfig = z.infer<typeof AuthConfig>
+
+export const AuthAdminConfig = z.object({
+  host: z.string().describe('Authorization Server host URL'),
+  adminApiKey: z.string().optional().describe('Authorization Server admin API key')
+})
+export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
+
+export type AuthorizationHttp = {
+  /**
+   * Submits a new authorization request for evaluation.
+   *
+   * @param {string} clientId
+   * @param {AuthorizationRequestDto} data
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  evaluate(
+    clientId: string,
+    data: AuthorizationRequestDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<AuthorizationResponseDto>
+
+  /**
+   * Gets an authorization request by ID.
+   *
+   * @param {string} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
+}
+
+export type ClientHttp = {
+  /**
+   * Creates a new client.
+   *
+   * @param {string} apiKey
+   * @param {CreateClientRequestDto} data
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  create(
+    apiKey: string,
+    data: CreateClientRequestDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<CreateClientResponseDto>
+}

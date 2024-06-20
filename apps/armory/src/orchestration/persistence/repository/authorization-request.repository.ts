@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client/armory'
-import { v4 as uuid } from 'uuid'
-import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import {
   AuthorizationRequest,
   AuthorizationRequestError,
   AuthorizationRequestStatus,
   CreateAuthorizationRequest,
   Evaluation
-} from '../../core/type/domain.type'
+} from '@narval/policy-engine-shared'
+import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client/armory'
+import { v4 as uuid } from 'uuid'
+import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
 import { createRequestSchema } from '../schema/request.schema'
 
@@ -197,6 +197,7 @@ export class AuthorizationRequestRepository {
       ...input,
       id: input.id || uuid(),
       status: input.status || AuthorizationRequestStatus.CREATED,
+      evaluations: input.evaluations || [],
       createdAt: input.createdAt || now,
       updatedAt: input.updatedAt || now,
       approvals: input.approvals

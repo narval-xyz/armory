@@ -1,8 +1,8 @@
+import { AuthorizationRequest, SerializedAuthorizationRequest } from '@narval/policy-engine-shared'
 import { createZodDto } from 'nestjs-zod'
-import { AuthorizationRequest } from '../../../core/type/domain.type'
 
 export class AuthorizationRequestDto extends createZodDto(
-  AuthorizationRequest.pick({
+  SerializedAuthorizationRequest.pick({
     authentication: true,
     request: true,
     metadata: true
