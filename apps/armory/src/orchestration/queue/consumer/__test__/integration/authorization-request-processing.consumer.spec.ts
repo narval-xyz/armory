@@ -1,6 +1,12 @@
 import { ConfigModule } from '@narval/config-module'
 import { secret } from '@narval/nestjs-shared'
-import { Action, FIXTURE } from '@narval/policy-engine-shared'
+import {
+  Action,
+  AuthorizationRequest,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus,
+  FIXTURE
+} from '@narval/policy-engine-shared'
 import { Alg, generateJwk, getPublicKey } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
@@ -28,11 +34,6 @@ import { QueueModule } from '../../../../../shared/module/queue/queue.module'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from '../../../../queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'

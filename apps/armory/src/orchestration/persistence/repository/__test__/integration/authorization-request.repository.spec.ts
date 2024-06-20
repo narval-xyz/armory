@@ -1,18 +1,19 @@
 import { ConfigModule } from '@narval/config-module'
 import { secret } from '@narval/nestjs-shared'
-import { Action, FIXTURE } from '@narval/policy-engine-shared'
+import {
+  Action,
+  AuthorizationRequest,
+  AuthorizationRequestError,
+  Evaluation,
+  FIXTURE,
+  SignTransaction
+} from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthorizationRequestStatus, Client, Prisma } from '@prisma/client/armory'
 import { omit } from 'lodash/fp'
 import { load } from '../../../../../armory.config'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestError,
-  Evaluation,
-  SignTransaction
-} from '../../../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../../repository/authorization-request.repository'
 
 describe(AuthorizationRequestRepository.name, () => {

@@ -1,4 +1,12 @@
-import { Action, Decision, JwtString } from '@narval/policy-engine-shared'
+import {
+  Action,
+  AuthorizationRequest,
+  AuthorizationRequestError,
+  AuthorizationRequestStatus,
+  CreateAuthorizationRequest,
+  Decision,
+  JwtString
+} from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
@@ -7,12 +15,6 @@ import { ClusterService } from '../../../policy-engine/core/service/cluster.serv
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
-import {
-  AuthorizationRequest,
-  AuthorizationRequestError,
-  AuthorizationRequestStatus,
-  CreateAuthorizationRequest
-} from '../../core/type/domain.type'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../queue/producer/authorization-request-processing.producer'
 import { AuthorizationRequestAlreadyProcessingException } from '../exception/authorization-request-already-processing.exception'
