@@ -290,31 +290,31 @@ export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
     id: `eip155:137:${ACCOUNT.Testing.address}`,
     address: ACCOUNT.Testing.address,
     chainId: 137,
-    classification: AccountClassification.VAULT
+    classification: AccountClassification.MANAGED
   },
   {
     id: `eip155:1:${ACCOUNT.Engineering.address}`,
     address: ACCOUNT.Engineering.address,
     chainId: 1,
-    classification: AccountClassification.VAULT
+    classification: AccountClassification.MANAGED
   },
   {
     id: `eip155:137:${ACCOUNT.Engineering.address}`,
     address: ACCOUNT.Treasury.address,
     chainId: 137,
-    classification: AccountClassification.VAULT
+    classification: AccountClassification.MANAGED
   },
   {
     id: `eip155:1:${ACCOUNT.Treasury.address}`,
     address: ACCOUNT.Treasury.address,
     chainId: 1,
-    classification: AccountClassification.VAULT
+    classification: AccountClassification.MANAGED
   },
   {
     id: `eip155:137:${ACCOUNT.Operation.address}`,
     address: ACCOUNT.Operation.address,
     chainId: 137,
-    classification: AccountClassification.VAULT
+    classification: AccountClassification.MANAGED
   }
 ]
 
