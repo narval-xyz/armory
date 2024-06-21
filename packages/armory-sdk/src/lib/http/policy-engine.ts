@@ -55,7 +55,7 @@ export const sendEvaluationRequest = async (
   }
 }
 
-export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ latestSync: { success: boolean } }> => {
+export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ success: boolean }> => {
   try {
     const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
 
@@ -63,7 +63,7 @@ export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ la
       throw new ArmorySdkException('Client secret is required to sync engine', { config })
     }
 
-    const { data } = await axios.post<{ latestSync: { success: boolean } }>(`${engineHost}/clients/sync`, null, {
+    const { data } = await axios.post<{ success: boolean }>(`${engineHost}/clients/sync`, null, {
       headers: builBasicHeaders({ clientId, clientSecret })
     })
 

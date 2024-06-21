@@ -11,7 +11,7 @@ export class HttpLoggerMiddleware implements NestMiddleware {
     response.on('close', () => {
       const { statusCode } = response
 
-      this.logger.log(`${method} ${path} ${statusCode}`)
+      this.logger.log(`${method} ${path.split('?')[0]} ${statusCode}`)
     })
 
     next()
