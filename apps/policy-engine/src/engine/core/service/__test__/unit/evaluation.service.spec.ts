@@ -80,7 +80,7 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
     action: 'grantPermission',
     nonce: 'random-nonce-111',
     resourceId: 'vault',
-    permissions: ['account:import']
+    permissions: ['wallet:import']
   }
 
   const evalResponse: EvaluationResponse = {
@@ -119,7 +119,7 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
       access: [
         {
           resource: 'vault',
-          permissions: ['account:import']
+          permissions: ['wallet:import']
         }
       ]
     })
