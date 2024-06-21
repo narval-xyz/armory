@@ -27,11 +27,12 @@ describe(ClientSecretGuard.name, () => {
     } as ExecutionContext
   }
 
-  const mockService = (clientSecret = 'client-a-secret-key') => {
+  const mockService = (clientSecret = 'client-a-secret-key', dataSecret = 'client-a-data-secret') => {
     const client: Client = {
       id: CLIENT_ID,
       name: 'Client A',
       clientSecret: secret.hash(clientSecret),
+      dataSecret: secret.hash(dataSecret),
       dataStore: {
         entityPublicKey: publicKey,
         policyPublicKey: publicKey

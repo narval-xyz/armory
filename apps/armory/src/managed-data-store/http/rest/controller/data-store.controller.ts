@@ -6,6 +6,7 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
 import { EntityDataStoreService } from '../../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
+import { DataStoreGuard } from '../../../shared/guard/data-store.guard'
 import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
 import { PolicyDataStoreDto } from '../dto/policy-data-store.dto'
 import { SetEntityStoreDto, SetEntityStoreResponseDto } from '../dto/set-entity-store.dto'
@@ -28,6 +29,7 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: EntityDataStoreDto
   })
+  @UseGuards(DataStoreGuard)
   async getEntities(@Query('clientId') clientId: string): Promise<EntityDataStoreDto> {
     const entity = await this.entityDataStoreService.getEntities(clientId)
 
@@ -51,6 +53,7 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: PolicyDataStoreDto
   })
+  @UseGuards(DataStoreGuard)
   async getPolicies(@Query('clientId') clientId: string): Promise<PolicyDataStoreDto> {
     const policy = await this.policyDataStoreService.getPolicies(clientId)
 

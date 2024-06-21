@@ -1,5 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { OnboardVaultClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -28,7 +29,7 @@ const AddVaultClientModal = () => {
   const { isProcessing, onboard } = useVaultApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<any>()
+  const [newClient, setNewClient] = useState<OnboardVaultClientResponse>()
   const [form, setForm] = useState<VaultClientData>(initForm)
 
   const isFormValid = form.vaultUrl && form.vaultAdminApiKey && form.clientId && form.engineClientSigner

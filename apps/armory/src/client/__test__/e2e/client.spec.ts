@@ -57,6 +57,7 @@ describe('Client', () => {
   let testPrismaService: TestPrismaService
   let appService: AppService
   let policyEngineNodeUrl: string
+  let managedDataStoreBaseUrl: string
 
   const clientId = 'test-client-id'
 
@@ -87,6 +88,7 @@ describe('Client', () => {
     appService = module.get(AppService)
 
     policyEngineNodeUrl = configService.get('policyEngine.nodes')[0].url
+    managedDataStoreBaseUrl = configService.get('managedDataStoreBaseUrl')
 
     await app.init()
   })
@@ -110,8 +112,8 @@ describe('Client', () => {
     }
 
     const createClientPayload: CreateClientRequestDto = {
-      name: 'Acme',
       id: clientId,
+      name: 'Acme',
       dataStore: {
         entity: {
           data: dataStoreSource,
@@ -136,8 +138,15 @@ describe('Client', () => {
 
       const actualClient = await clientService.findById(body.id)
 
+      const dataStore = {
+        ...actualClient?.dataStore,
+        entityDataUrl: dataStoreSource.url,
+        policyDataUrl: dataStoreSource.url
+      }
+
       expect(body).toEqual({
         ...actualClient,
+        dataStore,
         clientSecret: expect.any(String),
         createdAt: actualClient?.createdAt.toISOString(),
         updatedAt: actualClient?.updatedAt.toISOString()
@@ -197,6 +206,31 @@ describe('Client', () => {
       const hashedSecret = secret.hash(body.clientSecret)
       // Assert the plaintext was returned while the hashed was saved in db
       expect(hashedSecret).toEqual(actualClient?.clientSecret) // Assert we have the same secret responded
+    })
+
+    it('creates a new client with a managed data store', async () => {
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+
+      const { body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({ ...createClientPayload, useManagedDataStore: true })
+
+      const actualClient = await clientService.findById(body.id)
+      const dataStore = {
+        ...actualClient?.dataStore,
+        entityDataUrl: `${managedDataStoreBaseUrl}/entities?clientId=${body.id}`,
+        policyDataUrl: `${managedDataStoreBaseUrl}/policies?clientId=${body.id}`
+      }
+
+      expect(body).toEqual({
+        ...actualClient,
+        dataStore,
+        dataSecret: null,
+        clientSecret: expect.any(String),
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
+      })
     })
 
     it('responds with unprocessable entity when payload is invalid', async () => {
