@@ -23,7 +23,11 @@ export class HttpDataStoreRepository implements DataStoreRepository {
             retries: MAX_RETRIES,
             retryDelay: axiosRetry.exponentialDelay,
             onRetry: (retryCount) => {
-              this.logger.warn(`Retrying request attempt ${retryCount}`)
+              this.logger.log('Retry request to fetch HTTP data source', {
+                retryCount,
+                maxRetries: MAX_RETRIES,
+                url: source.url.split('?')[0]
+              })
             }
           }
         })
