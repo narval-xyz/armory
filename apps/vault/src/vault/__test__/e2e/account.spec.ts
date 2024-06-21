@@ -251,31 +251,29 @@ describe('Accounts', () => {
           count: 3
         })
 
-      expect(body.accounts).toEqual(
-        expect.arrayContaining([
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/1",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/2",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/3",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          }
-        ])
-      )
+      expect(body.accounts).toEqual([
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/1",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        },
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/2",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        },
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/3",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        }
+      ])
     })
 
     it('derives accounts from a wallet with custom derivation paths', async () => {
@@ -300,24 +298,22 @@ describe('Accounts', () => {
           derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
         })
 
-      expect(body.accounts).toEqual(
-        expect.arrayContaining([
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/4",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/5",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          }
-        ])
-      )
+      expect(body.accounts).toEqual([
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/4",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        },
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/5",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        }
+      ])
     })
 
     it('derives a combination of custom derivation paths and next possible accounts', async () => {
@@ -343,24 +339,22 @@ describe('Accounts', () => {
           derivationPaths: ["m/44'/60'/0'/0/4", "m/44'/60'/0'/0/5"]
         })
 
-      expect(body.accounts).toEqual(
-        expect.arrayContaining([
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/4",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          },
-          {
-            id: expect.any(String),
-            keyId,
-            derivationPath: "m/44'/60'/0'/0/5",
-            address: expect.any(String),
-            publicKey: expect.any(String)
-          }
-        ])
-      )
+      expect(body.accounts).toEqual([
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/4",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        },
+        {
+          id: expect.any(String),
+          keyId,
+          derivationPath: "m/44'/60'/0'/0/5",
+          address: expect.any(String),
+          publicKey: expect.any(String)
+        }
+      ])
     })
   })
 
