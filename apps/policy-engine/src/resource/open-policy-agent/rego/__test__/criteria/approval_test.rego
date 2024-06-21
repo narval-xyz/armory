@@ -97,7 +97,7 @@ test_checkApprovalWithoutCountingDuplicates {
 			"userId": "test-bar-uid",
 			"alg": "ES256K",
 			"pubKey": "test-bar-pub-key",
-			"sig": "test-bar-wallet-sig",
+			"sig": "test-bar-account-sig",
 		},
 		{
 			"userId": "test-bar-uid",
