@@ -27,12 +27,12 @@ test_spendingLimitByUser {
 	}
 }
 
-test_spendingLimitByWalletResource {
-	res = forbid[{"policyId": "spendingLimitByWalletResource"}] with input as spendingLimitReq with data.entities as entities
+test_spendingLimitByAccountResource {
+	res = forbid[{"policyId": "spendingLimitByAccountResource"}] with input as spendingLimitReq with data.entities as entities
 
 	res == {
 		"type": "forbid",
-		"policyId": "spendingLimitByWalletResource",
+		"policyId": "spendingLimitByAccountResource",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
@@ -101,8 +101,8 @@ test_spendingLimitByUserGroup {
 	}
 }
 
-test_spendingLimitByWalletGroup {
-	spendingLimitByWalletGroupReq = object.union(spendingLimitReq, {
+test_spendingLimitByAccountGroup {
+	spendingLimitByAccountGroupReq = object.union(spendingLimitReq, {
 		"principal": {"userId": "test-bar-uid"},
 		"feeds": [
 			{
@@ -154,11 +154,11 @@ test_spendingLimitByWalletGroup {
 		],
 	})
 
-	res = forbid[{"policyId": "spendingLimitByWalletGroup"}] with input as spendingLimitByWalletGroupReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByAccountGroup"}] with input as spendingLimitByAccountGroupReq with data.entities as entities
 
 	res == {
 		"type": "forbid",
-		"policyId": "spendingLimitByWalletGroup",
+		"policyId": "spendingLimitByAccountGroup",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}

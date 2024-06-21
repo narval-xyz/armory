@@ -1,20 +1,20 @@
 import { z } from 'zod'
 import {
   accountClassificationSchema,
+  accountEntitySchema,
+  accountGroupEntitySchema,
+  accountGroupMemberEntitySchema,
   accountTypeSchema,
   addressBookAccountEntitySchema,
   clientEntitySchema,
   credentialEntitySchema,
   entitiesSchema,
   tokenEntitySchema,
+  userAccountEntitySchema,
   userEntitySchema,
   userGroupEntitySchema,
   userGroupMemberEntitySchema,
-  userRoleSchema,
-  userWalletEntitySchema,
-  walletEntitySchema,
-  walletGroupEntitySchema,
-  walletGroupMemberEntitySchema
+  userRoleSchema
 } from '../schema/entity.schema'
 
 export const UserRole = userRoleSchema.enum
@@ -37,15 +37,15 @@ export type UserEntity = z.infer<typeof userEntitySchema>
 
 export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
 
-export type UserWalletEntity = z.infer<typeof userWalletEntitySchema>
+export type UserAccountEntity = z.infer<typeof userAccountEntitySchema>
 
 export type UserGroupMemberEntity = z.infer<typeof userGroupMemberEntitySchema>
 
-export type WalletEntity = z.infer<typeof walletEntitySchema>
+export type AccountEntity = z.infer<typeof accountEntitySchema>
 
-export type WalletGroupEntity = z.infer<typeof walletGroupEntitySchema>
+export type AccountGroupEntity = z.infer<typeof accountGroupEntitySchema>
 
-export type WalletGroupMemberEntity = z.infer<typeof walletGroupMemberEntitySchema>
+export type AccountGroupMemberEntity = z.infer<typeof accountGroupMemberEntitySchema>
 
 export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 

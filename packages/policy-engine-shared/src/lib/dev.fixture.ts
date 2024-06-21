@@ -14,30 +14,30 @@ import { Action } from './type/action.type'
 import { EntityType, ValueOperators } from './type/domain.type'
 import {
   AccountClassification,
+  AccountEntity,
+  AccountGroupEntity,
+  AccountGroupMemberEntity,
   AccountType,
   AddressBookAccountEntity,
   ClientEntity,
   CredentialEntity,
   Entities,
   TokenEntity,
+  UserAccountEntity,
   UserEntity,
   UserGroupEntity,
   UserGroupMemberEntity,
-  UserRole,
-  UserWalletEntity,
-  WalletEntity,
-  WalletGroupEntity,
-  WalletGroupMemberEntity
+  UserRole
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
 const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
-const WALLETS = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
+const ACCOUNTS_NAME = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
 type Personas = (typeof PERSONAS)[number]
 type Groups = (typeof GROUPS)[number]
-type Wallets = (typeof WALLETS)[number]
+type Accounts = (typeof ACCOUNTS_NAME)[number]
 
 export const CLIENT: ClientEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
@@ -64,7 +64,7 @@ export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
   Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K))
 }
 
-export const ACCOUNT: Record<Personas, PrivateKeyAccount> = {
+export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Root: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Root),
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
@@ -125,58 +125,58 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
 
 export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
   Root: {
-    id: ACCOUNT.Root.address,
+    id: VIEM_ACCOUNT.Root.address,
     userId: USER.Root.id,
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: ACCOUNT.Root.address,
-      addr: ACCOUNT.Root.address
+      kid: VIEM_ACCOUNT.Root.address,
+      addr: VIEM_ACCOUNT.Root.address
     }
   },
   Alice: {
-    id: ACCOUNT.Alice.address,
+    id: VIEM_ACCOUNT.Alice.address,
     userId: USER.Alice.id,
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: ACCOUNT.Alice.address,
-      addr: ACCOUNT.Alice.address
+      kid: VIEM_ACCOUNT.Alice.address,
+      addr: VIEM_ACCOUNT.Alice.address
     }
   },
   Bob: {
-    id: ACCOUNT.Bob.address,
+    id: VIEM_ACCOUNT.Bob.address,
     userId: USER.Bob.id,
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: ACCOUNT.Bob.address,
-      addr: ACCOUNT.Bob.address
+      kid: VIEM_ACCOUNT.Bob.address,
+      addr: VIEM_ACCOUNT.Bob.address
     }
   },
   Carol: {
-    id: ACCOUNT.Carol.address,
+    id: VIEM_ACCOUNT.Carol.address,
     userId: USER.Carol.id,
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: ACCOUNT.Carol.address,
-      addr: ACCOUNT.Carol.address
+      kid: VIEM_ACCOUNT.Carol.address,
+      addr: VIEM_ACCOUNT.Carol.address
     }
   },
   Dave: {
-    id: ACCOUNT.Dave.address,
+    id: VIEM_ACCOUNT.Dave.address,
     userId: USER.Dave.id,
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
       alg: SigningAlg.ES256K,
-      kid: ACCOUNT.Dave.address,
-      addr: ACCOUNT.Dave.address
+      kid: VIEM_ACCOUNT.Dave.address,
+      addr: VIEM_ACCOUNT.Dave.address
     }
   }
 }
@@ -205,116 +205,116 @@ export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   }
 ]
 
-export const UNSAFE_WALLET_PRIVATE_KEY: Record<Wallets, Hex> = {
+export const UNSAFE_ACCOUNT_PRIVATE_KEY: Record<Accounts, Hex> = {
   Engineering: '0x1c2813a646825e89229434ad424c973e0fd043e4e99976abf6c7938419ca70b2',
   Testing: '0x84daac66f32f715deded36d3cd22cd35a2f2b286d1205886899fff827dc1f3f2',
   Treasury: '0x136f85910606e14fc69ffad7f1d77efc0f08284d1d9ac3369e51aeef81c8316e',
   Operation: '0x2743f953c8912cbfec84702744b43937cfcb71b3d1fba7a1e6c08a2d6d726991'
 }
 
-export const WALLET_ACCOUNT: Record<Wallets, PrivateKeyAccount> = {
-  Engineering: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Engineering),
-  Testing: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Testing),
-  Treasury: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Treasury),
-  Operation: privateKeyToAccount(UNSAFE_WALLET_PRIVATE_KEY.Operation)
+export const ACCOUNTSNAME_VIEMACCOUNT: Record<Accounts, PrivateKeyAccount> = {
+  Engineering: privateKeyToAccount(UNSAFE_ACCOUNT_PRIVATE_KEY.Engineering),
+  Testing: privateKeyToAccount(UNSAFE_ACCOUNT_PRIVATE_KEY.Testing),
+  Treasury: privateKeyToAccount(UNSAFE_ACCOUNT_PRIVATE_KEY.Treasury),
+  Operation: privateKeyToAccount(UNSAFE_ACCOUNT_PRIVATE_KEY.Operation)
 }
 
-export const WALLET: Record<Wallets, WalletEntity> = {
+export const ACCOUNT: Record<Accounts, AccountEntity> = {
   Testing: {
-    id: `eip155:eoa:${WALLET_ACCOUNT.Testing.address}`,
-    address: WALLET_ACCOUNT.Testing.address,
+    id: `eip155:eoa:${ACCOUNTSNAME_VIEMACCOUNT.Testing.address}`,
+    address: ACCOUNTSNAME_VIEMACCOUNT.Testing.address,
     accountType: AccountType.EOA
   },
   Engineering: {
-    id: `eip155:eoa:${WALLET_ACCOUNT.Engineering.address}`,
-    address: WALLET_ACCOUNT.Engineering.address,
+    id: `eip155:eoa:${ACCOUNTSNAME_VIEMACCOUNT.Engineering.address}`,
+    address: ACCOUNTSNAME_VIEMACCOUNT.Engineering.address,
     accountType: AccountType.EOA
   },
   Treasury: {
-    id: `eip155:eoa:${WALLET_ACCOUNT.Treasury.address}`,
-    address: WALLET_ACCOUNT.Treasury.address,
+    id: `eip155:eoa:${ACCOUNTSNAME_VIEMACCOUNT.Treasury.address}`,
+    address: ACCOUNTSNAME_VIEMACCOUNT.Treasury.address,
     accountType: AccountType.EOA
   },
   Operation: {
-    id: `eip155:eoa:${WALLET_ACCOUNT.Operation.address}`,
-    address: WALLET_ACCOUNT.Operation.address,
+    id: `eip155:eoa:${ACCOUNTSNAME_VIEMACCOUNT.Operation.address}`,
+    address: ACCOUNTSNAME_VIEMACCOUNT.Operation.address,
     accountType: AccountType.EOA
   }
 }
 
-export const WALLET_GROUP: Record<Groups, WalletGroupEntity> = {
+export const ACCOUNT_GROUP: Record<Groups, AccountGroupEntity> = {
   Engineering: {
-    id: 'test-engineering-wallet-group-uid'
+    id: 'test-engineering-account-group-uid'
   },
   Treasury: {
-    id: 'test-treasury-wallet-group-uid'
+    id: 'test-treasury-account-group-uid'
   }
 }
 
-export const WALLET_GROUP_MEMBER: WalletGroupMemberEntity[] = [
+export const ACCOUNT_GROUP_MEMBER: AccountGroupMemberEntity[] = [
   {
-    groupId: WALLET_GROUP.Engineering.id,
-    walletId: WALLET.Engineering.id
+    groupId: ACCOUNT_GROUP.Engineering.id,
+    accountId: ACCOUNT.Engineering.id
   },
   {
-    groupId: WALLET_GROUP.Engineering.id,
-    walletId: WALLET.Testing.id
+    groupId: ACCOUNT_GROUP.Engineering.id,
+    accountId: ACCOUNT.Testing.id
   },
   {
-    groupId: WALLET_GROUP.Treasury.id,
-    walletId: WALLET.Treasury.id
+    groupId: ACCOUNT_GROUP.Treasury.id,
+    accountId: ACCOUNT.Treasury.id
   },
   {
-    groupId: WALLET_GROUP.Treasury.id,
-    walletId: WALLET.Operation.id
+    groupId: ACCOUNT_GROUP.Treasury.id,
+    accountId: ACCOUNT.Operation.id
   }
 ]
 
-export const USER_WALLET: UserWalletEntity[] = [
+export const USER_ACCOUNT: UserAccountEntity[] = [
   {
-    walletId: WALLET.Operation.id,
+    accountId: ACCOUNT.Operation.id,
     userId: USER.Alice.id
   },
   {
-    walletId: WALLET.Testing.id,
+    accountId: ACCOUNT.Testing.id,
     userId: USER.Alice.id
   },
   {
-    walletId: WALLET.Treasury.id,
+    accountId: ACCOUNT.Treasury.id,
     userId: USER.Alice.id
   }
 ]
 
 export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
   {
-    id: `eip155:137:${WALLET.Testing.address}`,
-    address: WALLET.Testing.address,
+    id: `eip155:137:${ACCOUNT.Testing.address}`,
+    address: ACCOUNT.Testing.address,
     chainId: 137,
-    classification: AccountClassification.WALLET
+    classification: AccountClassification.MANAGED
   },
   {
-    id: `eip155:1:${WALLET.Engineering.address}`,
-    address: WALLET.Engineering.address,
+    id: `eip155:1:${ACCOUNT.Engineering.address}`,
+    address: ACCOUNT.Engineering.address,
     chainId: 1,
-    classification: AccountClassification.WALLET
+    classification: AccountClassification.MANAGED
   },
   {
-    id: `eip155:137:${WALLET.Engineering.address}`,
-    address: WALLET.Treasury.address,
+    id: `eip155:137:${ACCOUNT.Engineering.address}`,
+    address: ACCOUNT.Treasury.address,
     chainId: 137,
-    classification: AccountClassification.WALLET
+    classification: AccountClassification.MANAGED
   },
   {
-    id: `eip155:1:${WALLET.Treasury.address}`,
-    address: WALLET.Treasury.address,
+    id: `eip155:1:${ACCOUNT.Treasury.address}`,
+    address: ACCOUNT.Treasury.address,
     chainId: 1,
-    classification: AccountClassification.WALLET
+    classification: AccountClassification.MANAGED
   },
   {
-    id: `eip155:137:${WALLET.Operation.address}`,
-    address: WALLET.Operation.address,
+    id: `eip155:137:${ACCOUNT.Operation.address}`,
+    address: ACCOUNT.Operation.address,
     chainId: 137,
-    classification: AccountClassification.WALLET
+    classification: AccountClassification.MANAGED
   }
 ]
 
@@ -341,11 +341,11 @@ export const ENTITIES: Entities = {
   tokens: Object.values(TOKEN),
   userGroupMembers: USER_GROUP_MEMBER,
   userGroups: Object.values(USER_GROUP),
-  userWallets: USER_WALLET,
+  userAccounts: USER_ACCOUNT,
   users: Object.values(USER),
-  walletGroupMembers: WALLET_GROUP_MEMBER,
-  walletGroups: Object.values(WALLET_GROUP),
-  wallets: Object.values(WALLET)
+  accountGroupMembers: ACCOUNT_GROUP_MEMBER,
+  accountGroups: Object.values(ACCOUNT_GROUP),
+  accounts: Object.values(ACCOUNT)
 }
 
 export const POLICIES: Policy[] = [

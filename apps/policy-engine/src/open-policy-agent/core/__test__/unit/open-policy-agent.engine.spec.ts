@@ -71,11 +71,11 @@ describe('OpenPolicyAgentEngine', () => {
         tokens: [],
         userGroupMembers: [],
         userGroups: [],
-        userWallets: [],
+        userAccounts: [],
         users: [],
-        walletGroupMembers: [],
-        walletGroups: [],
-        wallets: []
+        accountGroupMembers: [],
+        accountGroups: [],
+        accounts: []
       })
     })
   })
@@ -145,12 +145,12 @@ describe('OpenPolicyAgentEngine', () => {
         action: Action.SIGN_TRANSACTION,
         nonce: 'test-nonce',
         transactionRequest: {
-          from: FIXTURE.WALLET.Engineering.address,
-          to: FIXTURE.WALLET.Testing.address,
+          from: FIXTURE.ACCOUNT.Engineering.address,
+          to: FIXTURE.ACCOUNT.Testing.address,
           value: ONE_ETH,
           chainId: 1
         },
-        resourceId: FIXTURE.WALLET.Engineering.id
+        resourceId: FIXTURE.ACCOUNT.Engineering.id
       }
 
       const evaluation: EvaluationRequest = {
@@ -195,12 +195,12 @@ describe('OpenPolicyAgentEngine', () => {
         action: Action.SIGN_TRANSACTION,
         nonce: 'test-nonce',
         transactionRequest: {
-          from: FIXTURE.WALLET.Engineering.address,
-          to: FIXTURE.WALLET.Testing.address,
+          from: FIXTURE.ACCOUNT.Engineering.address,
+          to: FIXTURE.ACCOUNT.Testing.address,
           value: ONE_ETH,
           chainId: 1
         },
-        resourceId: FIXTURE.WALLET.Engineering.id
+        resourceId: FIXTURE.ACCOUNT.Engineering.id
       }
 
       const evaluation: EvaluationRequest = {

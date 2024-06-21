@@ -77,9 +77,9 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	}
 }
 
-# Resource wallet can't transfer > $5k usd value in 12 hours on a rolling basis
+# Resource account can't transfer > $5k usd value in 12 hours on a rolling basis
 
-forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
+forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 	transferTypes = {"transferERC20"}
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	currency = "fiat:usd"
@@ -90,7 +90,7 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkIntentType(transferTypes)
-	checkWalletId(resources)
+	checkAccountId(resources)
 	checkSpendingLimit({
 		"limit": limit,
 		"operator": operators.greaterThan,
@@ -106,7 +106,7 @@ forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 
 	reason = {
 		"type": "forbid",
-		"policyId": "spendingLimitByWalletResource",
+		"policyId": "spendingLimitByAccountResource",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
@@ -146,11 +146,11 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	}
 }
 
-# Wallet group can't transfer > $5k usd value in 24 hours on a rolling basis
+# Account group can't transfer > $5k usd value in 24 hours on a rolling basis
 
-forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
+forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
 	transferTypes = {"transferERC20"}
-	walletGroups = {"test-wallet-group-one-uid"}
+	accountGroups = {"test-account-group-one-uid"}
 	currency = "fiat:usd"
 	limit = "5000000000"
 
@@ -168,13 +168,13 @@ forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 			"value": (12 * 60) * 60,
 		},
 		"filters": {
-			"walletGroups": walletGroups
+			"accountGroups": accountGroups
 		},
 	})
 
 	reason = {
 		"type": "forbid",
-		"policyId": "spendingLimitByWalletGroup",
+		"policyId": "spendingLimitByAccountGroup",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
