@@ -1,17 +1,21 @@
 import { Entities, EntityStore, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import axios from 'axios'
-import { HEADER_CLIENT_ID } from '../constants'
+import { HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from '../constants'
 import { DataStoreClientConfig } from '../domain'
 import { ArmorySdkException } from '../exceptions'
 import { signDataPayload } from '../sdk'
 import { SetEntitiesResponse, SetPoliciesResponse } from '../types/data-store'
 import { isSuccessResponse } from '../utils'
 
-export const getEntities = async (entityStoreHost: string): Promise<EntityStore> => {
+export const getEntities = async (entityStoreHost: string, clientSecret?: string): Promise<EntityStore> => {
   try {
+    const headers = {
+      ...(clientSecret && { [HEADER_CLIENT_SECRET]: clientSecret })
+    }
+
     const {
       data: { entity }
-    } = await axios.get(entityStoreHost)
+    } = await axios.get(entityStoreHost, { headers })
 
     return entity
   } catch (error) {
@@ -19,11 +23,15 @@ export const getEntities = async (entityStoreHost: string): Promise<EntityStore>
   }
 }
 
-export const getPolicies = async (policyStoreHost: string): Promise<PolicyStore> => {
+export const getPolicies = async (policyStoreHost: string, clientSecret?: string): Promise<PolicyStore> => {
   try {
+    const headers = {
+      ...(clientSecret && { [HEADER_CLIENT_SECRET]: clientSecret })
+    }
+
     const {
       data: { policy }
-    } = await axios.get(policyStoreHost)
+    } = await axios.get(policyStoreHost, { headers })
 
     return policy
   } catch (error) {

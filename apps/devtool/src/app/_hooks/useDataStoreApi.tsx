@@ -23,7 +23,6 @@ import useStore from './useStore'
 
 const useDataStoreApi = () => {
   const {
-    authUrl,
     authClientId,
     authClientSecret,
     entityDataStoreUrl: entityStoreHost,
@@ -59,20 +58,26 @@ const useDataStoreApi = () => {
       alg: SigningAlg.EIP191,
       signer
     }
-  }, [authClientId, authClientSecret, entityStoreHost, policyStoreHost, jwk, signer])
+  }, [authClientId, entityStoreHost, policyStoreHost, jwk, signer])
 
   useEffect(() => {
+    if (!entityStoreHost) return
+
     getEntityStore()
-  }, [entityStoreHost])
+  }, [entityStoreHost, authClientSecret])
 
   useEffect(() => {
+    if (!policyStoreHost) return
+
     getPolicyStore()
-  }, [policyStoreHost])
+  }, [policyStoreHost, authClientSecret])
 
   const getEntityStore = useCallback(async () => {
+    if (!entityStoreHost) return
+
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-      const entity = await getEntities(entityStoreHost)
+      const entity = await getEntities(entityStoreHost, authClientSecret)
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -82,9 +87,11 @@ const useDataStoreApi = () => {
   }, [entityStoreHost])
 
   const getPolicyStore = useCallback(async () => {
+    if (!policyStoreHost) return
+
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-      const policy = await getPolicies(policyStoreHost)
+      const policy = await getPolicies(policyStoreHost, authClientSecret)
       setPolicyStore(policy)
     } catch (error) {
       setErrors(extractErrorMessage(error))

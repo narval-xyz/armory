@@ -1,5 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { OnboardEngineClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -37,7 +38,7 @@ const AddEngineClientModal = () => {
   const { isProcessing, onboard } = useEngineApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<any>()
+  const [newClient, setNewClient] = useState<OnboardEngineClientResponse>()
   const [form, setForm] = useState<EngineClientData>(initForm)
 
   const isFormValid =

@@ -3,8 +3,7 @@ export const AUTH_SERVER_URL = 'http://localhost:3005'
 export const ENGINE_URL = 'http://localhost:3010'
 export const VAULT_URL = 'http://localhost:3011'
 
-export const MANAGED_ENTITY_DATA_STORE_PATH = 'data/entities?clientId='
-export const MANAGED_POLICY_DATA_STORE_PATH = 'data/policies?clientId='
+export const MANAGED_DATASTORE_BASE_URL = 'http://localhost:3005/data'
 
 export const LOCAL_STORAGE_KEYS = {
   // Auth Server
