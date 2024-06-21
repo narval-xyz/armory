@@ -16,7 +16,7 @@ import {
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { UNSAFE_PRIVATE_KEY, VIEM_ACCOUNT } from 'packages/policy-engine-shared/src/lib/dev.fixture'
+import { ACCOUNT, UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
@@ -294,7 +294,7 @@ describe('Sign', () => {
       it('returns error when auth is client-bound but no jwsd header', async () => {
         const payload = { request: getSignTransactionRequest() }
 
-        const clientJwk = secp256k1PublicKeyToJwk(VIEM_ACCOUNT.Alice.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
         const accessToken = await getAccessToken(payload.request, { cnf: clientJwk })
 
         const { status, body } = await request(app.getHttpServer())
@@ -312,7 +312,7 @@ describe('Sign', () => {
         const now = Math.floor(Date.now() / 1000)
         const payload = { request: getSignTransactionRequest() }
 
-        const clientJwk = secp256k1PublicKeyToJwk(VIEM_ACCOUNT.Alice.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
         const accessToken = await getAccessToken(payload.request, { cnf: clientJwk })
 
         const jwsdSigner = buildSignerEip191(UNSAFE_PRIVATE_KEY.Alice)
@@ -349,8 +349,8 @@ describe('Sign', () => {
         const now = Math.floor(Date.now() / 1000)
         const payload = { request: getSignTransactionRequest() }
 
-        const clientJwk = secp256k1PublicKeyToJwk(VIEM_ACCOUNT.Alice.publicKey)
-        const boundClientJwk = secp256k1PublicKeyToJwk(VIEM_ACCOUNT.Bob.publicKey)
+        const clientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Alice.publicKey)
+        const boundClientJwk = secp256k1PublicKeyToJwk(ACCOUNT.Bob.publicKey)
         // We bind BOB to the access token, but ALICe is the one signing the request, so she has
         // a valid access token but it's not bound to her.
         const accessToken = await getAccessToken(payload.request, { cnf: boundClientJwk })

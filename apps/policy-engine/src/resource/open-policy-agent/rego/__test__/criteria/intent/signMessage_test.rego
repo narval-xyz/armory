@@ -16,7 +16,7 @@ test_checkSignMessage {
 	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest
 		with data.entities as entities
 
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest
 		with data.entities as entities
 
 	checkIntentMessage({"operator": operators.equal, "value": "Hello world!"}) with input as signMessageRequest
@@ -43,7 +43,7 @@ test_checkSignRawPayload {
 	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest
 		with data.entities as entities
 
 	checkIntentPayload({"operator": operators.equal, "value": "Hello world!"}) with input as signRawPayloadRequest
@@ -76,7 +76,7 @@ test_checkSignTypedData {
 	checkIntentType({"signTypedData"}) with input as signTypedDataRequest
 		with data.entities as entities
 
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest
 		with data.entities as entities
 
 	checkIntentDomain({

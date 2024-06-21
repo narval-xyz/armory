@@ -191,11 +191,11 @@ describe(DataStoreService.name, () => {
         credentials: [],
         tokens: [],
         userGroupMembers: [],
-        userAccounts: [],
+        userWallets: [],
         users: [],
-        accountGroupMembers: [],
-        accountGroups: [],
-        accounts: []
+        walletGroupMembers: [],
+        walletGroups: [],
+        wallets: []
       }
 
       await testThrowDataStoreException({

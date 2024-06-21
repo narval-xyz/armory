@@ -21,8 +21,8 @@ const sign = async (request: Request) => {
 
 export const generateSignTransactionRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.ACCOUNT.Engineering.address,
-    to: FIXTURE.ACCOUNT.Treasury.address,
+    from: FIXTURE.WALLET.Engineering.address,
+    to: FIXTURE.WALLET.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -34,7 +34,7 @@ export const generateSignTransactionRequest = async (): Promise<EvaluationReques
     action: Action.SIGN_TRANSACTION,
     nonce: uuid(),
     transactionRequest: txRequest,
-    resourceId: FIXTURE.ACCOUNT.Engineering.id
+    resourceId: FIXTURE.WALLET.Engineering.id
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)

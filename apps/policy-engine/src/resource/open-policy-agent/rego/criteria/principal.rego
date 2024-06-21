@@ -11,11 +11,11 @@ principalGroups = {group.uid |
 
 isPrincipalRootUser = principal.role == "root"
 
-isPrincipalAssignedToAccount = principal.id in resource.assignees
+isPrincipalAssignedToWallet = principal.id in resource.assignees
 
 checkPrincipal {
 	not isPrincipalRootUser
-	isPrincipalAssignedToAccount
+	isPrincipalAssignedToWallet
 }
 
 checkPrincipalId(values) = principal.id in values

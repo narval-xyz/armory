@@ -16,7 +16,7 @@ import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
+import { Data, Input, UserGroup, WalletGroup } from '../type/open-policy-agent.type'
 
 type Mapping<R extends Request> = (
   request: R,
@@ -150,18 +150,18 @@ export const toData = (entities: Entities): Data => {
     }
   }, new Map<string, UserGroup>())
 
-  const accountGroups = entities.accountGroupMembers.reduce((groups, { accountId, groupId }) => {
+  const walletGroups = entities.walletGroupMembers.reduce((groups, { walletId, groupId }) => {
     const group = groups.get(groupId)
 
     if (group) {
       return groups.set(groupId, {
         id: groupId,
-        accounts: group.accounts.concat(accountId)
+        wallets: group.wallets.concat(walletId)
       })
     } else {
-      return groups.set(groupId, { id: groupId, accounts: [accountId] })
+      return groups.set(groupId, { id: groupId, wallets: [walletId] })
     }
-  }, new Map<string, AccountGroup>())
+  }, new Map<string, WalletGroup>())
 
   return {
     entities: {
@@ -169,8 +169,8 @@ export const toData = (entities: Entities): Data => {
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
       userGroups: Object.fromEntries(userGroups),
-      accounts: indexBy('id', entities.accounts),
-      accountGroups: Object.fromEntries(accountGroups)
+      wallets: indexBy('id', entities.wallets),
+      walletGroups: Object.fromEntries(walletGroups)
     }
   }
 }

@@ -77,9 +77,9 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	}
 }
 
-# Resource account can't transfer > $5k usd value in 12 hours on a rolling basis
+# Resource wallet can't transfer > $5k usd value in 12 hours on a rolling basis
 
-forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
+forbid[{"policyId": "spendingLimitByWalletResource"}] = reason {
 	transferTypes = {"transferERC20"}
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	currency = "fiat:usd"
@@ -90,7 +90,7 @@ forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkIntentType(transferTypes)
-	checkAccountId(resources)
+	checkWalletId(resources)
 	checkSpendingLimit({
 		"limit": limit,
 		"operator": operators.greaterThan,
@@ -106,7 +106,7 @@ forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 
 	reason = {
 		"type": "forbid",
-		"policyId": "spendingLimitByAccountResource",
+		"policyId": "spendingLimitByWalletResource",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
@@ -146,11 +146,11 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	}
 }
 
-# Account group can't transfer > $5k usd value in 24 hours on a rolling basis
+# Wallet group can't transfer > $5k usd value in 24 hours on a rolling basis
 
-forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
+forbid[{"policyId": "spendingLimitByWalletGroup"}] = reason {
 	transferTypes = {"transferERC20"}
-	accountGroups = {"test-account-group-one-uid"}
+	walletGroups = {"test-wallet-group-one-uid"}
 	currency = "fiat:usd"
 	limit = "5000000000"
 
@@ -168,13 +168,13 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
 			"value": (12 * 60) * 60,
 		},
 		"filters": {
-			"accountGroups": accountGroups
+			"walletGroups": walletGroups
 		},
 	})
 
 	reason = {
 		"type": "forbid",
-		"policyId": "spendingLimitByAccountGroup",
+		"policyId": "spendingLimitByWalletGroup",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}

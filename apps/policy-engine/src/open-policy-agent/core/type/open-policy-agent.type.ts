@@ -41,7 +41,7 @@ export type UserGroup = {
   users: string[] // userIds
 }
 
-type Account = {
+type Wallet = {
   id: string
   address: Address
   accountType: AccountType
@@ -49,9 +49,9 @@ type Account = {
   assignees?: string[] // userIds
 }
 
-export type AccountGroup = {
+export type WalletGroup = {
   id: string
-  accounts: string[] // accountIds
+  wallets: string[] // walletIds
 }
 
 type AddressBookAccount = {
@@ -72,9 +72,9 @@ type Token = {
 export type Data = {
   entities: {
     users: Record<string, User>
-    accounts: Record<string, Account>
+    wallets: Record<string, Wallet>
     userGroups: Record<string, UserGroup>
-    accountGroups: Record<string, AccountGroup>
+    walletGroups: Record<string, WalletGroup>
     addressBook: Record<string, AddressBookAccount>
     tokens: Record<string, Token>
   }

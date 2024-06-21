@@ -18,7 +18,7 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkAccountId(resources)
+	checkWalletId(resources)
 	checkIntentType(transferTypes)
 	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
@@ -49,7 +49,7 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkAccountId(resources)
+	checkWalletId(resources)
 	checkIntentType(transferTypes)
 	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
@@ -80,7 +80,7 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkAccountId(resources)
+	checkWalletId(resources)
 	checkIntentType(transferTypes)
 	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
@@ -105,7 +105,7 @@ permit[{"policyId": "withoutApprovals"}] = reason {
 	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
-	checkAccountId(resources)
+	checkWalletId(resources)
 	checkIntentType(transferTypes)
 	checkIntentToken(tokens)
 	checkIntentAmount(transferValueCondition)
