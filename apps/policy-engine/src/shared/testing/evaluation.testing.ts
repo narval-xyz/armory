@@ -23,8 +23,8 @@ const sign = async (request: Request) => {
 
 export const generateSignTransactionRequestWithGas = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.ACCOUNT.Engineering.address,
-    to: FIXTURE.ACCOUNT.Treasury.address,
+    from: FIXTURE.WALLET.Engineering.address,
+    to: FIXTURE.WALLET.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -37,7 +37,7 @@ export const generateSignTransactionRequestWithGas = async (): Promise<Evaluatio
     action: Action.SIGN_TRANSACTION,
     nonce: uuid(),
     transactionRequest: txRequest,
-    resourceId: FIXTURE.ACCOUNT.Engineering.id
+    resourceId: FIXTURE.WALLET.Engineering.id
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)
@@ -51,8 +51,8 @@ export const generateSignTransactionRequestWithGas = async (): Promise<Evaluatio
 
 export const generateSignTransactionRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.ACCOUNT.Engineering.address,
-    to: FIXTURE.ACCOUNT.Treasury.address,
+    from: FIXTURE.WALLET.Engineering.address,
+    to: FIXTURE.WALLET.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -64,7 +64,7 @@ export const generateSignTransactionRequest = async (): Promise<EvaluationReques
     action: Action.SIGN_TRANSACTION,
     nonce: uuid(),
     transactionRequest: txRequest,
-    resourceId: FIXTURE.ACCOUNT.Engineering.id
+    resourceId: FIXTURE.WALLET.Engineering.id
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)
@@ -80,7 +80,7 @@ export const generateSignMessageRequest = async (): Promise<EvaluationRequest> =
   const request: Request = {
     action: Action.SIGN_MESSAGE,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE.WALLET.Engineering.id,
     message: 'generated sign message request'
   }
 
@@ -97,7 +97,7 @@ export const generateSignRawRequest = async (): Promise<EvaluationRequest> => {
   const request: Request = {
     action: Action.SIGN_RAW,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE.WALLET.Engineering.id,
     rawMessage: toHex(randomBytes(42))
   }
 
@@ -114,7 +114,7 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
   const request: Request = {
     action: Action.SIGN_TYPED_DATA,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE.WALLET.Engineering.id,
     typedData: {
       domain: {
         name: 'Ether Mail',
@@ -126,7 +126,7 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
       types: {
         Person: [
           { name: 'name', type: 'string' },
-          { name: 'account', type: 'address' }
+          { name: 'wallet', type: 'address' }
         ],
         Mail: [
           { name: 'from', type: 'Person' },
@@ -137,11 +137,11 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
       message: {
         from: {
           name: 'Alice',
-          account: FIXTURE.VIEM_ACCOUNT.Alice.address
+          wallet: FIXTURE.ACCOUNT.Alice.address
         },
         to: {
           name: 'Bob',
-          account: FIXTURE.VIEM_ACCOUNT.Bob.address
+          wallet: FIXTURE.ACCOUNT.Bob.address
         },
         contents: "Dear Bob, today we're going to the moon"
       }

@@ -16,7 +16,7 @@ test_transferERC721 {
 	checkIntentType({"transferERC721"}) with input as erc721Request
 		with data.entities as entities
 
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request
 		with data.entities as entities
 
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc721Request
@@ -58,7 +58,7 @@ test_transferERC1155 {
 	checkIntentType({"transferERC1155"}) with input as erc1155Request
 		with data.entities as entities
 
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request
+	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request
 		with data.entities as entities
 
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc1155Request

@@ -1,9 +1,5 @@
 import { z } from 'zod'
 import {
-  accountAccountTypeCriterionSchema,
-  accountAddressCriterionSchema,
-  accountGroupCriterionSchema,
-  accountIdCriterionSchema,
   actionCriterionSchema,
   amountConditionSchema,
   approvalConditionSchema,
@@ -47,7 +43,11 @@ import {
   spendingLimitFiltersSchema,
   spendingLimitTimeWindowSchema,
   thenSchema,
-  timeWindowSchema
+  timeWindowSchema,
+  walletAccountTypeCriterionSchema,
+  walletAddressCriterionSchema,
+  walletGroupCriterionSchema,
+  walletIdCriterionSchema
 } from '../schema/policy.schema'
 
 export const Then = thenSchema.enum
@@ -74,11 +74,11 @@ export type ResourceIntegrityCriterion = z.infer<typeof resourceIntegrityCriteri
 export type PrincipalIdCriterion = z.infer<typeof principalIdCriterionSchema>
 export type PrincipalRoleCriterion = z.infer<typeof principalRoleCriterionSchema>
 export type PrincipalGroupCriterion = z.infer<typeof principalGroupCriterionSchema>
-export type AccountIdCriterion = z.infer<typeof accountIdCriterionSchema>
-export type AccountAddressCriterion = z.infer<typeof accountAddressCriterionSchema>
-export type AccountAccountTypeCriterion = z.infer<typeof accountAccountTypeCriterionSchema>
+export type WalletIdCriterion = z.infer<typeof walletIdCriterionSchema>
+export type WalletAddressCriterion = z.infer<typeof walletAddressCriterionSchema>
+export type WalletAccountTypeCriterion = z.infer<typeof walletAccountTypeCriterionSchema>
 export type ChainIdCriterion = z.infer<typeof chainIdCriterionSchema>
-export type AccountGroupCriterion = z.infer<typeof accountGroupCriterionSchema>
+export type WalletGroupCriterion = z.infer<typeof walletGroupCriterionSchema>
 export type IntentTypeCriterion = z.infer<typeof intentTypeCriterionSchema>
 export type DestinationIdCriterion = z.infer<typeof destinationIdCriterionSchema>
 export type DestinationAddressCriterion = z.infer<typeof destinationAddressCriterionSchema>

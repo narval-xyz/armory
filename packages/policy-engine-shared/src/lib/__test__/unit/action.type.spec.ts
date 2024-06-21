@@ -12,7 +12,7 @@ describe('SignTypedDataAction', () => {
     types: {
       Person: [
         { name: 'name', type: 'string' },
-        { name: 'account', type: 'address' }
+        { name: 'wallet', type: 'address' }
       ],
       Mail: [
         { name: 'from', type: 'Person' },
@@ -24,11 +24,11 @@ describe('SignTypedDataAction', () => {
     message: {
       from: {
         name: 'Cow',
-        account: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826'
+        wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826'
       },
       to: {
         name: 'Bob',
-        account: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB'
+        wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB'
       },
       contents: 'Hello, Bob!'
     }
