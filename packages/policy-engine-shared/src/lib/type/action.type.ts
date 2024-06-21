@@ -90,7 +90,7 @@ export const SerializedTransactionAction = SignTransactionAction.extend({
 export type SerializedTransactionAction = z.infer<typeof SerializedTransactionAction>
 
 // Matching viem's SignableMessage options
-// See https://viem.sh/docs/actions/account/signMessage#message
+// See https://viem.sh/docs/actions/wallet/signMessage#message
 export const SignableMessage = z.union([
   z.string(),
   z.object({
