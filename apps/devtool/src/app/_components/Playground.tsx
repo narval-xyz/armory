@@ -2,7 +2,7 @@
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AuthorizationResponse, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { AuthorizationRequest, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'
@@ -25,7 +25,7 @@ interface PlaygroundProps {
   configModal: ReactNode
   response?: string
   errors?: string | undefined
-  authorize?: (req: EvaluationRequest) => Promise<AuthorizationResponse | undefined> | undefined
+  authorize?: (req: EvaluationRequest) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
@@ -57,7 +57,7 @@ const Playground: FC<PlaygroundProps> = ({
   useEffect(() => {
     if (response) {
       setResponseEditor(response)
-      const authResponseParsed = AuthorizationResponse.parse(JSON.parse(response))
+      const authResponseParsed = AuthorizationRequest.parse(JSON.parse(response))
       setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
     }
   }, [response])
@@ -99,7 +99,7 @@ const Playground: FC<PlaygroundProps> = ({
       const response = authorize && (await authorize(request))
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
-        const authResponseParsed = AuthorizationResponse.parse(response)
+        const authResponseParsed = AuthorizationRequest.parse(response)
         setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
       }
     } finally {

@@ -1,6 +1,6 @@
 'use client'
 
-import { AuthorizationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { AuthorizationRequest, SignatureRequest } from '@narval/armory-sdk'
 import Playground from '../../_components/Playground'
 import AuthConfigModal from '../../_components/modals/AuthConfigModal'
 import useAuthServerApi from '../../_hooks/useAuthServerApi'
@@ -9,7 +9,7 @@ const AuthServerPlayground = () => {
   const { errors: authErrors, authorizationResponse, authorize } = useAuthServerApi()
 
   const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
-    const response = AuthorizationResponse.safeParse(res)
+    const response = AuthorizationRequest.safeParse(res)
 
     if (!response.success || !response.data.evaluations[0]?.signature) {
       return undefined
