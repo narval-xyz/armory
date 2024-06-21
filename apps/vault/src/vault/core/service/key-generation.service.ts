@@ -6,7 +6,7 @@ import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Curve, Origin, PrivateAccount } from '../../../shared/type/domain.type'
 import { DeriveAccountDto } from '../../http/rest/dto/derive-account.dto'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-wallet.dto'
+import { GenerateWalletDto } from '../../http/rest/dto/generate-wallet.dto'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { BackupRepository } from '../../persistence/repository/backup.repository'
 import { RootKeyRepository } from '../../persistence/repository/root-key.repository'
@@ -170,7 +170,7 @@ export class KeyGenerationService {
 
   async generateWallet(
     clientId: string,
-    opts: GenerateKeyDto
+    opts: GenerateWalletDto
   ): Promise<{
     account: PrivateAccount
     keyId: string

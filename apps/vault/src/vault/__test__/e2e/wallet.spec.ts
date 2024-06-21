@@ -254,7 +254,7 @@ describe('Generate', () => {
         .post('/encryption-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
-        .send()
+        .send({})
 
       const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
 
@@ -289,7 +289,7 @@ describe('Generate', () => {
         .post('/encryption-keys')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set('authorization', `GNAP ${accessToken}`)
-        .send()
+        .send({})
 
       const rsPublicKey: RsaPublicKey = rsaPublicKeySchema.parse(keygenBody.publicKey)
 

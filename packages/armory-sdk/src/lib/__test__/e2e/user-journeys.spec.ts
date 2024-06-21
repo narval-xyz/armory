@@ -490,6 +490,33 @@ describe('User Journeys', () => {
           }
         ])
       })
+
+      it('I can derive an account from a wallet', async () => {
+        const { accounts } = await vaultClient.deriveAccounts({
+          data: {
+            keyId: wallet.keyId,
+            derivationPaths: ["m/44'/60'/0'/0/1"]
+          },
+          accessToken
+        })
+
+        expect(accounts).toMatchObject([
+          {
+            derivationPath: "m/44'/60'/0'/0/1",
+            address: expect.any(String),
+            id: expect.any(String),
+            keyId: expect.any(String),
+            publicKey: expect.any(String)
+          }
+          // {
+          //   derivationPath: "m/44'/60'/0'/0/2",
+          //   address: expect.any(String),
+          //   id: expect.any(String),
+          //   keyId: expect.any(String),
+          //   publicKey: expect.any(String)
+          // }
+        ])
+      })
     })
   })
 })

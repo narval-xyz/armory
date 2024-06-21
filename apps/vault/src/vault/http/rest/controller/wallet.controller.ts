@@ -7,8 +7,8 @@ import { PermissionGuard } from '../../../../shared/decorator/permission-guard.d
 import { AdminService } from '../../../core/service/admin.service'
 import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
-import { GenerateKeyDto } from '../dto/generate-wallet.dto'
-import { ImportSeedDto } from '../dto/import-wallet.dto'
+import { GenerateWalletDto } from '../dto/generate-wallet.dto'
+import { ImportWalletDto } from '../dto/import-wallet.dto'
 import { WalletDto } from '../dto/wallet.dto'
 import { WalletsDto } from '../dto/wallets.dto'
 
@@ -36,6 +36,7 @@ export class WalletController {
   })
   async list(@ClientId() clientId: string): Promise<WalletsDto> {
     const wallets = await this.adminService.getWallets(clientId)
+
     return WalletsDto.create({ wallets })
   }
 
@@ -48,7 +49,7 @@ export class WalletController {
     status: HttpStatus.CREATED,
     type: WalletDto
   })
-  async generate(@ClientId() clientId: string, @Body() body: GenerateKeyDto): Promise<WalletDto> {
+  async generate(@ClientId() clientId: string, @Body() body: GenerateWalletDto): Promise<WalletDto> {
     const { account, keyId, backup } = await this.keyGenService.generateWallet(clientId, body)
 
     return WalletDto.create({
@@ -67,7 +68,7 @@ export class WalletController {
     status: HttpStatus.CREATED,
     type: WalletDto
   })
-  async importKey(@ClientId() clientId: string, @Body() body: ImportSeedDto): Promise<WalletDto> {
+  async importSeed(@ClientId() clientId: string, @Body() body: ImportWalletDto): Promise<WalletDto> {
     const { account, keyId, backup } = await this.importService.importSeed(clientId, body)
 
     return WalletDto.create({

@@ -1,11 +1,16 @@
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
 import { z } from 'zod'
 import {
+  AccountDto,
+  AccountsDto,
   ClientDto,
   CreateClientDto,
-  GenerateEncryptionKeyResponseDto,
-  GenerateKeyDto,
-  ImportSeedDto,
+  DeriveAccountDto,
+  DeriveAccountResponseDto,
+  EncryptionKeyDto,
+  GenerateWalletDto,
+  ImportPrivateKeyDto,
+  ImportWalletDto,
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
@@ -36,20 +41,33 @@ export type ClientHttp = {
   create(apiKey: string, data: CreateClientDto, options?: RawAxiosRequestConfig): AxiosPromise<ClientDto>
 }
 
+export type EncryptionKeyHttp = {
+  /**
+   * Generates an encryption key pair used to secure end-to-end
+   * communication containing sensitive information.
+   *
+   * @param {string} clientId
+   * @param {string} accessToken
+   * @param {RawAxiosRequestConfig} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  generate(clientId: string, accessToken: string, options?: RawAxiosRequestConfig): AxiosPromise<EncryptionKeyDto>
+}
+
 export type WalletHttp = {
   /**
    * Generates a new wallet.
    *
    * @param {string} clientId
    * @param {string} accessToken
-   * @param {GenerateKeyDto} data
+   * @param {GenerateWalletDto} data
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
   generate(
     clientId: string,
     accessToken: string,
-    data: GenerateKeyDto,
+    data: GenerateWalletDto,
     options?: RawAxiosRequestConfig
   ): AxiosPromise<WalletDto>
 
@@ -58,14 +76,14 @@ export type WalletHttp = {
    *
    * @param {string} clientId
    * @param {string} accessToken
-   * @param {ImportSeedDto} data
+   * @param {ImportWalletDto} data
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  importKey(
+  importSeed(
     clientId: string,
     accessToken: string,
-    data: ImportSeedDto,
+    data: ImportWalletDto,
     options?: RawAxiosRequestConfig
   ): AxiosPromise<WalletDto>
 
@@ -80,19 +98,45 @@ export type WalletHttp = {
   list(clientId: string, accessToken: string, options?: RawAxiosRequestConfig): AxiosPromise<WalletsDto>
 }
 
-export type EncryptionKeyHttp = {
+export type AccountHttp = {
   /**
-   * Generates an encryption key pair used to secure end-to-end
-   * communication containing sensitive information.
+   * Add a new account to a wallet
    *
    * @param {string} clientId
    * @param {string} accessToken
+   * @param {DeriveAccountDto} data
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  generateEncryptionKey(
+  derive(
     clientId: string,
     accessToken: string,
+    data: DeriveAccountDto,
     options?: RawAxiosRequestConfig
-  ): AxiosPromise<GenerateEncryptionKeyResponseDto>
+  ): AxiosPromise<DeriveAccountResponseDto>
+
+  /**
+   * Imports an account
+   *
+   * @param {string} clientId
+   * @param {string} accessToken
+   * @param {ImportPrivateKeyDto} data
+   * @param {RawAxiosRequestConfig} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  importPrivateKey(
+    clientId: string,
+    accessToken: string,
+    data: ImportPrivateKeyDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<AccountDto>
+
+  /**
+   * Lists the client accounts
+   *
+   * @param {string} clientId
+   * @param {RawAxiosRequestConfig} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  list(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<AccountsDto>
 }

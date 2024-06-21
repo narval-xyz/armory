@@ -9,7 +9,7 @@ import { privateKeyToAddress, publicKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { BIP44_PREFIX } from '../../../shared/type/bip44.type'
 import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
-import { GenerateKeyDto } from '../../http/rest/dto/generate-wallet.dto'
+import { GenerateWalletDto } from '../../http/rest/dto/generate-wallet.dto'
 
 export const hdKeyToKid = (key: HDKey): string => {
   if (key.privateKey) {
@@ -93,7 +93,7 @@ export const mnemonicToRootKey = (rootKey: string): HDKey => {
 
 export const getRootKey = (
   mnemonic: string,
-  opts: GenerateKeyDto
+  opts: GenerateWalletDto
 ): {
   rootKey: HDKey
   keyId: string

@@ -5,7 +5,7 @@ import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { ImportService } from '../../../core/service/import.service'
-import { GenerateEncryptionKeyResponseDto } from '../dto/generate-encryption-key-response.dto'
+import { EncryptionKeyDto } from '../dto/encryption-key.dto'
 
 @Controller('/encryption-keys')
 @PermissionGuard(Permission.WALLET_IMPORT)
@@ -23,11 +23,11 @@ export class EncryptionKeyController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: GenerateEncryptionKeyResponseDto
+    type: EncryptionKeyDto
   })
-  async generateEncryptionKey(@ClientId() clientId: string): Promise<GenerateEncryptionKeyResponseDto> {
+  async generate(@ClientId() clientId: string): Promise<EncryptionKeyDto> {
     const publicKey = await this.importService.generateEncryptionKey(clientId)
 
-    return new GenerateEncryptionKeyResponseDto(publicKey)
+    return EncryptionKeyDto.create({ publicKey })
   }
 }

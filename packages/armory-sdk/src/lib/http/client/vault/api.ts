@@ -26,6 +26,43 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 /**
  * 
  * @export
+ * @interface AccountDto
+ */
+export interface AccountDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDto
+     */
+    'address': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof AccountDto
+     */
+    'publicKey': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDto
+     */
+    'keyId'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDto
+     */
+    'derivationPath'?: string;
+}
+/**
+ * 
+ * @export
  * @interface AccountsDto
  */
 export interface AccountsDto {
@@ -74,10 +111,10 @@ export interface ClientDto {
     'maxTokenAge'?: number;
     /**
      * 
-     * @type {CreateClientDtoEngineJwkOneOf2}
+     * @type {EncryptionKeyDtoPublicKey}
      * @memberof ClientDto
      */
-    'backupPublicKey'?: CreateClientDtoEngineJwkOneOf2;
+    'backupPublicKey'?: EncryptionKeyDtoPublicKey;
     /**
      * 
      * @type {boolean}
@@ -141,10 +178,10 @@ export interface CreateClientDto {
     'maxTokenAge'?: number;
     /**
      * 
-     * @type {CreateClientDtoEngineJwkOneOf2}
+     * @type {EncryptionKeyDtoPublicKey}
      * @memberof CreateClientDto
      */
-    'backupPublicKey'?: CreateClientDtoEngineJwkOneOf2;
+    'backupPublicKey'?: EncryptionKeyDtoPublicKey;
     /**
      * 
      * @type {boolean}
@@ -162,7 +199,7 @@ export interface CreateClientDto {
  * @type CreateClientDtoEngineJwk
  * @export
  */
-export type CreateClientDtoEngineJwk = CreateClientDtoEngineJwkOneOf | CreateClientDtoEngineJwkOneOf1 | CreateClientDtoEngineJwkOneOf2 | CreateClientDtoEngineJwkOneOf3;
+export type CreateClientDtoEngineJwk = CreateClientDtoEngineJwkOneOf | CreateClientDtoEngineJwkOneOf1 | CreateClientDtoEngineJwkOneOf2 | EncryptionKeyDtoPublicKey;
 
 /**
  * 
@@ -337,6 +374,12 @@ export interface CreateClientDtoEngineJwkOneOf2 {
      * @type {string}
      * @memberof CreateClientDtoEngineJwkOneOf2
      */
+    'crv': CreateClientDtoEngineJwkOneOf2CrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf2
+     */
     'alg': CreateClientDtoEngineJwkOneOf2AlgEnum;
     /**
      * 
@@ -352,31 +395,24 @@ export interface CreateClientDtoEngineJwkOneOf2 {
     'kid': string;
     /**
      * 
-     * @type {string}
+     * @type {any}
      * @memberof CreateClientDtoEngineJwkOneOf2
      */
-    'addr'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
-     */
-    'n': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
-     */
-    'e': string;
+    'addr': any;
 }
 
 export const CreateClientDtoEngineJwkOneOf2KtyEnum = {
-    Rsa: 'RSA'
+    Ec: 'EC'
 } as const;
 
 export type CreateClientDtoEngineJwkOneOf2KtyEnum = typeof CreateClientDtoEngineJwkOneOf2KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf2KtyEnum];
+export const CreateClientDtoEngineJwkOneOf2CrvEnum = {
+    Secp256k1: 'secp256k1'
+} as const;
+
+export type CreateClientDtoEngineJwkOneOf2CrvEnum = typeof CreateClientDtoEngineJwkOneOf2CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf2CrvEnum];
 export const CreateClientDtoEngineJwkOneOf2AlgEnum = {
-    Rs256: 'RS256'
+    Es256K: 'ES256K'
 } as const;
 
 export type CreateClientDtoEngineJwkOneOf2AlgEnum = typeof CreateClientDtoEngineJwkOneOf2AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf2AlgEnum];
@@ -386,72 +422,6 @@ export const CreateClientDtoEngineJwkOneOf2UseEnum = {
 } as const;
 
 export type CreateClientDtoEngineJwkOneOf2UseEnum = typeof CreateClientDtoEngineJwkOneOf2UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf2UseEnum];
-
-/**
- * 
- * @export
- * @interface CreateClientDtoEngineJwkOneOf3
- */
-export interface CreateClientDtoEngineJwkOneOf3 {
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'kty': CreateClientDtoEngineJwkOneOf3KtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'crv': CreateClientDtoEngineJwkOneOf3CrvEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'alg': CreateClientDtoEngineJwkOneOf3AlgEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'use'?: CreateClientDtoEngineJwkOneOf3UseEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof CreateClientDtoEngineJwkOneOf3
-     */
-    'addr': any;
-}
-
-export const CreateClientDtoEngineJwkOneOf3KtyEnum = {
-    Ec: 'EC'
-} as const;
-
-export type CreateClientDtoEngineJwkOneOf3KtyEnum = typeof CreateClientDtoEngineJwkOneOf3KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf3KtyEnum];
-export const CreateClientDtoEngineJwkOneOf3CrvEnum = {
-    Secp256k1: 'secp256k1'
-} as const;
-
-export type CreateClientDtoEngineJwkOneOf3CrvEnum = typeof CreateClientDtoEngineJwkOneOf3CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf3CrvEnum];
-export const CreateClientDtoEngineJwkOneOf3AlgEnum = {
-    Es256K: 'ES256K'
-} as const;
-
-export type CreateClientDtoEngineJwkOneOf3AlgEnum = typeof CreateClientDtoEngineJwkOneOf3AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf3AlgEnum];
-export const CreateClientDtoEngineJwkOneOf3UseEnum = {
-    Sig: 'sig',
-    Enc: 'enc'
-} as const;
-
-export type CreateClientDtoEngineJwkOneOf3UseEnum = typeof CreateClientDtoEngineJwkOneOf3UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf3UseEnum];
 
 /**
  * 
@@ -494,40 +464,107 @@ export interface DeriveAccountResponseDto {
 /**
  * 
  * @export
- * @interface GenerateEncryptionKeyResponseDto
+ * @interface EncryptionKeyDto
  */
-export interface GenerateEncryptionKeyResponseDto {
+export interface EncryptionKeyDto {
     /**
      * 
-     * @type {RsaPublicKeyDto}
-     * @memberof GenerateEncryptionKeyResponseDto
+     * @type {EncryptionKeyDtoPublicKey}
+     * @memberof EncryptionKeyDto
      */
-    'publicKey': RsaPublicKeyDto;
+    'publicKey': EncryptionKeyDtoPublicKey;
 }
 /**
  * 
  * @export
- * @interface GenerateKeyDto
+ * @interface EncryptionKeyDtoPublicKey
  */
-export interface GenerateKeyDto {
-    /**
-     * 
-     * @type {GenerateKeyDtoCurve}
-     * @memberof GenerateKeyDto
-     */
-    'curve'?: GenerateKeyDtoCurve;
+export interface EncryptionKeyDtoPublicKey {
     /**
      * 
      * @type {string}
-     * @memberof GenerateKeyDto
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'kty': EncryptionKeyDtoPublicKeyKtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'alg': EncryptionKeyDtoPublicKeyAlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'use'?: EncryptionKeyDtoPublicKeyUseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'n': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EncryptionKeyDtoPublicKey
+     */
+    'e': string;
+}
+
+export const EncryptionKeyDtoPublicKeyKtyEnum = {
+    Rsa: 'RSA'
+} as const;
+
+export type EncryptionKeyDtoPublicKeyKtyEnum = typeof EncryptionKeyDtoPublicKeyKtyEnum[keyof typeof EncryptionKeyDtoPublicKeyKtyEnum];
+export const EncryptionKeyDtoPublicKeyAlgEnum = {
+    Rs256: 'RS256'
+} as const;
+
+export type EncryptionKeyDtoPublicKeyAlgEnum = typeof EncryptionKeyDtoPublicKeyAlgEnum[keyof typeof EncryptionKeyDtoPublicKeyAlgEnum];
+export const EncryptionKeyDtoPublicKeyUseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type EncryptionKeyDtoPublicKeyUseEnum = typeof EncryptionKeyDtoPublicKeyUseEnum[keyof typeof EncryptionKeyDtoPublicKeyUseEnum];
+
+/**
+ * 
+ * @export
+ * @interface GenerateWalletDto
+ */
+export interface GenerateWalletDto {
+    /**
+     * 
+     * @type {GenerateWalletDtoCurve}
+     * @memberof GenerateWalletDto
+     */
+    'curve'?: GenerateWalletDtoCurve;
+    /**
+     * 
+     * @type {string}
+     * @memberof GenerateWalletDto
      */
     'keyId'?: string;
 }
 /**
- * @type GenerateKeyDtoCurve
+ * @type GenerateWalletDtoCurve
  * @export
  */
-export type GenerateKeyDtoCurve = string;
+export type GenerateWalletDtoCurve = string;
 
 /**
  * 
@@ -537,18 +574,18 @@ export type GenerateKeyDtoCurve = string;
 export interface ImportPrivateKeyDto {
     /**
      * Account Private Key, unencrypted
-     * @type {object}
+     * @type {any}
      * @memberof ImportPrivateKeyDto
      */
-    'privateKey': object;
+    'privateKey'?: any;
     /**
-     * Account Private Key encrypted with JWE. Header MUST include `kid`
+     * Account Private Key encrypted with JWE. Header MUST include \"kid\"
      * @type {string}
      * @memberof ImportPrivateKeyDto
      */
-    'encryptedPrivateKey': string;
+    'encryptedPrivateKey'?: string;
     /**
-     * 
+     * If not provided, it will be derived as \"eip155:eoa:${address}\"
      * @type {string}
      * @memberof ImportPrivateKeyDto
      */
@@ -557,108 +594,28 @@ export interface ImportPrivateKeyDto {
 /**
  * 
  * @export
- * @interface ImportPrivateKeyResponseDto
+ * @interface ImportWalletDto
  */
-export interface ImportPrivateKeyResponseDto {
+export interface ImportWalletDto {
     /**
      * 
      * @type {string}
-     * @memberof ImportPrivateKeyResponseDto
-     */
-    'id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ImportPrivateKeyResponseDto
-     */
-    'address': string;
-}
-/**
- * 
- * @export
- * @interface ImportSeedDto
- */
-export interface ImportSeedDto {
-    /**
-     * 
-     * @type {string}
-     * @memberof ImportSeedDto
+     * @memberof ImportWalletDto
      */
     'keyId'?: string;
     /**
      * 
-     * @type {GenerateKeyDtoCurve}
-     * @memberof ImportSeedDto
+     * @type {GenerateWalletDtoCurve}
+     * @memberof ImportWalletDto
      */
-    'curve'?: GenerateKeyDtoCurve;
+    'curve'?: GenerateWalletDtoCurve;
     /**
      * 
      * @type {string}
-     * @memberof ImportSeedDto
+     * @memberof ImportWalletDto
      */
     'encryptedSeed': string;
 }
-/**
- * 
- * @export
- * @interface RsaPublicKeyDto
- */
-export interface RsaPublicKeyDto {
-    /**
-     * 
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'kty': RsaPublicKeyDtoKtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'alg': RsaPublicKeyDtoAlgEnum;
-    /**
-     * A base64Url-encoded value
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'n': string;
-    /**
-     * A base64Url-encoded value
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'e': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RsaPublicKeyDto
-     */
-    'use': RsaPublicKeyDtoUseEnum;
-}
-
-export const RsaPublicKeyDtoKtyEnum = {
-    Rsa: 'RSA'
-} as const;
-
-export type RsaPublicKeyDtoKtyEnum = typeof RsaPublicKeyDtoKtyEnum[keyof typeof RsaPublicKeyDtoKtyEnum];
-export const RsaPublicKeyDtoAlgEnum = {
-    Rs256: 'RS256'
-} as const;
-
-export type RsaPublicKeyDtoAlgEnum = typeof RsaPublicKeyDtoAlgEnum[keyof typeof RsaPublicKeyDtoAlgEnum];
-export const RsaPublicKeyDtoUseEnum = {
-    Enc: 'enc',
-    Sig: 'sig'
-} as const;
-
-export type RsaPublicKeyDtoUseEnum = typeof RsaPublicKeyDtoUseEnum[keyof typeof RsaPublicKeyDtoUseEnum];
-
 /**
  * 
  * @export
@@ -1182,13 +1139,13 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateKey: async (xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        derive: async (xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('generateKey', 'xClientId', xClientId)
+            assertParamExists('derive', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('generateKey', 'authorization', authorization)
+            assertParamExists('derive', 'authorization', authorization)
             // verify required parameter 'deriveAccountDto' is not null or undefined
-            assertParamExists('generateKey', 'deriveAccountDto', deriveAccountDto)
+            assertParamExists('derive', 'deriveAccountDto', deriveAccountDto)
             const localVarPath = `/accounts`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1221,43 +1178,6 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(deriveAccountDto, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Lists the client accounts
-         * @param {string} xClientId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getAccounts: async (xClientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('getAccounts', 'xClientId', xClientId)
-            const localVarPath = `/accounts`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (xClientId != null) {
-                localVarHeaderParameter['x-client-id'] = String(xClientId);
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1318,6 +1238,43 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Lists the client accounts
+         * @param {string} xClientId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            const localVarPath = `/accounts`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1337,23 +1294,10 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async generateKey(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeriveAccountResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.generateKey(xClientId, authorization, deriveAccountDto, options);
+        async derive(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeriveAccountResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.derive(xClientId, authorization, deriveAccountDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AccountApi.generateKey']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Lists the client accounts
-         * @param {string} xClientId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getAccounts(xClientId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccountsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccounts(xClientId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AccountApi.getAccounts']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AccountApi.derive']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1365,10 +1309,23 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async importPrivateKey(xClientId: string, authorization: string, importPrivateKeyDto: ImportPrivateKeyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportPrivateKeyResponseDto>> {
+        async importPrivateKey(xClientId: string, authorization: string, importPrivateKeyDto: ImportPrivateKeyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccountDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.importPrivateKey(xClientId, authorization, importPrivateKeyDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AccountApi.importPrivateKey']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Lists the client accounts
+         * @param {string} xClientId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1390,18 +1347,8 @@ export const AccountApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateKey(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: any): AxiosPromise<DeriveAccountResponseDto> {
-            return localVarFp.generateKey(xClientId, authorization, deriveAccountDto, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Lists the client accounts
-         * @param {string} xClientId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getAccounts(xClientId: string, options?: any): AxiosPromise<AccountsDto> {
-            return localVarFp.getAccounts(xClientId, options).then((request) => request(axios, basePath));
+        derive(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: any): AxiosPromise<DeriveAccountResponseDto> {
+            return localVarFp.derive(xClientId, authorization, deriveAccountDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1412,8 +1359,18 @@ export const AccountApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        importPrivateKey(xClientId: string, authorization: string, importPrivateKeyDto: ImportPrivateKeyDto, options?: any): AxiosPromise<ImportPrivateKeyResponseDto> {
+        importPrivateKey(xClientId: string, authorization: string, importPrivateKeyDto: ImportPrivateKeyDto, options?: any): AxiosPromise<AccountDto> {
             return localVarFp.importPrivateKey(xClientId, authorization, importPrivateKeyDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Lists the client accounts
+         * @param {string} xClientId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(xClientId: string, options?: any): AxiosPromise<AccountsDto> {
+            return localVarFp.list(xClientId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1435,20 +1392,8 @@ export class AccountApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public generateKey(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: RawAxiosRequestConfig) {
-        return AccountApiFp(this.configuration).generateKey(xClientId, authorization, deriveAccountDto, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Lists the client accounts
-     * @param {string} xClientId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AccountApi
-     */
-    public getAccounts(xClientId: string, options?: RawAxiosRequestConfig) {
-        return AccountApiFp(this.configuration).getAccounts(xClientId, options).then((request) => request(this.axios, this.basePath));
+    public derive(xClientId: string, authorization: string, deriveAccountDto: DeriveAccountDto, options?: RawAxiosRequestConfig) {
+        return AccountApiFp(this.configuration).derive(xClientId, authorization, deriveAccountDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1463,6 +1408,18 @@ export class AccountApi extends BaseAPI {
      */
     public importPrivateKey(xClientId: string, authorization: string, importPrivateKeyDto: ImportPrivateKeyDto, options?: RawAxiosRequestConfig) {
         return AccountApiFp(this.configuration).importPrivateKey(xClientId, authorization, importPrivateKeyDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Lists the client accounts
+     * @param {string} xClientId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public list(xClientId: string, options?: RawAxiosRequestConfig) {
+        return AccountApiFp(this.configuration).list(xClientId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1605,11 +1562,11 @@ export const EncryptionKeyApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateEncryptionKey: async (xClientId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        generate: async (xClientId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('generateEncryptionKey', 'xClientId', xClientId)
+            assertParamExists('generate', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('generateEncryptionKey', 'authorization', authorization)
+            assertParamExists('generate', 'authorization', authorization)
             const localVarPath = `/encryption-keys`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1663,10 +1620,10 @@ export const EncryptionKeyApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async generateEncryptionKey(xClientId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenerateEncryptionKeyResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.generateEncryptionKey(xClientId, authorization, options);
+        async generate(xClientId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EncryptionKeyDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.generate(xClientId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['EncryptionKeyApi.generateEncryptionKey']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['EncryptionKeyApi.generate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1687,8 +1644,8 @@ export const EncryptionKeyApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateEncryptionKey(xClientId: string, authorization: string, options?: any): AxiosPromise<GenerateEncryptionKeyResponseDto> {
-            return localVarFp.generateEncryptionKey(xClientId, authorization, options).then((request) => request(axios, basePath));
+        generate(xClientId: string, authorization: string, options?: any): AxiosPromise<EncryptionKeyDto> {
+            return localVarFp.generate(xClientId, authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1709,8 +1666,8 @@ export class EncryptionKeyApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof EncryptionKeyApi
      */
-    public generateEncryptionKey(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
-        return EncryptionKeyApiFp(this.configuration).generateEncryptionKey(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
+    public generate(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return EncryptionKeyApiFp(this.configuration).generate(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1861,17 +1818,17 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
          * @summary Generates a new wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {GenerateKeyDto} generateKeyDto 
+         * @param {GenerateWalletDto} generateWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generate: async (xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        generate: async (xClientId: string, authorization: string, generateWalletDto: GenerateWalletDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('generate', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('generate', 'authorization', authorization)
-            // verify required parameter 'generateKeyDto' is not null or undefined
-            assertParamExists('generate', 'generateKeyDto', generateKeyDto)
+            // verify required parameter 'generateWalletDto' is not null or undefined
+            assertParamExists('generate', 'generateWalletDto', generateWalletDto)
             const localVarPath = `/wallets`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1903,7 +1860,7 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(generateKeyDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(generateWalletDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1915,17 +1872,17 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
          * @summary Imports a wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {ImportSeedDto} importSeedDto 
+         * @param {ImportWalletDto} importWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        importKey: async (xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        importSeed: async (xClientId: string, authorization: string, importWalletDto: ImportWalletDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('importKey', 'xClientId', xClientId)
+            assertParamExists('importSeed', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('importKey', 'authorization', authorization)
-            // verify required parameter 'importSeedDto' is not null or undefined
-            assertParamExists('importKey', 'importSeedDto', importSeedDto)
+            assertParamExists('importSeed', 'authorization', authorization)
+            // verify required parameter 'importWalletDto' is not null or undefined
+            assertParamExists('importSeed', 'importWalletDto', importWalletDto)
             const localVarPath = `/wallets/import`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1957,7 +1914,7 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(importSeedDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(importWalletDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2027,12 +1984,12 @@ export const WalletApiFp = function(configuration?: Configuration) {
          * @summary Generates a new wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {GenerateKeyDto} generateKeyDto 
+         * @param {GenerateWalletDto} generateWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.generate(xClientId, authorization, generateKeyDto, options);
+        async generate(xClientId: string, authorization: string, generateWalletDto: GenerateWalletDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.generate(xClientId, authorization, generateWalletDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['WalletApi.generate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2042,14 +1999,14 @@ export const WalletApiFp = function(configuration?: Configuration) {
          * @summary Imports a wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {ImportSeedDto} importSeedDto 
+         * @param {ImportWalletDto} importWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.importKey(xClientId, authorization, importSeedDto, options);
+        async importSeed(xClientId: string, authorization: string, importWalletDto: ImportWalletDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.importSeed(xClientId, authorization, importWalletDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WalletApi.importKey']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.importSeed']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2081,24 +2038,24 @@ export const WalletApiFactory = function (configuration?: Configuration, basePat
          * @summary Generates a new wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {GenerateKeyDto} generateKeyDto 
+         * @param {GenerateWalletDto} generateWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: any): AxiosPromise<WalletDto> {
-            return localVarFp.generate(xClientId, authorization, generateKeyDto, options).then((request) => request(axios, basePath));
+        generate(xClientId: string, authorization: string, generateWalletDto: GenerateWalletDto, options?: any): AxiosPromise<WalletDto> {
+            return localVarFp.generate(xClientId, authorization, generateWalletDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Imports a wallet
          * @param {string} xClientId 
          * @param {string} authorization 
-         * @param {ImportSeedDto} importSeedDto 
+         * @param {ImportWalletDto} importWalletDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: any): AxiosPromise<WalletDto> {
-            return localVarFp.importKey(xClientId, authorization, importSeedDto, options).then((request) => request(axios, basePath));
+        importSeed(xClientId: string, authorization: string, importWalletDto: ImportWalletDto, options?: any): AxiosPromise<WalletDto> {
+            return localVarFp.importSeed(xClientId, authorization, importWalletDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2126,13 +2083,13 @@ export class WalletApi extends BaseAPI {
      * @summary Generates a new wallet
      * @param {string} xClientId 
      * @param {string} authorization 
-     * @param {GenerateKeyDto} generateKeyDto 
+     * @param {GenerateWalletDto} generateWalletDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WalletApi
      */
-    public generate(xClientId: string, authorization: string, generateKeyDto: GenerateKeyDto, options?: RawAxiosRequestConfig) {
-        return WalletApiFp(this.configuration).generate(xClientId, authorization, generateKeyDto, options).then((request) => request(this.axios, this.basePath));
+    public generate(xClientId: string, authorization: string, generateWalletDto: GenerateWalletDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).generate(xClientId, authorization, generateWalletDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2140,13 +2097,13 @@ export class WalletApi extends BaseAPI {
      * @summary Imports a wallet
      * @param {string} xClientId 
      * @param {string} authorization 
-     * @param {ImportSeedDto} importSeedDto 
+     * @param {ImportWalletDto} importWalletDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WalletApi
      */
-    public importKey(xClientId: string, authorization: string, importSeedDto: ImportSeedDto, options?: RawAxiosRequestConfig) {
-        return WalletApiFp(this.configuration).importKey(xClientId, authorization, importSeedDto, options).then((request) => request(this.axios, this.basePath));
+    public importSeed(xClientId: string, authorization: string, importWalletDto: ImportWalletDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).importSeed(xClientId, authorization, importWalletDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
