@@ -16,6 +16,7 @@ export type OnboardVaultClientRequest = z.infer<typeof OnboardVaultClientRequest
 
 export const OnboardVaultClientResponse = z.object({
   clientId: z.string(),
+  clientSecret: z.string(),
   engineJwk: publicKeySchema.optional(),
   audience: z.string().optional(),
   issuer: z.string().optional(),

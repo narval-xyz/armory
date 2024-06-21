@@ -1,66 +1,114 @@
+import { ConfigService } from '@narval/config-module'
 import { secret } from '@narval/nestjs-shared'
+import { DataStoreConfiguration } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
+import { Config } from '../../../armory.config'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { ClientRepository } from '../../persistence/repository/client.repository'
-import { Client, CreateClient, PolicyEngineNode } from '../type/client.type'
+import { Client, CreateClientInput, PolicyEngineNode, PublicClient } from '../type/client.type'
 
 @Injectable()
 export class ClientService {
   constructor(
     private clientRepository: ClientRepository,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    private configService: ConfigService<Config>
   ) {}
 
-  async findById(id: string): Promise<Client | null> {
+  async findById(id: string): Promise<PublicClient | null> {
     const client = await this.clientRepository.findById(id)
 
     if (client) {
       const nodes = await this.clusterService.findNodesByClientId(id)
 
-      return this.addNodes(client, nodes)
+      return this.buildPublicClient({ client, nodes })
     }
 
     return null
   }
 
-  async create(input: CreateClient): Promise<Client> {
+  async create(input: CreateClientInput): Promise<PublicClient> {
     const now = new Date()
     const clientId = input.id || uuid()
-    // If we are generating the secret, we'll want to return the full thing to
-    // the user one time.
-    const fullClientSecret = input.clientSecret || secret.generate()
-    const clientSecret = input.clientSecret || secret.hash(fullClientSecret)
+
+    const plainClientSecret = secret.generate()
+    const hashClientSecret = input.clientSecret || secret.hash(plainClientSecret)
+
+    let entityDataStore = input.dataStore.entity
+    let policyDataStore = input.dataStore.policy
+    let entityDataUrl = entityDataStore.data.url
+    let policyDataUrl = policyDataStore.data.url
+
+    const client: Client = {
+      id: clientId,
+      clientSecret: hashClientSecret,
+      dataSecret: null,
+      name: input.name,
+      dataStore: {
+        entityPublicKey: entityDataStore.keys[0],
+        policyPublicKey: policyDataStore.keys[0]
+      },
+      policyEngine: { nodes: [] },
+      createdAt: now,
+      updatedAt: now
+    }
+
+    if (input.useManagedDataStore) {
+      const res = this.generateDataSecretAndUpdateDataStoreUrl({
+        clientId,
+        entityDataStore,
+        policyDataStore
+      })
+      client.dataSecret = res.dataSecret
+      entityDataStore = res.entityDataStore
+      policyDataStore = res.policyDataStore
+      entityDataUrl = res.publicEntityDataUrl
+      policyDataUrl = res.publicPolicyDataUrl
+    }
 
     const nodes = await this.clusterService.create({
       clientId,
-      nodes: input.policyEngine.nodes,
-      entityDataStore: input.dataStore.entity,
-      policyDataStore: input.dataStore.policy
+      nodes: input.policyEngineNodes || this.getDefaultPolicyEngineNodes(),
+      entityDataStore,
+      policyDataStore
     })
 
-    const client = await this.clientRepository.save({
-      id: clientId,
-      clientSecret,
-      name: input.name,
-      dataStore: {
-        entityPublicKey: input.dataStore.entity.keys[0],
-        policyPublicKey: input.dataStore.policy.keys[0]
-      },
-      createdAt: input.createdAt || now,
-      updatedAt: input.createdAt || now,
-      policyEngine: { nodes }
-    })
+    client.policyEngine = { nodes }
+
+    const createdClient = await this.clientRepository.save(client)
 
     return {
-      ...this.addNodes(client, nodes),
-      // If we generated a new secret, we need to include it in the response the first time.
-      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
+      ...this.buildPublicClient({
+        client: createdClient,
+        entityDataUrl,
+        policyDataUrl,
+        nodes
+      }),
+      // Return the plain client secret only if it was generated
+      ...(!input.clientSecret && { clientSecret: plainClientSecret }),
+      dataSecret: null
     }
   }
 
-  private addNodes(client: Client, engineNodes: PolicyEngineNode[]): Client {
-    const nodes = engineNodes.map(({ id, clientId, publicKey, url }) => ({
+  private buildPublicClient({
+    client,
+    entityDataUrl,
+    policyDataUrl,
+    nodes
+  }: {
+    client: Client
+    nodes: PolicyEngineNode[]
+    entityDataUrl?: string
+    policyDataUrl?: string
+  }): PublicClient {
+    const dataStore = {
+      ...client.dataStore,
+      ...(entityDataUrl && { entityDataUrl }),
+      ...(policyDataUrl && { policyDataUrl })
+    }
+
+    const publicEngineNodes = nodes.map(({ id, clientId, publicKey, url }) => ({
       id,
       clientId,
       publicKey,
@@ -69,7 +117,46 @@ export class ClientService {
 
     return {
       ...client,
-      policyEngine: { nodes }
+      dataStore,
+      policyEngine: {
+        nodes: publicEngineNodes
+      }
     }
+  }
+
+  private generateDataSecretAndUpdateDataStoreUrl({
+    clientId,
+    entityDataStore,
+    policyDataStore
+  }: {
+    clientId: string
+    entityDataStore: DataStoreConfiguration
+    policyDataStore: DataStoreConfiguration
+  }) {
+    const plainDataSecret = secret.generate()
+    const hashDataSecret = secret.hash(plainDataSecret)
+
+    const publicEntityDataUrl = `${this.configService.get('managedDataStoreBaseUrl')}/entities?clientId=${clientId}`
+    const publicPolicyDataUrl = `${this.configService.get('managedDataStoreBaseUrl')}/policies?clientId=${clientId}`
+
+    return {
+      entityDataStore: this.updateDataStoreUrl(entityDataStore, `${publicEntityDataUrl}&dataSecret=${plainDataSecret}`),
+      policyDataStore: this.updateDataStoreUrl(policyDataStore, `${publicPolicyDataUrl}&dataSecret=${plainDataSecret}`),
+      dataSecret: hashDataSecret,
+      publicEntityDataUrl,
+      publicPolicyDataUrl
+    }
+  }
+
+  private updateDataStoreUrl(dataStore: DataStoreConfiguration, url: string): DataStoreConfiguration {
+    return {
+      ...dataStore,
+      data: { ...dataStore.data, url },
+      signature: { ...dataStore.signature, url }
+    }
+  }
+
+  private getDefaultPolicyEngineNodes() {
+    return this.configService.get('policyEngine.nodes').map(({ url }) => url)
   }
 }

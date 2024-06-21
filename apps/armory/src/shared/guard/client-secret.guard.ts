@@ -13,14 +13,16 @@ export class ClientSecretGuard implements CanActivate {
     const clientSecret = req.headers[REQUEST_HEADER_CLIENT_SECRET]
     const clientId = req.headers[REQUEST_HEADER_CLIENT_ID]
 
+    if (!clientId) {
+      throw new ApplicationException({
+        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_ID} header`,
+        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
+      })
+    }
+
     if (!clientSecret) {
       throw new ApplicationException({
         message: `Missing or invalid ${REQUEST_HEADER_CLIENT_SECRET} header`,
-        suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
-      })
-    } else if (!clientId) {
-      throw new ApplicationException({
-        message: `Missing or invalid ${REQUEST_HEADER_CLIENT_ID} header`,
         suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
       })
     }

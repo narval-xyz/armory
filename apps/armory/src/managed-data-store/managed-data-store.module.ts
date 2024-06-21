@@ -11,6 +11,7 @@ import { PolicyDataStoreService } from './core/service/policy-data-store.service
 import { DataStoreController } from './http/rest/controller/data-store.controller'
 import { EntityDataStoreRepository } from './persistence/repository/entity-data-store.repository'
 import { PolicyDataStoreRepository } from './persistence/repository/policy-data-store.repository'
+import { DataStoreGuard } from './shared/guard/data-store.guard'
 
 const INFRASTRUCTURE_MODULES = [
   ConfigModule.forRoot({
@@ -27,6 +28,7 @@ const DOMAIN_MODULES = [ClientModule, PolicyEngineModule]
   controllers: [DataStoreController],
   providers: [
     ...DEFAULT_HTTP_MODULE_PROVIDERS,
+    DataStoreGuard,
     EntityDataStoreService,
     PolicyDataStoreService,
     EntityDataStoreRepository,
