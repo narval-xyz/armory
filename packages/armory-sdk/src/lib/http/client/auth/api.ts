@@ -651,13 +651,19 @@ export interface CreateClientRequestDto {
      * @type {string}
      * @memberof CreateClientRequestDto
      */
-    'clientSecret'?: string;
+    'name': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateClientRequestDto
+     */
+    'useManagedDataStore'?: boolean;
     /**
      * 
      * @type {string}
      * @memberof CreateClientRequestDto
      */
-    'name': string;
+    'clientSecret'?: string;
     /**
      * 
      * @type {CreateClientRequestDtoDataStore}
@@ -891,13 +897,19 @@ export interface CreateClientResponseDto {
      * @type {string}
      * @memberof CreateClientResponseDto
      */
-    'clientSecret': string;
+    'name': string;
     /**
-     * 
+     * plaintext secret for authenticating to armory
      * @type {string}
      * @memberof CreateClientResponseDto
      */
-    'name': string;
+    'clientSecret': string;
+    /**
+     * plaintext secret for authenticating to data store
+     * @type {string}
+     * @memberof CreateClientResponseDto
+     */
+    'dataSecret': string | null;
     /**
      * 
      * @type {any}
@@ -941,6 +953,18 @@ export interface CreateClientResponseDtoDataStore {
      * @memberof CreateClientResponseDtoDataStore
      */
     'policyPublicKey': CreateClientRequestDtoDataStoreEntityKeysInner;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoDataStore
+     */
+    'entityDataUrl'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoDataStore
+     */
+    'policyDataUrl'?: string;
 }
 /**
  * 

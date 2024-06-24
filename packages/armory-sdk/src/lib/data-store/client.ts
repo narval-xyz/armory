@@ -100,7 +100,13 @@ export class EntityStoreClient {
    * @returns A promise that resolves to the entity data store.
    */
   async fetch(): Promise<EntityDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId)
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
 
     return data
   }
@@ -179,7 +185,13 @@ export class PolicyStoreClient {
    * @returns A promise that resolves to the policy data store.
    */
   async fetch(): Promise<PolicyDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
 
     return data
   }

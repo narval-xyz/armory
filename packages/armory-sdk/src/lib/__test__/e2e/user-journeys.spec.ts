@@ -111,23 +111,29 @@ describe('User Journeys', () => {
     })
 
     it('I can create a new client in the authorization server', async () => {
+      const publicKey = getPublicKey(dataStorePrivateKey)
+
       clientAuth = await authAdminClient.createClient({
-        name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
         id: clientId,
+        name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
         dataStore: createHttpDataStore({
           host: getAuthHost(),
           clientId,
-          keys: [getPublicKey(dataStorePrivateKey)]
-        })
+          keys: [publicKey]
+        }),
+        useManagedDataStore: true
       })
 
-      expect(clientAuth).toEqual({
+      expect(clientAuth).toMatchObject({
         id: clientId,
         name: expect.any(String),
         clientSecret: expect.any(String),
+        dataSecret: null,
         dataStore: {
-          entityPublicKey: getPublicKey(dataStorePrivateKey),
-          policyPublicKey: getPublicKey(dataStorePrivateKey)
+          entityDataUrl: expect.any(String),
+          entityPublicKey: publicKey,
+          policyDataUrl: expect.any(String),
+          policyPublicKey: publicKey
         },
         policyEngine: {
           nodes: [
