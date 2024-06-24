@@ -19,7 +19,7 @@ import {
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
-import { getBearerToken, getJwsdProof } from '../shared/gnap'
+import { getBearerToken, getJwsdProof, interceptRequestAddDetachedJwsHeader } from '../shared/gnap'
 import { AccountHttp, ClientHttp, EncryptionKeyHttp, VaultAdminConfig, VaultConfig, WalletHttp } from './type'
 
 export class VaultAdminClient {
@@ -61,6 +61,8 @@ export class VaultClient {
 
     const axiosInstance = axios.create()
 
+    axiosInstance.interceptors.request.use(interceptRequestAddDetachedJwsHeader(config.signer))
+
     this.config = config
     this.walletHttp = WalletApiFactory(httpConfig, config.host, axiosInstance)
     this.encryptionKeyHttp = EncryptionKeyApiFactory(httpConfig, config.host, axiosInstance)
@@ -69,19 +71,8 @@ export class VaultClient {
 
   async generateEncryptionKey({ accessToken }: { accessToken: AccessToken }): Promise<RsaPublicKey> {
     const token = getBearerToken(accessToken)
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.POST,
-      payload: {},
-      signer: this.config.signer,
-      uri: `${this.config.host}/encryption-keys`
-    })
 
-    const { data: encryptionKey } = await this.encryptionKeyHttp.generate(this.config.clientId, token, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: encryptionKey } = await this.encryptionKeyHttp.generate(this.config.clientId, token)
 
     return encryptionKey.publicKey
   }
@@ -94,22 +85,9 @@ export class VaultClient {
     accessToken: AccessToken
   }): Promise<WalletDto> {
     const payload = data || {}
-
-    // TODO: I can put an Axios interceptor for this.
     const token = getBearerToken(accessToken)
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.POST,
-      payload: { ...payload },
-      signer: this.config.signer,
-      uri: `${this.config.host}/wallets`
-    })
 
-    const { data: wallet } = await this.walletHttp.generate(this.config.clientId, token, payload, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: wallet } = await this.walletHttp.generate(this.config.clientId, token, payload)
 
     return wallet
   }
@@ -127,38 +105,16 @@ export class VaultClient {
     const { seed, ...options } = data
     const encryptedSeed = await rsaEncrypt(seed, encryptionKey)
     const payload = { ...options, encryptedSeed }
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.POST,
-      payload: payload,
-      signer: this.config.signer,
-      uri: `${this.config.host}/wallets/import`
-    })
 
-    const { data: wallet } = await this.walletHttp.importSeed(this.config.clientId, token, payload, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: wallet } = await this.walletHttp.importSeed(this.config.clientId, token, payload)
 
     return wallet
   }
 
   async listWallets({ accessToken }: { accessToken: AccessToken }): Promise<WalletsDto> {
     const token = getBearerToken(accessToken)
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.GET,
-      payload: {},
-      signer: this.config.signer,
-      uri: `${this.config.host}/wallets`
-    })
 
-    const { data: wallets } = await this.walletHttp.list(this.config.clientId, token, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: wallets } = await this.walletHttp.list(this.config.clientId, token)
 
     return wallets
   }
@@ -201,19 +157,8 @@ export class VaultClient {
     const encryptedPrivateKey = await rsaEncrypt(privateKey, encryptionKey)
     const token = getBearerToken(accessToken)
     const payload = { ...options, encryptedPrivateKey }
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.POST,
-      payload: payload,
-      signer: this.config.signer,
-      uri: `${this.config.host}/accounts/import`
-    })
 
-    const { data: account } = await this.accountHttp.importPrivateKey(this.config.clientId, token, payload, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: account } = await this.accountHttp.importPrivateKey(this.config.clientId, token, payload)
 
     return account
   }

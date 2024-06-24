@@ -12,10 +12,18 @@ import {
   UserEntity,
   UserRole
 } from '@narval/policy-engine-shared'
-import { RsaPublicKey, buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from '@narval/signature'
+import {
+  RsaPublicKey,
+  SigningAlg,
+  buildSignerForAlg,
+  getPublicKey,
+  hash,
+  privateKeyToJwk,
+  signJwt
+} from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
-import { english, generateMnemonic, privateKeyToAccount } from 'viem/accounts'
+import { english, generateMnemonic, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { AuthAdminClient, AuthClient } from '../../auth/client'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
@@ -30,11 +38,11 @@ const TEST_TIMEOUT_MS = 30_000
 
 jest.setTimeout(TEST_TIMEOUT_MS)
 
-const userPrivateKey = privateKeyToJwk('0xb248d01c1726beee3dc1f6d7291b5b040a19e60fafae954e9814f50334ec35a8')
+const userPrivateKey = privateKeyToJwk(generatePrivateKey())
 
 const userPublicKey = getPublicKey(userPrivateKey)
 
-const dataStorePrivateKey = privateKeyToJwk('0x2c26498d58150922a4e040fabd4aa736722e74e991d79240d2dad87d0ebcf0b3')
+const dataStorePrivateKey = privateKeyToJwk(generatePrivateKey())
 
 const getAuthHost = () => 'http://localhost:3005'
 
@@ -176,6 +184,7 @@ describe('User Journeys', () => {
         clientId,
         signer: {
           jwk: userPrivateKey,
+          alg: SigningAlg.ES256K,
           sign: await buildSignerForAlg(userPrivateKey)
         },
         pollingTimeoutMs: TEST_TIMEOUT_MS - 10_000,
@@ -208,6 +217,7 @@ describe('User Journeys', () => {
           clientSecret: clientAuth.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
+            alg: SigningAlg.ES256K,
             sign: await buildSignerForAlg(dataStorePrivateKey)
           }
         }
@@ -318,6 +328,7 @@ describe('User Journeys', () => {
           clientSecret: clientAuth.clientSecret,
           signer: {
             jwk: dataStorePrivateKey,
+            alg: SigningAlg.ES256K,
             sign: await buildSignerForAlg(dataStorePrivateKey)
           }
         }
