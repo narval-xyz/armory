@@ -1,8 +1,4 @@
-import {
-  AuthorizationRequestError,
-  AuthorizationRequestProcessingJob,
-  AuthorizationRequestStatus
-} from '@narval/policy-engine-shared'
+import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
@@ -92,7 +88,7 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueFailed()
-  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: AuthorizationRequestError) {
+  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: Error) {
     const log = {
       id: job.id,
       attemptsMade: job.attemptsMade,
@@ -105,9 +101,7 @@ export class AuthorizationRequestProcessingConsumer {
 
       await this.authzService.fail(job.id.toString(), {
         id: uuid(),
-        message: error.message,
-        name: error.name,
-        context: error.context
+        ...error
       })
     } else {
       this.logger.log('Retrying to process authorization request', log)
