@@ -2,7 +2,7 @@
 
 import { faUpload, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Address, Namespace, UserWalletEntity, WalletEntity, toAccountId } from '@narval/policy-engine-shared'
+import { Namespace, UserWalletEntity, WalletEntity, toAccountId } from '@narval/policy-engine-shared'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
