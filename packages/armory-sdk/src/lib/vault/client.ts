@@ -188,7 +188,7 @@ export class VaultClient {
     return account
   }
 
-  async importPrivateKey({
+  async importAccount({
     data,
     accessToken,
     encryptionKey

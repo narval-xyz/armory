@@ -1,3 +1,4 @@
+/* eslint-disable jest/consistent-test-it */
 import {
   AccessToken,
   Action,
@@ -14,7 +15,7 @@ import {
 import { RsaPublicKey, buildSignerForAlg, getPublicKey, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
-import { english, generateMnemonic } from 'viem/accounts'
+import { english, generateMnemonic, privateKeyToAccount } from 'viem/accounts'
 import { AuthAdminClient, AuthClient } from '../../auth/client'
 import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
 import { DataStoreConfig } from '../../data-store/type'
@@ -110,7 +111,7 @@ describe('User Journeys', () => {
       })
     })
 
-    it('I can create a new client in the authorization server', async () => {
+    test('I can create a new client in the authorization server', async () => {
       const publicKey = getPublicKey(dataStorePrivateKey)
 
       clientAuth = await authAdminClient.createClient({
@@ -150,7 +151,7 @@ describe('User Journeys', () => {
       })
     })
 
-    it('I can create a new client in the vault', async () => {
+    test('I can create a new client in the vault', async () => {
       clientVault = await vaultAdminClient.createClient({
         clientId: clientAuth.id,
         engineJwk: clientAuth.policyEngine.nodes[0].publicKey
@@ -213,7 +214,7 @@ describe('User Journeys', () => {
         entityStoreClient = new EntityStoreClient(dataStoreConfig)
       })
 
-      it('I can sign a partial entities object', async () => {
+      test('I can sign a partial entities object', async () => {
         const issuedAt = new Date()
 
         const signature = await entityStoreClient.sign(entities, { issuedAt })
@@ -230,7 +231,7 @@ describe('User Journeys', () => {
         expect(signature).toEqual(expectedSignature)
       })
 
-      it('I can sign a complete entities object', async () => {
+      test('I can sign a complete entities object', async () => {
         const issuedAt = new Date()
 
         const signature = await entityStoreClient.sign(fullEntities, { issuedAt })
@@ -244,7 +245,7 @@ describe('User Journeys', () => {
         expect(signature).toEqual(expectedSignature)
       })
 
-      it('I can push entities and signature to a managed data store', async () => {
+      test('I can push entities and signature to a managed data store', async () => {
         const signature = await entityStoreClient.sign(entities)
 
         const store = await entityStoreClient.push({
@@ -267,7 +268,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can sign and push entities and signature to a managed data store', async () => {
+      test('I can sign and push entities and signature to a managed data store', async () => {
         const signOptions = { issuedAt: new Date() }
         const signature = await entityStoreClient.sign(entities, signOptions)
 
@@ -288,7 +289,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can fetch the latest version of the data store', async () => {
+      test('I can fetch the latest version of the data store', async () => {
         const actualEntities = await entityStoreClient.fetch()
 
         expect(actualEntities).toEqual({
@@ -299,7 +300,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can trigger a data store sync', async () => {
+      test('I can trigger a data store sync', async () => {
         const result = await entityStoreClient.sync()
 
         expect(result).toEqual(true)
@@ -323,7 +324,7 @@ describe('User Journeys', () => {
         policyStoreClient = new PolicyStoreClient(dataStoreConfig)
       })
 
-      it('I can sign policies', async () => {
+      test('I can sign policies', async () => {
         const issuedAt = new Date()
 
         const signature = await policyStoreClient.sign(policies, { issuedAt })
@@ -337,7 +338,7 @@ describe('User Journeys', () => {
         expect(signature).toEqual(expectedSignature)
       })
 
-      it('I can push policies and signature to a managed data store', async () => {
+      test('I can push policies and signature to a managed data store', async () => {
         const signature = await policyStoreClient.sign(policies)
 
         const store = await policyStoreClient.push({
@@ -357,7 +358,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can sign and push policies and signature to a managed data store', async () => {
+      test('I can sign and push policies and signature to a managed data store', async () => {
         const signOptions = { issuedAt: new Date() }
         const signature = await policyStoreClient.sign(policies, signOptions)
 
@@ -375,7 +376,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can fetch the latest version of the data store', async () => {
+      test('I can fetch the latest version of the data store', async () => {
         const actualPolicies = await policyStoreClient.fetch()
 
         expect(actualPolicies).toEqual({
@@ -386,7 +387,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can trigger a data store sync', async () => {
+      test('I can trigger a data store sync', async () => {
         const result = await policyStoreClient.sync()
 
         expect(result).toEqual(true)
@@ -419,7 +420,7 @@ describe('User Journeys', () => {
         }
       }
 
-      it('I can request an access token to sign a transaction', async () => {
+      test('I can request an access token to sign a transaction', async () => {
         const accessToken = await authClient.requestAccessToken(signTransaction)
 
         expect(accessToken).toEqual({
@@ -427,7 +428,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can evaluate a sign transaction authorization request to get an access token', async () => {
+      test('I can evaluate a sign transaction authorization request to get an access token', async () => {
         const authorization = await authClient.evaluate(signTransaction)
 
         expect(authorization.status).not.toEqual(AuthorizationResponseDtoStatusEnum.Created)
@@ -440,6 +441,8 @@ describe('User Journeys', () => {
       let accessToken: AccessToken
       let encryptionKey: RsaPublicKey
       let wallet: WalletDto
+
+      const mnemonic = generateMnemonic(english)
 
       beforeAll(async () => {
         accessToken = await authClient.requestAccessToken({
@@ -456,7 +459,7 @@ describe('User Journeys', () => {
         })
       })
 
-      it('I can generate an encryption key', async () => {
+      test('I can generate an encryption key', async () => {
         encryptionKey = await vaultClient.generateEncryptionKey({ accessToken })
 
         expect(encryptionKey.alg).toEqual('RS256')
@@ -464,17 +467,17 @@ describe('User Journeys', () => {
         expect(encryptionKey.use).toEqual('enc')
       })
 
-      it('I can generate a wallet', async () => {
+      test('I can generate a wallet', async () => {
         wallet = await vaultClient.generateWallet({ accessToken })
 
         expect(wallet.keyId).toEqual(expect.any(String))
         expect(wallet.account.derivationPath).toEqual("m/44'/60'/0'/0/0")
       })
 
-      it('I can import a wallet', async () => {
+      test('I can import a wallet', async () => {
         const importedWallet = await vaultClient.importWallet({
           data: {
-            seed: generateMnemonic(english)
+            seed: mnemonic
           },
           encryptionKey,
           accessToken
@@ -484,7 +487,7 @@ describe('User Journeys', () => {
         expect(importedWallet.account.derivationPath).toEqual("m/44'/60'/0'/0/0")
       })
 
-      it('I can list wallets', async () => {
+      test('I can list wallets', async () => {
         const { wallets } = await vaultClient.listWallets({ accessToken })
 
         expect(wallets).toMatchObject([
@@ -497,11 +500,11 @@ describe('User Journeys', () => {
         ])
       })
 
-      it('I can derive an account from a wallet', async () => {
+      test('I can derive an account from a wallet', async () => {
         const { accounts } = await vaultClient.deriveAccounts({
           data: {
             keyId: wallet.keyId,
-            derivationPaths: ["m/44'/60'/0'/0/1"]
+            derivationPaths: ["m/44'/60'/0'/0/1", "m/44'/60'/0'/0/2"]
           },
           accessToken
         })
@@ -513,15 +516,34 @@ describe('User Journeys', () => {
             id: expect.any(String),
             keyId: expect.any(String),
             publicKey: expect.any(String)
+          },
+          {
+            derivationPath: "m/44'/60'/0'/0/2",
+            address: expect.any(String),
+            id: expect.any(String),
+            keyId: expect.any(String),
+            publicKey: expect.any(String)
           }
-          // {
-          //   derivationPath: "m/44'/60'/0'/0/2",
-          //   address: expect.any(String),
-          //   id: expect.any(String),
-          //   keyId: expect.any(String),
-          //   publicKey: expect.any(String)
-          // }
         ])
+      })
+
+      test('I can import an account', async () => {
+        const privateKey = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+        const account = privateKeyToAccount(privateKey)
+
+        const actualAccount = await vaultClient.importAccount({
+          data: {
+            privateKey
+          },
+          encryptionKey,
+          accessToken
+        })
+
+        expect(actualAccount).toEqual({
+          id: `eip155:eoa:${account.address.toLowerCase()}`,
+          address: account.address,
+          publicKey: account.publicKey
+        })
       })
     })
   })
