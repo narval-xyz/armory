@@ -1,19 +1,21 @@
 import { Permission } from '@narval/armory-sdk'
 import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { ApplicationException } from '../../../../shared/exception/application.exception'
+import { PrivateAccount } from '../../../../shared/type/domain.type'
 import { AdminService } from '../../../core/service/admin.service'
 import { ImportService } from '../../../core/service/import.service'
 import { KeyGenerationService } from '../../../core/service/key-generation.service'
+import { AccountDto } from '../dto/account.dto'
 import { AccountsDto } from '../dto/accounts.dto'
 import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
-import { ImportPrivateKeyResponseDto } from '../dto/import-account-response.dto'
-import { ImportPrivateKeyDto } from '../dto/import-account.dto'
+import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
 
 @Controller('/accounts')
+@ApiTags('Account')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,
   required: true
@@ -34,7 +36,7 @@ export class AccountController {
     status: HttpStatus.CREATED,
     type: AccountsDto
   })
-  async getAccounts(@ClientId() clientId: string): Promise<AccountsDto> {
+  async list(@ClientId() clientId: string): Promise<AccountsDto> {
     const accounts = await this.adminService.getAccounts(clientId)
 
     return AccountsDto.create({ accounts })
@@ -49,7 +51,7 @@ export class AccountController {
     status: HttpStatus.CREATED,
     type: DeriveAccountResponseDto
   })
-  async generateKey(@ClientId() clientId: string, @Body() body: DeriveAccountDto): Promise<DeriveAccountResponseDto> {
+  async derive(@ClientId() clientId: string, @Body() body: DeriveAccountDto): Promise<DeriveAccountResponseDto> {
     const accounts = await this.keyGenService.derive(clientId, body)
 
     return DeriveAccountResponseDto.create(accounts)
@@ -62,21 +64,14 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: ImportPrivateKeyResponseDto
+    type: AccountDto
   })
-  async importPrivateKey(
-    @ClientId() clientId: string,
-    @Body() body: ImportPrivateKeyDto
-  ): Promise<ImportPrivateKeyResponseDto> {
-    let importedKey
+  async importPrivateKey(@ClientId() clientId: string, @Body() body: ImportPrivateKeyDto): Promise<AccountDto> {
+    let account: PrivateAccount
     if (body.encryptedPrivateKey) {
-      importedKey = await this.importService.importEncryptedPrivateKey(
-        clientId,
-        body.encryptedPrivateKey,
-        body.accountId
-      )
+      account = await this.importService.importEncryptedPrivateKey(clientId, body.encryptedPrivateKey, body.accountId)
     } else if (body.privateKey) {
-      importedKey = await this.importService.importPrivateKey(clientId, body.privateKey, body.accountId)
+      account = await this.importService.importPrivateKey(clientId, body.privateKey, body.accountId)
     } else {
       throw new ApplicationException({
         message: 'Missing privateKey or encryptedPrivateKey',
@@ -84,8 +79,6 @@ export class AccountController {
       })
     }
 
-    const response = new ImportPrivateKeyResponseDto(importedKey)
-
-    return response
+    return AccountDto.create(account)
   }
 }

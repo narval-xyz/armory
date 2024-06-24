@@ -101,6 +101,7 @@ describe('Generate', () => {
     configService = module.get<ConfigService<Config>>(ConfigService)
     keyGenService = module.get<KeyGenerationService>(KeyGenerationService)
     importService = module.get<ImportService>(ImportService)
+
     await app.init()
   })
 
@@ -122,7 +123,7 @@ describe('Generate', () => {
     await clientService.save(client)
   })
 
-  describe('GET', () => {
+  describe('GET /wallets', () => {
     it('responds with a list of wallets by client', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_READ])
       const secondClientId = uuid()
@@ -176,7 +177,8 @@ describe('Generate', () => {
       expect(firstClientGetRequest).toEqual({ wallets: expectedFirstClientWallets })
     })
   })
-  describe('POST', () => {
+
+  describe('POST /wallets', () => {
     it('generates a new rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
@@ -245,7 +247,7 @@ describe('Generate', () => {
     })
   })
 
-  describe('POST /import', () => {
+  describe('POST /wallets/import', () => {
     it('imports a jwe-encrypted rootKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
       const { body: keygenBody } = await request(app.getHttpServer())

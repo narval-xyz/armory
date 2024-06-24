@@ -1,4 +1,4 @@
-import { ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP, WALLET, WALLET_GROUP } from '../../../dev.fixture'
+import { ACCOUNT, ACCOUNT_GROUP, ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP } from '../../../dev.fixture'
 import { Entities } from '../../../type/entity.type'
 import { validate } from '../../entity.util'
 
@@ -9,11 +9,11 @@ describe('validate', () => {
     tokens: [],
     userGroupMembers: [],
     userGroups: [],
-    userWallets: [],
+    userAccounts: [],
     users: [],
-    walletGroupMembers: [],
-    walletGroups: [],
-    wallets: []
+    accountGroupMembers: [],
+    accountGroups: [],
+    accounts: []
   }
 
   describe('association integrity', () => {
@@ -65,14 +65,14 @@ describe('validate', () => {
       })
     })
 
-    it('fails when group from wallet group member does not exist', () => {
+    it('fails when group from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering],
-        walletGroupMembers: [
+        accounts: [ACCOUNT.Engineering],
+        accountGroupMembers: [
           {
-            walletId: WALLET.Engineering.id,
-            groupId: WALLET_GROUP.Engineering.id
+            accountId: ACCOUNT.Engineering.id,
+            groupId: ACCOUNT_GROUP.Engineering.id
           }
         ]
       })
@@ -83,20 +83,20 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the wallet group member because the group test-engineering-wallet-group-uid is undefined"
+              "couldn't create the account group member because the group test-engineering-account-group-uid is undefined"
           }
         ]
       })
     })
 
-    it('fails when wallet from wallet group member does not exist', () => {
+    it('fails when account from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        walletGroups: [WALLET_GROUP.Engineering],
-        walletGroupMembers: [
+        accountGroups: [ACCOUNT_GROUP.Engineering],
+        accountGroupMembers: [
           {
-            walletId: WALLET.Engineering.id,
-            groupId: WALLET_GROUP.Engineering.id
+            accountId: ACCOUNT.Engineering.id,
+            groupId: ACCOUNT_GROUP.Engineering.id
           }
         ]
       })
@@ -107,20 +107,20 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the wallet group member for group test-engineering-wallet-group-uid because the wallet eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
+              "couldn't create the account group member for group test-engineering-account-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
           }
         ]
       })
     })
 
-    it('fails when user from user wallet does not exist', () => {
+    it('fails when user from user account does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering],
-        userWallets: [
+        accounts: [ACCOUNT.Engineering],
+        userAccounts: [
           {
             userId: USER.Alice.id,
-            walletId: WALLET.Engineering.id
+            accountId: ACCOUNT.Engineering.id
           }
         ]
       })
@@ -130,20 +130,20 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the wallet ${WALLET.Engineering.id} because the user ${USER.Alice.id} is undefined`
+            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because the user ${USER.Alice.id} is undefined`
           }
         ]
       })
     })
 
-    it('fails when wallet from user wallet does not exist', () => {
+    it('fails when account from user account does not exist', () => {
       const result = validate({
         ...emptyEntities,
         users: [USER.Alice],
-        userWallets: [
+        userAccounts: [
           {
             userId: USER.Alice.id,
-            walletId: WALLET.Engineering.id
+            accountId: ACCOUNT.Engineering.id
           }
         ]
       })
@@ -153,7 +153,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the wallet ${WALLET.Engineering.id} because it's undefined`
+            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because it's undefined`
           }
         ]
       })
@@ -246,10 +246,10 @@ describe('validate', () => {
       })
     })
 
-    it('fails when wallet group uids are not unique', () => {
+    it('fails when account group uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        walletGroups: [WALLET_GROUP.Engineering, WALLET_GROUP.Engineering, WALLET_GROUP.Treasury]
+        accountGroups: [ACCOUNT_GROUP.Engineering, ACCOUNT_GROUP.Engineering, ACCOUNT_GROUP.Treasury]
       })
 
       expect(result).toEqual({
@@ -257,16 +257,16 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the wallet group ${WALLET_GROUP.Engineering.id} is duplicated`
+            message: `the account group ${ACCOUNT_GROUP.Engineering.id} is duplicated`
           }
         ]
       })
     })
 
-    it('fails when wallets uids are not unique', () => {
+    it('fails when accounts uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        wallets: [WALLET.Engineering, WALLET.Engineering, WALLET.Treasury]
+        accounts: [ACCOUNT.Engineering, ACCOUNT.Engineering, ACCOUNT.Treasury]
       })
 
       expect(result).toEqual({
@@ -274,7 +274,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the wallet ${WALLET.Engineering.id} is duplicated`
+            message: `the account ${ACCOUNT.Engineering.id} is duplicated`
           }
         ]
       })

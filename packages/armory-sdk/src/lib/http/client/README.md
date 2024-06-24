@@ -17,9 +17,11 @@ server hosting the Swagger documentation.
 ```bash
 # Start the server
 make armory/start/dev
+make vault/start/dev
 
 # In another terminal session, run the generate target
 make armory-sdk/generate/auth-client
+make armory-sdk/generate/vault-client
 ```
 
 After you generate an HTTP client, run `make armory-sdk/test/type` to ensure

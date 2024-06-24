@@ -4,36 +4,36 @@ test_resource {
 	checkResourceIntegrity with input as request
 		with data.entities as entities
 
-	wallet = resource with input as request
+	account = resource with input as request
 		with data.entities as entities
 
-	wallet == {
+	account == {
 		"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"accountType": "eoa",
 		"assignees": ["test-bob-uid", "test-alice-uid", "test-bar-uid"],
 	}
 
-	groups = walletGroups with input as request
+	groups = accountGroups with input as request
 		with data.entities as entities
 
-	groups == {"test-wallet-group-one-uid"}
+	groups == {"test-account-group-one-uid"}
 
-	walletGroupsById = getWalletGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with input as request
+	accountGroupsById = getAccountGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with input as request
 		with data.entities as entities
 
-	walletGroupsById == {"test-wallet-group-one-uid"}
+	accountGroupsById == {"test-account-group-one-uid"}
 
-	checkWalletId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
+	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
 		with data.entities as entities
 
-	checkWalletAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
+	checkAccountAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
 		with data.entities as entities
 
-	checkWalletAccountType({"eoa"}) with input as request
+	checkAccountAccountType({"eoa"}) with input as request
 		with data.entities as entities
 
-	checkWalletGroup({"test-wallet-group-one-uid"}) with input as request
+	checkAccountGroup({"test-account-group-one-uid"}) with input as request
 		with data.entities as entities
 }
 

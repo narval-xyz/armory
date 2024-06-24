@@ -8,6 +8,7 @@ on:
       - packages/**
       - apps/policy-engine/**
       - .github/workflows/policy-engine.yml
+      - .github/workflows/policy-engine-prod.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json
