@@ -5,8 +5,8 @@ import { getTime } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
 export const erc20 = async () => {
-  const from = FIXTURE.WALLET.Engineering
-  const to = FIXTURE.WALLET.Operation
+  const from = FIXTURE.ACCOUNT.Engineering
+  const to = FIXTURE.ACCOUNT.Operation
 
   const request = {
     resourceId: from.id,
@@ -46,8 +46,8 @@ export const erc20 = async () => {
 }
 
 export const spendingLimits = async () => {
-  const from = FIXTURE.WALLET.Engineering
-  const to = FIXTURE.WALLET.Operation
+  const from = FIXTURE.ACCOUNT.Engineering
+  const to = FIXTURE.ACCOUNT.Operation
 
   const transferOneMatic = {
     from: from.address,

@@ -22,8 +22,8 @@ const intentSchema = z.nativeEnum({
   RETRY_TRANSACTION: 'retryTransaction',
   CANCEL_TRANSACTION: 'cancelTransaction',
   DEPLOY_CONTRACT: 'deployContract',
-  DEPLOY_ERC_4337_WALLET: 'deployErc4337Wallet',
-  DEPLOY_SAFE_WALLET: 'deploySafeWallet',
+  DEPLOY_ERC_4337_ACCOUNT: 'deployErc4337Account',
+  DEPLOY_SAFE_ACCOUNT: 'deploySafeAccount',
   SIGN_MESSAGE: 'signMessage',
   SIGN_RAW: 'signRaw',
   SIGN_TYPED_DATA: 'signTypedData',
@@ -43,10 +43,10 @@ export const criterionSchema = z.nativeEnum({
   CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
   CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
-  CHECK_WALLET_ID: 'checkWalletId',
-  CHECK_WALLET_ADDRESS: 'checkWalletAddress',
-  CHECK_WALLET_ACCOUNT_TYPE: 'checkWalletAccountType',
-  CHECK_WALLET_GROUP: 'checkWalletGroup',
+  CHECK_ACCOUNT_ID: 'checkAccountId',
+  CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress',
+  CHECK_ACCOUNT_ACCOUNT_TYPE: 'checkAccountAccountType',
+  CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_DESTINATION_ID: 'checkDestinationId',
   CHECK_DESTINATION_ADDRESS: 'checkDestinationAddress',
@@ -128,7 +128,7 @@ export const spendingLimitFiltersSchema = z.object({
   resources: z.array(AccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
   userGroups: z.array(z.string().min(1)).min(1).optional(),
-  walletGroups: z.array(z.string().min(1)).min(1).optional()
+  accountGroups: z.array(z.string().min(1)).min(1).optional()
 })
 
 export const spendingLimitConditionSchema = z.object({
@@ -174,18 +174,18 @@ export const principalGroupCriterionSchema = z.object({
   args: z.array(z.string().min(1)).min(1)
 })
 
-export const walletIdCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ID),
+export const accountIdCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ID),
   args: z.array(z.string().min(1)).min(1)
 })
 
-export const walletAddressCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ADDRESS),
+export const accountAddressCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ADDRESS),
   args: z.array(z.string().min(1)).min(1)
 })
 
-export const walletAccountTypeCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_ACCOUNT_TYPE),
+export const accountAccountTypeCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ACCOUNT_TYPE),
   args: z.array(z.nativeEnum(AccountType)).min(1)
 })
 
@@ -194,8 +194,8 @@ export const chainIdCriterionSchema = z.object({
   args: z.array(z.string().min(1)).min(1)
 })
 
-export const walletGroupCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_WALLET_GROUP),
+export const accountGroupCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_GROUP),
   args: z.array(z.string().min(1)).min(1)
 })
 
@@ -352,10 +352,10 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   resourceCriterionSchema,
   resourceIntegrityCriterionSchema,
   spendingLimitCriterionSchema,
-  walletAccountTypeCriterionSchema,
-  walletAddressCriterionSchema,
-  walletGroupCriterionSchema,
-  walletIdCriterionSchema
+  accountAccountTypeCriterionSchema,
+  accountAddressCriterionSchema,
+  accountGroupCriterionSchema,
+  accountIdCriterionSchema
 ])
 
 export const policySchema = z.object({

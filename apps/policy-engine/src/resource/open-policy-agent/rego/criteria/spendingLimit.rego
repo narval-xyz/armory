@@ -37,15 +37,15 @@ checkSpendingUserGroups(userId, values) {
 	group in values
 }
 
-# Check By Wallet Groups
+# Check By Account Groups
 
-checkSpendingByWalletGroups(walletId, values) {
+checkSpendingByAccountGroups(accountId, values) {
 	values == wildcard
 }
 
-checkSpendingByWalletGroups(walletId, values) {
+checkSpendingByAccountGroups(accountId, values) {
 	values != wildcard
-	groups = getWalletGroups(walletId)
+	groups = getAccountGroups(accountId)
 	group = groups[_]
 	group in values
 }
@@ -141,7 +141,7 @@ checkSpendingLimit(params) {
 				"resources": wildcard,
 				"chains": wildcard,
 				"userGroups": wildcard,
-				"walletGroups": wildcard,
+				"accountGroups": wildcard,
 			},
 		},
 		params,
@@ -168,7 +168,7 @@ checkSpendingLimit(params) {
 		# filter by users
 		checkSpendingCondition(transfer.initiatedBy, filters.users)
 
-		# filter by resource wallets
+		# filter by resource accounts
 		checkSpendingCondition(transfer.from, filters.resources)
 
 		# filter by chains
@@ -177,8 +177,8 @@ checkSpendingLimit(params) {
 		# filter by user groups
 		checkSpendingByUserGroups(transfer.initiatedBy, filters.userGroups)
 
-		# filter by wallet groups
-		checkSpendingByWalletGroups(transfer.from, filters.walletGroups)
+		# filter by account groups
+		checkSpendingByAccountGroups(transfer.from, filters.accountGroups)
 
 		# filter by start date
 		checkSpendingFromStartDate(transfer.timestamp, timeWindow)
