@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { ApiClientIdGuard } from 'apps/armory/src/shared/decorator/api-client-id-guard.decorator'
+import { ApiClientIdGuard } from '../../../../shared/decorator/api-client-id-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
