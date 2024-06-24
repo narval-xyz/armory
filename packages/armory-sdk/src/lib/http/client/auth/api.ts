@@ -651,13 +651,19 @@ export interface CreateClientRequestDto {
      * @type {string}
      * @memberof CreateClientRequestDto
      */
-    'clientSecret'?: string;
+    'name': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateClientRequestDto
+     */
+    'useManagedDataStore'?: boolean;
     /**
      * 
      * @type {string}
      * @memberof CreateClientRequestDto
      */
-    'name': string;
+    'clientSecret'?: string;
     /**
      * 
      * @type {CreateClientRequestDtoDataStore}
@@ -891,13 +897,19 @@ export interface CreateClientResponseDto {
      * @type {string}
      * @memberof CreateClientResponseDto
      */
-    'clientSecret': string;
+    'name': string;
     /**
-     * 
+     * plaintext secret for authenticating to armory
      * @type {string}
      * @memberof CreateClientResponseDto
      */
-    'name': string;
+    'clientSecret': string;
+    /**
+     * plaintext secret for authenticating to data store
+     * @type {string}
+     * @memberof CreateClientResponseDto
+     */
+    'dataSecret': string | null;
     /**
      * 
      * @type {any}
@@ -941,6 +953,18 @@ export interface CreateClientResponseDtoDataStore {
      * @memberof CreateClientResponseDtoDataStore
      */
     'policyPublicKey': CreateClientRequestDtoDataStoreEntityKeysInner;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoDataStore
+     */
+    'entityDataUrl'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoDataStore
+     */
+    'policyDataUrl'?: string;
 }
 /**
  * 
@@ -1062,10 +1086,10 @@ export interface EntityDataStoreDtoEntityData {
     'userGroups': Array<EntityDataStoreDtoEntityDataUserGroupsInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserWalletsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataUserAccountsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'userWallets': Array<EntityDataStoreDtoEntityDataUserWalletsInner>;
+    'userAccounts': Array<EntityDataStoreDtoEntityDataUserAccountsInner>;
     /**
      * 
      * @type {Array<EntityDataStoreDtoEntityDataUsersInner>}
@@ -1074,23 +1098,81 @@ export interface EntityDataStoreDtoEntityData {
     'users': Array<EntityDataStoreDtoEntityDataUsersInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataWalletGroupMembersInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'walletGroupMembers': Array<EntityDataStoreDtoEntityDataWalletGroupMembersInner>;
+    'accountGroupMembers': Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
     /**
      * 
      * @type {Array<EntityDataStoreDtoEntityDataUserGroupsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'walletGroups': Array<EntityDataStoreDtoEntityDataUserGroupsInner>;
+    'accountGroups': Array<EntityDataStoreDtoEntityDataUserGroupsInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataWalletsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'wallets': Array<EntityDataStoreDtoEntityDataWalletsInner>;
+    'accounts': Array<EntityDataStoreDtoEntityDataAccountsInner>;
 }
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataAccountGroupMembersInner
+ */
+export interface EntityDataStoreDtoEntityDataAccountGroupMembersInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
+     */
+    'accountId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
+     */
+    'groupId': string;
+}
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataAccountsInner
+ */
+export interface EntityDataStoreDtoEntityDataAccountsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     */
+    'id': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     */
+    'address': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     */
+    'accountType': EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     */
+    'chainId'?: number;
+}
+
+export const EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum = {
+    Eoa: 'eoa',
+    _4337: '4337'
+} as const;
+
+export type EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum = typeof EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum[keyof typeof EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum];
+
 /**
  * 
  * @export
@@ -1127,7 +1209,7 @@ export const EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum = {
     External: 'external',
     Counterparty: 'counterparty',
     Internal: 'internal',
-    Wallet: 'wallet'
+    Managed: 'managed'
 } as const;
 
 export type EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum = typeof EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum[keyof typeof EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum];
@@ -1492,6 +1574,25 @@ export interface EntityDataStoreDtoEntityDataTokensInner {
 /**
  * 
  * @export
+ * @interface EntityDataStoreDtoEntityDataUserAccountsInner
+ */
+export interface EntityDataStoreDtoEntityDataUserAccountsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataUserAccountsInner
+     */
+    'userId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataUserAccountsInner
+     */
+    'accountId': string;
+}
+/**
+ * 
+ * @export
  * @interface EntityDataStoreDtoEntityDataUserGroupMembersInner
  */
 export interface EntityDataStoreDtoEntityDataUserGroupMembersInner {
@@ -1524,25 +1625,6 @@ export interface EntityDataStoreDtoEntityDataUserGroupsInner {
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataUserWalletsInner
- */
-export interface EntityDataStoreDtoEntityDataUserWalletsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserWalletsInner
-     */
-    'userId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserWalletsInner
-     */
-    'walletId': string;
-}
-/**
- * 
- * @export
  * @interface EntityDataStoreDtoEntityDataUsersInner
  */
 export interface EntityDataStoreDtoEntityDataUsersInner {
@@ -1568,64 +1650,6 @@ export const EntityDataStoreDtoEntityDataUsersInnerRoleEnum = {
 } as const;
 
 export type EntityDataStoreDtoEntityDataUsersInnerRoleEnum = typeof EntityDataStoreDtoEntityDataUsersInnerRoleEnum[keyof typeof EntityDataStoreDtoEntityDataUsersInnerRoleEnum];
-
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataWalletGroupMembersInner
- */
-export interface EntityDataStoreDtoEntityDataWalletGroupMembersInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataWalletGroupMembersInner
-     */
-    'walletId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataWalletGroupMembersInner
-     */
-    'groupId': string;
-}
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataWalletsInner
- */
-export interface EntityDataStoreDtoEntityDataWalletsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataWalletsInner
-     */
-    'id': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataWalletsInner
-     */
-    'address': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataWalletsInner
-     */
-    'accountType': EntityDataStoreDtoEntityDataWalletsInnerAccountTypeEnum;
-    /**
-     * 
-     * @type {number}
-     * @memberof EntityDataStoreDtoEntityDataWalletsInner
-     */
-    'chainId'?: number;
-}
-
-export const EntityDataStoreDtoEntityDataWalletsInnerAccountTypeEnum = {
-    Eoa: 'eoa',
-    _4337: '4337'
-} as const;
-
-export type EntityDataStoreDtoEntityDataWalletsInnerAccountTypeEnum = typeof EntityDataStoreDtoEntityDataWalletsInnerAccountTypeEnum[keyof typeof EntityDataStoreDtoEntityDataWalletsInnerAccountTypeEnum];
 
 /**
  * 
@@ -2376,8 +2400,8 @@ export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf21ArgsEnum = {
     RetryTransaction: 'retryTransaction',
     CancelTransaction: 'cancelTransaction',
     DeployContract: 'deployContract',
-    DeployErc4337Wallet: 'deployErc4337Wallet',
-    DeploySafeWallet: 'deploySafeWallet',
+    DeployErc4337Account: 'deployErc4337Account',
+    DeploySafeAccount: 'deploySafeAccount',
     SignMessage: 'signMessage',
     SignRaw: 'signRaw',
     SignTypedData: 'signTypedData',
@@ -2813,7 +2837,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters {
      * @type {Array<string>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
      */
-    'walletGroups'?: Array<string>;
+    'accountGroups'?: Array<string>;
 }
 /**
  * 
@@ -2875,7 +2899,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = {
-    CheckWalletAccountType: 'checkWalletAccountType'
+    CheckAccountAccountType: 'checkAccountAccountType'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum];
@@ -2907,7 +2931,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = {
-    CheckWalletAddress: 'checkWalletAddress'
+    CheckAccountAddress: 'checkAccountAddress'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum];
@@ -2933,7 +2957,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum = {
-    CheckWalletGroup: 'checkWalletGroup'
+    CheckAccountGroup: 'checkAccountGroup'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum];
@@ -2959,7 +2983,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum = {
-    CheckWalletId: 'checkWalletId'
+    CheckAccountId: 'checkAccountId'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum];
