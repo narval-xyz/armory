@@ -1,4 +1,6 @@
+import { CreateAuthorizationRequest } from '@narval/policy-engine-shared'
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
+import { SetOptional } from 'type-fest'
 import { z } from 'zod'
 import {
   AuthorizationRequestDto,
@@ -6,7 +8,7 @@ import {
   CreateClientRequestDto,
   CreateClientResponseDto
 } from '../http/client/auth'
-import { Signer } from '../shared/type'
+import { SignOptions, Signer } from '../shared/type'
 
 export const AuthConfig = z.object({
   host: z.string().describe('Authorization Server host URL'),
@@ -68,3 +70,6 @@ export type ClientHttp = {
     options?: RawAxiosRequestConfig
   ): AxiosPromise<CreateClientResponseDto>
 }
+
+export type RequestAccessTokenOptions = SignOptions &
+  SetOptional<Pick<CreateAuthorizationRequest, 'id' | 'approvals'>, 'id' | 'approvals'>
