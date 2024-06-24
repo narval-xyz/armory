@@ -71,9 +71,6 @@ jobs:
           workDir: platform
           changes: |
             {
-              "apps/charts/policy-engine/values-prod.yaml": {
-                "image.tag": "${{ steps.tag.outputs.tag }}"
-              },
               "apps/charts/policy-engine/values-prod-node-0.yaml": {
                 "image.tag": "${{ steps.tag.outputs.tag }}"
               },
