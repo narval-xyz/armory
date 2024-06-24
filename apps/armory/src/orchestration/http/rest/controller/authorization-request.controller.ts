@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../../../src/armory.constant'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiClientIdGuard } from 'apps/armory/src/shared/decorator/api-client-id-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
@@ -14,13 +14,9 @@ export class AuthorizationRequestController {
   constructor(private authorizationRequestService: AuthorizationRequestService) {}
 
   @Post('/')
-  @ApiSecurity('CLIENT_ID')
+  @ApiClientIdGuard()
   @ApiOperation({
     summary: 'Submits a new authorization request for evaluation by the policy engine'
-  })
-  @ApiHeader({
-    name: REQUEST_HEADER_CLIENT_ID,
-    required: true
   })
   @ApiResponse({
     description: 'The authorization request has been successfully submitted for evaluation',
@@ -37,6 +33,7 @@ export class AuthorizationRequestController {
   }
 
   @Get('/:id')
+  @ApiClientIdGuard()
   @ApiOperation({
     summary: 'Gets an authorization request by ID'
   })
@@ -61,6 +58,7 @@ export class AuthorizationRequestController {
   }
 
   @Post('/:id/approvals')
+  @ApiClientIdGuard()
   @ApiOperation({
     summary: 'Approves an authorization request'
   })

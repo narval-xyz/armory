@@ -29,6 +29,7 @@ export class AccountController {
   @ApiOperation({
     summary: 'Lists the client accounts'
   })
+  @PermissionGuard(Permission.WALLET_READ)
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: AccountsDto
