@@ -1,7 +1,6 @@
 import { AccessToken } from '@narval/policy-engine-shared'
 import { RsaPublicKey, rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
-import { Htm } from '../domain'
 import {
   AccountApiFactory,
   AccountDto,
@@ -19,7 +18,7 @@ import {
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
-import { getBearerToken, getJwsdProof, interceptRequestAddDetachedJwsHeader } from '../shared/gnap'
+import { getBearerToken, interceptRequestAddDetachedJwsHeader } from '../shared/gnap'
 import { AccountHttp, ClientHttp, EncryptionKeyHttp, VaultAdminConfig, VaultConfig, WalletHttp } from './type'
 
 export class VaultAdminClient {
@@ -127,19 +126,8 @@ export class VaultClient {
     accessToken: AccessToken
   }): Promise<DeriveAccountResponseDto> {
     const token = getBearerToken(accessToken)
-    const signature = await getJwsdProof({
-      accessToken,
-      htm: Htm.POST,
-      payload: { ...data },
-      signer: this.config.signer,
-      uri: `${this.config.host}/accounts`
-    })
 
-    const { data: account } = await this.accountHttp.derive(this.config.clientId, token, data, {
-      headers: {
-        'detached-jws': signature
-      }
-    })
+    const { data: account } = await this.accountHttp.derive(this.config.clientId, token, data)
 
     return account
   }
