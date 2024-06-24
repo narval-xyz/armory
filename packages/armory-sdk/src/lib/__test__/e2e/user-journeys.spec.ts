@@ -432,7 +432,11 @@ describe('User Journeys', () => {
       }
 
       test('I can request an access token to sign a transaction', async () => {
-        const accessToken = await authClient.requestAccessToken(signTransaction)
+        const accessToken = await authClient.requestAccessToken(signTransaction.request, {
+          // Options
+          id: uuid(),
+          approvals: []
+        })
 
         expect(accessToken).toEqual({
           value: expect.any(String)
@@ -457,16 +461,10 @@ describe('User Journeys', () => {
 
       beforeAll(async () => {
         accessToken = await authClient.requestAccessToken({
-          // TODO: NOT GREAT. Why do I have to pass clientId, Id, approvals?
-          approvals: [],
-          clientId,
-          id: uuid(),
-          request: {
-            action: Action.GRANT_PERMISSION,
-            resourceId: 'vault',
-            nonce: uuid(),
-            permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
-          }
+          action: Action.GRANT_PERMISSION,
+          resourceId: 'vault',
+          nonce: uuid(),
+          permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
         })
       })
 
