@@ -71,7 +71,7 @@ export class AuthorizationRequestService {
 
     if (authzRequest) {
       await this.authzRequestRepository.update({
-        id: authzRequest.id,
+        id,
         clientId: authzRequest.clientId,
         status: AuthorizationRequestStatus.PROCESSING
       })
@@ -82,14 +82,14 @@ export class AuthorizationRequestService {
 
   async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
     return this.authzRequestRepository.update({
-      id: id,
+      id,
       status
     })
   }
 
   async approve(id: string, approval: JwtString): Promise<AuthorizationRequest> {
     const authzRequest = await this.authzRequestRepository.update({
-      id: id,
+      id,
       approvals: [approval]
     })
 
@@ -182,7 +182,8 @@ export class AuthorizationRequestService {
 
     if (request) {
       return this.authzRequestRepository.update({
-        ...request,
+        id,
+        clientId: request.clientId,
         status: AuthorizationRequestStatus.FAILED,
         errors: [error]
       })

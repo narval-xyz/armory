@@ -1,4 +1,8 @@
-import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '@narval/policy-engine-shared'
+import {
+  AuthorizationRequestError,
+  AuthorizationRequestProcessingJob,
+  AuthorizationRequestStatus
+} from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
@@ -37,6 +41,10 @@ export class AuthorizationRequestProcessingConsumer {
       if (this.isUnrecoverableError(error)) {
         return error
       }
+
+      // If the error is recoverable, the job will be retried only if the status is set to CREATED.
+      // Otherwise, the job will fail in the evaluate method in authorization-request.service.ts.
+      await this.authzService.changeStatus(job.id.toString(), AuthorizationRequestStatus.CREATED)
 
       throw error
     }
@@ -84,7 +92,7 @@ export class AuthorizationRequestProcessingConsumer {
   }
 
   @OnQueueFailed()
-  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: Error) {
+  async onFailure(job: Job<AuthorizationRequestProcessingJob>, error: AuthorizationRequestError) {
     const log = {
       id: job.id,
       attemptsMade: job.attemptsMade,
@@ -95,7 +103,12 @@ export class AuthorizationRequestProcessingConsumer {
     if (job.attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS) {
       this.logger.error('Process authorization request failed', log)
 
-      await this.authzService.changeStatus(job.id.toString(), AuthorizationRequestStatus.FAILED)
+      await this.authzService.fail(job.id.toString(), {
+        id: uuid(),
+        message: error.message,
+        name: error.name,
+        context: error.context
+      })
     } else {
       this.logger.log('Retrying to process authorization request', log)
     }
