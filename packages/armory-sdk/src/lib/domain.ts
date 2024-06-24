@@ -2,12 +2,6 @@ import { AccessToken } from '@narval/policy-engine-shared'
 import { Payload, SigningAlg, jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 
-export const AuthAdminConfig = z.object({
-  authHost: z.string(),
-  authAdminApiKey: z.string()
-})
-export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
-
 export const EngineAdminConfig = z.object({
   engineHost: z.string(),
   engineAdminApiKey: z.string()

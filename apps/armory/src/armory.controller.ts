@@ -1,22 +1,34 @@
 import { Controller, Get, Logger } from '@nestjs/common'
-import { ApiExcludeController } from '@nestjs/swagger'
+import { ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+
+class PongDto extends createZodDto(
+  z.object({
+    pong: z.boolean()
+  })
+) {}
 
 @Controller()
-@ApiExcludeController()
+@ApiTags('Application')
 export class ArmoryController {
   private logger = new Logger(ArmoryController.name)
 
   @Get()
+  @ApiExcludeEndpoint()
   healthcheck() {
     return 'Running'
   }
 
   @Get('/ping')
-  ping() {
+  @ApiResponse({
+    type: PongDto
+  })
+  ping(): PongDto {
     this.logger.log({
       message: 'Received ping'
     })
 
-    return 'pong'
+    return PongDto.create({ pong: true })
   }
 }

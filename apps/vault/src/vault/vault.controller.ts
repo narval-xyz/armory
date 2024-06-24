@@ -1,8 +1,8 @@
 import { Controller, Get, Logger } from '@nestjs/common'
-import { ApiExcludeController } from '@nestjs/swagger'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
-@ApiExcludeController()
+@ApiTags('Application')
 export class VaultController {
   private logger = new Logger(VaultController.name)
 

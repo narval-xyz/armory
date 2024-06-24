@@ -6,13 +6,14 @@ import {
   SetEntityStoreDto,
   SetEntityStoreResponseDto,
   SetPolicyStoreDto,
-  SetPolicyStoreResponseDto
+  SetPolicyStoreResponseDto,
+  SyncDto
 } from '../http/client/auth'
 import { Signer } from '../shared/type'
 
 export const DataStoreConfig = z.object({
   host: z.string(),
-  signer: Signer,
+  signer: Signer.optional(),
   clientId: z.string(),
   clientSecret: z.string().optional()
 })
@@ -73,5 +74,5 @@ export type DataStoreHttp = {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  sync(options?: RawAxiosRequestConfig): AxiosPromise<void>
+  sync(options?: RawAxiosRequestConfig): AxiosPromise<SyncDto>
 }

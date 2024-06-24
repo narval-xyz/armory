@@ -14,6 +14,8 @@ import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../share
 import { DataStoreConfig, DataStoreHttp, SignOptions } from './type'
 
 const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
+  assert(config.signer !== undefined, 'Missing signer')
+
   return {
     data: hash(data),
     sub: config.signer.jwk.kid,
@@ -23,6 +25,8 @@ const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOpti
 }
 
 const signJwtPayload = (config: DataStoreConfig, payload: Payload): Promise<string> => {
+  assert(config.signer !== undefined, 'Missing signer')
+
   const { signer } = config
 
   return signJwt(payload, signer.jwk, { alg: signer.alg }, signer.sign)
@@ -114,15 +118,14 @@ export class EntityStoreClient {
   async sync(): Promise<boolean> {
     assert(this.config.clientSecret !== undefined, 'Missing client secret')
 
-    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
-    await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.sync({
       headers: {
         [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
         [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
-    return true
+    return data.latestSync.success
   }
 }
 
@@ -197,16 +200,15 @@ export class PolicyStoreClient {
   }
 
   async sync(): Promise<boolean> {
-    assert(this.config.clientSecret !== undefined, 'Missing client secret')
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
-    await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.sync({
       headers: {
         [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
         [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
-    return true
+    return data.latestSync.success
   }
 }

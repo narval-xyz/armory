@@ -11,6 +11,7 @@ import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
 import { PolicyDataStoreDto } from '../dto/policy-data-store.dto'
 import { SetEntityStoreDto, SetEntityStoreResponseDto } from '../dto/set-entity-store.dto'
 import { SetPolicyStoreDto, SetPolicyStoreResponseDto } from '../dto/set-policy-store.dto'
+import { SyncDto } from '../dto/sync.dto'
 
 @Controller('/data')
 @ApiTags('Managed Data Store')
@@ -115,9 +116,10 @@ export class DataStoreController {
     summary: 'Sync the client data store with the engine cluster'
   })
   @ApiResponse({
-    status: HttpStatus.OK
+    status: HttpStatus.OK,
+    type: SyncDto
   })
-  async sync(@ClientId('clientId') clientId: string) {
+  async sync(@ClientId('clientId') clientId: string): Promise<SyncDto> {
     try {
       const success = await this.clusterService.sync(clientId)
 
@@ -127,11 +129,11 @@ export class DataStoreController {
         }
       }
     } catch (error) {
-      return {
+      return SyncDto.create({
         latestSync: {
           success: false
         }
-      }
+      })
     }
   }
 }

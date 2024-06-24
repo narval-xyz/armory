@@ -14,17 +14,19 @@ import { SetOptional } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { ArmorySdkException } from '../exceptions'
 import {
+  ApplicationApi,
   AuthorizationApiFactory,
   AuthorizationResponseDto,
   AuthorizationResponseDtoStatusEnum,
   ClientApiFactory,
   Configuration,
   CreateClientRequestDto,
-  CreateClientResponseDto
+  CreateClientResponseDto,
+  PongDto
 } from '../http/client/auth'
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
-import { AuthAdminConfig, AuthConfig, AuthorizationHttp, ClientHttp, RequestAccessTokenOptions } from './type'
+import { AuthAdminConfig, AuthConfig, AuthorizationHttp, ClientHttp, Evaluate, RequestAccessTokenOptions } from './type'
 
 export class AuthAdminClient {
   private config: AuthAdminConfig
@@ -63,6 +65,8 @@ export class AuthClient {
 
   private authorizationHttp: AuthorizationHttp
 
+  private applicationApi: ApplicationApi
+
   constructor(config: AuthConfig) {
     const httpConfig = new Configuration({
       basePath: config.host
@@ -71,7 +75,16 @@ export class AuthClient {
     const axiosInstance = axios.create()
 
     this.config = AuthConfig.parse(config)
+
     this.authorizationHttp = AuthorizationApiFactory(httpConfig, config.host, axiosInstance)
+
+    this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
+  }
+
+  async ping(): Promise<PongDto> {
+    const { data } = await this.applicationApi.ping()
+
+    return data
   }
 
   /**
@@ -81,10 +94,7 @@ export class AuthClient {
    * @param opts - Optional sign options.
    * @returns A promise that resolves to the authorization response.
    */
-  async evaluate(
-    input: Omit<CreateAuthorizationRequest, 'authentication'>,
-    opts?: SignOptions
-  ): Promise<AuthorizationRequest> {
+  async evaluate(input: Evaluate, opts?: SignOptions): Promise<AuthorizationRequest> {
     const jwtPayload = this.buildJwtPayload(input, opts)
     const authentication = await this.signJwtPayload(jwtPayload)
     const request = SerializedAuthorizationRequest.pick({

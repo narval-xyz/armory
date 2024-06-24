@@ -3184,6 +3184,19 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf9CriterionEnum = type
 /**
  * 
  * @export
+ * @interface PongDto
+ */
+export interface PongDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PongDto
+     */
+    'pong': boolean;
+}
+/**
+ * 
+ * @export
  * @interface SetEntityStoreDto
  */
 export interface SetEntityStoreDto {
@@ -3282,6 +3295,116 @@ export interface SetPolicyStoreResponseDto {
      */
     'latestSync': SetEntityStoreResponseDtoLatestSync;
 }
+/**
+ * 
+ * @export
+ * @interface SyncDto
+ */
+export interface SyncDto {
+    /**
+     * 
+     * @type {SetEntityStoreResponseDtoLatestSync}
+     * @memberof SyncDto
+     */
+    'latestSync': SetEntityStoreResponseDtoLatestSync;
+}
+
+/**
+ * ApplicationApi - axios parameter creator
+ * @export
+ */
+export const ApplicationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ApplicationApi - functional programming interface
+ * @export
+ */
+export const ApplicationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ApplicationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ping(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PongDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ping(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ApplicationApi.ping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ApplicationApi - factory interface
+ * @export
+ */
+export const ApplicationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ApplicationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping(options?: any): AxiosPromise<PongDto> {
+            return localVarFp.ping(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ApplicationApi - object-oriented interface
+ * @export
+ * @class ApplicationApi
+ * @extends {BaseAPI}
+ */
+export class ApplicationApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApplicationApi
+     */
+    public ping(options?: RawAxiosRequestConfig) {
+        return ApplicationApiFp(this.configuration).ping(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
 
 /**
  * AuthorizationApi - axios parameter creator
@@ -3942,7 +4065,7 @@ export const ManagedDataStoreApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async sync(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async sync(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.sync(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ManagedDataStoreApi.sync']?.[localVarOperationServerIndex]?.url;
@@ -4006,7 +4129,7 @@ export const ManagedDataStoreApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sync(options?: any): AxiosPromise<void> {
+        sync(options?: any): AxiosPromise<SyncDto> {
             return localVarFp.sync(options).then((request) => request(axios, basePath));
         },
     };

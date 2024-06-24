@@ -1,7 +1,12 @@
 import {
+  AuthAdminClient,
+  AuthClient,
   AuthClientConfig,
   AuthorizationRequest,
   AuthorizationRequestStatus,
+  EntityStoreClient,
+  Evaluate,
+  PolicyStoreClient,
   getAuthorizationRequest,
   onboardArmoryClient,
   pingArmory,
@@ -36,6 +41,7 @@ export interface AuthClientData {
 }
 
 const useAuthServerApi = () => {
+
   const { authUrl: authHost, authClientId, authClientSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -56,6 +62,24 @@ const useAuthServerApi = () => {
       alg: SigningAlg.EIP191,
       signer
     }
+  }, [authHost, authClientId, authClientSecret, jwk, signer])
+
+
+  const authClient = useMemo<AuthClient | null>(() => {
+    if (!authClientId || !jwk || !signer) {
+      return null
+    }
+
+    return new AuthClient({
+      host: authHost,
+      clientId: authClientId,
+      clientSecret: authClientSecret,
+      signer: {
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
+      }
+    })
   }, [authHost, authClientId, authClientSecret, jwk, signer])
 
   const { data: authorizationResponse } = useSWR(
@@ -79,10 +103,10 @@ const useAuthServerApi = () => {
   }, [authorizationResponse])
 
   const ping = () => {
-    if (!authHost) return
+    if (!authClient) return
 
     try {
-      return pingArmory(authHost)
+      return authClient.ping()
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
@@ -96,7 +120,6 @@ const useAuthServerApi = () => {
       const {
         id,
         name,
-        authServerUrl,
         authAdminApiKey,
         useManagedDataStore,
         entityDataStoreUrl,
@@ -105,38 +128,40 @@ const useAuthServerApi = () => {
         policyPublicKey
       } = authClientData
 
-      const client = await onboardArmoryClient(
-        { authHost: authServerUrl, authAdminApiKey },
-        {
-          id,
-          name,
-          useManagedDataStore,
-          dataStore: {
-            entity: {
-              data: {
-                type: getUrlProtocol(entityDataStoreUrl),
-                url: entityDataStoreUrl
-              },
-              signature: {
-                type: getUrlProtocol(entityDataStoreUrl),
-                url: entityDataStoreUrl
-              },
-              keys: [JSON.parse(entityPublicKey)]
+      const authAdminClient = new AuthAdminClient({
+        host: authHost,
+        adminApiKey: authAdminApiKey
+      })
+
+      const client = await authAdminClient.createClient({
+        id,
+        name,
+        useManagedDataStore,
+        dataStore: {
+          entity: {
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
             },
-            policy: {
-              data: {
-                type: getUrlProtocol(policyDataStoreUrl),
-                url: policyDataStoreUrl
-              },
-              signature: {
-                type: getUrlProtocol(policyDataStoreUrl),
-                url: policyDataStoreUrl
-              },
-              keys: [JSON.parse(policyPublicKey)]
-            }
+            signature: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            keys: [JSON.parse(entityPublicKey)]
+          },
+          policy: {
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            keys: [JSON.parse(policyPublicKey)]
           }
         }
-      )
+      })
 
       return client
     } catch (error) {
@@ -146,13 +171,14 @@ const useAuthServerApi = () => {
     }
   }
 
-  const authorize = async (request: EvaluationRequest) => {
-    if (!sdkAuthClientConfig) return
+  const authorize = async (request: Evaluate) => {
+    if (!authClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const authRequest = await sendAuthorizationRequest(sdkAuthClientConfig, request)
+      const authRequest = await authClient.evaluate(request)
+
       setProcessingRequest(authRequest)
       return authRequest
     } catch (error) {
@@ -163,13 +189,19 @@ const useAuthServerApi = () => {
   }
 
   const sync = async () => {
-    if (!sdkAuthClientConfig || !authClientSecret) return
+    if (!authClientId && !authClientSecret) return
+
+    const entityStoreClient = new EntityStoreClient({
+      host: authHost,
+      clientId: authClientId,
+      clientSecret: authClientSecret
+    })
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const { latestSync } = await syncArmoryEngine(sdkAuthClientConfig)
-      setIsSynced(latestSync.success)
+      const success = await entityStoreClient.sync()
+      setIsSynced(success)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
