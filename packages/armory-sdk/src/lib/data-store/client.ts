@@ -10,6 +10,7 @@ import {
   SetEntityStoreResponseDto,
   SetPolicyStoreResponseDto
 } from '../http/client/auth'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../shared/constant'
 import { DataStoreConfig, DataStoreHttp, SignOptions } from './type'
 
 const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
@@ -99,7 +100,13 @@ export class EntityStoreClient {
    * @returns A promise that resolves to the entity data store.
    */
   async fetch(): Promise<EntityDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId)
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
 
     return data
   }
@@ -110,8 +117,8 @@ export class EntityStoreClient {
     // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
     await this.dataStoreHttp.sync({
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
@@ -178,7 +185,13 @@ export class PolicyStoreClient {
    * @returns A promise that resolves to the policy data store.
    */
   async fetch(): Promise<PolicyDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
 
     return data
   }
@@ -189,8 +202,8 @@ export class PolicyStoreClient {
     // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
     await this.dataStoreHttp.sync({
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
