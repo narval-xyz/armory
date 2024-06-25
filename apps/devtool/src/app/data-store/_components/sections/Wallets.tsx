@@ -39,7 +39,7 @@ const Accounts: FC<AccountsProps> = ({ accounts, userAccounts, onChange }) => {
   const accountAssignees = groupBy(userAccounts, 'accountId')
 
   const dialogTitle = useMemo(() => {
-    if (isImportForm) return 'Import Account'
+    if (isImportForm) return 'Import Wallet'
     if (isAccountForm) return accountData?.id ? 'Edit Account' : 'Create Account'
     return ''
   }, [isImportForm, isAccountForm, accountData])

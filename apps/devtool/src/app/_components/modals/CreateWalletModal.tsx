@@ -84,11 +84,11 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       accountType: AccountType.EOA
     }
 
-    const { wallets: currentWallets } = entityStore.data
+    const { accounts: currentWallets } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      wallets: [...currentWallets, newWallet]
+      accounts: [...currentWallets, newWallet]
     }
 
     setGeneratedWallet(generateKeyResponse)
@@ -110,11 +110,11 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       accountType: AccountType.EOA
     }
 
-    const { wallets: currentWallets } = entityStore.data
+    const { accounts: currentWallets } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      wallets: [...currentWallets, newWallet]
+      accounts: [...currentWallets, newWallet]
     }
 
     setDerivedWallet(account)
