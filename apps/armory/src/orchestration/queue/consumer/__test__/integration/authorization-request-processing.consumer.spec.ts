@@ -12,6 +12,7 @@ import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Client, Prisma } from '@prisma/client/armory'
+import { AuthorizationRequestApprovalRepository } from 'apps/armory/src/orchestration/persistence/repository/authorization-request-approval.repository'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
 import { JwtError } from 'packages/signature/src/lib/error'
@@ -107,6 +108,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestProcessingConsumer,
         AuthorizationRequestProcessingProducer,
         AuthorizationRequestRepository,
+        AuthorizationRequestApprovalRepository,
         AuthorizationRequestService,
         {
           provide: TransferTrackingService,

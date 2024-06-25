@@ -9,6 +9,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
+import { AuthorizationRequestApprovalRepository } from 'apps/armory/src/orchestration/persistence/repository/authorization-request-approval.repository'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
 import {
@@ -34,6 +35,7 @@ describe(AuthorizationRequestService.name, () => {
 
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
+  let authzRequestApprovalRepository: MockProxy<AuthorizationRequestApprovalRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
   let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let clusterServiceMock: MockProxy<ClusterService>
@@ -52,6 +54,7 @@ describe(AuthorizationRequestService.name, () => {
 
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
+    authzRequestApprovalRepository = mock<AuthorizationRequestApprovalRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
     transferFeedServiceMock = mock<TransferTrackingService>()
     clusterServiceMock = mock<ClusterService>()
@@ -64,6 +67,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: AuthorizationRequestRepository,
           useValue: authzRequestRepositoryMock
+        },
+        {
+          provide: AuthorizationRequestApprovalRepository,
+          useValue: authzRequestApprovalRepository
         },
         {
           provide: AuthorizationRequestProcessingProducer,

@@ -152,7 +152,7 @@ describe(AuthorizationRequestRepository.name, () => {
         }
       })
 
-      expect(approvals.map(omit(['id', 'createdAt']))).toEqual([
+      expect(approvals.map(omit(['id', 'createdAt', 'error']))).toEqual([
         {
           sig: approval,
           requestId: signMessageRequest.id
