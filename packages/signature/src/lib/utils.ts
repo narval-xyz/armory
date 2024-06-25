@@ -187,7 +187,7 @@ export const stringToBase64Url = (str: string): string => {
   return base64ToBase64Url(Buffer.from(str).toString('base64'))
 }
 
-const rsaKeyToKid = (jwk: Jwk) => {
+export const rsaKeyToKid = (jwk: Jwk) => {
   // Concatenate the 'n' and 'e' values, splitted by ':'
   const dataToHash = `${jwk.n}:${jwk.e}`
 
@@ -196,7 +196,7 @@ const rsaKeyToKid = (jwk: Jwk) => {
   return toHex(hash)
 }
 
-const rsaPubKeyToHex = async (jwk: Jwk): Promise<Hex> => {
+export const rsaPubKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   const key = validateJwk<RsaPublicKey>({
     schema: rsaPublicKeySchema,
     jwk,
@@ -225,6 +225,7 @@ const rsaPrivateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
     jwk,
     errorMessage: 'Invalid RSA Private Key'
   })
+
   const imported = await subtle.importKey(
     'jwk',
     key,
