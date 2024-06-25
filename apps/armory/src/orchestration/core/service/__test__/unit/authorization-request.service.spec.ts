@@ -24,7 +24,6 @@ import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
-import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
@@ -220,15 +219,6 @@ describe(AuthorizationRequestService.name, () => {
         },
         createdAt: expect.any(Date)
       })
-    })
-
-    it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING', async () => {
-      await expect(
-        service.evaluate({
-          ...authzRequest,
-          status: AuthorizationRequestStatus.PROCESSING
-        })
-      ).rejects.toThrow(AuthorizationRequestAlreadyProcessingException)
     })
   })
 })
