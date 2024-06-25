@@ -9,7 +9,6 @@ import {
 } from '@narval/policy-engine-shared'
 import { Intents, TransferNative } from '@narval/transaction-request-intent'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthorizationRequestApprovalRepository } from 'apps/armory/src/orchestration/persistence/repository/authorization-request-approval.repository'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash/fp'
 import {
@@ -20,6 +19,7 @@ import {
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
 import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { AuthorizationRequestApprovalRepository } from '../../../../../orchestration/persistence/repository/authorization-request-approval.repository'
 import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
