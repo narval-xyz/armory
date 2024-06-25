@@ -13,7 +13,8 @@ import {
   signRequest
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
+import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
+import { exportJWK, importSPKI } from 'jose'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
@@ -78,12 +79,24 @@ const useVaultApi = () => {
         maxTokenAge
       } = vaultClientData
 
+      const getJwkFromRsaPem = async (pem: string): Promise<RsaPublicKey | null> => {
+        const key = await importSPKI(pem, Alg.RS256, { extractable: true })
+        const jwk = await exportJWK(key)
+        const kid = rsaKeyToKid(jwk as Jwk)
+
+        return rsaPublicKeySchema.parse({
+          ...jwk,
+          alg: Alg.RS256,
+          kid
+        })
+      }
+
       const client = await onboardVaultClient(
         { vaultHost: vaultUrl, vaultAdminApiKey },
         {
           clientId,
           ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
-          ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+          ...(backupPublicKey && { backupJwk: await getJwkFromRsaPem(backupPublicKey) }),
           ...(allowKeyExport && { allowKeyExport }),
           ...(audience && { audience }),
           ...(issuer && { issuer }),
@@ -93,6 +106,7 @@ const useVaultApi = () => {
 
       return client
     } catch (error) {
+      console.log('\n\n\nERROR', error, '\n\n\n')
       setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
