@@ -15,6 +15,7 @@ import { ClusterService } from '../../../policy-engine/core/service/cluster.serv
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
+import { AuthorizationRequestApprovalRepository } from '../../persistence/repository/authorization-request-approval.repository'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../queue/producer/authorization-request-processing.producer'
 import { AuthorizationRequestAlreadyProcessingException } from '../exception/authorization-request-already-processing.exception'
@@ -41,6 +42,7 @@ export class AuthorizationRequestService {
 
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
+    private authzRequestApprovalRepository: AuthorizationRequestApprovalRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
@@ -94,13 +96,23 @@ export class AuthorizationRequestService {
     })
   }
 
-  async approve(id: string, approval: JwtString): Promise<AuthorizationRequest> {
-    const authzRequest = await this.authzRequestRepository.update({
-      id,
-      approvals: [approval]
-    })
+  async approve(requestId: string, sig: JwtString): Promise<AuthorizationRequest | null> {
+    try {
+      const authzRequest = await this.authzRequestRepository.update({
+        id: requestId,
+        approvals: [sig]
+      })
 
-    return this.evaluate(authzRequest)
+      await this.evaluate(authzRequest)
+    } catch (error) {
+      await this.authzRequestApprovalRepository.updateMany({
+        requestId,
+        sig,
+        error
+      })
+    }
+
+    return this.authzRequestRepository.findById(requestId)
   }
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
