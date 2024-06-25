@@ -10,7 +10,7 @@ import {
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
-import { FIAT_ID_USD } from '../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -66,7 +66,7 @@ export class AuthorizationRequestService {
     return this.authzRequestRepository.findById(id)
   }
 
-  async process(id: string) {
+  async process(id: string, attemptsMade: number) {
     const authzRequest = await this.authzRequestRepository.findById(id)
 
     if (authzRequest) {
@@ -75,6 +75,13 @@ export class AuthorizationRequestService {
         clientId: authzRequest.clientId,
         status: AuthorizationRequestStatus.PROCESSING
       })
+
+      if (
+        attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS &&
+        authzRequest.status === AuthorizationRequestStatus.PROCESSING
+      ) {
+        throw new AuthorizationRequestAlreadyProcessingException(authzRequest)
+      }
 
       await this.evaluate(authzRequest)
     }
@@ -97,10 +104,6 @@ export class AuthorizationRequestService {
   }
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
-    if (input.status === AuthorizationRequestStatus.PROCESSING) {
-      throw new AuthorizationRequestAlreadyProcessingException(input)
-    }
-
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
       clientId: input.clientId,

@@ -1,4 +1,4 @@
-import { AuthorizationRequestProcessingJob, AuthorizationRequestStatus } from '@narval/policy-engine-shared'
+import { AuthorizationRequestProcessingJob } from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
@@ -28,7 +28,7 @@ export class AuthorizationRequestProcessingConsumer {
     })
 
     try {
-      await this.authzService.process(job.id.toString())
+      await this.authzService.process(job.id.toString(), job.attemptsMade)
     } catch (error) {
       // Short-circuits the retry mechanism on unrecoverable domain errors.
       //
@@ -37,10 +37,6 @@ export class AuthorizationRequestProcessingConsumer {
       if (this.isUnrecoverableError(error)) {
         return error
       }
-
-      // If the error is recoverable, the job will be retried only if the status is set to CREATED.
-      // Otherwise, the job will fail in the evaluate method in authorization-request.service.ts.
-      await this.authzService.changeStatus(job.id.toString(), AuthorizationRequestStatus.CREATED)
 
       throw error
     }
