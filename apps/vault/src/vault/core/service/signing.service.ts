@@ -68,6 +68,7 @@ export class SigningService {
       maxFeePerGas: transactionRequest.maxFeePerGas,
       maxPriorityFeePerGas: transactionRequest.maxPriorityFeePerGas,
       type: transactionType['0x2'],
+      // TODO: There's a bug if I submit a transaction with value 0x from the SDK
       value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
     }
 

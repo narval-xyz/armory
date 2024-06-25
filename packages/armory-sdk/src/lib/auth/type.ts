@@ -55,7 +55,7 @@ export type AuthorizationHttp = {
   getById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
 }
 
-export type ClientHttp = {
+export type AuthClientHttp = {
   /**
    * Creates a new client.
    *

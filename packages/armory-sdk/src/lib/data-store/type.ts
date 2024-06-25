@@ -1,13 +1,13 @@
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
 import { z } from 'zod'
 import {
-  EntityDataStoreDto,
-  PolicyDataStoreDto,
-  SetEntityStoreDto,
-  SetEntityStoreResponseDto,
-  SetPolicyStoreDto,
-  SetPolicyStoreResponseDto,
-  SyncDto
+  EntityDataStoreDto as EntityStoreResponse,
+  PolicyDataStoreDto as PolicyStoreResponse,
+  SetEntityStoreDto as SetEntityStoreRequest,
+  SetEntityStoreResponseDto as SetEntityStoreResponse,
+  SetPolicyStoreDto as SetPolicyStoreRequest,
+  SetPolicyStoreResponseDto as SetPolicyStoreResponse,
+  SyncDto as SyncResponse
 } from '../http/client/auth'
 import { Signer } from '../shared/type'
 
@@ -23,6 +23,16 @@ export type SignOptions = {
   issuedAt?: Date
 }
 
+export type {
+  EntityStoreResponse,
+  PolicyStoreResponse,
+  SetEntityStoreRequest,
+  SetEntityStoreResponse,
+  SetPolicyStoreRequest,
+  SetPolicyStoreResponse,
+  SyncResponse
+}
+
 export type DataStoreHttp = {
   /**
    * Gets the client entities.
@@ -31,7 +41,7 @@ export type DataStoreHttp = {
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  getEntities(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<EntityDataStoreDto>
+  getEntities(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<EntityStoreResponse>
 
   /**
    * Gets the client policies.
@@ -40,7 +50,7 @@ export type DataStoreHttp = {
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  getPolicies(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<PolicyDataStoreDto>
+  getPolicies(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<PolicyStoreResponse>
 
   /**
    * Sets the client entities.
@@ -51,9 +61,9 @@ export type DataStoreHttp = {
    */
   setEntities(
     clientId: string,
-    data: SetEntityStoreDto,
+    data: SetEntityStoreRequest,
     options?: RawAxiosRequestConfig
-  ): AxiosPromise<SetEntityStoreResponseDto>
+  ): AxiosPromise<SetEntityStoreResponse>
 
   /**
    * Sets the client policies.
@@ -64,9 +74,9 @@ export type DataStoreHttp = {
    */
   setPolicies(
     clientId: string,
-    data: SetPolicyStoreDto,
+    data: SetPolicyStoreRequest,
     options?: RawAxiosRequestConfig
-  ): AxiosPromise<SetPolicyStoreResponseDto>
+  ): AxiosPromise<SetPolicyStoreResponse>
 
   /**
    * Syncs the client data stores.
@@ -74,5 +84,5 @@ export type DataStoreHttp = {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  sync(options?: RawAxiosRequestConfig): AxiosPromise<SyncDto>
+  sync(options?: RawAxiosRequestConfig): AxiosPromise<SyncResponse>
 }

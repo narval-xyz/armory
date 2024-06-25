@@ -6,3 +6,4 @@ export { resourceId } from './lib/utils'
 
 export * from './lib/auth'
 export * from './lib/data-store'
+export * from './lib/vault'

@@ -8,12 +8,6 @@ export const EngineAdminConfig = z.object({
 })
 export type EngineAdminConfig = z.infer<typeof EngineAdminConfig>
 
-export const VaultAdminConfig = z.object({
-  vaultHost: z.string(),
-  vaultAdminApiKey: z.string()
-})
-export type VaultAdminConfig = z.infer<typeof VaultAdminConfig>
-
 export const UserSigner = z.object({
   jwk: jwkSchema,
   alg: z.nativeEnum(SigningAlg).optional(),

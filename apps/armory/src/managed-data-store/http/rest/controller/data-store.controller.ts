@@ -54,9 +54,6 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: PolicyDataStoreDto
   })
-  // TODO: Document
-  // - Query: dataSecret and clientSecret
-  // - Header: clientSecret
   @UseGuards(DataStoreGuard)
   async getPolicies(@Query('clientId') clientId: string): Promise<PolicyDataStoreDto> {
     const policy = await this.policyDataStoreService.getPolicies(clientId)
@@ -105,7 +102,10 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetPolicyStoreResponseDto
   })
-  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
+  setPolicies(
+    @Query('clientId') clientId: string,
+    @Body() body: SetPolicyStoreDto
+  ): Promise<SetPolicyStoreResponseDto> {
     return this.policyDataStoreService.setPolicies(clientId, body)
   }
 

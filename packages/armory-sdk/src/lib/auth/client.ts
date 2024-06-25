@@ -26,12 +26,19 @@ import {
 } from '../http/client/auth'
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
-import { AuthAdminConfig, AuthConfig, AuthorizationHttp, ClientHttp, Evaluate, RequestAccessTokenOptions } from './type'
+import {
+  AuthAdminConfig,
+  AuthClientHttp,
+  AuthConfig,
+  AuthorizationHttp,
+  Evaluate,
+  RequestAccessTokenOptions
+} from './type'
 
 export class AuthAdminClient {
   private config: AuthAdminConfig
 
-  private clientHttp: ClientHttp
+  private clientHttp: AuthClientHttp
 
   constructor(config: AuthAdminConfig) {
     const httpConfig = new Configuration({

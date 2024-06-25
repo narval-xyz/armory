@@ -1,19 +1,11 @@
 import {
   AuthAdminClient,
   AuthClient,
-  AuthClientConfig,
-  AuthorizationRequest,
   AuthorizationRequestStatus,
   EntityStoreClient,
   Evaluate,
-  PolicyStoreClient,
-  getAuthorizationRequest,
-  onboardArmoryClient,
-  pingArmory,
-  sendAuthorizationRequest,
-  syncArmoryEngine
 } from '@narval/armory-sdk'
-import { EvaluationRequest } from '@narval/policy-engine-shared'
+import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -49,22 +41,6 @@ const useAuthServerApi = () => {
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
-  const sdkAuthClientConfig = useMemo<AuthClientConfig | null>(() => {
-    if (!authClientId || !jwk || !signer) {
-      return null
-    }
-
-    return {
-      authHost,
-      authClientId,
-      authClientSecret,
-      jwk,
-      alg: SigningAlg.EIP191,
-      signer
-    }
-  }, [authHost, authClientId, authClientSecret, jwk, signer])
-
-
   const authClient = useMemo<AuthClient | null>(() => {
     if (!authClientId || !jwk || !signer) {
       return null
@@ -85,11 +61,11 @@ const useAuthServerApi = () => {
   const { data: authorizationResponse } = useSWR(
     '/authorization-requests',
     () => {
-      if (!sdkAuthClientConfig || !processingRequest) {
+      if (!authClient || !processingRequest) {
         return null
       }
 
-      return getAuthorizationRequest(sdkAuthClientConfig, processingRequest.id)
+      return authClient.getAuthorizationById(processingRequest.id)
     },
     { refreshInterval: 1000 }
   )

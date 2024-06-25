@@ -14,10 +14,10 @@ import useStore from '../../../_hooks/useStore'
 import { MANAGED_DATASTORE_BASE_URL } from '../../../_lib/constants'
 
 const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?client_id=${clientId}` : ''
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}` : ''
 
 const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?client_id=${clientId}` : ''
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}` : ''
 
 const initForm: AuthClientData = {
   authServerUrl: '',

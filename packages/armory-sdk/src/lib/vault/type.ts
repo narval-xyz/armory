@@ -11,9 +11,12 @@ import {
   GenerateWalletDto,
   ImportPrivateKeyDto,
   ImportWalletDto,
+  SignRequestDto,
+  SignatureDto,
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
+import { RequiredError } from '../http/client/vault/base'
 import { Signer } from '../shared/type'
 
 export const VaultAdminConfig = z.object({
@@ -29,7 +32,7 @@ export const VaultConfig = z.object({
 })
 export type VaultConfig = z.infer<typeof VaultConfig>
 
-export type ClientHttp = {
+export type VaultClientHttp = {
   /**
    * Creates a new client
    *
@@ -139,4 +142,22 @@ export type AccountHttp = {
    * @throws {RequiredError}
    */
   list(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<AccountsDto>
+}
+
+export type SignHttp = {
+  /**
+   * Signs the given request.
+   *
+   * @param {string} clientId
+   * @param {string} accessToken
+   * @param {SignRequestDto} data
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  sign(
+    clientId: string,
+    accessToken: string,
+    data: SignRequestDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<SignatureDto>
 }
