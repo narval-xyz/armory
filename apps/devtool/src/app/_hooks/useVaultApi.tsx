@@ -106,7 +106,6 @@ const useVaultApi = () => {
 
       return client
     } catch (error) {
-      console.log('\n\n\nERROR', error, '\n\n\n')
       setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
