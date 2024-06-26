@@ -36,7 +36,7 @@ const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action
     status: model.status,
     idempotencyKey: model.idempotencyKey,
     authentication: model.authnSig,
-    approvals: z.array(z.string()).parse(model.approvals.map((approval) => approval.sig)),
+    approvals: z.array(z.string()).parse(model.approvals.filter(({ error }) => !error).map((approval) => approval.sig)),
     evaluations: (model.evaluationLog || []).map(buildEvaluation),
     metadata: model.metadata as Prisma.InputJsonObject,
     errors: (model.errors || []).map(buildError),

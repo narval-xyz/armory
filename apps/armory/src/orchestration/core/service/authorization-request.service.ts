@@ -10,11 +10,12 @@ import {
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
-import { FIAT_ID_USD } from '../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
+import { AuthorizationRequestApprovalRepository } from '../../persistence/repository/authorization-request-approval.repository'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../queue/producer/authorization-request-processing.producer'
 import { AuthorizationRequestAlreadyProcessingException } from '../exception/authorization-request-already-processing.exception'
@@ -41,6 +42,7 @@ export class AuthorizationRequestService {
 
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
+    private authzRequestApprovalRepository: AuthorizationRequestApprovalRepository,
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
@@ -66,12 +68,19 @@ export class AuthorizationRequestService {
     return this.authzRequestRepository.findById(id)
   }
 
-  async process(id: string) {
+  async process(id: string, attemptsMade: number) {
     const authzRequest = await this.authzRequestRepository.findById(id)
 
     if (authzRequest) {
+      if (
+        attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS &&
+        authzRequest.status === AuthorizationRequestStatus.PROCESSING
+      ) {
+        throw new AuthorizationRequestAlreadyProcessingException(authzRequest)
+      }
+
       await this.authzRequestRepository.update({
-        id: authzRequest.id,
+        id,
         clientId: authzRequest.clientId,
         status: AuthorizationRequestStatus.PROCESSING
       })
@@ -82,25 +91,31 @@ export class AuthorizationRequestService {
 
   async changeStatus(id: string, status: AuthorizationRequestStatus): Promise<AuthorizationRequest> {
     return this.authzRequestRepository.update({
-      id: id,
+      id,
       status
     })
   }
 
-  async approve(id: string, approval: JwtString): Promise<AuthorizationRequest> {
-    const authzRequest = await this.authzRequestRepository.update({
-      id: id,
-      approvals: [approval]
-    })
+  async approve(requestId: string, sig: JwtString): Promise<AuthorizationRequest | null> {
+    try {
+      const authzRequest = await this.authzRequestRepository.update({
+        id: requestId,
+        approvals: [sig]
+      })
 
-    return this.evaluate(authzRequest)
+      await this.evaluate(authzRequest)
+    } catch (error) {
+      await this.authzRequestApprovalRepository.updateMany({
+        requestId,
+        sig,
+        error
+      })
+    }
+
+    return this.authzRequestRepository.findById(requestId)
   }
 
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
-    if (input.status === AuthorizationRequestStatus.PROCESSING) {
-      throw new AuthorizationRequestAlreadyProcessingException(input)
-    }
-
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
       clientId: input.clientId,
@@ -182,7 +197,8 @@ export class AuthorizationRequestService {
 
     if (request) {
       return this.authzRequestRepository.update({
-        ...request,
+        id,
+        clientId: request.clientId,
         status: AuthorizationRequestStatus.FAILED,
         errors: [error]
       })
