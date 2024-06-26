@@ -1,7 +1,7 @@
 {
   "name": "@narval/source",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "private": true,
   "workspaces": [
     "packages/*"
