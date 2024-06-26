@@ -55,7 +55,6 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: PolicyDataStoreDto
   })
-  @UseGuards(DataStoreGuard)
   async getPolicies(@Query('clientId') clientId: string): Promise<PolicyDataStoreDto> {
     const policy = await this.policyDataStoreService.getPolicies(clientId)
 
