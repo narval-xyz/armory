@@ -7,6 +7,11 @@ import { signRequestPayload } from '../sdk'
 import { OnboardEngineClientRequest, OnboardEngineClientResponse, SendEvaluationResponse } from '../types/policy-engine'
 import { builBasicHeaders } from '../utils'
 
+/**
+ * @deprecated The functions to interact with the engine will soon be replacted
+ * by a new SDK
+ * @see https://linear.app/narval/issue/NAR-1668
+ */
 export const pingEngine = async (engineHost: string): Promise<void> => {
   try {
     return axios.get(engineHost)
@@ -15,6 +20,11 @@ export const pingEngine = async (engineHost: string): Promise<void> => {
   }
 }
 
+/**
+ * @deprecated The functions to interact with the engine will soon be replacted
+ * by a new SDK
+ * @see https://linear.app/narval/issue/NAR-1668
+ */
 export const onboardEngineClient = async (
   config: EngineAdminConfig,
   request: OnboardEngineClientRequest
@@ -34,6 +44,11 @@ export const onboardEngineClient = async (
   }
 }
 
+/**
+ * @deprecated The functions to interact with the engine will soon be replacted
+ * by a new SDK
+ * @see https://linear.app/narval/issue/NAR-1668
+ */
 export const sendEvaluationRequest = async (
   config: EngineClientConfig,
   request: EvaluationRequest
@@ -55,6 +70,11 @@ export const sendEvaluationRequest = async (
   }
 }
 
+/**
+ * @deprecated The functions to interact with the engine will soon be replacted
+ * by a new SDK
+ * @see https://linear.app/narval/issue/NAR-1668
+ */
 export const syncPolicyEngine = async (config: EngineClientConfig): Promise<{ success: boolean }> => {
   try {
     const { engineHost, engineClientId: clientId, engineClientSecret: clientSecret } = config
