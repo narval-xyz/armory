@@ -1255,12 +1255,15 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Lists the client accounts
          * @param {string} xClientId 
+         * @param {string} authorization 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list: async (xClientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        list: async (xClientId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('list', 'authorization', authorization)
             const localVarPath = `/accounts`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1273,8 +1276,16 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication GNAP required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
             }
 
 
@@ -1332,11 +1343,12 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * 
          * @summary Lists the client accounts
          * @param {string} xClientId 
+         * @param {string} authorization 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccountsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, options);
+        async list(xClientId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AccountApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1379,11 +1391,12 @@ export const AccountApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Lists the client accounts
          * @param {string} xClientId 
+         * @param {string} authorization 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list(xClientId: string, options?: any): AxiosPromise<AccountsDto> {
-            return localVarFp.list(xClientId, options).then((request) => request(axios, basePath));
+        list(xClientId: string, authorization: string, options?: any): AxiosPromise<AccountsDto> {
+            return localVarFp.list(xClientId, authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1427,12 +1440,13 @@ export class AccountApi extends BaseAPI {
      * 
      * @summary Lists the client accounts
      * @param {string} xClientId 
+     * @param {string} authorization 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public list(xClientId: string, options?: RawAxiosRequestConfig) {
-        return AccountApiFp(this.configuration).list(xClientId, options).then((request) => request(this.axios, this.basePath));
+    public list(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return AccountApiFp(this.configuration).list(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
