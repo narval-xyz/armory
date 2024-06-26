@@ -70,18 +70,18 @@ export class AuthorizationRequestService {
     const authzRequest = await this.authzRequestRepository.findById(id)
 
     if (authzRequest) {
-      await this.authzRequestRepository.update({
-        id,
-        clientId: authzRequest.clientId,
-        status: AuthorizationRequestStatus.PROCESSING
-      })
-
       if (
         attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS &&
         authzRequest.status === AuthorizationRequestStatus.PROCESSING
       ) {
         throw new AuthorizationRequestAlreadyProcessingException(authzRequest)
       }
+
+      await this.authzRequestRepository.update({
+        id,
+        clientId: authzRequest.clientId,
+        status: AuthorizationRequestStatus.PROCESSING
+      })
 
       await this.evaluate(authzRequest)
     }

@@ -17,7 +17,7 @@ import {
   generateTransactionRequest
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
-import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
 import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
@@ -27,6 +27,7 @@ import { TransferTrackingService } from '../../../../../transfer-tracking/core/s
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
+import { AuthorizationRequestAlreadyProcessingException } from '../../../exception/authorization-request-already-processing.exception'
 
 describe(AuthorizationRequestService.name, () => {
   const jwt =
@@ -219,6 +220,22 @@ describe(AuthorizationRequestService.name, () => {
         },
         createdAt: expect.any(Date)
       })
+    })
+  })
+
+  describe('process', () => {
+    beforeEach(() => {
+      authzRequestRepositoryMock.findById.mockResolvedValue({
+        ...authzRequest,
+        status: AuthorizationRequestStatus.PROCESSING
+      })
+      authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
+    })
+
+    it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING and attempsMade reach maximum', async () => {
+      await expect(service.process(authzRequest.id, AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS)).rejects.toThrow(
+        AuthorizationRequestAlreadyProcessingException
+      )
     })
   })
 })
