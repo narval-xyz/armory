@@ -5,10 +5,12 @@ import { z } from 'zod'
 import {
   AuthorizationRequestDto,
   AuthorizationResponseDto,
-  CreateClientRequestDto,
-  CreateClientResponseDto
+  CreateClientResponseDto as CreateAuthClientResponse,
+  CreateClientRequestDto
 } from '../http/client/auth'
 import { SignOptions, Signer } from '../shared/type'
+
+export type { CreateAuthClientResponse }
 
 export const AuthConfig = z.object({
   host: z.string().describe('Authorization Server host URL'),
@@ -68,7 +70,7 @@ export type AuthClientHttp = {
     apiKey: string,
     data: CreateClientRequestDto,
     options?: RawAxiosRequestConfig
-  ): AxiosPromise<CreateClientResponseDto>
+  ): AxiosPromise<CreateAuthClientResponse>
 }
 
 export type RequestAccessTokenOptions = SignOptions &

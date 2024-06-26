@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { OnboardArmoryClientResponse } from '@narval/armory-sdk'
+import { CreateAuthClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -44,10 +44,10 @@ const AddAuthClientModal = () => {
   } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { isProcessing, onboard } = useAuthServerApi()
+  const { isProcessing, createClient } = useAuthServerApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<OnboardArmoryClientResponse>()
+  const [newClient, setNewClient] = useState<CreateAuthClientResponse>()
   const [form, setForm] = useState<AuthClientData>(initForm)
 
   const isFormValid =
@@ -70,7 +70,7 @@ const AddAuthClientModal = () => {
   const addClient = async () => {
     if (!isFormValid) return
 
-    const client = await onboard(form)
+    const client = await createClient(form)
     setNewClient(client)
   }
 
@@ -84,8 +84,8 @@ const AddAuthClientModal = () => {
     setAuthClientId(id)
     setAuthClientSecret(clientSecret)
     setAuthClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(dataStore.entityDataUrl)
-    setPolicyDataStoreUrl(dataStore.policyDataUrl)
+    setEntityDataStoreUrl(dataStore.entityDataUrl || '')
+    setPolicyDataStoreUrl(dataStore.policyDataUrl || '')
     closeDialog()
   }
 

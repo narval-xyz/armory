@@ -1,7 +1,4 @@
-import {
-  EntityStoreClient,
-  PolicyStoreClient,
-} from '@narval/armory-sdk'
+import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -12,7 +9,7 @@ import {
   PolicyStore
 } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
@@ -57,7 +54,6 @@ const useDataStoreApi = () => {
         sign: signer
       }
     })
-
   }, [entityStoreHost, authClientId, authClientSecret, jwk, signer])
 
   const policyStoreClient = useMemo<PolicyStoreClient | null>(() => {
@@ -75,41 +71,36 @@ const useDataStoreApi = () => {
         sign: signer
       }
     })
-
   }, [policyStoreHost, authClientId, authClientSecret, jwk, signer])
 
   useEffect(() => {
-    if (!entityStoreHost) return
-
-    getEntityStore()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entityStoreHost])
+    if (entityStoreClient && !entityStore) {
+      getEntityStore()
+    }
+  }, [entityStoreClient, entityStore])
 
   useEffect(() => {
-    if (!policyStoreHost) return
+    if (policyStoreClient && !policyStore) {
+      getPolicyStore()
+    }
+  }, [policyStoreClient, policyStore])
 
-    getPolicyStore()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [policyStoreHost])
-
-  const getEntityStore = useCallback(async () => {
-    console.log({ entityStoreClient })
-    if (!entityStoreClient) return
+  const getEntityStore = async () => {
+    if (!entityStoreClient || processingStatus.isFetchingEntity) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
       const entity = await entityStoreClient.fetch()
-      console.log('', { entity })
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
-  }, [entityStoreClient])
+  }
 
-  const getPolicyStore = useCallback(async () => {
-    if (!policyStoreClient) return
+  const getPolicyStore = async () => {
+    if (!policyStoreClient || processingStatus.isFetchingPolicy) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
@@ -120,7 +111,7 @@ const useDataStoreApi = () => {
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
-  }, [policyStoreClient])
+  }
 
   const validateEntityData = (data: Entities) => {
     const entityValidationResult = EntityData.safeParse({ entity: { data } })

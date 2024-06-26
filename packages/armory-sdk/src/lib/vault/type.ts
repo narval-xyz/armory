@@ -3,8 +3,8 @@ import { z } from 'zod'
 import {
   AccountDto,
   AccountsDto,
-  ClientDto,
   CreateClientDto,
+  ClientDto as CreateVaultClientResponse,
   DeriveAccountDto,
   DeriveAccountResponseDto,
   EncryptionKeyDto,
@@ -18,6 +18,8 @@ import {
 } from '../http/client/vault'
 import { RequiredError } from '../http/client/vault/base'
 import { Signer } from '../shared/type'
+
+export type { CreateVaultClientResponse }
 
 export const VaultAdminConfig = z.object({
   host: z.string().describe('Vault host URL'),
@@ -41,7 +43,11 @@ export type VaultClientHttp = {
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  create(apiKey: string, data: CreateClientDto, options?: RawAxiosRequestConfig): AxiosPromise<ClientDto>
+  create(
+    apiKey: string,
+    data: CreateClientDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<CreateVaultClientResponse>
 }
 
 export type EncryptionKeyHttp = {

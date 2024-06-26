@@ -2,13 +2,11 @@
 
 import { faUpload, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Address, Namespace, UserWalletEntity, WalletEntity, toAccountId } from '@narval/policy-engine-shared'
+import { AccountEntity, Namespace, UserAccountEntity, toAccountId } from '@narval/policy-engine-shared'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
-import useStore from '../../../_hooks/useStore'
-import useVaultApi from '../../../_hooks/useVaultApi'
 import ImportWalletForm from '../forms/ImportWalletForm'
 import WalletForm from '../forms/WalletForm'
 import DataCard from '../layouts/DataCard'
@@ -19,21 +17,19 @@ const initWalletFormState = {
   address: '',
   accountType: '',
   chainId: ''
-} as unknown as WalletEntity
+} as unknown as AccountEntity
 
 interface WalletsProps {
-  wallets: WalletEntity[] | undefined
-  userWallets: UserWalletEntity[] | undefined
-  onChange: (wallets: WalletEntity[]) => void
+  wallets: AccountEntity[] | undefined
+  userWallets: UserAccountEntity[] | undefined
+  onChange: (wallets: AccountEntity[]) => void
 }
 
 const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
-  const { vaultUrl, vaultClientId } = useStore()
-  const { importPk } = useVaultApi()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isImportForm, setIsImportForm] = useState(false)
   const [isWalletForm, setIsWalletForm] = useState(false)
-  const [walletData, setWalletData] = useState<WalletEntity>(initWalletFormState)
+  const [walletData, setWalletData] = useState<AccountEntity>(initWalletFormState)
   const [privateKey, setPrivateKey] = useState('')
 
   const walletAssignees = groupBy(userWallets, 'walletId')
@@ -63,7 +59,7 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
     setIsDialogOpen(true)
   }
 
-  const openWalletDialog = (wallet?: WalletEntity) => {
+  const openWalletDialog = (wallet?: AccountEntity) => {
     if (wallet) {
       setWalletData(wallet)
     }
@@ -164,7 +160,7 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
         >
           <div className="w-[650px] px-12 py-4">
             {isImportForm && <ImportWalletForm privateKey={privateKey} setPrivateKey={setPrivateKey} />}
-            {isWalletForm && <WalletForm wallet={walletData} setWallet={setWalletData} />}
+            {isWalletForm && <WalletForm account={walletData} setAccount={setWalletData} />}
           </div>
         </NarDialog>
       )}

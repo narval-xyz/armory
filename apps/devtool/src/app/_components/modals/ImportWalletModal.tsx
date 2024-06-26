@@ -28,8 +28,8 @@ enum ImportType {
 
 interface ImportWalletModalProps {
   accessToken: string
-  importPrivateKey?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
-  importSeedPhrase?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
+  importAccount?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
+  importWallet?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
 }
 
 const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
@@ -56,9 +56,8 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     if (currentStep === Steps.ImportWalletSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.Success) {
-      return 'Ok'
-    }
+
+    return 'Ok'
   }, [currentStep])
 
   const handleClose = () => {
@@ -72,50 +71,50 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     setImportType(ImportType.PrivateKey)
   }
 
-  const importPrivateKey = async () => {
-    if (!entityStore || !props.importPrivateKey) return
+  const importAccount = async () => {
+    if (!entityStore || !props.importAccount) return
 
-    const wallet = await props.importPrivateKey(privateKey, accessToken)
+    const account = await props.importAccount(privateKey, accessToken)
 
-    if (!wallet) return
+    if (!account) return
 
-    const newWallet = {
-      id: wallet.id,
-      address: wallet.address,
-      accountType: AccountType.EOA
-    }
-
-    const { wallets: currentWallets } = entityStore.data
-
-    const entities: Entities = {
-      ...entityStore.data,
-      wallets: [...currentWallets, newWallet]
-    }
-
-    setImportedWallet(wallet)
-    setNewEntityStore(entities)
-  }
-
-  const importSeedPhrase = async () => {
-    if (!entityStore || !props.importSeedPhrase) return
-
-    const seedWallet = await props.importSeedPhrase(seed, accessToken)
-
-    if (!seedWallet) return
-
-    const { account } = seedWallet
-
-    const newWallet = {
+    const newAccount = {
       id: account.id,
       address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
-    const { wallets: currentWallets } = entityStore.data
+    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      wallets: [...currentWallets, newWallet]
+      accounts: [...currentAccounts, newAccount]
+    }
+
+    setImportedWallet(account)
+    setNewEntityStore(entities)
+  }
+
+  const importWallet = async () => {
+    if (!entityStore || !props.importWallet) return
+
+    const seedWallet = await props.importWallet(seed, accessToken)
+
+    if (!seedWallet) return
+
+    const { account } = seedWallet
+
+    const newAccount = {
+      id: account.id,
+      address: hexSchema.parse(account.address),
+      accountType: AccountType.EOA
+    }
+
+    const { accounts: currentAccounts } = entityStore.data
+
+    const entities: Entities = {
+      ...entityStore.data,
+      accounts: [...currentAccounts, newAccount]
     }
 
     setImportedSeed(seedWallet)
@@ -129,9 +128,9 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
       setIsProcessing(true)
 
       if (importType === ImportType.PrivateKey) {
-        await importPrivateKey()
+        await importAccount()
       } else if (importType === ImportType.Seed) {
-        await importSeedPhrase()
+        await importWallet()
       }
 
       setCurrentStep(Steps.ImportWalletSuccess)

@@ -4,7 +4,7 @@ import {
   ImportPrivateKeyRequest,
   ImportSeedRequest,
   VaultAdminClient,
-  VaultClient,
+  VaultClient
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
@@ -56,6 +56,7 @@ const useVaultApi = () => {
       return vaultClient.ping()
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     }
   }
 
@@ -93,6 +94,7 @@ const useVaultApi = () => {
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -111,6 +113,7 @@ const useVaultApi = () => {
       })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -133,6 +136,7 @@ const useVaultApi = () => {
       })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -155,6 +159,7 @@ const useVaultApi = () => {
       })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -172,6 +177,7 @@ const useVaultApi = () => {
       return vaultClient.generateWallet({ accessToken })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -189,12 +195,23 @@ const useVaultApi = () => {
       return vaultClient.deriveAccounts({ data, accessToken })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  return { isProcessing, errors, ping, onboard: createClient, sign, importPk: importAccount, importSeedPhrase: importWallet, generateWalletKey: generateWallet, deriveWalletKey: deriveAccounts }
+  return {
+    isProcessing,
+    errors,
+    ping,
+    createClient,
+    sign,
+    importAccount,
+    importWallet,
+    generateWallet,
+    deriveAccounts
+  }
 }
 
 export default useVaultApi

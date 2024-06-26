@@ -156,3 +156,4 @@ export const SerializedSignableRequest = z.union([
   SignTypedDataAction,
   SignRawAction
 ])
+export type SerializedSignableRequest = z.infer<typeof SerializedSignableRequest>

@@ -88,9 +88,8 @@ const AddUserModal = () => {
     if (currentStep === Steps.AddUserSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.Success) {
-      return 'Ok'
-    }
+
+    return 'Ok'
   }, [currentStep])
 
   const handleClose = () => {

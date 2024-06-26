@@ -3,7 +3,7 @@ import {
   AuthClient,
   AuthorizationRequestStatus,
   EntityStoreClient,
-  Evaluate,
+  Evaluate
 } from '@narval/armory-sdk'
 import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
@@ -33,7 +33,6 @@ export interface AuthClientData {
 }
 
 const useAuthServerApi = () => {
-
   const { authUrl: authHost, authClientId, authClientSecret } = useStore()
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -85,10 +84,11 @@ const useAuthServerApi = () => {
       return authClient.ping()
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     }
   }
 
-  const onboard = async (authClientData: AuthClientData) => {
+  const createClient = async (authClientData: AuthClientData) => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
@@ -142,23 +142,24 @@ const useAuthServerApi = () => {
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const authorize = async (request: Evaluate) => {
+  const evaluate = async (request: Evaluate) => {
     if (!authClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
       const authRequest = await authClient.evaluate(request)
-
       setProcessingRequest(authRequest)
       return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -186,7 +187,7 @@ const useAuthServerApi = () => {
     }
   }
 
-  return { errors, isProcessing, isSynced, authorizationResponse, ping, onboard, sync, authorize }
+  return { errors, isProcessing, isSynced, authorizationResponse, ping, createClient, sync, evaluate }
 }
 
 export default useAuthServerApi

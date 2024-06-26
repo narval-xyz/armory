@@ -2,8 +2,8 @@
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AuthorizationResponse, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
-import { EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
+import { AuthorizationResponse, Evaluate, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { AuthorizationRequest, EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
@@ -25,7 +25,7 @@ interface PlaygroundProps {
   configModal: ReactNode
   response?: string
   errors?: string | undefined
-  authorize?: (req: EvaluationRequest) => Promise<AuthorizationResponse | undefined> | undefined
+  authorize?: (req: Evaluate) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
@@ -39,7 +39,7 @@ const Playground: FC<PlaygroundProps> = ({
   evaluate,
   validateResponse
 }) => {
-  const { errors: vaultErrors, sign, importPk, importSeedPhrase, generateWalletKey, deriveWalletKey } = useVaultApi()
+  const { errors: vaultErrors, sign, importAccount, importWallet, generateWallet, deriveAccounts } = useVaultApi()
   const { authClientId, engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
   const [responseEditor, setResponseEditor] = useState<string>()
@@ -144,12 +144,12 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
-  const handlePrivateKeyImport = async (pk: string, accessToken: string) => {
+  const handleImportAccount = async (pk: string, accessToken: string) => {
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await importPk({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } })
+      const response = await importAccount({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -161,12 +161,12 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
-  const handleSeedImport = async (seed: string, accessToken: string) => {
+  const handleImportWallet = async (seed: string, accessToken: string) => {
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await importSeedPhrase({ seed, accessToken: { value: accessToken } })
+      const response = await importWallet({ seed, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -178,12 +178,12 @@ const Playground: FC<PlaygroundProps> = ({
     }
   }
 
-  const handleGenerateKey = async (keyId: string, accessToken: string) => {
+  const handleGenerateWallet = async (keyId: string, accessToken: string) => {
     try {
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await generateWalletKey({ keyId, accessToken: { value: accessToken } })
+      const response = await generateWallet({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -200,7 +200,7 @@ const Playground: FC<PlaygroundProps> = ({
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await deriveWalletKey({ keyId, accessToken: { value: accessToken } })
+      const response = await deriveAccounts({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
         setResponseEditor(JSON.stringify(response, null, 2))
@@ -245,15 +245,15 @@ const Playground: FC<PlaygroundProps> = ({
           {vaultClientId && (
             <CreateWalletModal
               accessToken={vaultAccessToken}
-              generateKey={handleGenerateKey}
+              generateWallet={handleGenerateWallet}
               deriveWallet={handleDeriveWallet}
             />
           )}
           {vaultClientId && (
             <ImportWalletModal
               accessToken={vaultAccessToken}
-              importPrivateKey={handlePrivateKeyImport}
-              importSeedPhrase={handleSeedImport}
+              importAccount={handleImportAccount}
+              importWallet={handleImportWallet}
             />
           )}
           {configModal}
