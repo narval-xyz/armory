@@ -84,5 +84,5 @@ export type DataStoreHttp = {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  sync(options?: RawAxiosRequestConfig): AxiosPromise<SyncResponse>
+  sync(clientSecret: string, options?: RawAxiosRequestConfig): AxiosPromise<SyncResponse>
 }

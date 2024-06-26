@@ -54,7 +54,7 @@ export type AuthorizationHttp = {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  getById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
+  getById(id: string, clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
 }
 
 export type AuthClientHttp = {

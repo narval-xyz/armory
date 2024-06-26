@@ -147,7 +147,7 @@ export type AccountHttp = {
    * @param {RawAxiosRequestConfig} [options] Override http request option.
    * @throws {RequiredError}
    */
-  list(clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<AccountsDto>
+  list(clientId: string, accessToken: string, options?: RawAxiosRequestConfig): AxiosPromise<AccountsDto>
 }
 
 export type SignHttp = {
