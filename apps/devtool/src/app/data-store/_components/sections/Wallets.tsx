@@ -3,6 +3,7 @@
 import { faUpload, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AccountEntity, Namespace, UserAccountEntity, toAccountId } from '@narval/policy-engine-shared'
+import { AccountEntity, Namespace, UserAccountEntity, toAccountId } from '@narval/policy-engine-shared'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
@@ -12,11 +13,12 @@ import WalletForm from '../forms/WalletForm'
 import DataCard from '../layouts/DataCard'
 import DataSection from '../layouts/DataSection'
 
-const initWalletFormState = {
+const initAccountFormState = {
   id: '',
   address: '',
   accountType: '',
   chainId: ''
+} as unknown as AccountEntity
 } as unknown as AccountEntity
 
 interface WalletsProps {
@@ -32,25 +34,25 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
   const [walletData, setWalletData] = useState<AccountEntity>(initWalletFormState)
   const [privateKey, setPrivateKey] = useState('')
 
-  const walletAssignees = groupBy(userWallets, 'walletId')
+  const accountAssignees = groupBy(userAccounts, 'accountId')
 
   const dialogTitle = useMemo(() => {
     if (isImportForm) return 'Import Wallet'
-    if (isWalletForm) return walletData?.id ? 'Edit Wallet' : 'Create Wallet'
+    if (isAccountForm) return accountData?.id ? 'Edit Account' : 'Create Account'
     return ''
-  }, [isImportForm, isWalletForm, walletData])
+  }, [isImportForm, isAccountForm, accountData])
 
   const dialogPrimaryButtonLabel = useMemo(() => {
     if (isImportForm) return 'Import'
-    if (isWalletForm) return walletData?.id ? 'Edit' : 'Create'
+    if (isAccountForm) return accountData?.id ? 'Edit' : 'Create'
     return ''
-  }, [isImportForm, isWalletForm, walletData])
+  }, [isImportForm, isAccountForm, accountData])
 
   const closeDialog = () => {
     setIsDialogOpen(false)
     setIsImportForm(false)
-    setIsWalletForm(false)
-    setWalletData(initWalletFormState)
+    setIsAccountForm(false)
+    setAccountData(initAccountFormState)
     setPrivateKey('')
   }
 
@@ -63,55 +65,55 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
     if (wallet) {
       setWalletData(wallet)
     }
-    setIsWalletForm(true)
+    setIsAccountForm(true)
     setIsDialogOpen(true)
   }
 
   const handleSave = () => {
-    if (!walletData) return
-    const newWallets = wallets ? [...wallets] : []
-    const index = newWallets.findIndex((w) => w.address === walletData.address)
+    if (!accountData) return
+    const newAccounts = accounts ? [...accounts] : []
+    const index = newAccounts.findIndex((w) => w.address === accountData.address)
     if (index !== -1) {
-      console.log('Wallet already exists')
+      console.log('Account already exists')
       return
     }
     let id = ''
-    if (walletData.chainId) {
-      id = toAccountId({ ...walletData, chainId: Number(walletData.chainId) })
-    } else if (walletData.accountType === 'eoa') {
-      id = `${Namespace.EIP155}:eoa:${walletData.address}`
+    if (accountData.chainId) {
+      id = toAccountId({ ...accountData, chainId: Number(accountData.chainId) })
+    } else if (accountData.accountType === 'eoa') {
+      id = `${Namespace.EIP155}:eoa:${accountData.address}`
     } else {
-      id = walletData.address as string
+      id = accountData.address as string
     }
-    newWallets.push({ ...walletData, id })
-    onChange(newWallets)
+    newAccounts.push({ ...accountData, id })
+    onChange(newAccounts)
   }
 
   const handleEdit = () => {
-    if (!wallets || !walletData) return
-    const newWallets = wallets ? [...wallets] : []
-    const index = newWallets.findIndex((w) => w.id === walletData.id)
+    if (!accounts || !accountData) return
+    const newAccounts = accounts ? [...accounts] : []
+    const index = newAccounts.findIndex((w) => w.id === accountData.id)
     if (index === -1) return
-    newWallets[index] = walletData
-    onChange(newWallets)
+    newAccounts[index] = accountData
+    onChange(newAccounts)
   }
 
   const handleDelete = (id: string) => {
-    if (!wallets) return
-    onChange(wallets.filter((wallet) => wallet.id !== id))
+    if (!accounts) return
+    onChange(accounts.filter((account) => account.id !== id))
   }
 
   // const handleImport = async (accesToken: string) => {
-  //   const wallet = await importPk({ privateKey, accesToken })
-  //   if (!wallet) return
-  //   const newWallets = wallets ? [...wallets] : []
-  //   newWallets.push({ ...wallet, address: wallet.address.toLowerCase() as Address, accountType: 'eoa' })
-  //   onChange(newWallets)
+  //   const account = await importPk({ privateKey, accesToken })
+  //   if (!account) return
+  //   const newAccounts = accounts ? [...accounts] : []
+  //   newAccounts.push({ ...account, address: account.address.toLowerCase() as Address, accountType: 'eoa' })
+  //   onChange(newAccounts)
   // }
 
   const onSaveDialog = async () => {
-    if (isWalletForm) {
-      walletData?.id ? handleEdit() : handleSave()
+    if (isAccountForm) {
+      accountData?.id ? handleEdit() : handleSave()
     }
 
     // if (isImportForm) {
@@ -124,8 +126,8 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
   return (
     <>
       <DataSection
-        name="wallets"
-        data={wallets}
+        name="accounts"
+        data={accounts}
         buttons={
           <NarButton
             variant="tertiary"
@@ -134,17 +136,17 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
             onClick={openImportDialog}
           />
         }
-        onCreate={() => openWalletDialog()}
+        onCreate={() => openAccountDialog()}
       >
-        {wallets?.map((wallet) => (
+        {accounts?.map((account) => (
           <DataCard
-            key={wallet.id}
+            key={account.id}
             buttons={<FontAwesomeIcon className="cursor-pointer" icon={faUserPlus} />}
-            onEdit={() => openWalletDialog(wallet)}
-            onDelete={() => handleDelete(wallet.id)}
+            onEdit={() => openAccountDialog(account)}
+            onDelete={() => handleDelete(account.id)}
           >
-            <p>{wallet.address}</p>
-            {walletAssignees[wallet.id]?.length > 0 && <p>{walletAssignees[wallet.id].length} assignee</p>}
+            <p>{account.address}</p>
+            {accountAssignees[account.id]?.length > 0 && <p>{accountAssignees[account.id].length} assignee</p>}
           </DataCard>
         ))}
       </DataSection>
@@ -168,4 +170,4 @@ const Wallets: FC<WalletsProps> = ({ wallets, userWallets, onChange }) => {
   )
 }
 
-export default Wallets
+export default Accounts

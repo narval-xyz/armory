@@ -59,6 +59,11 @@ export class SigningService {
     })
     const client = await this.buildClient(clientId, resourceId, chain)
 
+    const value =
+      transactionRequest.value === undefined || transactionRequest.value === '0x'
+        ? undefined
+        : hexToBigInt(transactionRequest.value)
+
     const txRequest: TransactionRequest = {
       from: checksumAddress(client.account.address),
       to: transactionRequest.to,
@@ -68,7 +73,7 @@ export class SigningService {
       maxFeePerGas: transactionRequest.maxFeePerGas,
       maxPriorityFeePerGas: transactionRequest.maxPriorityFeePerGas,
       type: transactionType['0x2'],
-      value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+      value
     }
 
     const signature = await client.signTransaction({ ...txRequest, chain })

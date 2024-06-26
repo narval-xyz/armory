@@ -2,9 +2,9 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, importPKCS8 } from 'jose'
 import { createPublicKey } from 'node:crypto'
-import { signatureToHex, toHex, verifyMessage } from 'viem'
+import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
-import { buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1 } from '../../sign'
+import { buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1, signatureToHex } from '../../sign'
 import { Alg, Curves, Jwk, KeyTypes, Payload, PrivateKey, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,

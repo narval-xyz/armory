@@ -15,8 +15,8 @@ import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import ValueWithCopy from '../ValueWithCopy'
 
 enum Steps {
-  ImportWalletForm,
-  ImportWalletSuccess,
+  ImportAccountForm,
+  ImportAccountSuccess,
   SignAndPush,
   Success
 }
@@ -26,22 +26,22 @@ enum ImportType {
   Seed
 }
 
-interface ImportWalletModalProps {
+interface ImportAccountModalProps {
   accessToken: string
   importAccount?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
   importWallet?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
 }
 
-const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
+const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
   const { entityStore, signAndPushEntity } = useDataStoreApi()
-  const [currentStep, setCurrentStep] = useState<Steps>(Steps.ImportWalletForm)
+  const [currentStep, setCurrentStep] = useState<Steps>(Steps.ImportAccountForm)
   const [importType, setImportType] = useState<ImportType>(ImportType.PrivateKey)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
   const [seed, setSeed] = useState('')
   const [accessToken, setAccessToken] = useState('')
-  const [importedWallet, setImportedWallet] = useState<ImportPrivateKeyResponse>()
+  const [importedAccount, setImportedAccount] = useState<ImportPrivateKeyResponse>()
   const [importedSeed, setImportedSeed] = useState<ImportSeedResponse>()
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
 
@@ -50,10 +50,10 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
   }, [props.accessToken])
 
   const btnLabel = useMemo(() => {
-    if (currentStep === Steps.ImportWalletForm) {
+    if (currentStep === Steps.ImportAccountForm) {
       return 'Import'
     }
-    if (currentStep === Steps.ImportWalletSuccess) {
+    if (currentStep === Steps.ImportAccountSuccess) {
       return 'Sign and Push'
     }
     if (currentStep === Steps.Success) {
@@ -65,12 +65,12 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
 
   const handleClose = () => {
     setIsDialogOpen(false)
-    setImportedWallet(undefined)
+    setImportedAccount(undefined)
     setImportedSeed(undefined)
     setNewEntityStore(undefined)
     setPrivateKey('')
     setSeed('')
-    setCurrentStep(Steps.ImportWalletForm)
+    setCurrentStep(Steps.ImportAccountForm)
     setImportType(ImportType.PrivateKey)
   }
 
@@ -80,6 +80,7 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     const account = await props.importAccount(privateKey, accessToken)
 
     if (!account) return
+    if (!account) return
 
     const newAccount = {
       id: account.id,
@@ -88,9 +89,11 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     }
 
     const { accounts: currentAccounts } = entityStore.data
+    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
+      accounts: [...currentAccounts, newAccount]
       accounts: [...currentAccounts, newAccount]
     }
 
@@ -103,10 +106,11 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
 
     const seedWallet = await props.importWallet(seed, accessToken)
 
-    if (!seedWallet) return
+    if (!seedAccount) return
 
-    const { account } = seedWallet
+    const { account } = seedAccount
 
+    const newAccount = {
     const newAccount = {
       id: account.id,
       address: hexSchema.parse(account.address),
@@ -114,13 +118,15 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     }
 
     const { accounts: currentAccounts } = entityStore.data
+    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
       accounts: [...currentAccounts, newAccount]
+      accounts: [...currentAccounts, newAccount]
     }
 
-    setImportedSeed(seedWallet)
+    setImportedSeed(seedAccount)
     setNewEntityStore(entities)
   }
 
@@ -136,7 +142,7 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
         await importWallet()
       }
 
-      setCurrentStep(Steps.ImportWalletSuccess)
+      setCurrentStep(Steps.ImportAccountSuccess)
     } finally {
       setIsProcessing(false)
     }
@@ -157,19 +163,19 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
 
   return (
     <NarDialog
-      triggerButton={<NarButton label="Import Wallet" leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
-      title="Import Wallet"
+      triggerButton={<NarButton label="Import Account" leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
+      title="Import Account"
       primaryButtonLabel={btnLabel}
       isOpen={isDialogOpen}
       onOpenChange={(val) => (val ? setIsDialogOpen(val) : handleClose())}
       onDismiss={handleClose}
-      onSave={currentStep === Steps.ImportWalletForm ? handleSave : handleSignAndPush}
+      onSave={currentStep === Steps.ImportAccountForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
       isConfirm={currentStep === Steps.Success}
       isSaveDisabled={(!privateKey && !seed) || isProcessing}
     >
       <div className="w-[750px] px-12 py-4">
-        {currentStep === Steps.ImportWalletForm && (
+        {currentStep === Steps.ImportAccountForm && (
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-center gap-[8px] mb-[8px]">
               <NarButton
@@ -214,29 +220,29 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
             )}
           </div>
         )}
-        {currentStep === Steps.ImportWalletSuccess && (
+        {currentStep === Steps.ImportAccountSuccess && (
           <div className="flex flex-col gap-[16px]">
             <div className="flex items-center gap-[8px]">
               <FontAwesomeIcon className="text-nv-green-500" icon={faCheckCircle} />
               <div className="text-nv-lg">Private key imported successfully!</div>
             </div>
-            {importedWallet && (
+            {importedAccount && (
               <div className="flex flex-col gap-[8px]">
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedWallet.id} />
-                <ValueWithCopy layout="horizontal" label="Address" value={importedWallet.address} />
+                <ValueWithCopy layout="horizontal" label="Account ID" value={importedAccount.id} />
+                <ValueWithCopy layout="horizontal" label="Address" value={importedAccount.address} />
               </div>
             )}
             {importedSeed && (
               <div className="flex flex-col gap-[8px]">
                 <ValueWithCopy layout="horizontal" label="Key ID" value={importedSeed.keyId} />
-                <ValueWithCopy layout="horizontal" label="Wallet ID" value={importedSeed.account.id} />
+                <ValueWithCopy layout="horizontal" label="Account ID" value={importedSeed.account.id} />
                 <ValueWithCopy layout="horizontal" label="Address" value={importedSeed.account.address} />
                 <ValueWithCopy layout="horizontal" label="Backup" value={importedSeed.backup} />
               </div>
             )}
             <p className="text-nv-lg">
-              To start using this wallet you must <u>update, sign and push</u> your entity data store. Do you want to do
-              it now?
+              To start using this account you must <u>update, sign and push</u> your entity data store. Do you want to
+              do it now?
             </p>
             <NarCollapsible title="Entity Data Store">
               <div className="flex flex-col gap-[16px] max-h-[500px]">
@@ -265,4 +271,4 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
   )
 }
 
-export default ImportWalletModal
+export default ImportAccountModal
