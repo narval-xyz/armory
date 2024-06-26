@@ -91,6 +91,8 @@ const AddUserModal = () => {
     if (currentStep === Steps.Success) {
       return 'Ok'
     }
+
+    return 'Processing...'
   }, [currentStep])
 
   const handleClose = () => {

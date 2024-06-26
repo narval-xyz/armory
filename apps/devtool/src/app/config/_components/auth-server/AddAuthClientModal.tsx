@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { OnboardArmoryClientResponse } from '@narval/armory-sdk'
+import { CreateAuthClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -14,10 +14,10 @@ import useStore from '../../../_hooks/useStore'
 import { MANAGED_DATASTORE_BASE_URL } from '../../../_lib/constants'
 
 const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?client_id=${clientId}` : ''
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}` : ''
 
 const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?client_id=${clientId}` : ''
+  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}` : ''
 
 const initForm: AuthClientData = {
   authServerUrl: '',
@@ -44,10 +44,10 @@ const AddAuthClientModal = () => {
   } = useStore()
 
   const { jwk } = useAccountSignature()
-  const { isProcessing, onboard } = useAuthServerApi()
+  const { isProcessing, createClient } = useAuthServerApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<OnboardArmoryClientResponse>()
+  const [newClient, setNewClient] = useState<CreateAuthClientResponse>()
   const [form, setForm] = useState<AuthClientData>(initForm)
 
   const isFormValid =
@@ -70,7 +70,7 @@ const AddAuthClientModal = () => {
   const addClient = async () => {
     if (!isFormValid) return
 
-    const client = await onboard(form)
+    const client = await createClient(form)
     setNewClient(client)
   }
 
@@ -84,8 +84,8 @@ const AddAuthClientModal = () => {
     setAuthClientId(id)
     setAuthClientSecret(clientSecret)
     setAuthClientSigner(JSON.stringify(publicKey))
-    setEntityDataStoreUrl(dataStore.entityDataUrl)
-    setPolicyDataStoreUrl(dataStore.policyDataUrl)
+    setEntityDataStoreUrl(dataStore.entityDataUrl || '')
+    setPolicyDataStoreUrl(dataStore.policyDataUrl || '')
     closeDialog()
   }
 

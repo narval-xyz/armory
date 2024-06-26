@@ -1,6 +1,6 @@
 'use client'
 
-import { CredentialEntity, UserEntity, UserWalletEntity } from '@narval/policy-engine-shared'
+import { CredentialEntity, UserEntity, UserAccountEntity } from '@narval/policy-engine-shared'
 import { FC, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarDialog from '../../../_design-system/NarDialog'
@@ -17,7 +17,7 @@ const initUserFormState = {
 interface UserProps {
   users: UserEntity[] | undefined
   credentials: CredentialEntity[] | undefined
-  userWallets: UserWalletEntity[] | undefined
+  userWallets: UserAccountEntity[] | undefined
   onChange: ({
     users,
     credentials,
@@ -25,7 +25,7 @@ interface UserProps {
   }: {
     users: UserEntity[]
     credentials: CredentialEntity[]
-    userWallets?: UserWalletEntity[]
+    userWallets?: UserAccountEntity[]
   }) => void
 }
 

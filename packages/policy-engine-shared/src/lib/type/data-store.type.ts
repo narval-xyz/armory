@@ -54,7 +54,7 @@ export type EntityData = z.infer<typeof EntityData>
 
 export const EntitySignature = z.object({
   entity: z.object({
-    signature: z.string().min(1)
+    signature: z.string()
   })
 })
 export type EntitySignature = z.infer<typeof EntitySignature>
@@ -68,7 +68,7 @@ export type EntityJsonWebKeySet = z.infer<typeof EntityJsonWebKeys>
 
 export const EntityStore = z.object({
   data: entitiesSchema,
-  signature: z.string().min(1)
+  signature: z.string()
 })
 export type EntityStore = z.infer<typeof EntityStore>
 
@@ -81,7 +81,7 @@ export type PolicyData = z.infer<typeof PolicyData>
 
 export const PolicySignature = z.object({
   policy: z.object({
-    signature: z.string().min(1)
+    signature: z.string()
   })
 })
 export type PolicySignature = z.infer<typeof PolicySignature>
@@ -95,6 +95,6 @@ export type PolicyJsonWebKeySet = z.infer<typeof PolicyJsonWebKeys>
 
 export const PolicyStore = z.object({
   data: z.array(policySchema),
-  signature: z.string().min(1)
+  signature: z.string()
 })
 export type PolicyStore = z.infer<typeof PolicyStore>

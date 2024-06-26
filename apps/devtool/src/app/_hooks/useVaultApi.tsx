@@ -3,14 +3,8 @@ import {
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
   ImportSeedRequest,
-  VaultClientConfig,
-  generateAccount,
-  generateWallet,
-  importAccount,
-  importWallet,
-  onboardVaultClient,
-  pingVault,
-  signRequest
+  VaultAdminClient,
+  VaultClient
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
 import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
@@ -19,6 +13,8 @@ import { useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
+
+const getHost = (url: string): string => new URL(url).origin
 
 export interface VaultClientData {
   vaultUrl: string
@@ -38,37 +34,39 @@ const useVaultApi = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState<string>()
 
-  const sdkVaultConfig = useMemo<VaultClientConfig | null>(() => {
+  const vaultClient = useMemo<VaultClient | null>(() => {
     if (!vaultHost || !vaultClientId || !jwk || !signer) {
       return null
     }
 
-    return {
-      vaultHost,
-      vaultClientId,
-      jwk,
-      alg: SigningAlg.EIP191,
-      signer
-    }
+    return new VaultClient({
+      host: getHost(vaultHost),
+      clientId: vaultClientId,
+      signer: {
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
+      }
+    })
   }, [vaultHost, vaultClientId, jwk, signer])
 
   const ping = () => {
-    if (!vaultHost) return
+    if (!vaultClient) return
 
     try {
-      return pingVault(vaultHost)
+      return vaultClient.ping()
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     }
   }
 
-  const onboard = async (vaultClientData: VaultClientData) => {
+  const createClient = async (vaultClientData: VaultClientData) => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
 
       const {
-        vaultUrl,
         vaultAdminApiKey,
         clientId,
         engineClientSigner,
@@ -91,98 +89,142 @@ const useVaultApi = () => {
         })
       }
 
-      const client = await onboardVaultClient(
-        { vaultHost: vaultUrl, vaultAdminApiKey },
-        {
-          clientId,
-          ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
-          ...(backupPublicKey && { backupJwk: await getJwkFromRsaPem(backupPublicKey) }),
-          ...(allowKeyExport && { allowKeyExport }),
-          ...(audience && { audience }),
-          ...(issuer && { issuer }),
-          ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
-        }
-      )
+      const vaultAdminClient = new VaultAdminClient({
+        host: getHost(vaultHost),
+        adminApiKey: vaultAdminApiKey
+      })
+
+      const client = await vaultAdminClient.createClient({
+        clientId,
+        ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
+        ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+        ...(allowKeyExport && { allowKeyExport }),
+        ...(audience && { audience }),
+        ...(issuer && { issuer }),
+        ...(maxTokenAge && { maxTokenAge: Number(maxTokenAge) })
+      })
 
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
   const sign = (payload: { accessToken: { value: string }; request: Request }) => {
-    if (!sdkVaultConfig) return
+    if (!vaultClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return signRequest(sdkVaultConfig, payload)
+
+      return vaultClient.sign({
+        data: payload.request,
+        accessToken: payload.accessToken
+      })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const importPk = (request: ImportPrivateKeyRequest) => {
-    if (!sdkVaultConfig) return
+  const importAccount = async (request: ImportPrivateKeyRequest) => {
+    if (!vaultClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return importAccount(sdkVaultConfig, request)
+
+      const { accessToken, ...data } = request
+      const encryptionKey = await vaultClient.generateEncryptionKey({ accessToken })
+
+      return vaultClient.importAccount({
+        data,
+        accessToken,
+        encryptionKey
+      })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const importSeedPhrase = (request: ImportSeedRequest) => {
-    if (!sdkVaultConfig) return
+  const importWallet = async (request: ImportSeedRequest) => {
+    if (!vaultClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return importWallet(sdkVaultConfig, request)
+
+      const { accessToken, ...data } = request
+      const encryptionKey = await vaultClient.generateEncryptionKey({ accessToken })
+
+      return vaultClient.importWallet({
+        data,
+        accessToken,
+        encryptionKey
+      })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const generateWalletKey = (request: GenerateKeyRequest) => {
-    if (!sdkVaultConfig) return
+  const generateWallet = (request: GenerateKeyRequest) => {
+    if (!vaultClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return generateWallet(sdkVaultConfig, request)
+
+      const { accessToken } = request
+
+      return vaultClient.generateWallet({ accessToken })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const deriveWalletKey = (request: DeriveAccountRequest) => {
-    if (!sdkVaultConfig) return
+  const deriveAccounts = (request: DeriveAccountRequest) => {
+    if (!vaultClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      return generateAccount(sdkVaultConfig, request)
+
+      const { accessToken, ...data } = request
+
+      return vaultClient.deriveAccounts({ data, accessToken })
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  return { isProcessing, errors, ping, onboard, sign, importPk, importSeedPhrase, generateWalletKey, deriveWalletKey }
+  return {
+    isProcessing,
+    errors,
+    ping,
+    createClient,
+    sign,
+    importAccount,
+    importWallet,
+    generateWallet,
+    deriveAccounts
+  }
 }
 
 export default useVaultApi

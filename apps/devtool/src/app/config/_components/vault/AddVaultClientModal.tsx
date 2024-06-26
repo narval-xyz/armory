@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { OnboardVaultClientResponse } from '@narval/armory-sdk'
+import { CreateVaultClientResponse } from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'
@@ -26,10 +26,10 @@ const initForm: VaultClientData = {
 const AddVaultClientModal = () => {
   const { vaultUrl, vaultAdminApiKey, authClientSigner, engineClientSigner, useAuthServer, setVaultClientId } =
     useStore()
-  const { isProcessing, onboard } = useVaultApi()
+  const { isProcessing, createClient } = useVaultApi()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [newClient, setNewClient] = useState<OnboardVaultClientResponse>()
+  const [newClient, setNewClient] = useState<CreateVaultClientResponse>()
   const [form, setForm] = useState<VaultClientData>(initForm)
 
   const isFormValid =
@@ -46,7 +46,7 @@ const AddVaultClientModal = () => {
   const addClient = async () => {
     if (!isFormValid) return
 
-    const client = await onboard(form)
+    const client = await createClient(form)
     setNewClient(client)
   }
 
@@ -129,7 +129,6 @@ const AddVaultClientModal = () => {
         {newClient && (
           <div className="flex flex-col gap-[8px]">
             <ValueWithCopy label="Vault Client ID" value={newClient.clientId} />
-            <ValueWithCopy label="Vault Client Secret" value={newClient.clientSecret} />
           </div>
         )}
       </div>

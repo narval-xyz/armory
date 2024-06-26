@@ -7,10 +7,8 @@ import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
-import useStore from '../../../_hooks/useStore'
-import useVaultApi from '../../../_hooks/useVaultApi'
-import ImportAccountForm from '../forms/ImportWalletForm'
-import AccountForm from '../forms/WalletForm'
+import AccountForm from '../forms/AccountForm'
+import ImportWalletForm from '../forms/ImportWalletForm'
 import DataCard from '../layouts/DataCard'
 import DataSection from '../layouts/DataSection'
 
@@ -21,15 +19,13 @@ const initAccountFormState = {
   chainId: ''
 } as unknown as AccountEntity
 
-interface AccountsProps {
+interface WalletsProps {
   accounts: AccountEntity[] | undefined
   userAccounts: UserAccountEntity[] | undefined
-  onChange: (accounts: AccountEntity[]) => void
+  onChange: (wallets: AccountEntity[]) => void
 }
 
-const Accounts: FC<AccountsProps> = ({ accounts, userAccounts, onChange }) => {
-  const { vaultUrl, vaultClientId } = useStore()
-  const { importPk } = useVaultApi()
+const Accounts: FC<WalletsProps> = ({ accounts, userAccounts, onChange }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isImportForm, setIsImportForm] = useState(false)
   const [isAccountForm, setIsAccountForm] = useState(false)
@@ -63,9 +59,9 @@ const Accounts: FC<AccountsProps> = ({ accounts, userAccounts, onChange }) => {
     setIsDialogOpen(true)
   }
 
-  const openAccountDialog = (account?: AccountEntity) => {
-    if (account) {
-      setAccountData(account)
+  const openAccountDialog = (wallet?: AccountEntity) => {
+    if (wallet) {
+      setAccountData(wallet)
     }
     setIsAccountForm(true)
     setIsDialogOpen(true)
@@ -163,7 +159,7 @@ const Accounts: FC<AccountsProps> = ({ accounts, userAccounts, onChange }) => {
           onSave={onSaveDialog}
         >
           <div className="w-[650px] px-12 py-4">
-            {isImportForm && <ImportAccountForm privateKey={privateKey} setPrivateKey={setPrivateKey} />}
+            {isImportForm && <ImportWalletForm privateKey={privateKey} setPrivateKey={setPrivateKey} />}
             {isAccountForm && <AccountForm account={accountData} setAccount={setAccountData} />}
           </div>
         </NarDialog>
