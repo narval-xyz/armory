@@ -12,7 +12,7 @@ import { erc20, grantPermission, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
-import ImportWalletModal from './modals/ImportWalletModal'
+import ImportWalletModal from './modals/ImportAccountModal'
 
 enum Template {
   ERC20 = 'ERC20',

@@ -80,7 +80,6 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     const account = await props.importAccount(privateKey, accessToken)
 
     if (!account) return
-    if (!account) return
 
     const newAccount = {
       id: account.id,
@@ -89,28 +88,25 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     }
 
     const { accounts: currentAccounts } = entityStore.data
-    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
       accounts: [...currentAccounts, newAccount]
-      accounts: [...currentAccounts, newAccount]
     }
 
-    setImportedWallet(account)
+    setImportedAccount(account)
     setNewEntityStore(entities)
   }
 
   const importWallet = async () => {
     if (!entityStore || !props.importWallet) return
 
-    const seedWallet = await props.importWallet(seed, accessToken)
+    const seedAccount = await props.importWallet(seed, accessToken)
 
     if (!seedAccount) return
 
     const { account } = seedAccount
 
-    const newAccount = {
     const newAccount = {
       id: account.id,
       address: hexSchema.parse(account.address),
@@ -118,11 +114,10 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     }
 
     const { accounts: currentAccounts } = entityStore.data
-    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      accounts: [...currentAccounts, newAccount]
+
       accounts: [...currentAccounts, newAccount]
     }
 
