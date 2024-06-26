@@ -1,6 +1,6 @@
+import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { Module, forwardRef } from '@nestjs/common'
-import { ConfigService } from 'packages/config-module/src/lib/config.service'
 import { AppService } from '../../../vault/core/service/app.service'
 import { VaultModule } from '../../../vault/vault.module'
 import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'

@@ -1,10 +1,10 @@
-import { createZodDto } from 'nestjs-zod'
 import {
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
   SignTypedDataAction
-} from 'packages/policy-engine-shared/src/lib/type/action.type'
+} from '@narval/policy-engine-shared'
+import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 
 export class SignRequestDto extends createZodDto(

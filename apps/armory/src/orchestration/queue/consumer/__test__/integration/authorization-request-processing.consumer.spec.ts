@@ -7,14 +7,13 @@ import {
   AuthorizationRequestStatus,
   FIXTURE
 } from '@narval/policy-engine-shared'
-import { Alg, generateJwk, getPublicKey } from '@narval/signature'
+import { Alg, JwtError, generateJwk, getPublicKey } from '@narval/signature'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule, getQueueToken } from '@nestjs/bull'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Client, Prisma } from '@prisma/client/armory'
 import { Job, Queue } from 'bull'
 import { mock } from 'jest-mock-extended'
-import { JwtError } from 'packages/signature/src/lib/error'
 import { load } from '../../../../../armory.config'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
