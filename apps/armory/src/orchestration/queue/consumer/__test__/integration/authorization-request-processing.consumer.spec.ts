@@ -21,6 +21,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { AuthorizationRequestApprovalRepository } from '../../../../../orchestration/persistence/repository/authorization-request-approval.repository'
 import { ClusterNotFoundException } from '../../../../../policy-engine/core/exception/cluster-not-found.exception'
 import { ConsensusAgreementNotReachException } from '../../../../../policy-engine/core/exception/consensus-agreement-not-reach.exception'
 import { InvalidAttestationSignatureException } from '../../../../../policy-engine/core/exception/invalid-attestation-signature.exception'
@@ -107,6 +108,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestProcessingConsumer,
         AuthorizationRequestProcessingProducer,
         AuthorizationRequestRepository,
+        AuthorizationRequestApprovalRepository,
         AuthorizationRequestService,
         {
           provide: TransferTrackingService,

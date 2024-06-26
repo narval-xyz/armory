@@ -19,6 +19,7 @@ import {
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { AuthorizationRequestApprovalRepository } from '../../../../../orchestration/persistence/repository/authorization-request-approval.repository'
 import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
@@ -35,6 +36,7 @@ describe(AuthorizationRequestService.name, () => {
 
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
+  let authzRequestApprovalRepository: MockProxy<AuthorizationRequestApprovalRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
   let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let clusterServiceMock: MockProxy<ClusterService>
@@ -53,6 +55,7 @@ describe(AuthorizationRequestService.name, () => {
 
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
+    authzRequestApprovalRepository = mock<AuthorizationRequestApprovalRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
     transferFeedServiceMock = mock<TransferTrackingService>()
     clusterServiceMock = mock<ClusterService>()
@@ -65,6 +68,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: AuthorizationRequestRepository,
           useValue: authzRequestRepositoryMock
+        },
+        {
+          provide: AuthorizationRequestApprovalRepository,
+          useValue: authzRequestApprovalRepository
         },
         {
           provide: AuthorizationRequestProcessingProducer,
