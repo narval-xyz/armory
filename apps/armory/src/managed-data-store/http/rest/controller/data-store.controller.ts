@@ -46,9 +46,6 @@ export class DataStoreController {
   }
 
   @Get('/policies')
-  // TODO: Document
-  // - Query: dataSecret and clientSecret
-  // - Header: clientSecret
   @UseGuards(DataStoreGuard)
   @ApiOperation({
     summary: 'Gets the client policies'
