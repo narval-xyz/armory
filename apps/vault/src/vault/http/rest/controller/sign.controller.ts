@@ -1,6 +1,7 @@
 import { ApiGnapSecurity } from '@narval/nestjs-shared'
+import { SignableRequest } from '@narval/policy-engine-shared'
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AuthorizationGuard } from '../../../../shared/guard/authorization.guard'
@@ -12,6 +13,7 @@ import { SignatureDto } from '../dto/signature.dto'
 @Controller('/sign')
 @UseGuards(AuthorizationGuard, NonceGuard)
 @ApiGnapSecurity()
+@ApiTags('Sign')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,
   required: true
@@ -28,7 +30,7 @@ export class SignController {
     type: SignatureDto
   })
   async sign(@ClientId() clientId: string, @Body() body: SignRequestDto): Promise<SignatureDto> {
-    const result = await this.signingService.sign(clientId, body.request)
+    const result = await this.signingService.sign(clientId, SignableRequest.parse(body.request))
 
     return SignatureDto.create({ signature: result })
   }

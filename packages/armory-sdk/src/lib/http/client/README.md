@@ -14,12 +14,18 @@ servers.
 The generate targets uses `openapi-generator-cli` that depends on a running
 server hosting the Swagger documentation.
 
+It requires JAVA to be installed so make sure it's installed by running `java -version` in your terminal.
+
+You can install it by running `brew install java` or by downloading it directly from [this website](https://www.oracle.com/java/technologies/downloads/#jdk22-mac).
+
 ```bash
 # Start the server
 make armory/start/dev
+make vault/start/dev
 
 # In another terminal session, run the generate target
 make armory-sdk/generate/auth-client
+make armory-sdk/generate/vault-client
 ```
 
 After you generate an HTTP client, run `make armory-sdk/test/type` to ensure

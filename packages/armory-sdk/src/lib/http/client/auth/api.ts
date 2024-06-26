@@ -1005,10 +1005,10 @@ export interface CreateClientResponseDtoPolicyEngineNodesInner {
     'clientSecret'?: string;
     /**
      * 
-     * @type {EntityDataStoreDtoEntityDataCredentialsInnerKey}
+     * @type {CreateClientResponseDtoPolicyEngineNodesInnerPublicKey}
      * @memberof CreateClientResponseDtoPolicyEngineNodesInner
      */
-    'publicKey': EntityDataStoreDtoEntityDataCredentialsInnerKey;
+    'publicKey': CreateClientResponseDtoPolicyEngineNodesInnerPublicKey;
     /**
      * 
      * @type {string}
@@ -1016,6 +1016,301 @@ export interface CreateClientResponseDtoPolicyEngineNodesInner {
      */
     'url': string;
 }
+/**
+ * @type CreateClientResponseDtoPolicyEngineNodesInnerPublicKey
+ * @export
+ */
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKey = CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3;
+
+/**
+ * 
+ * @export
+ * @interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+ */
+export interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'kty': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfKtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'alg': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfAlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'use'?: CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfUseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'crv': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfCrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'x': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf
+     */
+    'y': string;
+}
+
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfKtyEnum = {
+    Ec: 'EC'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfKtyEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfKtyEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfKtyEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfAlgEnum = {
+    Es256K: 'ES256K'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfAlgEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfAlgEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfAlgEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfUseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfUseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfUseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfUseEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfCrvEnum = {
+    Secp256k1: 'secp256k1'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfCrvEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfCrvEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOfCrvEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+ */
+export interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'kty': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1KtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'alg': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1AlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'use'?: CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1UseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'crv': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1CrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'x': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1
+     */
+    'y': string;
+}
+
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1KtyEnum = {
+    Ec: 'EC'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1KtyEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1KtyEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1KtyEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1AlgEnum = {
+    Es256: 'ES256'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1AlgEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1AlgEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1AlgEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1UseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1UseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1UseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1UseEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1CrvEnum = {
+    P256: 'P-256'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1CrvEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1CrvEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1CrvEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+ */
+export interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2 {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'kty': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2KtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'alg': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2AlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'use'?: CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2UseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'n': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2
+     */
+    'e': string;
+}
+
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2KtyEnum = {
+    Rsa: 'RSA'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2KtyEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2KtyEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2KtyEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2AlgEnum = {
+    Rs256: 'RS256'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2AlgEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2AlgEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2AlgEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2UseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2UseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2UseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2UseEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+ */
+export interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3 {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'kty': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3KtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'crv': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3CrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'alg': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3AlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'use'?: CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3
+     */
+    'addr': any;
+}
+
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3KtyEnum = {
+    Ec: 'EC'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3KtyEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3KtyEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3KtyEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3CrvEnum = {
+    Secp256k1: 'secp256k1'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3CrvEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3CrvEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3CrvEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3AlgEnum = {
+    Es256K: 'ES256K'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3AlgEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3AlgEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3AlgEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum];
+
 /**
  * 
  * @export
@@ -1234,306 +1529,11 @@ export interface EntityDataStoreDtoEntityDataCredentialsInner {
     'userId': string;
     /**
      * 
-     * @type {EntityDataStoreDtoEntityDataCredentialsInnerKey}
+     * @type {CreateClientResponseDtoPolicyEngineNodesInnerPublicKey}
      * @memberof EntityDataStoreDtoEntityDataCredentialsInner
      */
-    'key': EntityDataStoreDtoEntityDataCredentialsInnerKey;
+    'key': CreateClientResponseDtoPolicyEngineNodesInnerPublicKey;
 }
-/**
- * @type EntityDataStoreDtoEntityDataCredentialsInnerKey
- * @export
- */
-export type EntityDataStoreDtoEntityDataCredentialsInnerKey = EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf | EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1 | EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2 | EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3;
-
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
- */
-export interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'kty': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfKtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'alg': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfAlgEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'use'?: EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfUseEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'addr'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'crv': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfCrvEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'x': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf
-     */
-    'y': string;
-}
-
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfKtyEnum = {
-    Ec: 'EC'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfKtyEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfKtyEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfKtyEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfAlgEnum = {
-    Es256K: 'ES256K'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfAlgEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfAlgEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfAlgEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfUseEnum = {
-    Sig: 'sig',
-    Enc: 'enc'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfUseEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfUseEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfUseEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfCrvEnum = {
-    Secp256k1: 'secp256k1'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfCrvEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfCrvEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOfCrvEnum];
-
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
- */
-export interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1 {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'kty': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1KtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'alg': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1AlgEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'use'?: EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1UseEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'addr'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'crv': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1CrvEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'x': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1
-     */
-    'y': string;
-}
-
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1KtyEnum = {
-    Ec: 'EC'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1KtyEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1KtyEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1KtyEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1AlgEnum = {
-    Es256: 'ES256'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1AlgEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1AlgEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1AlgEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1UseEnum = {
-    Sig: 'sig',
-    Enc: 'enc'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1UseEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1UseEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1UseEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1CrvEnum = {
-    P256: 'P-256'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1CrvEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1CrvEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf1CrvEnum];
-
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
- */
-export interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2 {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'kty': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2KtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'alg': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2AlgEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'use'?: EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2UseEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'addr'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'n': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2
-     */
-    'e': string;
-}
-
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2KtyEnum = {
-    Rsa: 'RSA'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2KtyEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2KtyEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2KtyEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2AlgEnum = {
-    Rs256: 'RS256'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2AlgEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2AlgEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2AlgEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2UseEnum = {
-    Sig: 'sig',
-    Enc: 'enc'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2UseEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2UseEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf2UseEnum];
-
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
- */
-export interface EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3 {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'kty': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3KtyEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'crv': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3CrvEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'alg': EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3AlgEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'use'?: EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3UseEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'kid': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3
-     */
-    'addr': any;
-}
-
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3KtyEnum = {
-    Ec: 'EC'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3KtyEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3KtyEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3KtyEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3CrvEnum = {
-    Secp256k1: 'secp256k1'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3CrvEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3CrvEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3CrvEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3AlgEnum = {
-    Es256K: 'ES256K'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3AlgEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3AlgEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3AlgEnum];
-export const EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3UseEnum = {
-    Sig: 'sig',
-    Enc: 'enc'
-} as const;
-
-export type EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3UseEnum = typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3UseEnum[keyof typeof EntityDataStoreDtoEntityDataCredentialsInnerKeyOneOf3UseEnum];
-
 /**
  * 
  * @export
@@ -3184,6 +3184,19 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf9CriterionEnum = type
 /**
  * 
  * @export
+ * @interface PongDto
+ */
+export interface PongDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PongDto
+     */
+    'pong': boolean;
+}
+/**
+ * 
+ * @export
  * @interface SetEntityStoreDto
  */
 export interface SetEntityStoreDto {
@@ -3268,7 +3281,7 @@ export interface SetPolicyStoreResponseDto {
      * @type {PolicyDataStoreDtoPolicy}
      * @memberof SetPolicyStoreResponseDto
      */
-    'entity': PolicyDataStoreDtoPolicy;
+    'policy': PolicyDataStoreDtoPolicy;
     /**
      * 
      * @type {number}
@@ -3282,6 +3295,116 @@ export interface SetPolicyStoreResponseDto {
      */
     'latestSync': SetEntityStoreResponseDtoLatestSync;
 }
+/**
+ * 
+ * @export
+ * @interface SyncDto
+ */
+export interface SyncDto {
+    /**
+     * 
+     * @type {SetEntityStoreResponseDtoLatestSync}
+     * @memberof SyncDto
+     */
+    'latestSync': SetEntityStoreResponseDtoLatestSync;
+}
+
+/**
+ * ApplicationApi - axios parameter creator
+ * @export
+ */
+export const ApplicationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ApplicationApi - functional programming interface
+ * @export
+ */
+export const ApplicationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ApplicationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ping(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PongDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ping(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ApplicationApi.ping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ApplicationApi - factory interface
+ * @export
+ */
+export const ApplicationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ApplicationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping(options?: any): AxiosPromise<PongDto> {
+            return localVarFp.ping(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ApplicationApi - object-oriented interface
+ * @export
+ * @class ApplicationApi
+ * @extends {BaseAPI}
+ */
+export class ApplicationApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApplicationApi
+     */
+    public ping(options?: RawAxiosRequestConfig) {
+        return ApplicationApiFp(this.configuration).ping(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
 
 /**
  * AuthorizationApi - axios parameter creator
@@ -3293,13 +3416,16 @@ export const AuthorizationApiAxiosParamCreator = function (configuration?: Confi
          * 
          * @summary Approves an authorization request
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {string} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        approve: async (id: string, body: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        approve: async (id: string, xClientId: string, body: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('approve', 'id', id)
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('approve', 'xClientId', xClientId)
             // verify required parameter 'body' is not null or undefined
             assertParamExists('approve', 'body', body)
             const localVarPath = `/authorization-requests/{id}/approvals`
@@ -3314,6 +3440,13 @@ export const AuthorizationApiAxiosParamCreator = function (configuration?: Confi
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication CLIENT_ID required
+            await setApiKeyToObject(localVarHeaderParameter, "CLIENT_ID", configuration)
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
 
 
     
@@ -3379,12 +3512,15 @@ export const AuthorizationApiAxiosParamCreator = function (configuration?: Confi
          * 
          * @summary Gets an authorization request by ID
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (id: string, xClientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getById', 'id', id)
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('getById', 'xClientId', xClientId)
             const localVarPath = `/authorization-requests/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -3397,6 +3533,13 @@ export const AuthorizationApiAxiosParamCreator = function (configuration?: Confi
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication CLIENT_ID required
+            await setApiKeyToObject(localVarHeaderParameter, "CLIENT_ID", configuration)
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
 
 
     
@@ -3423,12 +3566,13 @@ export const AuthorizationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Approves an authorization request
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {string} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async approve(id: string, body: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthorizationResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.approve(id, body, options);
+        async approve(id: string, xClientId: string, body: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthorizationResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.approve(id, xClientId, body, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthorizationApi.approve']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3451,11 +3595,12 @@ export const AuthorizationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Gets an authorization request by ID
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthorizationResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(id, options);
+        async getById(id: string, xClientId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthorizationResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(id, xClientId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthorizationApi.getById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3474,12 +3619,13 @@ export const AuthorizationApiFactory = function (configuration?: Configuration, 
          * 
          * @summary Approves an authorization request
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {string} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        approve(id: string, body: string, options?: any): AxiosPromise<AuthorizationResponseDto> {
-            return localVarFp.approve(id, body, options).then((request) => request(axios, basePath));
+        approve(id: string, xClientId: string, body: string, options?: any): AxiosPromise<AuthorizationResponseDto> {
+            return localVarFp.approve(id, xClientId, body, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3496,11 +3642,12 @@ export const AuthorizationApiFactory = function (configuration?: Configuration, 
          * 
          * @summary Gets an authorization request by ID
          * @param {string} id 
+         * @param {string} xClientId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById(id: string, options?: any): AxiosPromise<AuthorizationResponseDto> {
-            return localVarFp.getById(id, options).then((request) => request(axios, basePath));
+        getById(id: string, xClientId: string, options?: any): AxiosPromise<AuthorizationResponseDto> {
+            return localVarFp.getById(id, xClientId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3516,13 +3663,14 @@ export class AuthorizationApi extends BaseAPI {
      * 
      * @summary Approves an authorization request
      * @param {string} id 
+     * @param {string} xClientId 
      * @param {string} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthorizationApi
      */
-    public approve(id: string, body: string, options?: RawAxiosRequestConfig) {
-        return AuthorizationApiFp(this.configuration).approve(id, body, options).then((request) => request(this.axios, this.basePath));
+    public approve(id: string, xClientId: string, body: string, options?: RawAxiosRequestConfig) {
+        return AuthorizationApiFp(this.configuration).approve(id, xClientId, body, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3542,12 +3690,13 @@ export class AuthorizationApi extends BaseAPI {
      * 
      * @summary Gets an authorization request by ID
      * @param {string} id 
+     * @param {string} xClientId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthorizationApi
      */
-    public getById(id: string, options?: RawAxiosRequestConfig) {
-        return AuthorizationApiFp(this.configuration).getById(id, options).then((request) => request(this.axios, this.basePath));
+    public getById(id: string, xClientId: string, options?: RawAxiosRequestConfig) {
+        return AuthorizationApiFp(this.configuration).getById(id, xClientId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -3845,10 +3994,13 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @summary Sync the client data store with the engine cluster
+         * @param {string} xClientSecret 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sync: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        sync: async (xClientSecret: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientSecret' is not null or undefined
+            assertParamExists('sync', 'xClientSecret', xClientSecret)
             const localVarPath = `/data/sync`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3860,6 +4012,13 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication CLIENT_SECRET required
+            await setApiKeyToObject(localVarHeaderParameter, "CLIENT_SECRET", configuration)
+
+            if (xClientSecret != null) {
+                localVarHeaderParameter['x-client-secret'] = String(xClientSecret);
+            }
 
 
     
@@ -3939,11 +4098,12 @@ export const ManagedDataStoreApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Sync the client data store with the engine cluster
+         * @param {string} xClientSecret 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async sync(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.sync(options);
+        async sync(xClientSecret: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sync(xClientSecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ManagedDataStoreApi.sync']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4003,11 +4163,12 @@ export const ManagedDataStoreApiFactory = function (configuration?: Configuratio
         /**
          * 
          * @summary Sync the client data store with the engine cluster
+         * @param {string} xClientSecret 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sync(options?: any): AxiosPromise<void> {
-            return localVarFp.sync(options).then((request) => request(axios, basePath));
+        sync(xClientSecret: string, options?: any): AxiosPromise<SyncDto> {
+            return localVarFp.sync(xClientSecret, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -4072,12 +4233,13 @@ export class ManagedDataStoreApi extends BaseAPI {
     /**
      * 
      * @summary Sync the client data store with the engine cluster
+     * @param {string} xClientSecret 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ManagedDataStoreApi
      */
-    public sync(options?: RawAxiosRequestConfig) {
-        return ManagedDataStoreApiFp(this.configuration).sync(options).then((request) => request(this.axios, this.basePath));
+    public sync(xClientSecret: string, options?: RawAxiosRequestConfig) {
+        return ManagedDataStoreApiFp(this.configuration).sync(xClientSecret, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

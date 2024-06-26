@@ -1,20 +1,34 @@
 import { Controller, Get, Logger } from '@nestjs/common'
+import { ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+
+class PongDto extends createZodDto(
+  z.object({
+    pong: z.boolean()
+  })
+) {}
 
 @Controller()
+@ApiTags('Application')
 export class VaultController {
   private logger = new Logger(VaultController.name)
 
   @Get()
+  @ApiExcludeEndpoint()
   healthcheck() {
     return 'Running'
   }
 
   @Get('/ping')
-  ping() {
+  @ApiResponse({
+    type: PongDto
+  })
+  ping(): PongDto {
     this.logger.log({
       message: 'Received ping'
     })
 
-    return 'pong'
+    return PongDto.create({ pong: true })
   }
 }

@@ -8,6 +8,7 @@ on:
       - packages/**
       - apps/armory/**
       - .github/workflows/armory.yml
+      - .github/workflows/armory-prod.yml
       - jest.config.ts
       - jest.preset.js
       - .eslintrc.json

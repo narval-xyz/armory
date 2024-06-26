@@ -1,12 +1,16 @@
+import { CreateAuthorizationRequest } from '@narval/policy-engine-shared'
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
+import { SetOptional } from 'type-fest'
 import { z } from 'zod'
 import {
   AuthorizationRequestDto,
   AuthorizationResponseDto,
-  CreateClientRequestDto,
-  CreateClientResponseDto
+  CreateClientResponseDto as CreateAuthClientResponse,
+  CreateClientRequestDto
 } from '../http/client/auth'
-import { Signer } from '../shared/type'
+import { SignOptions, Signer } from '../shared/type'
+
+export type { CreateAuthClientResponse }
 
 export const AuthConfig = z.object({
   host: z.string().describe('Authorization Server host URL'),
@@ -50,10 +54,10 @@ export type AuthorizationHttp = {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  getById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
+  getById(id: string, clientId: string, options?: RawAxiosRequestConfig): AxiosPromise<AuthorizationResponseDto>
 }
 
-export type ClientHttp = {
+export type AuthClientHttp = {
   /**
    * Creates a new client.
    *
@@ -66,5 +70,10 @@ export type ClientHttp = {
     apiKey: string,
     data: CreateClientRequestDto,
     options?: RawAxiosRequestConfig
-  ): AxiosPromise<CreateClientResponseDto>
+  ): AxiosPromise<CreateAuthClientResponse>
 }
+
+export type RequestAccessTokenOptions = SignOptions &
+  SetOptional<Pick<CreateAuthorizationRequest, 'id' | 'approvals'>, 'id' | 'approvals'>
+
+export type Evaluate = Omit<CreateAuthorizationRequest, 'authentication'>

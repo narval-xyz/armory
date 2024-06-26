@@ -110,7 +110,7 @@ describe('Accounts', () => {
     await clientService.save(client)
   })
 
-  describe('GET', () => {
+  describe('GET /accounts', () => {
     it('list all accounts for a specific client', async () => {
       const secondClientId = uuid()
       await clientService.save({
@@ -180,7 +180,7 @@ describe('Accounts', () => {
     })
   })
 
-  describe('POST', () => {
+  describe('POST /accounts', () => {
     it('derives a new account from a wallet', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
 
@@ -372,7 +372,8 @@ describe('Accounts', () => {
 
       expect(body).toEqual({
         id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
-        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+        publicKey: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -399,7 +400,8 @@ describe('Accounts', () => {
 
       expect(body).toEqual({
         id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
-        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1'
+        address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+        publicKey: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })

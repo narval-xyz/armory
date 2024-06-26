@@ -2,8 +2,8 @@ import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-sha
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClusterService } from '../../../../policy-engine/core/service/cluster.service'
+import { ApiClientSecretGuard } from '../../../../shared/decorator/api-client-secret-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { ClientSecretGuard } from '../../../../shared/guard/client-secret.guard'
 import { EntityDataStoreService } from '../../../core/service/entity-data-store.service'
 import { PolicyDataStoreService } from '../../../core/service/policy-data-store.service'
 import { DataStoreGuard } from '../../../shared/guard/data-store.guard'
@@ -11,6 +11,7 @@ import { EntityDataStoreDto } from '../dto/entity-data-store.dto'
 import { PolicyDataStoreDto } from '../dto/policy-data-store.dto'
 import { SetEntityStoreDto, SetEntityStoreResponseDto } from '../dto/set-entity-store.dto'
 import { SetPolicyStoreDto, SetPolicyStoreResponseDto } from '../dto/set-policy-store.dto'
+import { SyncDto } from '../dto/sync.dto'
 
 @Controller('/data')
 @ApiTags('Managed Data Store')
@@ -22,6 +23,7 @@ export class DataStoreController {
   ) {}
 
   @Get('/entities')
+  @UseGuards(DataStoreGuard)
   @ApiOperation({
     summary: 'Gets the client entities'
   })
@@ -29,7 +31,6 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: EntityDataStoreDto
   })
-  @UseGuards(DataStoreGuard)
   async getEntities(@Query('clientId') clientId: string): Promise<EntityDataStoreDto> {
     const entity = await this.entityDataStoreService.getEntities(clientId)
 
@@ -46,6 +47,7 @@ export class DataStoreController {
   }
 
   @Get('/policies')
+  @UseGuards(DataStoreGuard)
   @ApiOperation({
     summary: 'Gets the client policies'
   })
@@ -53,7 +55,6 @@ export class DataStoreController {
     status: HttpStatus.OK,
     type: PolicyDataStoreDto
   })
-  @UseGuards(DataStoreGuard)
   async getPolicies(@Query('clientId') clientId: string): Promise<PolicyDataStoreDto> {
     const policy = await this.policyDataStoreService.getPolicies(clientId)
 
@@ -101,20 +102,24 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetPolicyStoreResponseDto
   })
-  setPolicies(@Query('clientId') clientId: string, @Body() body: SetPolicyStoreDto) {
+  setPolicies(
+    @Query('clientId') clientId: string,
+    @Body() body: SetPolicyStoreDto
+  ): Promise<SetPolicyStoreResponseDto> {
     return this.policyDataStoreService.setPolicies(clientId, body)
   }
 
   @Post('/sync')
+  @ApiClientSecretGuard()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(ClientSecretGuard)
   @ApiOperation({
     summary: 'Sync the client data store with the engine cluster'
   })
   @ApiResponse({
-    status: HttpStatus.OK
+    status: HttpStatus.OK,
+    type: SyncDto
   })
-  async sync(@ClientId('clientId') clientId: string) {
+  async sync(@ClientId('clientId') clientId: string): Promise<SyncDto> {
     try {
       const success = await this.clusterService.sync(clientId)
 
@@ -124,11 +129,11 @@ export class DataStoreController {
         }
       }
     } catch (error) {
-      return {
+      return SyncDto.create({
         latestSync: {
           success: false
         }
-      }
+      })
     }
   }
 }

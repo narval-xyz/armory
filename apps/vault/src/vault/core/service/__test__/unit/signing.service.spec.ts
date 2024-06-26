@@ -92,6 +92,33 @@ describe('SigningService', () => {
 
       expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
     })
+
+    it('supports "0x" as a valid "value" field', async () => {
+      const requestWithZeroValue: Request = {
+        action: 'signTransaction',
+        nonce,
+        resourceId: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+        transactionRequest: {
+          from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
+          to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
+          chainId: 137,
+          value: '0x',
+          data: '0x',
+          nonce: 317,
+          type: '2',
+          gas: 21004n,
+          maxFeePerGas: 291175227375n,
+          maxPriorityFeePerGas: 81000000000n
+        }
+      }
+
+      const expectedSignature =
+        '0x02f86f818982013d8512dbf9ea008543cb655fef82520c9404b12f0863b83c7162429f0ebb0dfda20e1aa97b8080c001a0552bbb419f7143267e39f56eda6478af1a635d839662e848a20934f49be8b192a008be69a5c45796365ae061da8c730017ab61f3a6aa08c4a9fef6ca5a7a574fee'
+
+      const result = await signingService.sign(clientId, requestWithZeroValue)
+
+      expect(result).toEqual(expectedSignature)
+    })
   })
 
   describe('signMessage', () => {

@@ -1,31 +1,44 @@
 import {
+  AccessToken,
   AuthorizationRequest,
   CreateAuthorizationRequest,
   Decision,
+  Request,
   SerializedAuthorizationRequest
 } from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
 import assert from 'assert'
 import axios from 'axios'
 import { reverse } from 'lodash'
+import { SetOptional } from 'type-fest'
+import { v4 as uuid } from 'uuid'
 import { ArmorySdkException } from '../exceptions'
 import {
+  ApplicationApi,
   AuthorizationApiFactory,
   AuthorizationResponseDto,
   AuthorizationResponseDtoStatusEnum,
   ClientApiFactory,
   Configuration,
   CreateClientRequestDto,
-  CreateClientResponseDto
+  CreateClientResponseDto,
+  PongDto
 } from '../http/client/auth'
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
-import { AuthAdminConfig, AuthConfig, AuthorizationHttp, ClientHttp } from './type'
+import {
+  AuthAdminConfig,
+  AuthClientHttp,
+  AuthConfig,
+  AuthorizationHttp,
+  Evaluate,
+  RequestAccessTokenOptions
+} from './type'
 
 export class AuthAdminClient {
   private config: AuthAdminConfig
 
-  private clientHttp: ClientHttp
+  private clientHttp: AuthClientHttp
 
   constructor(config: AuthAdminConfig) {
     const httpConfig = new Configuration({
@@ -59,6 +72,8 @@ export class AuthClient {
 
   private authorizationHttp: AuthorizationHttp
 
+  private applicationApi: ApplicationApi
+
   constructor(config: AuthConfig) {
     const httpConfig = new Configuration({
       basePath: config.host
@@ -67,7 +82,16 @@ export class AuthClient {
     const axiosInstance = axios.create()
 
     this.config = AuthConfig.parse(config)
+
     this.authorizationHttp = AuthorizationApiFactory(httpConfig, config.host, axiosInstance)
+
+    this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
+  }
+
+  async ping(): Promise<PongDto> {
+    const { data } = await this.applicationApi.ping()
+
+    return data
   }
 
   /**
@@ -77,10 +101,7 @@ export class AuthClient {
    * @param opts - Optional sign options.
    * @returns A promise that resolves to the authorization response.
    */
-  async evaluate(
-    input: Omit<CreateAuthorizationRequest, 'authentication'>,
-    opts?: SignOptions
-  ): Promise<AuthorizationRequest> {
+  async evaluate(input: Evaluate, opts?: SignOptions): Promise<AuthorizationRequest> {
     const jwtPayload = this.buildJwtPayload(input, opts)
     const authentication = await this.signJwtPayload(jwtPayload)
     const request = SerializedAuthorizationRequest.pick({
@@ -112,7 +133,7 @@ export class AuthClient {
    * @returns A Promise that resolves to the retrieved AuthorizationResponseDto.
    */
   async getAuthorizationById(id: string): Promise<AuthorizationResponseDto> {
-    const { data } = await this.authorizationHttp.getById(id)
+    const { data } = await this.authorizationHttp.getById(this.config.clientId, id)
 
     return data
   }
@@ -133,7 +154,7 @@ export class AuthClient {
   }
 
   private getPollingTimeoutMs(): number {
-    return this.config.pollingTimeoutMs || 10_000
+    return this.config.pollingTimeoutMs || 10000
   }
 
   private getPollingIntervalMs(): number {
@@ -141,15 +162,26 @@ export class AuthClient {
   }
 
   async requestAccessToken(
-    input: Omit<CreateAuthorizationRequest, 'authentication'>,
-    opts?: SignOptions
-  ): Promise<{ token: string }> {
-    const authorization = await this.evaluate(input, opts)
+    request: SetOptional<Request, 'nonce'>,
+    opts?: RequestAccessTokenOptions
+  ): Promise<AccessToken> {
+    const authorization = await this.evaluate(
+      {
+        id: opts?.id || uuid(),
+        approvals: opts?.approvals || [],
+        clientId: this.config.clientId,
+        request: {
+          ...request,
+          nonce: request.nonce || uuid()
+        }
+      },
+      opts
+    )
 
     const permit = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.PERMIT)
 
     if (permit && permit.signature) {
-      return { token: permit.signature }
+      return { value: permit.signature }
     }
 
     throw new ArmorySdkException('Unauthorized', { authorization })

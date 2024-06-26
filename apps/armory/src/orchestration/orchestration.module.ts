@@ -6,9 +6,12 @@ import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
 import { load } from '../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
+import { ClientModule } from '../client/client.module'
 import { DataFeedModule } from '../data-feed/data-feed.module'
 import { PolicyEngineModule } from '../policy-engine/policy-engine.module'
 import { PriceModule } from '../price/price.module'
+import { ClientIdGuard } from '../shared/guard/client-id.guard'
+import { ClientSecretGuard } from '../shared/guard/client-secret.guard'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.module'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
@@ -35,13 +38,15 @@ const INFRASTRUCTURE_MODULES = [
   })
 ]
 
-const DOMAIN_MODULES = [TransferTrackingModule, PriceModule, DataFeedModule, PolicyEngineModule]
+const DOMAIN_MODULES = [ClientModule, TransferTrackingModule, PriceModule, DataFeedModule, PolicyEngineModule]
 
 @Module({
   imports: [...INFRASTRUCTURE_MODULES, ...DOMAIN_MODULES],
   controllers: [AuthorizationRequestController],
   providers: [
     ...DEFAULT_HTTP_MODULE_PROVIDERS,
+    ClientIdGuard,
+    ClientSecretGuard,
     AuthorizationRequestService,
     AuthorizationRequestRepository,
     AuthorizationRequestApprovalRepository,

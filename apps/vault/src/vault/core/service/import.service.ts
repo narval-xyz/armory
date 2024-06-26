@@ -16,7 +16,7 @@ import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
-import { ImportSeedDto } from '../../http/rest/dto/import-wallet.dto'
+import { ImportWalletDto } from '../../http/rest/dto/import-wallet.dto'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { ImportRepository } from '../../persistence/repository/import.repository'
 import { getRootKey } from '../util/key-generation.util'
@@ -110,7 +110,7 @@ export class ImportService {
 
   async importSeed(
     clientId: string,
-    body: ImportSeedDto
+    body: ImportWalletDto
   ): Promise<{
     account: PrivateAccount
     keyId: string

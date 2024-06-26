@@ -1,18 +1,14 @@
-import { Entities, EntityUtil, Policy, PolicyStore } from '@narval/policy-engine-shared'
+import { Entities, EntityStore, EntityUtil, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
 import assert from 'assert'
 import axios from 'axios'
-import {
-  Configuration,
-  EntityDataStoreDto,
-  ManagedDataStoreApiFactory,
-  PolicyDataStoreDto,
-  SetEntityStoreResponseDto,
-  SetPolicyStoreResponseDto
-} from '../http/client/auth'
-import { DataStoreConfig, DataStoreHttp, SignOptions } from './type'
+import { Configuration, ManagedDataStoreApiFactory } from '../http/client/auth'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../shared/constant'
+import { DataStoreConfig, DataStoreHttp, SetEntityStoreResponse, SetPolicyStoreResponse, SignOptions } from './type'
 
 const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
+  assert(config.signer !== undefined, 'Missing signer')
+
   return {
     data: hash(data),
     sub: config.signer.jwk.kid,
@@ -22,6 +18,8 @@ const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOpti
 }
 
 const signJwtPayload = (config: DataStoreConfig, payload: Payload): Promise<string> => {
+  assert(config.signer !== undefined, 'Missing signer')
+
   const { signer } = config
 
   return signJwt(payload, signer.jwk, { alg: signer.alg }, signer.sign)
@@ -68,7 +66,7 @@ export class EntityStoreClient {
    * @param store - The store object containing the entities data and signature.
    * @returns A promise that resolves to the response.
    */
-  async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponseDto> {
+  async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponse> {
     const { data } = await this.dataStoreHttp.setEntities(this.config.clientId, {
       data: this.populate(store.data),
       signature: store.signature
@@ -84,7 +82,7 @@ export class EntityStoreClient {
    * @param opts - Optional sign options.
    * @returns A promise that resolves to the response containing the latest entity store.
    */
-  async signAndPush(entities: Partial<Entities>, opts?: SignOptions): Promise<SetEntityStoreResponseDto> {
+  async signAndPush(entities: Partial<Entities>, opts?: SignOptions): Promise<SetEntityStoreResponse> {
     const signature = await this.sign(entities, opts)
 
     return this.push({
@@ -98,24 +96,34 @@ export class EntityStoreClient {
    *
    * @returns A promise that resolves to the entity data store.
    */
-  async fetch(): Promise<EntityDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId)
+  async fetch(): Promise<EntityStore> {
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    return data
-  }
-
-  async sync(): Promise<boolean> {
-    assert(this.config.clientSecret !== undefined, 'Missing client secret')
-
-    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
-    await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId, {
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
-    return true
+    return EntityStore.parse(data.entity)
+  }
+
+  /**
+   * Syncs the client data stores.
+   *
+   * @throws {RequiredError}
+   */
+  async sync(): Promise<boolean> {
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
+
+    return data.latestSync.success
   }
 }
 
@@ -153,7 +161,7 @@ export class PolicyStoreClient {
    * @param store - The store object containing the policies data and signature.
    * @returns A promise that resolves to the response.
    */
-  async push(store: PolicyStore): Promise<SetPolicyStoreResponseDto> {
+  async push(store: PolicyStore): Promise<SetPolicyStoreResponse> {
     const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, store)
 
     return data
@@ -166,7 +174,7 @@ export class PolicyStoreClient {
    * @param opts - Optional sign options.
    * @returns A promise that resolves to the response containing the latest policy store.
    */
-  async signAndPush(policies: Policy[], opts?: SignOptions): Promise<SetPolicyStoreResponseDto> {
+  async signAndPush(policies: Policy[], opts?: SignOptions): Promise<SetPolicyStoreResponse> {
     const signature = await this.sign(policies, opts)
 
     return this.push({ data: policies, signature })
@@ -177,23 +185,33 @@ export class PolicyStoreClient {
    *
    * @returns A promise that resolves to the policy data store.
    */
-  async fetch(): Promise<PolicyDataStoreDto> {
-    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId)
+  async fetch(): Promise<PolicyStore> {
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    return data
-  }
-
-  async sync(): Promise<boolean> {
-    assert(this.config.clientSecret !== undefined, 'Missing client secret')
-
-    // TODO: BEFORE MERGE, rebase with main and re-generate the client. Fix the return
-    await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId, {
       headers: {
-        'x-client-id': this.config.clientId,
-        'x-client-secret': this.config.clientSecret
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
       }
     })
 
-    return true
+    return PolicyStore.parse(data.policy)
+  }
+
+  /**
+   * Syncs the client data stores.
+   *
+   * @throws {RequiredError}
+   */
+  async sync(): Promise<boolean> {
+    assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
+
+    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
+      headers: {
+        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+      }
+    })
+
+    return data.latestSync.success
   }
 }

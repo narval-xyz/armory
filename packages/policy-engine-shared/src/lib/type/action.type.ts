@@ -146,3 +146,14 @@ export const GrantPermissionAction = BaseAction.merge(
   })
 )
 export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>
+
+export const SignableRequest = z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignRawAction])
+export type SignableRequest = z.infer<typeof SignableRequest>
+
+export const SerializedSignableRequest = z.union([
+  SerializedTransactionAction,
+  SignMessageAction,
+  SignTypedDataAction,
+  SignRawAction
+])
+export type SerializedSignableRequest = z.infer<typeof SerializedSignableRequest>
