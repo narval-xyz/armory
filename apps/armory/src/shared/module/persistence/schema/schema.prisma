@@ -85,6 +85,7 @@ model AuthorizationRequestApproval {
   id        String   @id @default(uuid()) @db.VarChar(255)
   requestId String   @map("request_id")
   sig       String
+  error     Json?
   createdAt DateTime @default(now()) @map("created_at")
 
   request AuthorizationRequest @relation(fields: [requestId], references: [id])

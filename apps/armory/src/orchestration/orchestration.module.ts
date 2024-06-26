@@ -16,6 +16,7 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.module'
 import { AuthorizationRequestService } from './core/service/authorization-request.service'
 import { AuthorizationRequestController } from './http/rest/controller/authorization-request.controller'
+import { AuthorizationRequestApprovalRepository } from './persistence/repository/authorization-request-approval.repository'
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
@@ -48,6 +49,7 @@ const DOMAIN_MODULES = [ClientModule, TransferTrackingModule, PriceModule, DataF
     ClientSecretGuard,
     AuthorizationRequestService,
     AuthorizationRequestRepository,
+    AuthorizationRequestApprovalRepository,
     AuthorizationRequestProcessingConsumer,
     AuthorizationRequestProcessingProducer
   ]
