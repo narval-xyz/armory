@@ -1,5 +1,4 @@
 import {
-  DataStoreClientConfig,
   EntityStoreClient,
   PolicyStoreClient,
 } from '@narval/armory-sdk'
@@ -43,57 +42,41 @@ const useDataStoreApi = () => {
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
-  const sdkDataStoreConfig = useMemo<DataStoreClientConfig | null>(() => {
-    if (!authClientId || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
-      return null
-    }
-
-    return {
-      dataStoreClientId: authClientId,
-      dataStoreClientSecret: authClientSecret,
-      entityStoreHost,
-      policyStoreHost,
-      jwk,
-      alg: SigningAlg.EIP191,
-      signer
-    }
-  }, [authClientId, authClientSecret, entityStoreHost, policyStoreHost, jwk, signer])
-
   const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
-    if (!sdkDataStoreConfig) {
+    if (!entityStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 
     return new EntityStoreClient({
-      host: getHost(sdkDataStoreConfig.entityStoreHost),
-      clientId: sdkDataStoreConfig.dataStoreClientId,
-      clientSecret: sdkDataStoreConfig.dataStoreClientSecret,
+      host: getHost(entityStoreHost),
+      clientId: authClientId,
+      clientSecret: authClientSecret,
       signer: {
-        jwk: sdkDataStoreConfig.jwk,
-        alg: sdkDataStoreConfig.alg || SigningAlg.EIP191,
-        sign: sdkDataStoreConfig.signer
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
       }
     })
 
-  }, [sdkDataStoreConfig])
+  }, [entityStoreHost, authClientId, authClientSecret, jwk, signer])
 
   const policyStoreClient = useMemo<PolicyStoreClient | null>(() => {
-    if (!sdkDataStoreConfig) {
+    if (!policyStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 
     return new PolicyStoreClient({
-      host: getHost(sdkDataStoreConfig.entityStoreHost),
-      clientId: sdkDataStoreConfig.dataStoreClientId,
-      clientSecret: sdkDataStoreConfig.dataStoreClientSecret,
+      host: getHost(policyStoreHost),
+      clientId: authClientId,
+      clientSecret: authClientSecret,
       signer: {
-        jwk: sdkDataStoreConfig.jwk,
-        alg: sdkDataStoreConfig.alg || SigningAlg.EIP191,
-        sign: sdkDataStoreConfig.signer
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
       }
     })
 
-  }, [sdkDataStoreConfig])
+  }, [policyStoreHost, authClientId, authClientSecret, jwk, signer])
 
   useEffect(() => {
     if (!entityStoreHost) return
@@ -110,11 +93,13 @@ const useDataStoreApi = () => {
   }, [policyStoreHost])
 
   const getEntityStore = useCallback(async () => {
+    console.log({ entityStoreClient })
     if (!entityStoreClient) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
       const entity = await entityStoreClient.fetch()
+      console.log('', { entity })
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -237,7 +222,6 @@ const useDataStoreApi = () => {
     policyStore,
     errors,
     processingStatus,
-    sdkDataStoreConfig,
     validationErrors,
     getEntityStore,
     getPolicyStore,
