@@ -3,7 +3,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { keccak_256 as keccak256 } from '@noble/hashes/sha3'
 import { subtle } from 'crypto'
-import { isHex, signatureToHex, toBytes, toHex } from 'viem'
+import { hexToBigInt, isHex, toBytes, toHex } from 'viem'
 import { JwtError } from './error'
 import { hash } from './hash'
 import { canonicalize } from './json.util'
@@ -158,6 +158,7 @@ export const signSecp256k1 = (hash: Uint8Array, privateKey: Hex | string, isEth?
   const { r, s, recovery } = secp256k1.sign(hash, pk)
   const rHex = toHex(r, { size: 32 })
   const sHex = toHex(s, { size: 32 })
+  // Ethereum recovery id is 27 or 28 so we need to adjust it
   const recoveryBn = isEth ? 27n + BigInt(recovery) : BigInt(recovery)
 
   return {
@@ -180,6 +181,11 @@ export const signP256 = (hash: Uint8Array, privateKey: Hex | string): EcdsaSigna
     s: sHex,
     v: recoveryBn
   }
+}
+
+export const signatureToHex = (signature: EcdsaSignature): Hex => {
+  const { v, r, s } = signature
+  return `0x${new secp256k1.Signature(hexToBigInt(r), hexToBigInt(s)).toCompactHex()}${toHex(v).slice(2)}`
 }
 
 export const buildSignerEs256k =
