@@ -619,6 +619,19 @@ export interface ImportWalletDto {
 /**
  * 
  * @export
+ * @interface PongDto
+ */
+export interface PongDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PongDto
+     */
+    'pong': boolean;
+}
+/**
+ * 
+ * @export
  * @interface SignRequestDto
  */
 export interface SignRequestDto {
@@ -931,22 +944,22 @@ export interface SignRequestDtoRequestOneOfTransactionRequest {
     'data'?: any;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof SignRequestDtoRequestOneOfTransactionRequest
      */
-    'gas'?: number;
+    'gas'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof SignRequestDtoRequestOneOfTransactionRequest
      */
-    'maxFeePerGas'?: number;
+    'maxFeePerGas'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof SignRequestDtoRequestOneOfTransactionRequest
      */
-    'maxPriorityFeePerGas'?: number;
+    'maxPriorityFeePerGas'?: string;
     /**
      * 
      * @type {any}
@@ -1420,6 +1433,103 @@ export class AccountApi extends BaseAPI {
      */
     public list(xClientId: string, options?: RawAxiosRequestConfig) {
         return AccountApiFp(this.configuration).list(xClientId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ApplicationApi - axios parameter creator
+ * @export
+ */
+export const ApplicationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ApplicationApi - functional programming interface
+ * @export
+ */
+export const ApplicationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ApplicationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ping(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PongDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ping(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ApplicationApi.ping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ApplicationApi - factory interface
+ * @export
+ */
+export const ApplicationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ApplicationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ping(options?: any): AxiosPromise<PongDto> {
+            return localVarFp.ping(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ApplicationApi - object-oriented interface
+ * @export
+ * @class ApplicationApi
+ * @extends {BaseAPI}
+ */
+export class ApplicationApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApplicationApi
+     */
+    public ping(options?: RawAxiosRequestConfig) {
+        return ApplicationApiFp(this.configuration).ping(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

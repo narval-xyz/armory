@@ -1,11 +1,4 @@
-import {
-  DataStoreClientConfig,
-  getEntities,
-  getPolicies,
-  setEntities,
-  setPolicies,
-  signDataPayload
-} from '@narval/armory-sdk'
+import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
@@ -16,10 +9,12 @@ import {
   PolicyStore
 } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
+
+const getHost = (url: string): string => new URL(url).origin
 
 const useDataStoreApi = () => {
   const {
@@ -44,61 +39,79 @@ const useDataStoreApi = () => {
   const [errors, setErrors] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
-  const sdkDataStoreConfig = useMemo<DataStoreClientConfig | null>(() => {
-    if (!authClientId || !entityStoreHost || !policyStoreHost || !jwk || !signer) {
+  const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
+    if (!entityStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 
-    return {
-      dataStoreClientId: authClientId,
-      dataStoreClientSecret: authClientSecret,
-      entityStoreHost,
-      policyStoreHost,
-      jwk,
-      alg: SigningAlg.EIP191,
-      signer
+    return new EntityStoreClient({
+      host: getHost(entityStoreHost),
+      clientId: authClientId,
+      clientSecret: authClientSecret,
+      signer: {
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
+      }
+    })
+  }, [entityStoreHost, authClientId, authClientSecret, jwk, signer])
+
+  const policyStoreClient = useMemo<PolicyStoreClient | null>(() => {
+    if (!policyStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
+      return null
     }
-  }, [authClientId, entityStoreHost, policyStoreHost, jwk, signer])
+
+    return new PolicyStoreClient({
+      host: getHost(policyStoreHost),
+      clientId: authClientId,
+      clientSecret: authClientSecret,
+      signer: {
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
+      }
+    })
+  }, [policyStoreHost, authClientId, authClientSecret, jwk, signer])
 
   useEffect(() => {
-    if (!entityStoreHost) return
-
-    getEntityStore()
-  }, [entityStoreHost, authClientSecret])
+    if (entityStoreClient && !entityStore) {
+      getEntityStore()
+    }
+  }, [entityStoreClient, entityStore])
 
   useEffect(() => {
-    if (!policyStoreHost) return
+    if (policyStoreClient && !policyStore) {
+      getPolicyStore()
+    }
+  }, [policyStoreClient, policyStore])
 
-    getPolicyStore()
-  }, [policyStoreHost, authClientSecret])
-
-  const getEntityStore = useCallback(async () => {
-    if (!entityStoreHost) return
+  const getEntityStore = async () => {
+    if (!entityStoreClient || processingStatus.isFetchingEntity) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-      const entity = await getEntities(entityStoreHost, authClientSecret)
+      const entity = await entityStoreClient.fetch()
       setEntityStore(entity)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
-  }, [entityStoreHost])
+  }
 
-  const getPolicyStore = useCallback(async () => {
-    if (!policyStoreHost) return
+  const getPolicyStore = async () => {
+    if (!policyStoreClient || processingStatus.isFetchingPolicy) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-      const policy = await getPolicies(policyStoreHost, authClientSecret)
+      const policy = await policyStoreClient.fetch()
       setPolicyStore(policy)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     }
 
     setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
-  }, [policyStoreHost])
+  }
 
   const validateEntityData = (data: Entities) => {
     const entityValidationResult = EntityData.safeParse({ entity: { data } })
@@ -134,15 +147,14 @@ const useDataStoreApi = () => {
   }
 
   const signEntityData = async (data: Entities) => {
-    if (!sdkDataStoreConfig || !validateEntityData(data)) return
+    if (!entityStoreClient || !validateEntityData(data)) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: true }))
-      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
-      const signature = await signDataPayload({ clientId, ...config }, data)
+      const signature = await entityStoreClient.sign(data)
       setEntityStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -152,15 +164,14 @@ const useDataStoreApi = () => {
   }
 
   const signPolicyData = async (data: Policy[]) => {
-    if (!sdkDataStoreConfig || !validatePolicyData(data)) return
+    if (!policyStoreClient || !validatePolicyData(data)) return
 
     setErrors(undefined)
     setValidationErrors(undefined)
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: true }))
-      const { dataStoreClientId: clientId, ...config } = sdkDataStoreConfig
-      const signature = await signDataPayload({ clientId, ...config }, data)
+      const signature = await policyStoreClient.sign(data)
       setPolicyStore({ signature, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -170,12 +181,12 @@ const useDataStoreApi = () => {
   }
 
   const signAndPushEntity = async (data: Entities) => {
-    if (!sdkDataStoreConfig || !validateEntityData(data)) return
+    if (!entityStoreClient || !validateEntityData(data)) return
 
     try {
       setErrors(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
-      await setEntities(sdkDataStoreConfig, data)
+      await entityStoreClient.signAndPush(data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -184,12 +195,12 @@ const useDataStoreApi = () => {
   }
 
   const signAndPushPolicy = async (data: Policy[]) => {
-    if (!sdkDataStoreConfig || !validatePolicyData(data)) return
+    if (!policyStoreClient || !validatePolicyData(data)) return
 
     try {
       setErrors(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
-      await setPolicies(sdkDataStoreConfig, data)
+      await policyStoreClient.signAndPush(data)
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -202,7 +213,6 @@ const useDataStoreApi = () => {
     policyStore,
     errors,
     processingStatus,
-    sdkDataStoreConfig,
     validationErrors,
     getEntityStore,
     getPolicyStore,

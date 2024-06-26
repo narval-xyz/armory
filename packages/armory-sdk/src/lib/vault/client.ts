@@ -1,9 +1,10 @@
-import { AccessToken } from '@narval/policy-engine-shared'
+import { AccessToken, Request, SerializedSignableRequest } from '@narval/policy-engine-shared'
 import { RsaPublicKey, rsaEncrypt } from '@narval/signature'
 import axios from 'axios'
 import {
   AccountApiFactory,
   AccountDto,
+  ApplicationApi,
   ClientApiFactory,
   ClientDto,
   Configuration,
@@ -14,17 +15,28 @@ import {
   GenerateWalletDto,
   ImportPrivateKeyDto,
   ImportWalletDto,
+  PongDto,
+  SignApiFactory,
+  SignatureDto,
   WalletApiFactory,
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
 import { getBearerToken, interceptRequestAddDetachedJwsHeader } from '../shared/gnap'
-import { AccountHttp, ClientHttp, EncryptionKeyHttp, VaultAdminConfig, VaultConfig, WalletHttp } from './type'
+import {
+  AccountHttp,
+  EncryptionKeyHttp,
+  SignHttp,
+  VaultAdminConfig,
+  VaultClientHttp,
+  VaultConfig,
+  WalletHttp
+} from './type'
 
 export class VaultAdminClient {
   private config: VaultAdminConfig
 
-  private clientHttp: ClientHttp
+  private clientHttp: VaultClientHttp
 
   constructor(config: VaultAdminConfig) {
     const httpConfig = new Configuration({
@@ -53,6 +65,10 @@ export class VaultClient {
 
   private accountHttp: AccountHttp
 
+  private signHttp: SignHttp
+
+  private applicationApi: ApplicationApi
+
   constructor(config: VaultConfig) {
     const httpConfig = new Configuration({
       basePath: config.host
@@ -63,9 +79,19 @@ export class VaultClient {
     axiosInstance.interceptors.request.use(interceptRequestAddDetachedJwsHeader(config.signer))
 
     this.config = config
+
     this.walletHttp = WalletApiFactory(httpConfig, config.host, axiosInstance)
     this.encryptionKeyHttp = EncryptionKeyApiFactory(httpConfig, config.host, axiosInstance)
     this.accountHttp = AccountApiFactory(httpConfig, config.host, axiosInstance)
+    this.signHttp = SignApiFactory(httpConfig, config.host, axiosInstance)
+
+    this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
+  }
+
+  async ping(): Promise<PongDto> {
+    const { data } = await this.applicationApi.ping()
+
+    return data
   }
 
   async generateEncryptionKey({ accessToken }: { accessToken: AccessToken }): Promise<RsaPublicKey> {
@@ -149,5 +175,15 @@ export class VaultClient {
     const { data: account } = await this.accountHttp.importPrivateKey(this.config.clientId, token, payload)
 
     return account
+  }
+
+  async sign({ data, accessToken }: { data: Request; accessToken: AccessToken }): Promise<SignatureDto> {
+    const token = getBearerToken(accessToken)
+
+    const { data: signature } = await this.signHttp.sign(this.config.clientId, token, {
+      request: SerializedSignableRequest.parse(data)
+    })
+
+    return signature
   }
 }

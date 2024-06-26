@@ -51,6 +51,7 @@ const useEngineApi = () => {
       return pingEngine(engineHost)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     }
   }
 
@@ -101,6 +102,7 @@ const useEngineApi = () => {
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -131,6 +133,7 @@ const useEngineApi = () => {
       return sendEvaluationRequest(sdkEngineClientConfig, request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }

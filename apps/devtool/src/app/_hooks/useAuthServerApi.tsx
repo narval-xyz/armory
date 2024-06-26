@@ -1,14 +1,11 @@
 import {
-  AuthClientConfig,
-  AuthorizationRequest,
+  AuthAdminClient,
+  AuthClient,
   AuthorizationRequestStatus,
-  getAuthorizationRequest,
-  onboardArmoryClient,
-  pingArmory,
-  sendAuthorizationRequest,
-  syncArmoryEngine
+  EntityStoreClient,
+  Evaluate
 } from '@narval/armory-sdk'
-import { EvaluationRequest } from '@narval/policy-engine-shared'
+import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -43,29 +40,31 @@ const useAuthServerApi = () => {
   const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
-  const sdkAuthClientConfig = useMemo<AuthClientConfig | null>(() => {
+  const authClient = useMemo<AuthClient | null>(() => {
     if (!authClientId || !jwk || !signer) {
       return null
     }
 
-    return {
-      authHost,
-      authClientId,
-      authClientSecret,
-      jwk,
-      alg: SigningAlg.EIP191,
-      signer
-    }
+    return new AuthClient({
+      host: authHost,
+      clientId: authClientId,
+      clientSecret: authClientSecret,
+      signer: {
+        jwk,
+        alg: SigningAlg.EIP191,
+        sign: signer
+      }
+    })
   }, [authHost, authClientId, authClientSecret, jwk, signer])
 
   const { data: authorizationResponse } = useSWR(
     '/authorization-requests',
     () => {
-      if (!sdkAuthClientConfig || !processingRequest) {
+      if (!authClient || !processingRequest) {
         return null
       }
 
-      return getAuthorizationRequest(sdkAuthClientConfig, processingRequest.id)
+      return authClient.getAuthorizationById(processingRequest.id)
     },
     { refreshInterval: 1000 }
   )
@@ -79,16 +78,17 @@ const useAuthServerApi = () => {
   }, [authorizationResponse])
 
   const ping = () => {
-    if (!authHost) return
+    if (!authClient) return
 
     try {
-      return pingArmory(authHost)
+      return authClient.ping()
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     }
   }
 
-  const onboard = async (authClientData: AuthClientData) => {
+  const createClient = async (authClientData: AuthClientData) => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
@@ -96,7 +96,6 @@ const useAuthServerApi = () => {
       const {
         id,
         name,
-        authServerUrl,
         authAdminApiKey,
         useManagedDataStore,
         entityDataStoreUrl,
@@ -105,71 +104,81 @@ const useAuthServerApi = () => {
         policyPublicKey
       } = authClientData
 
-      const client = await onboardArmoryClient(
-        { authHost: authServerUrl, authAdminApiKey },
-        {
-          id,
-          name,
-          useManagedDataStore,
-          dataStore: {
-            entity: {
-              data: {
-                type: getUrlProtocol(entityDataStoreUrl),
-                url: entityDataStoreUrl
-              },
-              signature: {
-                type: getUrlProtocol(entityDataStoreUrl),
-                url: entityDataStoreUrl
-              },
-              keys: [JSON.parse(entityPublicKey)]
+      const authAdminClient = new AuthAdminClient({
+        host: authHost,
+        adminApiKey: authAdminApiKey
+      })
+
+      const client = await authAdminClient.createClient({
+        id,
+        name,
+        useManagedDataStore,
+        dataStore: {
+          entity: {
+            data: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
             },
-            policy: {
-              data: {
-                type: getUrlProtocol(policyDataStoreUrl),
-                url: policyDataStoreUrl
-              },
-              signature: {
-                type: getUrlProtocol(policyDataStoreUrl),
-                url: policyDataStoreUrl
-              },
-              keys: [JSON.parse(policyPublicKey)]
-            }
+            signature: {
+              type: getUrlProtocol(entityDataStoreUrl),
+              url: entityDataStoreUrl
+            },
+            keys: [JSON.parse(entityPublicKey)]
+          },
+          policy: {
+            data: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            signature: {
+              type: getUrlProtocol(policyDataStoreUrl),
+              url: policyDataStoreUrl
+            },
+            keys: [JSON.parse(policyPublicKey)]
           }
         }
-      )
+      })
 
       return client
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const authorize = async (request: EvaluationRequest) => {
-    if (!sdkAuthClientConfig) return
+  const evaluate = async (request: Evaluate) => {
+    if (!authClient) return
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const authRequest = await sendAuthorizationRequest(sdkAuthClientConfig, request)
+      const authRequest = await authClient.evaluate(request)
       setProcessingRequest(authRequest)
       return authRequest
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
   }
 
   const sync = async () => {
-    if (!sdkAuthClientConfig || !authClientSecret) return
+    if (!authClientId && !authClientSecret) return
+
+    const entityStoreClient = new EntityStoreClient({
+      host: authHost,
+      clientId: authClientId,
+      clientSecret: authClientSecret
+    })
 
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const { latestSync } = await syncArmoryEngine(sdkAuthClientConfig)
-      setIsSynced(latestSync.success)
+      const success = await entityStoreClient.sync()
+      setIsSynced(success)
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
@@ -178,7 +187,7 @@ const useAuthServerApi = () => {
     }
   }
 
-  return { errors, isProcessing, isSynced, authorizationResponse, ping, onboard, sync, authorize }
+  return { errors, isProcessing, isSynced, authorizationResponse, ping, createClient, sync, evaluate }
 }
 
 export default useAuthServerApi
