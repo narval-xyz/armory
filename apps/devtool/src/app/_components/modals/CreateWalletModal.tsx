@@ -54,8 +54,11 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
     if (currentStep === Steps.CreateWalletSuccess) {
       return 'Sign and Push'
     }
+    if (currentStep === Steps.Success) {
+      return 'Ok'
+    }
 
-    return 'Ok'
+    return 'Processing...'
   }, [currentStep])
 
   const handleClose = () => {

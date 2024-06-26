@@ -56,8 +56,11 @@ const ImportWalletModal: FC<ImportWalletModalProps> = (props) => {
     if (currentStep === Steps.ImportWalletSuccess) {
       return 'Sign and Push'
     }
+    if (currentStep === Steps.Success) {
+      return 'Ok'
+    }
 
-    return 'Ok'
+    return 'Processing...'
   }, [currentStep])
 
   const handleClose = () => {
