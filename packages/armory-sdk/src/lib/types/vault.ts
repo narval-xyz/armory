@@ -1,4 +1,4 @@
-import { AccessToken, Request, addressSchema, hexSchema } from '@narval/policy-engine-shared'
+import { AccessToken, Request, hexSchema } from '@narval/policy-engine-shared'
 import { publicKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
@@ -58,7 +58,7 @@ export type ImportPrivateKeyRequest = z.infer<typeof ImportPrivateKeyRequest>
 
 export const ImportPrivateKeyResponse = z.object({
   id: z.string(),
-  address: addressSchema
+  address: z.string()
 })
 export type ImportPrivateKeyResponse = z.infer<typeof ImportPrivateKeyResponse>
 

@@ -27,7 +27,7 @@ enum CreateWalletType {
 
 interface CreateWalletModalProps {
   accessToken: string
-  generateKey?: (keyId: string, accessToken: string) => Promise<GenerateKeyResponse | undefined>
+  generateWallet?: (keyId: string, accessToken: string) => Promise<GenerateKeyResponse | undefined>
   deriveWallet?: (keyId: string, accessToken: string) => Promise<DeriveAccountResponse | undefined>
 }
 
@@ -57,6 +57,8 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
     if (currentStep === Steps.Success) {
       return 'Ok'
     }
+
+    return 'Processing...'
   }, [currentStep])
 
   const handleClose = () => {
@@ -69,33 +71,33 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
     setCreationType(CreateWalletType.GenerateKeys)
   }
 
-  const generateKeys = async () => {
-    if (!entityStore || !props.generateKey) return
+  const generateWallet = async () => {
+    if (!entityStore || !props.generateWallet) return
 
-    const generateKeyResponse = await props.generateKey(key, accessToken)
+    const generateKeyResponse = await props.generateWallet(key, accessToken)
 
     if (!generateKeyResponse) return
 
     const { account } = generateKeyResponse
 
-    const newWallet = {
+    const newAccount = {
       id: account.id,
       address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
-    const { accounts: currentWallets } = entityStore.data
+    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      accounts: [...currentWallets, newWallet]
+      accounts: [...currentAccounts, newAccount]
     }
 
     setGeneratedWallet(generateKeyResponse)
     setNewEntityStore(entities)
   }
 
-  const deriveWallets = async () => {
+  const deriveWallet = async () => {
     if (!entityStore || !props.deriveWallet) return
 
     const deriveWalletResponse = await props.deriveWallet(key, accessToken)
@@ -104,17 +106,17 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
 
     const account = deriveWalletResponse.accounts[0]
 
-    const newWallet = {
+    const newAccount = {
       id: account.id,
       address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
-    const { accounts: currentWallets } = entityStore.data
+    const { accounts: currentAccounts } = entityStore.data
 
     const entities: Entities = {
       ...entityStore.data,
-      accounts: [...currentWallets, newWallet]
+      accounts: [...currentAccounts, newAccount]
     }
 
     setDerivedWallet(account)
@@ -128,9 +130,9 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       setIsProcessing(true)
 
       if (creationType === CreateWalletType.GenerateKeys) {
-        await generateKeys()
+        await generateWallet()
       } else if (creationType === CreateWalletType.DeriveWallets) {
-        await deriveWallets()
+        await deriveWallet()
       }
 
       setCurrentStep(Steps.CreateWalletSuccess)

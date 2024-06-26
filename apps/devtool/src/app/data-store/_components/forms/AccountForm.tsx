@@ -18,7 +18,7 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => (
       label="Address"
       value={account.address}
       validate={(value) => (value ? isAddress(value) : false)}
-      errorMessage="Invalid account address."
+      errorMessage="Invalid wallet address."
       onChange={(address) => setAccount((prev) => ({ ...prev, address }) as AccountEntity)}
     />
     <NarInput

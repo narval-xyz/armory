@@ -28,8 +28,8 @@ enum ImportType {
 
 interface ImportAccountModalProps {
   accessToken: string
-  importPrivateKey?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
-  importSeedPhrase?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
+  importAccount?: (pk: string, accessToken: string) => Promise<ImportPrivateKeyResponse | undefined>
+  importWallet?: (seed: string, accessToken: string) => Promise<ImportSeedResponse | undefined>
 }
 
 const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
@@ -59,6 +59,8 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     if (currentStep === Steps.Success) {
       return 'Ok'
     }
+
+    return 'Processing...'
   }, [currentStep])
 
   const handleClose = () => {
@@ -72,16 +74,16 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     setImportType(ImportType.PrivateKey)
   }
 
-  const importPrivateKey = async () => {
-    if (!entityStore || !props.importPrivateKey) return
+  const importAccount = async () => {
+    if (!entityStore || !props.importAccount) return
 
-    const account = await props.importPrivateKey(privateKey, accessToken)
+    const account = await props.importAccount(privateKey, accessToken)
 
     if (!account) return
 
     const newAccount = {
       id: account.id,
-      address: account.address,
+      address: hexSchema.parse(account.address),
       accountType: AccountType.EOA
     }
 
@@ -96,10 +98,10 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     setNewEntityStore(entities)
   }
 
-  const importSeedPhrase = async () => {
-    if (!entityStore || !props.importSeedPhrase) return
+  const importWallet = async () => {
+    if (!entityStore || !props.importWallet) return
 
-    const seedAccount = await props.importSeedPhrase(seed, accessToken)
+    const seedAccount = await props.importWallet(seed, accessToken)
 
     if (!seedAccount) return
 
@@ -115,6 +117,7 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
 
     const entities: Entities = {
       ...entityStore.data,
+
       accounts: [...currentAccounts, newAccount]
     }
 
@@ -129,9 +132,9 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
       setIsProcessing(true)
 
       if (importType === ImportType.PrivateKey) {
-        await importPrivateKey()
+        await importAccount()
       } else if (importType === ImportType.Seed) {
-        await importSeedPhrase()
+        await importWallet()
       }
 
       setCurrentStep(Steps.ImportAccountSuccess)
