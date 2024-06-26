@@ -17,25 +17,12 @@ export class AuthorizationRequestRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
-    const {
-      id,
-      clientId,
-      status,
-      idempotencyKey,
-      createdAt,
-      updatedAt,
-      evaluations,
-      approvals,
-      metadata,
-      authentication
-    } = this.getDefaults(input)
+    const { id, clientId, status, idempotencyKey, createdAt, updatedAt, metadata, authentication } =
+      this.getDefaults(input)
     const request = createRequestSchema.parse(input.request)
-    const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
+    const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
-
-    const approvalsData = approvals?.map((approval) => ({
-      sig: approval
-    }))
+    const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
       data: {
@@ -49,13 +36,11 @@ export class AuthorizationRequestRepository {
         action: request.action,
         authnSig: authentication,
         metadata,
-        approvals: approvals
-          ? {
-              createMany: {
-                data: approvalsData
-              }
-            }
-          : undefined,
+        approvals: {
+          createMany: {
+            data: approvals
+          }
+        },
         errors: {
           createMany: {
             data: errors
@@ -115,9 +100,10 @@ export class AuthorizationRequestRepository {
     input: Partial<Pick<AuthorizationRequest, 'clientId' | 'status' | 'evaluations' | 'approvals' | 'errors'>> &
       Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
-    const { id, clientId, status, evaluations, approvals } = input
-    const evaluationLogs = this.toEvaluationLogs(clientId, evaluations)
+    const { id, clientId, status } = input
+    const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
+    const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     const model = await this.prismaService.authorizationRequest.update({
@@ -126,7 +112,7 @@ export class AuthorizationRequestRepository {
         status,
         approvals: {
           createMany: {
-            data: approvals?.length ? approvals.map((sig) => ({ sig })) : [],
+            data: approvals,
             skipDuplicates: true
           }
         },

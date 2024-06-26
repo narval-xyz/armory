@@ -20,6 +20,7 @@ import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
 } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { AuthorizationRequestApprovalRepository } from '../../../../../orchestration/persistence/repository/authorization-request-approval.repository'
 import { ClusterNotFoundException } from '../../../../../policy-engine/core/exception/cluster-not-found.exception'
 import { ConsensusAgreementNotReachException } from '../../../../../policy-engine/core/exception/consensus-agreement-not-reach.exception'
 import { InvalidAttestationSignatureException } from '../../../../../policy-engine/core/exception/invalid-attestation-signature.exception'
@@ -106,6 +107,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         AuthorizationRequestProcessingConsumer,
         AuthorizationRequestProcessingProducer,
         AuthorizationRequestRepository,
+        AuthorizationRequestApprovalRepository,
         AuthorizationRequestService,
         {
           provide: TransferTrackingService,
@@ -169,7 +171,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
 
       await consumer.process(job)
 
-      expect(service.process).toHaveBeenCalledWith(authzRequest.id)
+      expect(service.process).toHaveBeenCalledWith(authzRequest.id, job.attemptsMade)
     })
 
     // Before you start with these tests, learn how Bull works. Jobs in Bull can
@@ -221,7 +223,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
           attemptsMade: AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS
         })
 
-        await consumer.onFailure(job, new Error('Some error'))
+        await consumer.onFailure(job, { name: 'Some error name', message: 'Some error message' })
 
         const request = await repository.findById(authzRequest.id)
 

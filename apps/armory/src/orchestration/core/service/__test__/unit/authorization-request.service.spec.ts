@@ -17,17 +17,18 @@ import {
   generateTransactionRequest
 } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { generateTransfer } from '../../../../../__test__/fixture/transfer-tracking.fixture'
-import { FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD, POLYGON } from '../../../../../armory.constant'
 import { FeedService } from '../../../../../data-feed/core/service/feed.service'
+import { AuthorizationRequestApprovalRepository } from '../../../../../orchestration/persistence/repository/authorization-request-approval.repository'
 import { ClusterService } from '../../../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../../../price/core/service/price.service'
 import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
-import { AuthorizationRequestAlreadyProcessingException } from '../../../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../../../core/service/authorization-request.service'
 import { AuthorizationRequestRepository } from '../../../../persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingProducer } from '../../../../queue/producer/authorization-request-processing.producer'
+import { AuthorizationRequestAlreadyProcessingException } from '../../../exception/authorization-request-already-processing.exception'
 
 describe(AuthorizationRequestService.name, () => {
   const jwt =
@@ -35,6 +36,7 @@ describe(AuthorizationRequestService.name, () => {
 
   let module: TestingModule
   let authzRequestRepositoryMock: MockProxy<AuthorizationRequestRepository>
+  let authzRequestApprovalRepository: MockProxy<AuthorizationRequestApprovalRepository>
   let authzRequestProcessingProducerMock: MockProxy<AuthorizationRequestProcessingProducer>
   let transferFeedServiceMock: MockProxy<TransferTrackingService>
   let clusterServiceMock: MockProxy<ClusterService>
@@ -53,6 +55,7 @@ describe(AuthorizationRequestService.name, () => {
 
   beforeEach(async () => {
     authzRequestRepositoryMock = mock<AuthorizationRequestRepository>()
+    authzRequestApprovalRepository = mock<AuthorizationRequestApprovalRepository>()
     authzRequestProcessingProducerMock = mock<AuthorizationRequestProcessingProducer>()
     transferFeedServiceMock = mock<TransferTrackingService>()
     clusterServiceMock = mock<ClusterService>()
@@ -65,6 +68,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: AuthorizationRequestRepository,
           useValue: authzRequestRepositoryMock
+        },
+        {
+          provide: AuthorizationRequestApprovalRepository,
+          useValue: authzRequestApprovalRepository
         },
         {
           provide: AuthorizationRequestProcessingProducer,
@@ -221,14 +228,21 @@ describe(AuthorizationRequestService.name, () => {
         createdAt: expect.any(Date)
       })
     })
+  })
 
-    it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING', async () => {
-      await expect(
-        service.evaluate({
-          ...authzRequest,
-          status: AuthorizationRequestStatus.PROCESSING
-        })
-      ).rejects.toThrow(AuthorizationRequestAlreadyProcessingException)
+  describe('process', () => {
+    beforeEach(() => {
+      authzRequestRepositoryMock.findById.mockResolvedValue({
+        ...authzRequest,
+        status: AuthorizationRequestStatus.PROCESSING
+      })
+      authzRequestRepositoryMock.update.mockResolvedValue(authzRequest)
+    })
+
+    it('throws AuthorizationRequestAlreadyProcessingException when status is PROCESSING and attempsMade reach maximum', async () => {
+      await expect(service.process(authzRequest.id, AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS)).rejects.toThrow(
+        AuthorizationRequestAlreadyProcessingException
+      )
     })
   })
 })
