@@ -58,7 +58,7 @@ export const REQUEST_HEADER_API_KEY = 'x-api-key'
 //
 
 export const ADMIN_SECURITY = adminApiKeySecurity(REQUEST_HEADER_API_KEY)
-export const CLIENT_ID_SECURITY = clientIdSecurity(REQUEST_HEADER_CLIENT_SECRET)
+export const CLIENT_ID_SECURITY = clientIdSecurity(REQUEST_HEADER_CLIENT_ID)
 export const CLIENT_SECRET_SECURITY = clientSecretSecurity(REQUEST_HEADER_CLIENT_SECRET)
 
 //

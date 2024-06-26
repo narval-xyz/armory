@@ -116,7 +116,7 @@ export class EntityStoreClient {
   async sync(): Promise<boolean> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
       headers: {
         [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
         [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
@@ -205,7 +205,7 @@ export class PolicyStoreClient {
   async sync(): Promise<boolean> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.sync({
+    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
       headers: {
         [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
         [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
