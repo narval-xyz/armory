@@ -1,23 +1,11 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withCors, withSwagger } from '@narval/nestjs-shared'
+import { withCors, withCustomLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
 import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './main.constant'
 import { MainModule, ProvisionModule } from './main.module'
-
-/**
- * Adds Narval custom logger.
- *
- * @param app - The INestApplication instance.
- * @returns The modified INestApplication instance.
- */
-const withCustomLogger = (app: INestApplication): INestApplication => {
-  app.useLogger(app.get(LoggerService))
-
-  return app
-}
 
 /**
  * Adds global pipes to the application.

@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withCors, withSwagger } from '@narval/nestjs-shared'
+import { withCors, withCustomLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -8,18 +8,6 @@ import { ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from './po
 import { PolicyEngineModule, ProvisionModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
-
-/**
- * Adds Narval custom logger.
- *
- * @param app - The INestApplication instance.
- * @returns The modified INestApplication instance.
- */
-const withCustomLogger = (app: INestApplication): INestApplication => {
-  app.useLogger(app.get(LoggerService))
-
-  return app
-}
 
 /**
  * Adds global pipes to the application.
