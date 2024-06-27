@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
+import { Blockdaemon } from '@narval-xyz/blockdaemon-tsm-kit'
 import { ConfigService } from '@narval/config-module'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
@@ -8,25 +8,7 @@ import { ApplicationException } from '../../../shared/exception/application.exce
 import { SignerConfig } from '../../../shared/type/domain.type'
 import { SigningService } from './signing.service.interface'
 
-let Configuration: any
-let SessionConfig: any
-let TSMClient: any
-const curves = {
-  SECP256K1: 'secp256k1',
-  ED448: 'ED-448',
-  ED25519: 'ED-25519'
-}
-
-// TODO: this should be moved into the try-catch but it's breaking nx lint rules so temporarily moving it up.
-const tsmsdkv2 = require('@sepior/tsmsdkv2')
-try {
-  TSMClient = tsmsdkv2.TSMClient
-  Configuration = tsmsdkv2.Configuration
-  SessionConfig = tsmsdkv2.SessionConfig
-} catch (err) {
-  // eslint-disable-next-line no-console
-  console.log('@sepior/tsmsdkv2 is not installed')
-}
+const { Configuration, TSMClient, SessionConfig, curves } = Blockdaemon
 
 const createClient = async (url: string, apiKey: string) => {
   if (!TSMClient || !Configuration) return null
@@ -79,7 +61,7 @@ export class MpcSigningService implements SigningService {
     const ecdsaKeyId = await tsmClient
       .ECDSA()
       .generateKey(sessionConfig, 1, curves.SECP256K1, keyId)
-      .catch((e: any) => wrapTsmException('Failed to generate ECDSA key', e))
+      .catch((e: Error) => wrapTsmException('Failed to generate ECDSA key', e))
 
     if (keyId && ecdsaKeyId !== keyId) {
       throw new ApplicationException({
@@ -94,7 +76,7 @@ export class MpcSigningService implements SigningService {
     const publicKeyBytes = await tsmClient
       .ECDSA()
       .publicKey(ecdsaKeyId)
-      .catch((e: any) => wrapTsmException('Failed to get public key from node', e))
+      .catch((e: Error) => wrapTsmException('Failed to get public key from node', e))
     const publicKey = toHex(publicKeyBytes.slice(23))
 
     this.logger.log('Public key: ', publicKey)
@@ -104,7 +86,6 @@ export class MpcSigningService implements SigningService {
     }
   }
 
-  // Note: sessionId must be optional so we meet the SignerService interface requirement
   buildSignerEip191(signer: SignerConfig, sessionId?: string) {
     return async (messageToSign: string): Promise<string> => {
       const hash = eip191Hash(messageToSign)
@@ -131,7 +112,7 @@ export class MpcSigningService implements SigningService {
       const partialSig = await tsmClient
         .ECDSA()
         .sign(sessionConfig, keyId, derivationPath, hash)
-        .catch((e: any) => wrapTsmException('Failed to sign message', e))
+        .catch((e: Error) => wrapTsmException('Failed to sign message', e))
 
       const hexSignature: Hex = toHex(partialSig)
 
