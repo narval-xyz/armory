@@ -22,6 +22,20 @@ import {
 import { validateJwk } from '../../validate'
 import { verifyJwt } from '../../verify'
 
+const rsaJwk: Jwk = {
+  kty: 'RSA',
+  alg: 'RS256',
+  kid: '0x52920ad0d19d7779106bd9d9d600d26c4b976cdb3cbc49decb7fdc29db00b8e9',
+  n: 'xNdTjWL9hGa4bz4tLKbmFZ4yjQsQzW35-CMS0kno3403jEqg5y2Cs6sLVyPBX4N2hdK5ERPytpf1PrThHqB-eEO6LtEWpENBgFuNIf8DRHrv0tne7dLNxf7sx1aocGRrkgIk4Ws6Is4Ot3whm3-WihmDGnHoogE-EPwVkkSc2FYPXYlNq4htCZXC8_MUI3LuXry2Gn4tna5HsYSehYhfKDD-nfSajeWxdNUv_3wOeSCr9ICm9Udlo7hpIUHQgnX3Nz6kvfGYuweLGoj_ot-oEUCIdlbQqmrfStAclugbM5NI6tY__6wD0z_4ZBjToupXCBlXbYsde6_ZG9xPmYSykw',
+  e: 'AQAB',
+  d: 'QU4rIzpXX8jwob-gHzNUHJH6tX6ZWX6GM0P3p5rrztc8Oag8z9XyigdSYNu0-SpVdTqfOcJDgT7TF7XNBms66k2WBJhMCb1iiuJU5ZWEkQC0dmDgLEkHCgx0pAHlKjy2z580ezEm_YsdqNRfFgbze-fQ7kIiazU8UUhBI-DtpHv7baBgsfqEfQ5nCTiURUPmmpiIU74-ZIJWZjBXTOoJNH0EIsJK9IpZzxpeC9mTMTsWTcHKiR3acze1qf-9I97v461TTZ8e33N6YINyr9I4HZuvxlCJdV_lOM3fLvYM9gPvgkPozhVWL3VKR6xa9JpGGHrCRgH92INuviBB_SmF8Q',
+  p: '9BNku_-t4Df9Dg7M2yjiNgZgcTNKrDnNqexliIUAt67q0tGmSBubjxeI5unDJZ_giXWUR3q-02v7HT5GYx-ZVgKk2lWnbrrm_F7UZW-ueHzeVvQcjDXTk0z8taXzrDJgnIwZIaZ2XSG3P-VPOrXCaMba8GzSq38Gpzi4g3lTO9s',
+  q: 'znUtwrqdnVew14_aFjNTRgzOQNN8JhkjzJy3aTSLBScK5NbiuUUZBWs5dQ7Nv7aAoDss1-o9XVQZ1DVV-o9UufJtyrPNcvTnC0cWRrtJrSN5YiuUbECU3Uj3OvGxnhx9tsmhDHnMTo50ObPYUbHcIkNaXkf2FVgL84y1JRWdPak',
+  dp: 'UNDrFeS-6fMf8zurURXkcQcDf_f_za8GDjGcHOwNJMTiNBP-_vlFNMgSKINWfmrFqj4obtKRxOeIKlKoc8HOv8_4TeL2oY95VC8CHOQx3Otbo2cI3NQlziw7sNnWKTo1CyDIYYAAyS2Uw69l4Ia2bIMLk3g0-VwCE_SQA9h0Wuk',
+  dq: 'VBe6ieSFKn97UnIPfJdvRcsVf6YknUgEIuV6d2mlbnXWpBs6wgf5BxIDl0BuYbYuchVoUJHiaM9Grf8DhEk5U3wBaF0QQ9CpAxjzY-AJRHJ8kJX7oJQ1jmSX_vRPSn2EXx2FcZVyuFSh1pcAd1YgufwBJQHepBb21z7q0a4aG_E',
+  qi: 'KhZpFs6xfyRIjbJV8Q9gWxqF37ONayIzBpgio5mdAQlZ-FUmaWZ2_2VWP2xvsP48BmwFXydHqewHBqGnZYCQ1ZHXJgD_-KKEejoqS5AJN1pdI0ZKjs7UCfZ4RJ4DH5p0_35gpuKRzzdvcIhl1CjIC5W8o7nhwmLBJ_QAo9e4t9U'
+}
+
 const p256Jwk: Jwk = {
   kty: 'EC',
   crv: 'P-256',
@@ -51,7 +65,6 @@ const p256HexPublicKey =
   '0x046efe944311e4955214040e3f0056eaa3d7db8443fce9764506ed556f8fa9c35408dfa6d8b07a68cc1b8668be732289e3da91956922ba9645f07eca9aa9531e2c'
 
 const p256HexPrivateKey = '0xd9cf695be325ab8d849fc60a5eb92bf45c8b0c81527d5e3926a951f0732c4157'
-
 describe('isHeader', () => {
   it('returns true for a valid header object', () => {
     const validHeader = { alg: 'ES256', kid: 'test-kid', typ: 'JWT' }
@@ -166,6 +179,13 @@ describe('publicKeyToHex', () => {
   it('converts a valid p256 JWK to hex string', async () => {
     const hex = await publicKeyToHex(p256Jwk)
     expect(hex).toBe(p256HexPublicKey)
+  })
+
+  it('converts a valid rsa JWK to hex string', async () => {
+    const hex = await publicKeyToHex(rsaJwk)
+    expect(hex).toEqual(
+      '0x30820122300d06092a864886f70d01010105000382010f003082010a0282010100c4d7538d62fd8466b86f3e2d2ca6e6159e328d0b10cd6df9f82312d249e8df8d378c4aa0e72d82b3ab0b5723c15f837685d2b91113f2b697f53eb4e11ea07e7843ba2ed116a44341805b8d21ff03447aefd2d9deedd2cdc5feecc756a870646b920224e16b3a22ce0eb77c219b7f968a19831a71e8a2013e10fc1592449cd8560f5d894dab886d0995c2f3f3142372ee5ebcb61a7e2d9dae47b1849e85885f2830fe9df49a8de5b174d52fff7c0e7920abf480a6f54765a3b8692141d08275f7373ea4bdf198bb078b1a88ffa2dfa81140887656d0aa6adf4ad01c96e81b339348ead63fffac03d33ff86418d3a2ea570819576d8b1d7bafd91bdc4f9984b2930203010001'
+    )
   })
 })
 
