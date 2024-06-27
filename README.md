@@ -1,20 +1,9 @@
 <p align="center">
-  <a href="https://www.narval.xyz/" target="blank"><img src="./resource/narval_logo.png" width="150" alt="Narval logo" /></a>
+  <a href="https://www.narval.xyz/" target="blank"><img src="./resources/narval_logo.png" width="150" alt="Narval logo" /></a>
 </p>
-<p align="center">Armory is the most advanced and secure authorization stack for web3.</p>
+<p align="center">Armory is the most secure, advanced, and flexible authorization stack for web3.</p>
 
-## Project
-
-| Project                                                                               | Status                                                                                                                                                                                                                                                 |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [@app/armory](./apps/armory/README.md)                                                | <a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a>                      |
-| [@app/policy-engine](./apps/policy-engine/README.md)                                  | <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> |
-| [@app/vault](./apps/vault/README.md)                                                  | <a href="https://github.com/narval-xyz/armory/actions/workflows/vault.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/vault.yml/badge.svg" alt="@app/vault CI status" /></a>                                     |
-| [@narval/encryption](./packages/encryption/README.md)                                 | <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>                     |
-| [@narval/policy-engine-shared](./packages/policy-engine-shared/README.md)             | <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>                     |
-| [@narval/signature](./packages/signature/README.md)                                   | <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>                     |
-| [@narval/nestjs-shared](./packages/nestjs-shared/README.md)                           | <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>                     |
-| [@narval/transaction-request-intent](./packages/transaction-request-intent/README.md) | <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>                     |
+<a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/vault.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/vault.yml/badge.svg" alt="@app/vault CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a>
 
 ## Getting started
 
@@ -128,9 +117,11 @@ Inside docker, `localhost` points to the container not your computer (host).
 Change `localhost` to `host.docker.internal` to reference to the host IP
 address in the local network.
 
-## Licenses Disclosure
+## License
 
-You can find an exhaustive list of licenses for third-party software
+Armory is [MPL 2.0 licensed](./LICENSE).
+
+You can find an exhaustive list of licenses of third-party software
 dependencies used by the Armory at
 [LICENSES_DISCLOSURE.md](./LICENSES_DISCLOSURE.md).
 
