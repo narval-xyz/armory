@@ -7,11 +7,9 @@ import {
   VaultClient
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
-import { Alg, RsaPublicKey, SigningAlg, addressToKid, rsaPublicKeySchema } from '@narval/signature'
+import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
 import { exportJWK, importSPKI } from 'jose'
 import { useMemo, useState } from 'react'
-import { publicKeyToAddress } from 'viem/accounts'
-import { browserRsaPubKeyToHex } from '../_lib/signature.polyfill'
 import { extractErrorMessage } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
@@ -81,18 +79,8 @@ const useVaultApi = () => {
 
       const getJwkFromRsaPem = async (pem: string): Promise<RsaPublicKey | null> => {
         const key = await importSPKI(pem, Alg.RS256, { extractable: true })
-        const jwk = rsaPublicKeySchema.parse({
-          ...(await exportJWK(key)),
-          alg: Alg.RS256,
-          kid: ''
-        })
-        const { subtle } = crypto
-        if (!subtle)
-          throw new Error('SubtleCrypto is not available, you need to use a secure context to import RSA keys')
-
-        const hexKey = await browserRsaPubKeyToHex(jwk)
-        const address = publicKeyToAddress(hexKey)
-        const kid = addressToKid(address)
+        const jwk = await exportJWK(key)
+        const kid = rsaKeyToKid(jwk as Jwk)
 
         return rsaPublicKeySchema.parse({
           ...jwk,
