@@ -1,8 +1,19 @@
 <p align="center">
-  <a href="https://www.narval.xyz/" target="blank"><img src="./resources/narval_logo.png" width="150" alt="Narval logo" /></a>
+  <a href="https://www.narval.xyz/" target="blank"><img src="./resources/narval-logo.png" width="150" alt="Narval logo" /></a>
 </p>
 <p align="center">Armory is the most secure, advanced, and flexible authorization stack for web3.</p>
 <p align="center"><a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/vault.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/vault.yml/badge.svg" alt="@app/vault CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a></p>
+
+## What's the Armory?
+
+The Armory Stack is an open-source auth system tailored for uses-case that need
+strong authentication and fine-grained authorization. It is designed to secure
+the usage of private keys, wallets, and web3 applications
+
+It's a web3-native policy engine combined with a highly customizable next-gen
+auth system, able to be deployed in a variety of secure configurations. 
+
+![Armory Stack diagram](./resources/armory-stack.png)
 
 ## Getting started
 
