@@ -73,8 +73,45 @@ const cleanDetails = (info: winston.Logform.TransformableInfo) => {
   return details
 }
 
-const formatLocalLog = ({ timestamp, level, message, context, trace }: winston.Logform.TransformableInfo) => {
-  return `${timestamp} [${context}] ${level.toUpperCase()}: ${message}${trace ? `\n${stringifyJsonWithBigInt(trace, 2)}` : ''}`
+const formatLocalLog = (info: winston.Logform.TransformableInfo) => {
+  const details = cleanDetails(info)
+
+  // Locally, just use debug and don't print the large context-related data
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    request,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    query,
+    message,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    body,
+    ...rest
+  } = details
+
+  // Colorize the level based on its value
+  let levelColor = ''
+  switch (info.level) {
+    case 'error':
+      levelColor = '\x1b[31m' // Red
+      break
+    case 'warn':
+      levelColor = '\x1b[33m' // Yellow
+      break
+    case 'info':
+      levelColor = '\x1b[36m' // Cyan
+      break
+    case 'debug':
+      levelColor = '\x1b[35m' // Magenta
+      break
+    default:
+      levelColor = '\x1b[0m' // Reset color
+  }
+
+  return `${info.timestamp} ${levelColor}[${info?.level?.toUpperCase()}]\x1b[0m: ${
+    info.message
+  }\n${stringifyJsonWithBigInt(rest, 2)}`
 }
 
 export const logger = winston.createLogger({
@@ -84,7 +121,7 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json(),
     winston.format.printf((info) => {
-      if (!isProduction) {
+      if (isProduction) {
         return formatLocalLog(info)
       }
 
