@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withCustomLogger, withSwagger } from '@narval/nestjs-shared'
+import { withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -58,7 +58,7 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
-      map(withCustomLogger),
+      map(withLogger),
       map(
         withSwagger({
           title: 'Policy Engine',

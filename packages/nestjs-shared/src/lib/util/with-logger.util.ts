@@ -7,7 +7,7 @@ import { LoggerService } from '../module/logger/service/logger.service'
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
  */
-export const withCustomLogger = (app: INestApplication): INestApplication => {
+export const withLogger = (app: INestApplication): INestApplication => {
   app.useLogger(app.get(LoggerService))
 
   return app
