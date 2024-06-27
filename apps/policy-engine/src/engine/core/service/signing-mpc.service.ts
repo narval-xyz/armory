@@ -1,4 +1,4 @@
-import { Blockdaemon } from '@narval-xyz/blockdaemon-tsm'
+import { BlockdaemonTsmService } from '@narval-xyz/blockdaemon-tsm'
 import { ConfigService } from '@narval/config-module'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
@@ -27,13 +27,14 @@ export class MpcSigningService implements SigningService {
 
   private playerCount: number
 
-  private blockdaemon: typeof Blockdaemon
+  private blockdaemonService: BlockdaemonTsmService
 
   constructor(
     @Inject(ConfigService) private configService: ConfigService<Config>,
-    blockdaemon: typeof Blockdaemon
+    blockdaemonService: BlockdaemonTsmService
   ) {
     const tsm = this.configService.get('tsm')
+
     if (!tsm) {
       throw new ApplicationException({
         message: 'TSM config not found',
@@ -41,7 +42,7 @@ export class MpcSigningService implements SigningService {
       })
     }
 
-    this.blockdaemon = blockdaemon
+    this.blockdaemonService = blockdaemonService
 
     this.url = tsm.url
     this.apiKey = tsm.apiKey
@@ -55,13 +56,15 @@ export class MpcSigningService implements SigningService {
         suggestedHttpStatusCode: 500
       })
     }
-    const sessionConfig = await this.blockdaemon.SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
+    const sessionConfig = await this.blockdaemonService
+      .getSessionConfig()
+      .newStaticSessionConfig(sessionId, this.playerCount)
 
     const tsmClient = await this.createClient()
 
     const ecdsaKeyId = await tsmClient
       .ECDSA()
-      .generateKey(sessionConfig, 1, this.blockdaemon.curves.SECP256K1, keyId)
+      .generateKey(sessionConfig, 1, this.blockdaemonService.getCurves().SECP256K1, keyId)
       .catch((e: Error) => wrapTsmException('Failed to generate ECDSA key', e))
 
     if (keyId && ecdsaKeyId !== keyId) {
@@ -88,10 +91,10 @@ export class MpcSigningService implements SigningService {
   }
 
   private async createClient() {
-    const config = await new this.blockdaemon.Configuration(this.url)
+    const config = await this.blockdaemonService.getConfiguration(this.url)
     await config.withAPIKeyAuthentication(this.apiKey)
 
-    return this.blockdaemon.TSMClient.withConfiguration(config)
+    return this.blockdaemonService.getClient().withConfiguration(config)
   }
 
   buildSignerEip191(signer: SignerConfig, sessionId?: string) {
@@ -104,7 +107,9 @@ export class MpcSigningService implements SigningService {
         })
       }
 
-      const sessionConfig = await this.blockdaemon.SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
+      const sessionConfig = await this.blockdaemonService
+        .getSessionConfig()
+        .newStaticSessionConfig(sessionId, this.playerCount)
 
       const tsmClient = await this.createClient()
 

@@ -50,11 +50,11 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
           return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
           try {
-            const { Blockdaemon } = await import('@narval-xyz/blockdaemon-tsm')
+            const { BlockdaemonTsmService } = await import('@narval-xyz/blockdaemon-tsm')
 
-            return new MpcSigningService(configService, Blockdaemon)
+            return new MpcSigningService(configService, new BlockdaemonTsmService())
           } catch {
-            throw new Error('Unable to load optional dependency on Blockdaemon TSM')
+            throw new Error('Unable to lazy load Blockdaemon TSM dependency')
           }
         }
 
