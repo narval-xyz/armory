@@ -1,11 +1,33 @@
 import { Injectable, LoggerService as NestLoggerService } from '@nestjs/common'
+import { logger } from './winston.config'
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
-  log(message: any, ...optionalParams: any[]) {}
-  fatal(message: any, ...optionalParams: any[]) {}
-  error(message: any, ...optionalParams: any[]) {}
-  warn(message: any, ...optionalParams: any[]) {}
-  debug?(message: any, ...optionalParams: any[]) {}
-  verbose?(message: any, ...optionalParams: any[]) {}
+  log(message: string, context: string) {
+    logger.info(message, { context })
+  }
+
+  info(message: string, context: string) {
+    logger.info(message, { context })
+  }
+
+  error(message: string, trace: string, context: string) {
+    logger.error(message, { context, trace })
+  }
+
+  warn(message: string, context: string) {
+    logger.warn(message, { context })
+  }
+
+  debug(message: string, context: string) {
+    logger.debug(message, { context })
+  }
+
+  verbose(message: string, context: string) {
+    logger.verbose(message, { context })
+  }
+
+  fatal(message: string, context: string) {
+    logger.error(message, { context })
+  }
 }
