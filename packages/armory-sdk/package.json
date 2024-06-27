@@ -1,6 +1,7 @@
 {
   "name": "@narval-xyz/armory-sdk",
   "version": "0.0.3",
+  "license": "MPL-2.0",
   "dependencies": {
     "@noble/curves": "1.4.0",
     "axios": "1.7.2",
