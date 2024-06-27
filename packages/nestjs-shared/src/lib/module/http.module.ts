@@ -1,4 +1,4 @@
-import { HttpModule, HttpService } from '@nestjs/axios'
+import { HttpModule as NestHttpModule, HttpService } from '@nestjs/axios'
 import { DynamicModule, Global, Module } from '@nestjs/common'
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry, { DEFAULT_OPTIONS, IAxiosRetryConfig } from 'axios-retry'
@@ -14,7 +14,7 @@ interface AxiosRetryOptions {
  */
 @Global()
 @Module({})
-export class AxiosRetryModule {
+export class HttpModule {
   /**
    * Creates a dynamic module for the AxiosRetryModule.
    * @param options - Optional configuration options for the retry behavior.
@@ -37,8 +37,8 @@ export class AxiosRetryModule {
     }
 
     return {
-      module: AxiosRetryModule,
-      imports: [HttpModule],
+      module: HttpModule,
+      imports: [NestHttpModule],
       providers: [axiosProvider],
       exports: [axiosProvider]
     }

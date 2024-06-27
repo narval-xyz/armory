@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpLoggerMiddleware } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule } from '@narval/nestjs-shared'
 import {
   MiddlewareConsumer,
   Module,
@@ -19,6 +19,7 @@ import { load } from './policy-engine.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
 
 const INFRASTRUCTURE_MODULES = [
+  LoggerModule,
   ConfigModule.forRoot({
     load: [load],
     isGlobal: true

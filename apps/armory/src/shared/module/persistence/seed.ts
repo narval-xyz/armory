@@ -1,4 +1,4 @@
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, secret } from '@narval/nestjs-shared'
 import { FIXTURE } from '@narval/policy-engine-shared'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
@@ -29,6 +29,7 @@ async function main() {
   //
   // See https://docs.nestjs.com/standalone-applications
   const application = await NestFactory.createApplicationContext(ArmoryModule)
+  application.useLogger(application.get(LoggerService))
   const seeder = application.get<SeederService>(SeederService)
 
   logger.log('Seeding database')
