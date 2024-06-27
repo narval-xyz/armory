@@ -127,3 +127,12 @@ around values. The quotes will be included in the value.
 Inside docker, `localhost` points to the container not your computer (host).
 Change `localhost` to `host.docker.internal` to reference to the host IP
 address in the local network.
+
+## Licenses Disclosure
+
+You can find an exhaustive list of licenses for third-party software
+dependencies used by the Armory at
+[LICENSES_DISCLOSURE.md](./LICENSES_DISCLOSURE.md).
+
+> To generate the list, run `./tools/licenses-disclosure/main.sh >
+> LICENSES_DISCLOSURE.md`.
