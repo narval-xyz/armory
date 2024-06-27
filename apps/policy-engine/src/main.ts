@@ -15,7 +15,7 @@ import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
  */
-const withNarvalLogger = (app: INestApplication): INestApplication => {
+const withCustomLogger = (app: INestApplication): INestApplication => {
   app.useLogger(app.get(LoggerService))
 
   return app
@@ -60,7 +60,7 @@ async function bootstrap() {
   await provision()
 
   const logger = new Logger('PolicyEngineBootstrap')
-  const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
+  const application = await NestFactory.create(PolicyEngineModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get(ConfigService<Config>)
   const port = configService.get('port')
 
@@ -70,7 +70,7 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
-      map(withNarvalLogger),
+      map(withCustomLogger),
       map(
         withSwagger({
           title: 'Policy Engine',

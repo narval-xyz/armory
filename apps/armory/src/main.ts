@@ -16,7 +16,7 @@ import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
  */
-const withNarvalLogger = (app: INestApplication): INestApplication => {
+const withCustomLogger = (app: INestApplication): INestApplication => {
   app.useLogger(app.get(LoggerService))
 
   return app
@@ -73,7 +73,7 @@ const withGlobalFilters =
  */
 async function bootstrap(): Promise<void> {
   const logger = new Logger('ArmoryBootstrap')
-  const application = await NestFactory.create(ArmoryModule)
+  const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const port = configService.get('port')
 
@@ -83,7 +83,7 @@ async function bootstrap(): Promise<void> {
 
   await lastValueFrom(
     of(application).pipe(
-      map(withNarvalLogger),
+      map(withCustomLogger),
       map(
         withSwagger({
           title: 'Armory',

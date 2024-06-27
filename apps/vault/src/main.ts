@@ -13,7 +13,7 @@ import { MainModule, ProvisionModule } from './main.module'
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
  */
-const withNarvalLogger = (app: INestApplication): INestApplication => {
+const withCustomLogger = (app: INestApplication): INestApplication => {
   app.useLogger(app.get(LoggerService))
 
   return app
@@ -43,7 +43,7 @@ async function bootstrap() {
   await provision()
 
   const logger = new Logger('AppBootstrap')
-  const application = await NestFactory.create(MainModule, { bodyParser: true })
+  const application = await NestFactory.create(MainModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const port = configService.get('port')
 
@@ -53,7 +53,7 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
-      map(withNarvalLogger),
+      map(withCustomLogger),
       map(
         withSwagger({
           title: 'Vault',
