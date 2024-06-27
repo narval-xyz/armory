@@ -1,4 +1,4 @@
-import { Blockdaemon } from '@narval-xyz/blockdaemon-tsm-kit'
+import { Blockdaemon } from '@narval-xyz/blockdaemon-tsm'
 import { ConfigService } from '@narval/config-module'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
@@ -7,16 +7,6 @@ import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { SignerConfig } from '../../../shared/type/domain.type'
 import { SigningService } from './signing.service.interface'
-
-const { Configuration, TSMClient, SessionConfig, curves } = Blockdaemon
-
-const createClient = async (url: string, apiKey: string) => {
-  if (!TSMClient || !Configuration) return null
-
-  const config = await new Configuration(url)
-  await config.withAPIKeyAuthentication(apiKey)
-  return await TSMClient.withConfiguration(config)
-}
 
 // util to wrap TSM SDK exceptions so we throw sanitized messages while capturing the internal error ourselves
 const wrapTsmException = (message: string, e: Error) => {
@@ -30,11 +20,19 @@ const wrapTsmException = (message: string, e: Error) => {
 @Injectable()
 export class MpcSigningService implements SigningService {
   private logger = new Logger(MpcSigningService.name)
+
   private url: string
+
   private apiKey: string
+
   private playerCount: number
 
-  constructor(@Inject(ConfigService) private configService: ConfigService<Config>) {
+  private blockdaemon: typeof Blockdaemon
+
+  constructor(
+    @Inject(ConfigService) private configService: ConfigService<Config>,
+    blockdaemon: typeof Blockdaemon
+  ) {
     const tsm = this.configService.get('tsm')
     if (!tsm) {
       throw new ApplicationException({
@@ -42,25 +40,28 @@ export class MpcSigningService implements SigningService {
         suggestedHttpStatusCode: 500
       })
     }
+
+    this.blockdaemon = blockdaemon
+
     this.url = tsm.url
     this.apiKey = tsm.apiKey
     this.playerCount = tsm.playerCount
   }
 
   async generateKey(keyId?: string, sessionId?: string): Promise<{ publicKey: PublicKey }> {
-    if (!sessionId || !SessionConfig || !TSMClient) {
+    if (!sessionId) {
       throw new ApplicationException({
         message: 'sessionId is missing',
         suggestedHttpStatusCode: 500
       })
     }
-    const sessionConfig = await SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
+    const sessionConfig = await this.blockdaemon.SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
 
-    const tsmClient = await createClient(this.url, this.apiKey)
+    const tsmClient = await this.createClient()
 
     const ecdsaKeyId = await tsmClient
       .ECDSA()
-      .generateKey(sessionConfig, 1, curves.SECP256K1, keyId)
+      .generateKey(sessionConfig, 1, this.blockdaemon.curves.SECP256K1, keyId)
       .catch((e: Error) => wrapTsmException('Failed to generate ECDSA key', e))
 
     if (keyId && ecdsaKeyId !== keyId) {
@@ -86,6 +87,13 @@ export class MpcSigningService implements SigningService {
     }
   }
 
+  private async createClient() {
+    const config = await new this.blockdaemon.Configuration(this.url)
+    await config.withAPIKeyAuthentication(this.apiKey)
+
+    return this.blockdaemon.TSMClient.withConfiguration(config)
+  }
+
   buildSignerEip191(signer: SignerConfig, sessionId?: string) {
     return async (messageToSign: string): Promise<string> => {
       const hash = eip191Hash(messageToSign)
@@ -96,9 +104,9 @@ export class MpcSigningService implements SigningService {
         })
       }
 
-      const sessionConfig = await SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
+      const sessionConfig = await this.blockdaemon.SessionConfig.newStaticSessionConfig(sessionId, this.playerCount)
 
-      const tsmClient = await createClient(this.url, this.apiKey)
+      const tsmClient = await this.createClient()
 
       const keyId = signer.keyId || signer.publicKey?.kid
       if (!keyId) {
