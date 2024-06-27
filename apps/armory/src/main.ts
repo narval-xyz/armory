@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
+import { withCors, withSwagger, withVersionning } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -72,10 +72,10 @@ async function bootstrap(): Promise<void> {
   await lastValueFrom(
     of(application).pipe(
       map(
+        withVersionning,
         withSwagger({
           title: 'Armory',
           description: 'Armory is the most secure access management for web3',
-          version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),

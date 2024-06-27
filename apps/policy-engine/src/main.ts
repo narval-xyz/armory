@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
+import { withCors, withSwagger, withVersionning } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -59,10 +59,10 @@ async function bootstrap() {
   await lastValueFrom(
     of(application).pipe(
       map(
+        withVersionning,
         withSwagger({
           title: 'Policy Engine',
           description: 'The next generation of authorization for web3',
-          version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
