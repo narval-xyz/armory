@@ -79,7 +79,7 @@ const formatLocalLog = (info: winston.Logform.TransformableInfo) => {
       levelColor = '\x1b[0m' // Reset color
   }
 
-  return `${info.timestamp} [${info.context}] ${levelColor}${info.level.toUpperCase()}\x1b[0m: ${message}${rest ? `\n${stringify(rest, 2)}` : ''}`
+  return `${info.timestamp} ${levelColor}[${info.level.toUpperCase()}]\x1b[0m: ${info.message}\n${stringify(rest, 2)}`
 }
 
 export const logger = winston.createLogger({
@@ -89,7 +89,6 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json(),
     winston.format.printf((info) => {
-      console.log({ info })
       if (!isProduction) {
         return formatLocalLog(info)
       }
@@ -98,7 +97,6 @@ export const logger = winston.createLogger({
 
       return stringify({
         level: info.level,
-        context: info.context,
         ...details
       })
     })

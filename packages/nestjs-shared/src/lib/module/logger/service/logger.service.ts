@@ -3,15 +3,8 @@ import { logger } from './winston.config'
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
-  private context: string
-
-  setContext(context: string) {
-    this.context = context
-  }
-
   log(message: string, ...optionalParams: any[]) {
-    console.log(optionalParams[0])
-    logger.info(message, optionalParams)
+    logger.info(message, this.getMeta(optionalParams))
   }
 
   info(message: string, ...optionalParams: any[]) {
@@ -39,9 +32,18 @@ export class LoggerService implements NestLoggerService {
   }
 
   private getMeta(...optionalParams: any[]): object {
-    return {
-      ...(this.context ? { context: this.context } : {}),
-      ...(optionalParams.length && optionalParams[0] ? { context: optionalParams[0] } : {})
+    if (!optionalParams.length) {
+      return {}
     }
+
+    if (typeof optionalParams[0][0] === 'string') {
+      return { context: optionalParams[0][0] }
+    }
+
+    if (typeof optionalParams[0] === 'object') {
+      return { ...optionalParams[0][0] }
+    }
+
+    return {}
   }
 }
