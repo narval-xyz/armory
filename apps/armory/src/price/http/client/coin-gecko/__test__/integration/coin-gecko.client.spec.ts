@@ -1,3 +1,4 @@
+import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -13,7 +14,7 @@ describe(CoinGeckoClient.name, () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [HttpModule],
+      imports: [HttpModule, LoggerModule],
       providers: [CoinGeckoClient]
     }).compile()
 
