@@ -1,5 +1,6 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { AxiosError, AxiosRequestConfig } from 'axios'
 import { omit } from 'lodash/fp'
 import { catchError, lastValueFrom, map, tap, throwError } from 'rxjs'
@@ -8,9 +9,12 @@ import { CoinList, SimplePrice, SimplePriceOption } from './coin-gecko.type'
 
 @Injectable()
 export class CoinGeckoClient {
-  private logger = new Logger(CoinGeckoClient.name)
-
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(CoinGeckoClient.name)
+  }
 
   static AUTH_HEADER = 'x-cg-pro-api-key'
   static V3_URL = 'https://api.coingecko.com/api/v3'

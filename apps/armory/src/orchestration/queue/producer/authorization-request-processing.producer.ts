@@ -1,10 +1,11 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@narval/policy-engine-shared'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { BackoffOptions, Job, Queue } from 'bull'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
@@ -25,13 +26,14 @@ export const DEFAULT_JOB_OPTIONS: JobOption = {
 
 @Injectable()
 export class AuthorizationRequestProcessingProducer implements OnApplicationBootstrap {
-  private logger = new Logger(AuthorizationRequestProcessingProducer.name)
-
   constructor(
     @InjectQueue(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
     private processingQueue: Queue<AuthorizationRequestProcessingJob>,
-    private authzRequestRepository: AuthorizationRequestRepository
-  ) {}
+    private authzRequestRepository: AuthorizationRequestRepository,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(AuthorizationRequestProcessingProducer.name)
+  }
 
   async add(authzRequest: AuthorizationRequest): Promise<Job<AuthorizationRequestProcessingJob>> {
     return this.processingQueue.add(

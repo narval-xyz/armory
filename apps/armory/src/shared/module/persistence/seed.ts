@@ -1,6 +1,5 @@
 import { LoggerService, secret } from '@narval/nestjs-shared'
 import { FIXTURE } from '@narval/policy-engine-shared'
-import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { Client, Prisma, PrismaClient } from '@prisma/client/armory'
 import { ArmoryModule } from '../../../armory.module'
@@ -24,7 +23,9 @@ const clients: Client[] = [
 ]
 
 async function main() {
-  const logger = new Logger('ArmorySeed')
+  const logger = new LoggerService()
+  logger.setContext('Armory Seed')
+
   // Create a standalone application without any network listeners like controllers.
   //
   // See https://docs.nestjs.com/standalone-applications

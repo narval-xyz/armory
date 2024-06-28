@@ -1,12 +1,16 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Inject, Injectable } from '@nestjs/common'
 import { ModulesContainer } from '@nestjs/core'
 import { SeedService } from './seed.service'
 
 @Injectable()
 export class SeederService {
-  private logger = new Logger(SeedService.name)
-
-  constructor(@Inject(ModulesContainer) private modulesContainer: ModulesContainer) {}
+  constructor(
+    @Inject(ModulesContainer) private modulesContainer: ModulesContainer,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(SeederService.name)
+  }
 
   async seed() {
     for (const seed of this.getSeedServices()) {

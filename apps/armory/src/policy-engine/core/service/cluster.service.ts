@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Decision, EvaluationRequest, EvaluationResponse, toHex } from '@narval/policy-engine-shared'
 import { Hex, PublicKey, base64UrlToHex, eip191Hash, hexToBase64Url, verifyJwt } from '@narval/signature'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { hexToBytes } from '@noble/curves/abstract/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { isEmpty } from 'lodash'
@@ -30,13 +31,14 @@ try {
 
 @Injectable()
 export class ClusterService {
-  private logger = new Logger(ClusterService.name)
-
   constructor(
     private policyEngineClient: PolicyEngineClient,
     private policyEngineNodeRepository: PolicyEngineNodeRepository,
-    private configService: ConfigService<Config>
-  ) {}
+    private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(ClusterService.name)
+  }
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {
     const data = {

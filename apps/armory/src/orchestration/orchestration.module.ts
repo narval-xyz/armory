@@ -20,8 +20,10 @@ import { AuthorizationRequestApprovalRepository } from './persistence/repository
 import { AuthorizationRequestRepository } from './persistence/repository/authorization-request.repository'
 import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authorization-request-processing.consumer'
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
+import { LoggerModule } from '@narval/nestjs-shared'
 
 const INFRASTRUCTURE_MODULES = [
+  LoggerModule,
   ConfigModule.forRoot({ load: [load] }),
   HttpModule,
   PersistenceModule,

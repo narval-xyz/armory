@@ -3,31 +3,45 @@ import { logger } from './winston.config'
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
-  log(message: string, context: string) {
-    logger.info(message, { context })
+  private context: string
+
+  setContext(context: string) {
+    this.context = context
   }
 
-  info(message: string, context: string) {
-    logger.info(message, { context })
+  log(message: string, ...optionalParams: any[]) {
+    console.log(optionalParams[0])
+    logger.info(message, optionalParams)
   }
 
-  error(message: string, trace: string, context: string) {
-    logger.error(message, { context, trace })
+  info(message: string, ...optionalParams: any[]) {
+    logger.info(message, this.getMeta(optionalParams))
   }
 
-  warn(message: string, context: string) {
-    logger.warn(message, { context })
+  error(message: string, ...optionalParams: any[]) {
+    logger.error(message, this.getMeta(optionalParams))
   }
 
-  debug(message: string, context: string) {
-    logger.debug(message, { context })
+  warn(message: string, ...optionalParams: any[]) {
+    logger.warn(message, this.getMeta(optionalParams))
   }
 
-  verbose(message: string, context: string) {
-    logger.verbose(message, { context })
+  debug(message: string, ...optionalParams: any[]) {
+    logger.debug(message, this.getMeta(optionalParams))
   }
 
-  fatal(message: string, context: string) {
-    logger.error(message, { context })
+  verbose(message: string, ...optionalParams: any[]) {
+    logger.verbose(message, this.getMeta(optionalParams))
+  }
+
+  fatal(message: string, ...optionalParams: any[]) {
+    logger.error(message, this.getMeta(optionalParams))
+  }
+
+  private getMeta(...optionalParams: any[]): object {
+    return {
+      ...(this.context ? { context: this.context } : {}),
+      ...(optionalParams.length && optionalParams[0] ? { context: optionalParams[0] } : {})
+    }
   }
 }

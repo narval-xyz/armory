@@ -5,9 +5,10 @@ import { TransferTrackingModule } from '../transfer-tracking/transfer-tracking.m
 import { HistoricalTransferFeedService } from './/core/service/historical-transfer-feed.service'
 import { FeedService } from './core/service/feed.service'
 import { PriceFeedService } from './core/service/price-feed.service'
+import { LoggerModule } from '@narval/nestjs-shared'
 
 @Module({
-  imports: [PersistenceModule, PriceModule, TransferTrackingModule],
+  imports: [PersistenceModule, PriceModule, TransferTrackingModule, LoggerModule],
   providers: [FeedService, HistoricalTransferFeedService, PriceFeedService],
   exports: [FeedService]
 })

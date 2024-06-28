@@ -1,34 +1,14 @@
+import { stringify } from '@narval/policy-engine-shared'
 import { isUndefined, omit, omitBy } from 'lodash/fp'
 import * as winston from 'winston'
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
+const isProduction = process.env.NODE_ENV === 'production'
 
 const omitUndefined = omitBy(isUndefined)
 
-const stringifyJsonWithBigInt = (json: any, space?: number) => {
-  return JSON.stringify(json, (key, value) => (typeof value === 'bigint' ? `bigint:${value.toString()}` : value), space)
-}
-
 const cleanDetails = (info: winston.Logform.TransformableInfo) => {
-  const details = omit(
-    [
-      'mnemonic',
-      'remoteMnemonic',
-      'privateKey',
-      'wallet.mnemonic',
-      'wallet.privateKey',
-      'assetAndWallet.wallet.mnemonic',
-      'assetAndWallet.wallet.privateKey',
-      'assetAndWallet.borrowerWallet.mnemonic',
-      'assetAndWallet.borrowerWallet.privateKey',
-      'borrowerWallet.mnemonic',
-      'borrowerWallet.privateKey',
-      'tokenBalanceOnChainTransferArgs.fromMnemonic'
-    ],
-    info
-  )
+  const details = omit(['mnemonic', 'privateKey'], info)
 
-  // If we have a wallets array, strip out mnemonic
   if (details.wallets) {
     details.wallets = details.wallets.map(omit(['mnemonic', 'privateKey']))
   }
@@ -48,7 +28,6 @@ const cleanDetails = (info: winston.Logform.TransformableInfo) => {
     }
   }
 
-  // Format error details
   if (details.error) {
     details.error = omitUndefined({
       name: details.error.name,
@@ -58,15 +37,6 @@ const cleanDetails = (info: winston.Logform.TransformableInfo) => {
       code: details.error.code,
       reason: details.error.reason,
       raw: details.error.toString()
-    })
-  }
-
-  // Format Transaction details if needed
-  if (details.transaction) {
-    Object.entries(details.transaction).forEach(([key, value]) => {
-      if (typeof value === 'bigint') {
-        details.transaction[key] = value.toString()
-      }
     })
   }
 
@@ -109,9 +79,7 @@ const formatLocalLog = (info: winston.Logform.TransformableInfo) => {
       levelColor = '\x1b[0m' // Reset color
   }
 
-  return `${info.timestamp} ${levelColor}[${info?.level?.toUpperCase()}]\x1b[0m: ${
-    info.message
-  }\n${stringifyJsonWithBigInt(rest, 2)}`
+  return `${info.timestamp} [${info.context}] ${levelColor}${info.level.toUpperCase()}\x1b[0m: ${message}${rest ? `\n${stringify(rest, 2)}` : ''}`
 }
 
 export const logger = winston.createLogger({
@@ -121,14 +89,16 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json(),
     winston.format.printf((info) => {
-      if (isProduction) {
+      console.log({ info })
+      if (!isProduction) {
         return formatLocalLog(info)
       }
 
       const details = cleanDetails(info)
 
-      return stringifyJsonWithBigInt({
+      return stringify({
         level: info.level,
+        context: info.context,
         ...details
       })
     })

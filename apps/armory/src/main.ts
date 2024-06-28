@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
-import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
+import { LoggerService, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
@@ -9,6 +9,9 @@ import { ArmoryModule } from './armory.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
+
+const logger = new LoggerService()
+logger.setContext('Armory Bootstrap')
 
 /**
  * Adds global pipes to the application.
@@ -45,9 +48,9 @@ const withGlobalFilters =
   (configService: ConfigService<Config>) =>
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(
-      new ApplicationExceptionFilter(configService),
+      new ApplicationExceptionFilter(configService, logger),
       new ZodExceptionFilter(configService),
-      new HttpExceptionFilter(configService)
+      new HttpExceptionFilter(configService, logger)
     )
 
     return app
@@ -60,7 +63,6 @@ const withGlobalFilters =
  * successfully bootstrapped.
  */
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('ArmoryBootstrap')
   const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const port = configService.get('port')

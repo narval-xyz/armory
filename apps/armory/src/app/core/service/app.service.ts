@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
-import { Injectable, Logger } from '@nestjs/common'
+import { LoggerService, secret } from '@narval/nestjs-shared'
+import { Injectable } from '@nestjs/common'
 import { Config } from '../../../armory.config'
 import { AppRepository } from '../../persistence/repository/app.repository'
 import { AlreadyActivatedException } from '../exception/app-already-activated.exception'
@@ -9,12 +9,13 @@ import { App } from '../type/app.type'
 
 @Injectable()
 export class AppService {
-  private logger = new Logger(AppService.name)
-
   constructor(
     private appRepository: AppRepository,
-    private configService: ConfigService<Config>
-  ) {}
+    private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(AppService.name)
+  }
 
   async getAppOrThrow(): Promise<App> {
     const app = await this.getApp()

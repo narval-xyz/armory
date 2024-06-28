@@ -4,8 +4,9 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { ClusterService } from './core/service/cluster.service'
 import { PolicyEngineClient } from './http/client/policy-engine.client'
 import { PolicyEngineNodeRepository } from './persistence/repository/policy-engine-node.repository'
+import { LoggerModule } from '@narval/nestjs-shared'
 
-const INFRASTRUCTURE_MODULES = [PersistenceModule, HttpModule]
+const INFRASTRUCTURE_MODULES = [PersistenceModule, HttpModule, LoggerModule]
 
 @Module({
   imports: [...INFRASTRUCTURE_MODULES],

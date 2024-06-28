@@ -6,17 +6,21 @@ import {
   SerializedEvaluationRequest
 } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 import { ApplicationException } from '../../../shared/exception/application.exception'
+import { LoggerService } from '@narval/nestjs-shared'
 
 export class PolicyEngineClientException extends ApplicationException {}
 
 @Injectable()
 export class PolicyEngineClient {
-  private logger = new Logger(PolicyEngineClient.name)
-
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private readonly logger: LoggerService
+  ) {
+    this.logger.setContext(PolicyEngineClient.name)
+  }
 
   async evaluate(option: {
     host: string
