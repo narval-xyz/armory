@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
 import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -77,7 +77,8 @@ describe('Client', () => {
         ClientModule
       ]
     })
-      .setLogger(new NullLoggerService())
+      .overrideProvider(LoggerService)
+      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication()

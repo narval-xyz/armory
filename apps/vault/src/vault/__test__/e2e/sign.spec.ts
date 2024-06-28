@@ -1,5 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import {
   SigningAlg,
@@ -109,6 +110,8 @@ describe('Sign', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      .overrideProvider(LoggerService)
+      .useValue(new NullLoggerService())
       .compile()
 
     app = module.createNestApplication({ logger: false })

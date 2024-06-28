@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import {
   DataStoreConfiguration,
   Decision,
@@ -45,7 +45,15 @@ describe(ClusterService.name, () => {
           isGlobal: true
         })
       ],
-      providers: [ClusterService, PolicyEngineClient, PolicyEngineNodeRepository]
+      providers: [
+        ClusterService,
+        PolicyEngineClient,
+        PolicyEngineNodeRepository,
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
+        }
+      ]
     }).compile()
 
     clusterService = module.get<ClusterService>(ClusterService)

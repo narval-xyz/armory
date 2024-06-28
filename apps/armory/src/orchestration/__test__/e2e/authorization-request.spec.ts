@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { Action, AuthorizationRequest, FIXTURE } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -65,6 +65,8 @@ describe('Authorization Request', () => {
       // correctness is covered by the consumer integration test.
       .overrideProvider(AuthorizationRequestProcessingConsumer)
       .useValue(mock<AuthorizationRequestProcessingConsumer>())
+      .overrideProvider(LoggerService)
+      .useClass(NullLoggerService)
       .compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)

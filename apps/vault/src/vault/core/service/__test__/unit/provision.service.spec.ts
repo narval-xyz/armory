@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { Config } from '../../../../../main.config'
@@ -38,6 +38,7 @@ describe(ProvisionService.name, () => {
     configServiceMock = mockConfigService(config)
 
     module = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         ProvisionService,
         AppService,
@@ -50,6 +51,10 @@ describe(ProvisionService.name, () => {
         {
           provide: KeyValueRepository,
           useClass: InMemoryKeyValueRepository
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()

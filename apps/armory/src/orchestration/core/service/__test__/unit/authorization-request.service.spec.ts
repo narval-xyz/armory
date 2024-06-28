@@ -1,4 +1,4 @@
-import { LoggerModule } from '@narval/nestjs-shared'
+import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -94,6 +94,10 @@ describe(AuthorizationRequestService.name, () => {
         {
           provide: FeedService,
           useValue: feedServiceMock
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()

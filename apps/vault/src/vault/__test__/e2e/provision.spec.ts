@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -35,7 +35,10 @@ describe('Provision', () => {
         }),
         VaultModule
       ]
-    }).compile()
+    })
+      .overrideProvider(LoggerService)
+      .useValue(new NullLoggerService())
+      .compile()
 
     app = module.createNestApplication()
 

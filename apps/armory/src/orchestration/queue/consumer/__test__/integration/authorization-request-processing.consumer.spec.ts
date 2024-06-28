@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -125,6 +125,10 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         {
           provide: FeedService,
           useValue: mock<FeedService>()
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()

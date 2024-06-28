@@ -1,3 +1,4 @@
+import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { Module, OnApplicationBootstrap, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
@@ -12,7 +13,7 @@ import { ClientRepository } from './persistence/repository/client.repository'
 
 @Module({
   // NOTE: The AdminApiKeyGuard is the only reason we need the VaultModule.
-  imports: [HttpModule, KeyValueModule, forwardRef(() => VaultModule)],
+  imports: [LoggerModule, HttpModule, KeyValueModule, forwardRef(() => VaultModule)],
   controllers: [ClientController],
   providers: [
     AdminApiKeyGuard,

@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -63,7 +63,13 @@ describe(AuthorizationRequestRepository.name, () => {
         }),
         PersistenceModule
       ],
-      providers: [AuthorizationRequestRepository]
+      providers: [
+        AuthorizationRequestRepository,
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
+        }
+      ]
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)

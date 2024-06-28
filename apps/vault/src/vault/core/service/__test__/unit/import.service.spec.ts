@@ -1,3 +1,4 @@
+import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Origin, PrivateAccount } from '../../../../../shared/type/domain.type'
 import { AccountRepository } from '../../../../persistence/repository/account.repository'
@@ -13,6 +14,7 @@ describe('ImportService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         ImportService,
         {
@@ -34,6 +36,10 @@ describe('ImportService', () => {
         {
           provide: KeyGenerationService,
           useValue: {}
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()
