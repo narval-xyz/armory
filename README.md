@@ -121,7 +121,7 @@ documentation](https://nx.dev/nx-api/nx).
 ## NPM
 
 The `.npmrc` file is needed to access a private registry for Font Awesome and
-`@sepior/tsmsdkv2`.
+the optional dependency `@narval-xyz/blockdaemon-tsm`.
 
 > [!IMPORTANT]
 > This file is NOT in git, but it's necessary for the build.
