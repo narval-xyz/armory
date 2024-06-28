@@ -15,9 +15,7 @@ RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.64.1/opa_linux_amd64
 COPY package*.json ./
 COPY .npmrc ./
 
-RUN cat .npmrc
 RUN npm ci
-RUN ls -la node_modules/ | grep sepior
 
 # Install nx globally
 RUN npm add --global nx@latest
@@ -29,7 +27,6 @@ COPY Makefile ./
 COPY nx.json ./
 COPY tsconfig*.json ./
 
-# Generate all the db types
 RUN make policy-engine/db/generate-types
 RUN make armory/db/generate-types
 RUN make vault/db/generate-types

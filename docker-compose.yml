@@ -48,6 +48,7 @@ services:
       - ./packages:/app/packages
       - ./apps:/app/apps
     depends_on:
+      - redis
       - postgres
 
   policy_engine_0:

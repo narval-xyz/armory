@@ -33,14 +33,6 @@ setup:
 	@echo ""
 	@echo "${TERM_GREEN}🐋 Applications are ready!${TERM_NO_COLOR}"
 
-# === Docker ===
-
-docker/stop:
-	docker-compose stop
-
-docker/up:
-	docker-compose up --detach
-
 # === Packages ===
 
 packages/release:
@@ -96,15 +88,26 @@ test:
 
 # === Docker ===
 
-docker/local/build:
+# Starts the applications' dependencies.
+docker/up:
+	docker-compose up postgres redis --detach
+
+docker/stop:
+	docker-compose stop
+
+# Starts the Armory stack in Docker containers.
+# Useful when you want to use MPC as the signing protocol.
+docker/stack/up:
+	docker-compose up --detach
+
+docker/stack/stop:
+	docker-compose stop
+
+# Builds the
+docker/stack/build:
 	docker buildx build \
 		--platform linux/arm64 \
 		--file local.dockerfile \
 		--tag armory/local:latest \
 		. --load
 
-docker/local/start:
-	docker-compose up -d
-
-docker/local/stop:
-	docker-compose stop
