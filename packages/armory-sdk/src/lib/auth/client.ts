@@ -133,7 +133,7 @@ export class AuthClient {
    * @returns A Promise that resolves to the retrieved AuthorizationResponseDto.
    */
   async getAuthorizationById(id: string): Promise<AuthorizationResponseDto> {
-    const { data } = await this.authorizationHttp.getById(this.config.clientId, id)
+    const { data } = await this.authorizationHttp.getById(id, this.config.clientId)
 
     return data
   }

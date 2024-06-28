@@ -7,8 +7,7 @@ import {
 } from '@narval/armory-sdk'
 import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
-import { useEffect, useMemo, useState } from 'react'
-import useSWR from 'swr'
+import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
@@ -56,26 +55,6 @@ const useAuthServerApi = () => {
       }
     })
   }, [authHost, authClientId, authClientSecret, jwk, signer])
-
-  const { data: authorizationResponse } = useSWR(
-    '/authorization-requests',
-    () => {
-      if (!authClient || !processingRequest) {
-        return null
-      }
-
-      return authClient.getAuthorizationById(processingRequest.id)
-    },
-    { refreshInterval: 1000 }
-  )
-
-  useEffect(() => {
-    if (!authorizationResponse) return
-
-    if (COMPLETED_STATUS.includes(authorizationResponse.status)) {
-      setProcessingRequest(undefined)
-    }
-  }, [authorizationResponse])
 
   const ping = () => {
     if (!authClient) return
@@ -187,7 +166,7 @@ const useAuthServerApi = () => {
     }
   }
 
-  return { errors, isProcessing, isSynced, authorizationResponse, ping, createClient, sync, evaluate }
+  return { errors, isProcessing, isSynced, ping, createClient, sync, evaluate }
 }
 
 export default useAuthServerApi
