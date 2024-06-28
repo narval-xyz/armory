@@ -10,9 +10,7 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<Config>,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(ApplicationExceptionFilter.name)
-  }
+  ) {}
 
   catch(exception: ApplicationException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

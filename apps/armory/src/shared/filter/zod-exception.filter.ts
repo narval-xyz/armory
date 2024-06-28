@@ -8,11 +8,10 @@ import { Config, Env } from '../../armory.config'
 
 @Catch(ZodError, ZodValidationException)
 export class ZodExceptionFilter implements ExceptionFilter {
-  private logger = new LoggerService()
-
-  constructor(private configService: ConfigService<Config>) {
-    this.logger.setContext(ZodExceptionFilter.name)
-  }
+  constructor(
+    private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {}
 
   catch(exception: ZodError, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

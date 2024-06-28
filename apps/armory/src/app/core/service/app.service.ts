@@ -13,9 +13,7 @@ export class AppService {
     private appRepository: AppRepository,
     private configService: ConfigService<Config>,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(AppService.name)
-  }
+  ) {}
 
   async getAppOrThrow(): Promise<App> {
     const app = await this.getApp()

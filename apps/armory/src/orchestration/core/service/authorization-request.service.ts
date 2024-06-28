@@ -47,9 +47,7 @@ export class AuthorizationRequestService {
     private priceService: PriceService,
     private clusterService: ClusterService,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(AuthorizationRequestService.name)
-  }
+  ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
     const now = new Date()

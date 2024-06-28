@@ -8,9 +8,7 @@ export class TransferTrackingService {
   constructor(
     private transferFeedRepository: TransferRepository,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(TransferTrackingService.name)
-  }
+  ) {}
 
   track(transfer: CreateTransfer): Promise<Transfer> {
     this.logger.log('Tracking approved transfer', transfer)

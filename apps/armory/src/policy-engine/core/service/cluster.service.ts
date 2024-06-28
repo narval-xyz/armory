@@ -36,9 +36,7 @@ export class ClusterService {
     private policyEngineNodeRepository: PolicyEngineNodeRepository,
     private configService: ConfigService<Config>,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(ClusterService.name)
-  }
+  ) {}
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {
     const data = {

@@ -19,9 +19,7 @@ export class AuthorizationRequestProcessingConsumer {
   constructor(
     private authzService: AuthorizationRequestService,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(AuthorizationRequestProcessingConsumer.name)
-  }
+  ) {}
 
   @Process()
   async process(job: Job<AuthorizationRequestProcessingJob>) {

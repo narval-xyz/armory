@@ -31,9 +31,7 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
     private processingQueue: Queue<AuthorizationRequestProcessingJob>,
     private authzRequestRepository: AuthorizationRequestRepository,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(AuthorizationRequestProcessingProducer.name)
-  }
+  ) {}
 
   async add(authzRequest: AuthorizationRequest): Promise<Job<AuthorizationRequestProcessingJob>> {
     return this.processingQueue.add(

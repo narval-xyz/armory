@@ -13,9 +13,7 @@ class PongDto extends createZodDto(
 @Controller()
 @ApiTags('Application')
 export class ArmoryController {
-  constructor(private readonly logger: LoggerService) {
-    this.logger.setContext(ArmoryController.name)
-  }
+  constructor(private readonly logger: LoggerService) {}
 
   @Get()
   @ApiExcludeEndpoint()

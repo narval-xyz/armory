@@ -19,9 +19,7 @@ export class PriceService {
     private coinGeckoClient: CoinGeckoClient,
     private coinGeckoAssetRepository: CoinGeckoAssetRepository,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(PriceService.name)
-  }
+  ) {}
 
   async getPrices(options: GetPricesOption): Promise<Prices> {
     this.logger.log('Get prices', options)

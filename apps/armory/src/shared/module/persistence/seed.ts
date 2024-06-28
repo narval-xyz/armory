@@ -5,6 +5,7 @@ import { Client, Prisma, PrismaClient } from '@prisma/client/armory'
 import { ArmoryModule } from '../../../armory.module'
 import { SeederService } from './service/seeder.service'
 
+const logger = new LoggerService()
 const now = new Date()
 const prisma = new PrismaClient()
 
@@ -23,9 +24,6 @@ const clients: Client[] = [
 ]
 
 async function main() {
-  const logger = new LoggerService()
-  logger.setContext('Armory Seed')
-
   // Create a standalone application without any network listeners like controllers.
   //
   // See https://docs.nestjs.com/standalone-applications
@@ -58,10 +56,10 @@ async function main() {
 main()
   .then(async () => {
     await prisma.$disconnect()
+    logger.log('Done')
   })
-  .catch(async (e) => {
-    // eslint-disable-next-line no-console
-    console.error(e)
+  .catch(async (error) => {
     await prisma.$disconnect()
+    logger.error('Failed', error)
     process.exit(1)
   })

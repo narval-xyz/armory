@@ -9,9 +9,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<Config>,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(HttpExceptionFilter.name)
-  }
+  ) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

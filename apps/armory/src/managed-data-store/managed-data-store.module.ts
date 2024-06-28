@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { load } from '../armory.config'
@@ -12,7 +13,6 @@ import { DataStoreController } from './http/rest/controller/data-store.controlle
 import { EntityDataStoreRepository } from './persistence/repository/entity-data-store.repository'
 import { PolicyDataStoreRepository } from './persistence/repository/policy-data-store.repository'
 import { DataStoreGuard } from './shared/guard/data-store.guard'
-import { LoggerModule } from '@narval/nestjs-shared'
 
 const INFRASTRUCTURE_MODULES = [
   ConfigModule.forRoot({

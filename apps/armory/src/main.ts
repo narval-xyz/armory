@@ -11,7 +11,6 @@ import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
 const logger = new LoggerService()
-logger.setContext('Armory Bootstrap')
 
 /**
  * Adds global pipes to the application.
@@ -49,7 +48,7 @@ const withGlobalFilters =
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(
       new ApplicationExceptionFilter(configService, logger),
-      new ZodExceptionFilter(configService),
+      new ZodExceptionFilter(configService, logger),
       new HttpExceptionFilter(configService, logger)
     )
 

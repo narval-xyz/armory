@@ -15,7 +15,6 @@ import { CoinGeckoClient } from '../http/client/coin-gecko/coin-gecko.client'
 import { Coin } from '../http/client/coin-gecko/coin-gecko.type'
 
 const logger = new LoggerService()
-logger.setContext('CoinGeckoCoinDictionaryScript')
 
 const supportedPlatforms = Array.from(CHAINS.values()).map(({ coinGecko }) => coinGecko.platform)
 

@@ -12,9 +12,7 @@ export class CoinGeckoClient {
   constructor(
     private httpService: HttpService,
     private readonly logger: LoggerService
-  ) {
-    this.logger.setContext(CoinGeckoClient.name)
-  }
+  ) {}
 
   static AUTH_HEADER = 'x-cg-pro-api-key'
   static V3_URL = 'https://api.coingecko.com/api/v3'
