@@ -71,11 +71,12 @@ async function bootstrap(): Promise<void> {
 
   await lastValueFrom(
     of(application).pipe(
+      map(withVersionning({ defaultVersion: '1' })),
       map(
-        withVersionning,
         withSwagger({
           title: 'Armory',
           description: 'Armory is the most secure access management for web3',
+          version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),

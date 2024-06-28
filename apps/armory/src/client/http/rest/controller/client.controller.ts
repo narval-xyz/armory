@@ -4,7 +4,10 @@ import { ApiAdminGuard } from '../../../../shared/decorator/api-admin-guard.deco
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
 
-@Controller('/clients')
+@Controller({
+  path: 'client',
+  version: '1'
+})
 @ApiTags('Client')
 export class ClientController {
   constructor(private clientService: ClientService) {}

@@ -1,4 +1,4 @@
-import { INestApplication, VersioningType } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { SecuritySchemeObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
 import { patchNestJsSwagger } from 'nestjs-zod'
@@ -43,31 +43,13 @@ export const clientSecretSecurity = (header: string): Security => ({
 })
 
 /**
- * Adds NestJS URI versionning to the application.
- * IMPORTANT: In order to work with Swagger, this function needs to be called
- * before withSwagger at app boostrap.
- * https://github.com/nestjs/swagger/issues/1495
- *
- * @param app - The INestApplication instance.
- * @returns The modified INestApplication instance.
- *
- */
-export const withVersionning = (app: INestApplication): INestApplication => {
-  app.enableVersioning({
-    type: VersioningType.URI
-  })
-
-  return app
-}
-
-/**
  * Adds Swagger documentation to the application.
  *
  * @param app - The INestApplication instance.
  * @returns The modified INestApplication instance.
  */
 export const withSwagger =
-  (params: { title: string; description: string; security?: Security[] }) =>
+  (params: { title: string; description: string; version: string; security?: Security[] }) =>
   (app: INestApplication): INestApplication => {
     // IMPORTANT: This modifies the Nest Swagger module to be compatible with
     // DTOs created by Zod schemas. The patch MUST be done before the
@@ -75,7 +57,10 @@ export const withSwagger =
     patchNestJsSwagger()
     const security = params.security || []
 
-    const documentBuilder = new DocumentBuilder().setTitle(params.title).setDescription(params.description)
+    const documentBuilder = new DocumentBuilder()
+      .setTitle(params.title)
+      .setDescription(params.description)
+      .setVersion(params.version)
     for (const s of security) {
       documentBuilder.addSecurity(s.name, s)
     }

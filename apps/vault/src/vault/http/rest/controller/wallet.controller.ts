@@ -12,7 +12,10 @@ import { ImportWalletDto } from '../dto/import-wallet.dto'
 import { WalletDto } from '../dto/wallet.dto'
 import { WalletsDto } from '../dto/wallets.dto'
 
-@Controller('/wallets')
+@Controller({
+  path: '/wallets',
+  version: '1'
+})
 @ApiTags('Wallet')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,

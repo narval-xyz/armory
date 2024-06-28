@@ -1,7 +1,9 @@
 import { Controller, Get, Logger } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
-@Controller()
+@Controller({
+  version: '1'
+})
 @ApiTags('Application')
 export class AppController {
   private logger = new Logger(AppController.name)

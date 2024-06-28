@@ -41,11 +41,12 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
+      map(withVersionning({ defaultVersion: '1' })),
       map(
-        withVersionning,
         withSwagger({
           title: 'Vault',
           description: 'The next generation of authorization for web3',
+          version: '1.0',
           security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
         })
       ),
