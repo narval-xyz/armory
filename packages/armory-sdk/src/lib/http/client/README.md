@@ -29,7 +29,6 @@ make armory-sdk/generate/vault-client
 ```
 
 After you generate an HTTP client, run `make armory-sdk/test/type` to ensure
-changes in the API are respecting the SDK's internal types. 
+changes in the API are respecting the SDK's internal types.
 
 You can find the make targets in the SDK's [Makefile](./../../../../Makefile).
-

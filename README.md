@@ -36,6 +36,22 @@ make docker/up
 make docker/stop
 ```
 
+Alternatively, you can run the entire stack in Docker containers. This is
+useful when using the MPC as a signing protocol in the Policy Engine.
+
+> [!IMPORTANT]
+> You also need a locally running TSM cluster, which is not included in this
+> repository.
+
+
+```bash
+# Build the application's image.
+make docker/stack/build
+
+make docker/stack/up
+make docker/stack/stop
+```
+
 ## Testing
 
 To run tests across all existing projects, you can use the following commands:
@@ -105,7 +121,7 @@ documentation](https://nx.dev/nx-api/nx).
 ## NPM
 
 The `.npmrc` file is needed to access a private registry for Font Awesome and
-`@sepior/tsmsdkv2`.
+the optional dependency `@narval-xyz/blockdaemon-tsm`.
 
 > [!IMPORTANT]
 > This file is NOT in git, but it's necessary for the build.
