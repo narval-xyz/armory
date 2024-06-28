@@ -9,6 +9,8 @@ import { PolicyEngineModule, ProvisionModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 
+const logger = new LoggerService()
+
 /**
  * Adds global pipes to the application.
  *
@@ -31,7 +33,10 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 const withGlobalFilters =
   (configService: ConfigService<Config>) =>
   (app: INestApplication): INestApplication => {
-    app.useGlobalFilters(new HttpExceptionFilter(configService), new ApplicationExceptionFilter(configService))
+    app.useGlobalFilters(
+      new HttpExceptionFilter(configService, logger),
+      new ApplicationExceptionFilter(configService, logger)
+    )
 
     return app
   }
@@ -47,7 +52,6 @@ async function bootstrap() {
   // a temporary application for the provision step.
   await provision()
 
-  const logger = new LoggerService()
   const application = await NestFactory.create(PolicyEngineModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get(ConfigService<Config>)
   const port = configService.get('port')
