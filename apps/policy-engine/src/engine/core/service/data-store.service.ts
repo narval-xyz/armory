@@ -12,9 +12,8 @@ import {
   PolicyStore,
   Source
 } from '@narval/policy-engine-shared'
-import { Jwk, decodeJwt, hash, verifyJwt } from '@narval/signature'
+import { Jwk, JwtError, decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { JwtError } from 'packages/signature/src/lib/error'
 import { ZodObject, z } from 'zod'
 import { DataStoreException } from '../exception/data-store.exception'
 import { DataStoreRepositoryFactory } from '../factory/data-store-repository.factory'
