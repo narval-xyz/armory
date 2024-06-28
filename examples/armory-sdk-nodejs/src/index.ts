@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 
 import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval/armory-sdk'
-import { Action, Policy } from '@narval/policy-engine-shared'
+import { Action, FIXTURE, Policy } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
-import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
+import { v4 } from 'uuid'
 import { Hex, toHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 
@@ -105,9 +105,9 @@ const policy = [
 
 const main = async () => {
   const anotherAddress = '0x3f843E606C79312718477F9bC020F3fC5b7264C2'.toLowerCase() as Hex
-  const signerAddr = privateKeyToAddress(UNSAFE_PRIVATE_KEY.Root)
+  const signerAddr = privateKeyToAddress(FIXTURE.UNSAFE_PRIVATE_KEY.Root)
   const signer = {
-    ...privateKeyToJwk(UNSAFE_PRIVATE_KEY.Root),
+    ...privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Root),
     addr: signerAddr,
     kid: signerAddr
   }
@@ -118,7 +118,7 @@ const main = async () => {
     authSecret: '4d975e601bd61cb7163025bdec0b77ce6fcfc30d2513eab7b1187e13a5ecfe409fb40850b9e917a51a02',
     vaultClientId: '5f16ff6a-a9ca-42d5-9a6e-d605e58e3359',
     vaultHost: 'http://localhost:3011',
-    signer: privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice)
+    signer: privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
   })
 
   try {

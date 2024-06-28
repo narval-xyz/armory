@@ -97,7 +97,7 @@ const useVaultApi = () => {
       const client = await vaultAdminClient.createClient({
         clientId,
         ...(engineClientSigner && { engineJwk: JSON.parse(engineClientSigner) }),
-        ...(backupPublicKey && { backupJwk: JSON.parse(backupPublicKey) }),
+        ...(backupPublicKey && { backupJwk: getJwkFromRsaPem(backupPublicKey) }),
         ...(allowKeyExport && { allowKeyExport }),
         ...(audience && { audience }),
         ...(issuer && { issuer }),

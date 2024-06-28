@@ -1,6 +1,5 @@
-import { PublicKey } from '@narval/signature'
+import { JwtError, PublicKey } from '@narval/signature'
 import { HttpStatus } from '@nestjs/common'
-import { JwtError } from 'packages/signature/src/lib/error'
 import { PolicyEngineException } from './policy-engine.exception'
 
 export class InvalidAttestationSignatureException extends PolicyEngineException {

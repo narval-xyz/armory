@@ -219,7 +219,7 @@ export const rsaPubKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   return toHex(new Uint8Array(keyData))
 }
 
-const rsaPrivateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
+export const rsaPrivateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   const key = validateJwk<RsaPrivateKey>({
     schema: rsaPrivateKeySchema,
     jwk,
