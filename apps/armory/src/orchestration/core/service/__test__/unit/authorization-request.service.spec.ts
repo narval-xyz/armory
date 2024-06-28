@@ -1,3 +1,4 @@
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -63,6 +64,7 @@ describe(AuthorizationRequestService.name, () => {
     feedServiceMock = mock<FeedService>()
 
     module = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         AuthorizationRequestService,
         {
