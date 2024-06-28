@@ -1,9 +1,9 @@
 import { ExpressAdapter } from '@bull-board/express'
 import { BullBoardModule } from '@bull-board/nestjs'
-import { ConfigService } from '@narval/config-module'
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { BullModule } from '@nestjs/bull'
 import { DynamicModule } from '@nestjs/common'
-import { ConditionalModule, ConfigModule } from '@nestjs/config'
+import { ConditionalModule } from '@nestjs/config'
 import { Config, Env, load } from '../../../armory.config'
 import { QUEUE_PREFIX } from '../../../armory.constant'
 
