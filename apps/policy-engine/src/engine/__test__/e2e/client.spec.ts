@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import {
   PrivateKey,
@@ -62,6 +62,8 @@ describe('Client', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      .overrideProvider(LoggerService)
+      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication()

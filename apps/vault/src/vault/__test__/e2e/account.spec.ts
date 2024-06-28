@@ -81,7 +81,7 @@ describe('Accounts', () => {
         keyring: getTestRawAesKeyring()
       })
       .overrideProvider(LoggerService)
-      .useValue(new NullLoggerService())
+      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication({ logger: false })

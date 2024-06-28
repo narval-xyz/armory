@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpModule } from '@narval/nestjs-shared'
+import { HttpModule, LoggerModule, LoggerService } from '@narval/nestjs-shared'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
@@ -28,11 +28,12 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
+    LoggerModule,
     HttpModule.forRoot(),
     KeyValueModule,
     EncryptionModule.registerAsync({
-      imports: [EngineModule],
-      inject: [ConfigService, EngineService],
+      imports: [EngineModule, LoggerModule],
+      inject: [ConfigService, EngineService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     })
   ],
@@ -44,17 +45,17 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     DataStoreService,
     {
       provide: 'SigningService',
-      useFactory: async (configService: ConfigService<Config>) => {
+      useFactory: async (configService: ConfigService<Config>, loggerService: LoggerService) => {
         const signingProtocol = configService.get('signingProtocol')
         if (signingProtocol === 'simple') {
           return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
-          return new MpcSigningService(configService)
+          return new MpcSigningService(configService, loggerService)
         }
 
         throw new Error('Invalid signing protocol')
       },
-      inject: [ConfigService]
+      inject: [ConfigService, LoggerService]
     },
     EngineRepository,
     EngineService,

@@ -37,7 +37,7 @@ describe('Provision', () => {
       ]
     })
       .overrideProvider(LoggerService)
-      .useValue(new NullLoggerService())
+      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication()

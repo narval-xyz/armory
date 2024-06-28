@@ -1,10 +1,11 @@
-import { Controller, Get, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
 @ApiTags('Application')
 export class AppController {
-  private logger = new Logger(AppController.name)
+  constructor(private readonly logger: LoggerService) {}
 
   @Get()
   healthcheck() {
@@ -13,9 +14,7 @@ export class AppController {
 
   @Get('/ping')
   ping() {
-    this.logger.log({
-      message: 'Received ping'
-    })
+    this.logger.log('Received ping')
 
     return 'pong'
   }

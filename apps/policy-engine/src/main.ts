@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
+import { LoggerService, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
@@ -47,7 +47,7 @@ async function bootstrap() {
   // a temporary application for the provision step.
   await provision()
 
-  const logger = new Logger('PolicyEngineBootstrap')
+  const logger = new LoggerService()
   const application = await NestFactory.create(PolicyEngineModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get(ConfigService<Config>)
   const port = configService.get('port')

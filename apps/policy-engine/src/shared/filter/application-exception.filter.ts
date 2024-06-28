@@ -1,14 +1,16 @@
 import { ConfigService } from '@narval/config-module'
-import { ArgumentsHost, Catch, ExceptionFilter, LogLevel, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { ArgumentsHost, Catch, ExceptionFilter, LogLevel } from '@nestjs/common'
 import { Response } from 'express'
 import { Config, Env } from '../../policy-engine.config'
 import { ApplicationException } from '../../shared/exception/application.exception'
 
 @Catch(ApplicationException)
 export class ApplicationExceptionFilter implements ExceptionFilter {
-  private logger = new Logger(ApplicationExceptionFilter.name)
-
-  constructor(private configService: ConfigService<Config>) {}
+  constructor(
+    private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {}
 
   catch(exception: ApplicationException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()

@@ -1,3 +1,4 @@
+import { HttpModule, LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import {
   EntityData,
   EntitySignature,
@@ -10,7 +11,7 @@ import {
   SourceType
 } from '@narval/policy-engine-shared'
 import { Jwk, PublicKey, getPublicKey, privateKeyToJwk } from '@narval/signature'
-import { HttpModule } from '@nestjs/axios'
+
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
@@ -38,8 +39,17 @@ describe(DataStoreService.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [HttpModule],
-      providers: [DataStoreService, DataStoreRepositoryFactory, HttpDataStoreRepository, FileSystemDataStoreRepository]
+      imports: [HttpModule.forRoot(), LoggerModule],
+      providers: [
+        DataStoreService,
+        DataStoreRepositoryFactory,
+        HttpDataStoreRepository,
+        FileSystemDataStoreRepository,
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
+        }
+      ]
     }).compile()
 
     service = module.get<DataStoreService>(DataStoreService)

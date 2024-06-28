@@ -1,13 +1,15 @@
 import { ConfigService } from '@narval/config-module'
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common'
 import { Response } from 'express'
 import { Config, Env } from '../../policy-engine.config'
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  private logger = new Logger(HttpExceptionFilter.name)
-
-  constructor(private configService: ConfigService<Config>) {}
+  constructor(
+    private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
@@ -16,7 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const isProduction = this.configService.get('env') === Env.PRODUCTION
 
-    this.logger.error({
+    this.logger.error(exception.message, {
       message: exception.message,
       stack: exception.stack,
       response: exception.getResponse(),

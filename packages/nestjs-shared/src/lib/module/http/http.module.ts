@@ -1,4 +1,4 @@
-import { HttpModule as NestHttpModule, HttpService } from '@nestjs/axios'
+import { HttpService, HttpModule as NestHttpModule } from '@nestjs/axios'
 import { DynamicModule, Global, Module } from '@nestjs/common'
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry, { DEFAULT_OPTIONS, IAxiosRetryConfig } from 'axios-retry'

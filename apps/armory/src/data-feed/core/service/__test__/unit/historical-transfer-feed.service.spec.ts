@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -14,7 +15,6 @@ import { ChainId } from '../../../../../shared/core/lib/chains.lib'
 import { Transfer } from '../../../../../shared/core/type/transfer-tracking.type'
 import { TransferTrackingService } from '../../../../../transfer-tracking/core/service/transfer-tracking.service'
 import { HistoricalTransferFeedService } from '../../../../core/service/historical-transfer-feed.service'
-import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 
 describe(HistoricalTransferFeedService.name, () => {
   let module: TestingModule

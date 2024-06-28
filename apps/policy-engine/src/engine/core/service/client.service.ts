@@ -1,7 +1,7 @@
-import { secret } from '@narval/nestjs-shared'
+import { LoggerService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Client } from '../../../shared/type/domain.type'
@@ -11,12 +11,11 @@ import { SigningService } from './signing.service.interface'
 
 @Injectable()
 export class ClientService {
-  private logger = new Logger(ClientService.name)
-
   constructor(
     private clientRepository: ClientRepository,
     private dataStoreService: DataStoreService,
-    @Inject('SigningService') private signingService: SigningService
+    @Inject('SigningService') private signingService: SigningService,
+    private readonly logger: LoggerService
   ) {}
 
   async findById(clientId: string): Promise<Client | null> {

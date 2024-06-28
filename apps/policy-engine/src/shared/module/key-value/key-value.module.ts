@@ -1,5 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
+import { LoggerModule, LoggerService } from '@narval/nestjs-shared'
 import { Module, forwardRef } from '@nestjs/common'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { EngineModule } from '../../../engine/engine.module'
@@ -13,10 +14,11 @@ import { PrismaKeyValueRepository } from './persistence/repository/prisma-key-va
 
 @Module({
   imports: [
+    LoggerModule,
     PersistenceModule,
     EncryptionModule.registerAsync({
-      imports: [forwardRef(() => EngineModule)],
-      inject: [ConfigService, EngineService],
+      imports: [forwardRef(() => EngineModule), LoggerModule],
+      inject: [ConfigService, EngineService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     })
   ],

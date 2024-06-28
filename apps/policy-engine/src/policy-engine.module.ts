@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpLoggerMiddleware, LoggerModule } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule, LoggerService } from '@narval/nestjs-shared'
 import {
   MiddlewareConsumer,
   Module,
@@ -25,8 +25,8 @@ const INFRASTRUCTURE_MODULES = [
     isGlobal: true
   }),
   EncryptionModule.registerAsync({
-    imports: [EngineModule],
-    inject: [ConfigService, EngineService],
+    imports: [EngineModule, LoggerModule],
+    inject: [ConfigService, EngineService, LoggerService],
     useClass: EncryptionModuleOptionFactory
   })
 ]

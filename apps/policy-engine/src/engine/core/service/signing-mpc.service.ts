@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { toHex } from 'viem'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -47,12 +48,14 @@ const wrapTsmException = (message: string, e: Error) => {
 
 @Injectable()
 export class MpcSigningService implements SigningService {
-  private logger = new Logger(MpcSigningService.name)
   private url: string
   private apiKey: string
   private playerCount: number
 
-  constructor(@Inject(ConfigService) private configService: ConfigService<Config>) {
+  constructor(
+    @Inject(ConfigService) private configService: ConfigService<Config>,
+    private readonly logger: LoggerService
+  ) {
     const tsm = this.configService.get('tsm')
     if (!tsm) {
       throw new ApplicationException({
