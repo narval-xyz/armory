@@ -50,7 +50,13 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
         if (signingProtocol === 'simple') {
           return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
-          return new MpcSigningService(configService, loggerService)
+          try {
+            const { BlockdaemonTsmService } = await import('@narval-xyz/blockdaemon-tsm')
+
+            return new MpcSigningService(configService, new BlockdaemonTsmService(), loggerService)
+          } catch {
+            throw new Error('Unable to lazy load Blockdaemon TSM dependency')
+          }
         }
 
         throw new Error('Invalid signing protocol')

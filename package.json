@@ -132,7 +132,7 @@
     "zod": "3.23.8"
   },
   "optionalDependencies": {
-    "@sepior/tsmsdkv2": "63.0.0"
+    "@narval-xyz/blockdaemon-tsm": "^0.0.2"
   },
   "nx": {
     "includedScripts": []
