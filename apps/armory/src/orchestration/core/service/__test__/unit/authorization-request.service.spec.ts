@@ -193,11 +193,7 @@ describe(AuthorizationRequestService.name, () => {
       })
     })
 
-    // TODO: (@wcalderipe, 17/5/24) Remove the skip flag once the comment about
-    // disabling the data feeds gathering in the service is done.
-    //
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('gathers data feed', async () => {
+    it('gathers data feed', async () => {
       await service.evaluate(authzRequest)
 
       expect(feedServiceMock.gather).toHaveBeenCalledWith(authzRequest)

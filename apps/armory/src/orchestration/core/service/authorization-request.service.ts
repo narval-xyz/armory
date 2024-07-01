@@ -11,6 +11,7 @@ import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
+import { FeedService } from '../../../data-feed/core/service/feed.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -46,7 +47,8 @@ export class AuthorizationRequestService {
     private authzRequestProcessingProducer: AuthorizationRequestProcessingProducer,
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    private feedService: FeedService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
@@ -122,18 +124,14 @@ export class AuthorizationRequestService {
       status: input.status
     })
 
-    // TODO: (@wcalderipe, 17/05/24) I'm turning off the data feeds gathering
-    // because it's not included in V1's scope. Additionally, I found that nock
-    // isn't blocking connections to certain hosts. As a result, the
-    // authorization E2E tests were making requests to Coingecko to get
-    // prices through the PriceService.
-    // const feeds = await this.feedService.gather(input)
+    const feeds = await this.feedService.gather(input)
+
     const evaluation = await this.clusterService.evaluate(input.clientId, {
       authentication: input.authentication,
       approvals: input.approvals,
       metadata: input.metadata,
       request: input.request,
-      feeds: [],
+      feeds,
       sessionId: uuid() // a random sessionId, used for MPC
     })
 
