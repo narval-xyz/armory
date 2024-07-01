@@ -85,21 +85,17 @@ make format/check
 make lint/check
 ```
 
-## Publishing packages
+## NPM
 
-This section describes the process to release a new version of publishable
-packages to NPM.
+The `.npmrc` file is needed to access a private registry for Font Awesome and
+the optional dependency `@narval-xyz/blockdaemon-tsm`.
 
-1. Run `make packages/release` and follow the prompts to bump the
-   projects' versions.
-1. Run `npm install` to update `package-lock.json`.
-1. Commit and push the changes to your branch.
-1. After your branch is merged, manually trigger the [packages pipeline to
-   publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
-   the new version to NPM.
+> [!IMPORTANT]
+> This file is NOT in git, but it's necessary for the build.
 
-You can find the publishable packages listed in the `release.projects` value in
-the `nx.json`.
+1. Create a `.npmrc` file in the root of this project.
+1. Get the values from someone who has them.
+1. Now `npm install` should work.
 
 ## Generating a new project
 
@@ -118,17 +114,21 @@ npx nx g @nx/nest:application --tags type:application
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
 
-## NPM
+## Publishing packages
 
-The `.npmrc` file is needed to access a private registry for Font Awesome and
-the optional dependency `@narval-xyz/blockdaemon-tsm`.
+This section describes the process to release a new version of publishable
+packages to NPM.
 
-> [!IMPORTANT]
-> This file is NOT in git, but it's necessary for the build.
+1. Run `make packages/release` and follow the prompts to bump the
+   projects' versions.
+1. Run `npm install` to update `package-lock.json`.
+1. Commit and push the changes to your branch.
+1. After your branch is merged, manually trigger the [packages pipeline to
+   publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
+   the new version to NPM.
 
-1. Create a `.npmrc` file in the root of this project.
-1. Get the values from someone who has them.
-1. Now `npm install` should work.
+You can find the publishable packages listed in the `release.projects` value in
+the `nx.json`.
 
 ## Troubleshooting
 
