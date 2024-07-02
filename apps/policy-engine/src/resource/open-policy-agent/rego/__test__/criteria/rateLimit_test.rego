@@ -1,6 +1,6 @@
 package main
 
-spendingsFixedPeriodRequest = object.union(request, {
+rateFixedPeriodRequest = object.union(request, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -63,10 +63,9 @@ spendingsFixedPeriodRequest = object.union(request, {
 	]
 })
 
-test_calculateCurrentSpendingsByRollingPeriod {
+test_calculateCurrentRateByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
+		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
@@ -77,19 +76,17 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
 
-	res == 400000000000000000
+    res == 2
 }
 
-test_calculateCurrentSpendingsByRollingPeriod {
+test_calculateCurrentRateByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
-		"currency": "fiat:usd",
+		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
-			"value": (12 * 60) * 60,
+			"value": (24 * 60) * 60,
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
@@ -97,18 +94,17 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
 
-	res == 396000000000000000 # convert amount to fiat
+    res == 3
 }
 
-test_calculateCurrentSpendingsByRollingPeriod {
+test_calculateCurrentRateByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
+		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
-			"value": (12 * 60) * 60,
+			"value": (24 * 60) * 60,
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
@@ -116,15 +112,14 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
 
-	res == 0
+    res == 0
 }
 
-test_calculateCurrentSpendingsByFixedPeriod {
+test_calculateCurrentRateByFixedPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
+		"limit": 10,
 		"timeWindow": {
 			"type": "fixed",
 			"period": "1d",
@@ -135,38 +130,17 @@ test_calculateCurrentSpendingsByFixedPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
 
-	res == 200000000000000000
+    res == 1
 }
 
-test_calculateCurrentSpendingsByFixedPeriod {
+test_calculateCurrentRateByFixedPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
-		"currency": "fiat:usd",
+		"limit": 10,
 		"timeWindow": {
 			"type": "fixed",
-			"period": "1d",
-		},
-		"filters": {
-			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-alice-uid"},
-		},
-	}
-
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-
-	res == 198000000000000000 # convert amount to fiat
-}
-
-test_calculateCurrentSpendingsByFixedPeriod {
-	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
-		"timeWindow": {
-			"type": "fixed",
-			"period": "1d",
+			"value": "1d"
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
@@ -174,7 +148,7 @@ test_calculateCurrentSpendingsByFixedPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
 
-	res == 0
+    res == 0
 }
