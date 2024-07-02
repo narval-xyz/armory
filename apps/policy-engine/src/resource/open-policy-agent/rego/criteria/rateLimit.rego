@@ -1,9 +1,7 @@
 package main
 
-spendingWildcardConditions = {
-	"currency": wildcard,
+rateLimitWildcardConditions = {
 	"limit": wildcard,
-	"operator": wildcard,
 	"timeWindow": {
 		"type": wildcard,
 		"period": wildcard, # 1d, 1m, 1y
@@ -22,48 +20,15 @@ spendingWildcardConditions = {
 	},
 }
 
-# Calculate Spending
+# Check Rate Limit
 
-calculateTransferSpending(transfer, currency) = result {
-	currency == wildcard
-	result = to_number(transfer.amount)
-}
-
-calculateTransferSpending(transfer, currency) = result {
-	currency != wildcard
-	result = to_number(transfer.amount) * to_number(transfer.rates[currency])
-}
-
-# Check Spendings
-
-checkSpendingOperator(spendings, operator, limit) {
-	operator == operators.lessThan
-	spendings < limit
-}
-
-checkSpendingOperator(spendings, operator, limit) {
-	operator == operators.lessThanOrEqual
-	spendings <= limit
-}
-
-checkSpendingOperator(spendings, operator, limit) {
-	operator == operators.greaterThan
-	spendings > limit
-}
-
-checkSpendingOperator(spendings, operator, limit) {
-	operator == operators.greaterThanOrEqual
-	spendings >= limit
-}
-
-# Check Spending Limit
-
-calculateCurrentSpendings(params) = result {
-	conditions = object.union(spendingWildcardConditions, params)
+calculateCurrentRate(params) = result {
+	conditions = object.union(rateLimitWildcardConditions, params)
+    rateLimit = conditions.limit
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
 
-	result = sum([spending |
+	result = count([transfer |
 		transfer = transferFeed[_]
 
 		# filter by tokens
@@ -95,16 +60,12 @@ calculateCurrentSpendings(params) = result {
 
 		# filter by time window type
 		checkTransferTimeWindow(transfer.timestamp, timeWindow)
-
-		spending = calculateTransferSpending(transfer, conditions.currency)
-	])	
+	])
 }
 
-checkSpendingLimit(params) {
-	conditions = object.union(spendingWildcardConditions, params)
-	spendings = calculateCurrentSpendings(conditions) + intentAmount(conditions.currency)
-	operator = conditions.operator
-	limit = to_number(conditions.limit)
+checkRateLimit(params) {
+	conditions = object.union(rateLimitWildcardConditions, params)
+    rateLimit = conditions.limit
 
-	checkSpendingOperator(spendings, operator, limit)
+	calculateCurrentRate(conditions) < rateLimit
 }
