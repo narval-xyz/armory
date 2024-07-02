@@ -174,7 +174,7 @@ permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
 	}
 }
 
-# Allow Alice to transfer up to 1 MATIC per day
+# Allow Alice to transfer up to 1 USDC per day
 permit[{"policyId": "spendingLimitWithFixedPeriod"}] = reason {
 	checkPrincipal
 	checkAction({"signTransaction"})
