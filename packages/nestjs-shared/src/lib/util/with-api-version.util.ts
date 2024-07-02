@@ -11,12 +11,11 @@ import { VersionValue } from '@nestjs/common/interfaces'
  * @returns The modified INestApplication instance.
  *
  */
-export const withVersionning =
+export const withApiVersion =
   (params: { defaultVersion: VersionValue }) =>
   (app: INestApplication): INestApplication => {
     app.enableVersioning({
       type: VersioningType.URI,
-      defaultVersion: params.defaultVersion
     })
 
     return app
