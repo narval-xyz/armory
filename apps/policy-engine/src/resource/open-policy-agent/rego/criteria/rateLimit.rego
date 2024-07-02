@@ -76,6 +76,7 @@ checkRateLimitTimeWindow(timestamp, timeWindow) {
 	timestampNs >= time.now_ns() - secondsToNanoSeconds(timeWindow.value)
 }
 
+# TODO @samteb: uncomment once spending limit fixed period PR is merged
 # checkRateLimitTimeWindow(timestamp, timeWindow) {
 # 	timeWindow.type == "fixed"
 # 	timeWindow.value != wildcard
