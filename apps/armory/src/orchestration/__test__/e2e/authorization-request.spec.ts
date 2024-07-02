@@ -241,6 +241,36 @@ describe('Authorization Request', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
+
+    it('evaluates a signRaw authorization request', async () => {
+      const payload = {
+        request: {
+          action: Action.SIGN_RAW,
+          nonce: '99',
+          resourceId: '68dc69bd-87d2-49d9-a5de-f482507b25c2',
+          rawMessage: '0x434959f872879eb82c3e3d8139bc4894482de5e7a5bbfdf8624b4d45cf2c5868'
+        },
+        authentication,
+        approvals
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
+        .send(payload)
+
+      expect(body).toMatchObject({
+        approvals,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        request: payload.request,
+        evaluations: []
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
   })
 
   describe(`GET ${ENDPOINT}/:id`, () => {

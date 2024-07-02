@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { createSignMessageSchema, readSignMessageSchema } from '../../persistence/schema/sign-message.schema'
+import {
+  createSignMessageSchema,
+  createSignRawSchema,
+  readSignMessageSchema,
+  readSignRawSchema
+} from '../../persistence/schema/sign-message.schema'
 import {
   createSignTransactionSchema,
   readSignTransactionSchema
@@ -9,11 +14,13 @@ import { createGrantPermissionSchema, readGrantPermissionSchema } from './grant-
 export const readRequestSchema = z.discriminatedUnion('action', [
   readSignTransactionSchema,
   readSignMessageSchema,
+  readSignRawSchema,
   readGrantPermissionSchema
 ])
 
 export const createRequestSchema = z.discriminatedUnion('action', [
   createSignTransactionSchema,
   createSignMessageSchema,
-  createGrantPermissionSchema
+  createGrantPermissionSchema,
+  createSignRawSchema
 ])
