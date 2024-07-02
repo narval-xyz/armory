@@ -71,10 +71,11 @@ export const criterionSchema = z.nativeEnum({
   CHECK_NONCE_EXISTS: 'checkNonceExists',
   CHECK_NONCE_NOT_EXISTS: 'checkNonceNotExists',
   CHECK_APPROVALS: 'checkApprovals',
-  CHECK_SPENDING_LIMIT: 'checkSpendingLimit'
+  CHECK_SPENDING_LIMIT: 'checkSpendingLimit',
+  CHECK_RATE_LIMIT: 'checkRateLimit'
 } as const)
 
-export const timeWindowSchema = z.nativeEnum({
+export const timeWindowTypeSchema = z.nativeEnum({
   ROLLING: 'rolling',
   FIXED: 'fixed'
 } as const)
@@ -115,14 +116,14 @@ export const approvalConditionSchema = z.object({
   entityIds: z.array(z.string().min(1))
 })
 
-export const spendingLimitTimeWindowSchema = z.object({
-  type: timeWindowSchema.optional(),
+export const timeWindowSchema = z.object({
+  type: timeWindowTypeSchema.optional(),
   value: z.number().optional(),
   startDate: z.number().int().optional(),
   endDate: z.number().int().optional()
 })
 
-export const spendingLimitFiltersSchema = z.object({
+export const transferFiltersSchema = z.object({
   tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
   resources: z.array(AccountId).min(1).optional(),
@@ -135,8 +136,14 @@ export const spendingLimitConditionSchema = z.object({
   limit: z.string().min(1),
   operator: z.nativeEnum(ValueOperators),
   currency: z.nativeEnum(FiatCurrency).optional(),
-  timeWindow: spendingLimitTimeWindowSchema.optional(),
-  filters: spendingLimitFiltersSchema.optional()
+  timeWindow: timeWindowSchema.optional(),
+  filters: transferFiltersSchema.optional()
+})
+
+export const rateLimitConditionSchema = z.object({
+  limit: z.string().min(1),
+  timeWindow: timeWindowSchema.optional(),
+  filters: transferFiltersSchema.optional()
 })
 
 export const actionCriterionSchema = z.object({
@@ -319,6 +326,11 @@ export const spendingLimitCriterionSchema = z.object({
   args: spendingLimitConditionSchema
 })
 
+export const rateLimitCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_RATE_LIMIT),
+  args: rateLimitConditionSchema
+})
+
 export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   actionCriterionSchema,
   approvalsCriterionSchema,
@@ -352,6 +364,7 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   resourceCriterionSchema,
   resourceIntegrityCriterionSchema,
   spendingLimitCriterionSchema,
+  rateLimitCriterionSchema,
   accountAccountTypeCriterionSchema,
   accountAddressCriterionSchema,
   accountGroupCriterionSchema,
