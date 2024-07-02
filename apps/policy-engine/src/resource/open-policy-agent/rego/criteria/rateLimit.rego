@@ -1,35 +1,31 @@
 package main
 
-import future.keywords.in
+rateLimitWildcardConditions = {
+	"limit": wildcard,
+	"timeWindow": {
+		"type": wildcard,
+		"period": wildcard, # 1d, 1m, 1y
+		"value": wildcard, # in seconds
+		"startDate": wildcard, # in seconds
+		"endDate": wildcard, # in seconds
+	},
+	"filters": {
+		"tokens": wildcard,
+		"users": wildcard,
+		"resources": wildcard,
+		"destinations": wildcard,
+		"chains": wildcard,
+		"userGroups": wildcard,
+		"accountGroups": wildcard,
+	},
+}
 
 # Check Rate Limit
 
 calculateCurrentRate(params) = result {
-	conditions = object.union(
-		{
-			"limit": wildcard,
-			"timeWindow": {
-				"type": wildcard,
-				"value": wildcard,
-				"startDate": wildcard, # in seconds
-				"endDate": wildcard, # in seconds
-			},
-			"filters": {
-				"tokens": wildcard,
-				"users": wildcard,
-				"resources": wildcard,
-				"chains": wildcard,
-				"userGroups": wildcard,
-				"accountGroups": wildcard,
-			},
-		},
-		params,
-	)
-
+	conditions = object.union(rateLimitWildcardConditions, params)
     rateLimit = conditions.limit
-
 	timeWindow = conditions.timeWindow
-
 	filters = conditions.filters
 
 	result = count([transfer |
@@ -43,6 +39,9 @@ calculateCurrentRate(params) = result {
 
 		# filter by resource accounts
 		checkTransferCondition(transfer.from, filters.resources)
+
+		# filter by destination accounts
+		checkTransferCondition(transfer.to, filters.destinations)
 
 		# filter by chains
 		checkTransferCondition(numberToString(transfer.chainId), filters.chains)
@@ -65,5 +64,8 @@ calculateCurrentRate(params) = result {
 }
 
 checkRateLimit(params) {
-	calculateCurrentRate(params) < params.limit
+	conditions = object.union(rateLimitWildcardConditions, params)
+    rateLimit = conditions.limit
+
+	calculateCurrentRate(conditions) < rateLimit
 }

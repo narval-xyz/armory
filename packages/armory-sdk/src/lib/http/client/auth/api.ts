@@ -2822,6 +2822,12 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters {
     'resources'?: Array<any>;
     /**
      * 
+     * @type {Array<any>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
+     */
+    'destinations'?: Array<any>;
+    /**
+     * 
      * @type {Array<string>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
      */

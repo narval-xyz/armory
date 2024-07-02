@@ -1,6 +1,26 @@
 package main
 
-import future.keywords.in
+spendingWildcardConditions = {
+	"currency": wildcard,
+	"limit": wildcard,
+	"operator": wildcard,
+	"timeWindow": {
+		"type": wildcard,
+		"period": wildcard, # 1d, 1m, 1y
+		"value": wildcard, # in seconds
+		"startDate": wildcard, # in seconds
+		"endDate": wildcard, # in seconds
+	},
+	"filters": {
+		"tokens": wildcard,
+		"users": wildcard,
+		"resources": wildcard,
+		"destinations": wildcard,
+		"chains": wildcard,
+		"userGroups": wildcard,
+		"accountGroups": wildcard,
+	},
+}
 
 # Calculate Spending
 
@@ -39,31 +59,8 @@ checkSpendingOperator(spendings, operator, limit) {
 # Check Spending Limit
 
 calculateCurrentSpendings(params) = result {
-	conditions = object.union(
-		{
-			"currency": wildcard,
-			"limit": wildcard,
-			"operator": wildcard,
-			"timeWindow": {
-				"type": wildcard,
-				"value": wildcard, # in seconds
-				"startDate": wildcard, # in seconds
-				"endDate": wildcard, # in seconds
-			},
-			"filters": {
-				"tokens": wildcard,
-				"users": wildcard,
-				"resources": wildcard,
-				"chains": wildcard,
-				"userGroups": wildcard,
-				"accountGroups": wildcard,
-			},
-		},
-		params,
-	)
-
+	conditions = object.union(spendingWildcardConditions, params)
 	timeWindow = conditions.timeWindow
-
 	filters = conditions.filters
 
 	result = sum([spending |
@@ -77,6 +74,9 @@ calculateCurrentSpendings(params) = result {
 
 		# filter by resource accounts
 		checkTransferCondition(transfer.from, filters.resources)
+
+		# filter by destination accounts
+		checkTransferCondition(transfer.to, filters.destinations)
 
 		# filter by chains
 		checkTransferCondition(numberToString(transfer.chainId), filters.chains)
@@ -101,33 +101,9 @@ calculateCurrentSpendings(params) = result {
 }
 
 checkSpendingLimit(params) {
-	conditions = object.union(
-		{
-			"currency": wildcard,
-			"limit": wildcard,
-			"operator": wildcard,
-			"timeWindow": {
-				"type": wildcard,
-				"value": wildcard, # in seconds
-				"startDate": wildcard, # in seconds
-				"endDate": wildcard, # in seconds
-			},
-			"filters": {
-				"tokens": wildcard,
-				"users": wildcard,
-				"resources": wildcard,
-				"chains": wildcard,
-				"userGroups": wildcard,
-				"accountGroups": wildcard,
-			},
-		},
-		params,
-	)
-
+	conditions = object.union(spendingWildcardConditions, params)
 	spendings = calculateCurrentSpendings(conditions) + intentAmount(conditions.currency)
-
 	operator = conditions.operator
-
 	limit = to_number(conditions.limit)
 
 	checkSpendingOperator(spendings, operator, limit)

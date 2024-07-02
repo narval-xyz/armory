@@ -134,6 +134,7 @@ export const transferFiltersSchema = z.object({
   tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
   resources: z.array(AccountId).min(1).optional(),
+  destinations: z.array(AccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
   userGroups: z.array(z.string().min(1)).min(1).optional(),
   accountGroups: z.array(z.string().min(1)).min(1).optional()
