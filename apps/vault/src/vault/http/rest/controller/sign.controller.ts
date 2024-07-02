@@ -10,7 +10,10 @@ import { SigningService } from '../../../core/service/signing.service'
 import { SignRequestDto } from '../dto/sign-request.dto'
 import { SignatureDto } from '../dto/signature.dto'
 
-@Controller('/sign')
+@Controller({
+  path: '/sign',
+  version: '1'
+})
 @UseGuards(AuthorizationGuard, NonceGuard)
 @ApiGnapSecurity()
 @ApiTags('Sign')

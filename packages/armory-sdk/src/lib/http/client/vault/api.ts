@@ -1159,7 +1159,7 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('derive', 'authorization', authorization)
             // verify required parameter 'deriveAccountDto' is not null or undefined
             assertParamExists('derive', 'deriveAccountDto', deriveAccountDto)
-            const localVarPath = `/accounts`;
+            const localVarPath = `/v1/accounts`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1213,7 +1213,7 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('importPrivateKey', 'authorization', authorization)
             // verify required parameter 'importPrivateKeyDto' is not null or undefined
             assertParamExists('importPrivateKey', 'importPrivateKeyDto', importPrivateKeyDto)
-            const localVarPath = `/accounts/import`;
+            const localVarPath = `/v1/accounts/import`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1264,7 +1264,7 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('list', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('list', 'authorization', authorization)
-            const localVarPath = `/accounts`;
+            const localVarPath = `/v1/accounts`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1464,7 +1464,7 @@ export const ApplicationApiAxiosParamCreator = function (configuration?: Configu
          * @throws {RequiredError}
          */
         ping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/ping`;
+            const localVarPath = `/v1/ping`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1568,7 +1568,7 @@ export const ClientApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('create', 'xApiKey', xApiKey)
             // verify required parameter 'createClientDto' is not null or undefined
             assertParamExists('create', 'createClientDto', createClientDto)
-            const localVarPath = `/clients`;
+            const localVarPath = `/v1/clients`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1691,7 +1691,7 @@ export const EncryptionKeyApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('generate', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('generate', 'authorization', authorization)
-            const localVarPath = `/encryption-keys`;
+            const localVarPath = `/v1/encryption-keys`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1819,7 +1819,7 @@ export const SignApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('sign', 'authorization', authorization)
             // verify required parameter 'signRequestDto' is not null or undefined
             assertParamExists('sign', 'signRequestDto', signRequestDto)
-            const localVarPath = `/sign`;
+            const localVarPath = `/v1/sign`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1953,7 +1953,7 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('generate', 'authorization', authorization)
             // verify required parameter 'generateWalletDto' is not null or undefined
             assertParamExists('generate', 'generateWalletDto', generateWalletDto)
-            const localVarPath = `/wallets`;
+            const localVarPath = `/v1/wallets`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2007,7 +2007,7 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('importSeed', 'authorization', authorization)
             // verify required parameter 'importWalletDto' is not null or undefined
             assertParamExists('importSeed', 'importWalletDto', importWalletDto)
-            const localVarPath = `/wallets/import`;
+            const localVarPath = `/v1/wallets/import`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2058,7 +2058,7 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('list', 'xClientId', xClientId)
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('list', 'authorization', authorization)
-            const localVarPath = `/wallets`;
+            const localVarPath = `/v1/wallets`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
