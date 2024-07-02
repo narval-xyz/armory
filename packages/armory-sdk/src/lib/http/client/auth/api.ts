@@ -3391,7 +3391,7 @@ export const ApplicationApiAxiosParamCreator = function (configuration?: Configu
          * @throws {RequiredError}
          */
         ping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/ping`;
+            const localVarPath = `/v1/ping`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3791,7 +3791,7 @@ export const ClientApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('create', 'xApiKey', xApiKey)
             // verify required parameter 'createClientRequestDto' is not null or undefined
             assertParamExists('create', 'createClientRequestDto', createClientRequestDto)
-            const localVarPath = `/clients`;
+            const localVarPath = `/v1/clients`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3911,7 +3911,7 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
         getEntities: async (clientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'clientId' is not null or undefined
             assertParamExists('getEntities', 'clientId', clientId)
-            const localVarPath = `/data/entities`;
+            const localVarPath = `/v1/data/entities`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3948,7 +3948,7 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
         getPolicies: async (clientId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'clientId' is not null or undefined
             assertParamExists('getPolicies', 'clientId', clientId)
-            const localVarPath = `/data/policies`;
+            const localVarPath = `/v1/data/policies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3988,7 +3988,7 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('setEntities', 'clientId', clientId)
             // verify required parameter 'setEntityStoreDto' is not null or undefined
             assertParamExists('setEntities', 'setEntityStoreDto', setEntityStoreDto)
-            const localVarPath = `/data/entities`;
+            const localVarPath = `/v1/data/entities`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4031,7 +4031,7 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('setPolicies', 'clientId', clientId)
             // verify required parameter 'setPolicyStoreDto' is not null or undefined
             assertParamExists('setPolicies', 'setPolicyStoreDto', setPolicyStoreDto)
-            const localVarPath = `/data/policies`;
+            const localVarPath = `/v1/data/policies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4071,7 +4071,7 @@ export const ManagedDataStoreApiAxiosParamCreator = function (configuration?: Co
         sync: async (xClientSecret: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientSecret' is not null or undefined
             assertParamExists('sync', 'xClientSecret', xClientSecret)
-            const localVarPath = `/data/sync`;
+            const localVarPath = `/v1/data/sync`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;

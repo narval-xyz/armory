@@ -9,7 +9,9 @@ class PongDto extends createZodDto(
   })
 ) {}
 
-@Controller()
+@Controller({
+  version: '1'
+})
 @ApiTags('Application')
 export class ArmoryController {
   private logger = new Logger(ArmoryController.name)

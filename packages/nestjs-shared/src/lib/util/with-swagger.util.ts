@@ -61,7 +61,6 @@ export const withSwagger =
       .setTitle(params.title)
       .setDescription(params.description)
       .setVersion(params.version)
-
     for (const s of security) {
       documentBuilder.addSecurity(s.name, s)
     }

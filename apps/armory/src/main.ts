@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
+import { withApiVersion, withCors, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -71,6 +71,7 @@ async function bootstrap(): Promise<void> {
 
   await lastValueFrom(
     of(application).pipe(
+      map(withApiVersion({ defaultVersion: '1' })),
       map(
         withSwagger({
           title: 'Armory',

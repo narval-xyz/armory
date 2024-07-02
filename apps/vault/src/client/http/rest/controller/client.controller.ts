@@ -7,7 +7,10 @@ import { ClientService } from '../../../core/service/client.service'
 import { ClientDto } from '../dto/client.dto'
 import { CreateClientDto } from '../dto/create-client.dto'
 
-@Controller('/clients')
+@Controller({
+  path: '/clients',
+  version: '1'
+})
 @ApiTags('Client')
 @AdminGuard()
 export class ClientController {

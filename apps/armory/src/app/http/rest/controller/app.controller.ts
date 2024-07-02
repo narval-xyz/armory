@@ -15,7 +15,10 @@ type ActivateResponse =
       }
     }
 
-@Controller('/apps')
+@Controller({
+  path: '/apps',
+  version: '1'
+})
 @ApiExcludeController()
 export class AppController {
   constructor(private appService: AppService) {}
