@@ -1,9 +1,10 @@
 import { ExpressAdapter } from '@bull-board/express'
 import { BullBoardModule } from '@bull-board/nestjs'
-import { ConfigService } from '@narval/config-module'
+import { ConfigModule, ConfigService } from '@narval/config-module'
 import { BullModule } from '@nestjs/bull'
 import { DynamicModule } from '@nestjs/common'
-import { Config, Env } from '../../../armory.config'
+import { ConditionalModule } from '@nestjs/config'
+import { Config, Env, load } from '../../../armory.config'
 import { QUEUE_PREFIX } from '../../../armory.constant'
 
 export type RegisterQueueOption = {
@@ -17,6 +18,7 @@ export class QueueModule {
     return {
       module: QueueModule,
       imports: [
+        ConfigModule.forRoot({ load: [load] }),
         BullModule.forRootAsync({
           inject: [ConfigService],
           useFactory: async (configService: ConfigService<Config>) => {
@@ -28,10 +30,13 @@ export class QueueModule {
             }
           }
         }),
-        BullBoardModule.forRoot({
-          route: '/admin/queues',
-          adapter: ExpressAdapter
-        })
+        ConditionalModule.registerWhen(
+          BullBoardModule.forRoot({
+            route: '/admin/queues',
+            adapter: ExpressAdapter
+          }),
+          (env: NodeJS.ProcessEnv) => env.NODE_ENV === 'development'
+        )
       ]
     }
   }
