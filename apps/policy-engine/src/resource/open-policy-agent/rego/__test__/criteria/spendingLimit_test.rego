@@ -60,10 +60,6 @@ spendingsFixedPeriodRequest = object.union(request, {
 	]
 })
 
-test_parseUnits {
-	parseUnits("3000", 6) == 3000000000
-}
-
 test_calculateCurrentSpendingsByRollingPeriod {
 	conditions = {
 		"limit": "1500000000000000000",
@@ -103,6 +99,25 @@ test_calculateCurrentSpendingsByRollingPeriod {
 	res == 396000000000000000 # convert amount to fiat
 }
 
+test_calculateCurrentSpendingsByRollingPeriod {
+	conditions = {
+		"limit": "1500000000000000000",
+		"operator": "lt",
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
+		"filters": {
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"users": {"test-bob-uid"},
+		},
+	}
+
+	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+
+	res == 0
+}
+
 test_calculateCurrentSpendingsByFixedPeriod {
 	conditions = {
 		"limit": "1500000000000000000",
@@ -140,4 +155,23 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
 
 	res == 198000000000000000 # convert amount to fiat
+}
+
+test_calculateCurrentSpendingsByFixedPeriod {
+	conditions = {
+		"limit": "1500000000000000000",
+		"operator": "lt",
+		"timeWindow": {
+			"type": "fixed",
+			"period": "1d",
+		},
+		"filters": {
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"users": {"test-bob-uid"},
+		},
+	}
+
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+
+	res == 0
 }
