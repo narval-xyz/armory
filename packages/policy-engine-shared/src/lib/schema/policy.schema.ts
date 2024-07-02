@@ -79,6 +79,12 @@ export const timeWindowSchema = z.nativeEnum({
   FIXED: 'fixed'
 } as const)
 
+export const timeWindowPeriodSchema = z.nativeEnum({
+  DAYLY: '1d',
+  MONTHLY: '1m',
+  YEARLY: '1y'
+} as const)
+
 export const amountConditionSchema = z.object({
   currency: z.union([z.nativeEnum(FiatCurrency), z.literal('*')]),
   operator: z.nativeEnum(ValueOperators),
@@ -117,6 +123,7 @@ export const approvalConditionSchema = z.object({
 
 export const spendingLimitTimeWindowSchema = z.object({
   type: timeWindowSchema.optional(),
+  period: timeWindowPeriodSchema.optional(),
   value: z.number().optional(),
   startDate: z.number().int().optional(),
   endDate: z.number().int().optional()
