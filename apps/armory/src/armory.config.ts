@@ -8,6 +8,10 @@ export enum Env {
   PRODUCTION = 'production'
 }
 
+const EnvSchema = z.nativeEnum(Env)
+
+export const isEnv = (env: Env): boolean => EnvSchema.parse(process.env.NODE_ENV) === env
+
 const configSchema = z.object({
   env: z.nativeEnum(Env),
   port: z.coerce.number(),
