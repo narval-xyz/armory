@@ -3791,7 +3791,7 @@ export const ClientApiAxiosParamCreator = function (configuration?: Configuratio
             assertParamExists('create', 'xApiKey', xApiKey)
             // verify required parameter 'createClientRequestDto' is not null or undefined
             assertParamExists('create', 'createClientRequestDto', createClientRequestDto)
-            const localVarPath = `/v1/client`;
+            const localVarPath = `/v1/clients`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;

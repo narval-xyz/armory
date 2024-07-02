@@ -92,7 +92,7 @@ describe(ClusterService.name, () => {
     }
 
     it('creates a new client in the given policy engines', async () => {
-      nock(nodeUrl).post('/clients').reply(HttpStatus.CREATED, createClientResponse)
+      nock(nodeUrl).post('/v1/clients').reply(HttpStatus.CREATED, createClientResponse)
 
       const [node] = await clusterService.create({
         clientId,
@@ -111,7 +111,7 @@ describe(ClusterService.name, () => {
     })
 
     it('creates a new policy engine node', async () => {
-      nock(nodeUrl).post('/clients').reply(HttpStatus.CREATED, createClientResponse)
+      nock(nodeUrl).post('/v1/clients').reply(HttpStatus.CREATED, createClientResponse)
 
       const [node] = await clusterService.create({
         clientId,
@@ -172,7 +172,7 @@ describe(ClusterService.name, () => {
         accessToken: { value: token }
       }
 
-      const scope = nock(opts.url).post('/evaluations').reply(HttpStatus.OK, mockResponse)
+      const scope = nock(opts.url).post('/v1/evaluations').reply(HttpStatus.OK, mockResponse)
 
       return { mockResponse, scope }
     }
@@ -264,7 +264,7 @@ describe(ClusterService.name, () => {
           'x-client-secret': opts.clientSecret
         }
       })
-        .post('/clients/sync')
+        .post('/v1/clients/sync')
         .reply(HttpStatus.OK, mockResponse)
 
       return { mockResponse, scope }

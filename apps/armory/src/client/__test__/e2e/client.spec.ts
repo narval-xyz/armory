@@ -23,7 +23,7 @@ import { CreateClientRequestDto } from '../../http/rest/dto/create-client.dto'
 const mockPolicyEngineServer = (url: string, clientId: string) => {
   const dataStoreSource: Source = {
     type: SourceType.HTTP,
-    url: 'http://localost:999'
+    url: 'http://127.0.0.1:9999/test-data-store'
   }
 
   const dataStoreConfig: DataStoreConfiguration = {
@@ -46,7 +46,7 @@ const mockPolicyEngineServer = (url: string, clientId: string) => {
     }
   }
 
-  nock(url).post('/clients').reply(HttpStatus.CREATED, createClientResponse)
+  nock(url).post('/v1/clients').reply(HttpStatus.CREATED, createClientResponse)
 }
 
 describe('Client', () => {
