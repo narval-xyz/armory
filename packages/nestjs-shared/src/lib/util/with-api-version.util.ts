@@ -15,7 +15,7 @@ export const withApiVersion =
   (params: { defaultVersion: VersionValue }) =>
   (app: INestApplication): INestApplication => {
     app.enableVersioning({
-      type: VersioningType.URI,
+      type: VersioningType.URI
     })
 
     return app

@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger, withApiVersion } from '@narval/nestjs-shared'
+import { withApiVersion, withCors, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
