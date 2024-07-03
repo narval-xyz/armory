@@ -166,7 +166,14 @@ describe('OpenPolicyAgentEngine', () => {
 
       expect(response).toEqual({
         decision: Decision.FORBID,
-        request: evaluation.request
+        request: evaluation.request,
+        transactionRequestIntent: {
+          amount: '1000000000000000000',
+          from: 'eip155:1:0x9f38879167accf7401351027ee3f9247a71cd0c5',
+          to: 'eip155:1:0x0f610ac9f0091f8f573c33f15155afe8ad747495',
+          token: 'eip155:1/slip44:60',
+          type: 'transferNative'
+        }
       })
     })
 
