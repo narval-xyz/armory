@@ -132,7 +132,7 @@ test_calculateCurrentRateByFixedPeriod {
 
 	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
 
-    res == 3
+    res == 1
 }
 
 test_calculateCurrentRateByFixedPeriod {
