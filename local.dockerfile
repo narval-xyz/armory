@@ -29,6 +29,8 @@ COPY Makefile ./
 COPY nx.json ./
 COPY tsconfig*.json ./
 
+RUN make armory-sdk/build
+
 RUN make policy-engine/db/generate-types
 RUN make armory/db/generate-types
 RUN make vault/db/generate-types

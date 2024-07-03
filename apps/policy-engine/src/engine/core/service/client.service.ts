@@ -130,11 +130,7 @@ export class ClientService {
 
       return false
     } catch (error) {
-      this.logger.error('Failed to sync client data store', {
-        message: error.message,
-        stack: error.stack,
-        clientId
-      })
+      this.logger.error('Failed to sync client data store', { error, clientId })
 
       return false
     }
