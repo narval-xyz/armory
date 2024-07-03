@@ -17,7 +17,7 @@ import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
 import { SimpleSigningService } from './core/service/signing-basic.service'
-import { MpcSigningService } from './core/service/signing-mpc.service'
+import { SigningService } from './core/service/signing.service.interface'
 import { ClientController } from './http/rest/controller/client.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
@@ -42,17 +42,33 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     BootstrapService,
     DataStoreRepositoryFactory,
     DataStoreService,
+    EngineRepository,
+    EngineService,
+    EvaluationService,
+    FileSystemDataStoreRepository,
+    HttpDataStoreRepository,
+    ProvisionService,
+    ClientRepository,
+    ClientService,
     {
       provide: 'SigningService',
-      useFactory: async (configService: ConfigService<Config>) => {
+      useFactory: async (configService: ConfigService<Config>): Promise<SigningService> => {
         const signingProtocol = configService.get('signingProtocol')
+
+        console.log({ signingProtocol })
         if (signingProtocol === 'simple') {
           return new SimpleSigningService()
         } else if (signingProtocol === 'mpc') {
-          try {
-            const { BlockdaemonTsmService } = await import('@narval-xyz/blockdaemon-tsm')
+          const tsmConfig = configService.get('tsm')
 
-            return new MpcSigningService(configService, new BlockdaemonTsmService())
+          if (!tsmConfig) {
+            throw new Error('Missing TSM config')
+          }
+
+          try {
+            const { BlockdaemonTsmSigningService } = await import('@narval-xyz/blockdaemon-tsm')
+
+            return new BlockdaemonTsmSigningService(tsmConfig)
           } catch {
             throw new Error('Unable to lazy load Blockdaemon TSM dependency')
           }
@@ -62,14 +78,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
       },
       inject: [ConfigService]
     },
-    EngineRepository,
-    EngineService,
-    EvaluationService,
-    FileSystemDataStoreRepository,
-    HttpDataStoreRepository,
-    ProvisionService,
-    ClientRepository,
-    ClientService,
     {
       // DEPRECATE: Use Zod generated DTOs to validate request and responses.
       provide: APP_PIPE,
