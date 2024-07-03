@@ -1,4 +1,3 @@
-import { finalizeEcdsaJwtSignature } from '@narval-xyz/armory-mpc-module'
 import { ConfigService } from '@narval/config-module'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
@@ -88,25 +87,6 @@ export class ClusterService {
     return this.policyEngineNodeRepository.findByClientId(clientId)
   }
 
-  async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
-    const jwts = evaluations.map(({ accessToken }) => accessToken?.value).filter(isDefined)
-
-    if (jwts.length) {
-      const finalizedJwt = await finalizeEcdsaJwtSignature(jwts)
-
-      return {
-        ...evaluations[0],
-        accessToken: { value: finalizedJwt }
-      }
-    }
-
-    throw new ApplicationException({
-      message: 'Unable to finalize JWTs signature',
-      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: { jwts }
-    })
-  }
-
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const nodes = await this.findNodesByClientId(clientId)
 
@@ -143,9 +123,14 @@ export class ClusterService {
         // If they don't have exactly the same decision & accessToken, signature can't be finalized
         // and it will throw.
         const finalResponse = isMpc ? await this.finalizeSignature(responses) : responses[0]
-        this.logger.log('Got final response', finalResponse)
+
+        this.logger.log('Got final response', {
+          response: finalResponse,
+          isMpc
+        })
 
         await this.verifyAttestation(nodes[0].publicKey, finalResponse.accessToken?.value)
+
         return finalResponse
       }
 
@@ -155,6 +140,50 @@ export class ClusterService {
     }
 
     throw new UnreachableClusterException(clientId, nodes)
+  }
+
+  private async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
+    try {
+      // TODO: (@wcalderipe, 03/07/24) Naive implementation that will impact
+      // performance if the finalizeEcdsaJwtSignature isn't cached after load.
+      // We should consider using NestJS lazy module
+      // https://docs.nestjs.com/fundamentals/lazy-loading-modules
+      const { finalizeEcdsaJwtSignature } = await import('@narval-xyz/armory-mpc-module')
+
+      try {
+        // If MPC, wehave multiple partialSig responses to combine. If they don't
+        // have exactly the same decision & accessToken, signature can't be
+        // finalized and it will throw.
+        const jwts = evaluations.map(({ accessToken }) => accessToken?.value).filter(isDefined)
+
+        if (jwts.length) {
+          const finalizedJwt = await finalizeEcdsaJwtSignature(jwts)
+
+          return {
+            ...evaluations[0],
+            accessToken: { value: finalizedJwt }
+          }
+        }
+
+        throw new ApplicationException({
+          message: 'Missing JWTs to finalize',
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          context: { jwts }
+        })
+      } catch (error) {
+        throw new ApplicationException({
+          message: 'Fail to finalize ECDSA JWT signature',
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          origin: error
+        })
+      }
+    } catch (error) {
+      throw new ApplicationException({
+        message: 'Unable to lazy load finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
   }
 
   private async verifyAttestation(publicKey: PublicKey, token?: string) {
