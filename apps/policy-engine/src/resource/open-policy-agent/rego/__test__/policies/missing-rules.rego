@@ -1,7 +1,6 @@
 package main
 
 permit[{"policyId": "call-contract-custom", "policyName": "call-contract-custom"}] = reason {
-	checkResourceIntegrity
 	checkAction({"signTransaction"})
 	checkIntentType({"callContract"})
 	checkPrincipalId({"auth0|62e1d7ca04533b042cb42419"})

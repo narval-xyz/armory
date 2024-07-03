@@ -65,7 +65,7 @@ calculateCurrentRate(params) = result {
 
 checkRateLimit(params) {
 	conditions = object.union(rateLimitWildcardConditions, params)
-    rateLimit = conditions.limit
+    rateLimit = to_number(conditions.limit)
 
-	calculateCurrentRate(conditions) < rateLimit
+	calculateCurrentRate(conditions) + 1 <= rateLimit
 }

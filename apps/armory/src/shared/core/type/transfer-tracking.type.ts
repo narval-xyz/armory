@@ -1,3 +1,4 @@
+import { AccountId, AssetId } from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Price } from './price.type'
 

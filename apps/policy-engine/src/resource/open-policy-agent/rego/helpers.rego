@@ -31,7 +31,7 @@ parseUnits(value, decimals) = result {
 	result = to_number(value) * product(powTen)
 }
 
-getUserGroups(id) = {group.uid |
+getUserGroups(id) = {group.id |
 	group = data.entities.userGroups[_]
 	id in group.users
 }
