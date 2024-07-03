@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
-import { finalizeEcdsaJwtSignature } from '@narval-xyz/blockdaemon-tsm'
+import { finalizeEcdsaJwtSignature } from '@narval-xyz/armory-mpc-module'
 import { ConfigService } from '@narval/config-module'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
@@ -90,37 +89,6 @@ export class ClusterService {
   }
 
   async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
-    // if (!TSMClient) {
-    //   throw new ApplicationException({
-    //     message: 'TSM SDK not installed',
-    //     suggestedHttpStatusCode: 500
-    //   })
-    // }
-    // const tsmClient = new TSMClient(null)
-    // // Each `evaluation` should have a "signed" accessToken, but it's a partial sig.
-    // // It was generated as if it was a real sig, so it's a base64url encoded value.
-    //
-    // const partialSigs = evaluations.map((e) => {
-    //   const parts = e.accessToken?.value.split('.') || []
-    //   const sig = parts[2] || ''
-    //   const hexSig = base64UrlToHex(sig)
-    //   return hexToBytes(hexSig.slice(2))
-    // })
-    // // We'll re-create the message to sign based on the JWT. All the JWTs should be the same except the partial sigs
-    // // So we can use the first one. If they aren't all the same, the finalizeSignature will fail anywyas,
-    // // so no need to check equality specifically.
-    // const jwt = evaluations[0].accessToken?.value
-    // const parts = jwt?.split('.') || []
-    // const message = eip191Hash([parts[0], parts[1]].join('.'))
-    // // NOTE TSM returns a DER signature
-    // const { signature, recoveryID } = await tsmClient.ECDSA().finalizeSignature(message, partialSigs)
-    // const sig = secp256k1.Signature.fromDER(signature)
-    //
-    // const hexSignature: Hex = `0x${sig.toCompactHex()}${toHex(27n + BigInt(recoveryID)).slice(2)}`
-    // const jwtSig = hexToBase64Url(hexSignature)
-    // const finalJwt = [parts[0], parts[1], jwtSig].join('.')
-    //
-
     const jwts = evaluations.map(({ accessToken }) => accessToken?.value).filter(isDefined)
 
     if (jwts.length) {

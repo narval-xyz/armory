@@ -4,20 +4,18 @@ import { AxiosRetryModule } from '@narval/nestjs-shared'
 import { Module, ValidationPipe } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
-import { Config } from '../policy-engine.config'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
 import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
+import { signingServiceFactory } from './core/factory/signing-service.factory'
 import { BootstrapService } from './core/service/bootstrap.service'
 import { ClientService } from './core/service/client.service'
 import { DataStoreService } from './core/service/data-store.service'
 import { EngineService } from './core/service/engine.service'
 import { EvaluationService } from './core/service/evaluation.service'
 import { ProvisionService } from './core/service/provision.service'
-import { SimpleSigningService } from './core/service/signing-basic.service'
-import { SigningService } from './core/service/signing.service.interface'
 import { ClientController } from './http/rest/controller/client.controller'
 import { EvaluationController } from './http/rest/controller/evaluation.controller'
 import { ProvisionController } from './http/rest/controller/provision.controller'
@@ -52,30 +50,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     ClientService,
     {
       provide: 'SigningService',
-      useFactory: async (configService: ConfigService<Config>): Promise<SigningService> => {
-        const signingProtocol = configService.get('signingProtocol')
-
-        console.log({ signingProtocol })
-        if (signingProtocol === 'simple') {
-          return new SimpleSigningService()
-        } else if (signingProtocol === 'mpc') {
-          const tsmConfig = configService.get('tsm')
-
-          if (!tsmConfig) {
-            throw new Error('Missing TSM config')
-          }
-
-          try {
-            const { BlockdaemonTsmSigningService } = await import('@narval-xyz/blockdaemon-tsm')
-
-            return new BlockdaemonTsmSigningService(tsmConfig)
-          } catch {
-            throw new Error('Unable to lazy load Blockdaemon TSM dependency')
-          }
-        }
-
-        throw new Error('Invalid signing protocol')
-      },
+      useFactory: signingServiceFactory,
       inject: [ConfigService]
     },
     {
