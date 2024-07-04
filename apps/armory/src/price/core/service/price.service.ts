@@ -19,6 +19,7 @@ export class PriceService {
     private coinGeckoAssetRepository: CoinGeckoAssetRepository
   ) {}
 
+  /* eslint-disable no-unused-vars */
   async getPrices(options: GetPricesOption): Promise<Prices> {
     return {}
   }
