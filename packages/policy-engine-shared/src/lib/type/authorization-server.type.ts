@@ -26,6 +26,7 @@ export type Evaluation = z.infer<typeof Evaluation>
  */
 export const SupportedAction = {
   SIGN_TRANSACTION: Action.SIGN_TRANSACTION,
+  SIGN_RAW: Action.SIGN_RAW,
   SIGN_MESSAGE: Action.SIGN_MESSAGE,
   GRANT_PERMISSION: Action.GRANT_PERMISSION
 } as const

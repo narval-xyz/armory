@@ -7,7 +7,10 @@ import { PermissionGuard } from '../../../../shared/decorator/permission-guard.d
 import { ImportService } from '../../../core/service/import.service'
 import { EncryptionKeyDto } from '../dto/encryption-key.dto'
 
-@Controller('/encryption-keys')
+@Controller({
+  path: '/encryption-keys',
+  version: '1'
+})
 @PermissionGuard(Permission.WALLET_IMPORT)
 @ApiTags('Encryption Key')
 @ApiHeader({

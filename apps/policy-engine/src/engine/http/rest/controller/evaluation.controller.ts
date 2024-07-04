@@ -6,7 +6,10 @@ import { EvaluationService } from '../../../core/service/evaluation.service'
 import { EvaluationRequestDto } from '../dto/evaluation-request.dto'
 import { SerializedEvaluationResponseDto } from '../dto/serialized-evaluation-response.dto'
 
-@Controller('/evaluations')
+@Controller({
+  path: '/evaluations',
+  version: '1'
+})
 @ApiTags('Evaluation')
 export class EvaluationController {
   constructor(private readonly evaluationService: EvaluationService) {}
