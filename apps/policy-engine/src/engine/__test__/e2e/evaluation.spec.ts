@@ -6,7 +6,6 @@ import {
   Criterion,
   DataStoreConfiguration,
   Decision,
-  EvaluationRequest,
   EvaluationResponse,
   FIXTURE,
   HttpSource,
