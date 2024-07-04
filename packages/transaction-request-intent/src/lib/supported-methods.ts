@@ -99,15 +99,15 @@ export const Erc20TransferAbiParameters: AbiParameter[] = [
 
 export const ExecuteBatchAbiParameters: AbiParameter[] = [
   {
-    internalType: "address[]",
-    name: "dest",
-    type: "address[]"
-},
-{
-    internalType: "bytes[]",
-    name: "func",
-    type: "bytes[]"
-}
+    internalType: 'address[]',
+    name: 'dest',
+    type: 'address[]'
+  },
+  {
+    internalType: 'bytes[]',
+    name: 'func',
+    type: 'bytes[]'
+  }
 ]
 export const ApproveAllowanceAbiParameters: AbiParameter[] = [
   { type: 'address', name: 'spender' },
@@ -226,7 +226,6 @@ export type StandardMethodsParams = {
   [SupportedMethodId.EXECUTE_BATCH_V6]: ExecuteBatchV6Params
   [SupportedMethodId.EXECUTE_BATCH_V7]: ExecuteBatchV7Params
   [SupportedMethodId.NULL_METHOD_ID]: NullHexParams
-  
 }
 
 export type MethodsMapping = {

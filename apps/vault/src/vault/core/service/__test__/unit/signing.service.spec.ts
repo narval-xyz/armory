@@ -252,6 +252,42 @@ describe('SigningService', () => {
     })
   })
 
+  describe('signUserOperation', () => {
+    const userOpRequest: Request = {
+      action: 'signUserOperation',
+      nonce: 'e1c8a972-3828-4046-abaf-eda251bf56bd',
+      resourceId: 'eip155:eoa:0xd9d431ad45d96dd9eeb05dd0a7d66876d1d74c4b',
+      userOperation: {
+        sender: '0x17Ae006F046e023A2e98aEb687b63615c1B69010',
+        nonce: 0n,
+        initCode:
+          '0x9406Cc6185a346906296840746125a0E449764545fbfb9cf000000000000000000000000d9d431ad45d96dd9eeb05dd0a7d66876d1d74c4b0000000000000000000000000000000000000000000000000000000000000000',
+        callData:
+          '0xb61d27f6000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000',
+        callGasLimit: 82511n,
+        verificationGasLimit: 526140n,
+        preVerificationGas: 65912n,
+        maxFeePerGas: 31775842396n,
+        maxPriorityFeePerGas: 1200000000n,
+        paymasterAndData:
+          '0xDFF7FA1077Bce740a6a212b3995990682c0Ba66d000000000000000000000000000000000000000000000000000000006686a49d0000000000000000000000000000000000000000000000000000000000000000c9cd3f0fdd847ea7e02a9a7ed8dda9067dc4da959750f2aed1b33198bef83cee75a3a15f3c90f881476a508beb21305cdbce6b93502db8b4831a955ec11a08111c',
+        entryPoint: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+        signature:
+          '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
+        factoryAddress: '0x9406Cc6185a346906296840746125a0E44976454',
+        chainId: '11155111'
+      }
+    }
+
+    it('signs user operation', async () => {
+      const result = await signingService.sign(clientId, userOpRequest)
+
+      const expectedSignature =
+        '0x687fda1fcebeed665d6f738a2d1a7e952e41434ae010c58aaa9623fe991a0a716d8d0d27d5192aaf7231965c44ae9abbe0c126068ef5e42f201de1138f82f8301b'
+      expect(result).toEqual(expectedSignature)
+    })
+  })
+
   describe('signRaw', () => {
     const stringMessage = 'My ASCII message'
     const byteMessage = stringToBytes(stringMessage)
