@@ -1,5 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionException, EncryptionService } from '@narval/encryption-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -71,6 +72,7 @@ describe(BootstrapService.name, () => {
 
     const module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true

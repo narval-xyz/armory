@@ -1,3 +1,4 @@
+import { LoggerModule } from '@narval/nestjs-shared'
 import { AssetType, getAddress, getAssetId, toAssetId } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
@@ -32,6 +33,7 @@ xdescribe(PriceService.name, () => {
     jest.spyOn(coinGeckoClientMock, 'getSimplePrice').mockResolvedValue(SIMPLE_PRICE)
 
     module = await Test.createTestingModule({
+      imports: [LoggerModule.forTest()],
       providers: [
         PriceService,
         CoinGeckoAssetRepository,

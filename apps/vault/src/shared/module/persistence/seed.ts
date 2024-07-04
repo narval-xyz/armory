@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
 import { PrismaClient, Vault } from '@prisma/client/vault'
 
 const prisma = new PrismaClient()
@@ -11,7 +11,7 @@ const vault: Vault = {
 }
 
 async function main() {
-  const logger = new Logger('VaultSeed')
+  const logger = new LoggerService()
 
   logger.log('Seeding Vault database')
   await prisma.$transaction(async (txn) => {

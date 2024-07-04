@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { AuthorizationRequest, Prices } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -35,6 +36,10 @@ describe(PriceFeedService.name, () => {
         {
           provide: PriceService,
           useValue: priceServiceMock
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()
