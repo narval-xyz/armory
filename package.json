@@ -133,6 +133,6 @@
     "includedScripts": []
   },
   "optionalDependencies": {
-    "@narval-xyz/armory-mpc-module": "^0.0.1"
+    "@narval-xyz/armory-mpc-module": "0.0.1"
   }
 }
