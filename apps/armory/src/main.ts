@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -72,6 +72,11 @@ async function bootstrap(): Promise<void> {
   await lastValueFrom(
     of(application).pipe(
       map(withLogger),
+      map(withApiVersion({ defaultVersion: '1' })),
+      map(withGlobalPipes),
+      map(withGlobalInterceptors),
+      map(withGlobalFilters(configService, logger)),
+      map(withCors(configService.get('cors'))),
       map(
         withSwagger({
           title: 'Armory',
@@ -80,10 +85,6 @@ async function bootstrap(): Promise<void> {
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
-      map(withGlobalPipes),
-      map(withGlobalInterceptors),
-      map(withGlobalFilters(configService, logger)),
-      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )

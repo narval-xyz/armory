@@ -2,7 +2,9 @@ import { LoggerService } from '@narval/nestjs-shared'
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
-@Controller()
+@Controller({
+  version: '1'
+})
 @ApiTags('Application')
 export class AppController {
   constructor(private logger: LoggerService) {}

@@ -10,7 +10,9 @@ class PongDto extends createZodDto(
   })
 ) {}
 
-@Controller()
+@Controller({
+  version: '1'
+})
 @ApiTags('Application')
 export class VaultController {
   constructor(private logger: LoggerService) {}

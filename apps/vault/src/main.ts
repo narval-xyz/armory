@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -42,6 +42,9 @@ async function bootstrap() {
   await lastValueFrom(
     of(application).pipe(
       map(withLogger),
+      map(withApiVersion({ defaultVersion: '1' })),
+      map(withGlobalPipes),
+      map(withCors(configService.get('cors'))),
       map(
         withSwagger({
           title: 'Vault',
@@ -51,8 +54,6 @@ async function bootstrap() {
           security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
         })
       ),
-      map(withGlobalPipes),
-      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )

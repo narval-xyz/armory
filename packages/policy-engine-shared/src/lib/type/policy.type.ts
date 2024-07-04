@@ -39,15 +39,15 @@ import {
   principalGroupCriterionSchema,
   principalIdCriterionSchema,
   principalRoleCriterionSchema,
+  rateLimitCriterionSchema,
   resourceIntegrityCriterionSchema,
   signMessageConditionSchema,
   signTypedDataDomainConditionSchema,
   spendingLimitConditionSchema,
   spendingLimitCriterionSchema,
-  spendingLimitFiltersSchema,
-  spendingLimitTimeWindowSchema,
   thenSchema,
-  timeWindowSchema
+  timeWindowTypeSchema,
+  transferFiltersSchema
 } from '../schema/policy.schema'
 
 export const Then = thenSchema.enum
@@ -56,8 +56,8 @@ export type Then = z.infer<typeof thenSchema>
 export const Criterion = criterionSchema.enum
 export type Criterion = z.infer<typeof criterionSchema>
 
-export const TimeWindow = timeWindowSchema.enum
-export type TimeWindow = z.infer<typeof timeWindowSchema>
+export const TimeWindow = timeWindowTypeSchema.enum
+export type TimeWindow = z.infer<typeof timeWindowTypeSchema>
 
 export type AmountCondition = z.infer<typeof amountConditionSchema>
 export type ERC1155AmountCondition = z.infer<typeof erc1155AmountConditionSchema>
@@ -65,8 +65,8 @@ export type SignMessageCondition = z.infer<typeof signMessageConditionSchema>
 export type SignTypedDataDomainCondition = z.infer<typeof signTypedDataDomainConditionSchema>
 export type PermitDeadlineCondition = z.infer<typeof permitDeadlineConditionSchema>
 export type ApprovalCondition = z.infer<typeof approvalConditionSchema>
-export type SpendingLimitTimeWindow = z.infer<typeof spendingLimitTimeWindowSchema>
-export type SpendingLimitFilters = z.infer<typeof spendingLimitFiltersSchema>
+export type SpendingLimitTimeWindow = z.infer<typeof timeWindowTypeSchema>
+export type SpendingLimitFilters = z.infer<typeof transferFiltersSchema>
 export type SpendingLimitCondition = z.infer<typeof spendingLimitConditionSchema>
 
 export type ActionCriterion = z.infer<typeof actionCriterionSchema>
@@ -103,6 +103,7 @@ export type NonceRequiredCriterion = z.infer<typeof nonceRequiredCriterionSchema
 export type NonceNotRequiredCriterion = z.infer<typeof nonceNotRequiredCriterionSchema>
 export type ApprovalsCriterion = z.infer<typeof approvalsCriterionSchema>
 export type SpendingLimitCriterion = z.infer<typeof spendingLimitCriterionSchema>
+export type RateLimitCriterion = z.infer<typeof rateLimitCriterionSchema>
 
 export type PolicyCriterion = z.infer<typeof policyCriterionSchema>
 

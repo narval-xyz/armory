@@ -13,7 +13,10 @@ type Response =
       }
     }
 
-@Controller('/apps/activate')
+@Controller({
+  path: '/apps/activate',
+  version: '1'
+})
 @ApiExcludeController()
 export class ProvisionController {
   constructor(private engineService: EngineService) {}

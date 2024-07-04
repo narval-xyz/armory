@@ -31,7 +31,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/evaluations`,
+          url: `${option.host}/v1/evaluations`,
           method: 'POST',
           data: SerializedEvaluationRequest.parse(option.data),
           headers: this.getHeaders(option)
@@ -70,7 +70,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/clients`,
+          url: `${option.host}/v1/clients`,
           method: 'POST',
           data: option.data,
           headers: {
@@ -106,7 +106,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/clients/sync`,
+          url: `${option.host}/v1/clients/sync`,
           method: 'POST',
           headers: {
             ...this.getHeaders(option)
