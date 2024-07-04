@@ -5,7 +5,8 @@ import {
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
-  SignTypedDataAction
+  SignTypedDataAction,
+  SignUserOperationAction
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
@@ -25,6 +26,9 @@ import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { NonceService } from './nonce.service'
+import { getUserOperationHash } from "permissionless/utils"
+import { EntryPoint } from "permissionless/types"
+import { getChainId, signMessage } from "viem/actions"
 
 @Injectable()
 export class SigningService {
@@ -42,6 +46,8 @@ export class SigningService {
       return this.signTypedData(clientId, request)
     } else if (request.action === Action.SIGN_RAW) {
       return this.signRaw(clientId, request)
+    } else if (request.action === Action.SIGN_USER_OPERATION) {
+      return this.signUserOperation(clientId, request)
     }
 
     throw new ApplicationException({
@@ -49,6 +55,27 @@ export class SigningService {
       suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
       context: { clientId, request }
     })
+  }
+
+  async signUserOperation(clientId: string, action: SignUserOperationAction): Promise<Hex> {
+    const { userOperation, resourceId } = action
+    const client = await this.buildClient(clientId, resourceId)
+
+    const { chainId, entryPoint, factoryAddress, ...userOpToBeHashed} = action.userOperation
+
+    const userOpHash = getUserOperationHash({
+      chainId: +chainId,
+      entryPoint: entryPoint as EntryPoint,
+      userOperation: userOpToBeHashed,
+    })
+
+    const signature = await client.signMessage({ message: {
+      raw: userOpHash
+    } })
+
+    await this.maybeSaveNonce(clientId, action)
+
+    return signature
   }
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
@@ -133,6 +160,8 @@ export class SigningService {
   private async findAccount(clientId: string, resourceId: string) {
     const account = await this.accountRepository.findById(clientId, resourceId)
 
+    const accounts = await this.accountRepository.findByClientId(clientId)
+    console.log('###accounts: ', accounts)
     if (!account) {
       throw new ApplicationException({
         message: 'Account not found',
@@ -167,7 +196,7 @@ export class SigningService {
 
   private async maybeSaveNonce(
     clientId: string,
-    request: SignTransactionAction | SignMessageAction | SignTypedDataAction | SignRawAction
+    request: SignTransactionAction | SignMessageAction | SignTypedDataAction | SignRawAction | SignUserOperationAction
   ) {
     if (request.nonce) {
       await this.nonceService.save(clientId, request.nonce)

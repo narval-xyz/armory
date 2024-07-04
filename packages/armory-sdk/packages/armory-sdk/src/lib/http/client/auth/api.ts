@@ -395,10 +395,10 @@ export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
     'sender': any;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
      */
-    'nonce': string;
+    'nonce': number;
     /**
      * 
      * @type {any}
@@ -447,30 +447,6 @@ export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
      * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
      */
     'paymasterAndData': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'entryPoint': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'signature': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'factoryAddress': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'chainId': string;
 }
 /**
  * 

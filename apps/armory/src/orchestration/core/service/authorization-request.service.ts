@@ -119,7 +119,8 @@ export class AuthorizationRequestService {
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
       clientId: input.clientId,
-      status: input.status
+      status: input.status,
+      request: input.request
     })
 
     // TODO: (@wcalderipe, 17/05/24) I'm turning off the data feeds gathering

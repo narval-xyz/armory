@@ -8,6 +8,7 @@ export const Action = {
   SIGN_TRANSACTION: 'signTransaction',
   SIGN_RAW: 'signRaw',
   SIGN_MESSAGE: 'signMessage',
+  SIGN_USER_OPERATION: 'signUserOperation',
   SIGN_TYPED_DATA: 'signTypedData',
   GRANT_PERMISSION: 'grantPermission'
 } as const
@@ -50,6 +51,25 @@ export const SerializedTransactionRequest = TransactionRequest.extend({
 })
 export type SerializedTransactionRequest = z.infer<typeof SerializedTransactionRequest>
 
+export const UserOperationV6 = z.object({
+  sender: addressSchema,
+  nonce: z.coerce.bigint(),
+  initCode: hexSchema,
+  callData: hexSchema,
+  callGasLimit: z.coerce.bigint(),
+  verificationGasLimit: z.coerce.bigint(),
+  preVerificationGas: z.coerce.bigint(),
+  maxFeePerGas: z.coerce.bigint(),
+  maxPriorityFeePerGas: z.coerce.bigint(),
+  paymasterAndData: hexSchema,
+  entryPoint: addressSchema,
+  signature: hexSchema,
+  factoryAddress: addressSchema,
+  chainId: z.coerce.string(),
+  // TODO: determine what should be part of the user operation and what is a metadata (chainId, factoryAddress, signature, entrypoint)
+})
+export type UserOperationV6 = z.infer<typeof UserOperationV6>
+
 export const Eip712Domain = z.object({
   name: z.string().optional(),
   version: z.string().optional(),
@@ -88,6 +108,30 @@ export const SerializedTransactionAction = SignTransactionAction.extend({
   transactionRequest: SerializedTransactionRequest
 })
 export type SerializedTransactionAction = z.infer<typeof SerializedTransactionAction>
+
+export const SignUserOperationAction = BaseAction.merge(
+  z.object({
+    action: z.literal(Action.SIGN_USER_OPERATION),
+    resourceId: z.string(),
+    userOperation: UserOperationV6,
+  })
+)
+export type SignUserOperationAction = z.infer<typeof SignUserOperationAction>
+
+export const SerializedUserOperationV6 = UserOperationV6.extend({
+  maxFeePerGas: z.coerce.string(),
+  maxPriorityFeePerGas: z.coerce.string(),
+  callGasLimit: z.coerce.string(),
+  verificationGasLimit: z.coerce.string(),
+  preVerificationGas: z.coerce.string(),
+  nonce: z.coerce.string(),
+})
+export type SerializedUserOperationV6 = z.infer<typeof SerializedUserOperationV6>
+
+export const SerializedUserOperationAction = SignUserOperationAction.extend({
+  userOperation: SerializedUserOperationV6
+})
+export type SerializedUserOperationAction = z.infer<typeof SerializedUserOperationAction>
 
 // Matching viem's SignableMessage options
 // See https://viem.sh/docs/actions/wallet/signMessage#message
@@ -147,13 +191,14 @@ export const GrantPermissionAction = BaseAction.merge(
 )
 export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>
 
-export const SignableRequest = z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignRawAction])
+export const SignableRequest = z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignUserOperationAction, SignRawAction])
 export type SignableRequest = z.infer<typeof SignableRequest>
 
 export const SerializedSignableRequest = z.union([
   SerializedTransactionAction,
   SignMessageAction,
   SignTypedDataAction,
-  SignRawAction
+  SignRawAction,
+  SerializedUserOperationAction,
 ])
 export type SerializedSignableRequest = z.infer<typeof SerializedSignableRequest>
