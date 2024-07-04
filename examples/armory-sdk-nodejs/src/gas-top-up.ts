@@ -1,40 +1,72 @@
 /* eslint-disable no-console */
 
-import { AuthClient, AuthorizationRequestStatus, VaultClient, sendTransaction } from '@narval/armory-sdk'
+import { AuthClient, AuthorizationRequestStatus, VaultClient, polling } from '@narval/armory-sdk'
 import {
   EntityType,
   FIXTURE,
+  JwtString,
   Policy,
   PolicyCriterion,
+  Request,
   UserRole,
   ValueOperators,
   toHex
 } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerEip191, jwkSchema, privateKeyToJwk } from '@narval/signature'
+import { Alchemy, Network } from 'alchemy-sdk'
 import { v4 as uuid } from 'uuid'
 import { createPublicClient, http } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { polygon } from 'viem/chains'
 
+const AUTH_HOST = 'http://localhost:3005'
+const AUTH_CLIENT_ID = '87fd65c8-123e-4ab1-8d64-17079e871db8'
+const AUTH_CLIENT_SECRET = 'e7f860fd58698393dea8393335708eca7707315cacce3a5acf025409182bfa3f47f40aefa370ea07e78c'
+
+const VAULT_HOST = 'http://localhost:3011'
+const VAULT_CLIENT_ID = '5852b412-caa7-454c-acf7-9e2097e6fabf'
+
+const ALCHEMY_POLYGON_API = ''
+
 const CHAIN_ID = 137
 const TOKEN_ID = 'eip155:137/slip44:966'
 
-const GAS_STATION_ADDRESS = '0xb62fb8aac3fceb0b9e4ba5118e59b3afd10545ca'
-const MONITORED_ADDRESS = '0x9d432a09cbf55f22aa6a2e290acb12d57d29b2fc'
-
+const UNSAFE_GAS_STATION_PRIVATE_KEY = ''
+const GAS_STATION_ADDRESS = '0x940851dd4b9cd8338ad33fc7a640d96715e9f21c'
 const GAS_STATION_ACCOUNT_ID = `eip155:eoa:${GAS_STATION_ADDRESS}`
+
+const MONITORED_ADDRESS = '0x9d432a09cbf55f22aa6a2e290acb12d57d29b2fc'
 const MONITORED_ACCOUNT_ID = `eip155:${CHAIN_ID}:${MONITORED_ADDRESS}`
 
 const GAS = BigInt(22000)
 const MAX_FEE_PER_GAS = BigInt(291175227375)
 const MAX_PRIORITY_FEE_PER_GAS = BigInt(81000000000)
 
+const TRIGGER_THRESHOLD = BigInt(50000000000000000) // 0.05
 const MAX_AMOUNT_PER_TRANSACTION = BigInt(1000000000000000) // 0.001
 const DAILY_SPENDING_LIMIT = BigInt(3000000000000000) // 0.003
 const MAX_DAILY_TRANSACTIONS = 5
 
-// copy/paste the policies below to the devtool UI. Sign and push to sync the engine with the new policies.
+const client = createPublicClient({
+  chain: polygon,
+  transport: http()
+})
 
+const signerPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
+const signerAddress = privateKeyToAddress(signerPrivateKey)
+const signerJwk = jwkSchema.parse({
+  ...privateKeyToJwk(signerPrivateKey),
+  addr: signerAddress,
+  kid: signerAddress
+})
+
+const signer = {
+  jwk: signerJwk,
+  alg: SigningAlg.EIP191,
+  sign: buildSignerEip191(signerPrivateKey)
+}
+
+// copy/paste the policies below to the devtool UI. Sign and push to sync the engine with the new policies.
 const baseWhenCriteria: PolicyCriterion[] = [
   {
     criterion: 'checkAction',
@@ -141,93 +173,89 @@ const policies: Policy[] = [
 
 // console.log(JSON.stringify(policies, null, 2))
 
-const main = async () => {
-  const client = createPublicClient({
-    chain: polygon,
-    transport: http()
+const needGasRefill = async () => {
+  const alchemy = new Alchemy({
+    apiKey: ALCHEMY_POLYGON_API,
+    network: Network.MATIC_MAINNET
   })
 
-  const signerPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-  const signerAddress = privateKeyToAddress(signerPrivateKey)
-  const signerJwk = jwkSchema.parse({
-    ...privateKeyToJwk(signerPrivateKey),
-    addr: signerAddress,
-    kid: signerAddress
-  })
+  const balance = await alchemy.core.getBalance(MONITORED_ADDRESS, 'latest')
 
-  const signer = {
-    jwk: signerJwk,
-    alg: SigningAlg.EIP191,
-    sign: buildSignerEip191(signerPrivateKey)
-  }
+  console.log('\n\n Monitored account balance:', balance.toString())
+
+  return balance.lt(TRIGGER_THRESHOLD)
+}
+
+const sendEvaluationRequest = async () => {
+  const nonce = await client.getTransactionCount({ address: GAS_STATION_ADDRESS })
 
   const authClient = new AuthClient({
-    host: 'http://localhost:3005',
-    clientId: '5c43ccbe-8804-40a7-8632-7cf5ab08aad6',
-    clientSecret: 'ecad9f7760597cfccbd42af2e2adedca633aca891f249f93e0437713a0d48fa4ff3615a32d5a813cbde2',
+    host: AUTH_HOST,
+    clientId: AUTH_CLIENT_ID,
+    clientSecret: AUTH_CLIENT_SECRET,
     signer
   })
 
-  const vaultClient = new VaultClient({
-    host: 'http://localhost:3011',
-    clientId: '4e0739f3-f6f5-4885-b1d1-5acf4e15101b',
-    signer
-  })
-
-  try {
-    // Evaluate the transaction
-    const nonce = await client.getTransactionCount({ address: GAS_STATION_ADDRESS })
-
-    const evaluation = await authClient.evaluate({
-      request: {
-        action: 'signTransaction',
-        nonce: uuid(),
-        resourceId: GAS_STATION_ACCOUNT_ID,
-        transactionRequest: {
-          type: '2',
-          nonce,
-          chainId: CHAIN_ID,
-          from: GAS_STATION_ADDRESS,
-          to: MONITORED_ADDRESS,
-          gas: GAS,
-          maxFeePerGas: MAX_FEE_PER_GAS,
-          maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
-          value: toHex(MAX_AMOUNT_PER_TRANSACTION)
-        }
-      }
-    })
-
-    console.log('\n\n Evaluation response:', evaluation)
-
-    const { status, request, evaluations } = evaluation
-
-    if (status === AuthorizationRequestStatus.PERMITTED && evaluations[0].signature) {
-      console.log('\n\n Transaction is permitted')
-
-      const accessToken = {
-        value: evaluations[0].signature
-      }
-
-      // Sign the transaction
-
-      const { signature } = await vaultClient.sign({
-        accessToken,
-        data: request
-      })
-
-      console.log('\n\n Transaction signature:', signature)
-
-      // Submit the transaction to the blockchain
-
-      if (request.action === 'signTransaction') {
-        const receipt = await sendTransaction(request.transactionRequest, signature)
-
-        console.log('\n\n Transaction receipt:', receipt)
+  return authClient.evaluate({
+    request: {
+      action: 'signTransaction',
+      nonce: uuid(),
+      resourceId: GAS_STATION_ACCOUNT_ID,
+      transactionRequest: {
+        type: '2',
+        nonce,
+        chainId: CHAIN_ID,
+        from: GAS_STATION_ADDRESS,
+        to: MONITORED_ADDRESS,
+        gas: GAS,
+        maxFeePerGas: MAX_FEE_PER_GAS,
+        maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+        value: toHex(MAX_AMOUNT_PER_TRANSACTION)
       }
     }
-  } catch (error) {
-    console.error('An error occurred', error)
+  })
+}
+
+const signTransaction = async (request: Request, token: JwtString) => {
+  const vaultClient = new VaultClient({
+    host: VAULT_HOST,
+    clientId: VAULT_CLIENT_ID,
+    signer
+  })
+
+  return vaultClient.sign({
+    accessToken: {
+      value: token
+    },
+    data: request
+  })
+}
+
+const main = async () => {
+  const needTopUp = await needGasRefill()
+
+  if (!needTopUp) {
+    console.log('\n\n The monitored account has enough balance. No need to top up.')
+    return
+  }
+
+  const evaluation = await sendEvaluationRequest()
+  console.log('\n\n Evaluation Response:', evaluation)
+
+  const { status, evaluations } = evaluation
+
+  if (status === AuthorizationRequestStatus.PERMITTED && evaluations[0].signature) {
+    const { signature } = await signTransaction(evaluation.request, evaluations[0].signature)
+    console.log('\n\n Transaction signature:', signature)
+
+    const receipt = await client.sendRawTransaction({ serializedTransaction: signature })
+    console.log('\n\n Transaction receipt:', receipt)
   }
 }
 
-main()
+polling({
+  fn: () => main(),
+  shouldStop: () => false,
+  timeoutMs: 10 * 10000,
+  intervalMs: 5 * 1000
+})
