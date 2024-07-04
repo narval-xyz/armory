@@ -299,16 +299,11 @@ describe('Authorization Request', () => {
         approvals
       }
 
-      const parsed = AuthorizationRequestDto.create(payload)
-
-      console.log('###parsed', parsed)
-
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
         .send(payload)
 
-      console.log('###body', body)
       expect(body).toMatchObject({
         approvals,
         id: expect.any(String),

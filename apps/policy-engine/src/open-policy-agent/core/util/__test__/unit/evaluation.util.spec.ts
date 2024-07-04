@@ -6,7 +6,8 @@ import {
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
-  SignTypedDataAction
+  SignTypedDataAction,
+  SignUserOperationAction
 } from '@narval/policy-engine-shared'
 import { InputType, decode } from '@narval/transaction-request-intent'
 import {
@@ -14,7 +15,8 @@ import {
   generateSignMessageRequest,
   generateSignRawRequest,
   generateSignTransactionRequest,
-  generateSignTypedDataRequest
+  generateSignTypedDataRequest,
+  generateSignUserOperationRequest
 } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
 import { toData, toInput } from '../../evaluation.util'
@@ -241,6 +243,45 @@ describe('toInput', () => {
       const request = evaluation.request as GrantPermissionAction
 
       expect(input.permissions).toEqual(request.permissions)
+    })
+  })
+  describe(`when action is ${Action.SIGN_USER_OPERATION}`, () => {
+    let evaluation: EvaluationRequest
+
+    beforeEach(async () => {
+      evaluation = await generateSignUserOperationRequest()
+    })
+
+    it('maps action', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.action).toEqual(Action.SIGN_USER_OPERATION)
+    })
+
+    it('maps principal', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal).toEqual(principal)
+    })
+
+    it('maps resource', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignUserOperationAction
+
+      expect(input.resource).toEqual({ uid: request.resourceId })
+    })
+
+    it('maps approvals', () => {
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.approvals).toEqual(approvals)
+    })
+
+    it('maps user operation', () => {
+      const input = toInput({ evaluation, principal, approvals })
+      const request = evaluation.request as SignUserOperationAction
+
+      expect(input.userOperation).toEqual(request.userOperation)
     })
   })
 })

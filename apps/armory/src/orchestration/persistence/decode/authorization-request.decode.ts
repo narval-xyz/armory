@@ -61,14 +61,11 @@ const decode = ({ model, schema }: { model: Model; schema: ZodSchema }): Authori
         request: decode.data
       }
     }
-
-    console.log('###model', model)
     throw new DecodeAuthorizationRequestException(decode.error.issues)
   } catch (error) {
     // The try/catch statement is implemented here specifically to prevent the
     // irony of "safeParse" throwing a TypeError due to bigint coercion on
     // null and undefined values.
-    console.log('###error', error)
     throw new DecodeAuthorizationRequestException([
       {
         code: ZodIssueCode.custom,

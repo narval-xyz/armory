@@ -73,9 +73,9 @@ const decodeTransactionInput = (
   contractRegistry?: ContractRegistry
 ) => {
   const { txRequest } = input
-  const { data, to } = txRequest
+  const { data, to, value } = txRequest
   const methodId = getMethodId(data)
-  const category = getCategory(methodId, to)
+  const category = getCategory(methodId, to, value)
 
   switch (category) {
     case TransactionCategory.NATIVE_TRANSFER: {
