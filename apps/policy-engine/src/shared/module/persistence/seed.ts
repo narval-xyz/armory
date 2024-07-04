@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Engine, PrismaClient } from '@prisma/client/policy-engine'
 
 const prisma = new PrismaClient()
@@ -11,7 +11,7 @@ const engine: Engine = {
 }
 
 async function main() {
-  const logger = new Logger('EngineSeed')
+  const logger = new LoggerService()
 
   logger.log('Seeding Engine database')
   await prisma.$transaction(async (txn) => {

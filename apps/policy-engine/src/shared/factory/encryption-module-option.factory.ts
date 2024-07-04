@@ -6,19 +6,19 @@ import {
   generateKeyEncryptionKey,
   isolateBuffer
 } from '@narval/encryption-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { toBytes } from '@narval/policy-engine-shared'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { EngineService } from '../../engine/core/service/engine.service'
 import { Config } from '../../policy-engine.config'
 import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../policy-engine.constant'
 
 @Injectable()
 export class EncryptionModuleOptionFactory {
-  private logger = new Logger(EncryptionModuleOptionFactory.name)
-
   constructor(
     private engineService: EngineService,
-    private configService: ConfigService<Config>
+    private configService: ConfigService<Config>,
+    private logger: LoggerService
   ) {}
 
   async create(): Promise<EncryptionModuleOption> {

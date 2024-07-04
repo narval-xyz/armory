@@ -1,5 +1,6 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { AssetId } from '@narval/policy-engine-shared'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { compact } from 'lodash/fp'
 import { FiatId, Prices } from '../../../shared/core/type/price.type'
 import { CoinGeckoClient } from '../../http/client/coin-gecko/coin-gecko.client'
@@ -14,11 +15,10 @@ type GetPricesOption = {
 
 @Injectable()
 export class PriceService {
-  private logger = new Logger(PriceService.name)
-
   constructor(
     private coinGeckoClient: CoinGeckoClient,
-    private coinGeckoAssetRepository: CoinGeckoAssetRepository
+    private coinGeckoAssetRepository: CoinGeckoAssetRepository,
+    private logger: LoggerService
   ) {}
 
   async getPrices(options: GetPricesOption): Promise<Prices> {

@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import {
   PrivateKey,
@@ -51,6 +51,7 @@ describe('Client', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true

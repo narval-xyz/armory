@@ -1,5 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Module, forwardRef } from '@nestjs/common'
 import { AppService } from '../../../vault/core/service/app.service'
 import { VaultModule } from '../../../vault/vault.module'
@@ -16,7 +17,7 @@ import { PrismaKeyValueRepository } from './persistence/repository/prisma-key-va
     PersistenceModule,
     EncryptionModule.registerAsync({
       imports: [forwardRef(() => VaultModule)],
-      inject: [ConfigService, AppService],
+      inject: [ConfigService, AppService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     })
   ],
