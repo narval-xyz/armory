@@ -3,6 +3,8 @@ import { AccountEntity, AccountType, Action, Criterion, Entities, EntityData, Po
 import { Hex, getPublicKey, privateKeyToJwk } from "@narval/signature";
 import { v4 } from "uuid";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
+import { InputType, Intents, SUPPORTED_METHODS, SupportedMethodId, safeDecode } from '@narval/transaction-request-intent'
+
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
   const policies: Policy[] = [
@@ -16,6 +18,21 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         }
       ],
       then: Then.PERMIT
+    },
+    {
+      id: v4(),
+      description: 'cant native transfer when doing userOps',
+      when: [
+        {
+          criterion: Criterion.CHECK_ACTION,
+          args: [Action.SIGN_USER_OPERATION]
+        },
+        {
+          criterion: Criterion.CHECK_INTENT_TYPE,
+          args: [Intents.TRANSFER_NATIVE]
+        }
+      ],
+      then: Then.FORBID
     }
   ]
   await policyStoreClient.signAndPush(policies)

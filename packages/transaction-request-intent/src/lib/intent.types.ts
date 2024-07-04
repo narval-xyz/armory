@@ -122,7 +122,6 @@ export type UserOperation = {
   from: AccountId
   entrypoint: AccountId
   operationIntents: Intent[]
-  beneficiary: Address
 }
 
 export type TypedDataIntent = SignTypedData | Permit | Permit2

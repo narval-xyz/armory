@@ -7,6 +7,7 @@ import {
   GrantPermissionAction,
   Request,
   SerializedTransactionRequest,
+  SerializedUserOperationV6,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
@@ -18,7 +19,7 @@ import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
-import { Abi, encodeFunctionData } from 'viem'
+import { Abi, Hex, encodeAbiParameters, encodeFunctionData } from 'viem'
 import { getUserOperationHash } from "permissionless/utils"
 import { EntryPoint } from "permissionless/types"
 import { Alg } from '@narval/signature'
@@ -31,90 +32,8 @@ type Mapping<R extends Request> = (
   feeds?: Feed<unknown>[]
 ) => Input
 
-const userOperationToSignTransaction: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
+const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
   const { chainId, entryPoint, ...userOpToBeHashed} = request.userOperation
-
-  const abi: Abi = [{
-"inputs":[
-{
-"components":[
-{
-"internalType":"address",
-"name":"sender",
-"type":"address"
-},
-{
-"internalType":"uint256",
-"name":"nonce",
-"type":"uint256"
-},
-{
-"internalType":"bytes",
-"name":"initCode",
-"type":"bytes"
-},
-{
-"internalType":"bytes",
-"name":"callData",
-"type":"bytes"
-},
-{
-"internalType":"uint256",
-"name":"callGasLimit",
-"type":"uint256"
-},
-{
-"internalType":"uint256",
-"name":"verificationGasLimit",
-"type":"uint256"
-},
-{
-"internalType":"uint256",
-"name":"preVerificationGas",
-"type":"uint256"
-},
-{
-"internalType":"uint256",
-"name":"maxFeePerGas",
-"type":"uint256"
-},
-{
-"internalType":"uint256",
-"name":"maxPriorityFeePerGas",
-"type":"uint256"
-},
-{
-"internalType":"bytes",
-"name":"paymasterAndData",
-"type":"bytes"
-},
-{
-"internalType":"bytes",
-"name":"signature",
-"type":"bytes"
-}
-],
-"internalType":"struct UserOperation[]",
-"name":"ops",
-"type":"tuple[]"
-},
-{
-"internalType":"address payable",
-"name":"beneficiary",
-"type":"address"
-}
-],
-"name":"handleOps",
-"outputs":[
-],
-"stateMutability":"nonpayable",
-"type":"function"
-  }]
-  const data = encodeFunctionData({
-    abi,
-    functionName: 'handleOps',
-    args: [[request.userOperation], '0x3f843E606C79312718477F9bC020F3fC5b7264C2']
-  })
 
   const result = safeDecode({
     input: {
@@ -122,20 +41,30 @@ const userOperationToSignTransaction: Mapping<SignUserOperationAction> = (reques
       txRequest: {
         from: request.userOperation.sender,
         chainId: +chainId,
-        data,
+        data: request.userOperation.callData,
+        to: entryPoint,
       }
     }
   })
 
-  console.log('###result', result)
+  if (!result.success) {
+    throw new OpenPolicyAgentException({
+      message: 'Invalid user operation intent',
+      suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+      context: { error: result.error }
+    })
+  }
 
   return {
     action: Action.SIGN_USER_OPERATION,
     principal,
+    intent: result.intent,
     approvals,
+    userOperation: SerializedUserOperationV6.parse(request.userOperation),
+    resource: { uid: request.resourceId },
+    feeds
   }
 }
-// !!TODO: Change that to a UserOperation specific type
 
 const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals, feeds): Input => {
   const result = safeDecode({
@@ -233,7 +162,7 @@ export const toInput = (params: {
     [Action.SIGN_RAW, toSignRaw],
     [Action.SIGN_TRANSACTION, toSignTransaction],
     [Action.SIGN_TYPED_DATA, toSignTypedData],
-    [Action.SIGN_USER_OPERATION, userOperationToSignTransaction],
+    [Action.SIGN_USER_OPERATION, toSignUserOperation],
     [Action.GRANT_PERMISSION, toGrantPermission]
   ])
   const mapper = mappers.get(action)

@@ -6,14 +6,16 @@ import {
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
   ExecuteAndRevertParams,
+  ExecuteBatchV6Params,
+  ExecuteBatchV7Params,
   ExecuteParams,
   ExtractedParams,
-  HandleOpsParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
   TransferParams,
   UserOp
 } from './types'
+import { Hex } from 'viem'
 
 export const TransferParamsTransform = (params: unknown[]): TransferParams => {
   const recipient = assertHexString(params[0])
@@ -104,12 +106,37 @@ export const ExecuteParamsTransform = (params: unknown[]): ExecuteParams => {
   const data = assertHexString(params[2])
 
   // value can be 0 so we must be explicit that we check for non null value
-  if (!to || null === value || !data) {
+  if (!to || value === null || data === null) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
   }
 
   return { to, value, data }
 }
+
+export const ExecuteBatchV6ParamsTransform = (params: unknown[]): ExecuteBatchV6Params => {
+  const to = assertArray<Hex>(params[0], 'hex')
+  const data = assertArray<Hex>(params[1], 'hex') 
+
+  if (!to || !data) {
+    throw new DecoderError({ message: 'Invalid parameters', status: 400 })
+  }
+
+  return { to, data }
+}
+
+
+export const ExecuteBatchV7ParamsTransform = (params: unknown[]): ExecuteBatchV7Params => {
+  const to = assertArray<Hex>(params[0], 'hex')
+  const value = assertArray<bigint>(params[1], 'bigint')
+  const data = assertArray<Hex>(params[2], 'hex') 
+
+  if (!to || !value || !data) {
+    throw new DecoderError({ message: 'Invalid parameters', status: 400 })
+  }
+
+  return { to, value, data }
+}
+
 
 export const ExecuteAndRevertParamsTransform = (params: unknown[]): ExecuteAndRevertParams => {
   const to = assertHexString(params[0])
@@ -169,23 +196,6 @@ export const transformUserOperation = (op: unknown[]): UserOp => {
     maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
     paymasterAndData,
     signature
-  }
-}
-
-export const HandleOpsParamsTransform = (params: unknown[]): HandleOpsParams => {
-  if (!Array.isArray(params[0]) || typeof params[1] !== 'string') {
-    throw new DecoderError({ message: 'Invalid input format', status: 400 })
-  }
-
-  const assertBeneficiary = assertAddress(params[1])
-
-  if (!assertBeneficiary) {
-    throw new DecoderError({ message: 'Invalid parameters', status: 400 })
-  }
-
-  return {
-    userOps: params[0].map(transformUserOperation),
-    beneficiary: assertBeneficiary
   }
 }
 

@@ -6,8 +6,9 @@ import {
   CreateAccountParamsTransform,
   Erc1155SafeTransferFromParamsTransform,
   Erc721SafeTransferFromParamsTransform,
+  ExecuteBatchV6ParamsTransform,
+  ExecuteBatchV7ParamsTransform,
   ExecuteParamsTransform,
-  HandleOpsParamsTransform,
   TransferBatchTransferParamsTransform,
   TransferFromParamsTransform,
   TransferParamsTransform
@@ -17,8 +18,9 @@ import {
   CreateAccountParams,
   Erc1155SafeTransferFromParams,
   Erc721SafeTransferFromParams,
+  ExecuteBatchV6Params,
+  ExecuteBatchV7Params,
   ExecuteParams,
-  HandleOpsParams,
   NullHexParams,
   SafeBatchTransferFromParams,
   TransferFromParams,
@@ -95,6 +97,18 @@ export const Erc20TransferAbiParameters: AbiParameter[] = [
   { type: 'uint256', name: 'amount' }
 ]
 
+export const ExecuteBatchAbiParameters: AbiParameter[] = [
+  {
+    internalType: "address[]",
+    name: "dest",
+    type: "address[]"
+},
+{
+    internalType: "bytes[]",
+    name: "func",
+    type: "bytes[]"
+}
+]
 export const ApproveAllowanceAbiParameters: AbiParameter[] = [
   { type: 'address', name: 'spender' },
   { type: 'uint256', name: 'amount' }
@@ -114,17 +128,17 @@ export const DeployContractAbiParameters: AbiParameter[] = [
 export const HandleOpsAbiParameters: AbiParameter[] = [
   {
     components: [
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'bytes', name: '', type: 'bytes' },
-      { internalType: 'bytes', name: '', type: 'bytes' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'bytes', name: '', type: 'bytes' },
-      { internalType: 'bytes', name: '', type: 'bytes' }
+      { internalType: 'address', name: 'sender', type: 'address' },
+      { internalType: 'uint256', name: 'nonce', type: 'uint256' },
+      { internalType: 'bytes', name: 'initCode', type: 'bytes' },
+      { internalType: 'bytes', name: 'callData', type: 'bytes' },
+      { internalType: 'uint256', name: 'verificationGasLimit', type: 'uint256' },
+      { internalType: 'uint256', name: 'callGasLimit', type: 'uint256' },
+      { internalType: 'uint256', name: 'preVerificationGas', type: 'uint256' },
+      { internalType: 'uint256', name: 'maxPriorityFeePerGas', type: 'uint256' },
+      { internalType: 'uint256', name: 'maxFeePerGas', type: 'uint256' },
+      { internalType: 'bytes', name: 'paymasterAndData', type: 'bytes' },
+      { internalType: 'bytes', name: 'signature', type: 'bytes' }
     ],
     name: '_userOp',
     type: 'tuple[]'
@@ -148,15 +162,15 @@ export const CreateAccountAbiParameters: AbiParameter[] = [
 
 export const ExecuteAbiParameters: AbiParameter[] = [
   {
-    name: '_to',
+    name: 'dest',
     type: 'address'
   },
   {
-    name: '_value',
+    name: 'value',
     type: 'uint256'
   },
   {
-    name: '_data',
+    name: 'func',
     type: 'bytes'
   }
 ]
@@ -190,9 +204,10 @@ export enum SupportedMethodId {
   SAFE_TRANSFER_FROM_WITH_BYTES_1155 = '0x3219a4b7',
   SAFE_TRANSFER_FROM_1155 = '0xf242432a',
   CREATE_ACCOUNT = '0x5fbfb9cf',
-  HANDLE_OPS = '0x1fad948c',
   EXECUTE = '0xb61d27f6',
   EXECUTE_AND_REVERT = '0x940d3c60',
+  EXECUTE_BATCH_V6 = '0x18dfb3c7',
+  EXECUTE_BATCH_V7 = '0x47e1da2a',
   NULL_METHOD_ID = '0x00000000'
 }
 
@@ -208,8 +223,10 @@ export type StandardMethodsParams = {
   [SupportedMethodId.CREATE_ACCOUNT]: CreateAccountParams
   [SupportedMethodId.EXECUTE]: ExecuteParams
   [SupportedMethodId.EXECUTE_AND_REVERT]: ExecuteParams
-  [SupportedMethodId.HANDLE_OPS]: HandleOpsParams
+  [SupportedMethodId.EXECUTE_BATCH_V6]: ExecuteBatchV6Params
+  [SupportedMethodId.EXECUTE_BATCH_V7]: ExecuteBatchV7Params
   [SupportedMethodId.NULL_METHOD_ID]: NullHexParams
+  
 }
 
 export type MethodsMapping = {
@@ -279,13 +296,6 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     assetType: AssetType.ERC20,
     intent: Intents.APPROVE_TOKEN_ALLOWANCE
   },
-  [SupportedMethodId.HANDLE_OPS]: {
-    name: 'handleOps',
-    abi: HandleOpsAbiParameters,
-    transformer: HandleOpsParamsTransform,
-    assetType: Misc.UNKNOWN,
-    intent: Intents.USER_OPERATION
-  },
   [SupportedMethodId.CREATE_ACCOUNT]: {
     name: 'createAccount',
     abi: CreateAccountAbiParameters,
@@ -298,14 +308,28 @@ export const SUPPORTED_METHODS: MethodsMapping = {
     abi: ExecuteAbiParameters,
     transformer: ExecuteParamsTransform,
     assetType: Misc.UNKNOWN,
-    intent: Intents.CALL_CONTRACT
+    intent: Intents.USER_OPERATION
   },
   [SupportedMethodId.EXECUTE_AND_REVERT]: {
     name: 'executeAndRevert',
     abi: ExecuteAndRevertAbiParameters,
     transformer: ExecuteParamsTransform,
     assetType: Misc.UNKNOWN,
-    intent: Intents.CALL_CONTRACT
+    intent: Intents.USER_OPERATION
+  },
+  [SupportedMethodId.EXECUTE_BATCH_V6]: {
+    name: 'executeBatch',
+    abi: ExecuteBatchAbiParameters,
+    transformer: ExecuteBatchV6ParamsTransform,
+    assetType: Misc.UNKNOWN,
+    intent: Intents.USER_OPERATION
+  },
+  [SupportedMethodId.EXECUTE_BATCH_V7]: {
+    name: 'executeBatch',
+    abi: ExecuteBatchAbiParameters,
+    transformer: ExecuteBatchV7ParamsTransform,
+    assetType: Misc.UNKNOWN,
+    intent: Intents.USER_OPERATION
   },
   [SupportedMethodId.NULL_METHOD_ID]: {
     name: 'empty data field',
