@@ -153,33 +153,33 @@ describe('Evaluation', () => {
     const useCases = [
       {
         action: Action.SIGN_TRANSACTION,
-        getPayload: () => generateSignTransactionRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignTransactionRequest())
       },
       {
         action: Action.SIGN_TYPED_DATA,
-        getPayload: () => generateSignTypedDataRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignTypedDataRequest())
       },
       {
         action: Action.SIGN_MESSAGE,
-        getPayload: () => generateSignMessageRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignMessageRequest())
       },
       {
         action: Action.SIGN_RAW,
-        getPayload: () => generateSignRawRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignRawRequest())
       },
       {
         action: Action.GRANT_PERMISSION,
-        getPayload: () => generateGrantPermissionRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateGrantPermissionRequest())
       },
       {
         action: Action.SIGN_USER_OPERATION,
-        getPayload: () => SerializedEvaluationRequest.parse(request)
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignUserOperationRequest())
       }
     ]
 
     useCases.forEach(({ action, getPayload }) => {
       describe(`when action is ${action}`, () => {
-        let payload: EvaluationRequest
+        let payload: SerializedEvaluationRequest
 
         beforeEach(async () => {
           payload = await getPayload()
