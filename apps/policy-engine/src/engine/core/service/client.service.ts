@@ -41,6 +41,7 @@ export class ClientService {
 
     // For MPC, we need a unique sessionId; we'll just generate it from the data
     // since this isn't tx signing so it happens just once
+    // TODO: Blockdaemon SessionID must not be longer than 28 characters
     const sessionId = hash(input)
     const keypair = await this.signingService.generateKey(keyId, sessionId)
     const signer = {
@@ -129,11 +130,7 @@ export class ClientService {
 
       return false
     } catch (error) {
-      this.logger.error('Failed to sync client data store', {
-        message: error.message,
-        stack: error.stack,
-        clientId
-      })
+      this.logger.error('Failed to sync client data store', { error, clientId })
 
       return false
     }

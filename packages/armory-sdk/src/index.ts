@@ -11,9 +11,6 @@ export { resourceId } from './lib/utils'
 
 export {
   Alg,
-  PrivateKey,
-  PublicKey,
-  RsaPublicKey,
   SigningAlg,
   base64UrlToHex,
   buildSignerEip191,
@@ -27,25 +24,23 @@ export {
   signJwt
 } from '@narval/signature'
 
+export type { PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
+
 export {
   AccessToken,
-  AccountEntity,
   AccountType,
   Action,
-  Address,
   CreateAuthorizationRequest,
   Criterion,
   Decision,
   Eip712TypedData,
-  Entities,
   EntityUtil,
-  Hex,
   JwtString,
-  Policy,
   Request,
   Then,
   TransactionRequest,
-  UserEntity,
   UserRole,
   toHex
 } from '@narval/policy-engine-shared'
+
+export type { AccountEntity, Address, Entities, Hex, Policy, UserEntity } from '@narval/policy-engine-shared'
