@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -29,16 +29,14 @@ describe('Provision', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [testConfigLoad],
           isGlobal: true
         }),
         VaultModule
       ]
-    })
-      .overrideProvider(LoggerService)
-      .useClass(NullLoggerService)
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 

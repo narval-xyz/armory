@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { first, map, mapValues, omit, uniq } from 'lodash/fp'
@@ -23,6 +23,7 @@ describe(TransferTrackingService.name, () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
@@ -31,10 +32,7 @@ describe(TransferTrackingService.name, () => {
         PersistenceModule,
         TransferTrackingModule
       ]
-    })
-      .overrideProvider(LoggerService)
-      .useClass(NullLoggerService)
-      .compile()
+    }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     service = module.get<TransferTrackingService>(TransferTrackingService)

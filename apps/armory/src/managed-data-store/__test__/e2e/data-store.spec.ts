@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import {
   Criterion,
   Entities,
@@ -129,6 +129,7 @@ describe('Data Store', () => {
 
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
@@ -140,8 +141,6 @@ describe('Data Store', () => {
       .useValue(clientService)
       .overrideProvider(ClusterService)
       .useValue(clusterService)
-      .overrideProvider(LoggerService)
-      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication()

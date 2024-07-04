@@ -11,6 +11,7 @@ export class LoggerModule {
   static forTest(): DynamicModule {
     return {
       module: LoggerModule,
+      global: true,
       providers: [
         {
           provide: LoggerService,

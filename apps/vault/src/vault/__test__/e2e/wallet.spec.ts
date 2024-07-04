@@ -1,7 +1,7 @@
 import { Permission, resourceId } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import {
   Alg,
   Curves,
@@ -80,6 +80,7 @@ describe('Generate', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
@@ -91,8 +92,6 @@ describe('Generate', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
-      .overrideProvider(LoggerService)
-      .useClass(NullLoggerService)
       .compile()
 
     app = module.createNestApplication({ logger: false })
