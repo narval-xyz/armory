@@ -53,9 +53,9 @@ export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequ
   const fixture = new Fixture()
     .extend([hexGenerator, addressGenerator, chainIdGenerator])
     .fromSchema(authorizationRequestSchema)
-
   return {
     ...fixture,
     ...partial
-  }
+  } as AuthorizationRequest
+  // TODO: Fix the type assertion above. Nonce is conflicting between useroperation and transactionrequest
 }

@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Armory
- * Authentication and authorization system for web3.0
+ * Armory is the most secure access management for web3
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -395,10 +395,10 @@ export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
     'sender': any;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
      */
-    'nonce': string;
+    'nonce': number;
     /**
      * 
      * @type {any}
@@ -447,30 +447,6 @@ export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
      * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
      */
     'paymasterAndData': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'entryPoint': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'signature': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'factoryAddress': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
-     */
-    'chainId': string;
 }
 /**
  * 
@@ -2946,10 +2922,10 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters {
     'users'?: Array<string>;
     /**
      * 
-     * @type {Array<string>}
+     * @type {Array<any>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
      */
-    'resources'?: Array<string>;
+    'resources'?: Array<any>;
     /**
      * 
      * @type {Array<any>}
@@ -3061,10 +3037,10 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = typ
 export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32Args {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32Args
      */
-    'limit': number;
+    'limit': string;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsTimeWindow}
@@ -3099,7 +3075,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = {
-    CheckAccountType: 'checkAccountType'
+    CheckAccountAccountType: 'checkAccountAccountType'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum];

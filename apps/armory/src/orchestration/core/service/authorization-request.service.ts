@@ -121,7 +121,8 @@ export class AuthorizationRequestService {
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
       clientId: input.clientId,
-      status: input.status
+      status: input.status,
+      request: input.request
     })
 
     const feeds = await this.feedService.gather(input)

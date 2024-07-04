@@ -110,8 +110,11 @@ export const checkAuthorizedParty = (payload: Payload, opts: JwtVerifyOptions): 
 
 export const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.requestHash) {
+    console.log('###opts.requestHash', opts.requestHash)
     const requestHash = typeof opts.requestHash === 'string' ? opts.requestHash : hash(opts.requestHash)
+    console.log('###requestHash', requestHash)
     if (!payload.requestHash || requestHash !== payload.requestHash) {
+      console.log('###payload.requestHash', payload.requestHash)
       throw new JwtError({ message: 'Invalid request hash', context: { payload } })
     }
   }
