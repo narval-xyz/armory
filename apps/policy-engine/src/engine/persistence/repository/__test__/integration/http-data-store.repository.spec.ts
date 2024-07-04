@@ -1,4 +1,4 @@
-import { HttpModule, LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { HttpModule, LoggerModule } from '@narval/nestjs-shared'
 import { EntityData, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
@@ -24,14 +24,8 @@ describe(HttpDataStoreRepository.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [HttpModule.forRoot(), LoggerModule],
-      providers: [
-        HttpDataStoreRepository,
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
-        }
-      ]
+      imports: [HttpModule.forRoot(), LoggerModule.forTest()],
+      providers: [HttpDataStoreRepository]
     }).compile()
 
     repository = module.get<HttpDataStoreRepository>(HttpDataStoreRepository)

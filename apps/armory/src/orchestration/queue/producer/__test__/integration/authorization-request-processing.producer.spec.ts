@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -51,7 +51,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
-        LoggerModule,
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
@@ -63,14 +63,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         })
       ],
-      providers: [
-        AuthorizationRequestProcessingProducer,
-        AuthorizationRequestRepository,
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
-        }
-      ]
+      providers: [AuthorizationRequestProcessingProducer, AuthorizationRequestRepository]
     }).compile()
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)

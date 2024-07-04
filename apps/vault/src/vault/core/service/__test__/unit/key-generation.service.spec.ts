@@ -1,4 +1,4 @@
-import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   RsaPrivateKey,
   generateJwk,
@@ -63,7 +63,7 @@ describe('GenerateService', () => {
     })
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [LoggerModule],
+      imports: [LoggerModule.forTest()],
       providers: [
         KeyGenerationService,
         {
@@ -87,10 +87,6 @@ describe('GenerateService', () => {
           useValue: {
             save: jest.fn()
           }
-        },
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
         }
       ]
     }).compile()

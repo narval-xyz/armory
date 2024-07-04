@@ -1,4 +1,4 @@
-import { HttpModule, LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { HttpModule, LoggerModule } from '@narval/nestjs-shared'
 import {
   EntityData,
   EntitySignature,
@@ -39,17 +39,8 @@ describe(DataStoreService.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [HttpModule.forRoot(), LoggerModule],
-      providers: [
-        DataStoreService,
-        DataStoreRepositoryFactory,
-        HttpDataStoreRepository,
-        FileSystemDataStoreRepository,
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
-        }
-      ]
+      imports: [HttpModule.forRoot(), LoggerModule.forTest()],
+      providers: [DataStoreService, DataStoreRepositoryFactory, HttpDataStoreRepository, FileSystemDataStoreRepository]
     }).compile()
 
     service = module.get<DataStoreService>(DataStoreService)

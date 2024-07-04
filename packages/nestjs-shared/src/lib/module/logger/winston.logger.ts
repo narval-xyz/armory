@@ -25,21 +25,17 @@ const pretty = (info: winston.Logform.TransformableInfo) => {
   return `${info.timestamp} ${getLevelColor(level)}[${level.toUpperCase()}]\x1b[0m: ${message}\n${stringify(context, 2)}`
 }
 
-const formatRedact = winston.format(redact)
-
-const production = winston.format.combine(
+const BASE_FORMAT = [
   winston.format.timestamp(),
   winston.format.json(),
-  formatRedact(),
-  winston.format.printf(stringify)
-)
+  winston.format((info) => {
+    return redact(info)
+  })()
+]
 
-const development = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.json(),
-  formatRedact(),
-  winston.format.printf(pretty)
-)
+const production = winston.format.combine(...BASE_FORMAT, winston.format.printf(stringify))
+
+const development = winston.format.combine(...BASE_FORMAT, winston.format.printf(pretty))
 
 export const buildLogger = () =>
   winston.createLogger({

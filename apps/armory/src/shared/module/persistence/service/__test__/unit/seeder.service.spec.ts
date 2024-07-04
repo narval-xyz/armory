@@ -1,4 +1,4 @@
-import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { SeedService } from '../../seed.service'
@@ -26,7 +26,7 @@ describe(SeederService.name, () => {
     seedServiceTwo = new TestSeedServiceTwo()
 
     const module = await Test.createTestingModule({
-      imports: [LoggerModule],
+      imports: [LoggerModule.forTest()],
       providers: [
         SeederService,
         {
@@ -36,10 +36,6 @@ describe(SeederService.name, () => {
         {
           provide: TestSeedServiceTwo,
           useValue: seedServiceTwo
-        },
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
         }
       ]
     }).compile()

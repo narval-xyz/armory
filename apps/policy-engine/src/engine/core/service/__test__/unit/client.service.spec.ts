@@ -1,5 +1,5 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -64,7 +64,7 @@ describe(ClientService.name, () => {
 
     const module = await Test.createTestingModule({
       imports: [
-        LoggerModule,
+        LoggerModule.forTest(),
         EncryptionModule.register({
           keyring: getTestRawAesKeyring()
         })
@@ -84,10 +84,6 @@ describe(ClientService.name, () => {
         {
           provide: 'SigningService',
           useValue: SimpleSigningService
-        },
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
         }
       ]
     }).compile()

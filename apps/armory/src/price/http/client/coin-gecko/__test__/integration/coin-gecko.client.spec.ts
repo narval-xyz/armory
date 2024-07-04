@@ -1,4 +1,4 @@
-import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { HttpStatus } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -14,14 +14,8 @@ describe(CoinGeckoClient.name, () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [HttpModule, LoggerModule],
-      providers: [
-        CoinGeckoClient,
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
-        }
-      ]
+      imports: [HttpModule, LoggerModule.forTest()],
+      providers: [CoinGeckoClient]
     }).compile()
 
     client = module.get<CoinGeckoClient>(CoinGeckoClient)
