@@ -1,7 +1,8 @@
 import { ConfigService } from '@narval/config-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
@@ -19,8 +20,6 @@ import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.typ
 
 @Injectable()
 export class ClusterService {
-  private logger = new Logger(ClusterService.name)
-
   // Keeps a version of the finalizeEcdsaJwtSignature function from
   // @narval-xyz/armory-mpc-module in memory to prevent lazy loading it on
   // every call.
@@ -32,7 +31,8 @@ export class ClusterService {
   constructor(
     private policyEngineClient: PolicyEngineClient,
     private policyEngineNodeRepository: PolicyEngineNodeRepository,
-    private configService: ConfigService<Config>
+    private configService: ConfigService<Config>,
+    private logger: LoggerService
   ) {}
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {

@@ -35,6 +35,7 @@
     "@types/react": "18.2.62",
     "@types/react-dom": "18.2.14",
     "@types/supertest": "6.0.2",
+    "@types/traverse": "^0.6.37",
     "@types/uuid": "9.0.7",
     "@typescript-eslint/eslint-plugin": "7.9.0",
     "@typescript-eslint/parser": "7.9.0",
@@ -121,12 +122,15 @@
     "rxjs": "7.8.1",
     "swr": "2.2.5",
     "tailwind-merge": "2.2.2",
+    "traverse": "^0.6.9",
     "tslib": "2.6.3",
     "type-fest": "4.14.0",
     "usehooks-ts": "3.1.0",
     "uuid": "9.0.1",
     "viem": "2.16.2",
     "wagmi": "2.5.7",
+    "winston": "3.13.0",
+    "winston-transport": "4.7.0",
     "zod": "3.23.8"
   },
   "nx": {

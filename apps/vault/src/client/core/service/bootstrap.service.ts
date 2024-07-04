@@ -1,11 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Injectable } from '@nestjs/common'
 import { ClientService } from './client.service'
 
 @Injectable()
 export class BootstrapService {
-  private logger = new Logger(BootstrapService.name)
-
-  constructor(private clientService: ClientService) {}
+  constructor(
+    private clientService: ClientService,
+    private logger: LoggerService
+  ) {}
 
   async boot(): Promise<void> {
     this.logger.log('Start app bootstrap')

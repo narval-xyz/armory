@@ -1,6 +1,7 @@
 import { ConfigService } from '@narval/config-module'
 import { generateKeyEncryptionKey, generateMasterKey } from '@narval/encryption-module'
-import { Injectable, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Injectable } from '@nestjs/common'
 import { Config } from '../../../policy-engine.config'
 import { Engine } from '../../../shared/type/domain.type'
 import { ProvisionException } from '../exception/provision.exception'
@@ -8,8 +9,6 @@ import { EngineService } from './engine.service'
 
 @Injectable()
 export class ProvisionService {
-  private logger = new Logger(ProvisionService.name)
-
   // IMPORTANT: The provision service establishes encryption. Therefore, you
   // cannot have dependencies that rely on encryption to function. If you do,
   // you'll ran into an error due to a missing keyring.
@@ -17,7 +16,8 @@ export class ProvisionService {
   // BootstrapService.
   constructor(
     private configService: ConfigService<Config>,
-    private engineService: EngineService
+    private engineService: EngineService,
+    private logger: LoggerService
   ) {}
 
   // NOTE: The `adminApiKeyHash` argument is for test convinience in case it

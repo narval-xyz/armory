@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -50,6 +51,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
