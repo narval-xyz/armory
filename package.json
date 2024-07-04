@@ -133,10 +133,10 @@
     "winston-transport": "4.7.0",
     "zod": "3.23.8"
   },
-  "optionalDependencies": {
-    "@narval-xyz/blockdaemon-tsm": "0.0.2"
-  },
   "nx": {
     "includedScripts": []
+  },
+  "optionalDependencies": {
+    "@narval-xyz/armory-mpc-module": "0.0.1"
   }
 }
