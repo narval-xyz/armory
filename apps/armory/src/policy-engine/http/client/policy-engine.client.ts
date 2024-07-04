@@ -1,3 +1,4 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import {
   CreateClient,
   EvaluationRequest,
@@ -6,7 +7,7 @@ import {
   SerializedEvaluationRequest
 } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
@@ -14,9 +15,10 @@ export class PolicyEngineClientException extends ApplicationException {}
 
 @Injectable()
 export class PolicyEngineClient {
-  private logger = new Logger(PolicyEngineClient.name)
-
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private logger: LoggerService
+  ) {}
 
   async evaluate(option: {
     host: string
@@ -29,7 +31,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/evaluations`,
+          url: `${option.host}/v1/evaluations`,
           method: 'POST',
           data: SerializedEvaluationRequest.parse(option.data),
           headers: this.getHeaders(option)
@@ -68,7 +70,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/clients`,
+          url: `${option.host}/v1/clients`,
           method: 'POST',
           data: option.data,
           headers: {
@@ -104,7 +106,7 @@ export class PolicyEngineClient {
     return lastValueFrom(
       this.httpService
         .request({
-          url: `${option.host}/clients/sync`,
+          url: `${option.host}/v1/clients/sync`,
           method: 'POST',
           headers: {
             ...this.getHeaders(option)

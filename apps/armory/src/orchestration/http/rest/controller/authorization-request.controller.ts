@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, NotFoundException, Param, Post, VERSION_NEUTRAL } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ApiClientIdGuard } from '../../../../shared/decorator/api-client-id-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -8,7 +8,10 @@ import { AuthorizationRequestDto } from '../../../http/rest/dto/authorization-re
 import { AuthorizationResponseDto } from '../../../http/rest/dto/authorization-response.dto'
 import { toCreateAuthorizationRequest } from '../../../http/rest/util'
 
-@Controller('/authorization-requests')
+@Controller({
+  path: '/authorization-requests',
+  version: VERSION_NEUTRAL
+})
 @ApiTags('Authorization')
 export class AuthorizationRequestController {
   constructor(private authorizationRequestService: AuthorizationRequestService) {}

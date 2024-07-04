@@ -1,7 +1,8 @@
 import { BlockdaemonTsmService } from '@narval-xyz/blockdaemon-tsm'
 import { ConfigService } from '@narval/config-module'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Alg, Hex, PublicKey, eip191Hash, hexToBase64Url, publicKeyToJwk } from '@narval/signature'
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { toHex } from 'viem'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -19,8 +20,6 @@ const wrapTsmException = (message: string, e: Error) => {
 
 @Injectable()
 export class MpcSigningService implements SigningService {
-  private logger = new Logger(MpcSigningService.name)
-
   private url: string
 
   private apiKey: string
@@ -31,7 +30,8 @@ export class MpcSigningService implements SigningService {
 
   constructor(
     @Inject(ConfigService) private configService: ConfigService<Config>,
-    blockdaemonService: BlockdaemonTsmService
+    blockdaemonService: BlockdaemonTsmService,
+    private logger: LoggerService
   ) {
     const tsm = this.configService.get('tsm')
 

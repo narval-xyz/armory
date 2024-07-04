@@ -1,15 +1,15 @@
 import { EncryptionService } from '@narval/encryption-module'
-import { Injectable, Logger } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Injectable } from '@nestjs/common'
 import { BootstrapException } from '../exception/bootstrap.exception'
 import { ClientService } from './client.service'
 
 @Injectable()
 export class BootstrapService {
-  private logger = new Logger(BootstrapService.name)
-
   constructor(
     private clientService: ClientService,
-    private encryptionService: EncryptionService
+    private encryptionService: EncryptionService,
+    private logger: LoggerService
   ) {}
 
   async boot(): Promise<void> {

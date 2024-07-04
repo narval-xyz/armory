@@ -1,5 +1,6 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { Jwk, RsaKey, hash, rsaEncrypt } from '@narval/signature'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { HDKey } from '@scure/bip32'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
@@ -27,13 +28,12 @@ type GenerateArgs = {
 
 @Injectable()
 export class KeyGenerationService {
-  private logger = new Logger(KeyGenerationService.name)
-
   constructor(
     private accountRepository: AccountRepository,
     private rootKeyRepository: RootKeyRepository,
     private backupRepository: BackupRepository,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private logger: LoggerService
   ) {}
 
   async #maybeEncryptAndSaveBackup(
