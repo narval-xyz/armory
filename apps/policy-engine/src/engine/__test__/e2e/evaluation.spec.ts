@@ -175,7 +175,7 @@ describe('Evaluation', () => {
       },
       {
         action: Action.SIGN_USER_OPERATION,
-        getPayload: () => generateSignUserOperationRequest()
+        getPayload: () => SerializedEvaluationRequest.parse(request)
       }
     ]
 
