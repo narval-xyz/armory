@@ -8,7 +8,7 @@ import { Config } from '../../../../policy-engine.config'
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
   constructor(
     @Inject(ConfigService) configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {
     const url = configService.get('database.url')
 

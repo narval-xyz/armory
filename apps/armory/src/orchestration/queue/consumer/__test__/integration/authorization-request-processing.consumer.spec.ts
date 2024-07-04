@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -91,7 +91,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
-        LoggerModule,
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
@@ -125,10 +125,6 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         {
           provide: FeedService,
           useValue: mock<FeedService>()
-        },
-        {
-          provide: LoggerService,
-          useClass: NullLoggerService
         }
       ]
     }).compile()

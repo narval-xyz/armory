@@ -18,7 +18,7 @@ import { AuthorizationRequestService } from '../../core/service/authorization-re
 export class AuthorizationRequestProcessingConsumer {
   constructor(
     private authzService: AuthorizationRequestService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   @Process()

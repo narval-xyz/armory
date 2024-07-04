@@ -18,7 +18,7 @@ export class EncryptionModuleOptionFactory {
   constructor(
     private engineService: EngineService,
     private configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async create(): Promise<EncryptionModuleOption> {

@@ -9,7 +9,7 @@ export class BootstrapService {
   constructor(
     private clientService: ClientService,
     private encryptionService: EncryptionService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async boot(): Promise<void> {

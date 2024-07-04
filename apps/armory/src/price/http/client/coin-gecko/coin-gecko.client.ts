@@ -11,7 +11,7 @@ import { CoinList, SimplePrice, SimplePriceOption } from './coin-gecko.type'
 export class CoinGeckoClient {
   constructor(
     private httpService: HttpService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   static AUTH_HEADER = 'x-cg-pro-api-key'

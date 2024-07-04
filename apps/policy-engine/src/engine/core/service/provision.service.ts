@@ -17,7 +17,7 @@ export class ProvisionService {
   constructor(
     private configService: ConfigService<Config>,
     private engineService: EngineService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   // NOTE: The `adminApiKeyHash` argument is for test convinience in case it

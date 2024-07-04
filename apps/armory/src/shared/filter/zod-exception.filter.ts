@@ -10,7 +10,7 @@ import { Config, Env } from '../../armory.config'
 export class ZodExceptionFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   catch(exception: ZodError, host: ArgumentsHost) {

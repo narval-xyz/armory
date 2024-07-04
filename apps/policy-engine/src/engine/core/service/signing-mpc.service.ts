@@ -31,7 +31,7 @@ export class MpcSigningService implements SigningService {
   constructor(
     @Inject(ConfigService) private configService: ConfigService<Config>,
     blockdaemonService: BlockdaemonTsmService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {
     const tsm = this.configService.get('tsm')
 

@@ -30,7 +30,7 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
     @InjectQueue(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
     private processingQueue: Queue<AuthorizationRequestProcessingJob>,
     private authzRequestRepository: AuthorizationRequestRepository,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async add(authzRequest: AuthorizationRequest): Promise<Job<AuthorizationRequestProcessingJob>> {

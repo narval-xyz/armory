@@ -8,7 +8,7 @@ import { Config } from '../../../../armory.config'
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
   constructor(
     configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {
     super({
       datasources: {

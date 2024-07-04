@@ -7,7 +7,7 @@ import { SeedService } from './seed.service'
 export class SeederService {
   constructor(
     @Inject(ModulesContainer) private modulesContainer: ModulesContainer,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async seed() {

@@ -46,7 +46,7 @@ export class AuthorizationRequestService {
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
     private clusterService: ClusterService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {

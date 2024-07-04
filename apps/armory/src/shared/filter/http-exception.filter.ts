@@ -8,7 +8,7 @@ import { Config, Env } from '../../armory.config'
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {

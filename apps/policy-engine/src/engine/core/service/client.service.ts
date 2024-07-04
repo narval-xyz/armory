@@ -15,7 +15,7 @@ export class ClientService {
     private clientRepository: ClientRepository,
     private dataStoreService: DataStoreService,
     @Inject('SigningService') private signingService: SigningService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async findById(clientId: string): Promise<Client | null> {

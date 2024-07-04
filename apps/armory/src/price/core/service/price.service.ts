@@ -18,7 +18,7 @@ export class PriceService {
   constructor(
     private coinGeckoClient: CoinGeckoClient,
     private coinGeckoAssetRepository: CoinGeckoAssetRepository,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async getPrices(options: GetPricesOption): Promise<Prices> {

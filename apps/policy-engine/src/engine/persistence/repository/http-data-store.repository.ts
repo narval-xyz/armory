@@ -13,7 +13,7 @@ const MAX_RETRIES = 3
 export class HttpDataStoreRepository implements DataStoreRepository {
   constructor(
     private httpService: HttpService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   fetch<Data>(source: HttpSource): Promise<Data> {

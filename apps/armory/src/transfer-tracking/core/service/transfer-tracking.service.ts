@@ -7,7 +7,7 @@ import { TransferRepository } from '../../../transfer-tracking/persistence/repos
 export class TransferTrackingService {
   constructor(
     private transferFeedRepository: TransferRepository,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   track(transfer: CreateTransfer): Promise<Transfer> {

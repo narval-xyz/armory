@@ -5,7 +5,7 @@ import { ApiTags } from '@nestjs/swagger'
 @Controller()
 @ApiTags('Application')
 export class AppController {
-  constructor(private readonly logger: LoggerService) {}
+  constructor(private logger: LoggerService) {}
 
   @Get()
   healthcheck() {

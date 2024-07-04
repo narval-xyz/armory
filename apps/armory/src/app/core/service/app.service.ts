@@ -12,7 +12,7 @@ export class AppService {
   constructor(
     private appRepository: AppRepository,
     private configService: ConfigService<Config>,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async getAppOrThrow(): Promise<App> {

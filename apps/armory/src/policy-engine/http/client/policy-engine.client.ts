@@ -17,7 +17,7 @@ export class PolicyEngineClientException extends ApplicationException {}
 export class PolicyEngineClient {
   constructor(
     private httpService: HttpService,
-    private readonly logger: LoggerService
+    private logger: LoggerService
   ) {}
 
   async evaluate(option: {
