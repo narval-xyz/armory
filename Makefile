@@ -103,10 +103,8 @@ docker/stack/up:
 docker/stack/stop:
 	docker-compose stop
 
-# Builds the
 docker/stack/build:
-	docker buildx build \
-		--platform linux/arm64 \
+	docker build \
 		--file local.dockerfile \
 		--tag armory/local:latest \
 		. --load
