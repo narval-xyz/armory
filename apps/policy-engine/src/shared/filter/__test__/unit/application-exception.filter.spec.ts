@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
-import { ArgumentsHost, HttpStatus, Logger } from '@nestjs/common'
+import { ArgumentsHost, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Response } from 'express'
 import { mock } from 'jest-mock-extended'
@@ -49,8 +49,6 @@ describe(ApplicationExceptionFilter.name, () => {
   const loggerMock = mock<LoggerService>(new NullLoggerService())
 
   describe('catch', () => {
-    Logger.overrideLogger([])
-
     describe('when environment is production', () => {
       it('responds with exception status and short message', () => {
         const filter = new ApplicationExceptionFilter(buildConfigServiceMock(Env.PRODUCTION), loggerMock)
