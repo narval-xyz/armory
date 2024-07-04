@@ -4,7 +4,7 @@ import { LoggerService } from '../module/logger/service/logger.service'
 
 @Injectable()
 export class HttpLoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: LoggerService) {}
+  constructor(private logger: LoggerService) {}
 
   use(request: Request, response: Response, next: NextFunction): void {
     const { method, originalUrl: path } = request
