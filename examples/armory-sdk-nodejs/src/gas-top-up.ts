@@ -12,7 +12,9 @@ import {
 } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerEip191, jwkSchema, privateKeyToJwk } from '@narval/signature'
 import { v4 as uuid } from 'uuid'
+import { createPublicClient, http } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
+import { polygon } from 'viem/chains'
 
 const CHAIN_ID = 137
 const TOKEN_ID = 'eip155:137/slip44:966'
@@ -23,14 +25,13 @@ const MONITORED_ADDRESS = '0x9d432a09cbf55f22aa6a2e290acb12d57d29b2fc'
 const GAS_STATION_ACCOUNT_ID = `eip155:eoa:${GAS_STATION_ADDRESS}`
 const MONITORED_ACCOUNT_ID = `eip155:${CHAIN_ID}:${MONITORED_ADDRESS}`
 
-const NONCE = 17
 const GAS = BigInt(22000)
 const MAX_FEE_PER_GAS = BigInt(291175227375)
 const MAX_PRIORITY_FEE_PER_GAS = BigInt(81000000000)
 
 const MAX_AMOUNT_PER_TRANSACTION = BigInt(1000000000000000) // 0.001
-const DAILY_SPENDING_LIMIT = BigInt(10000000000000000) // 0.01
-const MAX_DAILY_TRANSACTIONS = 20
+const DAILY_SPENDING_LIMIT = BigInt(3000000000000000) // 0.003
+const MAX_DAILY_TRANSACTIONS = 5
 
 // copy/paste the policies below to the devtool UI. Sign and push to sync the engine with the new policies.
 
@@ -85,7 +86,7 @@ const policies: Policy[] = [
       {
         criterion: 'checkSpendingLimit',
         args: {
-          limit: DAILY_SPENDING_LIMIT.toString(), // 0.01 MATIC
+          limit: DAILY_SPENDING_LIMIT.toString(),
           operator: ValueOperators.LESS_THAN_OR_EQUAL,
           timeWindow: {
             type: 'fixed',
@@ -109,7 +110,7 @@ const policies: Policy[] = [
       {
         criterion: 'checkSpendingLimit',
         args: {
-          limit: '10000000000000000', // 0.01 MATIC
+          limit: DAILY_SPENDING_LIMIT.toString(),
           operator: ValueOperators.GREATER_THAN,
           timeWindow: {
             type: 'fixed',
@@ -138,9 +139,14 @@ const policies: Policy[] = [
   }
 ]
 
-console.log(JSON.stringify(policies, null, 2))
+// console.log(JSON.stringify(policies, null, 2))
 
 const main = async () => {
+  const client = createPublicClient({
+    chain: polygon,
+    transport: http()
+  })
+
   const signerPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
   const signerAddress = privateKeyToAddress(signerPrivateKey)
   const signerJwk = jwkSchema.parse({
@@ -170,6 +176,7 @@ const main = async () => {
 
   try {
     // Evaluate the transaction
+    const nonce = await client.getTransactionCount({ address: GAS_STATION_ADDRESS })
 
     const evaluation = await authClient.evaluate({
       request: {
@@ -178,7 +185,7 @@ const main = async () => {
         resourceId: GAS_STATION_ACCOUNT_ID,
         transactionRequest: {
           type: '2',
-          nonce: NONCE,
+          nonce,
           chainId: CHAIN_ID,
           from: GAS_STATION_ADDRESS,
           to: MONITORED_ADDRESS,

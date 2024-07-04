@@ -38,7 +38,7 @@ calculateCurrentRate(params) = result {
 		checkTransferCondition(transfer.initiatedBy, filters.users)
 
 		# filter by resource accounts
-		checkTransferCondition(transfer.from, filters.resources)
+		checkTransferCondition(transfer.resourceId, filters.resources)
 
 		# filter by destination accounts
 		checkTransferCondition(transfer.to, filters.destinations)

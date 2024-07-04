@@ -125,6 +125,7 @@ model EvaluationLog {
 
 model ApprovedTransfer {
   id          String   @id @default(uuid()) @db.VarChar(255)
+  resourceId  String   @map("resource_id")
   clientId    String   @map("client_id")
   requestId   String   @map("request_id")
   chainId     Int      @map("chain_id")

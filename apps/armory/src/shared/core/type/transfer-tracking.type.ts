@@ -1,9 +1,9 @@
-import { AccountId, AssetId } from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Price } from './price.type'
 
 export type Transfer = {
   id: string
+  resourceId: string
   clientId: string
   requestId: string
   amount: bigint

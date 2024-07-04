@@ -73,6 +73,7 @@ feedsReq = [
 		"data": [
 			{
 				"amount": "200000000000000000", # 0.2 USDC
+				"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -83,6 +84,7 @@ feedsReq = [
 			},
 			{
 				"amount": "200000000000000000",  # 0.2 USDC
+				"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -93,6 +95,7 @@ feedsReq = [
 			},
 			{
 				"amount": "200000000000000000",  # 0.2 USDC
+				"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",

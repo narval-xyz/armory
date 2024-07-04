@@ -8,6 +8,7 @@ import { addressGenerator, chainIdGenerator } from './shared.fixture'
 
 const transferFeedSchema = z.object({
   id: z.string().uuid(),
+  resourceId: z.string(),
   clientId: z.string().uuid(),
   requestId: z.string().uuid(),
   amount: z.bigint(),

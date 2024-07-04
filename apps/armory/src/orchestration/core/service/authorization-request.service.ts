@@ -162,6 +162,7 @@ export class AuthorizationRequestService {
         })
 
         const transfer = {
+          resourceId: authzRequest.request.resourceId,
           clientId: authzRequest.clientId,
           requestId: authzRequest.id,
           from: intent.from,
