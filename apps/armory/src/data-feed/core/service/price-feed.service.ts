@@ -6,7 +6,6 @@ import { Injectable } from '@nestjs/common'
 import { uniq } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
-import { FIAT_ID_USD } from '../../../armory.constant'
 import { PriceService } from '../../../price/core/service/price.service'
 import { getChain } from '../../../shared/core/lib/chains.lib'
 import { Prices } from '../../../shared/core/type/price.type'
@@ -61,10 +60,14 @@ export class PriceFeedService implements DataFeed<Prices> {
   async getFeed(input: AuthorizationRequest): Promise<Feed<Prices>> {
     // TODO (@wcalderipe, 01/02/2024): De-risk the price values by taking a
     // median of multiple sources.
-    const prices = await this.priceService.getPrices({
-      from: this.getAssetIds(input),
-      to: [FIAT_ID_USD]
-    })
+
+    // TODO: (@samteb, 04/07/24) Disable prices for now because it adds dependency on coingecko
+    // const prices = await this.priceService.getPrices({
+    //   from: this.getAssetIds(input),
+    //   to: [FIAT_ID_USD]
+    // })
+
+    const prices = {}
     const sig = await this.sign(prices)
 
     return {

@@ -10,7 +10,7 @@ import {
 import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
-import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
+import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS } from '../../../armory.constant'
 import { FeedService } from '../../../data-feed/core/service/feed.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
@@ -155,11 +155,14 @@ export class AuthorizationRequestService {
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
       const intent = evaluation.transactionRequestIntent as Intent
+
       if (intent && (Intents.TRANSFER_NATIVE === intent.type || Intents.TRANSFER_ERC20 === intent.type)) {
-        const transferPrices = await this.priceService.getPrices({
-          from: [intent.token],
-          to: [FIAT_ID_USD]
-        })
+        // TODO: (@samteb, 04/07/24) Disable prices for now because it adds dependency on coingecko
+
+        // const transferPrices = await this.priceService.getPrices({
+        //   from: [intent.token],
+        //   to: [FIAT_ID_USD]
+        // })
 
         const transfer = {
           resourceId: authzRequest.request.resourceId,
@@ -174,7 +177,7 @@ export class AuthorizationRequestService {
           initiatedBy: authzRequest.authentication,
           createdAt: new Date(),
           amount: BigInt(intent.amount),
-          rates: transferPrices[intent.token] || {}
+          rates: {}
         }
 
         await this.transferTrackingService.track(transfer)
