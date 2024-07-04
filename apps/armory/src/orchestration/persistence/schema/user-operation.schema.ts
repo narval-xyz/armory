@@ -1,7 +1,6 @@
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
-
 export const readUserOperationSchema = z.object({
   sender: addressSchema,
   nonce: z.coerce.number(),
@@ -16,7 +15,7 @@ export const readUserOperationSchema = z.object({
   entryPoint: addressSchema,
   signature: hexSchema,
   factoryAddress: addressSchema,
-  chainId: z.string(),
+  chainId: z.string()
 })
 
 export const createUserOperationSchema = readUserOperationSchema

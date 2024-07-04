@@ -65,7 +65,7 @@ export const UserOperationV6 = z.object({
   entryPoint: addressSchema,
   signature: hexSchema,
   factoryAddress: addressSchema,
-  chainId: z.coerce.string(),
+  chainId: z.coerce.string()
   // TODO: determine what should be part of the user operation and what is a metadata (chainId, factoryAddress, signature, entrypoint)
 })
 export type UserOperationV6 = z.infer<typeof UserOperationV6>
@@ -113,7 +113,7 @@ export const SignUserOperationAction = BaseAction.merge(
   z.object({
     action: z.literal(Action.SIGN_USER_OPERATION),
     resourceId: z.string(),
-    userOperation: UserOperationV6,
+    userOperation: UserOperationV6
   })
 )
 export type SignUserOperationAction = z.infer<typeof SignUserOperationAction>
@@ -124,7 +124,7 @@ export const SerializedUserOperationV6 = UserOperationV6.extend({
   callGasLimit: z.coerce.string(),
   verificationGasLimit: z.coerce.string(),
   preVerificationGas: z.coerce.string(),
-  nonce: z.coerce.string(),
+  nonce: z.coerce.string()
 })
 export type SerializedUserOperationV6 = z.infer<typeof SerializedUserOperationV6>
 
@@ -191,7 +191,13 @@ export const GrantPermissionAction = BaseAction.merge(
 )
 export type GrantPermissionAction = z.infer<typeof GrantPermissionAction>
 
-export const SignableRequest = z.union([SignTransactionAction, SignMessageAction, SignTypedDataAction, SignUserOperationAction, SignRawAction])
+export const SignableRequest = z.union([
+  SignTransactionAction,
+  SignMessageAction,
+  SignTypedDataAction,
+  SignUserOperationAction,
+  SignRawAction
+])
 export type SignableRequest = z.infer<typeof SignableRequest>
 
 export const SerializedSignableRequest = z.union([
@@ -199,6 +205,6 @@ export const SerializedSignableRequest = z.union([
   SignMessageAction,
   SignTypedDataAction,
   SignRawAction,
-  SerializedUserOperationAction,
+  SerializedUserOperationAction
 ])
 export type SerializedSignableRequest = z.infer<typeof SerializedSignableRequest>

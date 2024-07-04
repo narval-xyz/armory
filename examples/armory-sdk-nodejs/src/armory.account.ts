@@ -1,20 +1,29 @@
-import { AuthClient, AuthConfig, DataStoreConfig, EntityStoreClient, PolicyStoreClient, VaultClient, VaultConfig, resourceId } from '@narval/armory-sdk'
-import { Action, Address, Eip712TypedData, Hex, Request, TransactionRequest, toHex } from '@narval/policy-engine-shared'
-import { toAccount } from 'viem/accounts'
+import {
+  AuthClient,
+  AuthConfig,
+  DataStoreConfig,
+  EntityStoreClient,
+  PolicyStoreClient,
+  VaultClient,
+  VaultConfig,
+  resourceId
+} from '@narval/armory-sdk'
+import { Action, Address, Eip712TypedData, Request, TransactionRequest, toHex } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
+import { toAccount } from 'viem/accounts'
 
 export type Sdk = {
-  authClient: AuthClient,
-  vaultClient: VaultClient,
-  entityStoreClient: EntityStoreClient,
+  authClient: AuthClient
+  vaultClient: VaultClient
+  entityStoreClient: EntityStoreClient
   policyStoreClient: PolicyStoreClient
 }
 
 export const armoryClient = (configs: {
-  auth: AuthConfig,
+  auth: AuthConfig
   vault: VaultConfig
-  entityStore: DataStoreConfig,
-  policyStore: DataStoreConfig,
+  entityStore: DataStoreConfig
+  policyStore: DataStoreConfig
 }): Sdk => {
   const authClient = new AuthClient(configs.auth)
   const vaultClient = new VaultClient(configs.vault)
@@ -29,13 +38,15 @@ export const armoryClient = (configs: {
   }
 }
 
-export const armoryUserOperationSigner = ({ authClient, vaultClient }: { authClient: AuthClient, vaultClient: VaultClient }, address: Address) => {
+export const armoryUserOperationSigner = (
+  { authClient, vaultClient }: { authClient: AuthClient; vaultClient: VaultClient },
+  address: Address
+) => {
   const account = toAccount({
     address,
 
     signMessage: async ({ message }) => {
       if (typeof message !== 'string') {
-
         const request: Request = {
           action: Action.SIGN_RAW,
           rawMessage: typeof message.raw === 'string' ? message.raw : toHex(message.raw),
@@ -44,7 +55,7 @@ export const armoryUserOperationSigner = ({ authClient, vaultClient }: { authCli
         }
 
         const accessToken = await authClient.requestAccessToken(request, {
-          id: v4(),
+          id: v4()
         })
 
         const { signature } = await vaultClient.sign({ data: request, accessToken })
@@ -59,9 +70,9 @@ export const armoryUserOperationSigner = ({ authClient, vaultClient }: { authCli
       }
 
       const accessToken = await authClient.requestAccessToken(request, {
-        id: v4(),
+        id: v4()
       })
-      
+
       const { signature } = await vaultClient.sign({ data: request, accessToken })
       return signature
     },
@@ -76,7 +87,7 @@ export const armoryUserOperationSigner = ({ authClient, vaultClient }: { authCli
       }
 
       const accessToken = await authClient.requestAccessToken(request, {
-        id: v4(),
+        id: v4()
       })
 
       const { signature } = await vaultClient.sign({ data: request, accessToken })
@@ -94,12 +105,12 @@ export const armoryUserOperationSigner = ({ authClient, vaultClient }: { authCli
       }
 
       const accessToken = await authClient.requestAccessToken(request, {
-        id: v4(),
+        id: v4()
       })
 
       const { signature } = await vaultClient.sign({ data: request, accessToken })
       return signature
-    },
+    }
   })
 
   return account

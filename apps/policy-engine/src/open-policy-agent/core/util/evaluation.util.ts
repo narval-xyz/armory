@@ -14,16 +14,11 @@ import {
   SignTypedDataAction,
   SignUserOperationAction
 } from '@narval/policy-engine-shared'
-import { InputType, Intents, SUPPORTED_METHODS, SupportedMethodId, safeDecode } from '@narval/transaction-request-intent'
+import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
-import { Abi, Hex, encodeAbiParameters, encodeFunctionData } from 'viem'
-import { getUserOperationHash } from "permissionless/utils"
-import { EntryPoint } from "permissionless/types"
-import { Alg } from '@narval/signature'
-
 
 type Mapping<R extends Request> = (
   request: R,
@@ -33,7 +28,7 @@ type Mapping<R extends Request> = (
 ) => Input
 
 const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
-  const { chainId, entryPoint, ...userOpToBeHashed} = request.userOperation
+  const { chainId, entryPoint, ...userOpToBeHashed } = request.userOperation
 
   const result = safeDecode({
     input: {
@@ -42,7 +37,7 @@ const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principa
         from: request.userOperation.sender,
         chainId: +chainId,
         data: request.userOperation.callData,
-        to: entryPoint,
+        to: entryPoint
       }
     }
   })

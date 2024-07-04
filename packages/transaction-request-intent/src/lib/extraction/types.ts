@@ -81,7 +81,6 @@ export type UserOp = {
   signature: Hex
 }
 
-
 export type NullHexParams = Record<string, never>
 
 export type ExtractedParams =

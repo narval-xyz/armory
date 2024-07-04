@@ -1,12 +1,12 @@
-import { Address, assertAddress, assertHexString } from '@narval/policy-engine-shared'
-import { Hex, encodeFunctionData, toHex } from 'viem'
+import { Address } from '@narval/policy-engine-shared'
+import { Hex, toHex } from 'viem'
 import { ContractCallInput, InputType, Intents } from '../../../domain'
 import { DecoderError } from '../../../error'
 import { ExecuteAndRevertParams, ExecuteParams } from '../../../extraction/types'
 import { Intent, UserOperation } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { getMethodId, toAccountIdLowerCase } from '../../../utils'
+import { toAccountIdLowerCase } from '../../../utils'
 import { decode } from '../../decode'
 import { extract } from '../../utils'
 
@@ -40,13 +40,8 @@ const decodeExecuteAndRevert = (
   chainId: number,
   supportedMethods: MethodsMapping
 ): Intent => {
-  const params = extract(
-    supportedMethods,
-    callData,
-    SupportedMethodId.EXECUTE_AND_REVERT
-  ) as ExecuteAndRevertParams
+  const params = extract(supportedMethods, callData, SupportedMethodId.EXECUTE_AND_REVERT) as ExecuteAndRevertParams
   const { to, value, data } = params
-
 
   return decode({
     input: {
@@ -73,11 +68,10 @@ export const decodeUserOperation = (input: ContractCallInput, supportedMethods: 
   }
 
   const intents: Intent[] = []
-  
+
   if (methodId === SupportedMethodId.EXECUTE) {
     intents.push(decodeExecute(data, from, chainId, supportedMethods))
-  }
-  else if (methodId === SupportedMethodId.EXECUTE_AND_REVERT) {
+  } else if (methodId === SupportedMethodId.EXECUTE_AND_REVERT) {
     intents.push(decodeExecuteAndRevert(data, from, chainId, supportedMethods))
   }
   // TODO: Support ExecuteBatchV6 and ExecuteBatchV7 here
@@ -85,6 +79,6 @@ export const decodeUserOperation = (input: ContractCallInput, supportedMethods: 
     type: Intents.USER_OPERATION,
     from: toAccountIdLowerCase({ chainId, address: from }),
     entrypoint: toAccountIdLowerCase({ chainId, address: to }),
-    operationIntents: intents,
+    operationIntents: intents
   }
 }

@@ -1,4 +1,5 @@
 import { assertAddress, assertArray, assertBigInt, assertHexString } from '@narval/policy-engine-shared'
+import { Hex } from 'viem'
 import { DecoderError } from '../error'
 import {
   ApproveAllowanceParams,
@@ -15,7 +16,6 @@ import {
   TransferParams,
   UserOp
 } from './types'
-import { Hex } from 'viem'
 
 export const TransferParamsTransform = (params: unknown[]): TransferParams => {
   const recipient = assertHexString(params[0])
@@ -115,7 +115,7 @@ export const ExecuteParamsTransform = (params: unknown[]): ExecuteParams => {
 
 export const ExecuteBatchV6ParamsTransform = (params: unknown[]): ExecuteBatchV6Params => {
   const to = assertArray<Hex>(params[0], 'hex')
-  const data = assertArray<Hex>(params[1], 'hex') 
+  const data = assertArray<Hex>(params[1], 'hex')
 
   if (!to || !data) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
@@ -124,11 +124,10 @@ export const ExecuteBatchV6ParamsTransform = (params: unknown[]): ExecuteBatchV6
   return { to, data }
 }
 
-
 export const ExecuteBatchV7ParamsTransform = (params: unknown[]): ExecuteBatchV7Params => {
   const to = assertArray<Hex>(params[0], 'hex')
   const value = assertArray<bigint>(params[1], 'bigint')
-  const data = assertArray<Hex>(params[2], 'hex') 
+  const data = assertArray<Hex>(params[2], 'hex')
 
   if (!to || !value || !data) {
     throw new DecoderError({ message: 'Invalid parameters', status: 400 })
@@ -136,7 +135,6 @@ export const ExecuteBatchV7ParamsTransform = (params: unknown[]): ExecuteBatchV7
 
   return { to, value, data }
 }
-
 
 export const ExecuteAndRevertParamsTransform = (params: unknown[]): ExecuteAndRevertParams => {
   const to = assertHexString(params[0])

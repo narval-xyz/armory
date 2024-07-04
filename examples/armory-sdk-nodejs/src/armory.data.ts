@@ -1,10 +1,15 @@
-import { AuthClient, EntityStoreClient, Permission, PolicyStoreClient, VaultClient, credential, resourceId } from "@narval/armory-sdk";
-import { AccountEntity, AccountType, Action, Criterion, Entities, EntityData, Policy, Then, UserEntity, UserRole } from "@narval/policy-engine-shared";
-import { Hex, getPublicKey, privateKeyToJwk } from "@narval/signature";
-import { v4 } from "uuid";
-import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
-import { InputType, Intents, SUPPORTED_METHODS, SupportedMethodId, safeDecode } from '@narval/transaction-request-intent'
-
+import {
+  AuthClient,
+  EntityStoreClient,
+  Permission,
+  PolicyStoreClient,
+  VaultClient,
+  credential
+} from '@narval/armory-sdk'
+import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
+import { Hex, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { Intents } from '@narval/transaction-request-intent'
+import { v4 } from 'uuid'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
   const policies: Policy[] = [
@@ -42,30 +47,33 @@ const setEntities = async (entityStoreClient: EntityStoreClient, ROOT_USER_CRED:
   const user: UserEntity = {
     id: v4(),
     role: UserRole.ADMIN
-  }  
+  }
 
   const userAccount = privateKeyToJwk(ROOT_USER_CRED)
   const userPublicKey = getPublicKey(userAccount)
 
   const entities: Partial<Entities> = {
     users: [user],
-    credentials: [credential(user, userPublicKey)],
+    credentials: [credential(user, userPublicKey)]
   }
 
   await entityStoreClient.signAndPush(entities)
 }
 
-export const setInitialState = async ({
-  entityStoreClient,
-  policyStoreClient,
-  authClient,
-  vaultClient,
-}: {
-  entityStoreClient: EntityStoreClient,
-  policyStoreClient: PolicyStoreClient,
-  authClient: AuthClient,
-  vaultClient: VaultClient,
-}, ROOT_USER_CRED: Hex) => {
+export const setInitialState = async (
+  {
+    entityStoreClient,
+    policyStoreClient,
+    authClient,
+    vaultClient
+  }: {
+    entityStoreClient: EntityStoreClient
+    policyStoreClient: PolicyStoreClient
+    authClient: AuthClient
+    vaultClient: VaultClient
+  },
+  ROOT_USER_CRED: Hex
+) => {
   await setPolicies(policyStoreClient)
   await setEntities(entityStoreClient, ROOT_USER_CRED)
 

@@ -10,6 +10,8 @@ import {
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { EntryPoint } from 'permissionless/types'
+import { getUserOperationHash } from 'permissionless/utils'
 import {
   TransactionRequest,
   checksumAddress,
@@ -26,9 +28,6 @@ import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { NonceService } from './nonce.service'
-import { getUserOperationHash } from "permissionless/utils"
-import { EntryPoint } from "permissionless/types"
-import { getChainId, signMessage } from "viem/actions"
 
 @Injectable()
 export class SigningService {
@@ -61,17 +60,19 @@ export class SigningService {
     const { userOperation, resourceId } = action
     const client = await this.buildClient(clientId, resourceId)
 
-    const { chainId, entryPoint, factoryAddress, ...userOpToBeHashed} = action.userOperation
+    const { chainId, entryPoint, factoryAddress: _factoryAddress, ...userOpToBeHashed } = userOperation
 
     const userOpHash = getUserOperationHash({
       chainId: +chainId,
       entryPoint: entryPoint as EntryPoint,
-      userOperation: userOpToBeHashed,
+      userOperation: userOpToBeHashed
     })
 
-    const signature = await client.signMessage({ message: {
-      raw: userOpHash
-    } })
+    const signature = await client.signMessage({
+      message: {
+        raw: userOpHash
+      }
+    })
 
     await this.maybeSaveNonce(clientId, action)
 
@@ -160,8 +161,6 @@ export class SigningService {
   private async findAccount(clientId: string, resourceId: string) {
     const account = await this.accountRepository.findById(clientId, resourceId)
 
-    const accounts = await this.accountRepository.findByClientId(clientId)
-    console.log('###accounts: ', accounts)
     if (!account) {
       throw new ApplicationException({
         message: 'Account not found',
