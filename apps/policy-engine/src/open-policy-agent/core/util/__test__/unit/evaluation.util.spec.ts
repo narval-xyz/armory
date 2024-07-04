@@ -3,6 +3,7 @@ import {
   EvaluationRequest,
   FIXTURE,
   GrantPermissionAction,
+  SerializedUserOperationV6,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
@@ -281,7 +282,7 @@ describe('toInput', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignUserOperationAction
 
-      expect(input.userOperation).toEqual(request.userOperation)
+      expect(input.userOperation).toEqual(SerializedUserOperationV6.parse(request.userOperation))
     })
   })
 })

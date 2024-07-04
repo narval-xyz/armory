@@ -35,7 +35,8 @@ import {
   generateSignRawRequest,
   generateSignTransactionRequest,
   generateSignTransactionRequestWithGas,
-  generateSignTypedDataRequest
+  generateSignTypedDataRequest,
+  generateSignUserOperationRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientService } from '../../core/service/client.service'
@@ -171,6 +172,10 @@ describe('Evaluation', () => {
       {
         action: Action.GRANT_PERMISSION,
         getPayload: () => generateGrantPermissionRequest()
+      },
+      {
+        action: Action.SIGN_USER_OPERATION,
+        getPayload: () => generateSignUserOperationRequest()
       }
     ]
 
