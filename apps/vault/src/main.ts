@@ -30,9 +30,9 @@ async function bootstrap() {
   // a temporary application for the provision step.
   await provision()
 
-  const logger = new LoggerService()
   const application = await NestFactory.create(MainModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
+  const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
@@ -45,7 +45,8 @@ async function bootstrap() {
       map(
         withSwagger({
           title: 'Vault',
-          description: 'The next generation of authorization for web3',
+          description:
+            'Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0',
           version: '1.0',
           security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
         })
@@ -56,7 +57,7 @@ async function bootstrap() {
     )
   )
 
-  logger.log(`App is running on port ${port}`)
+  logger.log(`Vault is running on port ${port}`)
 }
 
 bootstrap()

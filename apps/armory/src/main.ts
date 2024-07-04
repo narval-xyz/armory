@@ -10,8 +10,6 @@ import { ApplicationExceptionFilter } from './shared/filter/application-exceptio
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
 import { ZodExceptionFilter } from './shared/filter/zod-exception.filter'
 
-const logger = new LoggerService()
-
 /**
  * Adds global pipes to the application.
  *
@@ -44,7 +42,7 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
  * @returns The modified Nest application instance.
  */
 const withGlobalFilters =
-  (configService: ConfigService<Config>) =>
+  (configService: ConfigService<Config>, logger: LoggerService) =>
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(
       new ApplicationExceptionFilter(configService, logger),
@@ -64,6 +62,7 @@ const withGlobalFilters =
 async function bootstrap(): Promise<void> {
   const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
+  const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
@@ -76,14 +75,14 @@ async function bootstrap(): Promise<void> {
       map(
         withSwagger({
           title: 'Armory',
-          description: 'Armory is the most secure access management for web3',
+          description: 'Authentication and authorization system for web3.0',
           version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
       map(withGlobalPipes),
       map(withGlobalInterceptors),
-      map(withGlobalFilters(configService)),
+      map(withGlobalFilters(configService, logger)),
       map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
