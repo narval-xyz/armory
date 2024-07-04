@@ -1,5 +1,4 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { load } from '../armory.config'
@@ -19,8 +18,7 @@ const INFRASTRUCTURE_MODULES = [
     load: [load]
   }),
   HttpModule,
-  PersistenceModule,
-  LoggerModule
+  PersistenceModule
 ]
 
 const DOMAIN_MODULES = [ClientModule, PolicyEngineModule]

@@ -1,7 +1,6 @@
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
@@ -23,7 +22,6 @@ import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authori
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
 
 const INFRASTRUCTURE_MODULES = [
-  LoggerModule,
   ConfigModule.forRoot({ load: [load] }),
   HttpModule,
   PersistenceModule,

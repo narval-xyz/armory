@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { LoggerModule, LoggerService } from '@narval/nestjs-shared'
+import { LoggerService } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
 import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
@@ -33,12 +33,11 @@ import { VaultService } from './vault.service'
 
 @Module({
   imports: [
-    LoggerModule,
     HttpModule,
     PersistenceModule,
     forwardRef(() => KeyValueModule),
     EncryptionModule.registerAsync({
-      imports: [VaultModule, LoggerModule],
+      imports: [VaultModule],
       inject: [ConfigService, AppService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     }),

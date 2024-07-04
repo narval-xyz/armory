@@ -1,7 +1,8 @@
-import { DynamicModule, Module } from '@nestjs/common'
+import { DynamicModule, Global, Module } from '@nestjs/common'
 import { LoggerService } from './service/logger.service'
 import { NullLoggerService } from './service/null-logger.service'
 
+@Global()
 @Module({
   providers: [LoggerService],
   exports: [LoggerService]

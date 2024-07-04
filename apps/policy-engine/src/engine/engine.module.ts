@@ -28,7 +28,6 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
-    LoggerModule,
     HttpModule.forRoot(),
     KeyValueModule,
     EncryptionModule.registerAsync({

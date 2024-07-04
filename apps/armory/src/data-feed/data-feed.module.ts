@@ -1,4 +1,3 @@
-import { LoggerModule } from '@narval/nestjs-shared'
 import { Module } from '@nestjs/common'
 import { PriceModule } from '../price/price.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
@@ -8,7 +7,7 @@ import { FeedService } from './core/service/feed.service'
 import { PriceFeedService } from './core/service/price-feed.service'
 
 @Module({
-  imports: [PersistenceModule, PriceModule, TransferTrackingModule, LoggerModule],
+  imports: [PersistenceModule, PriceModule, TransferTrackingModule],
   providers: [FeedService, HistoricalTransferFeedService, PriceFeedService],
   exports: [FeedService]
 })

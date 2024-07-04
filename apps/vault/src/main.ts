@@ -20,7 +20,7 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
 }
 
 const provision = async () => {
-  const application = await NestFactory.createApplicationContext(ProvisionModule)
+  const application = await NestFactory.createApplicationContext(ProvisionModule, { bufferLogs: true })
 
   await application.close()
 }
