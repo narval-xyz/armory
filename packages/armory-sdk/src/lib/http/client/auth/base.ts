@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Armory
- * Authentication and authorization system for web3.0
+ * Armory is the most secure access management for web3  
  *
  * The version of the OpenAPI document: 1.0
  * 

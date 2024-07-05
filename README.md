@@ -87,11 +87,12 @@ make lint/check
 
 ## NPM
 
-The `.npmrc` file is needed to access a private registry for Font Awesome and
-the optional dependency `@narval-xyz/armory-mpc-module`.
+The `.npmrc` file is needed to access a private registry for the optional
+dependency `@narval-xyz/armory-mpc-module`.
 
 > [!IMPORTANT]
-> This file is NOT in git, but it's necessary for the build.
+> This file is NOT in git, but it's necessary for the build if you're using MPC
+> to sign decisions in the Policy Engine.
 
 1. Create a `.npmrc` file in the root of this project.
 1. Get the values from someone who has them.
