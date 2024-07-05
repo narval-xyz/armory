@@ -1,6 +1,6 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { AuthorizationRequestProcessingJob } from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
-import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
 import { v4 as uuid } from 'uuid'
 import {
@@ -16,9 +16,10 @@ import { AuthorizationRequestService } from '../../core/service/authorization-re
 
 @Processor(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
 export class AuthorizationRequestProcessingConsumer {
-  private logger = new Logger(AuthorizationRequestProcessingConsumer.name)
-
-  constructor(private authzService: AuthorizationRequestService) {}
+  constructor(
+    private authzService: AuthorizationRequestService,
+    private logger: LoggerService
+  ) {}
 
   @Process()
   async process(job: Job<AuthorizationRequestProcessingJob>) {

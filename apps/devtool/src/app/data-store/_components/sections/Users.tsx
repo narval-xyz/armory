@@ -1,6 +1,6 @@
 'use client'
 
-import { CredentialEntity, UserEntity, UserAccountEntity } from '@narval/policy-engine-shared'
+import { CredentialEntity, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
 import { FC, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarDialog from '../../../_design-system/NarDialog'

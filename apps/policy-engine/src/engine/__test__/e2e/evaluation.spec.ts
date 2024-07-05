@@ -1,5 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Action,
   Criterion,
@@ -60,6 +61,7 @@ describe('Evaluation', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true

@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerModule, LoggerService, NullLoggerService, secret } from '@narval/nestjs-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { get } from 'lodash/fp'
@@ -43,7 +43,8 @@ describe(AppService.name, () => {
           load: [load],
           isGlobal: true
         }),
-        PersistenceModule
+        PersistenceModule,
+        LoggerModule
       ],
       providers: [
         AppService,
@@ -52,6 +53,10 @@ describe(AppService.name, () => {
           // Mock the ConfigService to control the behavior of the application.
           provide: ConfigService,
           useValue: configServiceMock
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()
