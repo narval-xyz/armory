@@ -61,12 +61,10 @@ export class PriceFeedService implements DataFeed<Prices> {
   async getFeed(input: AuthorizationRequest): Promise<Feed<Prices>> {
     // TODO (@wcalderipe, 01/02/2024): De-risk the price values by taking a
     // median of multiple sources.
-
     const prices = await this.priceService.getPrices({
       from: this.getAssetIds(input),
       to: [FIAT_ID_USD]
     })
-
     const sig = await this.sign(prices)
 
     return {
