@@ -38,6 +38,11 @@
                 "name": "@nestjs/config",
                 "importNames": ["ConfigModule", "ConfigService"],
                 "message": "Please use providers from @narval/config-module instead"
+              },
+              {
+                "name": "@nestjs/common",
+                "importNames": ["LoggerService", "Logger"],
+                "message": "Please use providers from @narval/nestjs-shared instead. If using `new Logger`, replace it by `LoggerService` through the dependency injection."
               }
             ]
           }

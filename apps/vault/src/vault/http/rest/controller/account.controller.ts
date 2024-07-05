@@ -14,7 +14,10 @@ import { AccountsDto } from '../dto/accounts.dto'
 import { DeriveAccountDto, DeriveAccountResponseDto } from '../dto/derive-account.dto'
 import { ImportPrivateKeyDto } from '../dto/import-private-key.dto'
 
-@Controller('/accounts')
+@Controller({
+  path: '/accounts',
+  version: '1'
+})
 @ApiTags('Account')
 @ApiHeader({
   name: REQUEST_HEADER_CLIENT_ID,

@@ -42,7 +42,7 @@ intentReq = {
 	"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 	"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-	"amount": "1000000000000000000",
+	"amount": "1000000000000000000", # 1 USDC
 }
 
 approvalsReq = [
@@ -72,8 +72,9 @@ feedsReq = [
 		"sig": {},
 		"data": [
 			{
-				"amount": "3051000000",
+				"amount": "200000000000000000", # 0.2 USDC
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 				"timestamp": elevenHoursAgo,
@@ -81,8 +82,9 @@ feedsReq = [
 				"initiatedBy": "test-alice-uid",
 			},
 			{
-				"amount": "2000000000",
+				"amount": "200000000000000000",  # 0.2 USDC
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 				"timestamp": tenHoursAgo,
@@ -90,8 +92,9 @@ feedsReq = [
 				"initiatedBy": "test-alice-uid",
 			},
 			{
-				"amount": "1500000000",
+				"amount": "200000000000000000",  # 0.2 USDC
 				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 				"timestamp": twentyHoursAgo,

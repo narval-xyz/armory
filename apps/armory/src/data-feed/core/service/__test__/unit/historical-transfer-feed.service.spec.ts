@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -41,6 +42,10 @@ describe(HistoricalTransferFeedService.name, () => {
         {
           provide: TransferTrackingService,
           useValue: transferTrackingServiceMock
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()

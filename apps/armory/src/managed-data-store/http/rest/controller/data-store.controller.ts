@@ -13,7 +13,10 @@ import { SetEntityStoreDto, SetEntityStoreResponseDto } from '../dto/set-entity-
 import { SetPolicyStoreDto, SetPolicyStoreResponseDto } from '../dto/set-policy-store.dto'
 import { SyncDto } from '../dto/sync.dto'
 
-@Controller('/data')
+@Controller({
+  path: '/data',
+  version: '1'
+})
 @ApiTags('Managed Data Store')
 export class DataStoreController {
   constructor(

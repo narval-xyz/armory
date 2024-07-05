@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { first, map, mapValues, omit, uniq } from 'lodash/fp'
@@ -22,6 +23,7 @@ describe(TransferTrackingService.name, () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true

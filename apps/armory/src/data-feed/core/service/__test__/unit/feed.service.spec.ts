@@ -1,3 +1,4 @@
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { AuthorizationRequest, Feed, HistoricalTransfer, Prices } from '@narval/policy-engine-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock, mockDeep } from 'jest-mock-extended'
@@ -66,6 +67,10 @@ describe(FeedService.name, () => {
         {
           provide: HistoricalTransferFeedService,
           useValue: historicalTransferFeedServiceMock
+        },
+        {
+          provide: LoggerService,
+          useClass: NullLoggerService
         }
       ]
     }).compile()

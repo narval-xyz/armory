@@ -1,7 +1,12 @@
 import { Action, SupportedAction } from '@narval/policy-engine-shared'
 import { ZodType } from 'zod'
 import { createGrantPermissionSchema, readGrantPermissionSchema } from './persistence/schema/grant-permission.schema'
-import { createSignMessageSchema, readSignMessageSchema } from './persistence/schema/sign-message.schema'
+import {
+  createSignMessageSchema,
+  createSignRawSchema,
+  readSignMessageSchema,
+  readSignRawSchema
+} from './persistence/schema/sign-message.schema'
 import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'
 
 type ActionRequestConfig = {
@@ -30,6 +35,16 @@ export const ACTION_REQUEST = new Map<Action, ActionRequestConfig>([
       schema: {
         read: readSignTransactionSchema,
         create: createSignTransactionSchema
+      }
+    }
+  ],
+  [
+    Action.SIGN_RAW,
+    {
+      action: Action.SIGN_RAW,
+      schema: {
+        read: readSignRawSchema,
+        create: createSignRawSchema
       }
     }
   ],
