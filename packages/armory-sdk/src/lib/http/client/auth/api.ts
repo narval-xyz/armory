@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Armory
- * Armory is the most secure access management for web3
+ * Authentication and authorization system for web3.0
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -2969,7 +2969,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = {
-    CheckAccountAccountType: 'checkAccountAccountType'
+    CheckAccountType: 'checkAccountType'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum];
