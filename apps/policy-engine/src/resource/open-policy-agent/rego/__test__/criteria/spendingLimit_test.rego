@@ -82,8 +82,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
 
-	print(res)
-
 	res == 400000000000000000
 }
 
