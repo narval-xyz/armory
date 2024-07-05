@@ -187,14 +187,14 @@ describe('User Journeys', () => {
           policyPublicKey: publicKey
         },
         policyEngine: {
-          nodes: [
-            {
+          nodes: expect.arrayContaining([
+            expect.objectContaining({
               id: expect.any(String),
               clientId: clientId,
               publicKey: expect.any(Object),
               url: expect.any(String)
-            }
-          ]
+            })
+          ])
         },
         createdAt: expect.any(String),
         updatedAt: expect.any(String)

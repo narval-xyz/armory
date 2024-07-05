@@ -1,4 +1,5 @@
 import { resourceId } from '@narval/armory-sdk'
+import { LoggerService } from '@narval/nestjs-shared'
 import { Hex } from '@narval/policy-engine-shared'
 import {
   Alg,
@@ -10,7 +11,7 @@ import {
   rsaDecrypt,
   rsaPrivateKeyToPublicKey
 } from '@narval/signature'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
@@ -24,12 +25,11 @@ import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
 export class ImportService {
-  private logger = new Logger(ImportService.name)
-
   constructor(
     private accountRepository: AccountRepository,
     private importRepository: ImportRepository,
-    private keyGenerationService: KeyGenerationService
+    private keyGenerationService: KeyGenerationService,
+    private logger: LoggerService
   ) {}
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {

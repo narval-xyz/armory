@@ -18,12 +18,12 @@ export const createHttpDataStore = (opts: {
 
   const entityStoreSource: HttpSource = {
     type: SourceType.HTTP,
-    url: `${host}/data/entities?clientId=${clientId}`
+    url: `${host}/v1/data/entities?clientId=${clientId}`
   }
 
   const policyStoreSource: HttpSource = {
     type: SourceType.HTTP,
-    url: `${host}/data/policies?clientId=${clientId}`
+    url: `${host}/v1/data/policies?clientId=${clientId}`
   }
 
   return {

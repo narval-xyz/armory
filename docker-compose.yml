@@ -47,7 +47,7 @@ services:
       - PORT=3010
       - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/armory?schema=public
       - REDIS_HOST=redis
-      - MANAGED_DATASTORE_BASE_URL=http://armory:3010/data
+      - MANAGED_DATASTORE_BASE_URL=http://armory:3010/v1/data
       - POLICY_ENGINE_URLS=http://policy_engine_0:3010,http://policy_engine_1:3010,http://policy_engine_2:3010
       - POLICY_ENGINE_ADMIN_API_KEYS=engine-admin-api-key,engine-admin-api-key,engine-admin-api-key
     volumes:

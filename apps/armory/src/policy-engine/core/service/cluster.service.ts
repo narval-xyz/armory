@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires, @nx/enforce-module-boundaries */
 import { ConfigService } from '@narval/config-module'
-import { Decision, EvaluationRequest, EvaluationResponse, toHex } from '@narval/policy-engine-shared'
-import { Hex, PublicKey, base64UrlToHex, eip191Hash, hexToBase64Url, verifyJwt } from '@narval/signature'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { hexToBytes } from '@noble/curves/abstract/utils'
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
+import { PublicKey, verifyJwt } from '@narval/signature'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 import { Config } from '../../../armory.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
+import { isDefined } from '../../../shared/util/array.util'
 import { ClusterNotFoundException } from '../../core/exception/cluster-not-found.exception'
 import { UnreachableClusterException } from '../../core/exception/unreachable-cluster.exception'
 import { PolicyEngineClient } from '../../http/client/policy-engine.client'
@@ -19,23 +18,21 @@ import { InvalidAttestationSignatureException } from '../exception/invalid-attes
 import { PolicyEngineException } from '../exception/policy-engine.exception'
 import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.type'
 
-let TSMClient: any
-const tsmsdkv2 = require('@sepior/tsmsdkv2')
-try {
-  TSMClient = tsmsdkv2.TSMClient
-} catch (err) {
-  // eslint-disable-next-line no-console
-  console.log('@sepior/tsmsdkv2 is not installed')
-}
-
 @Injectable()
 export class ClusterService {
-  private logger = new Logger(ClusterService.name)
+  // Keeps a version of the finalizeEcdsaJwtSignature function from
+  // @narval-xyz/armory-mpc-module in memory to prevent lazy loading it on
+  // every call.
+  // TODO: (@wcalderipe, 04/05/24) Investigate if it's possible to use NestJS'
+  // lazy modules.
+  // See https://docs.nestjs.com/fundamentals/lazy-loading-modules
+  private finalizeEcdsaJwtSignature?: (jwts: string[]) => Promise<string>
 
   constructor(
     private policyEngineClient: PolicyEngineClient,
     private policyEngineNodeRepository: PolicyEngineNodeRepository,
-    private configService: ConfigService<Config>
+    private configService: ConfigService<Config>,
+    private logger: LoggerService
   ) {}
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {
@@ -98,42 +95,6 @@ export class ClusterService {
     return this.policyEngineNodeRepository.findByClientId(clientId)
   }
 
-  async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
-    if (!TSMClient) {
-      throw new ApplicationException({
-        message: 'TSM SDK not installed',
-        suggestedHttpStatusCode: 500
-      })
-    }
-    const tsmClient = new TSMClient(null)
-    // Each `evaluation` should have a "signed" accessToken, but it's a partial sig.
-    // It was generated as if it was a real sig, so it's a base64url encoded value.
-
-    const partialSigs = evaluations.map((e) => {
-      const parts = e.accessToken?.value.split('.') || []
-      const sig = parts[2] || ''
-      const hexSig = base64UrlToHex(sig)
-      return hexToBytes(hexSig.slice(2))
-    })
-    // We'll re-create the message to sign based on the JWT. All the JWTs should be the same except the partial sigs
-    // So we can use the first one. If they aren't all the same, the finalizeSignature will fail anywyas,
-    // so no need to check equality specifically.
-    const jwt = evaluations[0].accessToken?.value
-    const parts = jwt?.split('.') || []
-    const message = eip191Hash([parts[0], parts[1]].join('.'))
-    // NOTE TSM returns a DER signature
-    const { signature, recoveryID } = await tsmClient.ECDSA().finalizeSignature(message, partialSigs)
-    const sig = secp256k1.Signature.fromDER(signature)
-
-    const hexSignature: Hex = `0x${sig.toCompactHex()}${toHex(27n + BigInt(recoveryID)).slice(2)}`
-    const jwtSig = hexToBase64Url(hexSignature)
-    const finalJwt = [parts[0], parts[1], jwtSig].join('.')
-    return {
-      ...evaluations[0],
-      accessToken: { value: finalJwt }
-    }
-  }
-
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
     const nodes = await this.findNodesByClientId(clientId)
 
@@ -170,9 +131,14 @@ export class ClusterService {
         // If they don't have exactly the same decision & accessToken, signature can't be finalized
         // and it will throw.
         const finalResponse = isMpc ? await this.finalizeSignature(responses) : responses[0]
-        this.logger.log('Got final response', finalResponse)
+
+        this.logger.log('Got final response', {
+          response: finalResponse,
+          isMpc
+        })
 
         await this.verifyAttestation(nodes[0].publicKey, finalResponse.accessToken?.value)
+
         return finalResponse
       }
 
@@ -182,6 +148,51 @@ export class ClusterService {
     }
 
     throw new UnreachableClusterException(clientId, nodes)
+  }
+
+  private async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
+    if (!this.finalizeEcdsaJwtSignature) {
+      try {
+        const { finalizeEcdsaJwtSignature } = await import('@narval-xyz/armory-mpc-module')
+
+        // Cache the loaded function for subsequent calls.
+        this.finalizeEcdsaJwtSignature = finalizeEcdsaJwtSignature
+      } catch (error) {
+        throw new ApplicationException({
+          message: 'Unable to lazy load finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module',
+          suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          origin: error
+        })
+      }
+    }
+
+    try {
+      // If MPC, wehave multiple partialSig responses to combine. If they don't
+      // have exactly the same decision & accessToken, signature can't be
+      // finalized and it will throw.
+      const jwts = evaluations.map(({ accessToken }) => accessToken?.value).filter(isDefined)
+
+      if (jwts.length) {
+        const finalizedJwt = await this.finalizeEcdsaJwtSignature(jwts)
+
+        return {
+          ...evaluations[0],
+          accessToken: { value: finalizedJwt }
+        }
+      }
+
+      throw new ApplicationException({
+        message: 'Missing JWTs to finalize',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        context: { jwts }
+      })
+    } catch (error) {
+      throw new ApplicationException({
+        message: 'Fail to finalize ECDSA JWT signature',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        origin: error
+      })
+    }
   }
 
   private async verifyAttestation(publicKey: PublicKey, token?: string) {

@@ -2,9 +2,9 @@
  * Generates an CAIP Asset ID to coin ID index using CoinGecko API to make price
  * queries faster and easier.
  */
+import { LoggerService } from '@narval/nestjs-shared'
 import { AssetId, AssetType, getAddress, isAddress, toAssetId } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { Logger } from '@nestjs/common'
 import File from 'fs'
 import { compact, flatten, pick } from 'lodash/fp'
 import { concatMap, filter, from, lastValueFrom, map, mergeMap, reduce, tap } from 'rxjs'
@@ -14,7 +14,7 @@ import { Chain, findChain } from '../../shared/core/lib/chains.lib'
 import { CoinGeckoClient } from '../http/client/coin-gecko/coin-gecko.client'
 import { Coin } from '../http/client/coin-gecko/coin-gecko.type'
 
-const logger = new Logger('CoinGeckoCoinDictionaryScript')
+const logger = new LoggerService()
 
 const supportedPlatforms = Array.from(CHAINS.values()).map(({ coinGecko }) => coinGecko.platform)
 
@@ -83,7 +83,7 @@ const buildAssets = (coin: Coin) => {
 const encode = (dictionary: Record<AssetId, string>) => JSON.stringify(dictionary, null, 1)
 
 const run = async () => {
-  const client = new CoinGeckoClient(new HttpService())
+  const client = new CoinGeckoClient(new HttpService(), logger)
 
   return lastValueFrom(
     from(client.getCoinList()).pipe(

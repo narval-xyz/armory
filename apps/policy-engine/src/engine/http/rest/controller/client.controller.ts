@@ -7,7 +7,10 @@ import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
 import { SyncResponseDto } from '../dto/sync-response.dto'
 
-@Controller('/clients')
+@Controller({
+  path: '/clients',
+  version: '1'
+})
 @ApiTags('Client')
 export class ClientController {
   constructor(private clientService: ClientService) {}

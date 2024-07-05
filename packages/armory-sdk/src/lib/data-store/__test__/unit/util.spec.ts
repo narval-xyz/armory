@@ -12,12 +12,12 @@ describe('createHttpDataStore', () => {
 
   const entitySource = {
     type: SourceType.HTTP,
-    url: `${host}/data/entities?clientId=${clientId}`
+    url: `${host}/v1/data/entities?clientId=${clientId}`
   }
 
   const policySource = {
     type: SourceType.HTTP,
-    url: `${host}/data/policies?clientId=${clientId}`
+    url: `${host}/v1/data/policies?clientId=${clientId}`
   }
 
   it('returns a data store with the same source for entities and policies', () => {

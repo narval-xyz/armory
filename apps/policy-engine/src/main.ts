@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
@@ -29,15 +29,18 @@ const withGlobalPipes = (app: INestApplication): INestApplication => {
  * @returns The modified Nest application instance.
  */
 const withGlobalFilters =
-  (configService: ConfigService<Config>) =>
+  (configService: ConfigService<Config>, logger: LoggerService) =>
   (app: INestApplication): INestApplication => {
-    app.useGlobalFilters(new HttpExceptionFilter(configService), new ApplicationExceptionFilter(configService))
+    app.useGlobalFilters(
+      new HttpExceptionFilter(configService, logger),
+      new ApplicationExceptionFilter(configService, logger)
+    )
 
     return app
   }
 
 const provision = async () => {
-  const application = await NestFactory.createApplicationContext(ProvisionModule)
+  const application = await NestFactory.createApplicationContext(ProvisionModule, { bufferLogs: true })
 
   await application.close()
 }
@@ -47,9 +50,9 @@ async function bootstrap() {
   // a temporary application for the provision step.
   await provision()
 
-  const logger = new Logger('PolicyEngineBootstrap')
-  const application = await NestFactory.create(PolicyEngineModule, { bodyParser: true })
+  const application = await NestFactory.create(PolicyEngineModule, { bufferLogs: true, bodyParser: true })
   const configService = application.get(ConfigService<Config>)
+  const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
@@ -58,17 +61,19 @@ async function bootstrap() {
 
   await lastValueFrom(
     of(application).pipe(
+      map(withLogger),
+      map(withApiVersion({ defaultVersion: '1' })),
+      map(withGlobalPipes),
+      map(withGlobalFilters(configService, logger)),
+      map(withCors(configService.get('cors'))),
       map(
         withSwagger({
           title: 'Policy Engine',
-          description: 'The next generation of authorization for web3',
+          description: 'Policy decision point for fine-grained authorization in web3.0',
           version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
-      map(withGlobalPipes),
-      map(withGlobalFilters(configService)),
-      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )

@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { HttpLoggerMiddleware } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AppModule } from './app/app.module'
@@ -13,6 +13,7 @@ import { QueueModule } from './shared/module/queue/queue.module'
 import { TransferTrackingModule } from './transfer-tracking/transfer-tracking.module'
 
 const INFRASTRUCTURE_MODULES = [
+  LoggerModule,
   ConfigModule.forRoot({
     load: [load],
     isGlobal: true

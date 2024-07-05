@@ -1,4 +1,5 @@
 import { ConfigService } from '@narval/config-module'
+import { LoggerService, NullLoggerService } from '@narval/nestjs-shared'
 import { mock } from 'jest-mock-extended'
 import { Config } from '../../../../../../policy-engine.config'
 import { PrismaService } from '../../prisma.service'
@@ -10,8 +11,10 @@ describe(PrismaService.name, () => {
         get: jest.fn().mockReturnValue('postgresql://test:test@localhost:5432/test?schema=public')
       })
 
+      const loggerMock = mock<LoggerService>(new NullLoggerService())
+
       expect(() => {
-        new PrismaService(configServiceMock)
+        new PrismaService(configServiceMock, loggerMock)
       }).not.toThrow()
     })
   })

@@ -4,7 +4,8 @@ import { ConfigModule } from '@narval/config-module'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
-import { load } from '../armory.config'
+import { ConditionalModule } from '@nestjs/config'
+import { Env, isEnv, load } from '../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
 import { ClientModule } from '../client/client.module'
 import { DataFeedModule } from '../data-feed/data-feed.module'
@@ -32,10 +33,13 @@ const INFRASTRUCTURE_MODULES = [
   BullModule.registerQueue({
     name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
   }),
-  BullBoardModule.forFeature({
-    name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
-    adapter: BullAdapter
-  })
+  ConditionalModule.registerWhen(
+    BullBoardModule.forFeature({
+      name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
+      adapter: BullAdapter
+    }),
+    () => isEnv(Env.DEVELOPMENT)
+  )
 ]
 
 const DOMAIN_MODULES = [ClientModule, TransferTrackingModule, PriceModule, DataFeedModule, PolicyEngineModule]
