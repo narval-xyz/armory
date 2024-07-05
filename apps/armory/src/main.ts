@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
-import { withCors, withSwagger } from '@narval/nestjs-shared'
-import { ClassSerializerInterceptor, INestApplication, Logger, ValidationPipe } from '@nestjs/common'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
@@ -42,12 +42,12 @@ const withGlobalInterceptors = (app: INestApplication): INestApplication => {
  * @returns The modified Nest application instance.
  */
 const withGlobalFilters =
-  (configService: ConfigService<Config>) =>
+  (configService: ConfigService<Config>, logger: LoggerService) =>
   (app: INestApplication): INestApplication => {
     app.useGlobalFilters(
-      new ApplicationExceptionFilter(configService),
-      new ZodExceptionFilter(configService),
-      new HttpExceptionFilter(configService)
+      new ApplicationExceptionFilter(configService, logger),
+      new ZodExceptionFilter(configService, logger),
+      new HttpExceptionFilter(configService, logger)
     )
 
     return app
@@ -60,9 +60,9 @@ const withGlobalFilters =
  * successfully bootstrapped.
  */
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('ArmoryBootstrap')
-  const application = await NestFactory.create(ArmoryModule)
+  const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
+  const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
@@ -71,18 +71,20 @@ async function bootstrap(): Promise<void> {
 
   await lastValueFrom(
     of(application).pipe(
+      map(withLogger),
+      map(withApiVersion({ defaultVersion: '1' })),
+      map(withGlobalPipes),
+      map(withGlobalInterceptors),
+      map(withGlobalFilters(configService, logger)),
+      map(withCors(configService.get('cors'))),
       map(
         withSwagger({
           title: 'Armory',
-          description: 'Armory is the most secure access management for web3',
+          description: 'Authentication and authorization system for web3.0',
           version: '1.0',
           security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
         })
       ),
-      map(withGlobalPipes),
-      map(withGlobalInterceptors),
-      map(withGlobalFilters(configService)),
-      map(withCors(configService.get('cors'))),
       switchMap((app) => app.listen(port))
     )
   )

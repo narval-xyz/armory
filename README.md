@@ -1,14 +1,14 @@
 <p align="center">
   <a href="https://www.narval.xyz/" target="blank"><img src="./resources/narval-logo.png" width="150" alt="Narval logo" /></a>
 </p>
-<p align="center">Armory is the most secure, advanced, and flexible authorization stack for web3.</p>
+<p align="center">Secure, advanced, and flexible access management stack for web3.</p>
 <p align="center"><a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/vault.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/vault.yml/badge.svg" alt="@app/vault CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a></p>
 
 ## What's the Armory?
 
-The Armory Stack is an open-source auth system tailored for uses-case that need
-strong authentication and fine-grained authorization. It is designed to secure
-the usage of private keys, wallets, and web3 applications
+The Armory Stack is an open-source access management system tailored for
+uses-case that need strong authentication and fine-grained authorization. It is
+designed to secure the usage of private keys, wallets, and web3 applications.
 
 It's a web3-native policy engine combined with a highly customizable next-gen
 auth system, able to be deployed in a variety of secure configurations. 
@@ -85,21 +85,18 @@ make format/check
 make lint/check
 ```
 
-## Publishing packages
+## NPM
 
-This section describes the process to release a new version of publishable
-packages to NPM.
+The `.npmrc` file is needed to access a private registry for the optional
+dependency `@narval-xyz/armory-mpc-module`.
 
-1. Run `make packages/release` and follow the prompts to bump the
-   projects' versions.
-1. Run `npm install` to update `package-lock.json`.
-1. Commit and push the changes to your branch.
-1. After your branch is merged, manually trigger the [packages pipeline to
-   publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
-   the new version to NPM.
+> [!IMPORTANT]
+> This file is NOT in git, but it's necessary for the build if you're using MPC
+> to sign decisions in the Policy Engine.
 
-You can find the publishable packages listed in the `release.projects` value in
-the `nx.json`.
+1. Create a `.npmrc` file in the root of this project.
+1. Get the values from someone who has them.
+1. Now `npm install` should work.
 
 ## Generating a new project
 
@@ -118,17 +115,21 @@ npx nx g @nx/nest:application --tags type:application
 For more information about code generation, please refer to the [NX
 documentation](https://nx.dev/nx-api/nx).
 
-## NPM
+## Publishing packages
 
-The `.npmrc` file is needed to access a private registry for Font Awesome and
-the optional dependency `@narval-xyz/blockdaemon-tsm`.
+This section describes the process to release a new version of publishable
+packages to NPM.
 
-> [!IMPORTANT]
-> This file is NOT in git, but it's necessary for the build.
+1. Run `make packages/release` and follow the prompts to bump the
+   projects' versions.
+1. Run `npm install` to update `package-lock.json`.
+1. Commit and push the changes to your branch.
+1. After your branch is merged, manually trigger the [packages pipeline to
+   publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
+   the new version to NPM.
 
-1. Create a `.npmrc` file in the root of this project.
-1. Get the values from someone who has them.
-1. Now `npm install` should work.
+You can find the publishable packages listed in the `release.projects` value in
+the `nx.json`.
 
 ## Troubleshooting
 

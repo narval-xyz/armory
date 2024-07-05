@@ -8,10 +8,7 @@ import NarCheckbox from '../../_design-system/NarCheckbox'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import useStore from '../../_hooks/useStore'
-import {
-  LOCAL_DATA_STORE_URL,
-  MANAGED_DATASTORE_BASE_URL,
-} from '../../_lib/constants'
+import { LOCAL_DATA_STORE_URL, MANAGED_DATASTORE_BASE_URL } from '../../_lib/constants'
 
 interface DataStoreConfigForm {
   useAuthServer: boolean

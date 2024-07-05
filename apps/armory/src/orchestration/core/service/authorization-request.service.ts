@@ -1,3 +1,4 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -8,7 +9,7 @@ import {
   JwtString
 } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
 import { FeedService } from '../../../data-feed/core/service/feed.service'
@@ -39,8 +40,6 @@ const getStatus = (decision: string): AuthorizationRequestStatus => {
 
 @Injectable()
 export class AuthorizationRequestService {
-  private logger = new Logger(AuthorizationRequestService.name)
-
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestApprovalRepository: AuthorizationRequestApprovalRepository,
@@ -48,7 +47,8 @@ export class AuthorizationRequestService {
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
     private clusterService: ClusterService,
-    private feedService: FeedService
+    private feedService: FeedService,
+    private logger: LoggerService
   ) {}
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {

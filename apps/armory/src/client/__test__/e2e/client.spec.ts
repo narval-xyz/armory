@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { NullLoggerService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
 import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -23,7 +23,7 @@ import { CreateClientRequestDto } from '../../http/rest/dto/create-client.dto'
 const mockPolicyEngineServer = (url: string, clientId: string) => {
   const dataStoreSource: Source = {
     type: SourceType.HTTP,
-    url: 'http://localost:999'
+    url: 'http://127.0.0.1:9999/test-data-store'
   }
 
   const dataStoreConfig: DataStoreConfiguration = {
@@ -46,7 +46,7 @@ const mockPolicyEngineServer = (url: string, clientId: string) => {
     }
   }
 
-  nock(url).post('/clients').reply(HttpStatus.CREATED, createClientResponse)
+  nock(url).post('/v1/clients').reply(HttpStatus.CREATED, createClientResponse)
 }
 
 describe('Client', () => {
@@ -70,15 +70,14 @@ describe('Client', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
         }),
         ClientModule
       ]
-    })
-      .setLogger(new NullLoggerService())
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 
