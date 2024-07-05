@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Vault
- * The next generation of authorization for web3 
+ * The next generation of authorization for web3
  *
  * The version of the OpenAPI document: 1.0
  * 
