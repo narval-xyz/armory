@@ -8,7 +8,7 @@ destination = data.entities.addressBook[input.intent.to]
 
 checkDestinationAccountType(values) = destination.accountType in values
 
-checkDestinationId(values) = destination.uid in values
+checkDestinationId(values) = destination.id in values
 
 checkDestinationAddress(values) = destination.address in values
 

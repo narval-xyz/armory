@@ -191,7 +191,27 @@ describe('Evaluation', () => {
 
           expect(body).toEqual({
             decision: Decision.FORBID,
-            request: payload.request
+            request: payload.request,
+            ...(payload.request.action === Action.SIGN_TRANSACTION && {
+              transactionRequestIntent: {
+                amount: '1000000000000000000',
+                from: 'eip155:137:0x9f38879167accf7401351027ee3f9247a71cd0c5',
+                to: 'eip155:137:0x0301e2724a40e934cce3345928b88956901aa127',
+                token: 'eip155:137/slip44:966',
+                type: 'transferNative'
+              }
+            }),
+            ...(payload.request.action === Action.SIGN_TYPED_DATA && {
+              transactionRequestIntent: {
+                domain: {
+                  chainId: 1,
+                  name: 'Ether Mail',
+                  verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+                  version: '1'
+                },
+                type: 'signTypedData'
+              }
+            })
           })
           expect(status).toEqual(HttpStatus.OK)
         })

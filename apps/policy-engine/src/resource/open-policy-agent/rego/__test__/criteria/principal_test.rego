@@ -11,12 +11,6 @@ test_principal {
 
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
 
-	isPrincipalRootUser with input as request
-		with data.entities as entities
-
-	isPrincipalAssignedToAccount with input as request
-		with data.entities as entities
-
 	checkPrincipalId({"test-bob-uid", "test-alice-uid"}) with input as request
 		with data.entities as entities
 

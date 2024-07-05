@@ -11,6 +11,7 @@ import {
   Policy
 } from '@narval/policy-engine-shared'
 import { decodeJwt, hash, verifyJwt } from '@narval/signature'
+import { Intent } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
 import { compact } from 'lodash/fp'
@@ -81,7 +82,13 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       })
 
       this.opa = await loadPolicy(wasm, undefined, {
-        'time.now_ns': () => new Date().getTime() * 1000000
+        'time.now_ns': () => new Date().getTime() * 1000000,
+        'time.format': () => new Date().toISOString().split('T')[0],
+        'time.parse_ns': () => {
+          const now = new Date()
+          const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+          return startOfDay.getTime() * 1000000
+        }
       })
 
       this.opa.setData(toData(this.getEntities()))
@@ -102,10 +109,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
 
     const approvalsCredential = await Promise.all(
-      (evaluation.approvals ? evaluation.approvals : []).map((signature) => this.verifySignature(signature, message))
+      (evaluation.approvals || []).map((signature) => this.verifySignature(signature, message))
     )
 
-    const results = await this.opaEvaluate(evaluation, {
+    const { results, transactionRequestIntent } = await this.opaEvaluate(evaluation, {
       principal: principalCredential,
       approvals: approvalsCredential
     })
@@ -116,7 +123,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
       approvals: decision.approvals,
       request: evaluation.request,
       principal: decision.decision === Decision.PERMIT ? principalCredential : undefined,
-      metadata: evaluation.metadata
+      metadata: evaluation.metadata,
+      transactionRequestIntent
     }
 
     return response
@@ -161,7 +169,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private async opaEvaluate(
     evaluation: EvaluationRequest,
     credentials: { principal: CredentialEntity; approvals?: CredentialEntity[] }
-  ): Promise<Result[]> {
+  ): Promise<{ results: Result[]; transactionRequestIntent?: Intent }> {
     if (!this.opa) {
       throw new OpenPolicyAgentException({
         message: 'Open Policy Agent engine not loaded',
@@ -184,7 +192,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     const parse = z.array(resultSchema).safeParse(results.map(({ result }) => result))
 
     if (parse.success) {
-      return parse.data
+      return {
+        results: parse.data,
+        transactionRequestIntent: input.intent
+      }
     }
 
     throw new OpenPolicyAgentException({

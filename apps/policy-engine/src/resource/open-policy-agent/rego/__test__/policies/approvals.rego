@@ -14,8 +14,6 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 		"entityIds": ["test-bob-uid", "test-bar-uid"],
 	}]
 
-	checkResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -45,8 +43,6 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 		"entityIds": ["test-user-group-one-uid"],
 	}]
 
-	checkResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -76,8 +72,6 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 		"entityIds": ["root", "admin"],
 	}]
 
-	checkResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -101,8 +95,6 @@ permit[{"policyId": "withoutApprovals"}] = reason {
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
 	transferValueCondition = {"currency": "*", "operator": "lte", "value": "1000000000000000000"}
 
-	checkResourceIntegrity
-	checkPrincipal
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)

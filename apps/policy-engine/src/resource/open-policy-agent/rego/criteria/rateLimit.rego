@@ -38,7 +38,7 @@ calculateCurrentRate(params) = result {
 		checkTransferCondition(transfer.initiatedBy, filters.users)
 
 		# filter by resource accounts
-		checkTransferCondition(transfer.from, filters.resources)
+		checkTransferCondition(transfer.resourceId, filters.resources)
 
 		# filter by destination accounts
 		checkTransferCondition(transfer.to, filters.destinations)
@@ -65,7 +65,7 @@ calculateCurrentRate(params) = result {
 
 checkRateLimit(params) {
 	conditions = object.union(rateLimitWildcardConditions, params)
-    rateLimit = conditions.limit
+    rateLimit = to_number(conditions.limit)
 
-	calculateCurrentRate(conditions) < rateLimit
+	calculateCurrentRate(conditions) + 1 <= rateLimit
 }

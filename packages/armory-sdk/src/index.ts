@@ -3,6 +3,7 @@ export * from './lib/data-store'
 export * from './lib/domain'
 export * from './lib/http'
 export * from './lib/sdk'
+export * from './lib/shared/promise'
 export * from './lib/types'
 export * from './lib/vault'
 
@@ -18,6 +19,7 @@ export {
   getPublicKey,
   hash,
   hexToBase64Url,
+  jwkSchema,
   privateKeyToJwk,
   publicKeyToJwk,
   signJwt
@@ -33,12 +35,15 @@ export {
   Criterion,
   Decision,
   Eip712TypedData,
+  EntityType,
   EntityUtil,
   JwtString,
+  PolicyCriterion,
   Request,
   Then,
   TransactionRequest,
   UserRole,
+  ValueOperators,
   toHex
 } from '@narval/policy-engine-shared'
 

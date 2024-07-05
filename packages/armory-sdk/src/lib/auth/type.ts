@@ -76,4 +76,4 @@ export type AuthClientHttp = {
 export type RequestAccessTokenOptions = SignOptions &
   SetOptional<Pick<CreateAuthorizationRequest, 'id' | 'approvals'>, 'id' | 'approvals'>
 
-export type Evaluate = Omit<CreateAuthorizationRequest, 'authentication'>
+export type Evaluate = Omit<CreateAuthorizationRequest, 'authentication' | 'clientId'>

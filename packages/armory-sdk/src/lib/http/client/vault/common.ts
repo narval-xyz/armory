@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Vault
- * The next generation of authorization for web3
+ * Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0
  *
  * The version of the OpenAPI document: 1.0
  * 

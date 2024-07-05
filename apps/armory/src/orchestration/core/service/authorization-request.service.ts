@@ -12,6 +12,7 @@ import { Intent, Intents } from '@narval/transaction-request-intent'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
+import { FeedService } from '../../../data-feed/core/service/feed.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PriceService } from '../../../price/core/service/price.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -46,6 +47,7 @@ export class AuthorizationRequestService {
     private transferTrackingService: TransferTrackingService,
     private priceService: PriceService,
     private clusterService: ClusterService,
+    private feedService: FeedService,
     private logger: LoggerService
   ) {}
 
@@ -122,18 +124,14 @@ export class AuthorizationRequestService {
       status: input.status
     })
 
-    // TODO: (@wcalderipe, 17/05/24) I'm turning off the data feeds gathering
-    // because it's not included in V1's scope. Additionally, I found that nock
-    // isn't blocking connections to certain hosts. As a result, the
-    // authorization E2E tests were making requests to Coingecko to get
-    // prices through the PriceService.
-    // const feeds = await this.feedService.gather(input)
+    const feeds = await this.feedService.gather(input)
+
     const evaluation = await this.clusterService.evaluate(input.clientId, {
       authentication: input.authentication,
       approvals: input.approvals,
       metadata: input.metadata,
       request: input.request,
-      feeds: [],
+      feeds,
       sessionId: uuid() // a random sessionId, used for MPC
     })
 
@@ -157,13 +155,15 @@ export class AuthorizationRequestService {
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
       const intent = evaluation.transactionRequestIntent as Intent
-      if (intent && intent.type === Intents.TRANSFER_NATIVE) {
+
+      if (intent && (Intents.TRANSFER_NATIVE === intent.type || Intents.TRANSFER_ERC20 === intent.type)) {
         const transferPrices = await this.priceService.getPrices({
           from: [intent.token],
           to: [FIAT_ID_USD]
         })
 
         const transfer = {
+          resourceId: authzRequest.request.resourceId,
           clientId: authzRequest.clientId,
           requestId: authzRequest.id,
           from: intent.from,
