@@ -1,37 +1,38 @@
 /* eslint-disable no-console */
 
-import { AuthClient, AuthorizationRequestStatus, VaultClient, polling } from '@narval/armory-sdk'
 import {
+  AuthClient,
+  AuthorizationRequestStatus,
   EntityType,
-  FIXTURE,
   JwtString,
   Policy,
   PolicyCriterion,
   Request,
+  SigningAlg,
   UserRole,
   ValueOperators,
+  VaultClient,
+  buildSignerEip191,
+  jwkSchema,
+  polling,
+  privateKeyToJwk,
   toHex
-} from '@narval/policy-engine-shared'
-import { SigningAlg, buildSignerEip191, jwkSchema, privateKeyToJwk } from '@narval/signature'
-import { Alchemy, Network } from 'alchemy-sdk'
+} from '@narval/armory-sdk'
+
 import { v4 as uuid } from 'uuid'
 import { createPublicClient, http } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { polygon } from 'viem/chains'
 
 const AUTH_HOST = 'http://localhost:3005'
-const AUTH_CLIENT_ID = '87fd65c8-123e-4ab1-8d64-17079e871db8'
-const AUTH_CLIENT_SECRET = 'e7f860fd58698393dea8393335708eca7707315cacce3a5acf025409182bfa3f47f40aefa370ea07e78c'
+const AUTH_CLIENT_ID = '09d889d5-06b0-4af6-81b5-fba8287b01d0'
 
 const VAULT_HOST = 'http://localhost:3011'
-const VAULT_CLIENT_ID = '5852b412-caa7-454c-acf7-9e2097e6fabf'
+const VAULT_CLIENT_ID = '7339f00c-52d5-4e1c-bb3e-ba14fd18fad1'
 
-const ALCHEMY_POLYGON_API = ''
+const CHAIN_ID = 137 // POLYGON
+const TOKEN_ID = 'eip155:137/slip44:966' // MATIC
 
-const CHAIN_ID = 137
-const TOKEN_ID = 'eip155:137/slip44:966'
-
-const UNSAFE_GAS_STATION_PRIVATE_KEY = ''
 const GAS_STATION_ADDRESS = '0x940851dd4b9cd8338ad33fc7a640d96715e9f21c'
 const GAS_STATION_ACCOUNT_ID = `eip155:eoa:${GAS_STATION_ADDRESS}`
 
@@ -47,27 +48,28 @@ const MAX_AMOUNT_PER_TRANSACTION = BigInt(1000000000000000) // 0.001
 const DAILY_SPENDING_LIMIT = BigInt(3000000000000000) // 0.003
 const MAX_DAILY_TRANSACTIONS = 5
 
-const client = createPublicClient({
-  chain: polygon,
-  transport: http()
-})
-
-const signerPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-const signerAddress = privateKeyToAddress(signerPrivateKey)
+// Signer
+// You can replace this with your own signer private key
+const unsafeSignerPrivateKey = '0x59442b3ca1b5052299d34b811f1c8f8e2ec84e7947bb2013bed69e96e80dcbaf'
+const signerAddress = privateKeyToAddress(unsafeSignerPrivateKey)
 const signerJwk = jwkSchema.parse({
-  ...privateKeyToJwk(signerPrivateKey),
+  ...privateKeyToJwk(unsafeSignerPrivateKey),
   addr: signerAddress,
   kid: signerAddress
 })
 
+// You can copy/paste the data printed below into your credentials entities
+console.log('\n\n Signer JWK:', JSON.stringify(signerJwk))
+
 const signer = {
   jwk: signerJwk,
   alg: SigningAlg.EIP191,
-  sign: buildSignerEip191(signerPrivateKey)
+  sign: buildSignerEip191(unsafeSignerPrivateKey)
 }
 
-// copy/paste the policies below to the devtool UI. Sign and push to sync the engine with the new policies.
-const baseWhenCriteria: PolicyCriterion[] = [
+// Policies
+// The following policies are generated using the variables defined above
+const basePolicyCriteria: PolicyCriterion[] = [
   {
     criterion: 'checkAction',
     args: ['signTransaction']
@@ -114,7 +116,7 @@ const policies: Policy[] = [
     id: uuid(),
     description: 'Allow if the daily spendings are less than 0.01 MATIC. Limit to 10 transactions per day.',
     when: [
-      ...baseWhenCriteria,
+      ...basePolicyCriteria,
       {
         criterion: 'checkSpendingLimit',
         args: {
@@ -138,7 +140,7 @@ const policies: Policy[] = [
     id: uuid(),
     description: 'Require 1 admin approval if the daily spendings reach the threshold of 0.01 MATIC.',
     when: [
-      ...baseWhenCriteria,
+      ...basePolicyCriteria,
       {
         criterion: 'checkSpendingLimit',
         args: {
@@ -171,19 +173,22 @@ const policies: Policy[] = [
   }
 ]
 
-// console.log(JSON.stringify(policies, null, 2))
+// You can copy/paste the data printed below into your policies entities
+console.log('\n\n Policies:', JSON.stringify(policies))
+
+const client = createPublicClient({
+  chain: polygon,
+  transport: http()
+})
 
 const needGasRefill = async () => {
-  const alchemy = new Alchemy({
-    apiKey: ALCHEMY_POLYGON_API,
-    network: Network.MATIC_MAINNET
+  const balance = await client.getBalance({
+    address: MONITORED_ADDRESS
   })
-
-  const balance = await alchemy.core.getBalance(MONITORED_ADDRESS, 'latest')
 
   console.log('\n\n Monitored account balance:', balance.toString())
 
-  return balance.lt(TRIGGER_THRESHOLD)
+  return balance < TRIGGER_THRESHOLD
 }
 
 const sendEvaluationRequest = async () => {
@@ -192,7 +197,6 @@ const sendEvaluationRequest = async () => {
   const authClient = new AuthClient({
     host: AUTH_HOST,
     clientId: AUTH_CLIENT_ID,
-    clientSecret: AUTH_CLIENT_SECRET,
     signer
   })
 

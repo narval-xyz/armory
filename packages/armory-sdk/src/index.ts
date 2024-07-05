@@ -19,6 +19,7 @@ export {
   getPublicKey,
   hash,
   hexToBase64Url,
+  jwkSchema,
   privateKeyToJwk,
   publicKeyToJwk,
   signJwt
@@ -34,12 +35,15 @@ export {
   Criterion,
   Decision,
   Eip712TypedData,
+  EntityType,
   EntityUtil,
   JwtString,
+  PolicyCriterion,
   Request,
   Then,
   TransactionRequest,
   UserRole,
+  ValueOperators,
   toHex
 } from '@narval/policy-engine-shared'
 
