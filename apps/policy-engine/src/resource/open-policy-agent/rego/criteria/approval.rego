@@ -11,7 +11,7 @@ approversRoles = {user.role |
 	user = usersEntities[approval.userId]
 }
 
-approversGroups = {group.uid |
+approversGroups = {group.id |
 	approval = input.approvals[_]
 	group = userGroupsEntities[_]
 	approval.userId in group.users

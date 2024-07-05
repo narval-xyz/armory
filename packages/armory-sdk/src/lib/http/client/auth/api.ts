@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Armory
- * Armory is the most secure access management for web3
+ * Authentication and authorization system for web3.0
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -2816,10 +2816,10 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters {
     'users'?: Array<string>;
     /**
      * 
-     * @type {Array<any>}
+     * @type {Array<string>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
      */
-    'resources'?: Array<any>;
+    'resources'?: Array<string>;
     /**
      * 
      * @type {Array<any>}
@@ -2931,10 +2931,10 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = typ
 export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32Args {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32Args
      */
-    'limit': string;
+    'limit': number;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsTimeWindow}

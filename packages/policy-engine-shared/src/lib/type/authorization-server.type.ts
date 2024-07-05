@@ -100,7 +100,7 @@ export const SerializedAuthorizationRequest = AuthorizationRequest.extend({
 export type SerializedAuthorizationRequest = z.infer<typeof SerializedAuthorizationRequest>
 
 export const CreateAuthorizationRequest = AuthorizationRequest.extend({
-  approvals: z.array(JwtString),
+  approvals: AuthorizationRequest.shape.approvals.optional(),
   createdAt: AuthorizationRequest.shape.createdAt.optional(),
   evaluations: AuthorizationRequest.shape.evaluations.optional(),
   id: AuthorizationRequest.shape.id.optional(),

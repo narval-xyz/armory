@@ -186,7 +186,7 @@ export class AuthorizationRequestRepository {
       evaluations: input.evaluations || [],
       createdAt: input.createdAt || now,
       updatedAt: input.updatedAt || now,
-      approvals: input.approvals
+      approvals: input.approvals || []
     }
   }
 }

@@ -133,7 +133,7 @@ export const timeWindowSchema = z.object({
 export const transferFiltersSchema = z.object({
   tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
-  resources: z.array(AccountId).min(1).optional(),
+  resources: z.array(z.string().min(1)).min(1).optional(),
   destinations: z.array(AccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
   userGroups: z.array(z.string().min(1)).min(1).optional(),
@@ -149,7 +149,7 @@ export const spendingLimitConditionSchema = z.object({
 })
 
 export const rateLimitConditionSchema = z.object({
-  limit: z.string().min(1),
+  limit: z.number(),
   timeWindow: timeWindowSchema.optional(),
   filters: transferFiltersSchema.optional()
 })

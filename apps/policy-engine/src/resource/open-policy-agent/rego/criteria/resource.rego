@@ -2,32 +2,19 @@ package main
 
 import future.keywords.in
 
-resource = result {
-	input.action in {actions.signTransaction, actions.signRaw, actions.signMessage, actions.signTypedData}
-	result = data.entities.accounts[input.resource.uid]
-}
+resource = data.entities.accounts[input.resource.uid]
 
-checkResourceIntegrity {
-	checkAction({actions.signTransaction})
-	transactionRequestFromAddress = input.transactionRequest.from
-	resourceAddress = extractAddressFromCaip10(input.resource.uid)
-	intentFromAddress = extractAddressFromCaip10(input.intent.from)
-	transactionRequestFromAddress == resourceAddress
-	transactionRequestFromAddress == intentFromAddress
-	resourceAddress == intentFromAddress
-}
-
-accountGroups = {group.uid |
+accountGroups = {group.id |
 	group = data.entities.accountGroups[_]
-	input.resource.uid in group.accounts
+	resource.id in group.accounts
 }
 
-getAccountGroups(id) = {group.uid |
+getAccountGroups(id) = {group.id |
 	group = data.entities.accountGroups[_]
 	id in group.accounts
 }
 
-checkAccountId(values) = resource.uid in values
+checkAccountId(values) = resource.id in values
 
 checkAccountAddress(values) = resource.address in values
 
@@ -52,4 +39,6 @@ resource = result {
 	result = input.resource
 }
 
-checkResource(values) = resource.uid in values
+checkResource(values) {
+	resource.uid in values
+}

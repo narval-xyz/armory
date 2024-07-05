@@ -63,7 +63,7 @@ default evaluate = {
 }
 
 permit[{"policyId": "allow-root-user", "policyName": "Allow root user"}] = reason {
-	isPrincipalRootUser
+	checkPrincipalRole({"root"})
 
 	reason = {
 		"type": "permit",

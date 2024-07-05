@@ -155,13 +155,15 @@ export class AuthorizationRequestService {
     if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
       const intent = evaluation.transactionRequestIntent as Intent
-      if (intent && intent.type === Intents.TRANSFER_NATIVE) {
+
+      if (intent && (Intents.TRANSFER_NATIVE === intent.type || Intents.TRANSFER_ERC20 === intent.type)) {
         const transferPrices = await this.priceService.getPrices({
           from: [intent.token],
           to: [FIAT_ID_USD]
         })
 
         const transfer = {
+          resourceId: authzRequest.request.resourceId,
           clientId: authzRequest.clientId,
           requestId: authzRequest.id,
           from: intent.from,

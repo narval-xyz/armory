@@ -217,6 +217,7 @@ describe(AuthorizationRequestService.name, () => {
 
       expect(transferFeedServiceMock.track).toHaveBeenCalledWith({
         amount: BigInt(intent.amount),
+        resourceId: authzRequest.request.resourceId,
         to: intent.to,
         from: intent.from,
         token: intent.token,
