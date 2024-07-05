@@ -3,7 +3,7 @@
 /**
  * Vault
  * The next generation of authorization for web3
- * 
+ *
  * The version of the OpenAPI document: 1.0
  *
  *
@@ -11,6 +11,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+
 
 export * from './api'
 export * from './configuration'
