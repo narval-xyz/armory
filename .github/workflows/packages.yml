@@ -43,24 +43,35 @@ jobs:
         run: |
           make install/ci
 
+      - name: Track origin/main
+        run: "git branch --track main origin/main"
+
       - name: Set base and head SHAs for nx affected
         uses: nrwl/nx-set-shas@v3
 
       - name: Code format
         run: |
-          npx nx affected --target format:check lint:check --exclude tag:type:application
+          npx nx affected --target format:check lint:check \
+            --exclude tag:type:application \
+            --base=origin/main
 
       - name: Test types
         run: |
-          npx nx affected --target test:type --exclude tag:type:application
+          npx nx affected --target test:type \
+            --exclude tag:type:application \
+            --base=origin/main
 
       - name: Test unit
         run: |
-          npx nx affected --target test:unit --exclude tag:type:application
+          npx nx affected --target test:unit \
+            --exclude tag:type:application \
+            --base=origin/main
 
       - name: Test integration
         run: |
-          npx nx affected --target test:integration --exclude tag:type:application
+          npx nx affected --target test:integration \
+            --exclude tag:type:application \
+            --base=origin/main
 
       - name: Test end-to-end
         run: |
@@ -69,7 +80,9 @@ jobs:
           # for each part of the stack, we can switch the storage to something
           # in-memory. It'd be a good time to revisit this TODO and think about
           # using testcontainers.
-          npx nx affected --target test:e2e --exclude tag:type:application \
+          npx nx affected --target test:e2e \
+            --exclude tag:type:application \
+            --base=origin/main \
             --testPathIgnorePatterns=packages/armory-sdk/src/lib/__test__/e2e/user-journeys.spec.ts
 
       - name: Send Slack notification on failure
