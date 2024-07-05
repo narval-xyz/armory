@@ -45,14 +45,18 @@ const EXTENDED_TYPES: Record<string, ExtendType> = {
   }
 }
 
-export const stringify = (value: any) => {
-  return JSON.stringify(value, (key: string, value: any) => {
-    const type = typeof value
+export const stringify = (value: any, space?: number) => {
+  return JSON.stringify(
+    value,
+    (key: string, value: any) => {
+      const type = typeof value
 
-    if (EXTENDED_TYPES[type]) {
-      return EXTENDED_TYPES[type].replacer(key, value)
-    } else {
-      return value
-    }
-  })
+      if (EXTENDED_TYPES[type]) {
+        return EXTENDED_TYPES[type].replacer(key, value)
+      } else {
+        return value
+      }
+    },
+    space
+  )
 }

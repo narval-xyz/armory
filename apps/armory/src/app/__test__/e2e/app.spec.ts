@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { secret } from '@narval/nestjs-shared'
+import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -27,6 +27,7 @@ describe('App', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [testConfigLoad],
           isGlobal: true

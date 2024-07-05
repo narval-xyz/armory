@@ -203,3 +203,79 @@ test_permitRuleSpendingLimit {
 		"type": "permit",
 	}
 }
+
+test_spendingLimitWithFixedPeriod {
+	spendingLimitWithFixedPeriodReq = object.union(request, {
+		"principal": {"userId": "test-alice-uid"},
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
+			{"userId": "test-bob-uid"},
+			{"userId": "test-bar-uid"},
+		],
+		"intent": {
+			"type": "transferERC20",
+			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+			"amount": "200000000000000000",
+		},
+		"feeds": [
+			{
+				"source": "armory/price-feed",
+				"sig": {},
+				"data": {
+					"eip155:137/slip44:966": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+				},
+			},
+			{
+				"source": "armory/historical-transfer-feed",
+				"sig": {},
+				"data": [
+					{
+						"amount": "200000000000000000",
+						"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+						"timestamp": elevenHoursAgo,
+						"chainId": 137,
+						"initiatedBy": "test-alice-uid",
+					},
+					{
+						"amount": "200000000000000000",
+						"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+						"timestamp": tenHoursAgo,
+						"chainId": 137,
+						"initiatedBy": "test-alice-uid",
+					},
+					{
+						"amount": "200000000000000000",
+						"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
+						"timestamp": twentyHoursAgo,
+						"chainId": 137,
+						"initiatedBy": "test-alice-uid",
+					},
+				],
+			}
+		]
+	})
+
+	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as entities
+
+	res == {
+		"approvalsMissing": [],
+		"approvalsSatisfied": [],
+		"policyId": "spendingLimitWithFixedPeriod",
+		"type": "permit",
+	}
+}
+

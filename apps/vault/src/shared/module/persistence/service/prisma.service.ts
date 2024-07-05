@@ -1,13 +1,15 @@
 import { ConfigService } from '@narval/config-module'
-import { Injectable, Logger, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import { LoggerService } from '@narval/nestjs-shared'
+import { Injectable, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/vault'
 import { Config } from '../../../../main.config'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
-  private logger = new Logger(PrismaService.name)
-
-  constructor(configService: ConfigService<Config>) {
+  constructor(
+    configService: ConfigService<Config>,
+    private logger: LoggerService
+  ) {
     const url = configService.get('database.url')
 
     super({
@@ -18,17 +20,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
-    this.logger.log({
-      message: 'Connecting to Prisma on database module initialization'
-    })
+    this.logger.log('Connecting to Prisma on database module initialization')
 
     await this.$connect()
   }
 
   async onModuleDestroy() {
-    this.logger.log({
-      message: 'Disconnecting from Prisma on module destroy'
-    })
+    this.logger.log('Disconnecting from Prisma on module destroy')
 
     await this.$disconnect()
   }
@@ -40,10 +38,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   //
   // See also https://www.prisma.io/docs/guides/upgrade-guides/upgrading-versions/upgrading-to-prisma-5#removal-of-the-beforeexit-hook-from-the-library-engine
   onApplicationShutdown(signal: string) {
-    this.logger.log({
-      message: 'Disconnecting from Prisma on application shutdown',
-      signal
-    })
+    this.logger.log('Disconnecting from Prisma on application shutdown', signal)
 
     // The $disconnect method returns a promise, so idealy we should wait for it
     // to finish. However, the onApplicationShutdown, returns `void` making it
