@@ -48,6 +48,7 @@ jobs:
 
       - name: Code format
         run: |
+          echo "test"
           npx nx affected --target format:check lint:check --exclude tag:type:application
 
       - name: Test types
