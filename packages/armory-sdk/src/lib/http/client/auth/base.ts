@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Armory
- * Armory is the most secure access management for web3  
+ * Armory is the most secure access management for web3
  *
  * The version of the OpenAPI document: 1.0
  * 
