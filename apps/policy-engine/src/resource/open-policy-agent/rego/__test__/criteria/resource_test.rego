@@ -26,7 +26,7 @@ test_resource {
 	checkAccountAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as request
 		with data.entities as entities
 
-	checkAccountAccountType({"eoa"}) with input as request
+	checkAccountType({"eoa"}) with input as request
 		with data.entities as entities
 
 	checkAccountGroup({"test-account-group-one-uid"}) with input as request

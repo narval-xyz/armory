@@ -45,7 +45,7 @@ export const criterionSchema = z.nativeEnum({
   CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
   CHECK_ACCOUNT_ID: 'checkAccountId',
   CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress',
-  CHECK_ACCOUNT_ACCOUNT_TYPE: 'checkAccountAccountType',
+  CHECK_ACCOUNT_TYPE: 'checkAccountType',
   CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_DESTINATION_ID: 'checkDestinationId',
@@ -200,7 +200,7 @@ export const accountAddressCriterionSchema = z.object({
 })
 
 export const accountAccountTypeCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ACCOUNT_TYPE),
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_TYPE),
   args: z.array(z.nativeEnum(AccountType)).min(1)
 })
 

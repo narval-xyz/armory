@@ -18,7 +18,7 @@ checkAccountId(values) = resource.id in values
 
 checkAccountAddress(values) = resource.address in values
 
-checkAccountAccountType(values) = resource.accountType in values
+checkAccountType(values) = resource.accountType in values
 
 checkAccountChainId(values) = numberToString(resource.chainId) in values
 
