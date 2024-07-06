@@ -2,6 +2,7 @@
   <a href="https://www.narval.xyz/" target="blank"><img src="./resources/narval-logo.png" width="150" alt="Narval logo" /></a>
 </p>
 <p align="center">Secure, advanced, and flexible access management stack for web3.</p>
+<p align="center"><a href="https://www.narval.xyz/?utm_source=github&utm_medium=repository" target="_blank">🌐 Website</a> • <a href="https://docs.narval.xyz/?utm_source=github&utm_medium=repository" target="_blank">📚 Documentation</a></p>
 <p align="center"><a href="https://github.com/narval-xyz/narval/actions/workflows/armory.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/armory.yml/badge.svg?branch=main" alt="@app/armory CI status" /></a> <a href="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml" target="_blank"><img src="https://github.com/narval-xyz/narval/actions/workflows/policy-engine.yml/badge.svg?branch=main" alt="@app/policy-engine CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/vault.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/vault.yml/badge.svg" alt="@app/vault CI status" /></a> <a href="https://github.com/narval-xyz/armory/actions/workflows/packages.yml" target="_blank"><img src="https://github.com/narval-xyz/armory/actions/workflows/packages.yml/badge.svg?branch=main" alt="Packages CI status" /></a></p>
 
 ## What's the Armory?
