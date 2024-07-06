@@ -28,6 +28,11 @@ make setup
 
 At the end, you must have a working environment ready to run any application.
 
+Alternatively, if you want to set up each application individually, you can
+check [Armory](./apps/armory/README.md), [Policy
+Engine](./apps/policy-engine/README.md), and [Vault](./apps/vault/README.md)
+"Getting started" sections.
+
 ## Docker
 
 We use Docker & `docker-compose` to run the application's dependencies.
