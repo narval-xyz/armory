@@ -44,6 +44,7 @@ export {
   TransactionRequest,
   UserRole,
   ValueOperators,
+  getAddress,
   toHex
 } from '@narval/policy-engine-shared'
 

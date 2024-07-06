@@ -25,9 +25,6 @@ jobs:
         with:
           node-version: '21'
           cache: 'npm'
-          # IMPORTANT: Must point to GitHub packages registry because we
-          # publish through it, not NPM directly.
-          registry-url: https://npm.pkg.github.com/
 
       - name: Install dependencies
         run: |
