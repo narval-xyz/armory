@@ -7,7 +7,7 @@ creating a symlink to the source in `node_modules` through NX's dependency
 management. This approach ensures that the latest code changes are immediately
 reflected and used across the monorepo. However, the
 `@narval-xyz/blockdaemon-tsm` is a separate repository that installs a specific
-version of `@narval-xyz/armory-sdk`. 
+version of `@narval-xyz/armory-sdk`.
 
 When `@narval-xyz/blockdaemon-tsm` is installed within the monorepo, NPM
 resolves the `@narval-xyz/armory-sdk` dependency as a peer dependency. As a
@@ -31,13 +31,11 @@ To solve this issue, we will use NPM's bundled dependencies feature in the
   "dependencies": {
     "@narval-xyz/@narval-xyz/armory-sdk": "0.0.0"
   },
-  "bundleDependencies": [
-    "@narval-xyz/@narval-xyz/armory-sdk"
-  ]
+  "bundleDependencies": ["@narval-xyz/@narval-xyz/armory-sdk"]
 }
 ```
 
 When we publish `@narval-xyz/blockdaemon-tsm`, NPM will bundle the specified
 version of `@narval-xyz/armory-sdk` within the package itself. This guarantees
 that `@narval-xyz/blockdaemon-tsm` always has access to its required version of
-`@narval-xyz/armory-sdk`. 
+`@narval-xyz/armory-sdk`.

@@ -27,7 +27,7 @@ make vault/test/integration
 make vault/test/e2e
 ```
 
-## Terminology 
+## Terminology
 
 - **Mnemonic:** A `mnemonic` is a group of easy to remember words that can be
   used to deterministically generate `wallets`.
@@ -53,7 +53,7 @@ make vault/test/e2e
   [bip32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
   specification. It can be the child of a `wallet` if it was generated in the
   vault using `POST /wallets/derive`, or it can be imported alone through `POST
-  /accounts/import`.
+/accounts/import`.
 - **Wallet:** It is a structure that organizes a collection of accounts. It's
   the abstraction around a `rootKey`. The same relationship that applies to
   `rootKey` and `privateKeys` applies to `wallet` and `account`. A `wallet` is a

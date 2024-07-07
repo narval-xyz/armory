@@ -1,6 +1,7 @@
 # Licenses Disclosure
 
 This project includes third-party libraries listed below. Each library is provided under its own license.
+
 - [Open Policy Engine](https://github.com/open-policy-agent/opa/) - Apache-2.0
 - [@adraffy/ens-normalize@1.10.0](https://github.com/adraffy/ens-normalize.js) - MIT
 - [@algolia/autocomplete-core@1.9.3](https://github.com/algolia/autocomplete) - MIT
@@ -1713,7 +1714,7 @@ This project includes third-party libraries listed below. Each library is provid
 - [readable-stream@3.6.2](https://github.com/nodejs/readable-stream) - MIT
 - [readdirp@3.6.0](https://github.com/paulmillr/readdirp) - MIT
 - [reading-time@1.5.0](https://github.com/ngryman/reading-time) - MIT
-- [readline@1.3.0](https://github.com/maleck13/readline) - BSD*
+- [readline@1.3.0](https://github.com/maleck13/readline) - BSD\*
 - [real-require@0.1.0](https://github.com/pinojs/real-require) - MIT
 - [recast@0.21.5](https://github.com/benjamn/recast) - MIT
 - [rechoir@0.6.2](https://github.com/tkellen/node-rechoir) - MIT
@@ -1745,7 +1746,7 @@ This project includes third-party libraries listed below. Each library is provid
 - [renderkid@3.0.0](https://github.com/AriaMinaei/RenderKid) - MIT
 - [require-directory@2.1.1](https://github.com/troygoode/node-require-directory) - MIT
 - [require-from-string@2.0.2](https://github.com/floatdrop/require-from-string) - MIT
-- [require-like@0.1.2](https://github.com/felixge/node-require-like) - MIT*
+- [require-like@0.1.2](https://github.com/felixge/node-require-like) - MIT\*
 - [require-main-filename@2.0.0](https://github.com/yargs/require-main-filename) - ISC
 - [requires-port@1.0.0](https://github.com/unshiftio/requires-port) - MIT
 - [resolve-alpn@1.2.1](https://github.com/szmarczak/resolve-alpn) - MIT
