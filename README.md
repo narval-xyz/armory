@@ -12,7 +12,7 @@ uses-case that need strong authentication and fine-grained authorization. It is
 designed to secure the usage of private keys, wallets, and web3 applications.
 
 It's a web3-native policy engine combined with a highly customizable next-gen
-auth system, able to be deployed in a variety of secure configurations. 
+auth system, able to be deployed in a variety of secure configurations.
 
 ![Armory Stack diagram](./resources/armory-stack.png)
 
@@ -48,7 +48,6 @@ useful when using the MPC as a signing protocol in the Policy Engine.
 > [!IMPORTANT]
 > You also need a locally running TSM cluster, which is not included in this
 > repository.
-
 
 ```bash
 # Build the application's image.
@@ -159,4 +158,4 @@ dependencies used by the Armory at
 [LICENSES_DISCLOSURE.md](./LICENSES_DISCLOSURE.md).
 
 > To generate the list, run `./tools/licenses-disclosure/main.sh >
-> LICENSES_DISCLOSURE.md`.
+LICENSES_DISCLOSURE.md`.
