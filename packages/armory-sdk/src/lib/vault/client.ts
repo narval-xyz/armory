@@ -4,6 +4,7 @@ import axios from 'axios'
 import {
   AccountApiFactory,
   AccountDto,
+  AccountsDto,
   ApplicationApi,
   ClientApiFactory,
   ClientDto,
@@ -175,6 +176,14 @@ export class VaultClient {
     const { data: account } = await this.accountHttp.importPrivateKey(this.config.clientId, token, payload)
 
     return account
+  }
+
+  async listAccounts({ accessToken }: { accessToken: AccessToken }): Promise<AccountsDto> {
+    const token = getBearerToken(accessToken)
+
+    const { data: accounts } = await this.accountHttp.list(this.config.clientId, token)
+
+    return accounts
   }
 
   async sign({ data, accessToken }: { data: Request; accessToken: AccessToken }): Promise<SignatureDto> {
