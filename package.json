@@ -88,7 +88,7 @@
     "@nestjs/swagger": "7.3.1",
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
-    "@open-policy-agent/opa-wasm": "1.8.0",
+    "@open-policy-agent/opa-wasm": "1.9.0",
     "@prisma/client": "5.8.1",
     "@radix-ui/react-checkbox": "1.0.4",
     "@radix-ui/react-collapsible": "1.0.3",
