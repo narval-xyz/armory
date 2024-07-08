@@ -131,6 +131,7 @@ export const timeWindowSchema = z.object({
 })
 
 export const transferFiltersSchema = z.object({
+  perPrincipal: z.boolean().optional(),
   tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
   resources: z.array(z.string().min(1)).min(1).optional(),
