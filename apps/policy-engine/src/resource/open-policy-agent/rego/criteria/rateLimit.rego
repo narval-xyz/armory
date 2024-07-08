@@ -3,13 +3,14 @@ package main
 rateLimitWildcardConditions = {
 	"limit": wildcard,
 	"timeWindow": {
-		"type": wildcard,
+		"type": wildcard, # rolling, fixed
 		"period": wildcard, # 1d, 1m, 1y
 		"value": wildcard, # in seconds
 		"startDate": wildcard, # in seconds
 		"endDate": wildcard, # in seconds
 	},
 	"filters": {
+		"perPrincipal": false,
 		"tokens": wildcard,
 		"users": wildcard,
 		"resources": wildcard,
@@ -31,6 +32,9 @@ calculateCurrentRate(params) = result {
 	result = count([transfer |
 		transfer = transferFeed[_]
 
+		# filter by principal
+		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)
+		
 		# filter by tokens
 		checkTransferCondition(transfer.token, filters.tokens)
 

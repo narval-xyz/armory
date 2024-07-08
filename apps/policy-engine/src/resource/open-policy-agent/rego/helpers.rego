@@ -47,6 +47,17 @@ checkTransferCondition(value, set) {
 	value in set
 }
 
+# Check By Principal
+
+checkTransferByPrincipal(initiator, perPrincipal) {
+	perPrincipal == false
+}
+
+checkTransferByPrincipal(initiator, perPrincipal) {
+	perPrincipal == true
+	principal.id == initiator
+}
+
 # Check By User Groups
 
 checkTransferByUserGroups(userId, values) {
