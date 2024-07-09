@@ -2,9 +2,11 @@ package main
 
 import future.keywords.in
 
-intentTransfers = input.intent.transfers
-
+# ERC721 Token Transfers
 checkERC721TokenId(values) = input.intent.token in values
+
+# ERC1155 Token Transfers
+intentTransfers = input.intent.transfers
 
 checkERC1155TokenId(values) {
 	transfer = intentTransfers[_]

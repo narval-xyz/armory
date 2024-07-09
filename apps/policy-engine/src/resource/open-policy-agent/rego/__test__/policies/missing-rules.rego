@@ -5,6 +5,5 @@ permit[{"policyId": "call-contract-custom", "policyName": "call-contract-custom"
 	checkIntentType({"callContract"})
 	checkPrincipalId({"auth0|62e1d7ca04533b042cb42419"})
 	checkIntentContract({"eip155:137:0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad"})
-	checkChainId({"137"})
 	reason = {"type": "permit", "policyId": "call-contract-custom", "policyName": "call-contract-custom", "approvalsSatisfied": [], "approvalsMissing": []}
 }
