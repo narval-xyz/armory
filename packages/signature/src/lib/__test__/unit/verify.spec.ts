@@ -70,6 +70,10 @@ describe('verifyJwt', () => {
         name: 'Authorized any admin to transfer ERC721 or ERC1155 tokens',
         when: [
           {
+            criterion: 'checkResourceIntegrity',
+            args: null
+          },
+          {
             criterion: 'checkPrincipalRole',
             args: ['admin']
           },
