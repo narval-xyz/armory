@@ -38,31 +38,30 @@ export const thenSchema = z.nativeEnum({
 export const criterionSchema = z.nativeEnum({
   // Action
   CHECK_ACTION: 'checkAction',
-
   // Resource
   CHECK_RESOURCE: 'checkResource',
-
   // Permission
   CHECK_PERMISSION: 'checkPermission',
-
   // Principal
   CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
   CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
-
   // Resource Account
   CHECK_ACCOUNT_ID: 'checkAccountId',
   CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress',
   CHECK_ACCOUNT_TYPE: 'checkAccountType',
   CHECK_ACCOUNT_CHAIN_ID: 'checkAccountChainId',
   CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
-
-  // Destination Account
+  // Intent Source Account
+  CHECK_SOURCE_ID: 'checkSourceId',
+  CHECK_SOURCE_ADDRESS: 'checkSourceAddress',
+  CHECK_SOURCE_ACCOUNT_TYPE: 'checkSourceAccountType',
+  CHECK_SOURCE_CLASSIFICATION: 'checkSourceClassification',
+  // Intent Destination Account
   CHECK_DESTINATION_ID: 'checkDestinationId',
   CHECK_DESTINATION_ADDRESS: 'checkDestinationAddress',
   CHECK_DESTINATION_ACCOUNT_TYPE: 'checkDestinationAccountType',
   CHECK_DESTINATION_CLASSIFICATION: 'checkDestinationClassification',
-
   // Intent
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_INTENT_CHAIN_ID: 'checkIntentChainId',
@@ -71,43 +70,31 @@ export const criterionSchema = z.nativeEnum({
   CHECK_INTENT_SPENDER: 'checkIntentSpender',
   CHECK_INTENT_TOKEN: 'checkIntentToken',
   CHECK_INTENT_HEX_SIGNATURE: 'checkIntentHexSignature',
-
   // Intent Sign Message
   CHECK_INTENT_MESSAGE: 'checkIntentMessage',
   CHECK_INTENT_PAYLOAD: 'checkIntentPayload',
   CHECK_INTENT_ALGORITHM: 'checkIntentAlgorithm',
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
-
   // Intent Token Transfers
   CHECK_ERC721_TOKEN_ID: 'checkERC721TokenId',
   CHECK_ERC1155_TOKEN_ID: 'checkERC1155TokenId',
   CHECK_ERC1155_TRANSFERS: 'checkERC1155Transfers',
-
   // Intent Permit Deadline
   CHECK_PERMIT_DEADLINE: 'checkPermitDeadline',
-
   // Intent User Operations
-  CHECK_FROM_ID: 'checkFromId',
-  CHECK_FROM_ADDRESS: 'checkFromAddress',
-  CHECK_FROM_ACCOUNT_TYPE: 'checkFromAccountType',
-  CHECK_FROM_CLASSIFICATION: 'checkFromClassification',
   CHECK_ENTRYPOINT_ID: 'checkEntrypointId',
   CHECK_ENTRYPOINT_ADDRESS: 'checkEntrypointAddress',
   CHECK_ENTRYPOINT_ACCOUNT_TYPE: 'checkEntrypointAccountType',
   CHECK_ENTRYPOINT_CLASSIFICATION: 'checkEntrypointClassification',
   CHECK_BENEFICIARY: 'checkBeneficiary',
   CHECK_USER_OPERATION_INTENTS: 'checkUserOperationIntents',
-
   // Transaction Gas Fee
   CHECK_GAS_FEE_AMOUNT: 'checkGasFeeAmount',
-
   // Transaction Nonce
   CHECK_NONCE_EXISTS: 'checkNonceExists',
   CHECK_NONCE_NOT_EXISTS: 'checkNonceNotExists',
-
   // Approvals
   CHECK_APPROVALS: 'checkApprovals',
-
   // Limits
   CHECK_SPENDING_LIMIT: 'checkSpendingLimit',
   CHECK_RATE_LIMIT: 'checkRateLimit'
@@ -247,7 +234,28 @@ export const accountGroupCriterionSchema = z.object({
   args: z.array(z.string().min(1)).min(1)
 })
 
-// Destination Account
+// Intent Source Account
+export const sourceIdCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ID),
+  args: z.array(AccountId).min(1)
+})
+
+export const sourceAddressCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ADDRESS),
+  args: z.array(z.string().min(1)).min(1)
+})
+
+export const sourceAccountTypeCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ACCOUNT_TYPE),
+  args: z.array(z.nativeEnum(AccountType)).min(1)
+})
+
+export const sourceClassificationCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_CLASSIFICATION),
+  args: z.array(z.string().min(1)).min(1)
+})
+
+// Intent Destination Account
 export const destinationIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_DESTINATION_ID),
   args: z.array(AccountId).min(1)
@@ -348,26 +356,6 @@ export const permitDeadlineCriterionSchema = z.object({
 })
 
 // User Operations
-export const fromIdCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_FROM_ID),
-  args: z.array(AccountId).min(1)
-})
-
-export const fromAddressCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_FROM_ADDRESS),
-  args: z.array(z.string().min(1)).min(1)
-})
-
-export const fromAccountTypeCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_FROM_ACCOUNT_TYPE),
-  args: z.array(z.nativeEnum(AccountType)).min(1)
-})
-
-export const fromClassificationCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_FROM_CLASSIFICATION),
-  args: z.array(z.string().min(1)).min(1)
-})
-
 export const entrypointIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ENTRYPOINT_ID),
   args: z.array(AccountId).min(1)
@@ -395,7 +383,7 @@ export const beneficiaryCriterionSchema = z.object({
 
 export const userOperationIntentsCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_USER_OPERATION_INTENTS),
-  args: z.array(intentSchema).min(1)
+  args: z.array(z.any()).min(1)
 })
 
 // Transaction Gas Fee
@@ -448,7 +436,12 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   accountAddressCriterionSchema,
   accountTypeCriterionSchema,
   accountGroupCriterionSchema,
-  // Destination Account
+  // Intent Source Account
+  sourceIdCriterionSchema,
+  sourceAddressCriterionSchema,
+  sourceAccountTypeCriterionSchema,
+  sourceClassificationCriterionSchema,
+  // Intent Destination Account
   destinationIdCriterionSchema,
   destinationAddressCriterionSchema,
   destinationAccountTypeCriterionSchema,
@@ -473,10 +466,6 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   // Intent Permit Deadline
   permitDeadlineCriterionSchema,
   // User Operations
-  fromIdCriterionSchema,
-  fromAddressCriterionSchema,
-  fromAccountTypeCriterionSchema,
-  fromClassificationCriterionSchema,
   entrypointIdCriterionSchema,
   entrypointAddressCriterionSchema,
   entrypointAccountTypeCriterionSchema,

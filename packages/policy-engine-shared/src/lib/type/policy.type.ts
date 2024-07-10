@@ -22,10 +22,6 @@ import {
   erc1155TokenIdCriterionSchema,
   erc1155TransfersCriterionSchema,
   erc721TokenIdCriterionSchema,
-  fromAccountTypeCriterionSchema,
-  fromAddressCriterionSchema,
-  fromClassificationCriterionSchema,
-  fromIdCriterionSchema,
   gasFeeAmountCriterionSchema,
   intentAlgorithmCriterionSchema,
   intentAmountCriterionSchema,
@@ -53,6 +49,10 @@ import {
   resourceCriterionSchema,
   signMessageConditionSchema,
   signTypedDataDomainConditionSchema,
+  sourceAccountTypeCriterionSchema,
+  sourceAddressCriterionSchema,
+  sourceClassificationCriterionSchema,
+  sourceIdCriterionSchema,
   spendingLimitConditionSchema,
   spendingLimitCriterionSchema,
   thenSchema,
@@ -97,7 +97,12 @@ export type AccountIdCriterion = z.infer<typeof accountIdCriterionSchema>
 export type AccountAddressCriterion = z.infer<typeof accountAddressCriterionSchema>
 export type AccountAccountTypeCriterion = z.infer<typeof accountTypeCriterionSchema>
 export type AccountGroupCriterion = z.infer<typeof accountGroupCriterionSchema>
-// Destination Account
+// Intent Source Account
+export type SourceIdCriterion = z.infer<typeof sourceIdCriterionSchema>
+export type SourceAddressCriterion = z.infer<typeof sourceAddressCriterionSchema>
+export type SourceAccountTypeCriterion = z.infer<typeof sourceAccountTypeCriterionSchema>
+export type SourceClassificationCriterion = z.infer<typeof sourceClassificationCriterionSchema>
+// Intent Destination Account
 export type DestinationIdCriterion = z.infer<typeof destinationIdCriterionSchema>
 export type DestinationAddressCriterion = z.infer<typeof destinationAddressCriterionSchema>
 export type DestinationAccountTypeCriterion = z.infer<typeof destinationAccountTypeCriterionSchema>
@@ -122,10 +127,6 @@ export type IntentDomainCriterion = z.infer<typeof intentDomainCriterionSchema>
 // Intent Permit Deadline
 export type PermitDeadlineCriterion = z.infer<typeof permitDeadlineCriterionSchema>
 // User Operations
-export type FromIdCriterion = z.infer<typeof fromIdCriterionSchema>
-export type FromAddressCriterion = z.infer<typeof fromAddressCriterionSchema>
-export type FromAccountTypeCriterion = z.infer<typeof fromAccountTypeCriterionSchema>
-export type FromClassificationCriterion = z.infer<typeof fromClassificationCriterionSchema>
 export type EntrypointIdCriterion = z.infer<typeof entrypointIdCriterionSchema>
 export type EntrypointAddressCriterion = z.infer<typeof entrypointAddressCriterionSchema>
 export type EntrypointAccountTypeCriterion = z.infer<typeof entrypointAccountTypeCriterionSchema>
