@@ -2,21 +2,6 @@ package main
 
 import future.keywords.in
 
-usersEntities = data.entities.users
-
-userGroupsEntities = data.entities.userGroups
-
-approversRoles = {user.role |
-	approval = input.approvals[_]
-	user = usersEntities[approval.userId]
-}
-
-approversGroups = {group.id |
-	approval = input.approvals[_]
-	group = userGroupsEntities[_]
-	approval.userId in group.users
-}
-
 getApprovalsCount(possibleApprovers) = result {
 	matchedApprovers = {approval.userId |
 		approval = input.approvals[_]
@@ -51,7 +36,7 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = userGroupsEntities[entity].users
+		users = data.entities.userGroups[entity].users
 		user = users[_]
 	} | {principal.id}
 
@@ -63,7 +48,7 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = userGroupsEntities[entity].users
+		users = data.entities.userGroups[entity].users
 		user = users[_]
 		user != principal.id
 	}
@@ -77,7 +62,7 @@ checkApproval(approval) = result {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserRole"
 	possibleApprovers = {user.id |
-		user = usersEntities[_]
+		user = data.entities.users[_]
 		user.role in approval.entityIds
 	} | {principal.id}
 
@@ -88,7 +73,7 @@ checkApproval(approval) = result {
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserRole"
 	possibleApprovers = {user.id |
-		user = usersEntities[_]
+		user = data.entities.users[_]
 		user.role in approval.entityIds
 		user.id != principal.id
 	}

@@ -33,8 +33,8 @@ test_resource {
 		with data.entities as entities
 }
 
-test_extractAddressFromCaip10 {
-	address = extractAddressFromCaip10("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
+test_extractAddressFromAccountId {
+	address = extractAddressFromAccountId("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
 
 	address == "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
 }

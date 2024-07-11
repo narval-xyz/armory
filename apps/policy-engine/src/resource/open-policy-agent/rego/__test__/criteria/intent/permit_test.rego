@@ -25,7 +25,7 @@ test_permit {
 	checkIntentToken({"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}) with input as permitRequest
 		with data.entities as entities
 
-	checkIntentAmount({"currency": wildcard, "operator": operators.lessThanOrEqual, "value": "1000000000000000000"}) with input as permitRequest
+	checkIntentAmount({"operator": operators.lessThanOrEqual, "value": "1000000000000000000"}) with input as permitRequest
 		with data.entities as entities
 
 	checkPermitDeadline({"operator": operators.equal, "value": "1634025600"}) with input as permitRequest

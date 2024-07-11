@@ -2,14 +2,22 @@ package main
 
 import future.keywords.in
 
-from = data.entities.accounts[input.intent.from]
+checkSourceId(values) {
+    source = getSource(input.intent)
+    source.id in values
+}
 
-from = data.entities.addressBook[input.intent.from]
+checkSourceAddress(values) {
+    source = getSource(input.intent)
+    source.address in values
+}
 
-checkSourceId(values) = from.id in values
+checkSourceAccountType(values) {
+    source = getSource(input.intent)
+    source.accountType in values
+}
 
-checkSourceAddress(values) = from.address in values
-
-checkSourceAccountType(values) = from.accountType in values
-
-checkSourceClassification(values) = from.classification in values
+checkSourceClassification(values) {
+    source = getSource(input.intent)
+    source.classification in values
+}

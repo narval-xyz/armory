@@ -102,7 +102,7 @@ calculateCurrentSpendings(params) = result {
 
 checkSpendingLimit(params) {
 	conditions = object.union(spendingWildcardConditions, params)
-	spendings = calculateCurrentSpendings(conditions) + intentAmount(conditions.currency)
+	spendings = calculateCurrentSpendings(conditions) + getIntentAmount(conditions.currency)
 	operator = conditions.operator
 	limit = to_number(conditions.limit)
 

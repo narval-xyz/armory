@@ -1,49 +1,67 @@
 package main
 
-gasFee = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
+gasFeeAmount = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
 
-# Gas Fee Amount
+getGasFeeAmountCondition(filters) = object.union({
+	"currency": wildcard,
+	"operator": wildcard,
+	"value": wildcard
+}, filters)
 
-gasFeeAmount(currency) = result {
+getGasFeeAmount(currency) = result {
 	currency == wildcard
-	result = gasFee
+	result = gasFeeAmount
 }
 
-gasFeeAmount(currency) = result {
+getGasFeeAmount(currency) = result {
 	currency != wildcard
 	token = chainAssetId[chainId]
 	price = to_number(priceFeed[token][currency])
-	result = gasFee * price
+	result = gasFeeAmount * price
 }
 
-# Check Gas Fee Amount
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
+	condition.operator == wildcard
+}
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
+	condition.value == wildcard
+}
+
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.equal
-	to_number(condition.value) == gasFeeAmount(condition.currency)
+	to_number(condition.value) == getGasFeeAmount(condition.currency)
 }
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.notEqual
-	to_number(condition.value) != gasFeeAmount(condition.currency)
+	to_number(condition.value) != getGasFeeAmount(condition.currency)
 }
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.greaterThan
-	to_number(condition.value) < gasFeeAmount(condition.currency)
+	to_number(condition.value) < getGasFeeAmount(condition.currency)
 }
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.lessThan
-	to_number(condition.value) > gasFeeAmount(condition.currency)
+	to_number(condition.value) > getGasFeeAmount(condition.currency)
 }
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.greaterThanOrEqual
-	to_number(condition.value) <= gasFeeAmount(condition.currency)
+	to_number(condition.value) <= getGasFeeAmount(condition.currency)
 }
 
-checkGasFeeAmount(condition) {
+checkGasFeeAmount(filters) {
+	condition = getGasFeeAmountCondition(filters)
 	condition.operator == operators.lessThanOrEqual
-	to_number(condition.value) >= gasFeeAmount(condition.currency)
+	to_number(condition.value) >= getGasFeeAmount(condition.currency)
 }
