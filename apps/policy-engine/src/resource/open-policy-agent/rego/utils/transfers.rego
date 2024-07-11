@@ -82,3 +82,49 @@ checkTransferTimeWindow(timestamp, timeWindow) {
 	timestampNs = timestamp * 1000000 # convert ms to ns
 	timestampNs >= getStartDateInNanoSeconds(timeWindow.period)
 }
+
+# Check By Transfer Amount
+
+checkTransferAmount(amount, condition) {
+    condition.operator == wildcard
+}
+
+checkTransferAmount(amount, condition) {
+    condition.value == wildcard
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.equal
+	to_number(condition.value) == to_number(amount)
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.notEqual
+	to_number(condition.value) != to_number(amount)
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.greaterThan
+	to_number(condition.value) < to_number(amount)
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.lessThan
+	to_number(condition.value) > to_number(amount)
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.greaterThanOrEqual
+	to_number(condition.value) <= to_number(amount)
+}
+
+checkTransferAmount(amount, condition) {
+	condition.value != wildcard
+	condition.operator == operators.lessThanOrEqual
+	to_number(condition.value) >= to_number(amount)
+}

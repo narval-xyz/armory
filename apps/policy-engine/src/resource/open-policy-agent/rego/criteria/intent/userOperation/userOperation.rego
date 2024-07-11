@@ -27,6 +27,10 @@ userOperationWildcardConditions = {
 		"operator": wildcard,
 		"value": wildcard
 	},
+	"transfers": {
+		"tokens": wildcard,
+		"amounts": wildcard
+	},
 	"message": {
 		"operator": wildcard,
 		"value": wildcard
@@ -39,7 +43,7 @@ userOperationWildcardConditions = {
 		"version": wildcard,
 		"chainId": wildcard,
 		"name": wildcard,
-		"verifyingContract": wildcard,
+		"verifyingContract": wildcard
 	},
 	"deadline": {
 		"operator": wildcard,
@@ -88,6 +92,9 @@ checkUserOperationIntents(conditions) {
 		checkUserOperationDestination("classification", intent, condition.destination)
 		# Amount
 		checkUserOperationAmount(intent, condition.amount)
+		# Transfers
+		checkUserOperationTokensTransfers(intent, condition.transfers.tokens)
+		checkUserOperationAmountsTransfers(intent, condition.transfers.amounts)
 		# Message
 		checkUserOperationMessage(intent, condition.message)
 		# Payload

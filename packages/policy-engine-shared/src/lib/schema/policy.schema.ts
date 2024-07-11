@@ -76,7 +76,6 @@ export const criterionSchema = z.nativeEnum({
   CHECK_INTENT_ALGORITHM: 'checkIntentAlgorithm',
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
   // Intent Token Transfers
-  CHECK_ERC721_TOKEN_ID: 'checkERC721TokenId',
   CHECK_ERC1155_TOKEN_ID: 'checkERC1155TokenId',
   CHECK_ERC1155_TRANSFERS: 'checkERC1155Transfers',
   // Intent Permit Deadline
@@ -313,11 +312,6 @@ export const intentAmountCriterionSchema = z.object({
 })
 
 // Intent Token Transfer
-export const erc721TokenIdCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_ERC721_TOKEN_ID),
-  args: z.array(z.string()).min(1)
-})
-
 export const erc1155TokenIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ERC1155_TOKEN_ID),
   args: z.array(z.string()).min(1)
@@ -457,7 +451,6 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   // Intent Token Transfer
   erc1155TokenIdCriterionSchema,
   erc1155TransfersCriterionSchema,
-  erc721TokenIdCriterionSchema,
   // Intent Sign Message
   intentAlgorithmCriterionSchema,
   intentDomainCriterionSchema,

@@ -21,7 +21,6 @@ import {
   erc1155AmountConditionSchema,
   erc1155TokenIdCriterionSchema,
   erc1155TransfersCriterionSchema,
-  erc721TokenIdCriterionSchema,
   gasFeeAmountCriterionSchema,
   intentAlgorithmCriterionSchema,
   intentAmountCriterionSchema,
@@ -116,7 +115,6 @@ export type IntentChainIdCriterion = z.infer<typeof intentChainIdCriterionSchema
 export type IntentHexSignatureCriterion = z.infer<typeof intentHexSignatureCriterionSchema>
 export type IntentAmountCriterion = z.infer<typeof intentAmountCriterionSchema>
 // Intent Token Transfer
-export type ERC721TokenIdCriterion = z.infer<typeof erc721TokenIdCriterionSchema>
 export type ERC1155TokenIdCriterion = z.infer<typeof erc1155TokenIdCriterionSchema>
 export type ERC1155TransfersCriterion = z.infer<typeof erc1155TransfersCriterionSchema>
 // Intent Sign Message
