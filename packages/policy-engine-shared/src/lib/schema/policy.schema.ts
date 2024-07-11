@@ -111,7 +111,7 @@ export const timeWindowPeriodSchema = z.nativeEnum({
 } as const)
 
 export const amountConditionSchema = z.object({
-  currency: z.union([z.nativeEnum(FiatCurrency), z.literal('*')]),
+  currency: z.nativeEnum(FiatCurrency).optional(),
   operator: z.nativeEnum(ValueOperators),
   value: z.string()
 })
@@ -179,6 +179,36 @@ export const rateLimitConditionSchema = z.object({
   filters: transferFiltersSchema.optional()
 })
 
+export const userOperationAccountConditionSchema = z.object({
+  id: z.array(AccountId).min(1).optional(),
+  address: z.array(addressSchema).min(1).optional(),
+  accountType: z.array(z.nativeEnum(AccountType)).min(1).optional(),
+  classification: z.array(z.string().min(1)).min(1).optional()
+})
+
+export const userOperationTransfersConditionSchema = z.object({
+  tokens: z.array(z.string()).min(1).optional(),
+  amounts: z.array(erc1155AmountConditionSchema).min(1).optional()
+})
+
+export const userOperationIntentsConditionSchema = z.object({
+  type: z.array(intentSchema).min(1).optional(),
+  contract: z.array(AccountId).min(1).optional(),
+  token: z.array(z.string().min(1)).min(1).optional(),
+  spender: z.array(AccountId).min(1).optional(),
+  chainId: z.array(z.string().min(1)).min(1).optional(),
+  hexSignature: z.array(hexSchema).min(1).optional(),
+  algorithm: z.array(z.nativeEnum(Alg)).min(1).optional(),
+  source: userOperationAccountConditionSchema.optional(),
+  destination: userOperationAccountConditionSchema.optional(),
+  transfers: userOperationTransfersConditionSchema.optional(),
+  amount: amountConditionSchema.optional(),
+  message: signMessageConditionSchema.optional(),
+  payload: signMessageConditionSchema.optional(),
+  domain: signTypedDataDomainConditionSchema.optional(),
+  deadline: permitDeadlineConditionSchema.optional()
+})
+
 // Action
 export const actionCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ACTION),
@@ -221,7 +251,7 @@ export const accountIdCriterionSchema = z.object({
 
 export const accountAddressCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ADDRESS),
-  args: z.array(z.string().min(1)).min(1)
+  args: z.array(addressSchema).min(1)
 })
 
 export const accountTypeCriterionSchema = z.object({
@@ -242,7 +272,7 @@ export const sourceIdCriterionSchema = z.object({
 
 export const sourceAddressCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ADDRESS),
-  args: z.array(z.string().min(1)).min(1)
+  args: z.array(addressSchema).min(1)
 })
 
 export const sourceAccountTypeCriterionSchema = z.object({
@@ -263,7 +293,7 @@ export const destinationIdCriterionSchema = z.object({
 
 export const destinationAddressCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_DESTINATION_ADDRESS),
-  args: z.array(z.string().min(1)).min(1)
+  args: z.array(addressSchema).min(1)
 })
 
 export const destinationAccountTypeCriterionSchema = z.object({
@@ -358,7 +388,7 @@ export const entrypointIdCriterionSchema = z.object({
 
 export const entrypointAddressCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ENTRYPOINT_ADDRESS),
-  args: z.array(z.string().min(1)).min(1)
+  args: z.array(addressSchema).min(1)
 })
 
 export const entrypointAccountTypeCriterionSchema = z.object({
@@ -378,7 +408,7 @@ export const beneficiaryCriterionSchema = z.object({
 
 export const userOperationIntentsCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_USER_OPERATION_INTENTS),
-  args: z.array(z.any()).min(1)
+  args: z.array(userOperationIntentsConditionSchema).min(1)
 })
 
 // Transaction Gas Fee

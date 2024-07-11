@@ -58,7 +58,10 @@ import {
   timeWindowSchema,
   timeWindowTypeSchema,
   transferFiltersSchema,
-  userOperationIntentsCriterionSchema
+  userOperationAccountConditionSchema,
+  userOperationIntentsConditionSchema,
+  userOperationIntentsCriterionSchema,
+  userOperationTransfersConditionSchema
 } from '../schema/policy.schema'
 
 export const Then = thenSchema.enum
@@ -80,6 +83,9 @@ export type TimeWindow = z.infer<typeof timeWindowSchema>
 export type TransferFilters = z.infer<typeof transferFiltersSchema>
 export type SpendingLimitCondition = z.infer<typeof spendingLimitConditionSchema>
 export type RateLimitCondition = z.infer<typeof rateLimitConditionSchema>
+export type UserOperationAccountCondition = z.infer<typeof userOperationAccountConditionSchema>
+export type UserOperationTransfersCondition = z.infer<typeof userOperationTransfersConditionSchema>
+export type UserOperationIntentsCondition = z.infer<typeof userOperationIntentsConditionSchema>
 
 // Action
 export type ActionCriterion = z.infer<typeof actionCriterionSchema>
