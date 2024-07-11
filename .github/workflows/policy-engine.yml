@@ -47,7 +47,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add private .npmrc
+      - name: Add .npmrc
+        if: ${{ !startsWith(github.head_ref, 'dependabot/') }}
         run: echo "${{ secrets.NPMRC }}" > .npmrc
 
       - name: Install node.js
