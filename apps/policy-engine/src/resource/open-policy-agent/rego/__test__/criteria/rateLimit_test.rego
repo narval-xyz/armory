@@ -7,7 +7,7 @@ rateFixedPeriodRequest = object.union(request, {
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"amount": "200000000000000000",
+		"amount": "200000000000000000"
 	},
 	"feeds": [
 		{
@@ -59,9 +59,9 @@ rateFixedPeriodRequest = object.union(request, {
 					"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 					"timestamp": getStartDateInNanoSeconds("1d") / 1000000 - 60 * 60 * 1000, # the day before minus 1 hour
 					"chainId": 137,
-					"initiatedBy": "test-alice-uid",
-				},
-			],
+					"initiatedBy": "test-alice-uid"
+				}
+			]
 		}
 	]
 })
@@ -71,16 +71,15 @@ test_calculateCurrentRateByRollingPeriod {
 		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
-			"value": (12 * 60) * 60,
+			"value": (12 * 60) * 60
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-alice-uid"},
-		},
+			"users": {"test-alice-uid"}
+		}
 	}
 
 	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
-
     res == 2
 }
 
@@ -89,16 +88,15 @@ test_calculateCurrentRateByRollingPeriod {
 		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
-			"value": (24 * 60) * 60,
+			"value": (24 * 60) * 60
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-alice-uid"},
-		},
+			"users": {"test-alice-uid"}
+		}
 	}
 
 	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
-
     res == 3
 }
 
@@ -107,16 +105,15 @@ test_calculateCurrentRateByRollingPeriod {
 		"limit": 10,
 		"timeWindow": {
 			"type": "rolling",
-			"value": (24 * 60) * 60,
+			"value": (24 * 60) * 60
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-bob-uid"},
-		},
+			"users": {"test-bob-uid"}
+		}
 	}
 
 	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
-
     res == 0
 }
 
@@ -125,16 +122,15 @@ test_calculateCurrentRateByFixedPeriod {
 		"limit": 10,
 		"timeWindow": {
 			"type": "fixed",
-			"period": "1d",
+			"period": "1d"
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-alice-uid"},
-		},
+			"users": {"test-alice-uid"}
+		}
 	}
 
 	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
-
     res == 1
 }
 
@@ -147,11 +143,10 @@ test_calculateCurrentRateByFixedPeriod {
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
-			"users": {"test-bob-uid"},
-		},
+			"users": {"test-bob-uid"}
+		}
 	}
 
 	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
-
     res == 0
 }

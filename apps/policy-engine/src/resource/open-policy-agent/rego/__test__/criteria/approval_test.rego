@@ -1,16 +1,12 @@
 package main
 
 test_approversRoles {
-	roles = approversRoles with input as request
-		with data.entities as entities
-
+	roles = approversRoles with input as request with data.entities as entities
 	roles == {"root", "member", "admin"}
 }
 
 test_approversGroups {
-	groups = approversGroups with input as request
-		with data.entities as entities
-
+	groups = approversGroups with input as request with data.entities as entities
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
 }
 
@@ -22,7 +18,6 @@ test_checkApprovalByUserId {
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 	res = checkApproval(requiredApproval) with input as request with data.entities as entities
-
 	res == 1
 }
 
@@ -33,9 +28,7 @@ test_checkApprovalByUserId {
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
-
 	res = checkApproval(requiredApproval) with input as request with data.entities as entities
-
 	res == 0
 }
 
@@ -46,9 +39,7 @@ test_checkApprovalByUserGroup {
 		"approvalEntityType": "Narval::UserGroup",
 		"entityIds": ["test-user-group-one-uid"],
 	}
-
 	res = checkApproval(requiredApproval) with input as request with data.entities as entities
-
 	res == 1
 }
 
@@ -72,9 +63,7 @@ test_checkApprovalByUserRole {
 		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
-
 	res = checkApproval(requiredApproval) with input as request with data.entities as entities
-
 	res == 2
 }
 
@@ -85,9 +74,7 @@ test_checkApprovalByUserRole {
 		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
-
 	res = checkApproval(requiredApproval) with input as request with data.entities as entities
-
 	res == 3
 }
 

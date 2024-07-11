@@ -79,7 +79,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-
 	res == 400000000000000000
 }
 
@@ -97,7 +96,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -114,7 +112,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-
 	res == 0
 }
 
@@ -131,7 +128,6 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-
 	res == 200000000000000000
 }
 
@@ -149,7 +145,6 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-
 	res == 198000000000000000 # convert amount to fiat
 }
 
@@ -166,7 +161,6 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-
 	res == 0
 }
 
@@ -179,7 +173,6 @@ test_calculateCurrentSpendingsByPrincipal {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-
 	res == 0
 }
 
@@ -196,6 +189,5 @@ test_calculateCurrentSpendingsByPrincipal {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as perPrincipalReq with data.entities as entities
-
 	res == 600000000000000000
 }
