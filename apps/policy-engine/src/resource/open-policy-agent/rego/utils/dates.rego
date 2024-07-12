@@ -1,6 +1,9 @@
 package main
 
-dateFormat = "2006-01-01"
+# DON'T CHANGE 01 AND 02
+# 01 always displays current month
+# 02 always displays current day 
+dateFormat = "2006-01-02" # YYYY-MM-DD
 
 secondsToNanoSeconds(epochS) = epochS * 1000000000
 

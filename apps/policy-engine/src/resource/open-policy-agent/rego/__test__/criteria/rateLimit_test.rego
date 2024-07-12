@@ -153,12 +153,6 @@ test_calculateCurrentRateByFixedPeriod {
 }
 
 test_calculateCurrentRateForUserOperationIntent {
-	print(todayFormatted)
-	print(getStartDateInNanoSeconds("1d"))
-	print(tenHoursAgo)
-	print(elevenHoursAgo)
-	print(twentyHoursAgo)
-
 	userOperationRequest = object.union(rateFixedPeriodRequest, {
 		"intent": {
 			"type": "userOperation",
