@@ -112,7 +112,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-	res == 0
+	res == 1000000000000000000
 }
 
 test_calculateCurrentSpendingsByFixedPeriod {
@@ -128,7 +128,7 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-	res == 200000000000000000
+	res == 400000000000000000
 }
 
 test_calculateCurrentSpendingsByFixedPeriod {
@@ -145,7 +145,7 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
-	res == 198000000000000000 # convert amount to fiat
+	res == 396000000000000000 # convert amount to fiat
 }
 
 test_calculateCurrentSpendingsByFixedPeriod {
@@ -173,7 +173,7 @@ test_calculateCurrentSpendingsByPrincipal {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
-	res == 0
+	res == 1000000000000000000
 }
 
 test_calculateCurrentSpendingsByPrincipal {
@@ -189,5 +189,55 @@ test_calculateCurrentSpendingsByPrincipal {
 	}
 
 	res = calculateCurrentSpendings(conditions) with input as perPrincipalReq with data.entities as entities
-	res == 600000000000000000
+	res == 1600000000000000000
+}
+
+test_calculateCurrentSpendingsForUserOperationIntent {
+	userOperationRequest = object.union(request, {
+		"principal": {"userId": "test-alice-uid"},
+		"intent": {
+			"type": "userOperation",
+			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"entrypoint": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"beneficiary": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"operationIntents": [
+				{
+					"type": "transferNative",
+					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+					"token": "eip155:137/slip44:966",
+					"amount": "1000000000000000000", # 1 MATIC
+				},
+				{
+					"type": "transferNative",
+					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+					"token": "eip155:137/slip44:966",
+					"amount": "5000000000000000000", # 5 MATIC
+				},
+				{
+					"type": "transferERC20",
+					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+					"amount": "2000000000000000000", # 2 USDC
+				}
+			]
+		}
+	})
+
+	conditions = {
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
+		"filters": {
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"users": {"test-alice-uid"},
+		}
+	}
+
+    res = calculateCurrentSpendings(conditions) with input as userOperationRequest with data.entities as entities
+
+	res == 2400000000000000000
 }

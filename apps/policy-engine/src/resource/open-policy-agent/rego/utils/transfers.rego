@@ -2,6 +2,47 @@ package main
 
 import future.keywords.in
 
+transformIntentToTransferObject(intent) = result {
+	result = {
+		"amount": intent.amount,
+		"resourceId": resource.id,
+		"from": intent.from,
+		"to": intent.to,
+		"token": intent.contract,
+		"rates": priceFeed[contract],
+		"timestamp": nowSeconds * 1000,
+		"chainId": input.transactionRequest.chainId,
+		"initiatedBy": input.principal.userId
+	}
+}
+
+transformIntentToTransferObject(intent) = result {
+	result = {
+		"amount": intent.amount,
+		"resourceId": resource.id,
+		"from": intent.from,
+		"to": intent.to,
+		"token": intent.token,
+		"rates": priceFeed[token],
+		"timestamp": nowSeconds * 1000,
+		"chainId": input.transactionRequest.chainId,
+		"initiatedBy": input.principal.userId
+	}
+}
+
+intentTransferObjects = result {
+	input.intent.type != "userOperation"
+	result = [transformIntentToTransferObject(input.intent)]
+}
+
+intentTransferObjects = result {
+	input.intent.type == "userOperation"
+	result = [transferObject | 
+		userOperationIntent = input.intent.operationIntents[_]
+		transferObject = transformIntentToTransferObject(userOperationIntent)
+	]
+}
+
 # Check By Condition
 
 checkTransferCondition(value, set) {
