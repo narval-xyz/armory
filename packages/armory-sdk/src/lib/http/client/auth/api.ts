@@ -2757,7 +2757,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = {
-    CheckEntrypointId: 'checkEntrypointId'
+    CheckEntryPointId: 'checkEntryPointId'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32CriterionEnum];
@@ -2783,7 +2783,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = {
-    CheckEntrypointAddress: 'checkEntrypointAddress'
+    CheckEntryPointAddress: 'checkEntryPointAddress'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33CriterionEnum];
@@ -2809,7 +2809,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum = {
-    CheckEntrypointAccountType: 'checkEntrypointAccountType'
+    CheckEntryPointAccountType: 'checkEntryPointAccountType'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34CriterionEnum];
@@ -2841,7 +2841,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum = {
-    CheckEntrypointClassification: 'checkEntrypointClassification'
+    CheckEntryPointClassification: 'checkEntryPointClassification'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35CriterionEnum];
@@ -2860,14 +2860,14 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36 {
     'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum;
     /**
      * 
-     * @type {Array<string>}
+     * @type {Array<any>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36
      */
-    'args': Array<string>;
+    'args': Array<any>;
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum = {
-    CheckBeneficiary: 'checkBeneficiary'
+    CheckBeneficiaryAddress: 'checkBeneficiaryAddress'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum];

@@ -81,11 +81,11 @@ export const criterionSchema = z.nativeEnum({
   // Intent Permit Deadline
   CHECK_PERMIT_DEADLINE: 'checkPermitDeadline',
   // Intent User Operations
-  CHECK_ENTRYPOINT_ID: 'checkEntrypointId',
-  CHECK_ENTRYPOINT_ADDRESS: 'checkEntrypointAddress',
-  CHECK_ENTRYPOINT_ACCOUNT_TYPE: 'checkEntrypointAccountType',
-  CHECK_ENTRYPOINT_CLASSIFICATION: 'checkEntrypointClassification',
-  CHECK_BENEFICIARY: 'checkBeneficiary',
+  CHECK_ENTRYPOINT_ID: 'checkEntryPointId',
+  CHECK_ENTRYPOINT_ADDRESS: 'checkEntryPointAddress',
+  CHECK_ENTRYPOINT_ACCOUNT_TYPE: 'checkEntryPointAccountType',
+  CHECK_ENTRYPOINT_CLASSIFICATION: 'checkEntryPointClassification',
+  CHECK_BENEFICIARY_ADDRESS: 'checkBeneficiaryAddress',
   CHECK_USER_OPERATION_INTENTS: 'checkUserOperationIntents',
   // Transaction Gas Fee
   CHECK_GAS_FEE_AMOUNT: 'checkGasFeeAmount',
@@ -401,9 +401,9 @@ export const entrypointClassificationCriterionSchema = z.object({
   args: z.array(z.string().min(1)).min(1)
 })
 
-export const beneficiaryCriterionSchema = z.object({
-  criterion: z.literal(criterionSchema.enum.CHECK_BENEFICIARY),
-  args: z.array(z.string().min(1)).min(1)
+export const beneficiaryAddressCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_BENEFICIARY_ADDRESS),
+  args: z.array(addressSchema).min(1)
 })
 
 export const userOperationIntentsCriterionSchema = z.object({
@@ -494,7 +494,7 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   entrypointAddressCriterionSchema,
   entrypointAccountTypeCriterionSchema,
   entrypointClassificationCriterionSchema,
-  beneficiaryCriterionSchema,
+  beneficiaryAddressCriterionSchema,
   userOperationIntentsCriterionSchema,
   // Transaction Gas Fee
   gasFeeAmountCriterionSchema,
