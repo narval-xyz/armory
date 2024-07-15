@@ -2548,7 +2548,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25CriterionEnum = {
-    CheckErc1155TokenId: 'checkERC1155TokenId'
+    CheckErc1155TokenId: 'checkErc1155TokenId'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25CriterionEnum];
@@ -2574,7 +2574,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26CriterionEnum = {
-    CheckErc1155Transfers: 'checkERC1155Transfers'
+    CheckErc1155Transfers: 'checkErc1155Transfers'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26CriterionEnum];
