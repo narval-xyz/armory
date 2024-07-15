@@ -1030,10 +1030,10 @@ export interface SignRequestDtoRequestOneOf4UserOperation {
     'factoryAddress': any;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof SignRequestDtoRequestOneOf4UserOperation
      */
-    'chainId': string;
+    'chainId': number;
 }
 /**
  * 

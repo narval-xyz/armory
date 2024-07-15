@@ -215,6 +215,22 @@ describe('Evaluation', () => {
                 },
                 type: 'signTypedData'
               }
+            }),
+            ...(payload.request.action === Action.SIGN_USER_OPERATION && {
+              transactionRequestIntent: {
+                type: 'userOperation',
+                entrypoint: 'eip155:11155111:0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
+                from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
+                operationIntents: [
+                  {
+                    amount: '1',
+                    from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
+                    to: 'eip155:11155111:0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+                    token: 'eip155:11155111/slip44:966',
+                    type: 'transferNative'
+                  }
+                ]
+              }
             })
           })
           expect(status).toEqual(HttpStatus.OK)

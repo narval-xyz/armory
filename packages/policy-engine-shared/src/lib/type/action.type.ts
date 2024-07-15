@@ -65,7 +65,7 @@ export const UserOperationV6 = z.object({
   entryPoint: addressSchema,
   signature: hexSchema,
   factoryAddress: addressSchema,
-  chainId: z.coerce.string()
+  chainId: z.coerce.number()
   // TODO: determine what should be part of the user operation and what is a metadata (chainId, factoryAddress, signature, entrypoint)
 })
 export type UserOperationV6 = z.infer<typeof UserOperationV6>

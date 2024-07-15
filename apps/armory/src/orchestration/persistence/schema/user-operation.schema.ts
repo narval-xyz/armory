@@ -15,7 +15,7 @@ export const readUserOperationSchema = z.object({
   entryPoint: addressSchema,
   signature: hexSchema,
   factoryAddress: addressSchema,
-  chainId: z.string()
+  chainId: z.coerce.number()
 })
 
 export const createUserOperationSchema = readUserOperationSchema

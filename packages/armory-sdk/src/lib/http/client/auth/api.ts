@@ -467,10 +467,10 @@ export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
     'factoryAddress': any;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
      */
-    'chainId': string;
+    'chainId': number;
 }
 /**
  * 
@@ -2932,6 +2932,12 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsCurrencyEnum = 
  * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
  */
 export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31ArgsFilters
+     */
+    'perPrincipal'?: boolean;
     /**
      * 
      * @type {Array<string>}

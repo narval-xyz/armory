@@ -296,7 +296,7 @@ describe('Authorization Request', () => {
           signature:
             '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
           factoryAddress: '0x9406Cc6185a346906296840746125a0E44976454',
-          chainId: '11155111'
+          chainId: 11155111
         }
       }
 
