@@ -8,6 +8,7 @@ import NarButton from '../../../_design-system/NarButton'
 import NarCheckbox from '../../../_design-system/NarCheckbox'
 import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
+import NarUrlInput from '../../../_design-system/NarUrlInput'
 import useStore from '../../../_hooks/useStore'
 import useVaultApi, { VaultClientData } from '../../../_hooks/useVaultApi'
 
@@ -83,7 +84,11 @@ const AddVaultClientModal = () => {
         {!newClient && (
           <div className="flex gap-[24px]">
             <div className="flex flex-col gap-[8px] w-1/2">
-              <NarInput label="Vault URL" value={form.vaultUrl} onChange={(vaultUrl) => updateForm({ vaultUrl })} />
+              <NarUrlInput
+                label="Vault URL"
+                value={form.vaultUrl}
+                onValueChange={(vaultUrl) => updateForm({ vaultUrl })}
+              />
               <NarInput
                 label="Admin API Key"
                 value={form.vaultAdminApiKey}

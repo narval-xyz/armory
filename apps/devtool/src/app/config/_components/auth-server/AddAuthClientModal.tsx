@@ -8,6 +8,7 @@ import NarButton from '../../../_design-system/NarButton'
 import NarCheckbox from '../../../_design-system/NarCheckbox'
 import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
+import NarUrlInput from '../../../_design-system/NarUrlInput'
 import useAccountSignature from '../../../_hooks/useAccountSignature'
 import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerApi'
 import useStore from '../../../_hooks/useStore'
@@ -121,10 +122,10 @@ const AddAuthClientModal = () => {
         {!newClient && (
           <div className="flex flex-col gap-[24px]">
             <div className="flex flex-col gap-[8px]">
-              <NarInput
+              <NarUrlInput
                 label="Auth URL"
                 value={form.authServerUrl}
-                onChange={(authServerUrl) => updateForm({ authServerUrl })}
+                onValueChange={(authServerUrl) => updateForm({ authServerUrl })}
               />
               <NarInput
                 label="Admin API Key"
@@ -150,10 +151,10 @@ const AddAuthClientModal = () => {
             />
             <div className="flex gap-[24px]">
               <div className="flex flex-col gap-[8px] w-1/2">
-                <NarInput
+                <NarUrlInput
                   label="Entity Data Store URL"
                   value={form.entityDataStoreUrl}
-                  onChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
+                  onValueChange={(entityDataStoreUrl) => updateForm({ entityDataStoreUrl })}
                 />
                 <NarInput
                   label="Entity Public Key"
@@ -162,10 +163,10 @@ const AddAuthClientModal = () => {
                 />
               </div>
               <div className="flex flex-col gap-[8px] w-1/2">
-                <NarInput
+                <NarUrlInput
                   label="Policy Data Store URL"
                   value={form.policyDataStoreUrl}
-                  onChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
+                  onValueChange={(policyDataStoreUrl) => updateForm({ policyDataStoreUrl })}
                 />
                 <NarInput
                   label="Policy Public Key"

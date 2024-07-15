@@ -1,6 +1,7 @@
 'use client'
 
 import NarInput from '../../../_design-system/NarInput'
+import NarUrlInput from '../../../_design-system/NarUrlInput'
 import useStore from '../../../_hooks/useStore'
 import AddAuthClientModal from './AddAuthClientModal'
 
@@ -14,7 +15,7 @@ const AuthServerConfig = () => {
         <AddAuthClientModal />
       </div>
       <div className="flex flex-col gap-6">
-        <NarInput label="Auth URL" value={authServerUrl} onChange={setAuthServerUrl} />
+        <NarUrlInput label="Auth URL" value={authServerUrl} onValueChange={setAuthServerUrl} />
         <NarInput label="Admin API Key" value={authAdminApiKey} onChange={setAuthAdminApiKey} />
       </div>
     </div>
