@@ -17,6 +17,7 @@ import { ConsensusAgreementNotReachException } from '../exception/consensus-agre
 import { InvalidAttestationSignatureException } from '../exception/invalid-attestation-signature.exception'
 import { PolicyEngineException } from '../exception/policy-engine.exception'
 import { CreatePolicyEngineCluster, PolicyEngineNode } from '../type/cluster.type'
+import { FinalizeEcdsaJwtSignature, loadFinalizeEcdsaJwtSignature } from '../util/armory-mpc-module.util'
 
 @Injectable()
 export class ClusterService {
@@ -26,7 +27,7 @@ export class ClusterService {
   // TODO: (@wcalderipe, 04/05/24) Investigate if it's possible to use NestJS'
   // lazy modules.
   // See https://docs.nestjs.com/fundamentals/lazy-loading-modules
-  private finalizeEcdsaJwtSignature?: (jwts: string[]) => Promise<string>
+  private finalizeEcdsaJwtSignature?: FinalizeEcdsaJwtSignature
 
   constructor(
     private policyEngineClient: PolicyEngineClient,
@@ -152,18 +153,22 @@ export class ClusterService {
 
   private async finalizeSignature(evaluations: EvaluationResponse[]): Promise<EvaluationResponse> {
     if (!this.finalizeEcdsaJwtSignature) {
-      try {
-        const { finalizeEcdsaJwtSignature } = await import('@narval-xyz/armory-mpc-module')
+      this.logger.log('Load finalizeEcdsaJwtSignature function')
 
-        // Cache the loaded function for subsequent calls.
+      const finalizeEcdsaJwtSignature = loadFinalizeEcdsaJwtSignature()
+
+      if (finalizeEcdsaJwtSignature) {
         this.finalizeEcdsaJwtSignature = finalizeEcdsaJwtSignature
-      } catch (error) {
-        throw new ApplicationException({
-          message: 'Unable to lazy load finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module',
-          suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          origin: error
+
+        this.logger.log('Loaded finalizeEcdsaJwtSignature function', {
+          finalizeEcdsaJwtSignature: this.finalizeEcdsaJwtSignature
         })
       }
+
+      throw new ApplicationException({
+        message: 'The function finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module is undefined',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
+      })
     }
 
     try {

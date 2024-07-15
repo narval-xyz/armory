@@ -13,8 +13,8 @@
     "@faker-js/faker": "8.4.1",
     "@nestjs/testing": "10.3.9",
     "@nx/devkit": "19.2.3",
-    "@nx/eslint-plugin": "19.3.2",
     "@nx/eslint": "19.3.2",
+    "@nx/eslint-plugin": "19.3.2",
     "@nx/jest": "19.2.0",
     "@nx/js": "19.2.0",
     "@nx/nest": "19.2.0",
@@ -133,10 +133,10 @@
     "winston-transport": "4.7.0",
     "zod": "3.23.8"
   },
-  "nx": {
-    "includedScripts": []
-  },
   "optionalDependencies": {
     "@narval-xyz/armory-mpc-module": "0.0.1"
+  },
+  "nx": {
+    "includedScripts": []
   }
 }
