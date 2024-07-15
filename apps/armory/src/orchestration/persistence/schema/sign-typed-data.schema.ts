@@ -1,4 +1,4 @@
-import { Action, SerializedEip712TypedData } from '@narval/policy-engine-shared'
+import { Action, Eip712TypedData, SerializedEip712TypedData } from '@narval/policy-engine-shared'
 import { z } from 'zod'
 
 export const createSignTypedDataSchema = z.object({
@@ -8,4 +8,6 @@ export const createSignTypedDataSchema = z.object({
   typedData: SerializedEip712TypedData
 })
 
-export const readSignTypedDataSchema = createSignTypedDataSchema
+export const readSignTypedDataSchema = createSignTypedDataSchema.extend({
+  typedData: Eip712TypedData
+})

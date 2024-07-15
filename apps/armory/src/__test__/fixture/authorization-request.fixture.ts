@@ -49,7 +49,7 @@ export const generateSignTransactionRequest = (partial?: Partial<SignTransaction
   }
 }
 
-export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequest>) => {
+export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequest>): AuthorizationRequest => {
   const fixture = new Fixture()
     .extend([hexGenerator, addressGenerator, chainIdGenerator])
     .fromSchema(authorizationRequestSchema)
