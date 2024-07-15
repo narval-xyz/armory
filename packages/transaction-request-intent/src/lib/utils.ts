@@ -43,7 +43,7 @@ import { MethodsMapping, SUPPORTED_METHODS, SupportedMethodId } from './supporte
 import { isAssetType, isPermit, isPermit2, isSupportedMethodId } from './typeguards'
 
 export const getMethodId = (data?: string): Hex => {
-  if (!data) {
+  if (!data || data === '0x') {
     return NULL_METHOD_ID
   }
 
@@ -56,8 +56,8 @@ export const getMethodId = (data?: string): Hex => {
   return assertData
 }
 
-export const getCategory = (methodId: Hex, to?: Hex | null): TransactionCategory => {
-  if (methodId === SupportedMethodId.NULL_METHOD_ID) {
+export const getCategory = (methodId: Hex, to?: Hex | null, value?: Hex | null): TransactionCategory => {
+  if (methodId === SupportedMethodId.NULL_METHOD_ID && value) {
     return TransactionCategory.NATIVE_TRANSFER
   }
   if (!to) {
@@ -325,15 +325,6 @@ export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
 }
 
 export const nativeCaip19 = (chainId: number): AssetId => {
-  if (chainId !== SupportedChains.ETHEREUM && chainId !== SupportedChains.POLYGON) {
-    throw new DecoderError({
-      message: 'Invalid chainId',
-      status: 400,
-      context: {
-        chainId
-      }
-    })
-  }
   const coinType = chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
   return toAssetId({
     chainId,

@@ -272,6 +272,57 @@ describe('Authorization Request', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
+
+    it('evaluates a signUserOperation request', async () => {
+      const req = {
+        action: 'signUserOperation',
+        nonce: 'e1c8a972-3828-4046-abaf-eda251bf56bd',
+        resourceId: 'eip155:eoa:0xd9d431ad45d96dd9eeb05dd0a7d66876d1d74c4b',
+        userOperation: {
+          sender: '0xcAF631599aE86A39F850668397dF5C5f6C4c75ee',
+          nonce: '0',
+          initCode:
+            '0x9406Cc6185a346906296840746125a0E449764545fbfb9cf000000000000000000000000d93473015c502ba93ce4fa2145ee0fe58a09451d0000000000000000000000000000000000000000000000000000000000000000',
+          callData:
+            '0xb61d27f6000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000',
+          callGasLimit: '82511',
+          verificationGasLimit: '526140',
+          preVerificationGas: '65925',
+          maxFeePerGas: '31921175875',
+          maxPriorityFeePerGas: '506941965',
+          paymasterAndData:
+            '0xDFF7FA1077Bce740a6a212b3995990682c0Ba66d000000000000000000000000000000000000000000000000000000006686cf2d0000000000000000000000000000000000000000000000000000000000000000b4a531940971ef584e248dd46ca42ddecfa47e8529ff5dbcd9b6c533ce29b36a4ebcba1c40bbd1ed3347566fd6528063d35fbe288c6197a2b5566c1ca50bbe8d1c',
+          entryPoint: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+          signature:
+            '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
+          factoryAddress: '0x9406Cc6185a346906296840746125a0E44976454',
+          chainId: 11155111
+        }
+      }
+
+      const payload = {
+        request: req,
+        authentication,
+        approvals
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
+        .send(payload)
+
+      expect(body).toMatchObject({
+        approvals,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        request: payload.request,
+        evaluations: []
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
   })
 
   describe(`GET ${ENDPOINT}/:id`, () => {

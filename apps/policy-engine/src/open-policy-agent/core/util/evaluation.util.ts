@@ -7,10 +7,12 @@ import {
   GrantPermissionAction,
   Request,
   SerializedTransactionRequest,
+  SerializedUserOperationV6,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
-  SignTypedDataAction
+  SignTypedDataAction,
+  SignUserOperationAction
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
@@ -24,6 +26,40 @@ type Mapping<R extends Request> = (
   approvals?: CredentialEntity[],
   feeds?: Feed<unknown>[]
 ) => Input
+
+const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
+  const { chainId, entryPoint, ...userOpToBeHashed } = request.userOperation
+
+  const result = safeDecode({
+    input: {
+      type: InputType.TRANSACTION_REQUEST,
+      txRequest: {
+        from: request.userOperation.sender,
+        chainId: +chainId,
+        data: request.userOperation.callData,
+        to: entryPoint
+      }
+    }
+  })
+
+  if (!result.success) {
+    throw new OpenPolicyAgentException({
+      message: 'Invalid user operation intent',
+      suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+      context: { error: result.error }
+    })
+  }
+
+  return {
+    action: Action.SIGN_USER_OPERATION,
+    principal,
+    intent: result.intent,
+    approvals,
+    userOperation: SerializedUserOperationV6.parse(request.userOperation),
+    resource: { uid: request.resourceId },
+    feeds
+  }
+}
 
 const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, approvals, feeds): Input => {
   const result = safeDecode({
@@ -121,6 +157,7 @@ export const toInput = (params: {
     [Action.SIGN_RAW, toSignRaw],
     [Action.SIGN_TRANSACTION, toSignTransaction],
     [Action.SIGN_TYPED_DATA, toSignTypedData],
+    [Action.SIGN_USER_OPERATION, toSignUserOperation],
     [Action.GRANT_PERMISSION, toGrantPermission]
   ])
   const mapper = mappers.get(action)

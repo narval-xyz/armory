@@ -8,6 +8,7 @@ import {
   readSignRawSchema
 } from './persistence/schema/sign-message.schema'
 import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'
+import { createSignUserOperationSchema, readSignUserOperationSchema } from './persistence/schema/sign-userop.schema'
 
 type ActionRequestConfig = {
   action: SupportedAction
@@ -55,6 +56,16 @@ export const ACTION_REQUEST = new Map<Action, ActionRequestConfig>([
       schema: {
         read: readGrantPermissionSchema,
         create: createGrantPermissionSchema
+      }
+    }
+  ],
+  [
+    Action.SIGN_USER_OPERATION,
+    {
+      action: Action.SIGN_USER_OPERATION,
+      schema: {
+        read: readSignUserOperationSchema,
+        create: createSignUserOperationSchema
       }
     }
   ]

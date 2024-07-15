@@ -6,7 +6,6 @@ import {
   Criterion,
   DataStoreConfiguration,
   Decision,
-  EvaluationRequest,
   EvaluationResponse,
   FIXTURE,
   HttpSource,
@@ -18,9 +17,11 @@ import { PrivateKey, secp256k1PrivateKeyToJwk, secp256k1PrivateKeyToPublicJwk } 
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
+import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../policy-engine.constant'
@@ -35,7 +36,8 @@ import {
   generateSignRawRequest,
   generateSignTransactionRequest,
   generateSignTransactionRequestWithGas,
-  generateSignTypedDataRequest
+  generateSignTypedDataRequest,
+  generateSignUserOperationRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientService } from '../../core/service/client.service'
@@ -154,29 +156,33 @@ describe('Evaluation', () => {
     const useCases = [
       {
         action: Action.SIGN_TRANSACTION,
-        getPayload: () => generateSignTransactionRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignTransactionRequest())
       },
       {
         action: Action.SIGN_TYPED_DATA,
-        getPayload: () => generateSignTypedDataRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignTypedDataRequest())
       },
       {
         action: Action.SIGN_MESSAGE,
-        getPayload: () => generateSignMessageRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignMessageRequest())
       },
       {
         action: Action.SIGN_RAW,
-        getPayload: () => generateSignRawRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignRawRequest())
       },
       {
         action: Action.GRANT_PERMISSION,
-        getPayload: () => generateGrantPermissionRequest()
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateGrantPermissionRequest())
+      },
+      {
+        action: Action.SIGN_USER_OPERATION,
+        getPayload: async () => SerializedEvaluationRequest.parse(await generateSignUserOperationRequest())
       }
     ]
 
     useCases.forEach(({ action, getPayload }) => {
       describe(`when action is ${action}`, () => {
-        let payload: EvaluationRequest
+        let payload: SerializedEvaluationRequest
 
         beforeEach(async () => {
           payload = await getPayload()
@@ -210,6 +216,22 @@ describe('Evaluation', () => {
                   version: '1'
                 },
                 type: 'signTypedData'
+              }
+            }),
+            ...(payload.request.action === Action.SIGN_USER_OPERATION && {
+              transactionRequestIntent: {
+                type: 'userOperation',
+                entrypoint: `eip155:${sepolia.id}:${ENTRYPOINT_ADDRESS_V06.toLowerCase()}`,
+                from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
+                operationIntents: [
+                  {
+                    amount: '1',
+                    from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
+                    to: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Bob.address.toLowerCase()}`,
+                    token: `eip155:${sepolia.id}/slip44:966`,
+                    type: 'transferNative'
+                  }
+                ]
               }
             })
           })

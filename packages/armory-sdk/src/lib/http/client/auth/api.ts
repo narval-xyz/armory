@@ -83,7 +83,7 @@ export type AuthorizationRequestDtoMetadataAudience = Array<string> | string;
  * @type AuthorizationRequestDtoRequest
  * @export
  */
-export type AuthorizationRequestDtoRequest = AuthorizationRequestDtoRequestOneOf | AuthorizationRequestDtoRequestOneOf1 | AuthorizationRequestDtoRequestOneOf2 | AuthorizationRequestDtoRequestOneOf3 | AuthorizationRequestDtoRequestOneOf4;
+export type AuthorizationRequestDtoRequest = AuthorizationRequestDtoRequestOneOf | AuthorizationRequestDtoRequestOneOf1 | AuthorizationRequestDtoRequestOneOf2 | AuthorizationRequestDtoRequestOneOf3 | AuthorizationRequestDtoRequestOneOf4 | AuthorizationRequestDtoRequestOneOf5;
 
 /**
  * 
@@ -369,17 +369,146 @@ export interface AuthorizationRequestDtoRequestOneOf4 {
     'resourceId': string;
     /**
      * 
-     * @type {Array<string>}
+     * @type {AuthorizationRequestDtoRequestOneOf4UserOperation}
      * @memberof AuthorizationRequestDtoRequestOneOf4
+     */
+    'userOperation': AuthorizationRequestDtoRequestOneOf4UserOperation;
+}
+
+export const AuthorizationRequestDtoRequestOneOf4ActionEnum = {
+    SignUserOperation: 'signUserOperation'
+} as const;
+
+export type AuthorizationRequestDtoRequestOneOf4ActionEnum = typeof AuthorizationRequestDtoRequestOneOf4ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf4ActionEnum];
+
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf4UserOperation
+ */
+export interface AuthorizationRequestDtoRequestOneOf4UserOperation {
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'sender': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'initCode': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'callData': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'callGasLimit': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'verificationGasLimit': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'preVerificationGas': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'maxFeePerGas': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'maxPriorityFeePerGas': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'paymasterAndData': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'entryPoint': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'signature': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'factoryAddress': any;
+    /**
+     * 
+     * @type {number}
+     * @memberof AuthorizationRequestDtoRequestOneOf4UserOperation
+     */
+    'chainId': number;
+}
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOf5
+ */
+export interface AuthorizationRequestDtoRequestOneOf5 {
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf5
+     */
+    'action': AuthorizationRequestDtoRequestOneOf5ActionEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf5
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOf5
+     */
+    'resourceId': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof AuthorizationRequestDtoRequestOneOf5
      */
     'permissions': Array<string>;
 }
 
-export const AuthorizationRequestDtoRequestOneOf4ActionEnum = {
+export const AuthorizationRequestDtoRequestOneOf5ActionEnum = {
     GrantPermission: 'grantPermission'
 } as const;
 
-export type AuthorizationRequestDtoRequestOneOf4ActionEnum = typeof AuthorizationRequestDtoRequestOneOf4ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf4ActionEnum];
+export type AuthorizationRequestDtoRequestOneOf5ActionEnum = typeof AuthorizationRequestDtoRequestOneOf5ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf5ActionEnum];
 
 /**
  * 
@@ -1873,6 +2002,7 @@ export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOfArgsEnum = {
     SignTransaction: 'signTransaction',
     SignRaw: 'signRaw',
     SignMessage: 'signMessage',
+    SignUserOperation: 'signUserOperation',
     SignTypedData: 'signTypedData',
     GrantPermission: 'grantPermission'
 } as const;

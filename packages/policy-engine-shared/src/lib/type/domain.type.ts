@@ -4,10 +4,12 @@ import { AccountId } from '../util/caip.util'
 import {
   GrantPermissionAction,
   SerializedTransactionAction,
+  SerializedUserOperationAction,
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
-  SignTypedDataAction
+  SignTypedDataAction,
+  SignUserOperationAction
 } from './action.type'
 
 export enum Decision {
@@ -97,6 +99,7 @@ export const Request = z.discriminatedUnion('action', [
   SignMessageAction,
   SignTypedDataAction,
   SignRawAction,
+  SignUserOperationAction,
   GrantPermissionAction
 ])
 export type Request = z.infer<typeof Request>
@@ -106,6 +109,7 @@ export const SerializedRequest = z.discriminatedUnion('action', [
   SignMessageAction,
   SignTypedDataAction,
   SignRawAction,
+  SerializedUserOperationAction,
   GrantPermissionAction
 ])
 export type SerializedRequest = z.infer<typeof SerializedRequest>

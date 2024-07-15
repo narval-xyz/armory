@@ -49,6 +49,17 @@ export type ExecuteParams = {
   data: Hex
 }
 
+export type ExecuteBatchV6Params = {
+  to: Address[]
+  data: Hex[]
+}
+
+export type ExecuteBatchV7Params = {
+  to: Address[]
+  value: bigint[]
+  data: Hex[]
+}
+
 export type ExecuteAndRevertParams = {
   to: Address
   value: bigint
@@ -70,11 +81,6 @@ export type UserOp = {
   signature: Hex
 }
 
-export type HandleOpsParams = {
-  userOps: UserOp[]
-  beneficiary: Address
-}
-
 export type NullHexParams = Record<string, never>
 
 export type ExtractedParams =
@@ -84,8 +90,9 @@ export type ExtractedParams =
   | Erc1155SafeTransferFromParams
   | SafeBatchTransferFromParams
   | ApproveAllowanceParams
-  | HandleOpsParams
   | CreateAccountParams
   | ExecuteParams
   | ExecuteAndRevertParams
+  | ExecuteBatchV6Params
+  | ExecuteBatchV7Params
   | NullHexParams

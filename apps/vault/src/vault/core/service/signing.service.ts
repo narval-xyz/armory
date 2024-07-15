@@ -5,10 +5,13 @@ import {
   SignMessageAction,
   SignRawAction,
   SignTransactionAction,
-  SignTypedDataAction
+  SignTypedDataAction,
+  SignUserOperationAction
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { EntryPoint } from 'permissionless/types'
+import { getUserOperationHash } from 'permissionless/utils'
 import {
   TransactionRequest,
   checksumAddress,
@@ -42,6 +45,8 @@ export class SigningService {
       return this.signTypedData(clientId, request)
     } else if (request.action === Action.SIGN_RAW) {
       return this.signRaw(clientId, request)
+    } else if (request.action === Action.SIGN_USER_OPERATION) {
+      return this.signUserOperation(clientId, request)
     }
 
     throw new ApplicationException({
@@ -49,6 +54,29 @@ export class SigningService {
       suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
       context: { clientId, request }
     })
+  }
+
+  async signUserOperation(clientId: string, action: SignUserOperationAction): Promise<Hex> {
+    const { userOperation, resourceId } = action
+    const client = await this.buildClient(clientId, resourceId)
+
+    const { chainId, entryPoint, factoryAddress: _factoryAddress, ...userOpToBeHashed } = userOperation
+
+    const userOpHash = getUserOperationHash({
+      chainId: +chainId,
+      entryPoint: entryPoint as EntryPoint,
+      userOperation: userOpToBeHashed
+    })
+
+    const signature = await client.signMessage({
+      message: {
+        raw: userOpHash
+      }
+    })
+
+    await this.maybeSaveNonce(clientId, action)
+
+    return signature
   }
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
@@ -167,7 +195,7 @@ export class SigningService {
 
   private async maybeSaveNonce(
     clientId: string,
-    request: SignTransactionAction | SignMessageAction | SignTypedDataAction | SignRawAction
+    request: SignTransactionAction | SignMessageAction | SignTypedDataAction | SignRawAction | SignUserOperationAction
   ) {
     if (request.nonce) {
       await this.nonceService.save(clientId, request.nonce)
