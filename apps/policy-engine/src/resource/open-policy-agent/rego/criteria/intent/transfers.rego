@@ -4,12 +4,12 @@ import future.keywords.in
 
 intentTransfers = input.intent.transfers
 
-checkERC1155TokenId(values) {
+checkErc1155TokenId(values) {
 	transfer = intentTransfers[_]
 	transfer.token in values
 }
 
-checkERC1155Transfers(conditions) {
+checkErc1155Transfers(conditions) {
 	matches = [e |
 		some transfer in intentTransfers
 		some condition in conditions

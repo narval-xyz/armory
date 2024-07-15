@@ -76,8 +76,8 @@ export const criterionSchema = z.nativeEnum({
   CHECK_INTENT_ALGORITHM: 'checkIntentAlgorithm',
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
   // Intent Token Transfers
-  CHECK_ERC1155_TOKEN_ID: 'checkERC1155TokenId',
-  CHECK_ERC1155_TRANSFERS: 'checkERC1155Transfers',
+  CHECK_ERC1155_TOKEN_ID: 'checkErc1155TokenId',
+  CHECK_ERC1155_TRANSFERS: 'checkErc1155Transfers',
   // Intent Permit Deadline
   CHECK_PERMIT_DEADLINE: 'checkPermitDeadline',
   // Intent User Operations

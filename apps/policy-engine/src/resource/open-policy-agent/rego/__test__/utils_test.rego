@@ -1,9 +1,9 @@
 package main
 
 test_transformIntentToTransferObject {
-	res_1 = transformIntentToTransferObject(input.intent) with input as request with data.entities as entities
+	res = transformIntentToTransferObject(input.intent) with input as request with data.entities as entities
 	
-	res_1 == {
+	res == {
 		"amount": "1000000000000000000",
 		"chainId": 137,
 		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",

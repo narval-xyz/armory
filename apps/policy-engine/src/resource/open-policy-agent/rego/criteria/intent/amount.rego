@@ -10,19 +10,19 @@ getAmountCondition(filters) = object.union({
 	"value": wildcard
 }, filters)
 
-getIntentAmount(currency) = result {
+calculateIntentAmount(currency) = result {
 	currency == wildcard
 	result = intentAmount
 }
 
-getIntentAmount(currency) = result {
+calculateIntentAmount(currency) = result {
 	currency != wildcard
 	token = input.intent.token
 	price = to_number(priceFeed[token][currency])
 	result = intentAmount * price
 }
 
-getIntentAmount(currency) = result {
+calculateIntentAmount(currency) = result {
 	currency != wildcard
 	contract = input.intent.contract
 	price = to_number(priceFeed[contract][currency])
@@ -43,40 +43,40 @@ checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.equal
-	getIntentAmount(condition.currency) == to_number(condition.value)
+	calculateIntentAmount(condition.currency) == to_number(condition.value)
 }
 
 checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.notEqual
-	getIntentAmount(condition.currency) != to_number(condition.value)
+	calculateIntentAmount(condition.currency) != to_number(condition.value)
 }
 
 checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.greaterThan
-	getIntentAmount(condition.currency) > to_number(condition.value)
+	calculateIntentAmount(condition.currency) > to_number(condition.value)
 }
 
 checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.lessThan
-	getIntentAmount(condition.currency) < to_number(condition.value)
+	calculateIntentAmount(condition.currency) < to_number(condition.value)
 }
 
 checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.greaterThanOrEqual
-	getIntentAmount(condition.currency) >= to_number(condition.value)
+	calculateIntentAmount(condition.currency) >= to_number(condition.value)
 }
 
 checkIntentAmount(filters) {
 	condition = getAmountCondition(filters)
 	condition.value != wildcard
 	condition.operator == operators.lessThanOrEqual
-	getIntentAmount(condition.currency) <= to_number(condition.value)
+	calculateIntentAmount(condition.currency) <= to_number(condition.value)
 }
