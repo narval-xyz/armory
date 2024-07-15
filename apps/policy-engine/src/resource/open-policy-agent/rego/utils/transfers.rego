@@ -9,7 +9,7 @@ transformIntentToTransferObject(intent) = result {
 		"from": intent.from,
 		"to": intent.to,
 		"token": intent.contract,
-		"rates": priceFeed[contract],
+		"rates": {}, # replace with priceFeed[contract] when priceFeed is available
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId
@@ -23,7 +23,7 @@ transformIntentToTransferObject(intent) = result {
 		"from": intent.from,
 		"to": intent.to,
 		"token": intent.token,
-		"rates": priceFeed[token],
+		"rates": {}, # replace with priceFeed[token] when priceFeed is available
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId
