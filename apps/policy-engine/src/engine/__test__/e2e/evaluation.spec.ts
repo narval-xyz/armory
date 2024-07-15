@@ -17,9 +17,11 @@ import { PrivateKey, secp256k1PrivateKeyToJwk, secp256k1PrivateKeyToPublicJwk } 
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
+import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../policy-engine.constant'
@@ -219,14 +221,14 @@ describe('Evaluation', () => {
             ...(payload.request.action === Action.SIGN_USER_OPERATION && {
               transactionRequestIntent: {
                 type: 'userOperation',
-                entrypoint: 'eip155:11155111:0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
-                from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
+                entrypoint: `eip155:${sepolia.id}:${ENTRYPOINT_ADDRESS_V06.toLowerCase()}`,
+                from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
                 operationIntents: [
                   {
                     amount: '1',
-                    from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
-                    to: 'eip155:11155111:0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-                    token: 'eip155:11155111/slip44:966',
+                    from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
+                    to: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Bob.address.toLowerCase()}`,
+                    token: `eip155:${sepolia.id}/slip44:966`,
                     type: 'transferNative'
                   }
                 ]
