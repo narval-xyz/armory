@@ -255,7 +255,7 @@ describe('SigningService', () => {
   describe('signUserOperation', () => {
     const userOpRequest: Request = {
       action: 'signUserOperation',
-      nonce: 'e1c8a972-3828-4046-abaf-eda251bf56bd',
+      nonce,
       resourceId: 'eip155:eoa:0xd9d431ad45d96dd9eeb05dd0a7d66876d1d74c4b',
       userOperation: {
         sender: '0x17Ae006F046e023A2e98aEb687b63615c1B69010',
@@ -275,7 +275,7 @@ describe('SigningService', () => {
         signature:
           '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
         factoryAddress: '0x9406Cc6185a346906296840746125a0E44976454',
-        chainId: '11155111'
+        chainId: 11155111
       }
     }
 
@@ -285,6 +285,10 @@ describe('SigningService', () => {
       const expectedSignature =
         '0x687fda1fcebeed665d6f738a2d1a7e952e41434ae010c58aaa9623fe991a0a716d8d0d27d5192aaf7231965c44ae9abbe0c126068ef5e42f201de1138f82f8301b'
       expect(result).toEqual(expectedSignature)
+    })
+    it('saves the nonce on success', async () => {
+      await signingService.signUserOperation(clientId, userOpRequest)
+      expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
     })
   })
 

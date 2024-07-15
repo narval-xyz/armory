@@ -195,7 +195,43 @@ describe('Evaluation', () => {
 
           expect(body).toEqual({
             decision: Decision.FORBID,
-            request: payload.request
+            request: payload.request,
+            ...(payload.request.action === Action.SIGN_TRANSACTION && {
+              transactionRequestIntent: {
+                amount: '1000000000000000000',
+                from: 'eip155:137:0x9f38879167accf7401351027ee3f9247a71cd0c5',
+                to: 'eip155:137:0x0301e2724a40e934cce3345928b88956901aa127',
+                token: 'eip155:137/slip44:966',
+                type: 'transferNative'
+              }
+            }),
+            ...(payload.request.action === Action.SIGN_TYPED_DATA && {
+              transactionRequestIntent: {
+                domain: {
+                  chainId: 1,
+                  name: 'Ether Mail',
+                  verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+                  version: '1'
+                },
+                type: 'signTypedData'
+              }
+            }),
+            ...(payload.request.action === Action.SIGN_USER_OPERATION && {
+              transactionRequestIntent: {
+                type: 'userOperation',
+                entrypoint: 'eip155:11155111:0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789',
+                from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
+                operationIntents: [
+                  {
+                    amount: '1',
+                    from: 'eip155:11155111:0x17ae006f046e023a2e98aeb687b63615c1b69010',
+                    to: 'eip155:11155111:0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+                    token: 'eip155:11155111/slip44:966',
+                    type: 'transferNative'
+                  }
+                ]
+              }
+            })
           })
           expect(status).toEqual(HttpStatus.OK)
         })
