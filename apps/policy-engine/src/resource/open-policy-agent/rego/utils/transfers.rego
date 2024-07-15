@@ -3,13 +3,16 @@ package main
 import future.keywords.in
 
 transformIntentToTransferObject(intent) = result {
+	contract = intent.contract
+	not priceFeed[contract]
+
 	result = {
 		"amount": intent.amount,
 		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
-		"token": intent.contract,
-		"rates": {}, # replace with priceFeed[contract] when priceFeed is available
+		"token": contract,
+		"rates": {},
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId
@@ -17,13 +20,48 @@ transformIntentToTransferObject(intent) = result {
 }
 
 transformIntentToTransferObject(intent) = result {
+	token = intent.token
+	not priceFeed[token]
+
 	result = {
 		"amount": intent.amount,
 		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
-		"token": intent.token,
-		"rates": {}, # replace with priceFeed[token] when priceFeed is available
+		"token": token,
+		"rates": {},
+		"timestamp": nowSeconds * 1000,
+		"chainId": input.transactionRequest.chainId,
+		"initiatedBy": input.principal.userId
+	}
+}
+
+transformIntentToTransferObject(intent) = result {
+	contract = intent.contract
+
+	result = {
+		"amount": intent.amount,
+		"resourceId": resource.id,
+		"from": intent.from,
+		"to": intent.to,
+		"token": contract,
+		"rates": priceFeed[contract],
+		"timestamp": nowSeconds * 1000,
+		"chainId": input.transactionRequest.chainId,
+		"initiatedBy": input.principal.userId
+	}
+}
+
+transformIntentToTransferObject(intent) = result {
+	token = intent.token
+
+	result = {
+		"amount": intent.amount,
+		"resourceId": resource.id,
+		"from": intent.from,
+		"to": intent.to,
+		"token": token,
+		"rates": priceFeed[token],
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId
