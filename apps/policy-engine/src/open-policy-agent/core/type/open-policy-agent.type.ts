@@ -6,6 +6,7 @@ import {
   CredentialEntity,
   Feed,
   SerializedTransactionRequest,
+  SerializedUserOperationV6,
   UserRole
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
@@ -23,6 +24,7 @@ export type Input = {
   resource?: { uid: string }
   intent?: Intent
   transactionRequest?: SerializedTransactionRequest
+  userOperation?: SerializedUserOperationV6
   permissions?: string[]
   approvals?: CredentialEntity[]
   feeds?: Feed<unknown>[]

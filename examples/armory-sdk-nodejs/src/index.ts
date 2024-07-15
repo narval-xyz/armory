@@ -1,223 +1,80 @@
 /* eslint-disable no-console */
 
-import { createArmoryConfig, importPrivateKey, sendTransaction, setPolicies } from '@narval/armory-sdk'
-import { Action, FIXTURE, Policy } from '@narval/policy-engine-shared'
-import { privateKeyToJwk } from '@narval/signature'
-import { v4 } from 'uuid'
-import { Hex, toHex } from 'viem'
-import { privateKeyToAddress } from 'viem/accounts'
-
-const policy = [
-  {
-    id: 'c13fe2c1-ecbe-43fe-9e0e-fae730fd5f50',
-    description: 'Required approval for an admin to transfer ERC-721 or ERC-1155 tokens',
-    when: [
-      {
-        criterion: 'checkPrincipalRole',
-        args: ['admin']
-      },
-      {
-        criterion: 'checkAction',
-        args: ['signTransaction']
-      },
-      {
-        criterion: 'checkIntentType',
-        args: ['transferErc721', 'transferErc1155']
-      },
-      {
-        criterion: 'checkApprovals',
-        args: [
-          {
-            approvalCount: 2,
-            countPrincipal: false,
-            approvalEntityType: 'Narval::User',
-            entityIds: ['test-bob-user-uid', 'test-carol-user-uid']
-          }
-        ]
-      }
-    ],
-    then: 'permit'
-  },
-  {
-    id: 'f8ff8a65-a3ac-410f-800b-e345c49f9db9',
-    description: 'Authorize native transfers of up to 1 MATIC every 24 hours',
-    when: [
-      {
-        criterion: 'checkAction',
-        args: ['signTransaction']
-      },
-      {
-        criterion: 'checkIntentType',
-        args: ['transferNative']
-      },
-      {
-        criterion: 'checkIntentToken',
-        args: ['eip155:137/slip44:966']
-      },
-      {
-        criterion: 'checkSpendingLimit',
-        args: {
-          limit: '1000000000000000000',
-          operator: 'lte',
-          timeWindow: {
-            type: 'rolling',
-            value: 43200
-          }
-        }
-      }
-    ],
-    then: 'permit'
-  },
-  {
-    id: 'f8ff8a65-a3ac-410f-800b-e345c49f9db10',
-    description: 'let anyone create a wallet',
-    when: [
-      {
-        criterion: 'checkAction',
-        args: ['grantPermission']
-      }
-    ],
-    then: 'permit'
-  },
-  {
-    id: v4(),
-    description: 'let anyone sign a message',
-    when: [
-      {
-        criterion: 'checkAction',
-        args: [Action.SIGN_MESSAGE]
-      }
-    ],
-    then: 'permit'
-  },
-  {
-    id: v4(),
-    description: 'let anyone sign typed data',
-    when: [
-      {
-        criterion: 'checkAction',
-        args: [Action.SIGN_TYPED_DATA]
-      }
-    ],
-    then: 'permit'
-  }
-] as Policy[]
+import { resourceId } from '@narval/armory-sdk'
+import { hexSchema } from '@narval/policy-engine-shared'
+import { createSmartAccountClient, ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
+import { signerToSimpleSmartAccount } from 'permissionless/accounts'
+import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico'
+import { createPublicClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+import { armoryClient, armoryUserOperationSigner } from './armory.account'
+import { setInitialState } from './armory.data'
+import { getArmoryConfig } from './armory.sdk'
+import { simpleSmartAccountWithNarval } from './armory.smart-account'
 
 const main = async () => {
-  const anotherAddress = '0x3f843E606C79312718477F9bC020F3fC5b7264C2'.toLowerCase() as Hex
-  const signerAddr = privateKeyToAddress(FIXTURE.UNSAFE_PRIVATE_KEY.Root)
-  const signer = {
-    ...privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Root),
-    addr: signerAddr,
-    kid: signerAddr
-  }
+  const ROOT_USER_CRED = hexSchema.parse(process.env.ROOT_USER_CRED)
+  const config = await getArmoryConfig(ROOT_USER_CRED)
+  const armory = armoryClient(config)
+  const { address: signerAddress } = await setInitialState(armory, ROOT_USER_CRED)
+  const signer = armoryUserOperationSigner(armory, signerAddress)
 
-  const config = createArmoryConfig({
-    authClientId: '7d88cd82-4ee4-4f99-819e-07fd5fd4c2cf',
-    authHost: 'http://localhost:3010',
-    authSecret: '4d975e601bd61cb7163025bdec0b77ce6fcfc30d2513eab7b1187e13a5ecfe409fb40850b9e917a51a02',
-    vaultClientId: '5f16ff6a-a9ca-42d5-9a6e-d605e58e3359',
-    vaultHost: 'http://localhost:3011',
-    signer: privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
+  const apiKey = process.env.PIMLICO_API_KEY
+  if (!apiKey) throw new Error('Missing PIMLICO_API_KEY')
+  const paymasterUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`
+
+  const publicClient = createPublicClient({
+    transport: http('https://rpc.ankr.com/eth_sepolia')
+  })
+
+  const paymasterClient = createPimlicoPaymasterClient({
+    transport: http(paymasterUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06
+  })
+
+  const account = await signerToSimpleSmartAccount(publicClient, {
+    signer,
+    entryPoint: ENTRYPOINT_ADDRESS_V06 // global entrypoint
+  })
+
+  const narvalAccount = simpleSmartAccountWithNarval(account, armory, resourceId(signerAddress))
+
+  console.log(`Smart account address: https://sepolia.etherscan.io/address/${narvalAccount.address}`)
+
+  const bundlerUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`
+
+  const bundlerClient = createPimlicoBundlerClient({
+    transport: http(bundlerUrl),
+    entryPoint: ENTRYPOINT_ADDRESS_V06
+  })
+
+  const smartAccountClient = createSmartAccountClient({
+    account: narvalAccount,
+    entryPoint: ENTRYPOINT_ADDRESS_V06,
+    chain: sepolia,
+    bundlerTransport: http(bundlerUrl),
+    middleware: {
+      gasPrice: async () => {
+        return (await bundlerClient.getUserOperationGasPrice()).fast
+      },
+      sponsorUserOperation: paymasterClient.sponsorUserOperation
+    }
   })
 
   try {
-    const response = await setPolicies(config, { policies: policy, privateKey: signer })
-    console.log('\n\nsetPolicies response:', response)
-  } catch (error) {
-    console.error('setPolicies failed', error)
+    const txHash = await smartAccountClient.sendTransaction({
+      to: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+      value: 1n
+    })
+
+    console.log(`User operation included: https://sepolia.etherscan.io/tx/${txHash}`)
+  } catch (e) {
+    if (e.name === 'WaitForUserOperationReceiptTimeoutError') {
+      console.log(`User operation included: https://sepolia.etherscan.io/address/${narvalAccount.address}#internaltx`)
+      return
+    }
+    throw e
   }
-  const privateKey = '0xcbdb5073d97f2971672e99769d12411fc044dde79b803e9c9e3ad6df5c9a260a'
-  const vaultWalletAddress = privateKeyToAddress(privateKey)
-  const walletId = vaultWalletAddress
-
-  const { address: newAddress, walletId: newWalletId } = await importPrivateKey(config, { privateKey, walletId })
-
-  console.log('\n\nimported wallet:', newWalletId, 'address:', newAddress)
-
-  const nonce = 18
-  const transactionRequest = {
-    from: vaultWalletAddress,
-    chainId: 137,
-    gas: BigInt(22000),
-    to: anotherAddress,
-    maxFeePerGas: BigInt(291175227375),
-    maxPriorityFeePerGas: BigInt(81000000000),
-    value: toHex(BigInt(50000)),
-    nonce
-    // Update it accordingly to USER_PRIVATE_KEY last nonce + 1.
-    // If you are too low, viem will error on transaction broadcasting, telling you what should be a correct nonce.
-  }
-
-  const hash = await sendTransaction(config, transactionRequest)
-
-  console.log('\n\ntransaction hash:', hash)
-
-  // const signMessageAction: SignMessageAction = {
-  //   action: 'signMessage',
-  //   message: 'Hello, World!',
-  //   resourceId: resourceId(walletId),
-  //   nonce: v4()
-  // }
-
-  // const { accessToken: messageAccessToken } = await evaluate(config, signMessageAction)
-  // const { signature: messageSignature } = await signRequest(config, {
-  //   accessToken: messageAccessToken,
-  //   request: signMessageAction
-  // })
-
-  // console.log('\n\nmessage signature:', messageSignature)
-
-  // try {
-  //   const messageVerification = await publicClient.verifyMessage({
-  //     message: signMessageAction.message,
-  //     signature: messageSignature,
-  //     address: vaultWalletAddress
-  //   })
-  //   console.log('\n\nmessage verification:', messageVerification)
-  // } catch (error) {
-  //   console.error('message verification failed', error)
-  // }
-
-  // const signTypedDataAction: SignTypedDataAction = {
-  //   action: 'signTypedData',
-  //   typedData: {
-  //     types: {
-  //       EIP712Domain: [{ name: 'name', type: 'string' }],
-  //       Person: [
-  //         { name: 'name', type: 'string' },
-  //         { name: 'wallet', type: 'address' }
-  //       ]
-  //     },
-  //     primaryType: 'Person',
-  //     domain: { name: 'Ether Mail', version: '1' },
-  //     message: {
-  //       name: 'Bob',
-  //       wallet: anotherAddress
-  //     }
-  //   },
-  //   resourceId: resourceId(walletId),
-  //   nonce: v4()
-  // }
-
-  // const { accessToken: typedDataAccessToken } = await evaluate(config, signTypedDataAction)
-
-  // const { signature: typedDataSignature } = await signRequest(config, {
-  //   accessToken: typedDataAccessToken,
-  //   request: signTypedDataAction
-  // })
-
-  // const typedDataVerification = await publicClient.verifyTypedData({
-  //   signature: typedDataSignature,
-  //   address: vaultWalletAddress,
-  //   types: signTypedDataAction.typedData.types as unknown as TypedData,
-  //   // TODO: @ptroger find a way to make this work without casting or explitly mapping to viem.
-  //   primaryType: signTypedDataAction.typedData.primaryType,
-  //   domain: signTypedDataAction.typedData.domain,
-  //   message: signTypedDataAction.typedData.message
-  // })
-
-  // console.log('\n\ntyped data verification:', typedDataVerification)
 }
 
-main()
+main().catch(console.error)

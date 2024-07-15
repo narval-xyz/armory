@@ -61,7 +61,6 @@ const decode = ({ model, schema }: { model: Model; schema: ZodSchema }): Authori
         request: decode.data
       }
     }
-
     throw new DecodeAuthorizationRequestException(decode.error.issues)
   } catch (error) {
     // The try/catch statement is implemented here specifically to prevent the

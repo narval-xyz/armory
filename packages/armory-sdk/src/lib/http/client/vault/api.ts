@@ -646,7 +646,7 @@ export interface SignRequestDto {
  * @type SignRequestDtoRequest
  * @export
  */
-export type SignRequestDtoRequest = SignRequestDtoRequestOneOf | SignRequestDtoRequestOneOf1 | SignRequestDtoRequestOneOf2 | SignRequestDtoRequestOneOf3;
+export type SignRequestDtoRequest = SignRequestDtoRequestOneOf | SignRequestDtoRequestOneOf1 | SignRequestDtoRequestOneOf2 | SignRequestDtoRequestOneOf3 | SignRequestDtoRequestOneOf4;
 
 /**
  * 
@@ -906,6 +906,135 @@ export const SignRequestDtoRequestOneOf3ActionEnum = {
 
 export type SignRequestDtoRequestOneOf3ActionEnum = typeof SignRequestDtoRequestOneOf3ActionEnum[keyof typeof SignRequestDtoRequestOneOf3ActionEnum];
 
+/**
+ * 
+ * @export
+ * @interface SignRequestDtoRequestOneOf4
+ */
+export interface SignRequestDtoRequestOneOf4 {
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4
+     */
+    'action': SignRequestDtoRequestOneOf4ActionEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4
+     */
+    'resourceId': string;
+    /**
+     * 
+     * @type {SignRequestDtoRequestOneOf4UserOperation}
+     * @memberof SignRequestDtoRequestOneOf4
+     */
+    'userOperation': SignRequestDtoRequestOneOf4UserOperation;
+}
+
+export const SignRequestDtoRequestOneOf4ActionEnum = {
+    SignUserOperation: 'signUserOperation'
+} as const;
+
+export type SignRequestDtoRequestOneOf4ActionEnum = typeof SignRequestDtoRequestOneOf4ActionEnum[keyof typeof SignRequestDtoRequestOneOf4ActionEnum];
+
+/**
+ * 
+ * @export
+ * @interface SignRequestDtoRequestOneOf4UserOperation
+ */
+export interface SignRequestDtoRequestOneOf4UserOperation {
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'sender': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'initCode': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'callData': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'callGasLimit': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'verificationGasLimit': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'preVerificationGas': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'maxFeePerGas': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'maxPriorityFeePerGas': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'paymasterAndData': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'entryPoint': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'signature': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'factoryAddress': any;
+    /**
+     * 
+     * @type {number}
+     * @memberof SignRequestDtoRequestOneOf4UserOperation
+     */
+    'chainId': number;
+}
 /**
  * 
  * @export

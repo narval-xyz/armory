@@ -53,7 +53,6 @@ export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequ
   const fixture = new Fixture()
     .extend([hexGenerator, addressGenerator, chainIdGenerator])
     .fromSchema(authorizationRequestSchema)
-
   return {
     ...fixture,
     ...partial
