@@ -2,7 +2,6 @@
   "name": "@narval/source",
   "version": "0.0.0",
   "license": "MPL-2.0",
-  "private": true,
   "workspaces": [
     "packages/*"
   ],
@@ -14,8 +13,8 @@
     "@faker-js/faker": "8.4.1",
     "@nestjs/testing": "10.3.9",
     "@nx/devkit": "19.2.3",
-    "@nx/eslint-plugin": "19.3.2",
     "@nx/eslint": "19.3.2",
+    "@nx/eslint-plugin": "19.3.2",
     "@nx/jest": "19.2.0",
     "@nx/js": "19.2.0",
     "@nx/nest": "19.2.0",
@@ -35,9 +34,9 @@
     "@types/react": "18.2.62",
     "@types/react-dom": "18.2.14",
     "@types/supertest": "6.0.2",
-    "@types/traverse": "^0.6.37",
+    "@types/traverse": "0.6.37",
     "@types/uuid": "9.0.7",
-    "@typescript-eslint/eslint-plugin": "7.9.0",
+    "@typescript-eslint/eslint-plugin": "7.16.0",
     "@typescript-eslint/parser": "7.9.0",
     "autoprefixer": "10.4.19",
     "babel-jest": "29.7.0",
@@ -63,9 +62,9 @@
     "prettier-plugin-organize-imports": "3.2.4",
     "prisma": "5.16.1",
     "supertest": "7.0.0",
-    "tailwindcss": "3.4.1",
+    "tailwindcss": "3.4.4",
     "ts-jest": "29.1.2",
-    "ts-node": "10.9.1",
+    "ts-node": "10.9.2",
     "tsc-alias": "1.8.8",
     "typescript": "5.4.5",
     "zod-fixture": "2.5.1"
@@ -77,6 +76,7 @@
     "@bull-board/nestjs": "5.20.1",
     "@docusaurus/core": "3.4.0",
     "@docusaurus/preset-classic": "3.1.1",
+    "@fortawesome/fontawesome-svg-core": "6.5.2",
     "@fortawesome/free-solid-svg-icons": "6.5.2",
     "@fortawesome/react-fontawesome": "0.2.0",
     "@monaco-editor/react": "4.6.0",
@@ -89,7 +89,7 @@
     "@nestjs/swagger": "7.3.1",
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
-    "@open-policy-agent/opa-wasm": "1.8.0",
+    "@open-policy-agent/opa-wasm": "1.9.0",
     "@prisma/client": "5.8.1",
     "@radix-ui/react-checkbox": "1.0.4",
     "@radix-ui/react-collapsible": "1.0.3",
@@ -123,9 +123,9 @@
     "rxjs": "7.8.1",
     "swr": "2.2.5",
     "tailwind-merge": "2.2.2",
-    "traverse": "^0.6.9",
+    "traverse": "0.6.9",
     "tslib": "2.6.3",
-    "type-fest": "4.14.0",
+    "type-fest": "4.21.0",
     "usehooks-ts": "3.1.0",
     "uuid": "9.0.1",
     "viem": "2.16.2",
@@ -134,10 +134,10 @@
     "winston-transport": "4.7.0",
     "zod": "3.23.8"
   },
-  "nx": {
-    "includedScripts": []
-  },
   "optionalDependencies": {
     "@narval-xyz/armory-mpc-module": "0.0.1"
+  },
+  "nx": {
+    "includedScripts": []
   }
 }

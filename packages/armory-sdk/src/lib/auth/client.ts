@@ -1,7 +1,6 @@
 import {
   AccessToken,
   AuthorizationRequest,
-  CreateAuthorizationRequest,
   Decision,
   Request,
   SerializedAuthorizationRequest
@@ -107,7 +106,6 @@ export class AuthClient {
     const request = SerializedAuthorizationRequest.pick({
       authentication: true,
       request: true,
-      approvals: true,
       metadata: true
     }).parse({
       ...input,
@@ -138,7 +136,7 @@ export class AuthClient {
     return data
   }
 
-  private buildJwtPayload(input: Omit<CreateAuthorizationRequest, 'authentication'>, opts?: SignOptions): Payload {
+  private buildJwtPayload(input: Evaluate, opts?: SignOptions): Payload {
     return {
       requestHash: hash(input.request),
       sub: this.config.signer.jwk.kid,
@@ -169,7 +167,6 @@ export class AuthClient {
       {
         id: opts?.id || uuid(),
         approvals: opts?.approvals || [],
-        clientId: this.config.clientId,
         request: {
           ...request,
           nonce: request.nonce || uuid()

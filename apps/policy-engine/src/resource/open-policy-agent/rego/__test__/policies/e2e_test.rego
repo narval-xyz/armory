@@ -55,6 +55,7 @@ e2e_req = {
 			"data": [
 				{
 					"amount": "100000000000000000",
+					"resourceId": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 					"chainId": 137,
@@ -68,6 +69,7 @@ e2e_req = {
 				},
 				{
 					"amount": "100000000000000000",
+					"resourceId": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 					"chainId": 137,
@@ -81,6 +83,7 @@ e2e_req = {
 				},
 				{
 					"amount": "100000000000000000",
+					"resourceId": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 					"chainId": 137,
@@ -94,6 +97,7 @@ e2e_req = {
 				},
 				{
 					"amount": "100000000000000000",
+					"resourceId": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"from": "eip155:137:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 					"to": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 					"chainId": 137,
@@ -126,74 +130,71 @@ e2e_entities = {
 		"bb@narval.xyz": {"id": "bb@narval.xyz", "role": "admin"},
 	},
 	"userGroups": {
-		"ug:dev-group": {"uid": "ug:dev-group", "name": "Dev", "users": ["matt@narval.xyz"]},
+		"ug:dev-group": {"id": "ug:dev-group", "name": "Dev", "users": ["matt@narval.xyz"]},
 		"ug:treasury-group": {
-			"uid": "ug:treasury-group",
+			"id": "ug:treasury-group",
 			"name": "Treasury",
 			"users": ["bb@narval.xyz", "matt@narval.xyz"],
 		},
 	},
 	"accounts": {
 		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"id": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"accountType": "eoa",
-			"assignees": ["matt@narval.xyz"],
 		},
 		"eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
-			"uid": "eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+			"id": "eip155:eoa:0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"address": "0x22228d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"accountType": "eoa",
 		},
 		"eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
-			"uid": "eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+			"id": "eip155:eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"address": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"accountType": "eoa",
-			"assignees": ["matt@narval.xyz"],
 		},
 		"eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b": {
-			"uid": "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
+			"id": "eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"address": "0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b",
 			"accountType": "eoa",
-			"assignees": ["matt@narval.xyz"],
 		},
 	},
 	"accountGroups": {
 		"wg:dev-group": {
-			"uid": "wg:dev-group",
+			"id": "wg:dev-group",
 			"name": "Dev",
 			"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
 		},
 		"wg:treasury-group": {
-			"uid": "wg:treasury-group",
+			"id": "wg:treasury-group",
 			"name": "Treasury",
 			"accounts": ["eip155:eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b"],
 		},
 	},
 	"addressBook": {
-		"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"uid": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		{
+			"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 137,
-			"classification": "account",
+			"classification": "external",
 		},
-		"eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"uid": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		{
+			"id": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 1,
-			"classification": "account",
+			"classification": "external",
 		},
-		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
-			"uid": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+		{
+			"id": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"chainId": 137,
-			"classification": "internal",
+			"classification": "external",
 		},
-		"eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4": {
-			"uid": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
+		{
+			"id": "eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"address": "0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
 			"chainId": 137,
-			"classification": "account",
+			"classification": "external",
 		},
 	},
 }

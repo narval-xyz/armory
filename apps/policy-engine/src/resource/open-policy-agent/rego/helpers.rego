@@ -31,7 +31,7 @@ parseUnits(value, decimals) = result {
 	result = to_number(value) * product(powTen)
 }
 
-getUserGroups(id) = {group.uid |
+getUserGroups(id) = {group.id |
 	group = data.entities.userGroups[_]
 	id in group.users
 }
@@ -45,6 +45,17 @@ checkTransferCondition(value, set) {
 checkTransferCondition(value, set) {
 	set != wildcard
 	value in set
+}
+
+# Check By Principal
+
+checkTransferByPrincipal(initiator, perPrincipal) {
+	perPrincipal == false
+}
+
+checkTransferByPrincipal(initiator, perPrincipal) {
+	perPrincipal == true
+	principal.id == initiator
 }
 
 # Check By User Groups

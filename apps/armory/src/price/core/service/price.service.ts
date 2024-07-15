@@ -1,12 +1,10 @@
 import { LoggerService } from '@narval/nestjs-shared'
 import { AssetId } from '@narval/policy-engine-shared'
-import { HttpStatus, Injectable } from '@nestjs/common'
-import { compact } from 'lodash/fp'
+import { Injectable } from '@nestjs/common'
 import { FiatId, Prices } from '../../../shared/core/type/price.type'
 import { CoinGeckoClient } from '../../http/client/coin-gecko/coin-gecko.client'
 import { SimplePrice } from '../../http/client/coin-gecko/coin-gecko.type'
 import { CoinGeckoAssetRepository } from '../../persistence/repository/coin-gecko-asset.repository'
-import { PriceException } from '../exception/price.exception'
 
 type GetPricesOption = {
   from: AssetId[]
@@ -21,36 +19,36 @@ export class PriceService {
     private logger: LoggerService
   ) {}
 
+  /* eslint-disable no-unused-vars */
   async getPrices(options: GetPricesOption): Promise<Prices> {
-    this.logger.log('Get prices', options)
-
-    const from = options.from.map(this.coinGeckoAssetRepository.getSourceId)
-
-    if (from.some((id) => id === null)) {
-      throw new PriceException({
-        message: "Couldn't determine the source ID for the given asset ID",
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { options, from }
-      })
-    }
-
-    const simplePrice = await this.coinGeckoClient.getSimplePrice({
-      data: {
-        ids: compact(from),
-        vs_currencies: options.to.map(this.coinGeckoAssetRepository.getFiatId),
-        precision: 18
-      }
-    })
-
-    const prices = this.buildPrices(options.from, simplePrice)
-
-    this.logger.log('Received prices', {
-      options,
-      prices
-    })
-
-    return prices
+    return {}
   }
+
+  // TODO: (@samteb, 04/07/24) Disable prices for now because it adds dependency on coingecko
+  // async getPrices(options: GetPricesOption): Promise<Prices> {
+  // this.logger.log('Get prices', options)
+  // const from = options.from.map(this.coinGeckoAssetRepository.getSourceId)
+  // if (from.some((id) => id === null)) {
+  //   throw new PriceException({
+  //     message: "Couldn't determine the source ID for the given asset ID",
+  //     suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+  //     context: { options, from }
+  //   })
+  // }
+  // const simplePrice = await this.coinGeckoClient.getSimplePrice({
+  //   data: {
+  //     ids: compact(from),
+  //     vs_currencies: options.to.map(this.coinGeckoAssetRepository.getFiatId),
+  //     precision: 18
+  //   }
+  // })
+  // const prices = this.buildPrices(options.from, simplePrice)
+  // this.logger.log('Received prices', {
+  //   options,
+  //   prices
+  // })
+  // return prices
+  // }
 
   // TODO (@wcalderipe, 05/02/24): Move everything related to CoinGecko to a
   // Price repository if one day we have another price source or cache.

@@ -8,7 +8,9 @@ import { PriceService } from '../../../../core/service/price.service'
 import { CoinGeckoClient } from '../../../../http/client/coin-gecko/coin-gecko.client'
 import { CoinGeckoAssetRepository } from '../../../../persistence/repository/coin-gecko-asset.repository'
 
-describe(PriceService.name, () => {
+// TODO: (@samteb, 04/07/24) Disable prices for now because it adds dependency on coingecko
+/* eslint-disable jest/no-disabled-tests */
+xdescribe(PriceService.name, () => {
   let module: TestingModule
   let service: PriceService
   let coinGeckoClientMock: CoinGeckoClient

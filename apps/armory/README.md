@@ -1,5 +1,7 @@
 # Armory
 
+Authentication and authorization system for web3.0.
+
 ## Getting started
 
 ```bash

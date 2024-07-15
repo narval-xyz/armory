@@ -30,6 +30,7 @@ spendingsFixedPeriodRequest = object.union(request, {
 			"data": [
 				{
 					"amount": "200000000000000000",
+					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -40,6 +41,7 @@ spendingsFixedPeriodRequest = object.union(request, {
 				},
 				{
 					"amount": "200000000000000000",
+					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -50,6 +52,7 @@ spendingsFixedPeriodRequest = object.union(request, {
 				},
 				{
 					"amount": "200000000000000000",
+					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -65,8 +68,6 @@ spendingsFixedPeriodRequest = object.union(request, {
 
 test_calculateCurrentSpendingsByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"timeWindow": {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
@@ -84,8 +85,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 
 test_calculateCurrentSpendingsByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"currency": "fiat:usd",
 		"timeWindow": {
 			"type": "rolling",
@@ -104,8 +103,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 
 test_calculateCurrentSpendingsByRollingPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"timeWindow": {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
@@ -123,8 +120,6 @@ test_calculateCurrentSpendingsByRollingPeriod {
 
 test_calculateCurrentSpendingsByFixedPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"timeWindow": {
 			"type": "fixed",
 			"period": "1d",
@@ -142,8 +137,6 @@ test_calculateCurrentSpendingsByFixedPeriod {
 
 test_calculateCurrentSpendingsByFixedPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"currency": "fiat:usd",
 		"timeWindow": {
 			"type": "fixed",
@@ -162,8 +155,6 @@ test_calculateCurrentSpendingsByFixedPeriod {
 
 test_calculateCurrentSpendingsByFixedPeriod {
 	conditions = {
-		"limit": "1500000000000000000",
-		"operator": "lt",
 		"timeWindow": {
 			"type": "fixed",
 			"period": "1d",
@@ -177,4 +168,34 @@ test_calculateCurrentSpendingsByFixedPeriod {
 	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
 
 	res == 0
+}
+
+test_calculateCurrentSpendingsByPrincipal {
+	conditions = {
+		"filters": {
+			"perPrincipal": true,
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},		
+		},
+	}
+
+	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+
+	res == 0
+}
+
+test_calculateCurrentSpendingsByPrincipal {
+	perPrincipalReq = object.union(request, {
+		"principal": {"userId": "test-alice-uid"},
+	})
+
+	conditions = {
+		"filters": {
+			"perPrincipal": true,
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},		
+		},
+	}
+
+	res = calculateCurrentSpendings(conditions) with input as perPrincipalReq with data.entities as entities
+
+	res == 600000000000000000
 }

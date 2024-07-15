@@ -1,6 +1,6 @@
 # Policy Engine
 
-TBD
+Policy decision point for fine-grained authorization in web3.0.
 
 ## Requirements
 
@@ -40,10 +40,4 @@ make policy-engine/lint
 
 make policy-engine/format/check
 make policy-engine/lint/check
-```
-
-## CLI
-
-```bash
-make policy-engine/cli CMD=help
 ```

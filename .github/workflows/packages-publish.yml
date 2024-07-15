@@ -24,10 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '21'
+          registry-url: https://registry.npmjs.org/
           cache: 'npm'
-          # IMPORTANT: Must point to GitHub packages registry because we
-          # publish through it, not NPM directly.
-          registry-url: https://npm.pkg.github.com/
 
       - name: Install dependencies
         run: |
