@@ -1,6 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { LoggerModule, secret } from '@narval/nestjs-shared'
-import { Action, AuthorizationRequest, FIXTURE } from '@narval/policy-engine-shared'
+import { Action, AuthorizationRequest, Eip712TypedData, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -101,6 +101,65 @@ describe('Authorization Request', () => {
   })
 
   describe(`POST ${ENDPOINT}`, () => {
+    it('evaluates a sign typed data authorization request', async () => {
+      const typedData: Eip712TypedData = {
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' }
+          ],
+          Person: [
+            { name: 'name', type: 'string' },
+            { name: 'wallet', type: 'address' }
+          ]
+        },
+        primaryType: 'Person',
+        domain: {
+          name: 'Ether Mail',
+          version: '1',
+          chainId: 1,
+          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+        },
+        message: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB'
+        }
+      }
+
+      const req: Request = {
+        action: Action.SIGN_TYPED_DATA,
+        nonce: '99',
+        resourceId: '5cfb8614-ddeb-4764-bf85-8d323f26d3b3',
+        typedData
+      }
+
+      const payload = {
+        authentication,
+        approvals,
+        request: req
+      }
+
+      Eip712TypedData.parse(payload.request.typedData)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, client.id)
+        .send(payload)
+
+      expect(body).toMatchObject({
+        approvals,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        status: AuthorizationRequestStatus.CREATED,
+        idempotencyKey: null,
+        request: payload.request,
+        evaluations: []
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
     it('evaluates a sign message authorization request', async () => {
       const payload = {
         authentication,
