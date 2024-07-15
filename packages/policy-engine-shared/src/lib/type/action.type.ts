@@ -91,12 +91,16 @@ export const Eip712TypedData = z.object({
     )
   ),
   primaryType: z.string(),
-  message: z.union([z.record(z.unknown()), z.string()]).transform((val) => {
+  message: z.preprocess((val) => {
     if (typeof val === 'string') {
-      return JSON.parse(val) as Record<string, unknown>
+      try {
+        return JSON.parse(val)
+      } catch (error) {
+        return val
+      }
     }
     return val
-  })
+  }, z.record(z.unknown()))
 })
 export type Eip712TypedData = z.infer<typeof Eip712TypedData>
 
