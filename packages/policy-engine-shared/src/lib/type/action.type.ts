@@ -93,7 +93,7 @@ export const Eip712TypedData = z.object({
   primaryType: z.string(),
   message: z.union([z.record(z.unknown()), z.string()]).transform((val) => {
     if (typeof val === 'string') {
-      return JSON.parse(val)
+      return JSON.parse(val) as Record<string, unknown>
     }
     return val
   })

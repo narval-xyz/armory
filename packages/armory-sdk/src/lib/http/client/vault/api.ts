@@ -807,10 +807,10 @@ export interface SignRequestDtoRequestOneOf2TypedData {
     'primaryType': string;
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {SignRequestDtoRequestOneOf2TypedDataMessage}
      * @memberof SignRequestDtoRequestOneOf2TypedData
      */
-    'message': { [key: string]: any; };
+    'message': SignRequestDtoRequestOneOf2TypedDataMessage;
 }
 /**
  * 
@@ -849,6 +849,12 @@ export interface SignRequestDtoRequestOneOf2TypedDataDomain {
      */
     'salt'?: any;
 }
+/**
+ * @type SignRequestDtoRequestOneOf2TypedDataMessage
+ * @export
+ */
+export type SignRequestDtoRequestOneOf2TypedDataMessage = string | { [key: string]: any; };
+
 /**
  * 
  * @export

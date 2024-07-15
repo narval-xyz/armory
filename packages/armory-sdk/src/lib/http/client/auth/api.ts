@@ -244,10 +244,10 @@ export interface AuthorizationRequestDtoRequestOneOf2TypedData {
     'primaryType': string;
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {AuthorizationRequestDtoRequestOneOf2TypedDataMessage}
      * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
      */
-    'message': { [key: string]: any; };
+    'message': AuthorizationRequestDtoRequestOneOf2TypedDataMessage;
 }
 /**
  * 
@@ -286,6 +286,12 @@ export interface AuthorizationRequestDtoRequestOneOf2TypedDataDomain {
      */
     'salt'?: any;
 }
+/**
+ * @type AuthorizationRequestDtoRequestOneOf2TypedDataMessage
+ * @export
+ */
+export type AuthorizationRequestDtoRequestOneOf2TypedDataMessage = string | { [key: string]: any; };
+
 /**
  * 
  * @export
