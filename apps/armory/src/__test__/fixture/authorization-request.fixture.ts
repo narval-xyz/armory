@@ -56,6 +56,5 @@ export const generateAuthorizationRequest = (partial?: Partial<AuthorizationRequ
   return {
     ...fixture,
     ...partial
-  } as AuthorizationRequest
-  // TODO: Fix the type assertion above. Nonce is conflicting between useroperation and transactionrequest
+  }
 }
