@@ -8,8 +8,8 @@ import {
   readSignRawSchema
 } from './persistence/schema/sign-message.schema'
 import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'
-import { createSignUserOperationSchema, readSignUserOperationSchema } from './persistence/schema/sign-userop.schema'
 import { createSignTypedDataSchema, readSignTypedDataSchema } from './persistence/schema/sign-typed-data.schema'
+import { createSignUserOperationSchema, readSignUserOperationSchema } from './persistence/schema/sign-userop.schema'
 
 type ActionRequestConfig = {
   action: SupportedAction

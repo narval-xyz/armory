@@ -10,8 +10,8 @@ import {
   readSignTransactionSchema
 } from '../../persistence/schema/sign-transaction.schema'
 import { createGrantPermissionSchema, readGrantPermissionSchema } from './grant-permission.schema'
-import { createSignUserOperationSchema, readSignUserOperationSchema } from './sign-userop.schema'
 import { createSignTypedDataSchema, readSignTypedDataSchema } from './sign-typed-data.schema'
+import { createSignUserOperationSchema, readSignUserOperationSchema } from './sign-userop.schema'
 
 export const readRequestSchema = z.discriminatedUnion('action', [
   readSignTransactionSchema,
