@@ -141,8 +141,6 @@ describe('Authorization Request', () => {
         request: req
       }
 
-      Eip712TypedData.parse(payload.request.typedData)
-
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, client.id)
