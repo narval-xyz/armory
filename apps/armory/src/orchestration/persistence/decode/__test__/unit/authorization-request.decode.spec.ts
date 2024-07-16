@@ -91,6 +91,23 @@ describe('decodeAuthorizationRequest', () => {
         decodeAuthorizationRequest(invalidModel)
       }).toThrow(DecodeAuthorizationRequestException)
     })
+
+    it('decodes a raw message successfully', () => {
+      const validModel = {
+        ...sharedModel,
+        action: Action.SIGN_MESSAGE,
+        request: {
+          action: Action.SIGN_MESSAGE,
+          nonce: '99',
+          resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
+          message: { raw: '0xdeadbeef' }
+        }
+      }
+
+      expect(() => {
+        decodeAuthorizationRequest(validModel)
+      }).not.toThrow(DecodeAuthorizationRequestException)
+    })
   })
 
   describe('sign typed data', () => {
