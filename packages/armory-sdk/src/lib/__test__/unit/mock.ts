@@ -1,6 +1,5 @@
 import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
-import { UNSAFE_PRIVATE_KEY } from 'packages/policy-engine-shared/src/lib/dev.fixture'
 import { v4 as uuid } from 'uuid'
 import { toHex } from 'viem'
 
@@ -12,9 +11,9 @@ const sign = async (request: Request) => {
     requestHash: message
   }
 
-  const aliceSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K))
-  const bobSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K))
-  const carolSignature = await signJwt(payload, privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K))
+  const aliceSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K))
+  const bobSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K))
+  const carolSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K))
 
   return { aliceSignature, bobSignature, carolSignature }
 }
