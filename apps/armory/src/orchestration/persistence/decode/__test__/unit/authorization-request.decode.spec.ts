@@ -92,4 +92,82 @@ describe('decodeAuthorizationRequest', () => {
       }).toThrow(DecodeAuthorizationRequestException)
     })
   })
+
+  describe('sign typed data', () => {
+    it('decodes a sign typed data authorization request with serialized message successfully', () => {
+      const validModel = {
+        ...sharedModel,
+        action: Action.SIGN_TYPED_DATA,
+        request: {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: '99',
+          resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
+          typedData: {
+            types: {
+              EIP712Domain: [
+                { name: 'name', type: 'string' },
+                { name: 'version', type: 'string' },
+                { name: 'chainId', type: 'uint256' },
+                { name: 'verifyingContract', type: 'address' }
+              ],
+              Person: [
+                { name: 'name', type: 'string' },
+                { name: 'wallet', type: 'address' }
+              ]
+            },
+            primaryType: 'Person',
+            domain: {
+              name: 'Ether Mail',
+              version: '1',
+              chainId: 1,
+              verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+            },
+            message: JSON.stringify({ name: 'Bob', wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB' })
+          }
+        }
+      }
+
+      expect(() => {
+        decodeAuthorizationRequest(validModel)
+      }).not.toThrow(DecodeAuthorizationRequestException)
+    })
+
+    it('throws DecodeAuthorizationRequestException if message string is not a valid json', () => {
+      const invalidModel = {
+        ...sharedModel,
+        action: Action.SIGN_TYPED_DATA,
+        request: {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: '99',
+          resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
+          typedData: {
+            types: {
+              EIP712Domain: [
+                { name: 'name', type: 'string' },
+                { name: 'version', type: 'string' },
+                { name: 'chainId', type: 'uint256' },
+                { name: 'verifyingContract', type: 'address' }
+              ],
+              Person: [
+                { name: 'name', type: 'string' },
+                { name: 'wallet', type: 'address' }
+              ]
+            },
+            primaryType: 'Person',
+            domain: {
+              name: 'Ether Mail',
+              version: '1',
+              chainId: 1,
+              verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+            },
+            message: 'not-a-valid-json'
+          }
+        }
+      }
+
+      expect(() => {
+        decodeAuthorizationRequest(invalidModel)
+      }).toThrow(DecodeAuthorizationRequestException)
+    })
+  })
 })
