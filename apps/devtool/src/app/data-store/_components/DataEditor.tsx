@@ -14,7 +14,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import CodeEditor from '../../_components/CodeEditor'
 import NarButton from '../../_design-system/NarButton'
 import NarCopyButton from '../../_design-system/NarCopyButton'
-import NarInput from '../../_design-system/NarInput'
+import NarUrlInput from '../../_design-system/NarUrlInput'
 
 enum Action {
   SIGN = 'SIGN',
@@ -83,7 +83,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   return (
     <div className="flex flex-col gap-[16px]">
       <div className="flex items-end gap-[8px]">
-        <NarInput label={label} value={url} onChange={setUrl} />
+        <NarUrlInput label={label} value={url} onValueChange={setUrl} />
         {isReadOnly && editor && (
           <>
             <NarCopyButton label="Copy" copy={editor} />

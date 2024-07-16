@@ -1,6 +1,7 @@
 'use client'
 
 import NarInput from '../../../_design-system/NarInput'
+import NarUrlInput from '../../../_design-system/NarUrlInput'
 import useStore from '../../../_hooks/useStore'
 import AddEngineClientModal from './AddEngineClientModal'
 
@@ -14,7 +15,7 @@ const EngineConfig = () => {
         <AddEngineClientModal />
       </div>
       <div className="flex flex-col gap-6">
-        <NarInput label="Engine URL" value={engineUrl} onChange={setEngineUrl} />
+        <NarUrlInput label="Engine URL" value={engineUrl} onValueChange={setEngineUrl} />
         <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
       </div>
     </div>
