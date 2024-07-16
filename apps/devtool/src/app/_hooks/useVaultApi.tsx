@@ -10,11 +10,9 @@ import { Request } from '@narval/policy-engine-shared'
 import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
 import { exportJWK, importSPKI } from 'jose'
 import { useMemo, useState } from 'react'
-import { extractErrorMessage } from '../_lib/utils'
+import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
-
-const getHost = (url: string): string => new URL(url).origin
 
 export interface VaultClientData {
   vaultUrl: string
@@ -35,7 +33,7 @@ const useVaultApi = () => {
   const [errors, setErrors] = useState<string>()
 
   const vaultClient = useMemo<VaultClient | null>(() => {
-    if (!vaultHost || !vaultClientId || !jwk || !signer) {
+    if (!isValidUrl(vaultHost) || !vaultClientId || !jwk || !signer) {
       return null
     }
 
@@ -65,6 +63,11 @@ const useVaultApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
+
+      if (!isValidUrl(vaultHost)) {
+        setErrors('Invalid vault URL')
+        return
+      }
 
       const {
         vaultAdminApiKey,
