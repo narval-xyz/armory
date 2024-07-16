@@ -70,6 +70,7 @@ describe('verifyJwt', () => {
         name: 'Authorized any admin to transfer ERC721 or ERC1155 tokens',
         when: [
           {
+            // TODO @samteb: remove it and regenerate jwt because this criterion doesn't exist anymore
             criterion: 'checkResourceIntegrity',
             args: null
           },

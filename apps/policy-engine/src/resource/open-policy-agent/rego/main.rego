@@ -2,14 +2,6 @@ package main
 
 import future.keywords.in
 
-numberToString(n) = format_int(to_number(n), 10)
-
-secondsToNanoSeconds(epochS) = epochS * 1000000000
-
-nanoSecondsToSeconds(epochNs) = epochNs / 1000000000
-
-nowSeconds = nanoSecondsToSeconds(time.now_ns())
-
 wildcard = "*"
 
 actions = {

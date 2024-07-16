@@ -69,7 +69,6 @@ describe('transpileCriterion', () => {
     const item: IntentAmountCriterion = {
       criterion: Criterion.CHECK_INTENT_AMOUNT,
       args: {
-        currency: '*',
         operator: ValueOperators.LESS_THAN_OR_EQUAL,
         value: '1000000000000000000'
       }

@@ -28,9 +28,10 @@ calculateCurrentRate(params) = result {
     rateLimit = conditions.limit
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
+	transfers = array.concat(transferFeed, intentTransferObjects)
 
 	result = count([transfer |
-		transfer = transferFeed[_]
+		transfer = transfers[_]
 
 		# filter by principal
 		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)
@@ -71,5 +72,5 @@ checkRateLimit(params) {
 	conditions = object.union(rateLimitWildcardConditions, params)
     rateLimit = to_number(conditions.limit)
 
-	calculateCurrentRate(conditions) + 1 <= rateLimit
+	calculateCurrentRate(conditions) <= rateLimit
 }

@@ -5,7 +5,6 @@ import {
   EntityStoreClient,
   Evaluate
 } from '@narval/armory-sdk'
-import { AuthorizationRequest } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
@@ -36,7 +35,6 @@ const useAuthServerApi = () => {
   const { jwk, signer } = useAccountSignature()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSynced, setIsSynced] = useState(false)
-  const [processingRequest, setProcessingRequest] = useState<AuthorizationRequest>()
   const [errors, setErrors] = useState<string>()
 
   const authClient = useMemo<AuthClient | null>(() => {
@@ -133,9 +131,7 @@ const useAuthServerApi = () => {
     try {
       setErrors(undefined)
       setIsProcessing(true)
-      const authRequest = await authClient.evaluate(request)
-      setProcessingRequest(authRequest)
-      return authRequest
+      return authClient.evaluate(request)
     } catch (error) {
       setErrors(extractErrorMessage(error))
       throw error

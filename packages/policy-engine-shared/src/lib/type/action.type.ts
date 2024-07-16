@@ -91,9 +91,26 @@ export const Eip712TypedData = z.object({
     )
   ),
   primaryType: z.string(),
-  message: z.record(z.unknown())
+  message: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val)
+      } catch (error) {
+        return val
+      }
+    }
+    return val
+  }, z.record(z.unknown()))
 })
 export type Eip712TypedData = z.infer<typeof Eip712TypedData>
+
+export const SerializedEip712TypedData = Eip712TypedData.transform((val) => {
+  return {
+    ...val,
+    message: JSON.stringify(val.message)
+  }
+})
+export type SerializedEip712TypedData = z.infer<typeof SerializedEip712TypedData>
 
 export const SignTransactionAction = BaseAction.merge(
   z.object({

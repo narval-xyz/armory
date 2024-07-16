@@ -26,15 +26,19 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
     },
     {
       id: v4(),
-      description: 'cant native transfer when doing userOps',
+      description: 'Forbid native transfer within user operations',
       when: [
         {
           criterion: Criterion.CHECK_ACTION,
           args: [Action.SIGN_USER_OPERATION]
         },
         {
-          criterion: Criterion.CHECK_INTENT_TYPE,
-          args: [Intents.TRANSFER_NATIVE]
+          criterion: Criterion.CHECK_USER_OPERATION_INTENTS,
+          args: [
+            {
+              type: [Intents.TRANSFER_NATIVE]
+            }
+          ]
         }
       ],
       then: Then.FORBID

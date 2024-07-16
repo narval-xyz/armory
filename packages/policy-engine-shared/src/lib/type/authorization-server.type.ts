@@ -29,6 +29,7 @@ export const SupportedAction = {
   SIGN_RAW: Action.SIGN_RAW,
   SIGN_MESSAGE: Action.SIGN_MESSAGE,
   SIGN_USER_OPERATION: Action.SIGN_USER_OPERATION,
+  SIGN_TYPED_DATA: Action.SIGN_TYPED_DATA,
   GRANT_PERMISSION: Action.GRANT_PERMISSION
 } as const
 export type SupportedAction = (typeof SupportedAction)[keyof typeof SupportedAction]

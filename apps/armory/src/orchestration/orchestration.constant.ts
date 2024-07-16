@@ -8,6 +8,7 @@ import {
   readSignRawSchema
 } from './persistence/schema/sign-message.schema'
 import { createSignTransactionSchema, readSignTransactionSchema } from './persistence/schema/sign-transaction.schema'
+import { createSignTypedDataSchema, readSignTypedDataSchema } from './persistence/schema/sign-typed-data.schema'
 import { createSignUserOperationSchema, readSignUserOperationSchema } from './persistence/schema/sign-userop.schema'
 
 type ActionRequestConfig = {
@@ -46,6 +47,16 @@ export const ACTION_REQUEST = new Map<Action, ActionRequestConfig>([
       schema: {
         read: readSignRawSchema,
         create: createSignRawSchema
+      }
+    }
+  ],
+  [
+    Action.SIGN_TYPED_DATA,
+    {
+      action: Action.SIGN_TYPED_DATA,
+      schema: {
+        read: readSignTypedDataSchema,
+        create: createSignTypedDataSchema
       }
     }
   ],
