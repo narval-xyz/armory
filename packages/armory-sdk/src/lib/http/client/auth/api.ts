@@ -1971,7 +1971,7 @@ export type PolicyDataStoreDtoPolicyDataInnerThenEnum = typeof PolicyDataStoreDt
  * @type PolicyDataStoreDtoPolicyDataInnerWhenInner
  * @export
  */
-export type PolicyDataStoreDtoPolicyDataInnerWhenInner = PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf1 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf10 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf11 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf12 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf13 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf14 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf15 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf16 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf17 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf19 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf2 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf20 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf21 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf22 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf23 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf24 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf27 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf3 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf30 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf4 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf5 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf6 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf7 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf8 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf9;
+export type PolicyDataStoreDtoPolicyDataInnerWhenInner = PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf1 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf10 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf11 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf12 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf13 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf14 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf15 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf16 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf17 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf19 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf2 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf20 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf21 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf22 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf23 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf24 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf25 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf27 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf3 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf30 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf32 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf33 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf34 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf35 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf4 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf5 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf6 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf7 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf8 | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf9;
 
 /**
  * 
@@ -2990,14 +2990,14 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36 {
     'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum;
     /**
      * 
-     * @type {Array<any>}
+     * @type {Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36
      */
-    'args': Array<any>;
+    'args': Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner>;
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum = {
-    CheckBeneficiaryAddress: 'checkBeneficiaryAddress'
+    CheckUserOperationIntents: 'checkUserOperationIntents'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum];
@@ -3005,128 +3005,102 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36CriterionEnum = typ
 /**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37 {
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
-     */
-    'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum;
-    /**
-     * 
-     * @type {Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
-     */
-    'args': Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner>;
-}
-
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum = {
-    CheckUserOperationIntents: 'checkUserOperationIntents'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum];
-
-/**
- * 
- * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
- */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner {
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner {
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
-    'type'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum>;
+    'type'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTypeEnum>;
     /**
      * 
      * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'contract'?: Array<any>;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'token'?: Array<string>;
     /**
      * 
      * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'spender'?: Array<any>;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'chainId'?: Array<string>;
     /**
      * 
      * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'hexSignature'?: Array<any>;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
-    'algorithm'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerAlgorithmEnum>;
+    'algorithm'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerAlgorithmEnum>;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
-    'source'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource;
+    'source'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
-    'destination'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource;
+    'destination'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
-    'transfers'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers;
+    'transfers'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'amount'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'message'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29Args;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'payload'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf29Args;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'domain'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28Args;
     /**
      * 
      * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInner
      */
     'deadline'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf31Args;
 }
 
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum = {
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTypeEnum = {
     TransferNative: 'transferNative',
     TransferErc20: 'transferErc20',
     TransferErc721: 'transferErc721',
@@ -3146,73 +3120,99 @@ export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum 
     UserOperation: 'userOperation'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTypeEnum];
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerAlgorithmEnum = {
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTypeEnum];
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerAlgorithmEnum = {
     Es256K: 'ES256K',
     Es256: 'ES256',
     Rs256: 'RS256'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerAlgorithmEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerAlgorithmEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerAlgorithmEnum];
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerAlgorithmEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerAlgorithmEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerAlgorithmEnum];
 
 /**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource {
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource {
     /**
      * 
      * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource
      */
     'id'?: Array<any>;
     /**
      * 
      * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource
      */
     'address'?: Array<any>;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource
      */
-    'accountType'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSourceAccountTypeEnum>;
+    'accountType'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSourceAccountTypeEnum>;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSource
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSource
      */
     'classification'?: Array<string>;
 }
 
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSourceAccountTypeEnum = {
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSourceAccountTypeEnum = {
     Eoa: 'eoa',
     _4337: '4337'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSourceAccountTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSourceAccountTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerSourceAccountTypeEnum];
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSourceAccountTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSourceAccountTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerSourceAccountTypeEnum];
 
 /**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers {
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers {
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers
      */
     'tokens'?: Array<string>;
     /**
      * 
      * @type {Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26ArgsInner>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37ArgsInnerTransfers
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf36ArgsInnerTransfers
      */
     'amounts'?: Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf26ArgsInner>;
 }
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37 {
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
+     */
+    'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum;
+    /**
+     * 
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37
+     */
+    'args': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args;
+}
+
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum = {
+    CheckGasFeeAmount: 'checkGasFeeAmount'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf37CriterionEnum];
+
 /**
  * 
  * @export
@@ -3227,14 +3227,14 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38 {
     'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38CriterionEnum;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args}
+     * @type {any}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38
      */
-    'args': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf18Args;
+    'args': any;
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38CriterionEnum = {
-    CheckGasFeeAmount: 'checkGasFeeAmount'
+    CheckNonceNotExists: 'checkNonceNotExists'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38CriterionEnum];
@@ -3260,7 +3260,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39CriterionEnum = {
-    CheckNonceNotExists: 'checkNonceNotExists'
+    CheckNonceExists: 'checkNonceExists'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf39CriterionEnum];
@@ -3313,17 +3313,57 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40 {
     'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40CriterionEnum;
     /**
      * 
-     * @type {any}
+     * @type {Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner>}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40
      */
-    'args': any;
+    'args': Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner>;
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40CriterionEnum = {
-    CheckNonceExists: 'checkNonceExists'
+    CheckApprovals: 'checkApprovals'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40CriterionEnum];
+
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner {
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner
+     */
+    'approvalCount': number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner
+     */
+    'countPrincipal': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner
+     */
+    'approvalEntityType': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInnerApprovalEntityTypeEnum;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInner
+     */
+    'entityIds': Array<string>;
+}
+
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInnerApprovalEntityTypeEnum = {
+    User: 'Narval::User',
+    UserRole: 'Narval::UserRole',
+    UserGroup: 'Narval::UserGroup'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInnerApprovalEntityTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInnerApprovalEntityTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf40ArgsInnerApprovalEntityTypeEnum];
 
 /**
  * 
@@ -3339,14 +3379,14 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41 {
     'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum;
     /**
      * 
-     * @type {Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner>}
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args}
      * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41
      */
-    'args': Array<PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner>;
+    'args': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args;
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum = {
-    CheckApprovals: 'checkApprovals'
+    CheckSpendingLimit: 'checkSpendingLimit'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum];
@@ -3354,42 +3394,164 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41CriterionEnum = typ
 /**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner {
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner
-     */
-    'approvalCount': number;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner
-     */
-    'countPrincipal': boolean;
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args {
     /**
      * 
      * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
      */
-    'approvalEntityType': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInnerApprovalEntityTypeEnum;
+    'limit': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
+     */
+    'operator': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsOperatorEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
+     */
+    'currency'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsCurrencyEnum;
+    /**
+     * 
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
+     */
+    'timeWindow'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow;
+    /**
+     * 
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41Args
+     */
+    'filters'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters;
+}
+
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsOperatorEnum = {
+    Gt: 'gt',
+    Lt: 'lt',
+    Gte: 'gte',
+    Lte: 'lte',
+    Eq: 'eq',
+    Ne: 'ne'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsOperatorEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsOperatorEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsOperatorEnum];
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsCurrencyEnum = {
+    Usd: 'fiat:usd',
+    Eur: 'fiat:eur'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsCurrencyEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsCurrencyEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsCurrencyEnum];
+
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'perPrincipal'?: boolean;
     /**
      * 
      * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInner
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
      */
-    'entityIds': Array<string>;
+    'tokens'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'users'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'resources'?: Array<string>;
+    /**
+     * 
+     * @type {Array<any>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'destinations'?: Array<any>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'chains'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'userGroups'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters
+     */
+    'accountGroups'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow {
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+     */
+    'type'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+     */
+    'period'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowPeriodEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+     */
+    'value'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+     */
+    'startDate'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow
+     */
+    'endDate'?: number;
 }
 
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInnerApprovalEntityTypeEnum = {
-    User: 'Narval::User',
-    UserRole: 'Narval::UserRole',
-    UserGroup: 'Narval::UserGroup'
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowTypeEnum = {
+    Rolling: 'rolling',
+    Fixed: 'fixed'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInnerApprovalEntityTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInnerApprovalEntityTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsInnerApprovalEntityTypeEnum];
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowTypeEnum];
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowPeriodEnum = {
+    _1d: '1d',
+    _1m: '1m',
+    _1y: '1y'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindowPeriodEnum];
 
 /**
  * 
@@ -3412,7 +3574,7 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42 {
 }
 
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42CriterionEnum = {
-    CheckSpendingLimit: 'checkSpendingLimit'
+    CheckRateLimit: 'checkRateLimit'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42CriterionEnum];
@@ -3425,210 +3587,22 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42CriterionEnum = typ
 export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args {
     /**
      * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
-     */
-    'limit': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
-     */
-    'operator': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsOperatorEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
-     */
-    'currency'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsCurrencyEnum;
-    /**
-     * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
-     */
-    'timeWindow'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow;
-    /**
-     * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
-     */
-    'filters'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters;
-}
-
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsOperatorEnum = {
-    Gt: 'gt',
-    Lt: 'lt',
-    Gte: 'gte',
-    Lte: 'lte',
-    Eq: 'eq',
-    Ne: 'ne'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsOperatorEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsOperatorEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsOperatorEnum];
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsCurrencyEnum = {
-    Usd: 'fiat:usd',
-    Eur: 'fiat:eur'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsCurrencyEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsCurrencyEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsCurrencyEnum];
-
-/**
- * 
- * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
- */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'perPrincipal'?: boolean;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'tokens'?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'users'?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'resources'?: Array<string>;
-    /**
-     * 
-     * @type {Array<any>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'destinations'?: Array<any>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'chains'?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'userGroups'?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters
-     */
-    'accountGroups'?: Array<string>;
-}
-/**
- * 
- * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
- */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow {
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
-     */
-    'type'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowTypeEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
-     */
-    'period'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowPeriodEnum;
-    /**
-     * 
      * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
-     */
-    'value'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
-     */
-    'startDate'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow
-     */
-    'endDate'?: number;
-}
-
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowTypeEnum = {
-    Rolling: 'rolling',
-    Fixed: 'fixed'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowTypeEnum];
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowPeriodEnum = {
-    _1d: '1d',
-    _1m: '1m',
-    _1y: '1y'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindowPeriodEnum];
-
-/**
- * 
- * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43
- */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43 {
-    /**
-     * 
-     * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43
-     */
-    'criterion': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43CriterionEnum;
-    /**
-     * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43
-     */
-    'args': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args;
-}
-
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43CriterionEnum = {
-    CheckRateLimit: 'checkRateLimit'
-} as const;
-
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43CriterionEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43CriterionEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43CriterionEnum];
-
-/**
- * 
- * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args
- */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args {
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
      */
     'limit': number;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
      */
-    'timeWindow'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsTimeWindow;
+    'timeWindow'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsTimeWindow;
     /**
      * 
-     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43Args
+     * @type {PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42Args
      */
-    'filters'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf42ArgsFilters;
+    'filters'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf41ArgsFilters;
 }
 /**
  * 

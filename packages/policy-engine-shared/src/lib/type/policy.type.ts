@@ -8,7 +8,6 @@ import {
   amountConditionSchema,
   approvalConditionSchema,
   approvalsCriterionSchema,
-  beneficiaryAddressCriterionSchema,
   criterionSchema,
   destinationAccountTypeCriterionSchema,
   destinationAddressCriterionSchema,
@@ -135,7 +134,6 @@ export type EntrypointIdCriterion = z.infer<typeof entrypointIdCriterionSchema>
 export type EntrypointAddressCriterion = z.infer<typeof entrypointAddressCriterionSchema>
 export type EntrypointAccountTypeCriterion = z.infer<typeof entrypointAccountTypeCriterionSchema>
 export type EntrypointClassificationCriterion = z.infer<typeof entrypointClassificationCriterionSchema>
-export type BeneficiaryAddressCriterion = z.infer<typeof beneficiaryAddressCriterionSchema>
 export type UserOperationIntentsCriterion = z.infer<typeof userOperationIntentsCriterionSchema>
 // Transaction Gas Fee
 export type GasFeeAmountCriterion = z.infer<typeof gasFeeAmountCriterionSchema>

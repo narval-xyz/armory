@@ -10,7 +10,6 @@ permit[{"policyId": "userOperationWithTransfers"}] = reason {
     checkEntryPointId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"})
     checkEntryPointAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"})
     checkEntryPointClassification({"internal"})
-	checkBeneficiaryAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"})
     checkUserOperationIntents([
         {
             "type": ["transferNative"],
