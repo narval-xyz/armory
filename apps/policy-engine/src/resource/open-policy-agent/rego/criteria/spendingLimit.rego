@@ -63,9 +63,10 @@ calculateCurrentSpendings(params) = result {
 	conditions = object.union(spendingWildcardConditions, params)
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
+	transfers = array.concat(transferFeed, intentTransferObjects)
 
 	result = sum([spending |
-		transfer = transferFeed[_]
+		transfer = transfers[_]
 
 		# filter by principal
 		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)
@@ -106,7 +107,7 @@ calculateCurrentSpendings(params) = result {
 
 checkSpendingLimit(params) {
 	conditions = object.union(spendingWildcardConditions, params)
-	spendings = calculateCurrentSpendings(conditions) + intentAmount(conditions.currency)
+	spendings = calculateCurrentSpendings(conditions)
 	operator = conditions.operator
 	limit = to_number(conditions.limit)
 

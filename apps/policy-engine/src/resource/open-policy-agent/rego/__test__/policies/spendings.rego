@@ -3,7 +3,6 @@ package main
 import future.keywords.in
 
 # Members can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
-
 forbid[{"policyId": "spendingLimitByRole"}] = reason {
 	checkAction({"signTransaction"})
 	checkIntentType({"transferERC20"})
@@ -30,7 +29,6 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 }
 
 # Alice can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
-
 forbid[{"policyId": "spendingLimitByUser"}] = reason {	
 	checkAction({"signTransaction"})
 	checkPrincipalId({"test-alice-uid"})
@@ -57,7 +55,6 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 }
 
 # Resource account can't transfer > $5k usd value in 12 hours on a rolling basis
-
 forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 	checkAction({"signTransaction"})
 	checkIntentType({"transferERC20"})
@@ -83,7 +80,6 @@ forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 }
 
 # User group can't transfer > $5k usd value in 12 hours on a rolling basis
-
 forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 	checkAction({"signTransaction"})
 	checkIntentType({"transferERC20"})
@@ -109,7 +105,6 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 }
 
 # Account group can't transfer > $5k usd value in 12 hours on a rolling basis
-
 forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
 	checkAction({"signTransaction"})
 	checkIntentType({"transferERC20"})
@@ -135,7 +130,6 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
 }
 
 # If Alice transfers >$5k usd value of USDC in a 12 hour rolling window, then require approvals
-
 permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
 	checkAction({"signTransaction"})
 	checkIntentType({"transferERC20"})

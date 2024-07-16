@@ -23,22 +23,13 @@ enum Template {
 interface PlaygroundProps {
   title: string
   configModal: ReactNode
-  response?: string
   errors?: string | undefined
   authorize?: (req: Evaluate) => Promise<AuthorizationRequest | undefined> | undefined
   evaluate?: (req: EvaluationRequest) => Promise<SendEvaluationResponse> | undefined
   validateResponse: (res: any) => Promise<SignatureRequest | undefined>
 }
 
-const Playground: FC<PlaygroundProps> = ({
-  title,
-  configModal,
-  errors,
-  response,
-  authorize,
-  evaluate,
-  validateResponse
-}) => {
+const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize, evaluate, validateResponse }) => {
   const { errors: vaultErrors, sign, importAccount, importWallet, generateWallet, deriveAccounts } = useVaultApi()
   const { authClientId, engineClientId, vaultClientId, vaultAccessToken, setVaultAccessToken } = useStore()
   const [requestEditor, setRequestEditor] = useState<string>()
@@ -53,14 +44,6 @@ const Playground: FC<PlaygroundProps> = ({
 
     updateTemplate(Template.ERC20)
   }, [requestEditor])
-
-  useEffect(() => {
-    if (response) {
-      setResponseEditor(response)
-      const authResponseParsed = AuthorizationResponse.parse(JSON.parse(response))
-      setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
-    }
-  }, [response])
 
   useEffect(() => {
     if (errors) {

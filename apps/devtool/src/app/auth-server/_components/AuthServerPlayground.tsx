@@ -6,7 +6,7 @@ import AuthConfigModal from '../../_components/modals/AuthConfigModal'
 import useAuthServerApi from '../../_hooks/useAuthServerApi'
 
 const AuthServerPlayground = () => {
-  const { errors: authErrors, authorizationResponse, evaluate } = useAuthServerApi()
+  const { errors: authErrors, evaluate } = useAuthServerApi()
 
   const validateResponse = async (res: any): Promise<SignatureRequest | undefined> => {
     const response = AuthorizationResponse.safeParse(res)
@@ -27,7 +27,6 @@ const AuthServerPlayground = () => {
       title="Authorization Server"
       configModal={<AuthConfigModal />}
       errors={authErrors}
-      response={authorizationResponse ? JSON.stringify(authorizationResponse, null, 2) : undefined}
       authorize={evaluate}
       validateResponse={validateResponse}
     />

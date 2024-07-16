@@ -25,10 +25,10 @@ import { privateKeyToAddress } from 'viem/accounts'
 import { polygon } from 'viem/chains'
 
 const AUTH_HOST = 'http://localhost:3005'
-const AUTH_CLIENT_ID = '09d889d5-06b0-4af6-81b5-fba8287b01d0'
+const AUTH_CLIENT_ID = '4a31e014-20da-4c3e-941e-0d71b176202b'
 
 const VAULT_HOST = 'http://localhost:3011'
-const VAULT_CLIENT_ID = '7339f00c-52d5-4e1c-bb3e-ba14fd18fad1'
+const VAULT_CLIENT_ID = 'b8099fd9-2070-436a-a398-35c6c826ddee'
 
 const CHAIN_ID = 137 // POLYGON
 const TOKEN_ID = 'eip155:137/slip44:966' // MATIC
@@ -90,8 +90,7 @@ const basePolicyCriteria: PolicyCriterion[] = [
     criterion: 'checkIntentAmount',
     args: {
       operator: ValueOperators.EQUAL,
-      value: MAX_AMOUNT_PER_TRANSACTION.toString(),
-      currency: '*'
+      value: MAX_AMOUNT_PER_TRANSACTION.toString()
     }
   },
   {
