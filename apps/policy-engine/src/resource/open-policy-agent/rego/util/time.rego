@@ -5,13 +5,13 @@ package main
 # 02 always displays current day 
 dateFormat = "2006-01-02" # YYYY-MM-DD
 
-secondsToNanoSeconds(epochS) = epochS * 1000000000
-
-nanoSecondsToSeconds(epochNs) = epochNs / 1000000000
+todayFormatted = time.format([time.now_ns(), "UTC", dateFormat])
 
 nowSeconds = nanoSecondsToSeconds(time.now_ns())
 
-todayFormatted = time.format([time.now_ns(), "UTC", dateFormat])
+secondsToNanoSeconds(epochS) = epochS * 1000000000
+
+nanoSecondsToSeconds(epochNs) = epochNs / 1000000000
 
 getStartDateInNanoSeconds(period) = result {
 	period == "1d"
