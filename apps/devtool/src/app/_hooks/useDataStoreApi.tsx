@@ -10,11 +10,9 @@ import {
 } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
-import { extractErrorMessage } from '../_lib/utils'
+import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
-
-const getHost = (url: string): string => new URL(url).origin
 
 const useDataStoreApi = () => {
   const {
@@ -40,7 +38,7 @@ const useDataStoreApi = () => {
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
-    if (!entityStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
+    if (!isValidUrl(entityStoreHost) || !authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 
@@ -57,7 +55,7 @@ const useDataStoreApi = () => {
   }, [entityStoreHost, authClientId, authClientSecret, jwk, signer])
 
   const policyStoreClient = useMemo<PolicyStoreClient | null>(() => {
-    if (!policyStoreHost || !authClientId || !authClientSecret || !jwk || !signer) {
+    if (!isValidUrl(policyStoreHost) || !authClientId || !authClientSecret || !jwk || !signer) {
       return null
     }
 

@@ -22,3 +22,16 @@ export const extractErrorMessage = (error: any): string => {
 
   return data?.message || error.message
 }
+
+export const getHost = (url: string): string => new URL(url).origin
+
+export const isValidUrl = (url: string | undefined) => {
+  if (!url) return false
+  
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}

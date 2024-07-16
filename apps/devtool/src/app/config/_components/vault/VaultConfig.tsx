@@ -1,6 +1,7 @@
 'use client'
 
 import NarInput from '../../../_design-system/NarInput'
+import NarUrlInput from '../../../_design-system/NarUrlInput'
 import useStore from '../../../_hooks/useStore'
 import AddVaultClientModal from './AddVaultClientModal'
 
@@ -14,7 +15,7 @@ const VaultConfig = () => {
         <AddVaultClientModal />
       </div>
       <div className="flex flex-col gap-6">
-        <NarInput label="Vault URL" value={vaultUrl} onChange={setVaultUrl} />
+        <NarUrlInput label="Vault URL" value={vaultUrl} onValueChange={setVaultUrl} />
         <NarInput label="Admin API Key" value={vaultAdminApiKey} onChange={setVaultAdminApiKey} />
       </div>
     </div>

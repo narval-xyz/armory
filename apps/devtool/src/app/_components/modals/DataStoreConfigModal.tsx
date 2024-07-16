@@ -7,6 +7,7 @@ import NarButton from '../../_design-system/NarButton'
 import NarCheckbox from '../../_design-system/NarCheckbox'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
+import NarUrlInput from '../../_design-system/NarUrlInput'
 import useStore from '../../_hooks/useStore'
 import { LOCAL_DATA_STORE_URL, MANAGED_DATASTORE_BASE_URL } from '../../_lib/constants'
 
@@ -118,10 +119,10 @@ const DataStoreConfigModal = () => {
       <div className="w-[800px] px-12 py-4">
         <div className="flex flex-col gap-[16px]">
           <NarCheckbox label="Use Auth Server" checked={form.useAuthServer} onCheckedChange={resetForm} />
-          <NarInput
+          <NarUrlInput
             label={`${form.useAuthServer ? 'Auth' : 'Engine'} URL`}
             value={form.url}
-            onChange={(url) => updateForm({ url })}
+            onValueChange={(url) => updateForm({ url })}
           />
           <NarInput
             label={`${form.useAuthServer ? 'Auth' : 'Engine'} Client ID`}

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
+import NarUrlInput from '../../_design-system/NarUrlInput'
 import useStore from '../../_hooks/useStore'
 
 interface ConfigForm {
@@ -88,7 +89,11 @@ const EngineConfigModal = () => {
     >
       <div className="w-[800px] px-12 py-4">
         <div className="flex flex-col gap-[16px]">
-          <NarInput label="Engine URL" value={form.engineUrl} onChange={(engineUrl) => updateForm({ engineUrl })} />
+          <NarUrlInput
+            label="Engine URL"
+            value={form.engineUrl}
+            onValueChange={(engineUrl) => updateForm({ engineUrl })}
+          />
           <NarInput
             label="Engine Client ID"
             value={form.engineClientId}
@@ -99,7 +104,7 @@ const EngineConfigModal = () => {
             value={form.engineClientSecret}
             onChange={(engineClientSecret) => updateForm({ engineClientSecret })}
           />
-          <NarInput label="Vault URL" value={form.vaultUrl} onChange={(vaultUrl) => updateForm({ vaultUrl })} />
+          <NarUrlInput label="Vault URL" value={form.vaultUrl} onValueChange={(vaultUrl) => updateForm({ vaultUrl })} />
           <NarInput
             label="Vault Client ID"
             value={form.vaultClientId}
