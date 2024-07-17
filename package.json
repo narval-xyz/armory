@@ -129,7 +129,7 @@
     "usehooks-ts": "3.1.0",
     "uuid": "9.0.1",
     "viem": "2.16.2",
-    "wagmi": "2.5.7",
+    "wagmi": "2.11.1",
     "winston": "3.13.0",
     "winston-transport": "4.7.0",
     "zod": "3.23.8"
