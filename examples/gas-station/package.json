@@ -1,0 +1,15 @@
+{
+  "name": "gas-station",
+  "version": "1.0.0",
+  "description": "This example showcase the power of Narval Armory Engine to setup a secure gas station for your dApp users.",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@narval-xyz/armory-sdk": "^0.4.0",
+    "tsx": "^4.16.2"
+  }
+}

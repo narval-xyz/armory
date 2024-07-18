@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { Action, UserOperationV6 } from '@narval/policy-engine-shared'
+import { Action, UserOperationV6 } from '../../packages/policy-engine-shared/src'
 import { SimpleSmartAccount } from 'permissionless/accounts'
 import { v4 } from 'uuid'
 import { HttpTransport } from 'viem'
@@ -36,12 +36,13 @@ export const simpleSmartAccountWithNarval = (
         userOperation: result.data,
         nonce
       })
-      .catch((e) => {
+      .catch((e: unknown) => {
         console.error(e)
       })
 
     if (!accessToken) {
-      throw new Error('No access token')
+      console.error('Unauthorized')
+      process.exit(0)
     }
 
     const signedUserOp = await narvalSdk.vaultClient.sign({

@@ -43,7 +43,7 @@ Before starting, ensure you are registered with Pimlico and have your API key.
 
 ## Step 2: Fill in Your Environment Variables
 
-Open `armory/examples/armory-sdk-nodejs/.env` and fill in the following values:
+Open `armory/examples/vault-signer-4337/.env` and fill in the following values:
 
 - `PIMLICO_API_KEY`: This is the API key that will be used to make requests to the Pimlico API in order to create your Smart Accounts and broadcast the sign user operation on-chain.
 - `ROOT_USER_CRED`: A private key you own, in hexadecimal format. Create a new MetaMask account, copy the private key, and paste it here.
@@ -52,12 +52,14 @@ Open `armory/examples/armory-sdk-nodejs/.env` and fill in the following values:
 
 This example defaults to your first Policy and Entity set. If you don't change the default, it will create one policy that allows users with the role `admin` to do anything, and one user with the role `admin` tied to the `ROOT_USER_CRED` that you provided.
 
-You will need to get familiar with the way we build policies, and then you can change the code in `examples/armory-sdk-nodejs/src/armory.data.ts`.
+You will also find a commented policy that forbids native transfer. If you uncomment this policy and run the example another time, you will have a "Forbid" response. It is because the operation that is trying to be performed in the User Operation signed is a native transfer.
+
+You will need to get familiar with the way we build policies, and then you can change the code in `armory/examples/vault-signer-4337/armory.data.ts`.
 
 ## Step 4: Run the Example
 
-When you are in the `armory` repository, run:
+Open a terminal in `armory/examples/vault-signer-4337`
 
 ```sh
-npx nx serve armory-sdk-nodejs
+npm start
 ```

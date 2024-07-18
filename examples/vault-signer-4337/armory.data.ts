@@ -5,10 +5,10 @@ import {
   PolicyStoreClient,
   VaultClient,
   credential
-} from '@narval/armory-sdk'
-import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
-import { Hex, getPublicKey, privateKeyToJwk } from '@narval/signature'
-import { Intents } from '@narval/transaction-request-intent'
+} from '@narval-xyz/armory-sdk'
+import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '../../packages/policy-engine-shared/src'
+import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
+import { Intents } from '../../packages/transaction-request-intent/src'
 import { v4 } from 'uuid'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
@@ -24,25 +24,26 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
       ],
       then: Then.PERMIT
     },
-    {
-      id: v4(),
-      description: 'Forbid native transfer within user operations',
-      when: [
-        {
-          criterion: Criterion.CHECK_ACTION,
-          args: [Action.SIGN_USER_OPERATION]
-        },
-        {
-          criterion: Criterion.CHECK_USER_OPERATION_INTENTS,
-          args: [
-            {
-              type: [Intents.TRANSFER_NATIVE]
-            }
-          ]
-        }
-      ],
-      then: Then.FORBID
-    }
+    // {
+    //   id: v4(),
+    //   description: 'Forbid native transfer within user operations',
+    //   when: [
+    //     {
+    //       criterion: Criterion.CHECK_ACTION,
+    //       args: [Action.SIGN_USER_OPERATION]
+    //     },
+    //     {
+    //       criterion: Criterion.CHECK_USER_OPERATION_INTENTS,
+    //       args: [
+    //         {
+    //           type: [Intents.TRANSFER_NATIVE]
+    //         }
+    //       ]
+    //     }
+    //   ],
+    //   then: Then.FORBID
+    // }
+    // Uncomment the above policy to forbid native transfer within user operations. If
   ]
   await policyStoreClient.signAndPush(policies)
 }

@@ -1,0 +1,18 @@
+{
+  "name": "vault-signer-4337",
+  "version": "1.0.0",
+  "description": "A typescript example to use armory stack with a Smart Account",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@narval-xyz/armory-sdk": "^0.4.0",
+    "dotenv": "^16.4.5",
+    "permissionless": "^0.1.39",
+    "tsx": "^4.16.2",
+    "viem": "^2.17.4"
+  }
+}
