@@ -29,7 +29,8 @@ export const BaseAction = z.object({
 })
 export type BaseAction = z.infer<typeof BaseAction>
 
-export const TransactionRequest = z.object({
+
+export const TransactionRequestEIP1559 = z.object({
   chainId: z.number(),
   from: addressSchema,
   nonce: z.number().optional(),
@@ -42,13 +43,38 @@ export const TransactionRequest = z.object({
   type: z.literal('2').optional(),
   value: hexSchema.optional()
 })
-export type TransactionRequest = z.infer<typeof TransactionRequest>
+export type TransactionRequestEIP1559 = z.infer<typeof TransactionRequestEIP1559>
 
-export const SerializedTransactionRequest = TransactionRequest.extend({
+export const SerializedTransactionRequestEIP1559 = TransactionRequestEIP1559.extend({
   gas: z.coerce.string().optional(),
   maxFeePerGas: z.coerce.string().optional(),
   maxPriorityFeePerGas: z.coerce.string().optional()
 })
+export type SerializedTransactionRequestEIP1559 = z.infer<typeof SerializedTransactionRequestEIP1559>
+
+export const TransactionRequestLegacy = z.object({
+  chainId: z.number(),
+  from: addressSchema,
+  nonce: z.number().optional(),
+  data: hexSchema.optional(),
+  gas: z.coerce.bigint().optional(),
+  gasPrice: z.coerce.bigint().optional(),
+  type: z.literal('0').optional(),
+  to: addressSchema.nullable().optional(),
+  value: hexSchema.optional()
+})
+export type TransactionRequestLegacy = z.infer<typeof TransactionRequestLegacy>
+
+export const SerializedTransactionRequestLegacy = TransactionRequestLegacy.extend({
+  gas: z.coerce.string().optional(),
+  gasPrice: z.coerce.string().optional()
+})
+export type SerializedTransactionRequestLegacy = z.infer<typeof SerializedTransactionRequestLegacy>
+
+export const TransactionRequest = z.discriminatedUnion('type', [TransactionRequestEIP1559, TransactionRequestLegacy])
+export type TransactionRequest = z.infer<typeof TransactionRequest>
+
+export const SerializedTransactionRequest = z.union([SerializedTransactionRequestEIP1559, SerializedTransactionRequestLegacy])
 export type SerializedTransactionRequest = z.infer<typeof SerializedTransactionRequest>
 
 export const UserOperationV6 = z.object({
