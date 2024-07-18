@@ -41,7 +41,8 @@ export const simpleSmartAccountWithNarval = (
       })
 
     if (!accessToken) {
-      throw new Error('No access token')
+      console.error('Unauthorized')
+      process.exit(0)
     }
 
     const signedUserOp = await narvalSdk.vaultClient.sign({

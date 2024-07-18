@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@narval-xyz/armory-sdk": "^0.4.0"
+    "@narval-xyz/armory-sdk": "^0.4.0",
+    "tsx": "^4.16.2"
   }
 }

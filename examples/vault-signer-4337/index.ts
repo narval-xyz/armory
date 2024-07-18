@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-
+import "dotenv/config"
 import { resourceId } from '@narval-xyz/armory-sdk'
 import { createSmartAccountClient, ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
 import { signerToSimpleSmartAccount } from 'permissionless/accounts'
@@ -13,6 +13,7 @@ import { simpleSmartAccountWithNarval } from './armory.smart-account'
 import { hexSchema } from '../../packages/policy-engine-shared/src'
 
 const main = async () => {
+  console.log('Starting...')
   const ROOT_USER_CRED = hexSchema.parse(process.env.ROOT_USER_CRED)
   const config = await getArmoryConfig(ROOT_USER_CRED)
   const armory = armoryClient(config)

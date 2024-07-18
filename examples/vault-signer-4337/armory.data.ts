@@ -24,25 +24,26 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
       ],
       then: Then.PERMIT
     },
-    {
-      id: v4(),
-      description: 'Forbid native transfer within user operations',
-      when: [
-        {
-          criterion: Criterion.CHECK_ACTION,
-          args: [Action.SIGN_USER_OPERATION]
-        },
-        {
-          criterion: Criterion.CHECK_USER_OPERATION_INTENTS,
-          args: [
-            {
-              type: [Intents.TRANSFER_NATIVE]
-            }
-          ]
-        }
-      ],
-      then: Then.FORBID
-    }
+    // {
+    //   id: v4(),
+    //   description: 'Forbid native transfer within user operations',
+    //   when: [
+    //     {
+    //       criterion: Criterion.CHECK_ACTION,
+    //       args: [Action.SIGN_USER_OPERATION]
+    //     },
+    //     {
+    //       criterion: Criterion.CHECK_USER_OPERATION_INTENTS,
+    //       args: [
+    //         {
+    //           type: [Intents.TRANSFER_NATIVE]
+    //         }
+    //       ]
+    //     }
+    //   ],
+    //   then: Then.FORBID
+    // }
+    // Uncomment the above policy to forbid native transfer within user operations. If
   ]
   await policyStoreClient.signAndPush(policies)
 }

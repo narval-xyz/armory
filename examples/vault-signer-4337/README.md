@@ -52,6 +52,8 @@ Open `armory/examples/vault-signer-4337/.env` and fill in the following values:
 
 This example defaults to your first Policy and Entity set. If you don't change the default, it will create one policy that allows users with the role `admin` to do anything, and one user with the role `admin` tied to the `ROOT_USER_CRED` that you provided.
 
+You will also find a commented policy that forbids native transfer. If you uncomment this policy and run the example another time, you will have a "Forbid" response. It is because the operation that is trying to be performed in the User Operation signed is a native transfer.
+
 You will need to get familiar with the way we build policies, and then you can change the code in `armory/examples/vault-signer-4337/armory.data.ts`.
 
 ## Step 4: Run the Example
