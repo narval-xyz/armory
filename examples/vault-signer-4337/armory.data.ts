@@ -5,10 +5,10 @@ import {
   PolicyStoreClient,
   VaultClient,
   credential
-} from '@narval/armory-sdk'
-import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
-import { Hex, getPublicKey, privateKeyToJwk } from '@narval/signature'
-import { Intents } from '@narval/transaction-request-intent'
+} from '@narval-xyz/armory-sdk'
+import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '../../packages/policy-engine-shared/src'
+import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
+import { Intents } from '../../packages/transaction-request-intent/src'
 import { v4 } from 'uuid'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {

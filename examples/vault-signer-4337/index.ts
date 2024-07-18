@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 
-import { resourceId } from '@narval/armory-sdk'
-import { hexSchema } from '@narval/policy-engine-shared'
+import { resourceId } from '@narval-xyz/armory-sdk'
 import { createSmartAccountClient, ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
 import { signerToSimpleSmartAccount } from 'permissionless/accounts'
 import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico'
@@ -11,6 +10,7 @@ import { armoryClient, armoryUserOperationSigner } from './armory.account'
 import { setInitialState } from './armory.data'
 import { getArmoryConfig } from './armory.sdk'
 import { simpleSmartAccountWithNarval } from './armory.smart-account'
+import { hexSchema } from '../../packages/policy-engine-shared/src'
 
 const main = async () => {
   const ROOT_USER_CRED = hexSchema.parse(process.env.ROOT_USER_CRED)
@@ -68,7 +68,7 @@ const main = async () => {
     })
 
     console.log(`User operation included: https://sepolia.etherscan.io/tx/${txHash}`)
-  } catch (e) {
+  } catch (e: any) {
     if (e.name === 'WaitForUserOperationReceiptTimeoutError') {
       console.log(`User operation included: https://sepolia.etherscan.io/address/${narvalAccount.address}#internaltx`)
       return

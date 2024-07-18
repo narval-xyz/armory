@@ -5,9 +5,9 @@ import {
   VaultAdminClient,
   VaultConfig,
   createHttpDataStore
-} from '@narval/armory-sdk'
-import { Hex } from '@narval/policy-engine-shared'
-import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
+} from '@narval-xyz/armory-sdk'
+import { Hex } from '../../packages/policy-engine-shared/src'
+import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
