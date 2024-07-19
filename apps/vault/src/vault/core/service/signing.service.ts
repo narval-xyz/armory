@@ -85,6 +85,11 @@ export class SigningService {
   buildSignableTransactionRequest(transactionRequest: TransactionRequest): SignableTransactionRequest {
     const type = getTxType(transactionRequest)
 
+    const value =
+      transactionRequest.value === undefined || transactionRequest.value === '0x'
+        ? undefined
+        : hexToBigInt(transactionRequest.value)
+
     switch (type) {
       case '2': {
         const tx = TransactionRequestEIP1559.parse(transactionRequest)
@@ -97,7 +102,7 @@ export class SigningService {
           maxFeePerGas: tx.maxFeePerGas,
           maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
           type: transactionType['0x2'],
-          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+          value
         }
       }
       case '0': {
@@ -110,7 +115,7 @@ export class SigningService {
           gas: tx.gas,
           gasPrice: tx.gasPrice,
           type: transactionType['0x0'],
-          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+          value
         }
       }
       default: {
@@ -121,7 +126,7 @@ export class SigningService {
           data: transactionRequest.data,
           gas: transactionRequest.gas,
           type: transactionType['0x0'],
-          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+          value
         }
       }
     }
