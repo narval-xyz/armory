@@ -6,15 +6,18 @@ import {
   SignRawAction,
   SignTransactionAction,
   SignTypedDataAction,
-  SignUserOperationAction
+  SignUserOperationAction,
+  TransactionRequest,
+  TransactionRequestEIP1559,
+  TransactionRequestLegacy,
+  getTxType
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { EntryPoint } from 'permissionless/types'
 import { getUserOperationHash } from 'permissionless/utils'
 import {
-  TransactionRequest,
-  checksumAddress,
+  TransactionRequest as SignableTransactionRequest,
   createWalletClient,
   custom,
   extractChain,
@@ -79,6 +82,51 @@ export class SigningService {
     return signature
   }
 
+  buildSignableTransactionRequest(transactionRequest: TransactionRequest): SignableTransactionRequest {
+    const type = getTxType(transactionRequest)
+
+    switch (type) {
+      case '2': {
+        const tx = TransactionRequestEIP1559.parse(transactionRequest)
+        return {
+          from: tx.from,
+          to: tx.to,
+          nonce: tx.nonce,
+          data: tx.data,
+          gas: tx.gas,
+          maxFeePerGas: tx.maxFeePerGas,
+          maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+          type: transactionType['0x2'],
+          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+        }
+      }
+      case '0': {
+        const tx = TransactionRequestLegacy.parse(transactionRequest)
+        return {
+          from: tx.from,
+          to: tx.to,
+          nonce: tx.nonce,
+          data: tx.data,
+          gas: tx.gas,
+          gasPrice: tx.gasPrice,
+          type: transactionType['0x0'],
+          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+        }
+      }
+      default: {
+        return {
+          from: transactionRequest.from,
+          to: transactionRequest.to,
+          nonce: transactionRequest.nonce,
+          data: transactionRequest.data,
+          gas: transactionRequest.gas,
+          type: transactionType['0x0'],
+          value: transactionRequest.value ? hexToBigInt(transactionRequest.value) : undefined
+        }
+      }
+    }
+  }
+
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
     const chain = extractChain<chains.Chain[], number>({
@@ -92,18 +140,15 @@ export class SigningService {
         ? undefined
         : hexToBigInt(transactionRequest.value)
 
-    const txRequest: TransactionRequest = {
-      from: checksumAddress(client.account.address),
-      to: transactionRequest.to,
-      nonce: transactionRequest.nonce,
-      data: transactionRequest.data,
-      gas: transactionRequest.gas,
-      maxFeePerGas: transactionRequest.maxFeePerGas,
-      maxPriorityFeePerGas: transactionRequest.maxPriorityFeePerGas,
-      type: transactionType['0x2'],
-      value
+    const type = getTxType(transactionRequest)
+    if (type === undefined) {
+      throw new ApplicationException({
+        message: 'Invalid transaction type',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+        context: { transactionRequest }
+      })
     }
-
+    const txRequest = this.buildSignableTransactionRequest(transactionRequest)
     const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
     //   TEMPORARY

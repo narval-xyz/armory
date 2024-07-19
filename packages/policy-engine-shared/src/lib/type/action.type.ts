@@ -29,7 +29,6 @@ export const BaseAction = z.object({
 })
 export type BaseAction = z.infer<typeof BaseAction>
 
-
 export const TransactionRequestEIP1559 = z.object({
   chainId: z.number(),
   from: addressSchema,
@@ -71,10 +70,13 @@ export const SerializedTransactionRequestLegacy = TransactionRequestLegacy.exten
 })
 export type SerializedTransactionRequestLegacy = z.infer<typeof SerializedTransactionRequestLegacy>
 
-export const TransactionRequest = z.discriminatedUnion('type', [TransactionRequestEIP1559, TransactionRequestLegacy])
+export const TransactionRequest = z.union([TransactionRequestEIP1559, TransactionRequestLegacy])
 export type TransactionRequest = z.infer<typeof TransactionRequest>
 
-export const SerializedTransactionRequest = z.union([SerializedTransactionRequestEIP1559, SerializedTransactionRequestLegacy])
+export const SerializedTransactionRequest = z.union([
+  SerializedTransactionRequestEIP1559,
+  SerializedTransactionRequestLegacy
+])
 export type SerializedTransactionRequest = z.infer<typeof SerializedTransactionRequest>
 
 export const UserOperationV6 = z.object({
