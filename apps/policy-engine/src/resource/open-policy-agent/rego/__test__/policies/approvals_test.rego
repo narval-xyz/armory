@@ -72,16 +72,35 @@ test_approvalByUserRoles {
 	}
 }
 
-test_withoutApprovals {
-	withoutApprovalsReq = {
+test_withoutApprovalsEIP1559 {
+	withoutApprovalsReq := {
 		"action": "signTransaction",
-		"transactionRequest": transactionRequestReq,
+		"transactionRequest": transactionRequestEIP1559,
 		"principal": principalReq,
 		"resource": resourceReq,
 		"intent": intentReq
 	}
 
-	res = permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
+
+	res == {
+		"type": "permit",
+		"policyId": "withoutApprovals",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
+}
+
+test_withoutApprovalsLEGACY {
+	withoutApprovalsReq := {
+		"action": "signTransaction",
+		"transactionRequest": transactionRequestLegacy,
+		"principal": principalReq,
+		"resource": resourceReq,
+		"intent": intentReq
+	}
+
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
 
 	res == {
 		"type": "permit",

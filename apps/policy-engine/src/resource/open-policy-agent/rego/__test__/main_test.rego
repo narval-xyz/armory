@@ -24,7 +24,7 @@ principalReq = {"userId": "test-bob-uid"}
 
 resourceReq = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 
-transactionRequestReq = {
+transactionRequestEIP1559 = {
 	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 	"chainId": 137,
@@ -35,6 +35,18 @@ transactionRequestReq = {
 	"data": "0x00000000",
 	"nonce": 192,
 	"type": "2",
+}
+
+transactionRequestLegacy = {
+	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+	"chainId": 137,
+	"gas": "21000",
+  "gasPrice": "20000000000",
+	"value": "0xde0b6b3a7640000",
+	"data": "0x00000000",
+	"nonce": 192,
+	"type": "0",
 }
 
 intentReq = {
@@ -110,12 +122,22 @@ feedsReq = [
 
 request = {
 	"action": "signTransaction",
-	"transactionRequest": transactionRequestReq,
+	"transactionRequest": transactionRequestEIP1559,
 	"principal": principalReq,
 	"resource": resourceReq,
 	"intent": intentReq,
 	"approvals": approvalsReq,
 	"feeds": feedsReq,
+}
+
+legacyReq = {
+  "action": "signTransaction",
+  "transactionRequest": transactionRequestLegacy,
+  "principal": principalReq,
+  "resource": resourceReq,
+  "intent": intentReq,
+  "approvals": approvalsReq,
+  "feeds": feedsReq,
 }
 
 entities = {
