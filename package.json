@@ -12,7 +12,7 @@
     "@docusaurus/types": "3.1.0",
     "@faker-js/faker": "8.4.1",
     "@nestjs/testing": "10.3.9",
-    "@nx/devkit": "19.2.3",
+    "@nx/devkit": "19.5.1",
     "@nx/eslint": "19.3.2",
     "@nx/eslint-plugin": "19.3.2",
     "@nx/jest": "19.2.0",
