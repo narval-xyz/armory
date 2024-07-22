@@ -106,7 +106,8 @@ export class AuthClient {
     const request = SerializedAuthorizationRequest.pick({
       authentication: true,
       request: true,
-      metadata: true
+      metadata: true,
+      approvals: true
     }).parse({
       ...input,
       authentication
