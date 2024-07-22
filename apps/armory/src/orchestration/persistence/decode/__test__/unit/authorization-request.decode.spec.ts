@@ -1,4 +1,4 @@
-import { Action } from '@narval/policy-engine-shared'
+import { Action, Eip712TypedData } from '@narval/policy-engine-shared'
 import { AuthorizationRequestStatus } from '@prisma/client/armory'
 import { decodeAuthorizationRequest } from '../../../../persistence/decode/authorization-request.decode'
 import { DecodeAuthorizationRequestException } from '../../../../persistence/exception/decode-authorization-request.exception'
@@ -137,6 +137,44 @@ describe('decodeAuthorizationRequest', () => {
               name: 'Ether Mail',
               version: '1',
               chainId: 1,
+              verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+            },
+            message: JSON.stringify({ name: 'Bob', wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB' })
+          }
+        }
+      }
+
+      expect(() => {
+        decodeAuthorizationRequest(validModel)
+      }).not.toThrow(DecodeAuthorizationRequestException)
+    })
+
+    it('decodes a sign typed data authorization request with a string chainId successfully', () => {
+      const validModel = {
+        ...sharedModel,
+        action: Action.SIGN_TYPED_DATA,
+        request: {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: '99',
+          resourceId: '440b486a-8807-49d8-97a1-24c2920730ed',
+          typedData: {
+            types: {
+              EIP712Domain: [
+                { name: 'name', type: 'string' },
+                { name: 'version', type: 'string' },
+                { name: 'chainId', type: 'uint256' },
+                { name: 'verifyingContract', type: 'address' }
+              ],
+              Person: [
+                { name: 'name', type: 'string' },
+                { name: 'wallet', type: 'address' }
+              ]
+            },
+            primaryType: 'Person',
+            domain: {
+              name: 'Ether Mail',
+              version: '1',
+              chainId: '1',
               verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
             },
             message: JSON.stringify({ name: 'Bob', wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB' })
