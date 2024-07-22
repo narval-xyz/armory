@@ -57,15 +57,15 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
     switch (template) {
       case Template.ERC20:
         setResponseEditor(undefined)
-        setRequestEditor(stringify(await erc20(), null, 2))
+        setRequestEditor(stringify(await erc20(), 2))
         break
       case Template.SPENDING_LIMITS:
         setResponseEditor(undefined)
-        setRequestEditor(stringify(await spendingLimits(), null, 2))
+        setRequestEditor(stringify(await spendingLimits(), 2))
         break
       case Template.GRANT_PERMISSION:
         setResponseEditor(undefined)
-        setRequestEditor(stringify(await grantPermission(), null, 2))
+        setRequestEditor(stringify(await grantPermission(), 2))
         break
       default:
         break
@@ -81,7 +81,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const request = JSON.parse(requestEditor)
       const response = authorize && (await authorize(request))
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
         const authResponseParsed = AuthorizationResponse.parse(response)
         setVaultAccessToken(authResponseParsed.evaluations[0]?.signature || '')
       }
@@ -99,7 +99,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const request = JSON.parse(requestEditor)
       const response = evaluate && (await evaluate(request))
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
         const evalResponseParsed = SendEvaluationResponse.parse(response)
         setVaultAccessToken(evalResponseParsed.accessToken?.value || '')
       }
@@ -121,7 +121,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       setIsProcessing(true)
       setResponseEditor(undefined)
       const response = await sign(signatureReq)
-      if (response) setResponseEditor(stringify(response, null, 2))
+      if (response) setResponseEditor(stringify(response, 2))
     } finally {
       setIsProcessing(false)
     }
@@ -135,7 +135,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const response = await importAccount({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } })
 
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
       }
 
       return response
@@ -152,7 +152,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const response = await importWallet({ seed, accessToken: { value: accessToken } })
 
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
       }
 
       return response
@@ -169,7 +169,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const response = await generateWallet({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
       }
 
       return response
@@ -186,7 +186,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       const response = await deriveAccounts({ keyId, accessToken: { value: accessToken } })
 
       if (response) {
-        setResponseEditor(stringify(response, null, 2))
+        setResponseEditor(stringify(response, 2))
       }
 
       return response
