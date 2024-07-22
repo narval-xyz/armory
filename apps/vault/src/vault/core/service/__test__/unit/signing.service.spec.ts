@@ -1,17 +1,9 @@
-import {
-  Action,
-  Eip712TypedData,
-  Request,
-  TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestLegacy
-} from '@narval/policy-engine-shared'
+import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
 import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySecp256k1 } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import {
   Hex,
-  TransactionRequest as SignableTransactionRequest,
   TransactionSerializable,
   bytesToHex,
   hexToBigInt,
@@ -19,7 +11,6 @@ import {
   serializeTransaction,
   stringToBytes,
   toHex,
-  transactionType,
   verifyMessage,
   verifyTypedData
 } from 'viem'
@@ -340,92 +331,5 @@ describe('SigningService', () => {
     const deserialized = parseTransaction(serialized)
 
     expect(deserialized).toEqual(txRequest)
-  })
-  describe('buildSignableTransactionRequest', () => {
-    it('should build a signable transaction request for EIP1559 transaction type', () => {
-      const transactionRequest: TransactionRequestEIP1559 = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        chainId: 137,
-        value: '0x5af3107a4000',
-        data: '0x',
-        nonce: 317,
-        type: '2',
-        gas: 21004n,
-        maxFeePerGas: 291175227375n,
-        maxPriorityFeePerGas: 81000000000n
-      }
-
-      const expectedSignableTransactionRequest: SignableTransactionRequest = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        nonce: 317,
-        data: '0x',
-        gas: 21004n,
-        maxFeePerGas: 291175227375n,
-        maxPriorityFeePerGas: 81000000000n,
-        type: transactionType['0x2'],
-        value: hexToBigInt('0x5af3107a4000')
-      }
-
-      const result = signingService.buildSignableTransactionRequest(transactionRequest)
-
-      expect(result).toEqual(expectedSignableTransactionRequest)
-    })
-
-    it('should build a signable transaction request for legacy transaction type', () => {
-      const transactionRequest: TransactionRequestLegacy = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        chainId: 137,
-        value: '0x5af3107a4000',
-        data: '0x',
-        nonce: 317,
-        type: '0',
-        gas: 21004n,
-        gasPrice: 1000000000n
-      }
-
-      const expectedSignableTransactionRequest: SignableTransactionRequest = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        nonce: 317,
-        data: '0x',
-        gas: 21004n,
-        gasPrice: 1000000000n,
-        type: transactionType['0x0'],
-        value: hexToBigInt('0x5af3107a4000')
-      }
-
-      const result = signingService.buildSignableTransactionRequest(transactionRequest)
-
-      expect(result).toEqual(expectedSignableTransactionRequest)
-    })
-
-    it('build a transactionRequest with unknown type', () => {
-      const transactionRequest: TransactionRequest = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        chainId: 137,
-        value: '0x5af3107a4000',
-        data: '0x',
-        nonce: 317,
-        gas: 21004n
-      }
-
-      const expectedSignableTransactionRequest: SignableTransactionRequest = {
-        from: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        to: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B',
-        nonce: 317,
-        data: '0x',
-        gas: 21004n,
-        type: transactionType['0x0'],
-        value: hexToBigInt('0x5af3107a4000')
-      }
-
-      const result = signingService.buildSignableTransactionRequest(transactionRequest)
-
-      expect(result).toEqual(expectedSignableTransactionRequest)
-    })
   })
 })

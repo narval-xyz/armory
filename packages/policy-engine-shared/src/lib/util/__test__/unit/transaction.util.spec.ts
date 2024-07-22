@@ -1,5 +1,5 @@
 import { Hex } from '../../../type/domain.type'
-import { getTxType } from '../../transaction-type.util'
+import { getTxType } from '../../transaction.util'
 
 describe('getTxType', () => {
   const baseTx = {
@@ -28,6 +28,11 @@ describe('getTxType', () => {
   it('returns "0" when gasPrice is in tx', () => {
     const tx = { ...baseTx, gasPrice: 10 }
     expect(getTxType(tx)).toBe('0')
+  })
+
+  it('returns "2" when gasPrice is in tx and maxFeePerGas is in tx', () => {
+    const tx = { ...baseTx, gasPrice: 10, maxFeePerGas: 100n }
+    expect(getTxType(tx)).toBe('2')
   })
 
   it('returns "undefined" when none of the specific properties are present', () => {

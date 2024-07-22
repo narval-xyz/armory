@@ -120,7 +120,7 @@ feedsReq = [
 	},
 ]
 
-request = {
+requestWithEip1559Transaction = {
 	"action": "signTransaction",
 	"transactionRequest": transactionRequestEIP1559,
 	"principal": principalReq,
@@ -130,7 +130,7 @@ request = {
 	"feeds": feedsReq,
 }
 
-legacyReq = {
+requestWithLegacyTransaction = {
   "action": "signTransaction",
   "transactionRequest": transactionRequestLegacy,
   "principal": principalReq,

@@ -91,7 +91,7 @@ test_withoutApprovalsEIP1559 {
 	}
 }
 
-test_withoutApprovalsLEGACY {
+test_withoutApprovalsLegacy {
 	withoutApprovalsReq := {
 		"action": "signTransaction",
 		"transactionRequest": transactionRequestLegacy,

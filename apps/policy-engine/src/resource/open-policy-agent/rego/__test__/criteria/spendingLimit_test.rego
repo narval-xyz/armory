@@ -78,7 +78,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 400000000000000000
 }
 
@@ -95,7 +95,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -111,7 +111,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 1000000000000000000
 }
 
@@ -172,7 +172,7 @@ test_calculateCurrentSpendingsByPrincipal {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 1000000000000000000
 }
 

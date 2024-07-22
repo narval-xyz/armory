@@ -7,29 +7,18 @@ import {
   SignTransactionAction,
   SignTypedDataAction,
   SignUserOperationAction,
-  TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestLegacy,
   getTxType
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { EntryPoint } from 'permissionless/types'
 import { getUserOperationHash } from 'permissionless/utils'
-import {
-  TransactionRequest as SignableTransactionRequest,
-  createWalletClient,
-  custom,
-  extractChain,
-  hexToBigInt,
-  hexToBytes,
-  signatureToHex,
-  transactionType
-} from 'viem'
+import { createWalletClient, custom, extractChain, hexToBigInt, hexToBytes, signatureToHex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { AccountRepository } from '../../persistence/repository/account.repository'
+import { buildSignableTransactionRequest } from '../util/build-transaction.util'
 import { NonceService } from './nonce.service'
 
 @Injectable()
@@ -82,56 +71,6 @@ export class SigningService {
     return signature
   }
 
-  buildSignableTransactionRequest(transactionRequest: TransactionRequest): SignableTransactionRequest {
-    const type = getTxType(transactionRequest)
-
-    const value =
-      transactionRequest.value === undefined || transactionRequest.value === '0x'
-        ? undefined
-        : hexToBigInt(transactionRequest.value)
-
-    switch (type) {
-      case '2': {
-        const tx = TransactionRequestEIP1559.parse(transactionRequest)
-        return {
-          from: tx.from,
-          to: tx.to,
-          nonce: tx.nonce,
-          data: tx.data,
-          gas: tx.gas,
-          maxFeePerGas: tx.maxFeePerGas,
-          maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-          type: transactionType['0x2'],
-          value
-        }
-      }
-      case '0': {
-        const tx = TransactionRequestLegacy.parse(transactionRequest)
-        return {
-          from: tx.from,
-          to: tx.to,
-          nonce: tx.nonce,
-          data: tx.data,
-          gas: tx.gas,
-          gasPrice: tx.gasPrice,
-          type: transactionType['0x0'],
-          value
-        }
-      }
-      default: {
-        return {
-          from: transactionRequest.from,
-          to: transactionRequest.to,
-          nonce: transactionRequest.nonce,
-          data: transactionRequest.data,
-          gas: transactionRequest.gas,
-          type: transactionType['0x0'],
-          value
-        }
-      }
-    }
-  }
-
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
     const { transactionRequest, resourceId } = action
     const chain = extractChain<chains.Chain[], number>({
@@ -153,7 +92,7 @@ export class SigningService {
         context: { transactionRequest }
       })
     }
-    const txRequest = this.buildSignableTransactionRequest(transactionRequest)
+    const txRequest = buildSignableTransactionRequest(transactionRequest)
     const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
     //   TEMPORARY
