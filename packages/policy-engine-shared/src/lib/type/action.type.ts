@@ -101,7 +101,7 @@ export type UserOperationV6 = z.infer<typeof UserOperationV6>
 export const Eip712Domain = z.object({
   name: z.string().optional(),
   version: z.string().optional(),
-  chainId: z.number().optional(),
+  chainId: z.coerce.number().optional(),
   verifyingContract: addressSchema.optional(),
   salt: hexSchema.optional()
 })
