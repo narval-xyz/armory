@@ -1,7 +1,7 @@
 package main
 
 test_permit {
-	permitRequest = object.union(request, {
+	permitRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signTypedData",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {

@@ -1,7 +1,7 @@
 package main
 
 test_transformIntentToTransferObject {
-	res = transformIntentToTransferObject(input.intent) with input as request with data.entities as entities
+	res = transformIntentToTransferObject(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
 	
 	res == {
 		"amount": "1000000000000000000",

@@ -807,10 +807,10 @@ export interface SignRequestDtoRequestOneOf2TypedData {
     'primaryType': string;
     /**
      * 
-     * @type {SignRequestDtoRequestOneOf2TypedDataMessage}
+     * @type {{ [key: string]: any; }}
      * @memberof SignRequestDtoRequestOneOf2TypedData
      */
-    'message': SignRequestDtoRequestOneOf2TypedDataMessage;
+    'message': { [key: string]: any; };
 }
 /**
  * 
@@ -849,12 +849,6 @@ export interface SignRequestDtoRequestOneOf2TypedDataDomain {
      */
     'salt'?: any;
 }
-/**
- * @type SignRequestDtoRequestOneOf2TypedDataMessage
- * @export
- */
-export type SignRequestDtoRequestOneOf2TypedDataMessage = string | { [key: string]: any; };
-
 /**
  * 
  * @export
@@ -1042,101 +1036,175 @@ export interface SignRequestDtoRequestOneOf4UserOperation {
     'chainId': number;
 }
 /**
+ * @type SignRequestDtoRequestOneOfTransactionRequest
+ * @export
+ */
+export type SignRequestDtoRequestOneOfTransactionRequest = SignRequestDtoRequestOneOfTransactionRequestOneOf | SignRequestDtoRequestOneOfTransactionRequestOneOf1;
+
+/**
  * 
  * @export
- * @interface SignRequestDtoRequestOneOfTransactionRequest
+ * @interface SignRequestDtoRequestOneOfTransactionRequestOneOf
  */
-export interface SignRequestDtoRequestOneOfTransactionRequest {
+export interface SignRequestDtoRequestOneOfTransactionRequestOneOf {
     /**
      * 
      * @type {number}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'chainId': number;
     /**
      * 
      * @type {any}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'from': any;
     /**
      * 
      * @type {number}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'nonce'?: number;
     /**
      * 
-     * @type {Array<SignRequestDtoRequestOneOfTransactionRequestAccessListInner>}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @type {Array<SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner>}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
-    'accessList'?: Array<SignRequestDtoRequestOneOfTransactionRequestAccessListInner>;
+    'accessList'?: Array<SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner>;
     /**
      * 
      * @type {any}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'data'?: any;
     /**
      * 
      * @type {string}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'gas'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'maxFeePerGas'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'maxPriorityFeePerGas'?: string;
     /**
      * 
      * @type {any}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'to'?: any | null;
     /**
      * 
      * @type {string}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
-    'type'?: SignRequestDtoRequestOneOfTransactionRequestTypeEnum;
+    'type'?: SignRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum;
     /**
      * 
      * @type {any}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequest
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'value'?: any;
 }
 
-export const SignRequestDtoRequestOneOfTransactionRequestTypeEnum = {
+export const SignRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum = {
     _2: '2'
 } as const;
 
-export type SignRequestDtoRequestOneOfTransactionRequestTypeEnum = typeof SignRequestDtoRequestOneOfTransactionRequestTypeEnum[keyof typeof SignRequestDtoRequestOneOfTransactionRequestTypeEnum];
+export type SignRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum = typeof SignRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum[keyof typeof SignRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum];
 
 /**
  * 
  * @export
- * @interface SignRequestDtoRequestOneOfTransactionRequestAccessListInner
+ * @interface SignRequestDtoRequestOneOfTransactionRequestOneOf1
  */
-export interface SignRequestDtoRequestOneOfTransactionRequestAccessListInner {
+export interface SignRequestDtoRequestOneOfTransactionRequestOneOf1 {
+    /**
+     * 
+     * @type {number}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'chainId': number;
     /**
      * 
      * @type {any}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequestAccessListInner
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'from': any;
+    /**
+     * 
+     * @type {number}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'nonce'?: number;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'data'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'gas'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'gasPrice'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'type'?: SignRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'to'?: any | null;
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'value'?: any;
+}
+
+export const SignRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum = {
+    _0: '0'
+} as const;
+
+export type SignRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum = typeof SignRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum[keyof typeof SignRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum];
+
+/**
+ * 
+ * @export
+ * @interface SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
+ */
+export interface SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner {
+    /**
+     * 
+     * @type {any}
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
      */
     'address': any;
     /**
      * 
      * @type {Array<any>}
-     * @memberof SignRequestDtoRequestOneOfTransactionRequestAccessListInner
+     * @memberof SignRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
      */
     'storageKeys': Array<any>;
 }

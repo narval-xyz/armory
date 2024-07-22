@@ -19,6 +19,7 @@ export * from './lib/util/encoding.util'
 export * from './lib/util/enum.util'
 export * from './lib/util/evm.util'
 export * from './lib/util/json.util'
+export * from './lib/util/transaction.util'
 export * from './lib/util/typeguards'
 
 export * as FIXTURE from './lib/dev.fixture'
