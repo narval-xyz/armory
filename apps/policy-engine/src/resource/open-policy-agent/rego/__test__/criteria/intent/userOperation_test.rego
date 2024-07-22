@@ -1,7 +1,7 @@
 package main
 
 test_checkUserOperationIntents {
-    userOperationRequest = object.union(request, {
+    userOperationRequest = object.union(requestWithEip1559Transaction, {
         "intent": {
             "type": "userOperation",
             "from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",

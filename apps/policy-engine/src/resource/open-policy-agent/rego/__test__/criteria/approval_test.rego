@@ -79,7 +79,7 @@ test_checkApprovalByUserRole {
 }
 
 test_checkApprovalWithoutCountingDuplicates {
-	requestWithDuplicates = object.union(request, {"principal": {"userId": "test-alice-uid"}, "approvals": [
+	requestWithDuplicates = object.union(requestWithEip1559Transaction, {"principal": {"userId": "test-alice-uid"}, "approvals": [
 		{
 			"userId": "test-bar-uid",
 			"alg": "ES256K",

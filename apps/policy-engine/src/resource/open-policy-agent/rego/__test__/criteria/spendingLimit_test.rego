@@ -1,6 +1,6 @@
 package main
 
-spendingsFixedPeriodRequest = object.union(request, {
+spendingsFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -177,7 +177,7 @@ test_calculateCurrentSpendingsByPrincipal {
 }
 
 test_calculateCurrentSpendingsByPrincipal {
-	perPrincipalReq = object.union(request, {
+	perPrincipalReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 	})
 
@@ -193,7 +193,7 @@ test_calculateCurrentSpendingsByPrincipal {
 }
 
 test_calculateCurrentSpendingsForUserOperationIntent {
-	userOperationRequest = object.union(request, {
+	userOperationRequest = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"intent": {
 			"type": "userOperation",

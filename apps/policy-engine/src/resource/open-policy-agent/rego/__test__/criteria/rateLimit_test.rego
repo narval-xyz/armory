@@ -1,6 +1,6 @@
 package main
 
-rateFixedPeriodRequest = object.union(request, {
+rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",

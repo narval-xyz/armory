@@ -1,7 +1,7 @@
 package main
 
 test_tokenAllowance {
-	tokenAllowanceRequest = object.union(request, {
+	tokenAllowanceRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {

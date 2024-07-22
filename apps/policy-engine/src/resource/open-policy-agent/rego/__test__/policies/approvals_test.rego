@@ -1,7 +1,7 @@
 package main
 
 test_approvalByUsers {
-	approvalByUsersReq = object.union(request, {
+	approvalByUsersReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"}, 
 		"approvals": [
 			{"userId": "test-bob-uid"},
@@ -25,7 +25,7 @@ test_approvalByUsers {
 }
 
 test_approvalByUserGroups {
-	approvalByUserGroupsReq = object.union(request, {
+	approvalByUserGroupsReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"}, 
 		"approvals": [
 			{"userId": "test-bob-uid"},
@@ -49,7 +49,7 @@ test_approvalByUserGroups {
 }
 
 test_approvalByUserRoles {
-	approvalByUserRolesReq = object.union(request, {
+	approvalByUserRolesReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"}, 
 		"approvals": [
 			{"userId": "test-bar-uid"},
@@ -73,7 +73,7 @@ test_approvalByUserRoles {
 }
 
 test_withoutApprovalsEIP1559 {
-	withoutApprovalsReq := {
+	withoutApprovalsReq = {
 		"action": "signTransaction",
 		"transactionRequest": transactionRequestEIP1559,
 		"principal": principalReq,
@@ -92,7 +92,7 @@ test_withoutApprovalsEIP1559 {
 }
 
 test_withoutApprovalsLegacy {
-	withoutApprovalsReq := {
+	withoutApprovalsReq = {
 		"action": "signTransaction",
 		"transactionRequest": transactionRequestLegacy,
 		"principal": principalReq,
