@@ -282,9 +282,9 @@ describe(AuthorizationRequestRepository.name, () => {
 
       const actual = await repository.findById(signMessageRequest.id)
 
-      expect(authzRequestOne.approvals.length).toEqual(1)
-      expect(authzRequestTwo.approvals.length).toEqual(2)
-      expect(actual?.approvals.length).toEqual(2)
+      expect(authzRequestOne.approvals?.length).toEqual(1)
+      expect(authzRequestTwo.approvals?.length).toEqual(2)
+      expect(actual?.approvals?.length).toEqual(2)
     })
 
     it('appends errors', async () => {
