@@ -114,7 +114,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
     const { results, transactionRequestIntent } = await this.opaEvaluate(evaluation, {
       principal: principalCredential,
-      approvals: approvalsCredential
+      approvals: [...approvalsCredential, principalCredential] // Include the Principal as an approver
     })
     const decision = this.decide(results)
 
