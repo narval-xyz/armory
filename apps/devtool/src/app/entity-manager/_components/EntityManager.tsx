@@ -1,21 +1,25 @@
 'use client'
 
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
-import useStore from '../../_hooks/useStore'
 import {
   faEdit,
+  faFileSignature,
   faPlus,
+  faRotateRight,
+  faSpinner,
   faTrash,
+  faUpload,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NarButton from '../../_design-system/NarButton'
-import { useState } from 'react'
-import { AccountEntity, CredentialEntity, Entities, EntityUtil, FIXTURE, UserEntity } from '@narval/policy-engine-shared'
+import { useEffect, useState } from 'react'
+import { AccountEntity, CredentialEntity, Entities, EntityUtil, UserEntity } from '@narval/policy-engine-shared'
 import AccountForm from './AccountForm'
 import NarDialog from '../../_design-system/NarDialog'
 import CredentialForm from './CredentialForm'
 import UserForm from './UserForm'
 import CodeEditor from '../../_components/CodeEditor'
+import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
 
 enum Tab {
   JSON,
@@ -23,14 +27,6 @@ enum Tab {
 }
 
 export default function EntityManager() {
-  const {
-    useAuthServer,
-    authClientId,
-    engineClientId,
-    entityDataStoreUrl,
-    setEntityDataStoreUrl,
-  } = useStore()
-
   const {
     entityStore,
     processingStatus: {
@@ -41,12 +37,10 @@ export default function EntityManager() {
     getEntityStore,
     signEntityData,
     signAndPushEntity,
-    errors,
-    validationErrors
   } = useDataStoreApi()
 
   const [tab, setTab] = useState(Tab.USERS)
-  const [entities, setEntities] = useState<Entities>(FIXTURE.ENTITIES)
+  const [entities, setEntities] = useState<Entities>(EntityUtil.empty())
 
   const [user, setUser] = useState<UserEntity | undefined>()
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false)
@@ -57,6 +51,12 @@ export default function EntityManager() {
 
   const [isAccountDialogOpen, setAccountDialogOpen] = useState(false)
   const [account, setAccount] = useState<AccountEntity | undefined>()
+
+  useEffect(() => {
+    if (entityStore) {
+      setEntities(entityStore.data)
+    }
+  }, [entityStore, setEntities])
 
   return (
     <div className="flex flex-col gap-[8px] h-full">
@@ -74,13 +74,53 @@ export default function EntityManager() {
             onClick={() => setTab(Tab.JSON)}
           />
         </div>
-      </div>
 
+        <div className="flex items-center gap-[8px] mb-[8px]">
+          <NarButton
+            variant="secondary"
+            label="Sign"
+            leftIcon={<FontAwesomeIcon icon={isSigningEntity ? faSpinner : faFileSignature} spin={isSigningEntity} />}
+            disabled={isSigningEntity}
+            onClick={() => {
+              signEntityData(entities)
+            }}
+          />
+
+          <NarButton
+            variant="secondary"
+            label="Sign & Push"
+            leftIcon={
+              <FontAwesomeIcon icon={isSigningAndPushingEntity ? faSpinner : faUpload} spin={isSigningAndPushingEntity} />
+            }
+            disabled={isSigningAndPushingEntity}
+            onClick={() => {
+              signAndPushEntity(entities)
+            }}
+          />
+
+          <NarButton
+            variant="secondary"
+            label="Fetch"
+            leftIcon={<FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />}
+            onClick={getEntityStore}
+            disabled={isFetchingEntity}
+          />
+
+          <DataStoreConfigModal />
+        </div>
+      </div>
 
       {tab === Tab.JSON && (
         <div className="flex items-start h-full">
           <div className="grid grow h-full">
-            <CodeEditor value={JSON.stringify(entities, null, 2)} readOnly />
+            <CodeEditor
+              value={JSON.stringify(entities, null, 2)}
+              onChange={(json) => {
+                if (json) {
+                  setEntities(JSON.parse(json))
+                }
+              }}
+            />
           </div>
         </div>
       )}
