@@ -14,6 +14,7 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 		"entityIds": ["test-bob-uid", "test-bar-uid"],
 	}]
 
+	checkAccountAssigned
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -43,6 +44,7 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 		"entityIds": ["test-user-group-one-uid"],
 	}]
 
+	checkAccountAssigned
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -72,6 +74,7 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 		"entityIds": ["root", "admin"],
 	}]
 
+	checkAccountAssigned
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)
@@ -94,7 +97,8 @@ permit[{"policyId": "withoutApprovals"}] = reason {
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
 	transferValueCondition = { "operator": "lte", "value": "1000000000000000000"}
-
+	
+	checkAccountAssigned
 	checkNonceExists
 	checkAction({"signTransaction"})
 	checkAccountId(resources)

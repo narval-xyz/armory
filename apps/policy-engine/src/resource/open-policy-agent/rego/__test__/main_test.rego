@@ -233,6 +233,10 @@ entities = {
 			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		},
 		{
+			"userId": "test-bar-uid",
+			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		},
+		{
 			"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
 			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		},
