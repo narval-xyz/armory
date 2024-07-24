@@ -14,6 +14,8 @@ test_resource {
 	accountGroupsById = getAccountGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with input as requestWithEip1559Transaction with data.entities as entities
 	accountGroupsById == {"test-account-group-one-uid"}
 
+	checkAccountAssigned with input as requestWithEip1559Transaction with data.entities as entities
+
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as requestWithEip1559Transaction with data.entities as entities
 	checkAccountAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as requestWithEip1559Transaction with data.entities as entities
 	checkAccountType({"eoa"}) with input as requestWithEip1559Transaction with data.entities as entities

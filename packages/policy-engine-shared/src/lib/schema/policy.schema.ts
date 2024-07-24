@@ -52,6 +52,7 @@ export const criterionSchema = z.nativeEnum({
   CHECK_ACCOUNT_TYPE: 'checkAccountType',
   CHECK_ACCOUNT_CHAIN_ID: 'checkAccountChainId',
   CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
+  CHECK_ACCOUNT_ASSIGNED: 'checkAccountAssigned',
   // Intent Source Account
   CHECK_SOURCE_ID: 'checkSourceId',
   CHECK_SOURCE_ADDRESS: 'checkSourceAddress',
@@ -263,6 +264,11 @@ export const accountGroupCriterionSchema = z.object({
   args: z.array(z.string().min(1)).min(1)
 })
 
+export const accountAssignedCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_ACCOUNT_ASSIGNED),
+  args: z.null()
+})
+
 // Intent Source Account
 export const sourceIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ID),
@@ -455,6 +461,7 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   accountAddressCriterionSchema,
   accountTypeCriterionSchema,
   accountGroupCriterionSchema,
+  accountAssignedCriterionSchema,
   // Intent Source Account
   sourceIdCriterionSchema,
   sourceAddressCriterionSchema,

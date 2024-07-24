@@ -207,7 +207,8 @@ export const toData = (entities: Entities): Data => {
       users: indexBy('id', entities.users),
       userGroups: Object.fromEntries(userGroups),
       accounts: indexBy('id', entities.accounts),
-      accountGroups: Object.fromEntries(accountGroups)
+      accountGroups: Object.fromEntries(accountGroups),
+      userAccounts: entities.userAccounts
     }
   }
 }

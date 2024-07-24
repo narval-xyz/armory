@@ -43,6 +43,11 @@ export type UserGroup = {
   users: string[] // userIds
 }
 
+export type UserAccount = {
+  userId: string
+  accountId: string
+}
+
 type Account = {
   id: string
   address: Address
@@ -73,12 +78,13 @@ type Token = {
 
 export type Data = {
   entities: {
-    users: Record<string, User>
-    accounts: Record<string, Account>
-    userGroups: Record<string, UserGroup>
-    accountGroups: Record<string, AccountGroup>
     addressBook: Record<string, AddressBookAccount>
     tokens: Record<string, Token>
+    users: Record<string, User>
+    userGroups: Record<string, UserGroup>
+    accounts: Record<string, Account>
+    accountGroups: Record<string, AccountGroup>
+    userAccounts: Array<UserAccount>
   }
 }
 

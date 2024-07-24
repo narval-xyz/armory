@@ -141,57 +141,6 @@ requestWithLegacyTransaction = {
 }
 
 entities = {
-	"users": {
-		"test-bob-uid": {
-			"id": "test-bob-uid",
-			"role": "root",
-		},
-		"test-alice-uid": {
-			"id": "test-alice-uid",
-			"role": "member",
-		},
-		"test-bar-uid": {
-			"id": "test-bar-uid",
-			"role": "admin",
-		},
-		"test-foo-uid": {
-			"id": "test-foo-uid",
-			"role": "admin",
-		},
-		"0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43": {
-			"id": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
-			"role": "admin",
-		},
-	},
-	"accounts": {
-		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"accountType": "eoa",
-		},
-		"eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
-			"address": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
-			"accountType": "eoa",
-		},
-	},
-	"userGroups": {
-		"test-user-group-one-uid": {
-			"id": "test-user-group-one-uid",
-			"name": "dev",
-			"users": ["test-bob-uid", "test-bar-uid"],
-		},
-		"test-user-group-two-uid": {
-			"id": "test-user-group-two-uid",
-			"name": "finance",
-			"users": ["test-bob-uid", "test-bar-uid"],
-		},
-	},
-	"accountGroups": {"test-account-group-one-uid": {
-		"id": "test-account-group-one-uid",
-		"name": "dev",
-		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
-	}},
 	"addressBook": {
 		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
 			"id": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -219,4 +168,74 @@ entities = {
 		"chainId": 137,
 		"decimals": 6,
 	}},
+	"users": {
+		"test-bob-uid": {
+			"id": "test-bob-uid",
+			"role": "root",
+		},
+		"test-alice-uid": {
+			"id": "test-alice-uid",
+			"role": "member",
+		},
+		"test-bar-uid": {
+			"id": "test-bar-uid",
+			"role": "admin",
+		},
+		"test-foo-uid": {
+			"id": "test-foo-uid",
+			"role": "admin",
+		},
+		"0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43": {
+			"id": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+			"role": "admin",
+		},
+	},
+	"userGroups": {
+		"test-user-group-one-uid": {
+			"id": "test-user-group-one-uid",
+			"name": "dev",
+			"users": ["test-bob-uid", "test-bar-uid"],
+		},
+		"test-user-group-two-uid": {
+			"id": "test-user-group-two-uid",
+			"name": "finance",
+			"users": ["test-bob-uid", "test-bar-uid"],
+		},
+	},
+	"accounts": {
+		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
+			"id": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"accountType": "eoa",
+		},
+		"eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e": {
+			"id": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"accountType": "eoa",
+		},
+	},
+	"accountGroups": {"test-account-group-one-uid": {
+		"id": "test-account-group-one-uid",
+		"name": "dev",
+		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
+	}},
+	"userAccounts": [
+		{
+			"userId": "test-bob-uid",
+			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		},
+		{
+			"userId": "test-alice-uid",
+			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		},
+		{
+			"userId": "test-foo-uid",
+			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		},
+		{
+			"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		},
+	],
+
 }

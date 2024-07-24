@@ -24,3 +24,11 @@ checkAccountGroup(values) {
 	group = accountGroups[_]
 	group in values
 }
+
+checkAccountAssigned {
+	accountIds = [account.accountId | 
+		account = data.entities.userAccounts[_]
+		account.userId == principal.id
+	]
+	resource.id in accountIds
+}
