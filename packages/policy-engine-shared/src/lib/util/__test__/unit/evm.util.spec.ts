@@ -31,6 +31,10 @@ describe('evm', () => {
       expect(isAddress(address.toUpperCase())).toEqual(false)
     })
 
+    it('returns false for undefined', () => {
+      expect(isAddress(undefined)).toEqual(false)
+    })
+
     it('requires 0x prefix', () => {
       expect(isAddress(address.slice(2))).toEqual(false)
     })
