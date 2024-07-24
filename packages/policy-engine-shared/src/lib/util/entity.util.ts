@@ -1,5 +1,6 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
-import { Entities } from '../type/entity.type'
+import { entitiesSchema } from '../schema/entity.schema'
+import { Entities, UserEntity } from '../type/entity.type'
 
 export type ValidationIssue = {
   code: string
@@ -111,20 +112,38 @@ export const DEFAULT_VALIDATORS: Validator[] = [
   // - fails when credential does not have a user
 ]
 
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined
+}
+
 export const validate = (entities: Entities, options?: ValidationOption): Validation => {
   const validators = options?.validators || DEFAULT_VALIDATORS
 
-  const issues = validators.flatMap((validation) => validation(entities))
+  const result = entitiesSchema.safeParse(entities)
 
-  if (issues.length) {
+  if (result.success) {
+    const issues = validators.flatMap((validation) => validation(entities))
+
+    if (issues.length) {
+      return {
+        success: false,
+        issues
+      }
+    }
+
     return {
-      success: false,
-      issues
+      success: true
     }
   }
 
+  const schemaIssues = result.error?.issues.filter(isDefined).map((issue) => ({
+    code: issue.code,
+    message: issue.message
+  }))
+
   return {
-    success: true
+    success: false,
+    issues: schemaIssues || []
   }
 }
 
@@ -140,3 +159,42 @@ export const empty = (): Entities => ({
   accountGroups: [],
   accounts: []
 })
+
+export const removeUserById = (entities: Entities, userId: string): Entities => {
+  return {
+    ...entities,
+    addressBook: entities.addressBook.filter((entry) => entry.id !== userId),
+    credentials: entities.credentials.filter((cred) => cred.userId !== userId),
+    userAccounts: entities.userAccounts.filter((userAccount) => userAccount.userId !== userId),
+    userGroupMembers: entities.userGroupMembers.filter((userGroup) => userGroup.userId !== userId),
+    users: entities.users.filter((user) => user.id !== userId)
+  }
+}
+
+export const removeCredentialById = (entities: Entities, credId: string): Entities => {
+  return {
+    ...entities,
+    credentials: entities.credentials.filter((cred) => cred.id !== credId)
+  }
+}
+
+export const removeAccountById = (entities: Entities, accountId: string): Entities => {
+  return {
+    ...entities,
+    accounts: entities.accounts.filter((account) => account.id !== accountId),
+    userAccounts: entities.userAccounts.filter((userAccount) => userAccount.accountId !== accountId)
+  }
+}
+
+export const updateUser = (entities: Entities, user: UserEntity): Entities => {
+  return {
+    ...entities,
+    users: entities.users.map((u) => {
+      if (u.id === user.id) {
+        return user
+      }
+
+      return u
+    })
+  }
+}
