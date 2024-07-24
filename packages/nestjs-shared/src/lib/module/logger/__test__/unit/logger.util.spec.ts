@@ -40,4 +40,14 @@ describe('redact', () => {
     })
 
   SENSITIVE_KEYS.forEach(testRedaction)
+
+  it('does not mutate the given object', () => {
+    const obj = {
+      token: 'foo'
+    }
+
+    redact(obj)
+
+    expect(obj.token).toEqual('foo')
+  })
 })
