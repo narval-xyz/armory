@@ -204,7 +204,7 @@ export const getUserAccounts = (entities: Entities, user: UserEntity): AccountEn
     .filter(({ userId }) => userId === user.id)
     .map(({ accountId }) => accountId)
 
-  return entities.accounts.filter(({ id }) => userAccounts.indexOf(id))
+  return entities.accounts.filter(({ id }) => userAccounts.indexOf(id) !== -1)
 }
 
 export const getUserCredentials = (entities: Entities, user: UserEntity): CredentialEntity[] => {
