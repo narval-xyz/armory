@@ -5,8 +5,10 @@ import {
   faCode,
   faEdit,
   faFileSignature,
+  faHockeyPuck,
   faIdBadge,
   faKey,
+  faLink,
   faList,
   faPlus,
   faRotateRight,
@@ -14,6 +16,7 @@ import {
   faTrash,
   faUpload,
   faUsers,
+  faWallet,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NarButton from '../../_design-system/NarButton'
@@ -192,7 +195,10 @@ export default function EntityManager() {
         <>
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl text-semibold grow">Users</p>
+              <div className="flex items-center gap-2 text-xl text-semibold grow">
+                <FontAwesomeIcon icon={faUsers} />
+                <h2>Users</h2>
+              </div>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -303,6 +309,15 @@ export default function EntityManager() {
 
                   <div className="flex items-center gap-2">
                     <NarIconButton
+                      icon={faWallet}
+                      onClick={() => {
+                        setUser(user)
+                        setCredential(undefined)
+                        setEditUserDialogOpen(true)
+                      }}
+                    />
+
+                    <NarIconButton
                       icon={faEdit}
                       onClick={() => {
                         setUser(user)
@@ -323,7 +338,10 @@ export default function EntityManager() {
 
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl text-semibold grow">Credentials</p>
+              <div className="flex items-center gap-2 text-xl text-semibold grow">
+                <FontAwesomeIcon icon={faIdBadge} />
+                <h2>Credentials</h2>
+              </div>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -377,7 +395,10 @@ export default function EntityManager() {
 
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl text-semibold grow">Accounts</p>
+              <div className="flex items-center gap-2 text-xl text-semibold grow">
+                <FontAwesomeIcon icon={faWallet} />
+                <h2>Accounts</h2>
+              </div>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -405,7 +426,7 @@ export default function EntityManager() {
               <EmptyState
                 title="No accounts found"
                 description="You haven't added or imported any account yet."
-                icon={faKey}
+                icon={faWallet}
               />
             )}
 
