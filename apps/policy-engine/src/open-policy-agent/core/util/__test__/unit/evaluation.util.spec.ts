@@ -314,7 +314,7 @@ describe('toData', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const account = FIXTURE.ACCOUNT.Testing
 
-      expect(entities.accounts[account.id]).toEqual(account)
+      expect(entities.accounts[account.id]).toEqual({ ...account, assignees: ['test-alice-user-uid'] })
     })
 
     it('indexes user groups with members by id', () => {
