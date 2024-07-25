@@ -28,6 +28,7 @@ import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
 import NarIconButton from '../../_design-system/NarIconButton'
 import { capitalize } from 'lodash'
 import EmptyState from './EmptyState'
+import ErrorStatus from '../../_components/ErrorStatus'
 
 enum View {
   JSON,
@@ -94,6 +95,7 @@ export default function EntityManager() {
 
   const [view, setView] = useState(View.LIST)
   const [entities, setEntities] = useState<Entities>(EntityUtil.empty())
+  const [errors, setErrors] = useState<string[]>([])
 
   const [user, setUser] = useState<UserEntity | undefined>()
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false)
@@ -165,6 +167,12 @@ export default function EntityManager() {
         </div>
       </div>
 
+      {errors.length > 0 && (
+        <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
+          <ErrorStatus label={errors.join(', ')} />
+        </div>
+      )}
+
       {view === View.JSON && (
         <div className="flex items-start h-full">
           <div className="grid grow h-full">
@@ -198,6 +206,8 @@ export default function EntityManager() {
                   setCredential(undefined)
                 }}
                 onSave={() => {
+                  setErrors([])
+
                   setEntities((prev) => {
                     const newEntities = {
                       ...prev,
@@ -210,6 +220,8 @@ export default function EntityManager() {
                     if (result.success) {
                       return newEntities
                     }
+
+                    setErrors(result.issues.map((issue) => issue.message))
 
                     return prev
                   })
@@ -421,7 +433,8 @@ export default function EntityManager() {
             </ul>
           </div>
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }
