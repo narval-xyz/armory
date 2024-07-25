@@ -184,7 +184,7 @@ export default function EntityManager() {
         <>
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl grow">Users</p>
+              <p className="text-xl text-semibold grow">Users</p>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -311,7 +311,7 @@ export default function EntityManager() {
 
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl grow">Credentials</p>
+              <p className="text-xl text-semibold grow">Credentials</p>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -365,7 +365,7 @@ export default function EntityManager() {
 
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
-              <p className="text-xl grow">Accounts</p>
+              <p className="text-xl text-semibold grow">Accounts</p>
 
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}

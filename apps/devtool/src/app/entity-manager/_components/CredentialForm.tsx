@@ -1,6 +1,6 @@
 import NarInput from '../../_design-system/NarInput'
 import { CredentialEntity, UserEntity } from "@narval/policy-engine-shared"
-import { Dispatch, FC, SetStateAction, useState } from "react"
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
 import NarTextarea from '../../_design-system/NarTextarea'
 import { publicKeySchema } from '@narval/signature'
 import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
@@ -26,6 +26,42 @@ const getUsersDropdownItems = (users: UserEntity[]): DropdownItem<UserEntity>[] 
 
 const CredentialForm: FC<CredentialFormProps> = ({ credential, setCredential, users }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [userId, setUserId] = useState(credential?.userId)
+  const [rawJwk, setRawJwk] = useState(credential?.key ? JSON.stringify(credential.key, null, 2) : '')
+
+  const isValid = (value?: string) => {
+    if (value) {
+      try {
+        return publicKeySchema.safeParse(JSON.parse(value)).success
+      } catch {
+        return false
+      }
+    }
+
+    return false
+  }
+
+  useEffect(() => {
+    if (userId && isValid(rawJwk)) {
+      setCredential((prev) => {
+        const key = publicKeySchema.parse(JSON.parse(rawJwk))
+
+        if (prev) {
+          return {
+            ...prev,
+            userId,
+            key
+          }
+        }
+
+        return {
+          id: key.kid,
+          userId,
+          key
+        }
+      })
+    }
+  }, [userId, rawJwk])
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,24 +79,24 @@ const CredentialForm: FC<CredentialFormProps> = ({ credential, setCredential, us
         triggerButton={
           <NarButton
             variant="tertiary"
-            label={credential?.userId || 'Choose a user'}
+            label={userId || 'Choose a user'}
             rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
           />
         }
         isOpen={isDropdownOpen}
         onOpenChange={setIsDropdownOpen}
         onSelect={(item) => {
-          setCredential((prev) => prev ? { ...prev, userId: item.value } : undefined)
+          setUserId(item.value)
           setIsDropdownOpen(false)
         }}
       />
 
       <NarTextarea
         label="JSON Web Key"
-        value={credential?.key ? JSON.stringify(credential.key, null, 2) : ''}
-        validate={(value) => publicKeySchema.safeParse(value).success}
-        errorMessage="Invalid public key."
-        onChange={(rawJwk) => setCredential((prev) => prev ? { ...prev, key: publicKeySchema.parse(rawJwk) } : undefined)}
+        value={rawJwk}
+        validate={isValid}
+        errorMessage="Invalid JSON web key"
+        onChange={setRawJwk}
       />
     </div>
   )
