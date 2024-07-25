@@ -1,73 +1,79 @@
 'use client'
 
 import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/policy-engine-shared'
-import { Dispatch, FC, SetStateAction, useState } from 'react'
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
-import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
 import NarButton from '../../_design-system/NarButton'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { resourceId } from '@narval/armory-sdk'
 
 interface AccountFormProps {
   account?: AccountEntity
   setAccount: Dispatch<SetStateAction<AccountEntity | undefined>>
 }
 
-const accountTypeDropdownItems: DropdownItem<AccountType>[] = [
-  {
-    isRadioGroup: true,
-    items: Object.keys(AccountType).map((key) => ({
-      label: key.toUpperCase(),
-      value: key
-    }))
-  }
-]
-
 const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [address, setAddress] = useState(account?.address || '')
+  const [accountType, setAccountType] = useState(account?.accountType || AccountType.EOA)
+  const [chainId, setChainId] = useState(account?.chainId?.toString())
+
+  useEffect(() => {
+    if (isAddress(address)) {
+      const validAddress = getAddress(address)
+
+      setAccount({
+        accountType,
+        address: validAddress,
+        id: `eip155:${accountType}:${validAddress.toLowerCase()}`,
+        ...(chainId ? { chainId: 1 } : {})
+      })
+    }
+  }, [address, accountType, chainId])
 
   return (
     <div className="flex flex-col gap-6">
-      {account?.id && (
-        <NarInput
-          label="ID"
-          value={account.id}
-          onChange={(id) => setAccount((prev) => prev ? { ...prev, id } : undefined)}
-          disabled
+      <div className="flex items-center gap-2">
+        <NarButton
+          className={
+            accountType === AccountType.EOA
+              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+              : ''
+          }
+          variant="tertiary"
+          label="Externally Owned Account"
+          onClick={() => {
+            setAccountType(AccountType.EOA)
+          }}
         />
-      )}
+
+        <NarButton
+          className={
+            accountType === AccountType.AA
+              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+              : ''
+          }
+          variant="tertiary"
+          label="Smart Account"
+          onClick={() => {
+            setAccountType(AccountType.AA)
+          }}
+        />
+      </div>
 
       <NarInput
         label="Address"
-        value={account?.address}
+        value={address}
         validate={isAddress}
-        errorMessage="Invalid account address."
-        onChange={(address) => setAccount((prev) => prev ? { ...prev, address: getAddress(address) } : undefined)}
+        errorMessage="Invalid address"
+        onChange={setAddress}
       />
 
-      <NarDropdownMenu
-        label="Account Type"
-        data={accountTypeDropdownItems}
-        triggerButton={
-          <NarButton
-            variant="tertiary"
-            label={account?.accountType?.toUpperCase() || 'Choose an account type'}
-            rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
-          />
-        }
-        isOpen={isDropdownOpen}
-        onOpenChange={setIsDropdownOpen}
-        onSelect={(item) => {
-          setAccount((prev) => prev ? { ...prev, accountType: item.value as AccountType } : undefined)
-          setIsDropdownOpen(false)
-        }}
-      />
-
-      <NarInput
-        label="Chain Id"
-        value={account?.chainId?.toString() || ''}
-        onChange={(chainId) => setAccount((prev) => prev ? { ...prev, chainId: Number(chainId) } : undefined)}
-      />
+      {accountType === AccountType.AA && (
+        <NarInput
+          label="Chain Id"
+          value={chainId}
+          onChange={setChainId}
+        />
+      )}
     </div>
   )
 }

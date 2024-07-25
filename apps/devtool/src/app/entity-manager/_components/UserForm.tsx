@@ -142,47 +142,45 @@ const UserForm: FC<UserFormProps> = (props) => {
   return (
     <div className="flex flex-col gap-6">
       {!isEdit && (
-        <div className="flex flex-col gap-[8px]">
-          <div className="flex items-center gap-[8px] mb-[8px]">
-            <NarButton
-              className={
-                credentialType === CredentialType.EOA
-                  ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                  : ''
-              }
-              variant="tertiary"
-              label="Address"
-              onClick={() => {
-                setCredentialType(CredentialType.EOA)
-              }}
-            />
+        <div className="flex items-center gap-2">
+          <NarButton
+            className={
+              credentialType === CredentialType.EOA
+                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                : ''
+            }
+            variant="tertiary"
+            label="Address"
+            onClick={() => {
+              setCredentialType(CredentialType.EOA)
+            }}
+          />
 
-            <NarButton
-              className={
-                credentialType === CredentialType.JWK
-                  ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                  : ''
-              }
-              variant="tertiary"
-              label="Json Web Key"
-              onClick={() => {
-                setCredentialType(CredentialType.JWK)
-              }}
-            />
+          <NarButton
+            className={
+              credentialType === CredentialType.JWK
+                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                : ''
+            }
+            variant="tertiary"
+            label="Json Web Key"
+            onClick={() => {
+              setCredentialType(CredentialType.JWK)
+            }}
+          />
 
-            <NarButton
-              className={
-                credentialType === CredentialType.NONE
-                  ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                  : ''
-              }
-              variant="tertiary"
-              label="No credential"
-              onClick={() => {
-                setCredentialType(CredentialType.NONE)
-              }}
-            />
-          </div>
+          <NarButton
+            className={
+              credentialType === CredentialType.NONE
+                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                : ''
+            }
+            variant="tertiary"
+            label="No credential"
+            onClick={() => {
+              setCredentialType(CredentialType.NONE)
+            }}
+          />
         </div>
       )}
 
