@@ -1,14 +1,21 @@
 'use client'
 
-import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/policy-engine-shared'
+import { AccountEntity, AccountType, Address, getAddress, isAddress } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarInput from '../../_design-system/NarInput'
 import NarButton from '../../_design-system/NarButton'
-import { resourceId } from '@narval/armory-sdk'
 
 interface AccountFormProps {
   account?: AccountEntity
   setAccount: Dispatch<SetStateAction<AccountEntity | undefined>>
+}
+
+const getId = ({ address, accountType, chainId }: Omit<AccountEntity, 'id'>): string => {
+  if (accountType === AccountType.AA) {
+    return `eip155:${chainId}:${address.toLowerCase()}`
+  }
+
+  return `eip155:eoa:${address.toLowerCase()}`
 }
 
 const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
@@ -20,12 +27,13 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
     if (isAddress(address)) {
       const validAddress = getAddress(address)
 
-      setAccount({
+      const newAccount = {
         accountType,
         address: validAddress,
-        id: `eip155:${accountType}:${validAddress.toLowerCase()}`,
         ...(chainId ? { chainId: 1 } : {})
-      })
+      }
+
+      setAccount({ ...newAccount, id: getId(newAccount) })
     }
   }, [address, accountType, chainId])
 
