@@ -4,6 +4,11 @@ import future.keywords.in
 
 resource = data.entities.accounts[input.resource.uid]
 
+checkAccountAssigned {
+	account = data.entities.accounts[resource.id]
+	principal.id in account.assignees
+}
+
 checkAccountId(values) {
 	resource.id in values
 }
@@ -23,12 +28,4 @@ checkAccountChainId(values) {
 checkAccountGroup(values) {
 	group = accountGroups[_]
 	group in values
-}
-
-checkAccountAssigned {
-	accountIds = [account.accountId | 
-		account = data.entities.userAccounts[_]
-		account.userId == principal.id
-	]
-	resource.id in accountIds
 }

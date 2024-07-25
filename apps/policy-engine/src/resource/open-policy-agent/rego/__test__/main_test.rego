@@ -207,11 +207,13 @@ entities = {
 			"id": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"accountType": "eoa",
+			"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid"],
 		},
 		"eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"id": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
 			"accountType": "eoa",
+			"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"],
 		},
 	},
 	"accountGroups": {"test-account-group-one-uid": {
@@ -219,27 +221,4 @@ entities = {
 		"name": "dev",
 		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
 	}},
-	"userAccounts": [
-		{
-			"userId": "test-bob-uid",
-			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		},
-		{
-			"userId": "test-alice-uid",
-			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		},
-		{
-			"userId": "test-foo-uid",
-			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		},
-		{
-			"userId": "test-bar-uid",
-			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		},
-		{
-			"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
-			"accountId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		},
-	],
-
 }
