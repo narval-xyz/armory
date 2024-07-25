@@ -40,7 +40,7 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
       <NarInput
         label="Address"
         value={account?.address}
-        validate={(value) => (value ? isAddress(value) : false)}
+        validate={isAddress}
         errorMessage="Invalid account address."
         onChange={(address) => setAccount((prev) => prev ? { ...prev, address: getAddress(address) } : undefined)}
       />

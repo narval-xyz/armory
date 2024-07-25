@@ -1,6 +1,6 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
 import { entitiesSchema } from '../schema/entity.schema'
-import { Entities, UserEntity } from '../type/entity.type'
+import { AccountEntity, CredentialEntity, Entities, UserEntity } from '../type/entity.type'
 
 export type ValidationIssue = {
   code: string
@@ -197,4 +197,16 @@ export const updateUser = (entities: Entities, user: UserEntity): Entities => {
       return u
     })
   }
+}
+
+export const getUserAccounts = (entities: Entities, user: UserEntity): AccountEntity[] => {
+  const userAccounts = entities.userAccounts
+    .filter(({ userId }) => userId === user.id)
+    .map(({ accountId }) => accountId)
+
+  return entities.accounts.filter(({ id }) => userAccounts.indexOf(id))
+}
+
+export const getUserCredentials = (entities: Entities, user: UserEntity): CredentialEntity[] => {
+  return entities.credentials.filter(({ userId }) => userId === user.id)
 }
