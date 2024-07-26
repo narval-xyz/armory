@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
 
+import { AuthClient } from '@narval/armory-sdk/auth'
+import { AuthorizationRequestStatus } from '@narval/armory-sdk/types'
+import { VaultClient } from '@narval/armory-sdk/vault'
+
 import {
-  AuthClient,
-  AuthorizationRequestStatus,
   EntityType,
   JwtString,
   Policy,
@@ -11,7 +13,6 @@ import {
   SigningAlg,
   UserRole,
   ValueOperators,
-  VaultClient,
   buildSignerEip191,
   jwkSchema,
   polling,

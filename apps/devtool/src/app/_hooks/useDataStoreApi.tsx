@@ -1,4 +1,4 @@
-import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk'
+import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk/data-store'
 import {
   Entities,
   EntityData,

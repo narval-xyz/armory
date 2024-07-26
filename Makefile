@@ -35,8 +35,13 @@ setup:
 
 # === Packages ===
 
+# - Uses `--skip-publish` option because the publish step is done in the CI.
+# - Uses `--fist-release` option to avoid generating a tag.
+# - Runs `npm install` after to properly update the `package-lock.json` with
+#   the new version.
 packages/release:
-	npx nx release --skip-publish
+	npx nx release --skip-publish --first-release
+	npm install
 
 # TODO: The default override for `dependsOn` of `nx-release-publish` is not
 # working. Ideally, the release target should depend on package's build.
