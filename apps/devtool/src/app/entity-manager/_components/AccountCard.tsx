@@ -1,12 +1,13 @@
 import { AccountEntity, AccountType } from "@narval/policy-engine-shared"
 import NarIconButton from "../../_design-system/NarIconButton"
-import { faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faTrash, faUnlink } from "@fortawesome/free-solid-svg-icons"
 import Card from "./Card"
 import CardButton from "./CardActionButton"
 
 interface AccountCardProps {
   account: AccountEntity
-  onDeleteClick: () => void
+  onDeleteClick?: () => void
+  onUnassignClick?: () => void
 }
 
 const getChainId = (chainId: number): string => {
@@ -42,7 +43,7 @@ const getAccountTypeColor = (accountType: AccountType): string => {
   return colors[accountType] ? colors[accountType] : 'text-nv-black bg-nv-white'
 };
 
-export default function AccountCardProps({ account, onDeleteClick }: AccountCardProps) {
+export default function AccountCardProps({ account, onDeleteClick, onUnassignClick }: AccountCardProps) {
   return (
     <Card>
       <div className="flex grow items-center gap-4">
@@ -55,13 +56,25 @@ export default function AccountCardProps({ account, onDeleteClick }: AccountCard
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <CardButton
-          icon={faTrash}
-          onClick={onDeleteClick}
-          alt="Delete account"
-        />
-      </div>
+      {(onDeleteClick || onUnassignClick) && (
+        <div className="flex items-center gap-2">
+          {onDeleteClick && (
+            <CardButton
+              icon={faTrash}
+              onClick={onDeleteClick}
+              alt="Delete account"
+            />
+          )}
+
+          {onUnassignClick && (
+            <CardButton
+              icon={faUnlink}
+              onClick={onUnassignClick}
+              alt="Unassign account"
+            />
+          )}
+        </div>
+      )}
     </Card>
   )
 }

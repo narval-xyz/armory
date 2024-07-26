@@ -207,6 +207,10 @@ export const getUserAssignedAccounts = (entities: Entities, user: UserEntity): A
   return entities.accounts.filter(({ id }) => userAccounts.indexOf(id) !== -1)
 }
 
+export const getUserAccounts = (entities: Entities, user: UserEntity): UserAccountEntity[] => {
+  return entities.userAccounts.filter(({ userId }) => userId === user.id)
+}
+
 export const getUserCredentials = (entities: Entities, user: UserEntity): CredentialEntity[] => {
   return entities.credentials.filter(({ userId }) => userId === user.id)
 }

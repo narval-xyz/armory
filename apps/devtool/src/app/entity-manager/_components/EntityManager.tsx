@@ -301,7 +301,12 @@ export default function EntityManager() {
                             <li key={`${user.id}-${acc.id}`} className="flex flex-col pl-8 mb-4">
                               <AccountCard
                                 account={acc}
-                                onDeleteClick={() => setEntities(EntityUtil.removeAccountById(entities, acc.id))}
+                                onUnassignClick={() => {
+                                  const existingUserAccounts = EntityUtil.getUserAccounts(entities, user)
+                                  const updatedUserAccounts = existingUserAccounts.filter((ua) => ua.accountId !== acc.id && ua.userId === user.id)
+
+                                  setEntities(EntityUtil.updateUserAccounts(entities, user, updatedUserAccounts))
+                                }}
                               />
                             </li>
                           ))}
