@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import {
   accountAddressCriterionSchema,
+  accountAssignedCriterionSchema,
   accountGroupCriterionSchema,
   accountIdCriterionSchema,
   accountTypeCriterionSchema,
@@ -101,6 +102,7 @@ export type AccountIdCriterion = z.infer<typeof accountIdCriterionSchema>
 export type AccountAddressCriterion = z.infer<typeof accountAddressCriterionSchema>
 export type AccountAccountTypeCriterion = z.infer<typeof accountTypeCriterionSchema>
 export type AccountGroupCriterion = z.infer<typeof accountGroupCriterionSchema>
+export type AccountAssignedCriterion = z.infer<typeof accountAssignedCriterionSchema>
 // Intent Source Account
 export type SourceIdCriterion = z.infer<typeof sourceIdCriterionSchema>
 export type SourceAddressCriterion = z.infer<typeof sourceAddressCriterionSchema>
