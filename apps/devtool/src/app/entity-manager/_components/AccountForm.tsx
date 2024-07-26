@@ -1,9 +1,9 @@
 'use client'
 
-import { AccountEntity, AccountType, Address, getAddress, isAddress } from '@narval/policy-engine-shared'
+import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import NarInput from '../../_design-system/NarInput'
 import NarButton from '../../_design-system/NarButton'
+import NarInput from '../../_design-system/NarInput'
 
 interface AccountFormProps {
   account?: AccountEntity
@@ -41,11 +41,7 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
         <NarButton
-          className={
-            accountType === AccountType.EOA
-              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-              : ''
-          }
+          className={accountType === AccountType.EOA ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''}
           variant="tertiary"
           label="Externally Owned Account"
           onClick={() => {
@@ -54,11 +50,7 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
         />
 
         <NarButton
-          className={
-            accountType === AccountType.AA
-              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-              : ''
-          }
+          className={accountType === AccountType.AA ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''}
           variant="tertiary"
           label="Smart Account"
           onClick={() => {
@@ -75,13 +67,7 @@ const AccountForm: FC<AccountFormProps> = ({ account, setAccount }) => {
         onChange={setAddress}
       />
 
-      {accountType === AccountType.AA && (
-        <NarInput
-          label="Chain Id"
-          value={chainId}
-          onChange={setChainId}
-        />
-      )}
+      {accountType === AccountType.AA && <NarInput label="Chain Id" value={chainId} onChange={setChainId} />}
     </div>
   )
 }

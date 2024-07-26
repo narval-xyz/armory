@@ -1,8 +1,7 @@
-import { AccountEntity, AccountType, UserAccountEntity, UserEntity } from "@narval/policy-engine-shared"
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
+import { AccountEntity, AccountType, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
+import NarCheckbox from '../../_design-system/NarCheckbox'
 import { DropdownItem } from '../../_design-system/NarDropdownMenu'
-import NarCheckbox from "../../_design-system/NarCheckbox"
-import { boolean } from "zod"
 
 interface AssignAccountFormProps {
   user: UserEntity

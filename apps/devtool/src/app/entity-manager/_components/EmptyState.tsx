@@ -1,12 +1,12 @@
-import { IconDefinition, faAddressBook, faAddressCard, faBoxOpen, faWineGlassEmpty } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC } from 'react';
+import { IconDefinition, faBoxOpen } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FC } from 'react'
 
 type EmptyStateProps = {
-  title: string;
-  description: string;
+  title: string
+  description: string
   icon?: IconDefinition
-};
+}
 
 const EmptyState: FC<EmptyStateProps> = ({ title, description, icon }) => (
   <div className="flex flex-col items-center justify-center mb-6">
@@ -18,6 +18,6 @@ const EmptyState: FC<EmptyStateProps> = ({ title, description, icon }) => (
       <div className="text-nv-sm text-nv-neutrals-100">{description}</div>
     </div>
   </div>
-);
+)
 
-export default EmptyState;
+export default EmptyState

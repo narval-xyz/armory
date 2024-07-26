@@ -1,9 +1,9 @@
-import NarInput from '../../_design-system/NarInput'
-import { CredentialEntity, UserEntity, isAddress } from "@narval/policy-engine-shared"
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
-import NarTextarea from '../../_design-system/NarTextarea'
+import { CredentialEntity, UserEntity, isAddress } from '@narval/policy-engine-shared'
 import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
+import NarInput from '../../_design-system/NarInput'
+import NarTextarea from '../../_design-system/NarTextarea'
 
 interface CredentialFormProps {
   credential?: CredentialEntity
@@ -40,7 +40,7 @@ const ExternallyOwnedAccountCredentialForm: FC<CredentialFormProps> = ({ user, c
           return {
             id: key.kid,
             userId: user.id,
-            key,
+            key
           }
         }
 
@@ -87,12 +87,10 @@ const JsonWebKeyForm: FC<CredentialFormProps> = ({ user, setCredential, credenti
         }
 
         if (user) {
-
-
           return {
             id: key.kid,
             userId: user.id,
-            key,
+            key
           }
         }
 
@@ -116,17 +114,14 @@ const CredentialForm: FC<CredentialFormProps> = (props) => {
   const { isEmbedded } = props
   const [credentialType, setCredentialType] = useState(CredentialType.EOA)
 
-  useEffect(() => {
-  }, [])
+  useEffect(() => {}, [])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
         <NarButton
           className={
-            credentialType === CredentialType.EOA
-              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-              : ''
+            credentialType === CredentialType.EOA ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
           }
           variant="tertiary"
           label="Address"
@@ -137,9 +132,7 @@ const CredentialForm: FC<CredentialFormProps> = (props) => {
 
         <NarButton
           className={
-            credentialType === CredentialType.JWK
-              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-              : ''
+            credentialType === CredentialType.JWK ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
           }
           variant="tertiary"
           label="Json Web Key"
@@ -151,9 +144,7 @@ const CredentialForm: FC<CredentialFormProps> = (props) => {
         {isEmbedded && (
           <NarButton
             className={
-              credentialType === CredentialType.NONE
-                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                : ''
+              credentialType === CredentialType.NONE ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
             }
             variant="tertiary"
             label="No credential"
@@ -164,13 +155,9 @@ const CredentialForm: FC<CredentialFormProps> = (props) => {
         )}
       </div>
 
-      {credentialType === CredentialType.EOA && (
-        <ExternallyOwnedAccountCredentialForm  {...props} />
-      )}
+      {credentialType === CredentialType.EOA && <ExternallyOwnedAccountCredentialForm {...props} />}
 
-      {credentialType === CredentialType.JWK && (
-        <JsonWebKeyForm {...props} />
-      )}
+      {credentialType === CredentialType.JWK && <JsonWebKeyForm {...props} />}
     </div>
   )
 }

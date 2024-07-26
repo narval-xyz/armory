@@ -1,9 +1,7 @@
 'use client'
 
-import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import {
   faCode,
-  faCodeFork,
   faDotCircle,
   faFileSignature,
   faIdBadge,
@@ -14,43 +12,45 @@ import {
   faUpload,
   faUsers,
   faWallet,
-  faXmarkCircle,
+  faXmarkCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import NarButton from '../../_design-system/NarButton'
+import {
+  AccountEntity,
+  CredentialEntity,
+  Entities,
+  EntityUtil,
+  UserAccountEntity,
+  UserEntity
+} from '@narval/policy-engine-shared'
+import { hash } from '@narval/signature'
 import { useEffect, useState } from 'react'
-import { AccountEntity, CredentialEntity, Entities, EntityUtil, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
-import AccountForm from './AccountForm'
-import NarDialog from '../../_design-system/NarDialog'
-import CredentialForm from './CredentialForm'
-import UserForm from './UserForm'
 import CodeEditor from '../../_components/CodeEditor'
 import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
-import EmptyState from './EmptyState'
-import ErrorStatus from '../../_components/ErrorStatus'
-import AssignAccountForm from './AssignAccountForm'
+import NarButton from '../../_design-system/NarButton'
+import NarDialog from '../../_design-system/NarDialog'
+import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import AccountCard from './AccountCard'
+import AccountForm from './AccountForm'
+import AssignAccountForm from './AssignAccountForm'
 import CredentialCard from './CredentialCard'
+import CredentialForm from './CredentialForm'
+import EmptyState from './EmptyState'
 import UserCard from './UserCard'
-import { hash } from '@narval/signature'
-import Link from 'next/link'
+import UserForm from './UserForm'
 
 enum View {
   JSON,
-  LIST,
+  LIST
 }
 
 export default function EntityManager() {
   const {
     entityStore,
-    processingStatus: {
-      isFetchingEntity,
-      isSigningEntity,
-      isSigningAndPushingEntity,
-    },
+    processingStatus: { isFetchingEntity, isSigningEntity, isSigningAndPushingEntity },
     getEntityStore,
     signEntityData,
-    signAndPushEntity,
+    signAndPushEntity
   } = useDataStoreApi()
 
   const [view, setView] = useState(View.LIST)
@@ -121,7 +121,10 @@ export default function EntityManager() {
             variant="secondary"
             label="Sign & Push"
             leftIcon={
-              <FontAwesomeIcon icon={isSigningAndPushingEntity ? faSpinner : faUpload} spin={isSigningAndPushingEntity} />
+              <FontAwesomeIcon
+                icon={isSigningAndPushingEntity ? faSpinner : faUpload}
+                spin={isSigningAndPushingEntity}
+              />
             }
             disabled={isSigningAndPushingEntity}
             onClick={() => {
@@ -178,7 +181,7 @@ export default function EntityManager() {
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
                 title="Add Account"
-                primaryButtonLabel={"Add"}
+                primaryButtonLabel={'Add'}
                 isOpen={isAccountDialogOpen}
                 onOpenChange={setAccountDialogOpen}
                 onDismiss={() => {
@@ -186,7 +189,7 @@ export default function EntityManager() {
                   setAccount(undefined)
                 }}
                 onSave={() => {
-                  setEntities((prev) => account ? { ...prev, accounts: [...prev.accounts, account] } : prev)
+                  setEntities((prev) => (account ? { ...prev, accounts: [...prev.accounts, account] } : prev))
                   setAccountDialogOpen(false)
                   setAccount(undefined)
                 }}
@@ -227,7 +230,7 @@ export default function EntityManager() {
               <NarDialog
                 triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
                 title="Add User"
-                primaryButtonLabel={"Add"}
+                primaryButtonLabel={'Add'}
                 isOpen={isAddUserDialogOpen}
                 onOpenChange={setAddUserDialogOpen}
                 onDismiss={() => {
@@ -242,7 +245,7 @@ export default function EntityManager() {
                     const newEntities = {
                       ...prev,
                       users: user ? [...(prev?.users || []), user] : prev?.users,
-                      credentials: credential ? [...(prev?.credentials || []), credential] : prev?.credentials,
+                      credentials: credential ? [...(prev?.credentials || []), credential] : prev?.credentials
                     }
 
                     const result = EntityUtil.validate(newEntities)
@@ -322,7 +325,9 @@ export default function EntityManager() {
                                 account={acc}
                                 onUnassignClick={() => {
                                   const existingUserAccounts = EntityUtil.getUserAccounts(entities, user)
-                                  const updatedUserAccounts = existingUserAccounts.filter((ua) => ua.accountId !== acc.id && ua.userId === user.id)
+                                  const updatedUserAccounts = existingUserAccounts.filter(
+                                    (ua) => ua.accountId !== acc.id && ua.userId === user.id
+                                  )
 
                                   setEntities(EntityUtil.updateUserAccounts(entities, user, updatedUserAccounts))
                                 }}
@@ -365,7 +370,7 @@ export default function EntityManager() {
           <NarDialog
             triggerButton={null}
             title="Edit User"
-            primaryButtonLabel={"Edit"}
+            primaryButtonLabel={'Edit'}
             isOpen={isEditUserDialogOpen}
             onOpenChange={setEditUserDialogOpen}
             onDismiss={() => {
@@ -405,7 +410,7 @@ export default function EntityManager() {
           <NarDialog
             triggerButton={null}
             title="Assign Account"
-            primaryButtonLabel={"Assign"}
+            primaryButtonLabel={'Assign'}
             isOpen={isAssignAccountDialogOpen}
             onOpenChange={setAssignAccountDialogOpen}
             onDismiss={() => {
@@ -431,7 +436,7 @@ export default function EntityManager() {
           <NarDialog
             triggerButton={null}
             title="Add Credential"
-            primaryButtonLabel={"Add"}
+            primaryButtonLabel={'Add'}
             isOpen={isAddCredentialDialogOpen}
             onOpenChange={setAddCredentialDialogOpen}
             onDismiss={() => {
@@ -439,17 +444,13 @@ export default function EntityManager() {
               setCredential(undefined)
             }}
             onSave={() => {
-              setEntities((prev) => credential ? { ...prev, credentials: [...prev.credentials, credential] } : prev)
+              setEntities((prev) => (credential ? { ...prev, credentials: [...prev.credentials, credential] } : prev))
               setAddCredentialDialogOpen(false)
               setCredential(undefined)
             }}
           >
             <div className="w-[650px] px-12 py-4">
-              <CredentialForm
-                user={user}
-                setCredential={setCredential}
-                credential={credential}
-              />
+              <CredentialForm user={user} setCredential={setCredential} credential={credential} />
             </div>
           </NarDialog>
         </>

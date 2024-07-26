@@ -1,16 +1,15 @@
-import { CredentialEntity, UserEntity, UserRole, isAddress } from "@narval/policy-engine-shared"
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
-import NarInput from "../../_design-system/NarInput"
-import NarDropdownMenu, { DropdownItem } from "../../_design-system/NarDropdownMenu"
-import NarButton from "../../_design-system/NarButton"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
-import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from "@narval/signature"
-import { capitalize } from "lodash"
-import NarTextarea from "../../_design-system/NarTextarea"
-import { v4 as uuid } from "uuid"
-import CredentialForm from "./CredentialForm"
-import { credential } from "@narval/armory-sdk"
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { CredentialEntity, UserEntity, UserRole, isAddress } from '@narval/policy-engine-shared'
+import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import { capitalize } from 'lodash'
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
+import NarButton from '../../_design-system/NarButton'
+import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
+import NarInput from '../../_design-system/NarInput'
+import NarTextarea from '../../_design-system/NarTextarea'
+import CredentialForm from './CredentialForm'
 
 enum CredentialType {
   NONE,
@@ -58,7 +57,7 @@ const ExternallyOwnedAccountCredentialForm: FC<UserFormProps> = ({ user, credent
           return {
             id: key.kid,
             userId: user.id,
-            key,
+            key
           }
         }
 
@@ -105,12 +104,10 @@ const JsonWebKeyForm: FC<UserFormProps> = ({ user, setCredential, credential }) 
         }
 
         if (user) {
-
-
           return {
             id: key.kid,
             userId: user.id,
-            key,
+            key
           }
         }
 
@@ -146,7 +143,7 @@ const UserForm: FC<UserFormProps> = (props) => {
         <NarInput
           label="ID"
           value={user?.id}
-          onChange={(id) => setUser((prev) => prev ? { ...prev, id } : undefined)}
+          onChange={(id) => setUser((prev) => (prev ? { ...prev, id } : undefined))}
           disabled={isEdit}
         />
       )}
@@ -164,7 +161,7 @@ const UserForm: FC<UserFormProps> = (props) => {
         isOpen={isDropdownOpen}
         onOpenChange={setIsDropdownOpen}
         onSelect={(item) => {
-          setUser((prev) => prev ? { ...prev, role: item.value as UserRole } : undefined)
+          setUser((prev) => (prev ? { ...prev, role: item.value as UserRole } : undefined))
           setIsDropdownOpen(false)
         }}
       />
@@ -173,12 +170,7 @@ const UserForm: FC<UserFormProps> = (props) => {
         <fieldset>
           <legend className="mb-4">Credential</legend>
 
-          <CredentialForm
-            user={user}
-            setCredential={setCredential}
-            credential={credential}
-            isEmbedded={true}
-          />
+          <CredentialForm user={user} setCredential={setCredential} credential={credential} isEmbedded={true} />
         </fieldset>
       )}
     </div>
