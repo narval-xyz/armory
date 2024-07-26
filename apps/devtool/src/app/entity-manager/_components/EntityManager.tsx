@@ -3,6 +3,8 @@
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import {
   faCode,
+  faCodeFork,
+  faDotCircle,
   faFileSignature,
   faIdBadge,
   faList,
@@ -12,6 +14,7 @@ import {
   faUpload,
   faUsers,
   faWallet,
+  faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NarButton from '../../_design-system/NarButton'
@@ -29,7 +32,8 @@ import AssignAccountForm from './AssignAccountForm'
 import AccountCard from './AccountCard'
 import CredentialCard from './CredentialCard'
 import UserCard from './UserCard'
-import { uniq } from 'lodash/fp'
+import { hash } from '@narval/signature'
+import Link from 'next/link'
 
 enum View {
   JSON,
@@ -53,6 +57,8 @@ export default function EntityManager() {
   const [entities, setEntities] = useState<Entities>(EntityUtil.empty())
   const [errors, setErrors] = useState<string[]>([])
 
+  const [entityStoreHash, setEntityStoreHash] = useState('')
+
   const [user, setUser] = useState<UserEntity | undefined>()
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false)
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false)
@@ -69,6 +75,7 @@ export default function EntityManager() {
   useEffect(() => {
     if (entityStore) {
       setEntities(entityStore.data)
+      setEntityStoreHash(hash(entityStore.data))
     }
   }, [entityStore, setEntities])
 
@@ -128,7 +135,19 @@ export default function EntityManager() {
 
       {errors.length > 0 && (
         <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
-          <ErrorStatus label={errors.join(', ')} />
+          <div className="flex items-center gap-4">
+            <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-yellow-500" />
+            <div className="text-nv-white">errors.join(', ')</div>
+          </div>
+        </div>
+      )}
+
+      {entityStoreHash !== hash(entities) && (
+        <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
+          <div className="flex items-center gap-4">
+            <FontAwesomeIcon icon={faDotCircle} className="text-nv-yellow-500" />
+            <div className="text-nv-white">You have unpushed changes.</div>
+          </div>
         </div>
       )}
 
