@@ -34,21 +34,12 @@ const getChainId = (chainId: number): string => {
   return chains[chainId] ? chains[chainId] : `Chain ID: ${chainId}`
 }
 
-const getAccountTypeColor = (accountType: AccountType): string => {
-  const colors: Record<AccountType, string> = {
-    [AccountType.AA]: 'text-nv-black bg-nv-green-400',
-    [AccountType.EOA]: 'text-nv-black bg-nv-blue-400'
-  }
-
-  return colors[accountType] ? colors[accountType] : 'text-nv-black bg-nv-white'
-};
-
 export default function AccountCardProps({ account, onDeleteClick, onUnassignClick }: AccountCardProps) {
   return (
     <Card>
       <div className="flex grow items-center gap-4">
         <span className="w-[400px] truncate">{account.address}</span>
-        <span className={`flex items-center h-[24px] px-[12px] text-nv-2xs rounded-full ${getAccountTypeColor(account.accountType)}`}>
+        <span className={`flex items-center h-[24px] px-[12px] text-nv-2xs rounded-full text-nv-black bg-nar-gray-light/75`}>
           {account.accountType === AccountType.EOA ? 'EOA' : 'Smart Account'}
         </span>
         {account.chainId && (

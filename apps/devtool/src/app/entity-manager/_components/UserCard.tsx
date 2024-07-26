@@ -14,10 +14,7 @@ interface UserCardProps {
 
 const getRoleBadgeColor = (role: string): string => {
   const colors: Record<string, string> = {
-    'root': 'text-nv-black bg-nv-red-400',
-    'admin': 'text-nv-black bg-nv-yellow-400',
-    'manager': 'text-nv-black bg-nv-blue-400',
-    'member': 'text-nv-black bg-nv-green-400',
+    'root': 'text-nv-yellow-800 bg-nv-yellow-400',
   }
 
   return colors[role] ? colors[role] : 'text-nv-black bg-nv-white'
