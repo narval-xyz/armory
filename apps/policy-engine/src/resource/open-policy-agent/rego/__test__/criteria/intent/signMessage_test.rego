@@ -1,7 +1,7 @@
 package main
 
 test_checkSignMessage {
-	signMessageRequest = object.union(request, {
+	signMessageRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signMessage",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
@@ -17,7 +17,7 @@ test_checkSignMessage {
 }
 
 test_checkSignRawPayload {
-	signRawPayloadRequest = object.union(request, {
+	signRawPayloadRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signRaw",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
@@ -35,7 +35,7 @@ test_checkSignRawPayload {
 }
 
 test_checkSignTypedData {
-	signTypedDataRequest = object.union(request, {
+	signTypedDataRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signTypedData",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {

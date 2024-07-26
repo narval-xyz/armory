@@ -1,7 +1,7 @@
 package main
 
 test_transferNative {
-	nativeRequest = object.union(request, {
+	nativeRequest = object.union(requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
@@ -21,7 +21,7 @@ test_transferNative {
 }
 
 test_transferERC20 {
-	erc20Request = object.union(request, {
+	erc20Request = object.union(requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {

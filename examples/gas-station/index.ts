@@ -18,7 +18,7 @@ import {
   polling,
   privateKeyToJwk,
   toHex
-} from '@narval/armory-sdk'
+} from '@narval-xyz/armory-sdk'
 
 import { v4 as uuid } from 'uuid'
 import { createPublicClient, http } from 'viem'

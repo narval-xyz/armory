@@ -1,6 +1,6 @@
 package main
 
-spendingLimitReq = object.union(request, {
+spendingLimitReq = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 })
@@ -181,7 +181,7 @@ test_permitRuleSpendingLimit {
 }
 
 test_permitRuleSpendingLimit {
-	spendingLimitWithApprovalsReq = object.union(request, {
+	spendingLimitWithApprovalsReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},
@@ -205,7 +205,7 @@ test_permitRuleSpendingLimit {
 }
 
 test_spendingLimitWithFixedPeriod {
-	spendingLimitWithFixedPeriodReq = object.union(request, {
+	spendingLimitWithFixedPeriodReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},

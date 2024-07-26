@@ -244,10 +244,10 @@ export interface AuthorizationRequestDtoRequestOneOf2TypedData {
     'primaryType': string;
     /**
      * 
-     * @type {AuthorizationRequestDtoRequestOneOf2TypedDataMessage}
+     * @type {{ [key: string]: any; }}
      * @memberof AuthorizationRequestDtoRequestOneOf2TypedData
      */
-    'message': AuthorizationRequestDtoRequestOneOf2TypedDataMessage;
+    'message': { [key: string]: any; };
 }
 /**
  * 
@@ -286,12 +286,6 @@ export interface AuthorizationRequestDtoRequestOneOf2TypedDataDomain {
      */
     'salt'?: any;
 }
-/**
- * @type AuthorizationRequestDtoRequestOneOf2TypedDataMessage
- * @export
- */
-export type AuthorizationRequestDtoRequestOneOf2TypedDataMessage = string | { [key: string]: any; };
-
 /**
  * 
  * @export
@@ -517,101 +511,175 @@ export const AuthorizationRequestDtoRequestOneOf5ActionEnum = {
 export type AuthorizationRequestDtoRequestOneOf5ActionEnum = typeof AuthorizationRequestDtoRequestOneOf5ActionEnum[keyof typeof AuthorizationRequestDtoRequestOneOf5ActionEnum];
 
 /**
+ * @type AuthorizationRequestDtoRequestOneOfTransactionRequest
+ * @export
+ */
+export type AuthorizationRequestDtoRequestOneOfTransactionRequest = AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf | AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1;
+
+/**
  * 
  * @export
- * @interface AuthorizationRequestDtoRequestOneOfTransactionRequest
+ * @interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
  */
-export interface AuthorizationRequestDtoRequestOneOfTransactionRequest {
+export interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf {
     /**
      * 
      * @type {number}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'chainId': number;
     /**
      * 
      * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'from': any;
     /**
      * 
      * @type {number}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'nonce'?: number;
     /**
      * 
-     * @type {Array<AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner>}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @type {Array<AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner>}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
-    'accessList'?: Array<AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner>;
+    'accessList'?: Array<AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner>;
     /**
      * 
      * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'data'?: any;
     /**
      * 
      * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'gas'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'maxFeePerGas'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'maxPriorityFeePerGas'?: string;
     /**
      * 
      * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'to'?: any | null;
     /**
      * 
      * @type {string}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
-    'type'?: AuthorizationRequestDtoRequestOneOfTransactionRequestTypeEnum;
+    'type'?: AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum;
     /**
      * 
      * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequest
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf
      */
     'value'?: any;
 }
 
-export const AuthorizationRequestDtoRequestOneOfTransactionRequestTypeEnum = {
+export const AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum = {
     _2: '2'
 } as const;
 
-export type AuthorizationRequestDtoRequestOneOfTransactionRequestTypeEnum = typeof AuthorizationRequestDtoRequestOneOfTransactionRequestTypeEnum[keyof typeof AuthorizationRequestDtoRequestOneOfTransactionRequestTypeEnum];
+export type AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum = typeof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum[keyof typeof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfTypeEnum];
 
 /**
  * 
  * @export
- * @interface AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner
+ * @interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
  */
-export interface AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner {
+export interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1 {
+    /**
+     * 
+     * @type {number}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'chainId': number;
     /**
      * 
      * @type {any}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'from': any;
+    /**
+     * 
+     * @type {number}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'nonce'?: number;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'data'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'gas'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'gasPrice'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'type'?: AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'to'?: any | null;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1
+     */
+    'value'?: any;
+}
+
+export const AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum = {
+    _0: '0'
+} as const;
+
+export type AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum = typeof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum[keyof typeof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOf1TypeEnum];
+
+/**
+ * 
+ * @export
+ * @interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
+ */
+export interface AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner {
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
      */
     'address': any;
     /**
      * 
      * @type {Array<any>}
-     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestAccessListInner
+     * @memberof AuthorizationRequestDtoRequestOneOfTransactionRequestOneOfAccessListInner
      */
     'storageKeys': Array<any>;
 }

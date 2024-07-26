@@ -1,6 +1,6 @@
 package main
 
-rateFixedPeriodRequest = object.union(request, {
+rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -79,7 +79,7 @@ test_calculateCurrentRateByRollingPeriod {
 		}
 	}
 
-	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
     res == 2
 }
 
@@ -96,7 +96,7 @@ test_calculateCurrentRateByRollingPeriod {
 		}
 	}
 
-	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
     res == 3
 }
 
@@ -113,7 +113,7 @@ test_calculateCurrentRateByRollingPeriod {
 		}
 	}
 
-	res = calculateCurrentRate(conditions) with input as request with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
     res == 1
 }
 

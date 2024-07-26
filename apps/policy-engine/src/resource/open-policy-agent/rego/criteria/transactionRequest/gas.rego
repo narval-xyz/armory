@@ -1,6 +1,17 @@
 package main
 
-gasFeeAmount = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
+
+gasFeeAmount = result {
+  input.transactionRequest.maxFeePerGas
+  input.transactionRequest.maxPriorityFeePerGas
+  result = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
+}
+
+gasFeeAmount = result {
+  not input.transactionRequest.maxFeePerGas
+  not input.transactionRequest.maxPriorityFeePerGas
+  result = (to_number(input.transactionRequest.gasPrice) * to_number(input.transactionRequest.gas))
+}
 
 getGasFeeAmountCondition(filters) = object.union({
 	"currency": wildcard,

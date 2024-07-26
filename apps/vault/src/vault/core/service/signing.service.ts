@@ -6,27 +6,19 @@ import {
   SignRawAction,
   SignTransactionAction,
   SignTypedDataAction,
-  SignUserOperationAction
+  SignUserOperationAction,
+  getTxType
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { EntryPoint } from 'permissionless/types'
 import { getUserOperationHash } from 'permissionless/utils'
-import {
-  TransactionRequest,
-  checksumAddress,
-  createWalletClient,
-  custom,
-  extractChain,
-  hexToBigInt,
-  hexToBytes,
-  signatureToHex,
-  transactionType
-} from 'viem'
+import { createWalletClient, custom, extractChain, hexToBigInt, hexToBytes, signatureToHex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { AccountRepository } from '../../persistence/repository/account.repository'
+import { buildSignableTransactionRequest } from '../util/build-transaction.util'
 import { NonceService } from './nonce.service'
 
 @Injectable()
@@ -92,18 +84,15 @@ export class SigningService {
         ? undefined
         : hexToBigInt(transactionRequest.value)
 
-    const txRequest: TransactionRequest = {
-      from: checksumAddress(client.account.address),
-      to: transactionRequest.to,
-      nonce: transactionRequest.nonce,
-      data: transactionRequest.data,
-      gas: transactionRequest.gas,
-      maxFeePerGas: transactionRequest.maxFeePerGas,
-      maxPriorityFeePerGas: transactionRequest.maxPriorityFeePerGas,
-      type: transactionType['0x2'],
-      value
+    const type = getTxType(transactionRequest)
+    if (type === undefined) {
+      throw new ApplicationException({
+        message: 'Invalid transaction type',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+        context: { transactionRequest }
+      })
     }
-
+    const txRequest = buildSignableTransactionRequest(transactionRequest)
     const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
     //   TEMPORARY

@@ -1,7 +1,7 @@
 package main
 
 test_checkNonceExists {
-	checkNonceExists with input as request with data.entities as entities
+	checkNonceExists with input as requestWithEip1559Transaction with data.entities as entities
 }
 
 test_checkNonceNotExists {

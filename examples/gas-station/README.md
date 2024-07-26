@@ -223,7 +223,7 @@ For this example, the policies are:
 Make sure your engine is sync with the latest entities and policies data and run the script for automatic refill if the account balance goes lower of a certain threshold.
 
 ```
-npx tsx index.ts
+npm start
 ```
 
 ## Notes

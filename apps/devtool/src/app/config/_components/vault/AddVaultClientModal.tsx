@@ -33,8 +33,7 @@ const AddVaultClientModal = () => {
   const [newClient, setNewClient] = useState<CreateVaultClientResponse>()
   const [form, setForm] = useState<VaultClientData>(initForm)
 
-  const isFormValid =
-    form.vaultUrl && form.vaultAdminApiKey && form.clientId && form.engineClientSigner && form.backupPublicKey
+  const isFormValid = form.vaultUrl && form.vaultAdminApiKey && form.clientId && form.engineClientSigner
 
   const closeDialog = () => {
     setIsOpen(false)
@@ -106,7 +105,7 @@ const AddVaultClientModal = () => {
             </div>
             <div className="flex flex-col gap-[8px] w-1/2">
               <NarInput
-                label="Backup Public Key"
+                label="Backup Public Key - RSA in PEM format (optional)"
                 value={form.backupPublicKey}
                 onChange={(backupPublicKey) => updateForm({ backupPublicKey })}
               />

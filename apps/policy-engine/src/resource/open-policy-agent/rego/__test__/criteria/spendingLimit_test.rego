@@ -1,6 +1,6 @@
 package main
 
-spendingsFixedPeriodRequest = object.union(request, {
+spendingsFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -78,7 +78,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 400000000000000000
 }
 
@@ -95,7 +95,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -111,7 +111,7 @@ test_calculateCurrentSpendingsByRollingPeriod {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 1000000000000000000
 }
 
@@ -172,12 +172,12 @@ test_calculateCurrentSpendingsByPrincipal {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as request with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
 	res == 1000000000000000000
 }
 
 test_calculateCurrentSpendingsByPrincipal {
-	perPrincipalReq = object.union(request, {
+	perPrincipalReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 	})
 
@@ -193,7 +193,7 @@ test_calculateCurrentSpendingsByPrincipal {
 }
 
 test_calculateCurrentSpendingsForUserOperationIntent {
-	userOperationRequest = object.union(request, {
+	userOperationRequest = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"intent": {
 			"type": "userOperation",
