@@ -72,10 +72,10 @@ armory-sdk/generate/-http-client:
 
 armory-sdk/generate/auth-client:
 		INPUT_SPEC=http://localhost:3005/docs-yaml \
-		OUTPUT_DIR=packages/armory-sdk/src/lib/http/client/auth \
+		OUTPUT_DIR=packages/armory-sdk/src/http/client/auth \
 		make armory-sdk/generate/-http-client
 
 armory-sdk/generate/vault-client:
 		INPUT_SPEC=http://localhost:3011/docs-yaml \
-		OUTPUT_DIR=packages/armory-sdk/src/lib/http/client/vault \
+		OUTPUT_DIR=packages/armory-sdk/src/http/client/vault \
 		make armory-sdk/generate/-http-client
