@@ -109,3 +109,10 @@ docker/stack/build:
 		--tag armory/local:latest \
 		. --load
 
+
+# === Git ===
+git/tag/push:
+	git tag armory-$(TAG)
+	git tag policy-engine-$(TAG)
+	git tag vault-$(TAG)
+	git push origin armory-$(TAG) policy-engine-$(TAG) vault-$(TAG)
