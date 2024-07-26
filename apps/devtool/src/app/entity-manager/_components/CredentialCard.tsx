@@ -1,7 +1,7 @@
 import { CredentialEntity } from "@narval/policy-engine-shared"
 import Card from "./Card"
-import NarIconButton from "../../_design-system/NarIconButton"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
+import CardButton from "./CardActionButton"
 
 interface CredentialCardProps {
   credential: CredentialEntity
@@ -16,9 +16,10 @@ export default function CredentialCard({ credential, onDeleteClick }: Credential
       </div>
 
       <div className="flex items-center gap-2">
-        <NarIconButton
+        <CardButton
           icon={faTrash}
           onClick={onDeleteClick}
+          alt="Delete credential"
         />
       </div>
     </Card>

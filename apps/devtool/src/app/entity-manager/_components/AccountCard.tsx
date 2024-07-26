@@ -2,6 +2,7 @@ import { AccountEntity, AccountType } from "@narval/policy-engine-shared"
 import NarIconButton from "../../_design-system/NarIconButton"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import Card from "./Card"
+import CardButton from "./CardActionButton"
 
 interface AccountCardProps {
   account: AccountEntity
@@ -55,9 +56,10 @@ export default function AccountCardProps({ account, onDeleteClick }: AccountCard
       </div>
 
       <div className="flex items-center gap-2">
-        <NarIconButton
+        <CardButton
           icon={faTrash}
           onClick={onDeleteClick}
+          alt="Delete account"
         />
       </div>
     </Card>

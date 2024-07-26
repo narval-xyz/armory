@@ -1,8 +1,8 @@
 import { UserEntity } from "@narval/policy-engine-shared";
-import NarIconButton from "../../_design-system/NarIconButton";
 import { faEdit, faTrash, faWallet } from "@fortawesome/free-solid-svg-icons";
 import Card from "./Card";
 import { capitalize } from "lodash/fp";
+import CardButton from "./CardActionButton";
 
 interface UserCardProps {
   user: UserEntity
@@ -32,19 +32,22 @@ export default function UserCard({ user, onAssignAccountClick, onEditClick, onDe
       </div>
 
       <div className="flex items-center gap-2">
-        <NarIconButton
+        <CardButton
           icon={faWallet}
           onClick={onAssignAccountClick}
+          alt="Assign accounts"
         />
 
-        <NarIconButton
+        <CardButton
           icon={faEdit}
           onClick={onEditClick}
+          alt="Edit user"
         />
 
-        <NarIconButton
+        <CardButton
           icon={faTrash}
           onClick={onDeleteClick}
+          alt="Delete user"
         />
       </div>
     </Card>
