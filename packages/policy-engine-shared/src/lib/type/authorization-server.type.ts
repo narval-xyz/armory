@@ -81,7 +81,7 @@ export const AuthorizationRequestMetadata = z.object({
 export type AuthorizationRequestMetadata = z.infer<typeof AuthorizationRequestMetadata>
 
 export const AuthorizationRequest = z.object({
-  approvals: z.array(JwtString),
+  approvals: z.array(JwtString).optional(),
   authentication: JwtString,
   clientId: z.string(),
   createdAt: z.coerce.date(),
