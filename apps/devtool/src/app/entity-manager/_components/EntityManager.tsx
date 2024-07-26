@@ -3,17 +3,12 @@
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import {
   faCode,
-  faEdit,
   faFileSignature,
-  faHockeyPuck,
   faIdBadge,
-  faKey,
-  faLink,
   faList,
   faPlus,
   faRotateRight,
   faSpinner,
-  faTrash,
   faUpload,
   faUsers,
   faWallet,
@@ -21,27 +16,25 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NarButton from '../../_design-system/NarButton'
 import { useEffect, useState } from 'react'
-import { AccountEntity, AccountType, CredentialEntity, Entities, EntityUtil, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
+import { AccountEntity, CredentialEntity, Entities, EntityUtil, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
 import AccountForm from './AccountForm'
 import NarDialog from '../../_design-system/NarDialog'
 import CredentialForm from './CredentialForm'
 import UserForm from './UserForm'
 import CodeEditor from '../../_components/CodeEditor'
 import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
-import NarIconButton from '../../_design-system/NarIconButton'
-import { capitalize } from 'lodash'
 import EmptyState from './EmptyState'
 import ErrorStatus from '../../_components/ErrorStatus'
 import AssignAccountForm from './AssignAccountForm'
 import AccountCard from './AccountCard'
 import CredentialCard from './CredentialCard'
 import UserCard from './UserCard'
+import { uniq } from 'lodash/fp'
 
 enum View {
   JSON,
   LIST,
 }
-
 
 export default function EntityManager() {
   const {
@@ -64,7 +57,7 @@ export default function EntityManager() {
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false)
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false)
 
-  const [userAccount, setUserAccount] = useState<UserAccountEntity | undefined>()
+  const [userAccounts, setUserAccounts] = useState<UserAccountEntity[]>([])
   const [isAssignAccountDialogOpen, setAssignAccountDialogOpen] = useState(false)
 
   const [credential, setCredential] = useState<CredentialEntity | undefined>()
@@ -78,8 +71,6 @@ export default function EntityManager() {
       setEntities(entityStore.data)
     }
   }, [entityStore, setEntities])
-
-  console.log(JSON.stringify(user))
 
   return (
     <div className="h-full">
@@ -225,7 +216,7 @@ export default function EntityManager() {
             <ul className="flex flex-col gap-4 mb-6">
               {entities.users.map((user) => {
                 const credentials = EntityUtil.getUserCredentials(entities, user)
-                const accounts = EntityUtil.getUserAccounts(entities, user)
+                const accounts = EntityUtil.getUserAssignedAccounts(entities, user)
 
                 return (
                   <li key={user.id}>
@@ -252,7 +243,7 @@ export default function EntityManager() {
                         </div>
 
                         <ul>
-                          {EntityUtil.getUserAccounts(entities, user).map((acc) => (
+                          {EntityUtil.getUserAssignedAccounts(entities, user).map((acc) => (
                             <li key={`${user.id}-${acc.id}`} className="flex flex-col pl-8 mb-4">
                               <AccountCard
                                 account={acc}
@@ -442,19 +433,16 @@ export default function EntityManager() {
               setUser(undefined)
             }}
             onSave={() => {
-              setEntities({
-                ...entities,
-                userAccounts: userAccount ? [...entities.userAccounts, userAccount] : entities.userAccounts
-              })
+              setEntities(EntityUtil.updateUserAccounts(entities, user, userAccounts))
               setAssignAccountDialogOpen(false)
               setUser(undefined)
             }}
           >
             <div className="w-[650px] px-12 py-4">
               <AssignAccountForm
-                setUserAccount={setUserAccount}
+                setUserAccounts={setUserAccounts}
                 user={user}
-                userAccounts={EntityUtil.getUserAccounts(entities, user)}
+                userAccounts={EntityUtil.getUserAssignedAccounts(entities, user)}
                 accounts={entities.accounts}
               />
             </div>

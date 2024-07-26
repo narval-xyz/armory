@@ -8,7 +8,7 @@ interface AssignAccountFormProps {
   user: UserEntity
   accounts: AccountEntity[]
   userAccounts: AccountEntity[]
-  setUserAccount: Dispatch<SetStateAction<UserAccountEntity | undefined>>
+  setUserAccounts: Dispatch<SetStateAction<UserAccountEntity[]>>
 }
 
 const getAccountsDropdownItems = (accounts: AccountEntity[]): DropdownItem<AccountEntity>[] => [
@@ -21,28 +21,27 @@ const getAccountsDropdownItems = (accounts: AccountEntity[]): DropdownItem<Accou
   }
 ]
 
-const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, accounts, setUserAccount }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [userId, setUserId] = useState(user.id)
-  const [accountId, setAccountId] = useState<string | undefined>()
-  console.log({ userAccounts, accounts })
+const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, accounts, setUserAccounts }) => {
+  const [assignedAccounts, setAssignedAccounts] = useState(userAccounts)
 
   useEffect(() => {
-    if (accountId) {
-      setUserAccount({
-        userId,
-        accountId
-      })
-    }
-  }, [accountId])
-
+    setUserAccounts(assignedAccounts.map(({ id }) => ({ userId: user.id, accountId: id })))
+  }, [assignedAccounts])
 
   return (
     <div className="flex flex-col gap-6">
       {accounts.map(({ address, accountType, chainId, id }) => (
         <NarCheckbox
+          id={`assigned-account-${user.id}-${id}`}
           label={accountType === AccountType.EOA ? address : `${address} Smart Account on chain ${chainId}`}
-          checked={Boolean(userAccounts.find((userAccount) => userAccount.id === id))}
+          checked={Boolean(assignedAccounts.find((userAccount) => userAccount.id === id))}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              setAssignedAccounts((prev) => [...prev, { address, accountType, chainId, id }])
+            } else {
+              setAssignedAccounts((prev) => prev.filter((account) => account.id !== id))
+            }
+          }}
         />
       ))}
     </div>
@@ -50,22 +49,3 @@ const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, acc
 }
 
 export default AssignAccountForm
-
-
-// <NarDropdownMenu
-//   label="Account"
-//   data={getAccountsDropdownItems(accounts)}
-//   triggerButton={
-//     <NarButton
-//       variant="tertiary"
-//       label={accountId || 'Choose an account'}
-//       rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
-//     />
-//   }
-//   isOpen={isDropdownOpen}
-//   onOpenChange={setIsDropdownOpen}
-//   onSelect={(item) => {
-//     setAccountId(item.value)
-//     setIsDropdownOpen(false)
-//   }}
-// />

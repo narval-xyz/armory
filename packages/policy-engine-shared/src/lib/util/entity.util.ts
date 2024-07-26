@@ -1,6 +1,6 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
 import { entitiesSchema } from '../schema/entity.schema'
-import { AccountEntity, CredentialEntity, Entities, UserEntity } from '../type/entity.type'
+import { AccountEntity, CredentialEntity, Entities, UserAccountEntity, UserEntity } from '../type/entity.type'
 
 export type ValidationIssue = {
   code: string
@@ -199,7 +199,7 @@ export const updateUser = (entities: Entities, user: UserEntity): Entities => {
   }
 }
 
-export const getUserAccounts = (entities: Entities, user: UserEntity): AccountEntity[] => {
+export const getUserAssignedAccounts = (entities: Entities, user: UserEntity): AccountEntity[] => {
   const userAccounts = entities.userAccounts
     .filter(({ userId }) => userId === user.id)
     .map(({ accountId }) => accountId)
@@ -209,4 +209,17 @@ export const getUserAccounts = (entities: Entities, user: UserEntity): AccountEn
 
 export const getUserCredentials = (entities: Entities, user: UserEntity): CredentialEntity[] => {
   return entities.credentials.filter(({ userId }) => userId === user.id)
+}
+
+export const updateUserAccounts = (
+  entities: Entities,
+  user: UserEntity,
+  userAccounts: UserAccountEntity[]
+): Entities => {
+  const notAssignedToUser = entities.userAccounts.filter(({ userId }) => userId !== user.id)
+
+  return {
+    ...entities,
+    userAccounts: [...notAssignedToUser, ...userAccounts]
+  }
 }

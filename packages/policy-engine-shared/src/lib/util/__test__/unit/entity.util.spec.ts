@@ -1,6 +1,6 @@
 import { ACCOUNT, ACCOUNT_GROUP, ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP } from '../../../dev.fixture'
-import { Entities } from '../../../type/entity.type'
-import { validate } from '../../entity.util'
+import { Entities, UserEntity, UserRole } from '../../../type/entity.type'
+import { empty, updateUserAccounts, validate } from '../../entity.util'
 
 describe('validate', () => {
   const emptyEntities: Entities = {
@@ -279,5 +279,69 @@ describe('validate', () => {
         ]
       })
     })
+  })
+})
+
+describe('updateUserAccounts', () => {
+  const user: UserEntity = {
+    id: 'test-user-id-one',
+    role: UserRole.MEMBER
+  }
+
+  const userAccountOne = {
+    userId: user.id,
+    accountId: 'test-account-id-one'
+  }
+
+  const userAccountTwo = {
+    userId: user.id,
+    accountId: 'test-account-id-two'
+  }
+
+  const anotherUserAccount = {
+    userId: 'test-user-id-two',
+    accountId: 'test-account-id-one'
+  }
+
+  it('adds user accounts', () => {
+    const entities = updateUserAccounts(
+      {
+        ...empty(),
+        users: [user],
+        userAccounts: [anotherUserAccount]
+      },
+      user,
+      [userAccountOne, userAccountTwo]
+    )
+
+    expect(entities.userAccounts).toEqual([anotherUserAccount, userAccountOne, userAccountTwo])
+  })
+
+  it('removes user accounts not present in the given array', () => {
+    const entities = updateUserAccounts(
+      {
+        ...empty(),
+        users: [user],
+        userAccounts: [userAccountOne, userAccountTwo, anotherUserAccount]
+      },
+      user,
+      [userAccountOne]
+    )
+
+    expect(entities.userAccounts).toEqual([anotherUserAccount, userAccountOne])
+  })
+
+  it('removes user accounts when given an empty array', () => {
+    const entities = updateUserAccounts(
+      {
+        ...empty(),
+        users: [user],
+        userAccounts: [userAccountOne, userAccountTwo, anotherUserAccount]
+      },
+      user,
+      []
+    )
+
+    expect(entities.userAccounts).toEqual([anotherUserAccount])
   })
 })
