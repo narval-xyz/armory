@@ -2,10 +2,9 @@ import {
   DeriveAccountRequest,
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
-  ImportSeedRequest,
-  VaultAdminClient,
-  VaultClient
+  ImportSeedRequest
 } from '@narval/armory-sdk'
+import { VaultAdminClient, VaultClient } from '@narval/armory-sdk/vault'
 import { Request } from '@narval/policy-engine-shared'
 import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
 import { exportJWK, importSPKI } from 'jose'

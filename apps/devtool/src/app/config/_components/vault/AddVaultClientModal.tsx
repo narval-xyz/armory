@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CreateVaultClientResponse } from '@narval/armory-sdk'
+import { CreateVaultClientResponse } from '@narval/armory-sdk/vault'
 import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'

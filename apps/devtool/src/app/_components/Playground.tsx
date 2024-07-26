@@ -2,7 +2,8 @@
 
 import { faArrowsRotate, faFileSignature } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AuthorizationResponse, Evaluate, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { AuthorizationResponse, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
+import { Evaluate } from '@narval/armory-sdk/auth'
 import { AuthorizationRequest, EvaluationRequest, hexSchema } from '@narval/policy-engine-shared'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'

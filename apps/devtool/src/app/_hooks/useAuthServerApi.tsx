@@ -1,10 +1,7 @@
-import {
-  AuthAdminClient,
-  AuthClient,
-  AuthorizationRequestStatus,
-  EntityStoreClient,
-  Evaluate
-} from '@narval/armory-sdk'
+import { AuthorizationRequestStatus } from '@narval/armory-sdk'
+import { AuthAdminClient, AuthClient, Evaluate } from '@narval/armory-sdk/auth'
+import { EntityStoreClient } from '@narval/armory-sdk/data-store'
+
 import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
