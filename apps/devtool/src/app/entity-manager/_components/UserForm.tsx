@@ -9,6 +9,8 @@ import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from "@na
 import { capitalize } from "lodash"
 import NarTextarea from "../../_design-system/NarTextarea"
 import { v4 as uuid } from "uuid"
+import CredentialForm from "./CredentialForm"
+import { credential } from "@narval/armory-sdk"
 
 enum CredentialType {
   NONE,
@@ -129,9 +131,8 @@ const JsonWebKeyForm: FC<UserFormProps> = ({ user, setCredential, credential }) 
 }
 
 const UserForm: FC<UserFormProps> = (props) => {
-  const { user, setUser, isEdit } = props
+  const { user, setUser, isEdit, setCredential, credential } = props
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [credentialType, setCredentialType] = useState(CredentialType.EOA)
 
   useEffect(() => {
     if (!user) {
@@ -141,49 +142,6 @@ const UserForm: FC<UserFormProps> = (props) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {!isEdit && (
-        <div className="flex items-center gap-2">
-          <NarButton
-            className={
-              credentialType === CredentialType.EOA
-                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                : ''
-            }
-            variant="tertiary"
-            label="Address"
-            onClick={() => {
-              setCredentialType(CredentialType.EOA)
-            }}
-          />
-
-          <NarButton
-            className={
-              credentialType === CredentialType.JWK
-                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                : ''
-            }
-            variant="tertiary"
-            label="Json Web Key"
-            onClick={() => {
-              setCredentialType(CredentialType.JWK)
-            }}
-          />
-
-          <NarButton
-            className={
-              credentialType === CredentialType.NONE
-                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
-                : ''
-            }
-            variant="tertiary"
-            label="No credential"
-            onClick={() => {
-              setCredentialType(CredentialType.NONE)
-            }}
-          />
-        </div>
-      )}
-
       {user?.id && (
         <NarInput
           label="ID"
@@ -191,14 +149,6 @@ const UserForm: FC<UserFormProps> = (props) => {
           onChange={(id) => setUser((prev) => prev ? { ...prev, id } : undefined)}
           disabled={isEdit}
         />
-      )}
-
-      {!isEdit && credentialType === CredentialType.EOA && (
-        <ExternallyOwnedAccountCredentialForm  {...props} />
-      )}
-
-      {!isEdit && credentialType === CredentialType.JWK && (
-        <JsonWebKeyForm {...props} />
       )}
 
       <NarDropdownMenu
@@ -218,6 +168,19 @@ const UserForm: FC<UserFormProps> = (props) => {
           setIsDropdownOpen(false)
         }}
       />
+
+      {!isEdit && user && (
+        <fieldset>
+          <legend className="mb-4">Credential</legend>
+
+          <CredentialForm
+            user={user}
+            setCredential={setCredential}
+            credential={credential}
+            isEmbedded={true}
+          />
+        </fieldset>
+      )}
     </div>
   )
 }

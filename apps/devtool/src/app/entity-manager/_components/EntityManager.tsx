@@ -152,6 +152,55 @@ export default function EntityManager() {
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
               <div className="flex items-center gap-2 text-xl text-semibold grow">
+                <FontAwesomeIcon icon={faWallet} />
+                <h2>Accounts</h2>
+              </div>
+
+              <NarDialog
+                triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
+                title="Add Account"
+                primaryButtonLabel={"Add"}
+                isOpen={isAccountDialogOpen}
+                onOpenChange={setAccountDialogOpen}
+                onDismiss={() => {
+                  setAccountDialogOpen(false)
+                  setAccount(undefined)
+                }}
+                onSave={() => {
+                  setEntities((prev) => account ? { ...prev, accounts: [...prev.accounts, account] } : prev)
+                  setAccountDialogOpen(false)
+                  setAccount(undefined)
+                }}
+              >
+                <div className="w-[650px] px-12 py-4">
+                  <AccountForm setAccount={setAccount} account={account} />
+                </div>
+              </NarDialog>
+            </div>
+
+            {entities.accounts.length === 0 && (
+              <EmptyState
+                title="No accounts found"
+                description="You haven't added or imported any account yet."
+                icon={faWallet}
+              />
+            )}
+
+            <ul className="flex flex-col gap-4">
+              {entities.accounts.map((acc) => (
+                <li key={acc.id}>
+                  <AccountCard
+                    account={acc}
+                    onDeleteClick={() => setEntities(EntityUtil.removeAccountById(entities, acc.id))}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
+            <div className="flex items-center mb-6">
+              <div className="flex items-center gap-2 text-xl text-semibold grow">
                 <FontAwesomeIcon icon={faUsers} />
                 <h2>Users</h2>
               </div>
@@ -226,7 +275,12 @@ export default function EntityManager() {
                         setUser(user)
                         setAssignAccountDialogOpen(true)
                       }}
-
+                      onAddCredentialClick={() => {
+                        console.log({ user })
+                        setUser(user)
+                        setCredential(undefined)
+                        setAddCredentialDialogOpen(true)
+                      }}
                       onEditClick={() => {
                         setUser(user)
                         setCredential(undefined)
@@ -279,106 +333,8 @@ export default function EntityManager() {
               })}
             </ul>
           </div>
-
-          <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
-            <div className="flex items-center mb-6">
-              <div className="flex items-center gap-2 text-xl text-semibold grow">
-                <FontAwesomeIcon icon={faWallet} />
-                <h2>Accounts</h2>
-              </div>
-
-              <NarDialog
-                triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-                title="Add Account"
-                primaryButtonLabel={"Add"}
-                isOpen={isAccountDialogOpen}
-                onOpenChange={setAccountDialogOpen}
-                onDismiss={() => {
-                  setAccountDialogOpen(false)
-                  setAccount(undefined)
-                }}
-                onSave={() => {
-                  setEntities((prev) => account ? { ...prev, accounts: [...prev.accounts, account] } : prev)
-                  setAccountDialogOpen(false)
-                  setAccount(undefined)
-                }}
-              >
-                <div className="w-[650px] px-12 py-4">
-                  <AccountForm setAccount={setAccount} account={account} />
-                </div>
-              </NarDialog>
-            </div>
-
-            {entities.accounts.length === 0 && (
-              <EmptyState
-                title="No accounts found"
-                description="You haven't added or imported any account yet."
-                icon={faWallet}
-              />
-            )}
-
-            <ul className="flex flex-col gap-4">
-              {entities.accounts.map((acc) => (
-                <li key={acc.id}>
-                  <AccountCard
-                    account={acc}
-                    onDeleteClick={() => setEntities(EntityUtil.removeAccountById(entities, acc.id))}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
         </>
       )}
-
-      <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
-        <div className="flex items-center mb-6">
-          <div className="flex items-center gap-2 text-xl text-semibold grow">
-            <FontAwesomeIcon icon={faIdBadge} />
-            <h2>Credentials</h2>
-          </div>
-
-          <NarDialog
-            triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-            title="Add Credential"
-            primaryButtonLabel={"Add"}
-            isOpen={isAddCredentialDialogOpen}
-            onOpenChange={setAddCredentialDialogOpen}
-            onDismiss={() => {
-              setAddCredentialDialogOpen(false)
-              setCredential(undefined)
-            }}
-            onSave={() => {
-              setEntities((prev) => credential ? { ...prev, credentials: [...prev.credentials, credential] } : prev)
-              setAddCredentialDialogOpen(false)
-              setCredential(undefined)
-            }}
-          >
-            <div className="w-[650px] px-12 py-4">
-              <CredentialForm users={entities.users} setCredential={setCredential} credential={credential} />
-            </div>
-          </NarDialog>
-        </div>
-
-        {entities.credentials.length === 0 && (
-          <EmptyState
-            title="No credentials found"
-            description="Add credentials to allow users to authenticate."
-            icon={faIdBadge}
-          />
-        )}
-
-        <ul className="flex flex-col gap-4 mb-6">
-          {entities.credentials.map((cred) => (
-            <li key={cred.id}>
-              <CredentialCard
-                credential={cred}
-                onDeleteClick={() => setEntities(EntityUtil.removeCredentialById(entities, cred.id))}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
 
       {user && (
         <>
@@ -444,6 +400,31 @@ export default function EntityManager() {
                 user={user}
                 userAccounts={EntityUtil.getUserAssignedAccounts(entities, user)}
                 accounts={entities.accounts}
+              />
+            </div>
+          </NarDialog>
+
+          <NarDialog
+            triggerButton={null}
+            title="Add Credential"
+            primaryButtonLabel={"Add"}
+            isOpen={isAddCredentialDialogOpen}
+            onOpenChange={setAddCredentialDialogOpen}
+            onDismiss={() => {
+              setAddCredentialDialogOpen(false)
+              setCredential(undefined)
+            }}
+            onSave={() => {
+              setEntities((prev) => credential ? { ...prev, credentials: [...prev.credentials, credential] } : prev)
+              setAddCredentialDialogOpen(false)
+              setCredential(undefined)
+            }}
+          >
+            <div className="w-[650px] px-12 py-4">
+              <CredentialForm
+                user={user}
+                setCredential={setCredential}
+                credential={credential}
               />
             </div>
           </NarDialog>

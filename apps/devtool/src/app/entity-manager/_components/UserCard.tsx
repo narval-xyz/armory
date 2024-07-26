@@ -1,5 +1,5 @@
 import { UserEntity } from "@narval/policy-engine-shared";
-import { faEdit, faTrash, faWallet } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faIdBadge, faTrash, faWallet } from "@fortawesome/free-solid-svg-icons";
 import Card from "./Card";
 import { capitalize } from "lodash/fp";
 import CardButton from "./CardActionButton";
@@ -7,6 +7,7 @@ import CardButton from "./CardActionButton";
 interface UserCardProps {
   user: UserEntity
   onAssignAccountClick: () => void
+  onAddCredentialClick: () => void
   onEditClick: () => void
   onDeleteClick: () => void
 }
@@ -17,13 +18,12 @@ const getRoleBadgeColor = (role: string): string => {
     'admin': 'text-nv-black bg-nv-yellow-400',
     'manager': 'text-nv-black bg-nv-blue-400',
     'member': 'text-nv-black bg-nv-green-400',
-
   }
 
   return colors[role] ? colors[role] : 'text-nv-black bg-nv-white'
 };
 
-export default function UserCard({ user, onAssignAccountClick, onEditClick, onDeleteClick }: UserCardProps) {
+export default function UserCard({ user, onAssignAccountClick, onAddCredentialClick, onEditClick, onDeleteClick }: UserCardProps) {
   return (
     <Card>
       <div className="flex grow items-center gap-4">
@@ -36,6 +36,12 @@ export default function UserCard({ user, onAssignAccountClick, onEditClick, onDe
           icon={faWallet}
           onClick={onAssignAccountClick}
           alt="Assign accounts"
+        />
+
+        <CardButton
+          icon={faIdBadge}
+          onClick={onAddCredentialClick}
+          alt="Add credential"
         />
 
         <CardButton

@@ -1,33 +1,69 @@
 import NarInput from '../../_design-system/NarInput'
-import { CredentialEntity, UserEntity } from "@narval/policy-engine-shared"
+import { CredentialEntity, UserEntity, isAddress } from "@narval/policy-engine-shared"
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
 import NarTextarea from '../../_design-system/NarTextarea'
-import { publicKeySchema } from '@narval/signature'
-import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
+import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
 import NarButton from '../../_design-system/NarButton'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 interface CredentialFormProps {
   credential?: CredentialEntity
   setCredential: Dispatch<SetStateAction<CredentialEntity | undefined>>
-  users: UserEntity[]
+  user: UserEntity
+  isEmbedded?: boolean
 }
 
-const getUsersDropdownItems = (users: UserEntity[]): DropdownItem<UserEntity>[] => [
-  {
-    isRadioGroup: true,
-    items: users.map(({ id, role }) => ({
-      label: `${id} (${role})`,
-      value: id
-    }))
-  }
-]
+enum CredentialType {
+  NONE,
+  EOA,
+  JWK
+}
 
-const CredentialForm: FC<CredentialFormProps> = ({ credential, setCredential, users }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [userId, setUserId] = useState(credential?.userId)
-  const [rawJwk, setRawJwk] = useState(credential?.key ? JSON.stringify(credential.key, null, 2) : '')
+const ExternallyOwnedAccountCredentialForm: FC<CredentialFormProps> = ({ user, credential, setCredential }) => {
+  const [address, setAddress] = useState(credential?.key.addr || '')
+
+  useEffect(() => {
+    if (isAddress(address)) {
+      const key = jwkEoaSchema.parse({
+        kty: KeyTypes.EC,
+        crv: Curves.SECP256K1,
+        alg: SigningAlg.ES256K,
+        kid: address,
+        addr: address
+      })
+
+      setCredential((prev) => {
+        if (prev) {
+          return { ...prev, key }
+        }
+
+        if (user) {
+          return {
+            id: key.kid,
+            userId: user.id,
+            key,
+          }
+        }
+
+        return undefined
+      })
+    }
+  }, [address, setCredential, user])
+
+  return (
+    <>
+      <NarInput
+        label="Address"
+        value={address}
+        onChange={setAddress}
+        validate={isAddress}
+        errorMessage="Invalid address"
+      />
+    </>
+  )
+}
+
+const JsonWebKeyForm: FC<CredentialFormProps> = ({ user, setCredential, credential }) => {
+  const [jwk, setJwk] = useState(credential ? JSON.stringify(credential.key, null, 2) : '')
 
   const isValid = (value?: string) => {
     if (value) {
@@ -42,62 +78,99 @@ const CredentialForm: FC<CredentialFormProps> = ({ credential, setCredential, us
   }
 
   useEffect(() => {
-    if (userId && isValid(rawJwk)) {
-      setCredential((prev) => {
-        const key = publicKeySchema.parse(JSON.parse(rawJwk))
+    if (isValid(jwk)) {
+      const key = publicKeySchema.parse(JSON.parse(jwk))
 
+      setCredential((prev) => {
         if (prev) {
+          return { ...prev, key }
+        }
+
+        if (user) {
+
+
           return {
-            ...prev,
-            userId,
-            key
+            id: key.kid,
+            userId: user.id,
+            key,
           }
         }
 
-        return {
-          id: key.kid,
-          userId,
-          key
-        }
+        return undefined
       })
     }
-  }, [userId, rawJwk])
+  }, [jwk, setCredential, user])
+
+  return (
+    <NarTextarea
+      label="Public Key"
+      value={jwk}
+      onChange={setJwk}
+      validate={isValid}
+      errorMessage="Invalid public key"
+    />
+  )
+}
+
+const CredentialForm: FC<CredentialFormProps> = (props) => {
+  const { isEmbedded } = props
+  const [credentialType, setCredentialType] = useState(CredentialType.EOA)
+
+  useEffect(() => {
+  }, [])
 
   return (
     <div className="flex flex-col gap-6">
-      {credential?.id && (
-        <NarInput
-          label="ID"
-          value={credential.id}
-          onChange={(id) => setCredential((prev) => prev ? { ...prev, id } : undefined)} disabled
+      <div className="flex items-center gap-2">
+        <NarButton
+          className={
+            credentialType === CredentialType.EOA
+              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+              : ''
+          }
+          variant="tertiary"
+          label="Address"
+          onClick={() => {
+            setCredentialType(CredentialType.EOA)
+          }}
         />
+
+        <NarButton
+          className={
+            credentialType === CredentialType.JWK
+              ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+              : ''
+          }
+          variant="tertiary"
+          label="Json Web Key"
+          onClick={() => {
+            setCredentialType(CredentialType.JWK)
+          }}
+        />
+
+        {isEmbedded && (
+          <NarButton
+            className={
+              credentialType === CredentialType.NONE
+                ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white'
+                : ''
+            }
+            variant="tertiary"
+            label="No credential"
+            onClick={() => {
+              setCredentialType(CredentialType.NONE)
+            }}
+          />
+        )}
+      </div>
+
+      {credentialType === CredentialType.EOA && (
+        <ExternallyOwnedAccountCredentialForm  {...props} />
       )}
 
-      <NarDropdownMenu
-        label="User"
-        data={getUsersDropdownItems(users)}
-        triggerButton={
-          <NarButton
-            variant="tertiary"
-            label={userId || 'Choose a user'}
-            rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
-          />
-        }
-        isOpen={isDropdownOpen}
-        onOpenChange={setIsDropdownOpen}
-        onSelect={(item) => {
-          setUserId(item.value)
-          setIsDropdownOpen(false)
-        }}
-      />
-
-      <NarTextarea
-        label="JSON Web Key"
-        value={rawJwk}
-        validate={isValid}
-        errorMessage="Invalid JSON web key"
-        onChange={setRawJwk}
-      />
+      {credentialType === CredentialType.JWK && (
+        <JsonWebKeyForm {...props} />
+      )}
     </div>
   )
 }
