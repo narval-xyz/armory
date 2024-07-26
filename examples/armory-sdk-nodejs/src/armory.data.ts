@@ -1,11 +1,7 @@
-import {
-  AuthClient,
-  EntityStoreClient,
-  Permission,
-  PolicyStoreClient,
-  VaultClient,
-  credential
-} from '@narval/armory-sdk'
+import { Permission } from '@narval/armory-sdk'
+import { AuthClient } from '@narval/armory-sdk/auth'
+import { EntityStoreClient, PolicyStoreClient, credential } from '@narval/armory-sdk/data-store'
+import { VaultClient } from '@narval/armory-sdk/vault'
 import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
 import { Hex, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Intents } from '@narval/transaction-request-intent'

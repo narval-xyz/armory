@@ -1,13 +1,7 @@
-import {
-  AuthClient,
-  AuthConfig,
-  DataStoreConfig,
-  EntityStoreClient,
-  PolicyStoreClient,
-  VaultClient,
-  VaultConfig,
-  resourceId
-} from '@narval/armory-sdk'
+import { resourceId } from '@narval/armory-sdk'
+import { AuthClient, AuthConfig } from '@narval/armory-sdk/auth'
+import { DataStoreConfig, EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk/data-store'
+import { VaultClient, VaultConfig } from '@narval/armory-sdk/vault'
 import { Action, Address, Eip712TypedData, Request, TransactionRequest, toHex } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import { toAccount } from 'viem/accounts'

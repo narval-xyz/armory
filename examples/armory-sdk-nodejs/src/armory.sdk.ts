@@ -1,11 +1,6 @@
-import {
-  AuthAdminClient,
-  AuthConfig,
-  DataStoreConfig,
-  VaultAdminClient,
-  VaultConfig,
-  createHttpDataStore
-} from '@narval/armory-sdk'
+import { AuthAdminClient, AuthConfig } from '@narval/armory-sdk/auth'
+import { DataStoreConfig, createHttpDataStore } from '@narval/armory-sdk/data-store'
+import { VaultAdminClient, VaultConfig } from '@narval/armory-sdk/vault'
 import { Hex } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
