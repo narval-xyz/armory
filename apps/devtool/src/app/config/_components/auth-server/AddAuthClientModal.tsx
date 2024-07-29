@@ -14,10 +14,10 @@ import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerA
 import useStore from '../../../_hooks/useStore'
 import { MANAGED_DATASTORE_BASE_URL } from '../../../_lib/constants'
 
-const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl: string) =>
+const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl?: string) =>
   useManagedDataStore ? `${baseUrl || MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}` : ''
 
-const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl: string) =>
+const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl?: string) =>
   useManagedDataStore ? `${baseUrl || MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}` : ''
 
 const initForm: AuthClientData = {
@@ -95,7 +95,6 @@ const AddAuthClientModal = () => {
 
     const initAuthUrl = form.authServerUrl || authServerUrl
     const initAdminApiKey = form.authAdminApiKey || authAdminApiKey
-    const initJwk = form.entityPublicKey
 
     const urlWithoutTrailingSlash = initAuthUrl.endsWith('/') ? initAuthUrl.slice(0, -1) : initAuthUrl
     updateForm({
