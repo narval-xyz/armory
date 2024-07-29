@@ -1,29 +1,30 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NarButton from "../../_design-system/NarButton";
 import NarDialog from "../../_design-system/NarDialog";
-import { faInfo, faInfoCircle, faUpload, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faUpload, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import ImportKeyForm, { KeyType } from "./ImportKeyForm";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import useAuthServerApi from "../../_hooks/useAuthServerApi";
 import { v4 as uuid } from "uuid";
-import { AccountEntity, AccountType, Action, Entities, getAddress, toHex } from "@narval/policy-engine-shared";
+import { AccountEntity, AccountType, Action, Entities, getAddress } from "@narval/policy-engine-shared";
 import { Permission } from "@narval/armory-sdk";
 import useVaultApi from "../../_hooks/useVaultApi";
 import { Hex } from "@narval/signature";
-import Card from "./Card";
 import Info from "./Info";
 import Message from "./Message";
 
 interface ImportKeyDialogProp {
   isOpen?: boolean,
   setEntities: Dispatch<SetStateAction<Entities>>
+  onDismiss: () => void
+  onOpenChange: (isOpen: boolean) => void
+  onSave: () => void
 }
 
 export default function ImportKeyDialog(props: ImportKeyDialogProp) {
   const { requestAccessToken } = useAuthServerApi()
   const { importAccount, importWallet } = useVaultApi()
 
-  const [isOpen, setOpen] = useState(Boolean(props.isOpen))
   const [importKey, setImportKey] = useState<{ key: string, keyType: KeyType }>()
   const [errors, setErrors] = useState<string[]>([])
 
@@ -78,7 +79,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
       }
     }
 
-    setOpen(false)
+    props.onSave()
   }
 
   return (
@@ -86,9 +87,9 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
       triggerButton={<NarButton label={"Import"} leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
       title={"Import"}
       primaryButtonLabel={"Import"}
-      isOpen={isOpen}
-      onOpenChange={setOpen}
-      onDismiss={() => setOpen(false)}
+      isOpen={Boolean(props.isOpen)}
+      onOpenChange={props.onOpenChange}
+      onDismiss={props.onDismiss}
       onSave={onSave}
     >
       <div className="w-[650px] px-12 py-4">

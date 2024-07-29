@@ -76,6 +76,8 @@ export default function EntityManager() {
   const [isAccountDialogOpen, setAccountDialogOpen] = useState(false)
   const [account, setAccount] = useState<AccountEntity | undefined>()
 
+  const [isImportKeyDialogOpen, setImportKeyDialogOpen] = useState(false)
+
   useEffect(() => {
     if (entityStore) {
       setEntities(entityStore.data)
@@ -185,7 +187,13 @@ export default function EntityManager() {
               </div>
 
               <div className="flex gap-6">
-                <ImportKeyDialog setEntities={setEntities} />
+                <ImportKeyDialog
+                  setEntities={setEntities}
+                  isOpen={isImportKeyDialogOpen}
+                  onOpenChange={setImportKeyDialogOpen}
+                  onDismiss={() => setImportKeyDialogOpen(false)}
+                  onSave={() => setImportKeyDialogOpen(false)}
+                />
 
                 <NarDialog
                   triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
@@ -434,12 +442,37 @@ export default function EntityManager() {
             }}
           >
             <div className="w-[650px] px-12 py-4">
-              <AssignAccountForm
-                setUserAccounts={setUserAccounts}
-                user={user}
-                userAccounts={EntityUtil.getUserAssignedAccounts(entities, user)}
-                accounts={entities.accounts}
-              />
+              {entities.accounts.length === 0 && (
+                <div className="flex justify-items-center flex-col">
+                  <span>You haven't added or imported any account yet.</span>
+                  <div className="flex text-center items-center gap-6 mt-6">
+                    <NarButton
+                      label="Import Account"
+                      variant="tertiary"
+                      onClick={() => {
+                        setAssignAccountDialogOpen(false)
+                        setImportKeyDialogOpen(true)
+                      }} />
+                    <span>or</span>
+                    <NarButton
+                      label="Add Account"
+                      variant="tertiary"
+                      onClick={() => {
+                        setAssignAccountDialogOpen(false)
+                        setAccountDialogOpen(true)
+                      }} />
+                  </div>
+                </div>
+              )}
+
+              {entities.accounts.length > 0 && (
+                <AssignAccountForm
+                  setUserAccounts={setUserAccounts}
+                  user={user}
+                  userAccounts={EntityUtil.getUserAssignedAccounts(entities, user)}
+                  accounts={entities.accounts}
+                />
+              )}
             </div>
           </NarDialog>
 
