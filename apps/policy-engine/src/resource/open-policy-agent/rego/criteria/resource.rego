@@ -4,6 +4,11 @@ import future.keywords.in
 
 resource = data.entities.accounts[input.resource.uid]
 
+checkAccountAssigned {
+	account = data.entities.accounts[resource.id]
+	principal.id in account.assignees
+}
+
 checkAccountId(values) {
 	resource.id in values
 }

@@ -9,7 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/devtool"
+        "outputPath": "dist/apps/devtool"
       },
       "configurations": {
         "development": {},
