@@ -26,6 +26,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
   const { importAccount, importWallet } = useVaultApi()
 
   const [importKey, setImportKey] = useState<{ key: string; keyType: KeyType }>()
+  const [isSaving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
   const addError = (error: string) => setErrors((prev) => [...prev, error])
@@ -37,50 +38,56 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
     }))
 
   const onSave = async () => {
-    const accessToken = await requestAccessToken({
-      action: Action.GRANT_PERMISSION,
-      resourceId: 'vault',
-      nonce: uuid(),
-      permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
-    })
+    try {
+      setSaving(true)
 
-    if (!accessToken) {
-      addError('Unable to issue an access token')
-    }
+      const accessToken = await requestAccessToken({
+        action: Action.GRANT_PERMISSION,
+        resourceId: 'vault',
+        nonce: uuid(),
+        permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
+      })
 
-    if (accessToken && importKey) {
-      if (importKey.keyType === KeyType.PRIVATE_KEY) {
-        const account = await importAccount({
-          privateKey: importKey.key as Hex,
-          accessToken
-        })
+      if (!accessToken) {
+        addError('Unable to issue an access token')
+      }
 
-        if (account) {
-          addAccount({
-            address: getAddress(account.address),
-            id: account.id,
-            accountType: AccountType.EOA
+      if (accessToken && importKey) {
+        if (importKey.keyType === KeyType.PRIVATE_KEY) {
+          const account = await importAccount({
+            privateKey: importKey.key as Hex,
+            accessToken
           })
+
+          if (account) {
+            addAccount({
+              address: getAddress(account.address),
+              id: account.id,
+              accountType: AccountType.EOA
+            })
+          }
+        }
+
+        if (importKey.keyType === KeyType.SEED_PHRASE) {
+          const wallet = await importWallet({
+            seed: importKey.key,
+            accessToken
+          })
+
+          if (wallet) {
+            addAccount({
+              address: getAddress(wallet.account.address),
+              id: wallet.account.id,
+              accountType: AccountType.EOA
+            })
+          }
         }
       }
 
-      if (importKey.keyType === KeyType.SEED_PHRASE) {
-        const wallet = await importWallet({
-          seed: importKey.key,
-          accessToken
-        })
-
-        if (wallet) {
-          addAccount({
-            address: getAddress(wallet.account.address),
-            id: wallet.account.id,
-            accountType: AccountType.EOA
-          })
-        }
-      }
+      props.onSave()
+    } finally {
+      setSaving(false)
     }
-
-    props.onSave()
   }
 
   return (
@@ -92,6 +99,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
       onOpenChange={props.onOpenChange}
       onDismiss={props.onDismiss}
       onSave={onSave}
+      isSaving={isSaving}
     >
       <div className="w-[650px] px-12 py-4">
         <ImportKeyForm setImportKey={setImportKey} />

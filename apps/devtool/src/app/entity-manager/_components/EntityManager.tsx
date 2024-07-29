@@ -50,9 +50,8 @@ enum View {
 export default function EntityManager() {
   const {
     entityStore,
-    processingStatus: { isFetchingEntity, isSigningEntity, isSigningAndPushingEntity },
+    processingStatus: { isFetchingEntity, isSigningAndPushingEntity },
     getEntityStore,
-    signEntityData,
     signAndPushEntity
   } = useDataStoreApi()
 
@@ -110,16 +109,6 @@ export default function EntityManager() {
             leftIcon={<FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />}
             onClick={getEntityStore}
             disabled={isFetchingEntity}
-          />
-
-          <NarButton
-            variant="secondary"
-            label="Sign"
-            leftIcon={<FontAwesomeIcon icon={isSigningEntity ? faSpinner : faFileSignature} spin={isSigningEntity} />}
-            disabled={isSigningEntity}
-            onClick={() => {
-              signEntityData(entities)
-            }}
           />
 
           <NarButton
