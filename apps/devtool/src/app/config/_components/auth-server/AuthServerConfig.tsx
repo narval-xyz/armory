@@ -16,7 +16,7 @@ const AuthServerConfig = () => {
       </div>
       <div className="flex flex-col gap-6">
         <NarUrlInput label="Auth URL" value={authServerUrl} onValueChange={setAuthServerUrl} />
-        <NarInput label="Admin API Key" value={authAdminApiKey} onChange={setAuthAdminApiKey} />
+        <NarInput label="Admin API Key" value={authAdminApiKey} onChange={setAuthAdminApiKey} type="password" />
       </div>
     </div>
   )

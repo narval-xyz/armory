@@ -80,12 +80,14 @@ const DataStoreConfigModal = () => {
 
     setUseAuthServer(form.useAuthServer)
 
+    const urlWithoutTrailingSlash = form.url.endsWith('/') ? form.url.slice(0, -1) : form.url
+
     if (form.useAuthServer) {
       setAuthUrl(form.url)
       setAuthClientId(form.clientId)
       setAuthClientSecret(form.clientSecret)
-      setEntityDataStoreUrl(`${form.url}/entities?clientId=${form.clientId}`)
-      setPolicyDataStoreUrl(`${form.url}/policies?clientId=${form.clientId}`)
+      setEntityDataStoreUrl(`${urlWithoutTrailingSlash}/entities?clientId=${form.clientId}`)
+      setPolicyDataStoreUrl(`${urlWithoutTrailingSlash}/policies?clientId=${form.clientId}`)
     } else {
       setEngineUrl(form.url)
       setEngineClientId(form.clientId)
@@ -133,6 +135,7 @@ const DataStoreConfigModal = () => {
             label={`${form.useAuthServer ? 'Auth' : 'Engine'} Client Secret`}
             value={form.clientSecret}
             onChange={(clientSecret) => updateForm({ clientSecret })}
+            type="password"
           />
         </div>
       </div>

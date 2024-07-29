@@ -92,6 +92,7 @@ const AddVaultClientModal = () => {
                 label="Admin API Key"
                 value={form.vaultAdminApiKey}
                 onChange={(vaultAdminApiKey) => updateForm({ vaultAdminApiKey })}
+                type="password"
               />
               <NarInput
                 label="Engine Client Signer"

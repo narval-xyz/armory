@@ -14,11 +14,11 @@ import useAuthServerApi, { AuthClientData } from '../../../_hooks/useAuthServerA
 import useStore from '../../../_hooks/useStore'
 import { MANAGED_DATASTORE_BASE_URL } from '../../../_lib/constants'
 
-const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}` : ''
+const initEntityDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl: string) =>
+  useManagedDataStore ? `${baseUrl || MANAGED_DATASTORE_BASE_URL}/entities?clientId=${clientId}` : ''
 
-const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean) =>
-  useManagedDataStore ? `${MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}` : ''
+const initPolicyDataStoreUrl = (clientId: string, useManagedDataStore: boolean, baseUrl: string) =>
+  useManagedDataStore ? `${baseUrl || MANAGED_DATASTORE_BASE_URL}/policies?clientId=${clientId}` : ''
 
 const initForm: AuthClientData = {
   authServerUrl: '',
@@ -95,14 +95,16 @@ const AddAuthClientModal = () => {
 
     const initAuthUrl = form.authServerUrl || authServerUrl
     const initAdminApiKey = form.authAdminApiKey || authAdminApiKey
+    const initJwk = form.entityPublicKey
 
+    const urlWithoutTrailingSlash = initAuthUrl.endsWith('/') ? initAuthUrl.slice(0, -1) : initAuthUrl
     updateForm({
       authServerUrl: initAuthUrl,
       authAdminApiKey: initAdminApiKey,
-      entityDataStoreUrl: initEntityDataStoreUrl(form.id, form.useManagedDataStore),
-      policyDataStoreUrl: initPolicyDataStoreUrl(form.id, form.useManagedDataStore),
-      entityPublicKey: jwk ? JSON.stringify(jwk) : '',
-      policyPublicKey: jwk ? JSON.stringify(jwk) : ''
+      entityDataStoreUrl: initEntityDataStoreUrl(form.id, form.useManagedDataStore, urlWithoutTrailingSlash),
+      policyDataStoreUrl: initPolicyDataStoreUrl(form.id, form.useManagedDataStore, urlWithoutTrailingSlash),
+      entityPublicKey: form.entityPublicKey || (jwk ? JSON.stringify(jwk) : ''),
+      policyPublicKey: form.policyPublicKey || (jwk ? JSON.stringify(jwk) : '')
     })
   }, [isOpen, jwk, form.id])
 
@@ -131,6 +133,7 @@ const AddAuthClientModal = () => {
                 label="Admin API Key"
                 value={form.authAdminApiKey}
                 onChange={(authAdminApiKey) => updateForm({ authAdminApiKey })}
+                type="password"
               />
               <NarInput label="Name" value={form.name} onChange={(name) => updateForm({ name })} />
               <div className="flex gap-[8px] items-end">

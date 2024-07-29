@@ -116,6 +116,7 @@ const AddEngineClientModal = () => {
                 label="Admin API Key"
                 value={form.engineAdminApiKey}
                 onChange={(engineAdminApiKey) => updateForm({ engineAdminApiKey })}
+                type="password"
               />
               <div className="flex gap-[8px] items-end">
                 <NarInput label="Client ID" value={form.clientId} onChange={(clientId) => updateForm({ clientId })} />
