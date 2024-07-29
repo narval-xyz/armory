@@ -41,6 +41,7 @@ import Info from './Info'
 import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
+import AuthConfigModal from '../../_components/modals/AuthConfigModal'
 
 enum View {
   JSON,
@@ -126,7 +127,7 @@ export default function EntityManager() {
             }}
           />
 
-          <DataStoreConfigModal />
+          <AuthConfigModal />
         </div>
       </div>
 
