@@ -9,7 +9,7 @@ import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import NarUrlInput from '../../_design-system/NarUrlInput'
 import useStore from '../../_hooks/useStore'
-import { LOCAL_DATA_STORE_URL, MANAGED_DATASTORE_BASE_URL } from '../../_lib/constants'
+import { LOCAL_DATA_STORE_URL } from '../../_lib/constants'
 
 interface DataStoreConfigForm {
   useAuthServer: boolean
@@ -84,8 +84,8 @@ const DataStoreConfigModal = () => {
       setAuthUrl(form.url)
       setAuthClientId(form.clientId)
       setAuthClientSecret(form.clientSecret)
-      setEntityDataStoreUrl(`${MANAGED_DATASTORE_BASE_URL}/entities?clientId=${form.clientId}`)
-      setPolicyDataStoreUrl(`${MANAGED_DATASTORE_BASE_URL}/policies?clientId=${form.clientId}`)
+      setEntityDataStoreUrl(`${form.url}/entities?clientId=${form.clientId}`)
+      setPolicyDataStoreUrl(`${form.url}/policies?clientId=${form.clientId}`)
     } else {
       setEngineUrl(form.url)
       setEngineClientId(form.clientId)
