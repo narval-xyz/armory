@@ -21,7 +21,7 @@ const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, acc
       {accounts.map(({ address, accountType, chainId, id }) => (
         <NarCheckbox
           id={`assigned-account-${user.id}-${id}`}
-          label={id }
+          label={id}
           checked={Boolean(assignedAccounts.find((userAccount) => userAccount.id === id))}
           onCheckedChange={(checked) => {
             if (checked) {

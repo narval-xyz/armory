@@ -5,7 +5,6 @@ import {
   faDotCircle,
   faFileSignature,
   faIdBadge,
-  faInfoCircle,
   faList,
   faPlus,
   faRotateRight,
@@ -37,11 +36,11 @@ import AssignAccountForm from './AssignAccountForm'
 import CredentialCard from './CredentialCard'
 import CredentialForm from './CredentialForm'
 import EmptyState from './EmptyState'
+import ImportKeyDialog from './ImportKeyDialog'
+import Info from './Info'
+import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
-import ImportKeyDialog from './ImportKeyDialog'
-import Message from './Message'
-import Info from './Info'
 
 enum View {
   JSON,
@@ -54,7 +53,7 @@ export default function EntityManager() {
     processingStatus: { isFetchingEntity, isSigningEntity, isSigningAndPushingEntity },
     getEntityStore,
     signEntityData,
-    signAndPushEntity,
+    signAndPushEntity
   } = useDataStoreApi()
 
   const [view, setView] = useState(View.LIST)
@@ -143,21 +142,13 @@ export default function EntityManager() {
       </div>
 
       {errors.length > 0 && (
-        <Message
-          icon={faXmarkCircle}
-          color="danger"
-          className="mb-6"
-        >
+        <Message icon={faXmarkCircle} color="danger" className="mb-6">
           {errors.join(', ')}
         </Message>
       )}
 
       {entityStoreHash !== hash(entities) && (
-        <Message
-          icon={faDotCircle}
-          color="warning"
-          className="mb-6"
-        >
+        <Message icon={faDotCircle} color="warning" className="mb-6">
           You have unpushed changes. Sign & Push before you leave the application.
         </Message>
       )}
@@ -452,7 +443,8 @@ export default function EntityManager() {
                       onClick={() => {
                         setAssignAccountDialogOpen(false)
                         setImportKeyDialogOpen(true)
-                      }} />
+                      }}
+                    />
                     <span>or</span>
                     <NarButton
                       label="Add Account"
@@ -460,7 +452,8 @@ export default function EntityManager() {
                       onClick={() => {
                         setAssignAccountDialogOpen(false)
                         setAccountDialogOpen(true)
-                      }} />
+                      }}
+                    />
                   </div>
                 </div>
               )}

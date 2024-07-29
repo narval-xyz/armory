@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
-import NarButton from "../../_design-system/NarButton"
-import NarInput from "../../_design-system/NarInput"
-import { english, generateMnemonic, generatePrivateKey } from "viem/accounts"
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { english, generateMnemonic, generatePrivateKey } from 'viem/accounts'
+import NarButton from '../../_design-system/NarButton'
+import NarInput from '../../_design-system/NarInput'
 
 export enum KeyType {
   PRIVATE_KEY,
@@ -10,7 +10,7 @@ export enum KeyType {
 
 interface ImportKeyFormProps {
   keyType?: KeyType
-  setImportKey: Dispatch<SetStateAction<{ key: string, keyType: KeyType } | undefined>>
+  setImportKey: Dispatch<SetStateAction<{ key: string; keyType: KeyType } | undefined>>
 }
 
 export default function ImportKeyForm(props: ImportKeyFormProps) {
@@ -25,9 +25,7 @@ export default function ImportKeyForm(props: ImportKeyFormProps) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-[8px] mb-[8px]">
         <NarButton
-          className={
-            keyType === KeyType.PRIVATE_KEY ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
-          }
+          className={keyType === KeyType.PRIVATE_KEY ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''}
           variant="tertiary"
           label="Private Key"
           onClick={() => {
@@ -36,9 +34,7 @@ export default function ImportKeyForm(props: ImportKeyFormProps) {
           }}
         />
         <NarButton
-          className={
-            keyType === KeyType.SEED_PHRASE ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''
-          }
+          className={keyType === KeyType.SEED_PHRASE ? 'bg-nv-neutrals-400 border-nv-white hover:border-nv-white' : ''}
           variant="tertiary"
           label="Seed"
           onClick={() => {

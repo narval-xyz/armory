@@ -1,20 +1,20 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import NarButton from "../../_design-system/NarButton";
-import NarDialog from "../../_design-system/NarDialog";
-import { faUpload, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
-import ImportKeyForm, { KeyType } from "./ImportKeyForm";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import useAuthServerApi from "../../_hooks/useAuthServerApi";
-import { v4 as uuid } from "uuid";
-import { AccountEntity, AccountType, Action, Entities, getAddress } from "@narval/policy-engine-shared";
-import { Permission } from "@narval/armory-sdk";
-import useVaultApi from "../../_hooks/useVaultApi";
-import { Hex } from "@narval/signature";
-import Info from "./Info";
-import Message from "./Message";
+import { faUpload, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Permission } from '@narval/armory-sdk'
+import { AccountEntity, AccountType, Action, Entities, getAddress } from '@narval/policy-engine-shared'
+import { Hex } from '@narval/signature'
+import { Dispatch, SetStateAction, useState } from 'react'
+import { v4 as uuid } from 'uuid'
+import NarButton from '../../_design-system/NarButton'
+import NarDialog from '../../_design-system/NarDialog'
+import useAuthServerApi from '../../_hooks/useAuthServerApi'
+import useVaultApi from '../../_hooks/useVaultApi'
+import ImportKeyForm, { KeyType } from './ImportKeyForm'
+import Info from './Info'
+import Message from './Message'
 
 interface ImportKeyDialogProp {
-  isOpen?: boolean,
+  isOpen?: boolean
   setEntities: Dispatch<SetStateAction<Entities>>
   onDismiss: () => void
   onOpenChange: (isOpen: boolean) => void
@@ -25,15 +25,16 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
   const { requestAccessToken } = useAuthServerApi()
   const { importAccount, importWallet } = useVaultApi()
 
-  const [importKey, setImportKey] = useState<{ key: string, keyType: KeyType }>()
+  const [importKey, setImportKey] = useState<{ key: string; keyType: KeyType }>()
   const [errors, setErrors] = useState<string[]>([])
 
   const addError = (error: string) => setErrors((prev) => [...prev, error])
 
-  const addAccount = (account: AccountEntity) => props.setEntities((prev) => ({
-    ...prev,
-    accounts: [...prev.accounts, account]
-  }))
+  const addAccount = (account: AccountEntity) =>
+    props.setEntities((prev) => ({
+      ...prev,
+      accounts: [...prev.accounts, account]
+    }))
 
   const onSave = async () => {
     const accessToken = await requestAccessToken({
@@ -58,7 +59,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
           addAccount({
             address: getAddress(account.address),
             id: account.id,
-            accountType: AccountType.EOA,
+            accountType: AccountType.EOA
           })
         }
       }
@@ -73,7 +74,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
           addAccount({
             address: getAddress(wallet.account.address),
             id: wallet.account.id,
-            accountType: AccountType.EOA,
+            accountType: AccountType.EOA
           })
         }
       }
@@ -84,9 +85,9 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
 
   return (
     <NarDialog
-      triggerButton={<NarButton label={"Import"} leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
-      title={"Import"}
-      primaryButtonLabel={"Import"}
+      triggerButton={<NarButton label={'Import'} leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
+      title={'Import'}
+      primaryButtonLabel={'Import'}
       isOpen={Boolean(props.isOpen)}
       onOpenChange={props.onOpenChange}
       onDismiss={props.onDismiss}
@@ -98,11 +99,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
         <Info text="Use to import accounts or wallets into the Armory Vault." />
 
         {errors.length > 0 && (
-          <Message
-            icon={faXmarkCircle}
-            color="danger"
-            className="mt-6"
-          >
+          <Message icon={faXmarkCircle} color="danger" className="mt-6">
             {errors.join(', ')}
           </Message>
         )}

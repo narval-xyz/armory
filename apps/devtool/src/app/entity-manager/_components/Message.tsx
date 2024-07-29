@@ -1,19 +1,19 @@
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ReactNode } from "react";
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { ReactNode } from 'react'
 
 interface MessageProps {
   icon: IconDefinition
-  color: 'danger' | 'warning' | 'success',
-  children: ReactNode,
+  color: 'danger' | 'warning' | 'success'
+  children: ReactNode
   className?: string
 }
 
 const getColor = (color: string) => {
   const colors: Record<string, string> = {
-    'danger': 'text-nv-red-500',
-    'warning': 'text-nv-yellow-500',
-    'success': 'text-nv-green-500'
+    danger: 'text-nv-red-500',
+    warning: 'text-nv-yellow-500',
+    success: 'text-nv-green-500'
   }
 
   return colors[color] || 'text-nv-white'
