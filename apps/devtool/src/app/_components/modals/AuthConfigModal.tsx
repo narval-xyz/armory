@@ -99,6 +99,7 @@ const AuthConfigModal = () => {
             label="Auth Client Secret"
             value={form.authClientSecret}
             onChange={(authClientSecret) => updateForm({ authClientSecret })}
+            type="password"
           />
           <NarUrlInput label="Vault URL" value={form.vaultUrl} onValueChange={(vaultUrl) => updateForm({ vaultUrl })} />
           <NarInput
