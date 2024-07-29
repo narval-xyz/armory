@@ -3,6 +3,7 @@
 import {
   faFileSignature,
   faPen,
+  faRedo,
   faRotateRight,
   faSpinner,
   faUpload,
@@ -28,6 +29,7 @@ interface DataEditorProps<T> {
   isFetching: boolean
   isSigning: boolean
   isSigningAndPushing: boolean
+  error: boolean
   setUrl: Dispatch<SetStateAction<string>>
   fetch: () => Promise<void>
   sign: (data: T) => Promise<void>
@@ -41,6 +43,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   isFetching,
   isSigning,
   isSigningAndPushing,
+  error,
   fetch,
   setUrl,
   sign,
@@ -121,6 +124,17 @@ const DataEditor = <T extends Entities | Policy[]>({
         />
       </div>
       <CodeEditor readOnly={isReadOnly} value={editor} onChange={setEditor} />
+      {error && (
+            <div className="flex items-center mt-2 text-red-600">
+              <span>Failed to fetch Policy Data. Please check the URL or try again later.</span>
+              <NarButton
+                label="Retry"
+                leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRedo} spin={isFetching} />}
+                onClick={fetch}
+                disabled={isFetching}
+              />
+            </div>
+      )}
     </div>
   )
 }

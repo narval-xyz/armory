@@ -36,7 +36,9 @@ const DataStore = () => {
       isSigningEntity,
       isSigningPolicy,
       isSigningAndPushingEntity,
-      isSigningAndPushingPolicy
+      isSigningAndPushingPolicy,
+      entityFetchError,
+      policyFetchError
     },
     getEntityStore,
     getPolicyStore,
@@ -83,30 +85,32 @@ const DataStore = () => {
         {!useAuthServer && <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />}
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
-        <DataEditor
-          label="Entity Data URL"
-          data={entityStore}
-          url={entityDataStoreUrl}
-          isFetching={isFetchingEntity}
-          isSigning={isSigningEntity}
-          isSigningAndPushing={isSigningAndPushingEntity}
-          fetch={getEntityStore}
-          setUrl={setEntityDataStoreUrl}
-          sign={signEntityData}
-          signAndPush={signAndPushEntity}
-        />
-        <DataEditor
-          label="Policy Data URL"
-          data={policyStore}
-          url={policyDataStoreUrl}
-          isFetching={isFetchingPolicy}
-          isSigning={isSigningPolicy}
-          isSigningAndPushing={isSigningAndPushingPolicy}
-          fetch={getPolicyStore}
-          setUrl={setPolicyDataStoreUrl}
-          sign={signPolicyData}
-          signAndPush={signAndPushPolicy}
-        />
+          <DataEditor
+            label="Entity Data URL"
+            data={entityStore}
+            url={entityDataStoreUrl}
+            isFetching={isFetchingEntity}
+            isSigning={isSigningEntity}
+            isSigningAndPushing={isSigningAndPushingEntity}
+            error={entityFetchError}
+            fetch={getEntityStore}
+            setUrl={setEntityDataStoreUrl}
+            sign={signEntityData}
+            signAndPush={signAndPushEntity}
+          />
+          <DataEditor
+            label="Policy Data URL"
+            data={policyStore}
+            url={policyDataStoreUrl}
+            isFetching={isFetchingPolicy}
+            isSigning={isSigningPolicy}
+            isSigningAndPushing={isSigningAndPushingPolicy}
+            error={policyFetchError}
+            fetch={getPolicyStore}
+            setUrl={setPolicyDataStoreUrl}
+            sign={signPolicyData}
+            signAndPush={signAndPushPolicy}
+          />
       </div>
       {isDialogOpen && (
         <NarDialog
