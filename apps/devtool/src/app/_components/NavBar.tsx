@@ -32,6 +32,9 @@ const NavBar = () => {
             <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
               Data Store
             </Link>
+            <Link href="/entity-manager" className={`${currentPath === '/entity-manager' ? 'underline' : ''}`}>
+              Entity Manager
+            </Link>
             <Link
               href="/policy-engine/playground"
               className={`${currentPath === '/policy-engine/playground' ? 'underline' : ''}`}

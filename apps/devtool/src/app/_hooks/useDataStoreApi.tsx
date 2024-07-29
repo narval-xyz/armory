@@ -185,6 +185,7 @@ const useDataStoreApi = () => {
       setErrors(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
       await entityStoreClient.signAndPush(data)
+      await getEntityStore()
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {
@@ -199,6 +200,7 @@ const useDataStoreApi = () => {
       setErrors(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
       await policyStoreClient.signAndPush(data)
+      await getPolicyStore()
     } catch (error) {
       setErrors(extractErrorMessage(error))
     } finally {

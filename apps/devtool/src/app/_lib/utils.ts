@@ -27,7 +27,7 @@ export const getHost = (url: string): string => new URL(url).origin
 
 export const isValidUrl = (url: string | undefined) => {
   if (!url) return false
-  
+
   try {
     new URL(url)
     return true

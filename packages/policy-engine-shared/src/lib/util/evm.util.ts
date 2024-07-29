@@ -9,7 +9,11 @@ import { Address } from '../type/domain.type'
  * @returns Returns true if the string is a valid Ethereum address, otherwise
  * returns false.
  */
-export const isAddress = (address: string): boolean => {
+export const isAddress = (address?: string): boolean => {
+  if (!address) {
+    return false
+  }
+
   if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
     return false
   } else if (/^0x[0-9a-f]{40}$/.test(address) || /^0x[0-9A-F]{40}$/.test(address)) {
