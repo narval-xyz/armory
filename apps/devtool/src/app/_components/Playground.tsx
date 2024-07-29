@@ -8,7 +8,7 @@ import { FC, ReactNode, useEffect, useState } from 'react'
 import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import useVaultApi from '../_hooks/useVaultApi'
-import { erc20, grantPermission, spendingLimits } from '../_lib/request'
+import { erc20, grantPermission, signMessage, spendingLimits } from '../_lib/request'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
@@ -17,7 +17,8 @@ import ImportWalletModal from './modals/ImportAccountModal'
 enum Template {
   ERC20 = 'ERC20',
   SPENDING_LIMITS = 'SPENDING_LIMITS',
-  GRANT_PERMISSION = 'GRANT_PERMISSION'
+  GRANT_PERMISSION = 'GRANT_PERMISSION',
+  SIGN_MESSAGE = 'SIGN_MESSAGE'
 }
 
 interface PlaygroundProps {
@@ -66,6 +67,10 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       case Template.GRANT_PERMISSION:
         setResponseEditor(undefined)
         setRequestEditor(stringify(await grantPermission(), 2))
+        break
+      case Template.SIGN_MESSAGE:
+        setResponseEditor(undefined)
+        setRequestEditor(stringify(await signMessage(), 2))
         break
       default:
         break
@@ -262,6 +267,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
             label="Spending limits"
             onClick={() => updateTemplate(Template.SPENDING_LIMITS)}
           />
+          <NarButton variant="quaternary" label="Sign Message" onClick={() => updateTemplate(Template.SIGN_MESSAGE)} />
           <NarButton
             variant="quaternary"
             label="Grant Permissions"

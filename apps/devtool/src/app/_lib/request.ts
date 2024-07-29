@@ -109,3 +109,14 @@ export const grantPermission = async () => {
     }
   }
 }
+
+export const signMessage = async () => {
+  return {
+    request: {
+      resourceId: FIXTURE.ACCOUNT.Engineering.id,
+      action: 'signMessage',
+      nonce: uuid(),
+      message: 'Narval Testing'
+    }
+  }
+}
