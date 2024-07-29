@@ -1,7 +1,6 @@
-import { AccountEntity, AccountType, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
+import { AccountEntity, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarCheckbox from '../../_design-system/NarCheckbox'
-import { DropdownItem } from '../../_design-system/NarDropdownMenu'
 
 interface AssignAccountFormProps {
   user: UserEntity
@@ -9,16 +8,6 @@ interface AssignAccountFormProps {
   userAccounts: AccountEntity[]
   setUserAccounts: Dispatch<SetStateAction<UserAccountEntity[]>>
 }
-
-const getAccountsDropdownItems = (accounts: AccountEntity[]): DropdownItem<AccountEntity>[] => [
-  {
-    isRadioGroup: true,
-    items: accounts.map(({ address, accountType, chainId, id }) => ({
-      label: accountType === AccountType.EOA ? address : `${address} Smart Account (Chain ID: ${chainId})`,
-      value: id
-    }))
-  }
-]
 
 const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, accounts, setUserAccounts }) => {
   const [assignedAccounts, setAssignedAccounts] = useState(userAccounts)
@@ -32,7 +21,7 @@ const AssignAccountForm: FC<AssignAccountFormProps> = ({ user, userAccounts, acc
       {accounts.map(({ address, accountType, chainId, id }) => (
         <NarCheckbox
           id={`assigned-account-${user.id}-${id}`}
-          label={accountType === AccountType.EOA ? address : `${address} Smart Account on chain ${chainId}`}
+          label={id }
           checked={Boolean(assignedAccounts.find((userAccount) => userAccount.id === id))}
           onCheckedChange={(checked) => {
             if (checked) {

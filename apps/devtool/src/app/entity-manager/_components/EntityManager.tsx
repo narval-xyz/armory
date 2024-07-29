@@ -5,6 +5,7 @@ import {
   faDotCircle,
   faFileSignature,
   faIdBadge,
+  faInfoCircle,
   faList,
   faPlus,
   faRotateRight,
@@ -38,6 +39,9 @@ import CredentialForm from './CredentialForm'
 import EmptyState from './EmptyState'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
+import ImportKeyDialog from './ImportKeyDialog'
+import Message from './Message'
+import Info from './Info'
 
 enum View {
   JSON,
@@ -50,7 +54,7 @@ export default function EntityManager() {
     processingStatus: { isFetchingEntity, isSigningEntity, isSigningAndPushingEntity },
     getEntityStore,
     signEntityData,
-    signAndPushEntity
+    signAndPushEntity,
   } = useDataStoreApi()
 
   const [view, setView] = useState(View.LIST)
@@ -137,21 +141,23 @@ export default function EntityManager() {
       </div>
 
       {errors.length > 0 && (
-        <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-4">
-            <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-yellow-500" />
-            <div className="text-nv-white">errors.join(', ')</div>
-          </div>
-        </div>
+        <Message
+          icon={faXmarkCircle}
+          color="danger"
+          className="mb-6"
+        >
+          {errors.join(', ')}
+        </Message>
       )}
 
       {entityStoreHash !== hash(entities) && (
-        <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-4">
-            <FontAwesomeIcon icon={faDotCircle} className="text-nv-yellow-500" />
-            <div className="text-nv-white">You have unpushed changes.</div>
-          </div>
-        </div>
+        <Message
+          icon={faDotCircle}
+          color="warning"
+          className="mb-6"
+        >
+          You have unpushed changes. Sign & Push before you leave the application.
+        </Message>
       )}
 
       {view === View.JSON && (
@@ -178,26 +184,31 @@ export default function EntityManager() {
                 <h2>Accounts</h2>
               </div>
 
-              <NarDialog
-                triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-                title="Add Account"
-                primaryButtonLabel={'Add'}
-                isOpen={isAccountDialogOpen}
-                onOpenChange={setAccountDialogOpen}
-                onDismiss={() => {
-                  setAccountDialogOpen(false)
-                  setAccount(undefined)
-                }}
-                onSave={() => {
-                  setEntities((prev) => (account ? { ...prev, accounts: [...prev.accounts, account] } : prev))
-                  setAccountDialogOpen(false)
-                  setAccount(undefined)
-                }}
-              >
-                <div className="w-[650px] px-12 py-4">
-                  <AccountForm setAccount={setAccount} account={account} />
-                </div>
-              </NarDialog>
+              <div className="flex gap-6">
+                <ImportKeyDialog setEntities={setEntities} />
+
+                <NarDialog
+                  triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
+                  title="Add Account"
+                  primaryButtonLabel={'Add'}
+                  isOpen={isAccountDialogOpen}
+                  onOpenChange={setAccountDialogOpen}
+                  onDismiss={() => {
+                    setAccountDialogOpen(false)
+                    setAccount(undefined)
+                  }}
+                  onSave={() => {
+                    setEntities((prev) => (account ? { ...prev, accounts: [...prev.accounts, account] } : prev))
+                    setAccountDialogOpen(false)
+                    setAccount(undefined)
+                  }}
+                >
+                  <div className="w-[650px] px-12 py-4">
+                    <AccountForm setAccount={setAccount} account={account} />
+                    <Info text="Use to track existing accounts within Narval." />
+                  </div>
+                </NarDialog>
+              </div>
             </div>
 
             {entities.accounts.length === 0 && (
@@ -298,7 +309,6 @@ export default function EntityManager() {
                         setAssignAccountDialogOpen(true)
                       }}
                       onAddCredentialClick={() => {
-                        console.log({ user })
                         setUser(user)
                         setCredential(undefined)
                         setAddCredentialDialogOpen(true)

@@ -3,13 +3,15 @@ import {
   AuthClient,
   AuthorizationRequestStatus,
   EntityStoreClient,
-  Evaluate
+  Evaluate,
+  Request
 } from '@narval/armory-sdk'
 import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
+import { SetOptional } from 'type-fest'
 
 const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
   AuthorizationRequestStatus.PERMITTED,
@@ -140,6 +142,21 @@ const useAuthServerApi = () => {
     }
   }
 
+  const requestAccessToken = async (request: SetOptional<Request, 'nonce'>) => {
+    if (!authClient) return
+
+    try {
+      setErrors(undefined)
+      setIsProcessing(true)
+      return authClient.requestAccessToken(request)
+    } catch (error) {
+      setErrors(extractErrorMessage(error))
+      throw error
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   const sync = async () => {
     if (!authClientId && !authClientSecret) return
 
@@ -162,7 +179,7 @@ const useAuthServerApi = () => {
     }
   }
 
-  return { errors, isProcessing, isSynced, ping, createClient, sync, evaluate }
+  return { errors, isProcessing, isSynced, ping, createClient, sync, evaluate, requestAccessToken }
 }
 
 export default useAuthServerApi
