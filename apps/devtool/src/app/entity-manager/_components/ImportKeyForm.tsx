@@ -46,7 +46,7 @@ export default function ImportKeyForm(props: ImportKeyFormProps) {
 
       {keyType === KeyType.PRIVATE_KEY && (
         <div className="flex items-end gap-[8px]">
-          <NarInput label="Private Key" value={key} onChange={setKey} />
+          <NarInput label="Private Key" value={key} onChange={setKey} type="password" />
           <NarButton label="Generate" onClick={() => setKey(generatePrivateKey())} />
         </div>
       )}

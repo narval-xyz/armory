@@ -15,6 +15,7 @@ interface NarInputProps {
   validate?: (value: string | undefined) => boolean
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void
   onChange: (value: string) => void
+  type?: 'text' | 'password'
 }
 
 const NarInput: FC<NarInputProps> = ({
@@ -28,7 +29,8 @@ const NarInput: FC<NarInputProps> = ({
   leftIcon,
   validate,
   onChange,
-  onKeyDown
+  onKeyDown,
+  type
 }) => {
   const [isDirty, setIsDirty] = useState(false)
   const [isError, setIsError] = useState(false)
@@ -50,7 +52,7 @@ const NarInput: FC<NarInputProps> = ({
             leftIcon ? 'px-[36px]' : 'px-[12px]',
             disabled ? 'cursor-not-allowed' : ''
           )}
-          type="text"
+          type={type || 'text'}
           value={value}
           placeholder={placeholder}
           onChange={(e) => {
