@@ -9,6 +9,7 @@ import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useAuthServerApi from '../../_hooks/useAuthServerApi'
 import useVaultApi from '../../_hooks/useVaultApi'
+import { ensurePrefix } from '../../_lib/utils'
 import ImportKeyForm, { KeyType } from './ImportKeyForm'
 import Info from './Info'
 import Message from './Message'
@@ -55,7 +56,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
       if (accessToken && importKey) {
         if (importKey.keyType === KeyType.PRIVATE_KEY) {
           const account = await importAccount({
-            privateKey: importKey.key as Hex,
+            privateKey: ensurePrefix<Hex>(importKey.key, '0x'),
             accessToken
           })
 

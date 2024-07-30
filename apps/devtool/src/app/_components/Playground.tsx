@@ -5,10 +5,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AuthorizationResponse, Evaluate, SendEvaluationResponse, SignatureRequest } from '@narval/armory-sdk'
 import { AuthorizationRequest, EvaluationRequest, hexSchema, stringify } from '@narval/policy-engine-shared'
 import { FC, ReactNode, useEffect, useState } from 'react'
+import { Hex } from 'viem'
 import NarButton from '../_design-system/NarButton'
 import useStore from '../_hooks/useStore'
 import useVaultApi from '../_hooks/useVaultApi'
 import { erc20, grantPermission, signMessage, spendingLimits } from '../_lib/request'
+import { ensurePrefix } from '../_lib/utils'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
@@ -137,7 +139,10 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
       setIsProcessing(true)
       setResponseEditor(undefined)
 
-      const response = await importAccount({ privateKey: hexSchema.parse(pk), accessToken: { value: accessToken } })
+      const response = await importAccount({
+        privateKey: hexSchema.parse(ensurePrefix<Hex>(pk)),
+        accessToken: { value: accessToken }
+      })
 
       if (response) {
         setResponseEditor(stringify(response, 2))
