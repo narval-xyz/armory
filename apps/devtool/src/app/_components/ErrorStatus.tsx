@@ -11,7 +11,7 @@ const ErrorStatus = ({ label }: { label: unknown }) => {
   return (
     <div className="flex items-start gap-4 mt-2 max-w-full">
       <FontAwesomeIcon icon={faXmarkCircle} className="text-nv-red-500" />
-      <pre className="text-nv-white whitespace-pre-wrap bg-nv-gray-800 p-2 rounded break-words max-w-full overflow-auto">{displayLabel}</pre>
+      <pre className="text-nv-white whitespace-pre-wrap bg-nv-gray-800 p-2 rounded break-words overflow-auto">{displayLabel}</pre>
       </div>
   )
 
