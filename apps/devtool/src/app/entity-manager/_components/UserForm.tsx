@@ -139,14 +139,12 @@ const UserForm: FC<UserFormProps> = (props) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {user?.id && (
-        <NarInput
-          label="ID"
-          value={user?.id}
-          onChange={(id) => setUser((prev) => (prev ? { ...prev, id } : undefined))}
-          disabled={isEdit}
-        />
-      )}
+      <NarInput
+        label="ID"
+        value={user?.id || ''}
+        onChange={(id) => setUser((prev) => (prev ? { ...prev, id } : undefined))}
+        disabled={isEdit}
+      />
 
       <NarDropdownMenu
         label="Role"
