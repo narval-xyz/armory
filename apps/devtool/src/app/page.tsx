@@ -1,5 +1,5 @@
-import HealthcheckStatus from './_components/HealthcheckStatus'
+import EntityManager from './entity-manager/_components/EntityManager'
 
-export default async function Home() {
-  return <HealthcheckStatus />
+export default async function Page() {
+  return <EntityManager />
 }

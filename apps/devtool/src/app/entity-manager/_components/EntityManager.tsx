@@ -4,7 +4,6 @@ import {
   faCode,
   faCogs,
   faDotCircle,
-  faFileSignature,
   faIdBadge,
   faList,
   faPlus,
@@ -26,10 +25,13 @@ import {
 } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
 import { useEffect, useState } from 'react'
+import { z } from 'zod'
 import CodeEditor from '../../_components/CodeEditor'
+import AuthConfigModal, { ConfigForm } from '../../_components/modals/AuthConfigModal'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import useStore from '../../_hooks/useStore'
 import AccountCard from './AccountCard'
 import AccountForm from './AccountForm'
 import AssignAccountForm from './AssignAccountForm'
@@ -41,9 +43,6 @@ import Info from './Info'
 import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
-import AuthConfigModal, { ConfigForm } from '../../_components/modals/AuthConfigModal'
-import useStore from '../../_hooks/useStore'
-import { z } from 'zod'
 
 enum View {
   JSON,
@@ -54,7 +53,7 @@ const Ready = z.object({
   authUrl: z.string().url(),
   authClientId: z.string().min(1),
   vaultUrl: z.string().url(),
-  vaultClientId: z.string().min(1),
+  vaultClientId: z.string().min(1)
 })
 
 export default function EntityManager() {
@@ -87,12 +86,17 @@ export default function EntityManager() {
   const [account, setAccount] = useState<AccountEntity | undefined>()
 
   const [isImportKeyDialogOpen, setImportKeyDialogOpen] = useState(false)
+  const [isInitialized, setInitialized] = useState(false)
 
-  const isReady = () => Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
+  // This is needed to ensure we aren't `ready` before the component is mounted, otherwise you get a SSR hyrdation mis-match because `useStore` is coming from localstorage.
+  useEffect(() => {
+    setInitialized(true)
+  }, [])
+  const isReady = () => isInitialized && Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
 
   const onSaveAuthConfig = (config: ConfigForm) => {
-    setEntityDataStoreUrl(`${config.authUrl}/entities?clientId=${authClientId}`)
-    setPolicyDataStoreUrl(`${config.authUrl}/policies?clientId=${authClientId}`)
+    setEntityDataStoreUrl(`${config.authUrl}/entities?clientId=${config.authClientId}`)
+    setPolicyDataStoreUrl(`${config.authUrl}/policies?clientId=${config.authClientId}`)
   }
 
   useEffect(() => {
@@ -112,7 +116,6 @@ export default function EntityManager() {
         <AuthConfigModal onSave={onSaveAuthConfig} />
       </EmptyState>
     )
-
   }
 
   return (
@@ -455,7 +458,7 @@ export default function EntityManager() {
             <div className="w-[650px] px-12 py-4">
               {entities.accounts.length === 0 && (
                 <div className="flex justify-items-center flex-col">
-                  <span>You haven't added or imported any account yet.</span>
+                  <span>{"You haven't added or imported any account yet."}</span>
                   <div className="flex text-center items-center gap-6 mt-6">
                     <NarButton
                       label="Import Account"
