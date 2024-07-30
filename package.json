@@ -1,6 +1,6 @@
 {
   "name": "@narval/source",
-  "version": "0.0.0",
+  "version": "v0.0.5",
   "license": "MPL-2.0",
   "workspaces": [
     "packages/*"
