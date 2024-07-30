@@ -103,12 +103,11 @@ export default function EntityManager() {
   }, [entityStore, setEntities])
 
   if (!isReady()) {
-
     return (
       <EmptyState
         icon={faCogs}
-        title="DevTool not configured"
-        description="Click on the button below to set up."
+        title="DevTool setup required"
+        description="It looks like DevTool isn't set up yet. Click the button below to configure it now and get started."
       >
         <AuthConfigModal onSave={onSaveAuthConfig} />
       </EmptyState>
