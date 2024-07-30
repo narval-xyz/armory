@@ -54,7 +54,7 @@ const NavBar = () => {
             {account.isConnected && <NarCopyButton variant="secondary" label="Copy JWK" copy={JSON.stringify(jwk)} />}
             {connectors.map((connector) => (
               <NarButton
-                label={account.isConnected ? formatAddress(account.address) : 'Connect Wallet'}
+                label={account.isConnected ? formatAddress(account.address) : `Connect ${connector.name}`}
                 variant={account.isConnected ? 'secondary' : 'primary'}
                 leftIcon={<FontAwesomeIcon icon={account.isConnected ? faPowerOff : faWallet} />}
                 key={connector.uid}
