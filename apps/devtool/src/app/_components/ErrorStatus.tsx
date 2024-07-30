@@ -6,6 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const ErrorStatus = ({ label }: { label: unknown }) => {
   if (!label || (typeof label !== 'string' && typeof label !== 'object')) return null
 
+  if (typeof label === 'object' && 'config' in label) {
+    delete label.config
+  }
+  // don't show headers and request config
   const displayLabel = typeof label === 'string' ? label : JSON.stringify(label, null, 2)
 
   return (
