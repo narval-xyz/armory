@@ -2,14 +2,14 @@
 
 import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import NarUrlInput from '../../_design-system/NarUrlInput'
 import useStore from '../../_hooks/useStore'
 
-interface ConfigForm {
+export interface ConfigForm {
   authUrl: string
   authClientId: string
   authClientSecret: string
@@ -25,7 +25,12 @@ const initForm: ConfigForm = {
   vaultClientId: ''
 }
 
-const AuthConfigModal = () => {
+
+interface AuthConfigModalProps {
+  onSave?: (form: ConfigForm) => void
+}
+
+const AuthConfigModal: FC<AuthConfigModalProps> = ({ onSave }) => {
   const {
     authUrl,
     authClientId,
@@ -36,7 +41,7 @@ const AuthConfigModal = () => {
     setAuthClientId,
     setAuthClientSecret,
     setVaultUrl,
-    setVaultClientId
+    setVaultClientId,
   } = useStore()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -60,6 +65,10 @@ const AuthConfigModal = () => {
     setVaultUrl(form.vaultUrl)
     setVaultClientId(form.vaultClientId)
     closeDialog()
+
+    if (onSave) {
+      onSave(form)
+    }
   }
 
   useEffect(() => {

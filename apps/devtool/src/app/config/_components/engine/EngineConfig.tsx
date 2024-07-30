@@ -16,7 +16,7 @@ const EngineConfig = () => {
       </div>
       <div className="flex flex-col gap-6">
         <NarUrlInput label="Engine URL" value={engineUrl} onValueChange={setEngineUrl} />
-        <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} />
+        <NarInput label="Admin API Key" value={engineAdminApiKey} onChange={setEngineAdminApiKey} type="password" />
       </div>
     </div>
   )

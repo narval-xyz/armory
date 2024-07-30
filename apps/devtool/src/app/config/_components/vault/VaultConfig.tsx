@@ -16,8 +16,7 @@ const VaultConfig = () => {
       </div>
       <div className="flex flex-col gap-6">
         <NarUrlInput label="Vault URL" value={vaultUrl} onValueChange={setVaultUrl} />
-        <NarInput label="Admin API Key" value={vaultAdminApiKey} onChange={setVaultAdminApiKey} />
-      </div>
+        <NarInput label="Admin API Key" value={vaultAdminApiKey} onChange={setVaultAdminApiKey} type="password" /> </div>
     </div>
   )
 }
