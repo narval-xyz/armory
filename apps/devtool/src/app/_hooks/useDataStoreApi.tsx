@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
-import { backOff } from 'exponential-backoff'
+import { backOff } from '../_lib/utils'
 
 const useDataStoreApi = () => {
   const {
@@ -86,7 +86,7 @@ const useDataStoreApi = () => {
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-      const entity = await backOff(() => entityStoreClient.fetch(), { numOfAttempts: 3 })
+      const entity = await backOff(() => entityStoreClient.fetch(), { maxRetries: 3 })
       setEntityStore(entity)
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: false }))
     } catch (error) {
@@ -103,7 +103,7 @@ const useDataStoreApi = () => {
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-      const policy = await backOff(() => policyStoreClient.fetch(), { numOfAttempts: 3 })
+      const policy = await backOff(() => policyStoreClient.fetch(), { maxRetries: 3 })
       setPolicyStore(policy)
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: false }))
     } catch (error) {
