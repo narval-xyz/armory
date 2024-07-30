@@ -47,6 +47,7 @@ const DataStore = () => {
     signAndPushEntity,
     signAndPushPolicy,
     errors,
+    fullErrors,
     validationErrors
   } = useDataStoreApi()
 
@@ -93,6 +94,7 @@ const DataStore = () => {
             isSigning={isSigningEntity}
             isSigningAndPushing={isSigningAndPushingEntity}
             error={entityFetchError}
+            fullError={fullErrors}
             fetch={getEntityStore}
             setUrl={setEntityDataStoreUrl}
             sign={signEntityData}
@@ -106,6 +108,7 @@ const DataStore = () => {
             isSigning={isSigningPolicy}
             isSigningAndPushing={isSigningAndPushingPolicy}
             error={policyFetchError}
+            fullError={fullErrors}
             fetch={getPolicyStore}
             setUrl={setPolicyDataStoreUrl}
             sign={signPolicyData}

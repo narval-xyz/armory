@@ -16,6 +16,7 @@ import CodeEditor from '../../_components/CodeEditor'
 import NarButton from '../../_design-system/NarButton'
 import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarUrlInput from '../../_design-system/NarUrlInput'
+import ErrorStatus from '../../_components/ErrorStatus'
 
 enum Action {
   SIGN = 'SIGN',
@@ -30,6 +31,7 @@ interface DataEditorProps<T> {
   isSigning: boolean
   isSigningAndPushing: boolean
   error: boolean
+  fullError: unknown
   setUrl: Dispatch<SetStateAction<string>>
   fetch: () => Promise<void>
   sign: (data: T) => Promise<void>
@@ -44,6 +46,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   isSigning,
   isSigningAndPushing,
   error,
+  fullError,
   fetch,
   setUrl,
   sign,
@@ -125,14 +128,14 @@ const DataEditor = <T extends Entities | Policy[]>({
       </div>
       <CodeEditor readOnly={isReadOnly} value={editor} onChange={setEditor} />
       {error && (
-            <div className="flex items-center mt-2 text-red-600">
-              <span>Failed to fetch Policy Data. Please check the URL or try again later.</span>
+        <div className="flex flex-col gap-4 mt-2 text-red-600">
               <NarButton
                 label="Retry"
                 leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRedo} spin={isFetching} />}
                 onClick={fetch}
                 disabled={isFetching}
               />
+              <ErrorStatus label={fullError} />
             </div>
       )}
     </div>

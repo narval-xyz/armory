@@ -32,6 +32,7 @@ const useDataStoreApi = () => {
   const [entityStore, setEntityStore] = useState<EntityStore>()
   const [policyStore, setPolicyStore] = useState<PolicyStore>()
   const [errors, setErrors] = useState<string>()
+  const [fullErrors, setFullErrors] = useState<unknown>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
@@ -90,6 +91,7 @@ const useDataStoreApi = () => {
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: false }))
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setFullErrors(error)
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: true }))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
@@ -106,6 +108,7 @@ const useDataStoreApi = () => {
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: false }))
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      setFullErrors(error)
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: true }))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
@@ -215,6 +218,7 @@ const useDataStoreApi = () => {
     errors,
     processingStatus,
     validationErrors,
+    fullErrors,
     getEntityStore,
     getPolicyStore,
     signEntityData,
