@@ -2,6 +2,7 @@
 
 import {
   faCode,
+  faCogs,
   faDotCircle,
   faFileSignature,
   faIdBadge,
@@ -26,7 +27,6 @@ import {
 import { hash } from '@narval/signature'
 import { useEffect, useState } from 'react'
 import CodeEditor from '../../_components/CodeEditor'
-import DataStoreConfigModal from '../../_components/modals/DataStoreConfigModal'
 import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
@@ -41,14 +41,25 @@ import Info from './Info'
 import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
-import AuthConfigModal from '../../_components/modals/AuthConfigModal'
+import AuthConfigModal, { ConfigForm } from '../../_components/modals/AuthConfigModal'
+import useStore from '../../_hooks/useStore'
+import { z } from 'zod'
 
 enum View {
   JSON,
   LIST
 }
 
+const Ready = z.object({
+  authUrl: z.string().url(),
+  authClientId: z.string().min(1),
+  vaultUrl: z.string().url(),
+  vaultClientId: z.string().min(1),
+})
+
 export default function EntityManager() {
+  const { setEntityDataStoreUrl, setPolicyDataStoreUrl, authClientId, authUrl, vaultUrl, vaultClientId } = useStore()
+
   const {
     entityStore,
     processingStatus: { isFetchingEntity, isSigningAndPushingEntity },
@@ -77,12 +88,33 @@ export default function EntityManager() {
 
   const [isImportKeyDialogOpen, setImportKeyDialogOpen] = useState(false)
 
+  const isReady = () => Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
+
+  const onSaveAuthConfig = (config: ConfigForm) => {
+    setEntityDataStoreUrl(`${config.authUrl}/entities?clientId=${authClientId}`)
+    setPolicyDataStoreUrl(`${config.authUrl}/policies?clientId=${authClientId}`)
+  }
+
   useEffect(() => {
     if (entityStore) {
       setEntities(entityStore.data)
       setEntityStoreHash(hash(entityStore.data))
     }
   }, [entityStore, setEntities])
+
+  if (!isReady()) {
+
+    return (
+      <EmptyState
+        icon={faCogs}
+        title="DevTool not configured"
+        description="Click on the button below to set up."
+      >
+        <AuthConfigModal onSave={onSaveAuthConfig} />
+      </EmptyState>
+    )
+
+  }
 
   return (
     <div className="h-full">
@@ -127,10 +159,9 @@ export default function EntityManager() {
             }}
           />
 
-          <AuthConfigModal />
+          <AuthConfigModal onSave={onSaveAuthConfig} />
         </div>
       </div>
-
       {errors.length > 0 && (
         <Message icon={faXmarkCircle} color="danger" className="mb-6">
           {errors.join(', ')}
