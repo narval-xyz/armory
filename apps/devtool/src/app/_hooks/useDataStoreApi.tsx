@@ -10,7 +10,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
-import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
+import { backOff, extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
 
@@ -30,11 +30,15 @@ const useDataStoreApi = () => {
     isSigningEntity: false,
     isSigningPolicy: false,
     isSigningAndPushingEntity: false,
-    isSigningAndPushingPolicy: false
+    isSigningAndPushingPolicy: false,
+    entityFetchError: false,
+    policyFetchError: false
   })
   const [entityStore, setEntityStore] = useState<EntityStore>()
   const [policyStore, setPolicyStore] = useState<PolicyStore>()
-  const [errors, setErrors] = useState<string>()
+  const [pageError, setPageError] = useState<string>()
+  const [policyError, setPolicyError] = useState<string>()
+  const [entityError, setEntityError] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
@@ -72,43 +76,46 @@ const useDataStoreApi = () => {
   }, [policyStoreHost, authClientId, authClientSecret, jwk, signer])
 
   useEffect(() => {
-    if (entityStoreClient && !entityStore) {
+    if (entityStoreClient && !entityStore && !processingStatus.entityFetchError) {
       getEntityStore()
     }
-  }, [entityStoreClient, entityStore])
+  }, [entityStoreClient, entityStore, processingStatus.entityFetchError])
 
   useEffect(() => {
-    if (policyStoreClient && !policyStore) {
+    if (policyStoreClient && !policyStore && !processingStatus.policyFetchError) {
       getPolicyStore()
     }
-  }, [policyStoreClient, policyStore])
+  }, [policyStoreClient, policyStore, processingStatus.policyFetchError])
 
   const getEntityStore = async () => {
     if (!entityStoreClient || processingStatus.isFetchingEntity) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
-      const entity = await entityStoreClient.fetch()
+      const entity = await backOff(() => entityStoreClient.fetch(), { maxRetries: 3 })
       setEntityStore(entity)
+      setProcessingStatus((prev) => ({ ...prev, entityFetchError: false }))
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setEntityError(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, entityFetchError: true }))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
   }
-
   const getPolicyStore = async () => {
     if (!policyStoreClient || processingStatus.isFetchingPolicy) return
 
     try {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: true }))
-      const policy = await policyStoreClient.fetch()
+      const policy = await backOff(() => policyStoreClient.fetch(), { maxRetries: 3 })
       setPolicyStore(policy)
+      setProcessingStatus((prev) => ({ ...prev, policyFetchError: false }))
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPolicyError(extractErrorMessage(error))
+      setProcessingStatus((prev) => ({ ...prev, policyFetchError: true }))
+    } finally {
+      setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
     }
-
-    setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
   }
 
   const validateEntityData = (data: Entities) => {
@@ -147,7 +154,7 @@ const useDataStoreApi = () => {
   const signEntityData = async (data: Entities) => {
     if (!entityStoreClient || !validateEntityData(data)) return
 
-    setErrors(undefined)
+    setPageError(undefined)
     setValidationErrors(undefined)
 
     try {
@@ -155,7 +162,7 @@ const useDataStoreApi = () => {
       const signature = await entityStoreClient.sign(data)
       setEntityStore({ signature, data })
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
@@ -164,7 +171,7 @@ const useDataStoreApi = () => {
   const signPolicyData = async (data: Policy[]) => {
     if (!policyStoreClient || !validatePolicyData(data)) return
 
-    setErrors(undefined)
+    setPageError(undefined)
     setValidationErrors(undefined)
 
     try {
@@ -172,7 +179,7 @@ const useDataStoreApi = () => {
       const signature = await policyStoreClient.sign(data)
       setPolicyStore({ signature, data })
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
@@ -182,12 +189,12 @@ const useDataStoreApi = () => {
     if (!entityStoreClient || !validateEntityData(data)) return
 
     try {
-      setErrors(undefined)
+      setPageError(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
       await entityStoreClient.signAndPush(data)
       await getEntityStore()
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
     }
@@ -197,12 +204,12 @@ const useDataStoreApi = () => {
     if (!policyStoreClient || !validatePolicyData(data)) return
 
     try {
-      setErrors(undefined)
+      setPageError(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
       await policyStoreClient.signAndPush(data)
       await getPolicyStore()
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
     }
@@ -211,7 +218,9 @@ const useDataStoreApi = () => {
   return {
     entityStore,
     policyStore,
-    errors,
+    pageError,
+    policyError,
+    entityError,
     processingStatus,
     validationErrors,
     getEntityStore,

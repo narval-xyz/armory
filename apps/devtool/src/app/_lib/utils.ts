@@ -39,3 +39,31 @@ export const isValidUrl = (url: string | undefined) => {
 export function ensurePrefix<T = string>(str = '', prefix = '0x'): T {
   return (str.startsWith(prefix) ? str : prefix + str) as T
 }
+
+type BackoffOptions = {
+  maxRetries?: number
+  delay?: number
+  exponential?: boolean
+}
+
+export const backOff = async <T>(request: () => Promise<T>, options: BackoffOptions): Promise<T> => {
+  let retries = 0
+
+  let { delay = 1000 } = options
+  const { maxRetries = 3, exponential = false } = options
+
+  while (retries < maxRetries) {
+    try {
+      return await request()
+    } catch (error) {
+      retries++
+      await new Promise((resolve) => setTimeout(resolve, delay))
+      if (exponential) {
+        delay *= 2
+      }
+    }
+  }
+
+  const res = await request()
+  return res
+}

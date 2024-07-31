@@ -3,6 +3,7 @@
 import {
   faFileSignature,
   faPen,
+  faRedo,
   faRotateRight,
   faSpinner,
   faUpload,
@@ -12,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities, Policy } from '@narval/policy-engine-shared'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import CodeEditor from '../../_components/CodeEditor'
+import ErrorStatus from '../../_components/ErrorStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarUrlInput from '../../_design-system/NarUrlInput'
@@ -28,6 +30,8 @@ interface DataEditorProps<T> {
   isFetching: boolean
   isSigning: boolean
   isSigningAndPushing: boolean
+  error: boolean
+  errorMessage: string | undefined
   setUrl: Dispatch<SetStateAction<string>>
   fetch: () => Promise<void>
   sign: (data: T) => Promise<void>
@@ -41,6 +45,8 @@ const DataEditor = <T extends Entities | Policy[]>({
   isFetching,
   isSigning,
   isSigningAndPushing,
+  error,
+  errorMessage,
   fetch,
   setUrl,
   sign,
@@ -121,6 +127,17 @@ const DataEditor = <T extends Entities | Policy[]>({
         />
       </div>
       <CodeEditor readOnly={isReadOnly} value={editor} onChange={setEditor} />
+      {error && (
+        <div className="flex flex-col gap-4 mt-2 text-red-600">
+          <ErrorStatus label={errorMessage} />
+          <NarButton
+            label="Retry"
+            leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRedo} spin={isFetching} />}
+            onClick={fetch}
+            disabled={isFetching}
+          />
+        </div>
+      )}
     </div>
   )
 }

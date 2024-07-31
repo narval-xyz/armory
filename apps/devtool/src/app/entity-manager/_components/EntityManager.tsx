@@ -78,10 +78,12 @@ export default function EntityManager() {
       isFetchingPolicy,
       isSigningPolicy,
       isSigningAndPushingEntity,
-      isSigningAndPushingPolicy
+      isSigningAndPushingPolicy,
+      policyFetchError,
     },
     getEntityStore,
     getPolicyStore,
+    policyError,
     signPolicyData,
     signAndPushEntity,
     signAndPushPolicy
@@ -443,6 +445,8 @@ export default function EntityManager() {
           isSigning={isSigningPolicy}
           isSigningAndPushing={isSigningAndPushingPolicy}
           fetch={getPolicyStore}
+          error={policyFetchError}
+          errorMessage={policyError}
           setUrl={setPolicyDataStoreUrl}
           sign={signPolicyData}
           signAndPush={signAndPushPolicy}
