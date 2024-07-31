@@ -3,11 +3,13 @@
 import {
   faCode,
   faCogs,
+  faDatabase,
   faDotCircle,
   faIdBadge,
   faList,
   faPlus,
   faRotateRight,
+  faShield,
   faSpinner,
   faUpload,
   faUsers,
@@ -43,10 +45,12 @@ import Info from './Info'
 import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
+import DataEditor from '../../data-store/_components/DataEditor'
 
 enum View {
-  JSON,
-  LIST
+  ENTITY,
+  ENTITY_JSON,
+  POLICY_JSON
 }
 
 const Ready = z.object({
@@ -57,16 +61,34 @@ const Ready = z.object({
 })
 
 export default function EntityManager() {
-  const { setEntityDataStoreUrl, setPolicyDataStoreUrl, authClientId, authUrl, vaultUrl, vaultClientId } = useStore()
+  const { setEntityDataStoreUrl, setPolicyDataStoreUrl, authClientId, authUrl, vaultUrl, vaultClientId, policyDataStoreUrl } = useStore()
+
+  // const {
+  //   entityStore,
+  //   processingStatus: { isFetchingEntity, isSigningAndPushingEntity },
+  //   getEntityStore,
+  //   signAndPushEntity
+  // } = useDataStoreApi()
+
 
   const {
     entityStore,
-    processingStatus: { isFetchingEntity, isSigningAndPushingEntity },
+    policyStore,
+    processingStatus: {
+      isFetchingEntity,
+      isFetchingPolicy,
+      isSigningPolicy,
+      isSigningAndPushingEntity,
+      isSigningAndPushingPolicy
+    },
     getEntityStore,
-    signAndPushEntity
+    getPolicyStore,
+    signPolicyData,
+    signAndPushEntity,
+    signAndPushPolicy,
   } = useDataStoreApi()
 
-  const [view, setView] = useState(View.LIST)
+  const [view, setView] = useState(View.ENTITY)
   const [entities, setEntities] = useState<Entities>(EntityUtil.empty())
   const [errors, setErrors] = useState<string[]>([])
 
@@ -88,16 +110,19 @@ export default function EntityManager() {
   const [isImportKeyDialogOpen, setImportKeyDialogOpen] = useState(false)
   const [isInitialized, setInitialized] = useState(false)
 
-  // This is needed to ensure we aren't `ready` before the component is mounted, otherwise you get a SSR hyrdation mis-match because `useStore` is coming from localstorage.
-  useEffect(() => {
-    setInitialized(true)
-  }, [])
   const isReady = () => isInitialized && Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
 
   const onSaveAuthConfig = (config: ConfigForm) => {
     setEntityDataStoreUrl(`${config.authUrl}/entities?clientId=${config.authClientId}`)
     setPolicyDataStoreUrl(`${config.authUrl}/policies?clientId=${config.authClientId}`)
   }
+
+  // This is needed to ensure we aren't `ready` before the component is
+  // mounted, otherwise you get a SSR hyrdation mis-match because `useStore` is
+  // coming from localstorage.
+  useEffect(() => {
+    setInitialized(true)
+  }, [])
 
   useEffect(() => {
     if (entityStore) {
@@ -123,47 +148,59 @@ export default function EntityManager() {
       <div className="flex items-center mb-12">
         <div className="flex grow gap-2">
           <NarButton
-            variant={view === View.LIST ? 'primary' : 'secondary'}
-            leftIcon={<FontAwesomeIcon icon={faList} />}
-            label="List"
-            onClick={() => setView(View.LIST)}
+            variant={view === View.ENTITY ? 'primary' : 'secondary'}
+            leftIcon={<FontAwesomeIcon icon={faDatabase} />}
+            label="Entity"
+            onClick={() => setView(View.ENTITY)}
           />
 
           <NarButton
-            variant={view === View.JSON ? 'primary' : 'secondary'}
-            leftIcon={<FontAwesomeIcon icon={faCode} />}
-            label="JSON"
-            onClick={() => setView(View.JSON)}
+            variant={view === View.POLICY_JSON ? 'primary' : 'secondary'}
+            leftIcon={<FontAwesomeIcon icon={faShield} />}
+            label="Policy"
+            onClick={() => setView(View.POLICY_JSON)}
           />
         </div>
 
         <div className="flex gap-2">
-          <NarButton
-            variant="secondary"
-            label="Fetch"
-            leftIcon={<FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />}
-            onClick={getEntityStore}
-            disabled={isFetchingEntity}
-          />
-
-          <NarButton
-            variant="secondary"
-            label="Sign & Push"
-            leftIcon={
-              <FontAwesomeIcon
-                icon={isSigningAndPushingEntity ? faSpinner : faUpload}
-                spin={isSigningAndPushingEntity}
+          {(view === View.ENTITY || view === View.ENTITY_JSON) && (
+            <>
+              <NarButton
+                variant={view === View.ENTITY_JSON ? 'primary' : 'secondary'}
+                leftIcon={<FontAwesomeIcon icon={faCode} />}
+                label="JSON"
+                onClick={() => setView(View.ENTITY_JSON)}
               />
-            }
-            disabled={isSigningAndPushingEntity}
-            onClick={() => {
-              signAndPushEntity(entities)
-            }}
-          />
+
+              <NarButton
+                variant="secondary"
+                label="Fetch"
+                leftIcon={<FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />}
+                onClick={getEntityStore}
+                disabled={isFetchingEntity}
+              />
+
+              <NarButton
+                variant="secondary"
+                label="Sign & Push"
+                leftIcon={
+                  <FontAwesomeIcon
+                    icon={isSigningAndPushingEntity ? faSpinner : faUpload}
+                    spin={isSigningAndPushingEntity}
+                  />
+                }
+                disabled={isSigningAndPushingEntity}
+                onClick={() => {
+                  signAndPushEntity(entities)
+                }}
+              />
+            </>
+          )}
 
           <AuthConfigModal onSave={onSaveAuthConfig} />
         </div>
       </div>
+
       {errors.length > 0 && (
         <Message icon={faXmarkCircle} color="danger" className="mb-6">
           {errors.join(', ')}
@@ -176,7 +213,7 @@ export default function EntityManager() {
         </Message>
       )}
 
-      {view === View.JSON && (
+      {view === View.ENTITY_JSON && (
         <div className="flex items-start h-full">
           <div className="grid grow h-full">
             <CodeEditor
@@ -191,7 +228,7 @@ export default function EntityManager() {
         </div>
       )}
 
-      {view === View.LIST && (
+      {view === View.ENTITY && (
         <>
           <div className="bg-nv-neutrals-900 rounded-xl p-6 mb-6">
             <div className="flex items-center mb-6">
@@ -395,6 +432,20 @@ export default function EntityManager() {
             </ul>
           </div>
         </>
+      )}
+
+      {view === View.POLICY_JSON && (
+        <DataEditor
+          data={policyStore}
+          url={policyDataStoreUrl}
+          isFetching={isFetchingPolicy}
+          isSigning={isSigningPolicy}
+          isSigningAndPushing={isSigningAndPushingPolicy}
+          fetch={getPolicyStore}
+          setUrl={setPolicyDataStoreUrl}
+          sign={signPolicyData}
+          signAndPush={signAndPushPolicy}
+        />
       )}
 
       {user && (
