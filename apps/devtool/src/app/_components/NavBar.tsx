@@ -10,6 +10,13 @@ import NarButton from '../_design-system/NarButton'
 import NarCopyButton from '../_design-system/NarCopyButton'
 import useAccountSignature from '../_hooks/useAccountSignature'
 import { formatAddress } from '../_lib/utils'
+import { env } from '../_lib/config'
+
+const EntityManagerLink = ({ currentPath }: { currentPath: string }) => (
+  <Link href="/entity-manager" className={`${currentPath === '/entity-manager' ? 'underline' : ''}`}>
+    Entity Manager
+  </Link>
+)
 
 const NavBar = () => {
   const currentPath = usePathname()
@@ -26,27 +33,33 @@ const NavBar = () => {
             <Image src="/narval-wordmark-white.png" width="150" height="50" alt="Narval Logo" priority />
           </Link>
           <div className="flex gap-8 ml-10 text-nv-lg">
-            <Link href="/config" className={`${currentPath === '/config' ? 'underline' : ''}`}>
-              Config
-            </Link>
-            <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
-              Data Store
-            </Link>
-            <Link href="/entity-manager" className={`${currentPath === '/entity-manager' ? 'underline' : ''}`}>
-              Entity Manager
-            </Link>
-            <Link
-              href="/policy-engine/playground"
-              className={`${currentPath === '/policy-engine/playground' ? 'underline' : ''}`}
-            >
-              Policy Engine
-            </Link>
-            <Link
-              href="/auth-server/playground"
-              className={`${currentPath === '/auth-server/playground' ? 'underline' : ''}`}
-            >
-              Authorization Server
-            </Link>
+            {env.profile === 'manager' && (
+              <EntityManagerLink currentPath={currentPath} />
+            )}
+
+            {env.profile === 'devtool' && (
+              <>
+                <Link href="/config" className={`${currentPath === '/config' ? 'underline' : ''}`}>
+                  Config
+                </Link>
+                <Link href="/data-store" className={`${currentPath === '/data-store' ? 'underline' : ''}`}>
+                  Data Store
+                </Link>
+                <EntityManagerLink currentPath={currentPath} />
+                <Link
+                  href="/policy-engine/playground"
+                  className={`${currentPath === '/policy-engine/playground' ? 'underline' : ''}`}
+                >
+                  Policy Engine
+                </Link>
+                <Link
+                  href="/auth-server/playground"
+                  className={`${currentPath === '/auth-server/playground' ? 'underline' : ''}`}
+                >
+                  Authorization Server
+                </Link>
+              </>
+            )}
           </div>
         </div>
         <div className="flex flex-row-reverse gap-2 flex-1">

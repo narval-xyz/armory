@@ -1,5 +1,6 @@
 import { createConfig, http } from 'wagmi'
 import { mainnet, sepolia } from 'wagmi/chains'
+import { z } from 'zod'
 
 export const config = createConfig({
   chains: [mainnet, sepolia],
@@ -9,3 +10,11 @@ export const config = createConfig({
     [sepolia.id]: http()
   }
 })
+
+export const env = z
+  .object({
+    profile: z.enum(['devtool', 'manager']).default('devtool')
+  })
+  .parse({
+    profile: process.env.APP_PROFILE
+  })
