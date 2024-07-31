@@ -165,13 +165,7 @@ describe(AuthorizationRequestRepository.name, () => {
       const error: AuthorizationRequestError = {
         id: 'test-error-id',
         name: 'ErrorName',
-        message: 'Something went wrong',
-        context: {
-          moreInformation: true,
-          someText: 'foo',
-          aNumber: 123,
-          nullable: null
-        }
+        message: 'Something went wrong'
       }
 
       await repository.create({
