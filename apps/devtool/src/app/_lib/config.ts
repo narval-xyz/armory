@@ -16,5 +16,5 @@ export const env = z
     profile: z.enum(['devtool', 'manager']).default('devtool')
   })
   .parse({
-    profile: process.env.APP_PROFILE
+    profile: process.env.NEXT_PUBLIC_APP_PROFILE
   })
