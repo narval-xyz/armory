@@ -13,12 +13,10 @@ export const gnapSecurity = (): Security => ({
   name: 'GNAP',
   type: 'http',
   in: 'header',
-  // TODO: (@wcalderipe, 11/06/24) Swagger points `gnap` scheme as invalid.
   // A scheme is what sits in front of the token `Authorization: <scheme>
   // <token>`.
   // See https://swagger.io/docs/specification/authentication/
-  scheme: 'bearer',
-  bearerFormat: 'GNAP'
+  scheme: 'GNAP'
 })
 
 export const adminApiKeySecurity = (header: string): Security => ({

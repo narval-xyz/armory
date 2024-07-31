@@ -1375,8 +1375,6 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -1429,8 +1427,6 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -1480,8 +1476,6 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -1907,8 +1901,6 @@ export const EncryptionKeyApiAxiosParamCreator = function (configuration?: Confi
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -2035,8 +2027,6 @@ export const SignApiAxiosParamCreator = function (configuration?: Configuration)
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -2169,8 +2159,6 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -2223,8 +2211,6 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
@@ -2274,8 +2260,6 @@ export const WalletApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarQueryParameter = {} as any;
 
             // authentication GNAP required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);

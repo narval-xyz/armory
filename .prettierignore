@@ -9,4 +9,5 @@ deploy/charts/*
 
 # Generated code
 packages/armory-sdk/src/http/client
+packages/armory-sdk/src/lib/http/client
 packages/policy-engine-shared/src/tsmsdkv2
