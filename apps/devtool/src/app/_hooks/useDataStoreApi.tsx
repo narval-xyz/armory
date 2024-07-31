@@ -1,13 +1,18 @@
-
-
 import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk'
-import { Entities, EntityData, EntityStore, EntityUtil, Policy, PolicyData, PolicyStore } from '@narval/policy-engine-shared'
+import {
+  Entities,
+  EntityData,
+  EntityStore,
+  EntityUtil,
+  Policy,
+  PolicyData,
+  PolicyStore
+} from '@narval/policy-engine-shared'
 import { SigningAlg } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
-import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
+import { backOff, extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
-import { backOff } from '../_lib/utils'
 
 const useDataStoreApi = () => {
   const {
@@ -31,8 +36,9 @@ const useDataStoreApi = () => {
   })
   const [entityStore, setEntityStore] = useState<EntityStore>()
   const [policyStore, setPolicyStore] = useState<PolicyStore>()
-  const [errors, setErrors] = useState<string>()
-  const [fullErrors, setFullErrors] = useState<unknown>()
+  const [pageError, setPageError] = useState<string>()
+  const [policyError, setPolicyError] = useState<string>()
+  const [entityError, setEntityError] = useState<string>()
   const [validationErrors, setValidationErrors] = useState<string>()
 
   const entityStoreClient = useMemo<EntityStoreClient | null>(() => {
@@ -90,14 +96,12 @@ const useDataStoreApi = () => {
       setEntityStore(entity)
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: false }))
     } catch (error) {
-      setErrors(extractErrorMessage(error))
-      setFullErrors(error)
+      setEntityError(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: true }))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
     }
   }
-
   const getPolicyStore = async () => {
     if (!policyStoreClient || processingStatus.isFetchingPolicy) return
 
@@ -107,8 +111,7 @@ const useDataStoreApi = () => {
       setPolicyStore(policy)
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: false }))
     } catch (error) {
-      setErrors(extractErrorMessage(error))
-      setFullErrors(error)
+      setPolicyError(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: true }))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
@@ -151,7 +154,7 @@ const useDataStoreApi = () => {
   const signEntityData = async (data: Entities) => {
     if (!entityStoreClient || !validateEntityData(data)) return
 
-    setErrors(undefined)
+    setPageError(undefined)
     setValidationErrors(undefined)
 
     try {
@@ -159,7 +162,7 @@ const useDataStoreApi = () => {
       const signature = await entityStoreClient.sign(data)
       setEntityStore({ signature, data })
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
@@ -168,7 +171,7 @@ const useDataStoreApi = () => {
   const signPolicyData = async (data: Policy[]) => {
     if (!policyStoreClient || !validatePolicyData(data)) return
 
-    setErrors(undefined)
+    setPageError(undefined)
     setValidationErrors(undefined)
 
     try {
@@ -176,7 +179,7 @@ const useDataStoreApi = () => {
       const signature = await policyStoreClient.sign(data)
       setPolicyStore({ signature, data })
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
@@ -186,12 +189,12 @@ const useDataStoreApi = () => {
     if (!entityStoreClient || !validateEntityData(data)) return
 
     try {
-      setErrors(undefined)
+      setPageError(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: true }))
       await entityStoreClient.signAndPush(data)
       await getEntityStore()
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
     }
@@ -201,12 +204,12 @@ const useDataStoreApi = () => {
     if (!policyStoreClient || !validatePolicyData(data)) return
 
     try {
-      setErrors(undefined)
+      setPageError(undefined)
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: true }))
       await policyStoreClient.signAndPush(data)
       await getPolicyStore()
     } catch (error) {
-      setErrors(extractErrorMessage(error))
+      setPageError(extractErrorMessage(error))
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
     }
@@ -215,10 +218,11 @@ const useDataStoreApi = () => {
   return {
     entityStore,
     policyStore,
-    errors,
+    pageError,
+    policyError,
+    entityError,
     processingStatus,
     validationErrors,
-    fullErrors,
     getEntityStore,
     getPolicyStore,
     signEntityData,

@@ -46,8 +46,9 @@ const DataStore = () => {
     signPolicyData,
     signAndPushEntity,
     signAndPushPolicy,
-    errors,
-    fullErrors,
+    pageError,
+    policyError,
+    entityError,
     validationErrors
   } = useDataStoreApi()
 
@@ -71,7 +72,7 @@ const DataStore = () => {
           <div className="text-nv-2xl grow">Data Store</div>
           <div className="flex items-center gap-[8px]">
             <SuccessStatus label={isAuthServerSynced || isEngineSynced ? 'Engine synced!' : ''} />
-            <ErrorStatus label={errors} />
+            <ErrorStatus label={pageError} />
             <AddUserModal />
             <NarButton
               label="Sync"
@@ -86,34 +87,34 @@ const DataStore = () => {
         {!useAuthServer && <ValueWithCopy layout="horizontal" label="Engine Client ID" value={engineClientId} />}
       </div>
       <div className="grid grid-cols-2 gap-[32px] grow">
-          <DataEditor
-            label="Entity Data URL"
-            data={entityStore}
-            url={entityDataStoreUrl}
-            isFetching={isFetchingEntity}
-            isSigning={isSigningEntity}
-            isSigningAndPushing={isSigningAndPushingEntity}
-            error={entityFetchError}
-            fullError={fullErrors}
-            fetch={getEntityStore}
-            setUrl={setEntityDataStoreUrl}
-            sign={signEntityData}
-            signAndPush={signAndPushEntity}
-          />
-          <DataEditor
-            label="Policy Data URL"
-            data={policyStore}
-            url={policyDataStoreUrl}
-            isFetching={isFetchingPolicy}
-            isSigning={isSigningPolicy}
-            isSigningAndPushing={isSigningAndPushingPolicy}
-            error={policyFetchError}
-            fullError={fullErrors}
-            fetch={getPolicyStore}
-            setUrl={setPolicyDataStoreUrl}
-            sign={signPolicyData}
-            signAndPush={signAndPushPolicy}
-          />
+        <DataEditor
+          label="Entity Data URL"
+          data={entityStore}
+          url={entityDataStoreUrl}
+          isFetching={isFetchingEntity}
+          isSigning={isSigningEntity}
+          isSigningAndPushing={isSigningAndPushingEntity}
+          error={entityFetchError}
+          errorMessage={entityError}
+          fetch={getEntityStore}
+          setUrl={setEntityDataStoreUrl}
+          sign={signEntityData}
+          signAndPush={signAndPushEntity}
+        />
+        <DataEditor
+          label="Policy Data URL"
+          data={policyStore}
+          url={policyDataStoreUrl}
+          isFetching={isFetchingPolicy}
+          isSigning={isSigningPolicy}
+          isSigningAndPushing={isSigningAndPushingPolicy}
+          error={policyFetchError}
+          errorMessage={policyError}
+          fetch={getPolicyStore}
+          setUrl={setPolicyDataStoreUrl}
+          sign={signPolicyData}
+          signAndPush={signAndPushPolicy}
+        />
       </div>
       {isDialogOpen && (
         <NarDialog

@@ -13,10 +13,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Entities, Policy } from '@narval/policy-engine-shared'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import CodeEditor from '../../_components/CodeEditor'
+import ErrorStatus from '../../_components/ErrorStatus'
 import NarButton from '../../_design-system/NarButton'
 import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarUrlInput from '../../_design-system/NarUrlInput'
-import ErrorStatus from '../../_components/ErrorStatus'
 
 enum Action {
   SIGN = 'SIGN',
@@ -31,7 +31,7 @@ interface DataEditorProps<T> {
   isSigning: boolean
   isSigningAndPushing: boolean
   error: boolean
-  fullError: unknown
+  errorMessage: string | undefined
   setUrl: Dispatch<SetStateAction<string>>
   fetch: () => Promise<void>
   sign: (data: T) => Promise<void>
@@ -46,7 +46,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   isSigning,
   isSigningAndPushing,
   error,
-  fullError,
+  errorMessage,
   fetch,
   setUrl,
   sign,
@@ -86,6 +86,7 @@ const DataEditor = <T extends Entities | Policy[]>({
     setEditor(JSON.stringify(data, null, 2))
   }, [data])
 
+  console.log('### DataEditor: ', { error, errorMessage })
   return (
     <div className="flex flex-col gap-[16px] h-full">
       <div className="flex items-end gap-[8px]">
@@ -129,14 +130,14 @@ const DataEditor = <T extends Entities | Policy[]>({
       <CodeEditor readOnly={isReadOnly} value={editor} onChange={setEditor} />
       {error && (
         <div className="flex flex-col gap-4 mt-2 text-red-600">
-              <NarButton
-                label="Retry"
-                leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRedo} spin={isFetching} />}
-                onClick={fetch}
-                disabled={isFetching}
-              />
-              <ErrorStatus label={fullError} />
-            </div>
+          <ErrorStatus label={errorMessage} />
+          <NarButton
+            label="Retry"
+            leftIcon={<FontAwesomeIcon icon={isFetching ? faSpinner : faRedo} spin={isFetching} />}
+            onClick={fetch}
+            disabled={isFetching}
+          />
+        </div>
       )}
     </div>
   )
