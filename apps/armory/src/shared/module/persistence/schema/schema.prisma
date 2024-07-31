@@ -99,7 +99,6 @@ model AuthorizationRequestError {
   requestId String @map("request_id")
   name      String
   message   String
-  context   Json?
 
   request AuthorizationRequest @relation(fields: [requestId], references: [id])
 
