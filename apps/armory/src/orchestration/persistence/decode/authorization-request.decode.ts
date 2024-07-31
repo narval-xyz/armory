@@ -1,4 +1,3 @@
-import { Json } from '@narval/nestjs-shared'
 import { Action, AuthorizationRequest, AuthorizationRequestError, Evaluation } from '@narval/policy-engine-shared'
 import {
   AuthorizationRequestError as AuthorizationRequestErrorModel,
@@ -22,11 +21,10 @@ const buildEvaluation = ({ id, decision, signature, createdAt }: EvaluationLogMo
   createdAt
 })
 
-const buildError = ({ id, message, name, context }: AuthorizationRequestErrorModel): AuthorizationRequestError => ({
+const buildError = ({ id, message, name }: AuthorizationRequestErrorModel): AuthorizationRequestError => ({
   id,
   message,
-  name,
-  context: Json.parse(context)
+  name
 })
 
 const buildSharedAttributes = (model: Model): Omit<AuthorizationRequest, 'action' | 'request'> => {

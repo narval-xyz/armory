@@ -6,7 +6,6 @@ import {
   Evaluation
 } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
@@ -79,8 +78,7 @@ export class AuthorizationRequestRepository {
         id: error.id,
         clientId,
         name: error.name,
-        message: error.message,
-        context: error.context as Prisma.InputJsonValue
+        message: error.message
       }))
     }
 
