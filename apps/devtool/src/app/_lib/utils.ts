@@ -64,5 +64,6 @@ export const backOff = async <T>(request: () => Promise<T>, options: BackoffOpti
     }
   }
 
-  return request()
+  const res = await request()
+  return res
 }
