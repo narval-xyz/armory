@@ -15,7 +15,7 @@ const isSensitiveKey = (key?: string): boolean => {
 export const redact = <T>(input: T): T => {
   const copy = cloneDeep(input)
 
-  return traverse(copy).forEach(function redactor() {
+  return traverse(copy).map(function redactor() {
     if (isSensitiveKey(this.key)) {
       this.update(REDACT_REPLACE)
     }

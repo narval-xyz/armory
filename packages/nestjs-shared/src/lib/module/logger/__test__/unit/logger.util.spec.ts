@@ -126,4 +126,24 @@ describe('redact', () => {
     expect((obj.errors[0].context.data.feeds[1].data as {token: string}[])[0].token).toEqual('[THIS_SHOULD_NOT_BE_REDACTED]')
     expect((obj.errors[0].context.data.feeds[1].data as {token: string}[])[1].token).toEqual('[THIS_SHOULD_NOT_BE_REDACTED]')
   })
+  it('does not mutate the given object with a class extending Error', () => {
+    class TestClass extends Error {
+      constructor(public config: { host: string; clientId: string; clientSecret: string }) {
+        super('TestClass')
+      }
+    }
+
+    const obj = {
+      foo: 'DO NOT REDACT THIS',
+      bar: new TestClass({
+        host: 'http://policy-engine-node-2',
+        clientId: '811ebaf1-7329-485d-8db6-8acc0ead4fb7',
+        clientSecret: '[THIS_SHOULD_NOT_BE_REDACTED]'
+      })
+    };
+
+    redact(obj);
+
+    expect(obj.bar.config.clientSecret).toEqual('[THIS_SHOULD_NOT_BE_REDACTED]');
+  })
 })
