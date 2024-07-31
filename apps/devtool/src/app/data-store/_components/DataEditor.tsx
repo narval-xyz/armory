@@ -23,7 +23,7 @@ enum Action {
 
 interface DataEditorProps<T> {
   data: { signature: string; data: T } | undefined
-  label: string
+  label?: string
   url: string
   isFetching: boolean
   isSigning: boolean
@@ -81,9 +81,9 @@ const DataEditor = <T extends Entities | Policy[]>({
   }, [data])
 
   return (
-    <div className="flex flex-col gap-[16px]">
+    <div className="flex flex-col gap-[16px] h-full">
       <div className="flex items-end gap-[8px]">
-        <NarUrlInput label={label} value={url} onValueChange={setUrl} />
+        {label && <NarUrlInput label={label} value={url} onValueChange={setUrl} />}
         {isReadOnly && editor && (
           <>
             <NarCopyButton label="Copy" copy={editor} />
