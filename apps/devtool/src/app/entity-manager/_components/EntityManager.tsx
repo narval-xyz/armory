@@ -6,7 +6,6 @@ import {
   faDatabase,
   faDotCircle,
   faIdBadge,
-  faList,
   faPlus,
   faRotateRight,
   faShield,
@@ -34,6 +33,7 @@ import NarButton from '../../_design-system/NarButton'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useStore from '../../_hooks/useStore'
+import DataEditor from '../../data-store/_components/DataEditor'
 import AccountCard from './AccountCard'
 import AccountForm from './AccountForm'
 import AssignAccountForm from './AssignAccountForm'
@@ -45,7 +45,6 @@ import Info from './Info'
 import Message from './Message'
 import UserCard from './UserCard'
 import UserForm from './UserForm'
-import DataEditor from '../../data-store/_components/DataEditor'
 
 enum View {
   ENTITY,
@@ -61,15 +60,15 @@ const Ready = z.object({
 })
 
 export default function EntityManager() {
-  const { setEntityDataStoreUrl, setPolicyDataStoreUrl, authClientId, authUrl, vaultUrl, vaultClientId, policyDataStoreUrl } = useStore()
-
-  // const {
-  //   entityStore,
-  //   processingStatus: { isFetchingEntity, isSigningAndPushingEntity },
-  //   getEntityStore,
-  //   signAndPushEntity
-  // } = useDataStoreApi()
-
+  const {
+    setEntityDataStoreUrl,
+    setPolicyDataStoreUrl,
+    authClientId,
+    authUrl,
+    vaultUrl,
+    vaultClientId,
+    policyDataStoreUrl
+  } = useStore()
 
   const {
     entityStore,
@@ -85,7 +84,7 @@ export default function EntityManager() {
     getPolicyStore,
     signPolicyData,
     signAndPushEntity,
-    signAndPushPolicy,
+    signAndPushPolicy
   } = useDataStoreApi()
 
   const [view, setView] = useState(View.ENTITY)
@@ -175,7 +174,9 @@ export default function EntityManager() {
               <NarButton
                 variant="secondary"
                 label="Fetch"
-                leftIcon={<FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />}
+                leftIcon={
+                  <FontAwesomeIcon icon={isFetchingEntity ? faSpinner : faRotateRight} spin={isFetchingEntity} />
+                }
                 onClick={getEntityStore}
                 disabled={isFetchingEntity}
               />

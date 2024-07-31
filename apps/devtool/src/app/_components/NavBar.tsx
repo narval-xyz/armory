@@ -9,8 +9,8 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import NarButton from '../_design-system/NarButton'
 import NarCopyButton from '../_design-system/NarCopyButton'
 import useAccountSignature from '../_hooks/useAccountSignature'
-import { formatAddress } from '../_lib/utils'
 import { env } from '../_lib/config'
+import { formatAddress } from '../_lib/utils'
 
 const EntityManagerLink = ({ currentPath }: { currentPath: string }) => (
   <Link href="/entity-manager" className={`${currentPath === '/entity-manager' ? 'underline' : ''}`}>
@@ -33,9 +33,7 @@ const NavBar = () => {
             <Image src="/narval-wordmark-white.png" width="150" height="50" alt="Narval Logo" priority />
           </Link>
           <div className="flex gap-8 ml-10 text-nv-lg">
-            {env.profile === 'manager' && (
-              <EntityManagerLink currentPath={currentPath} />
-            )}
+            {env.profile === 'manager' && <EntityManagerLink currentPath={currentPath} />}
 
             {env.profile === 'devtool' && (
               <>

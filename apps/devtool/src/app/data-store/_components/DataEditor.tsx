@@ -83,9 +83,7 @@ const DataEditor = <T extends Entities | Policy[]>({
   return (
     <div className="flex flex-col gap-[16px] h-full">
       <div className="flex items-end gap-[8px]">
-        {label && (
-          <NarUrlInput label={label} value={url} onValueChange={setUrl} />
-        )}
+        {label && <NarUrlInput label={label} value={url} onValueChange={setUrl} />}
         {isReadOnly && editor && (
           <>
             <NarCopyButton label="Copy" copy={editor} />
