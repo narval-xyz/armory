@@ -86,7 +86,6 @@ const DataEditor = <T extends Entities | Policy[]>({
     setEditor(JSON.stringify(data, null, 2))
   }, [data])
 
-  console.log('### DataEditor: ', { error, errorMessage })
   return (
     <div className="flex flex-col gap-[16px] h-full">
       <div className="flex items-end gap-[8px]">
