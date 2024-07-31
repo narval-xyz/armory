@@ -25,7 +25,6 @@ const initForm: ConfigForm = {
   vaultClientId: ''
 }
 
-
 interface AuthConfigModalProps {
   onSave?: (form: ConfigForm) => void
 }
@@ -41,7 +40,7 @@ const AuthConfigModal: FC<AuthConfigModalProps> = ({ onSave }) => {
     setAuthClientId,
     setAuthClientSecret,
     setVaultUrl,
-    setVaultClientId,
+    setVaultClientId
   } = useStore()
 
   const [isOpen, setIsOpen] = useState(false)
