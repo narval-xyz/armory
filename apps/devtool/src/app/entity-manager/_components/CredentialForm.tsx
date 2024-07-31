@@ -31,20 +31,10 @@ const ExternallyOwnedAccountCredentialForm: FC<CredentialFormProps> = ({ user, c
         addr: address
       })
 
-      setCredential((prev) => {
-        if (prev) {
-          return { ...prev, key }
-        }
-
-        if (user) {
-          return {
-            id: key.kid,
-            userId: user.id,
-            key
-          }
-        }
-
-        return undefined
+      setCredential({
+        id: key.kid,
+        userId: user.id,
+        key
       })
     }
   }, [address, setCredential, user])
@@ -113,8 +103,6 @@ const JsonWebKeyForm: FC<CredentialFormProps> = ({ user, setCredential, credenti
 const CredentialForm: FC<CredentialFormProps> = (props) => {
   const { isEmbedded } = props
   const [credentialType, setCredentialType] = useState(CredentialType.EOA)
-
-  useEffect(() => {}, [])
 
   return (
     <div className="flex flex-col gap-6">
