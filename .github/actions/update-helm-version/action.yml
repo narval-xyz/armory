@@ -30,7 +30,7 @@ runs:
       with:
         app-id: ${{ inputs.appId }}
         private-key: ${{ inputs.privateKey }}
-        repositories: "armory,armory-platform"
+        repositories: 'armory,armory-platform'
 
     - name: Checkout Target Repository
       uses: actions/checkout@v4

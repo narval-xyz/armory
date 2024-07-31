@@ -49,7 +49,7 @@ jobs:
         with:
           app-id: ${{ vars.NARVAL_HELM_APP_ID }}
           private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
-          repositories: "armory,armory-platform"
+          repositories: 'armory,armory-platform'
 
       - name: Checkout Target Repository
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
-      - name: "Update Helm Version"
+      - name: 'Update Helm Version'
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'apps/charts/policy-engine/values.yaml'
