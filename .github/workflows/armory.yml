@@ -164,7 +164,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - id: update-helm-version
-        name: "Update Helm Version"
+        name: 'Update Helm Version'
         uses: ./.github/actions/update-helm-version
         with:
           appId: ${{ vars.NARVAL_HELM_APP_ID }}

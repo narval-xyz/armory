@@ -46,7 +46,7 @@ jobs:
 
       - name: Track origin/main
         if: github.ref != 'refs/heads/main'
-        run: "git branch --track main origin/main"
+        run: 'git branch --track main origin/main'
 
       - name: Set base and head SHAs for nx affected
         uses: nrwl/nx-set-shas@v3
