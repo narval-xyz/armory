@@ -58,9 +58,6 @@ const signerJwk = jwkSchema.parse({
   kid: signerAddress
 })
 
-// You can copy/paste the data printed below into your credentials entities
-console.log('\n\n Signer JWK:', JSON.stringify(signerJwk))
-
 const signer = {
   jwk: signerJwk,
   alg: SigningAlg.EIP191,
