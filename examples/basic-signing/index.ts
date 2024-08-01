@@ -1,13 +1,6 @@
 /* eslint-disable no-console */
 
-import {
-  AuthClient,
-  AuthorizationRequestStatus,
-  Request,
-  SigningAlg,
-  VaultClient,
-  buildSignerEip191
-} from '@narval-xyz/armory-sdk'
+import { AuthClient, Request, SigningAlg, VaultClient, buildSignerEip191 } from '@narval-xyz/armory-sdk'
 import { secp256k1PrivateKeyToJwk } from '@narval-xyz/armory-sdk/signature'
 
 import { v4 as uuid } from 'uuid'
@@ -57,21 +50,22 @@ const main = async () => {
     message: 'Narval Testing'
   }
 
-  const evaluation = await authClient.evaluate({ request })
-  console.log('\n\n Authorization Response:', evaluation)
+  try {
+    const accessToken = await authClient.requestAccessToken(request)
+    console.log('\n\n Authorization Response:', accessToken)
 
-  const { status, evaluations } = evaluation
-  const token = evaluations[0]?.signature
+    if (accessToken) {
+      console.log('\n\n🔏 Sending signing request...')
 
-  if (status === AuthorizationRequestStatus.PERMITTED && token) {
-    console.log('\n\n🔏 Sending signing request...')
+      const { signature } = await vaultClient.sign({
+        accessToken,
+        data: request
+      })
 
-    const { signature } = await vaultClient.sign({
-      accessToken: { value: token },
-      data: request
-    })
-
-    console.log('\n\n✅ Signature:', signature)
+      console.log('\n\n✅ Signature:', signature)
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 
