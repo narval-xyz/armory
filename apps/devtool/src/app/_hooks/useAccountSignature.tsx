@@ -1,15 +1,4 @@
-import {
-  Curves,
-  JwsdHeader,
-  KeyTypes,
-  Payload,
-  PublicKey,
-  SigningAlg,
-  hash,
-  hexToBase64Url,
-  signJwsd,
-  signJwt
-} from '@narval/signature'
+import { Curves, KeyTypes, PublicKey, SigningAlg, hexToBase64Url } from '@narval/signature'
 import { signMessage } from '@wagmi/core'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
@@ -37,37 +26,7 @@ const useAccountSignature = () => {
     return hexToBase64Url(signature)
   }
 
-  const signAccountJwt = async (payload: Payload) => {
-    if (!jwk) return ''
-
-    const signature = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, signer)
-
-    return signature
-  }
-
-  const signAccountJwsd = async (payload: any, opts: { accessToken: string; uri: string }) => {
-    if (!jwk) return ''
-
-    const jwsdHeader: JwsdHeader = {
-      alg: SigningAlg.EIP191,
-      kid: jwk.kid,
-      typ: 'gnap-binding-jwsd',
-      htm: 'POST',
-      uri: opts.uri,
-      created: new Date().getTime(),
-      ath: hexToBase64Url(hash(opts.accessToken))
-    }
-
-    const signature = await signJwsd(payload, jwsdHeader, signer).then((jws) => {
-      const parts = jws.split('.')
-      parts[1] = ''
-      return parts.join('.')
-    })
-
-    return signature
-  }
-
-  return { jwk, signer, signAccountJwt, signAccountJwsd }
+  return { jwk, signer }
 }
 
 export default useAccountSignature

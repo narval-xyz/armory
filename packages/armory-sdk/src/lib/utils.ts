@@ -1,10 +1,10 @@
 import { Decision, EvaluationResponse, JwtString, Request, isAddress } from '@narval/policy-engine-shared'
-import { JwsdHeader, Payload, buildSignerForAlg, hash, hexToBase64Url, signJwsd } from '@narval/signature'
+import { JwsdHeader, Payload, hash, hexToBase64Url } from '@narval/signature'
 import { v4 } from 'uuid'
 import { Address, Chain, Hex } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
 import { DETACHED_JWS, HEADER_CLIENT_ID, HEADER_CLIENT_SECRET } from './constants'
-import { ArmoryClientConfig, JwsdHeaderArgs, SignAccountJwsdArgs } from './domain'
+import { ArmoryClientConfig, JwsdHeaderArgs } from './domain'
 import { ArmorySdkException, ForbiddenException, NotImplementedException } from './exceptions'
 import { BasicHeaders, GnapHeaders } from './schema'
 import { SendEvaluationResponse } from './types/policy-engine'
@@ -31,26 +31,6 @@ export const buildJwsdHeader = (args: JwsdHeaderArgs): JwsdHeader => {
     created: new Date().getTime(),
     ath: hexToBase64Url(hash(accessToken.value))
   }
-}
-
-export const signAccountJwsd = async (args: SignAccountJwsdArgs) => {
-  const { payload, accessToken, jwk, uri, htm } = args
-
-  let signer = args.signer
-  let alg = args.alg
-
-  if (!signer) {
-    signer = await buildSignerForAlg(jwk)
-    alg = jwk.alg
-  }
-
-  const jwsdHeader = buildJwsdHeader({ accessToken, jwk, alg, uri, htm })
-
-  return signJwsd(payload, jwsdHeader, signer).then((jws) => {
-    const parts = jws.split('.')
-    parts[1] = ''
-    return parts.join('.')
-  })
 }
 
 export const resourceId = (walletIdOrAddress: Address | string): string => {

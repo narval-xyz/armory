@@ -694,7 +694,7 @@ export interface AuthorizationResponseDto {
      * @type {Array<string>}
      * @memberof AuthorizationResponseDto
      */
-    'approvals': Array<string>;
+    'approvals'?: Array<string>;
     /**
      * 
      * @type {string}
