@@ -1,18 +1,18 @@
 import {
-  Account,
-  AccountId,
   Asset,
   AssetId,
   AssetType,
+  ChainAccount,
+  ChainAccountId,
   Hex,
   Namespace,
   TransactionRequest,
   assertHexString,
-  isAccountId,
   isAddress,
+  isChainAccountId,
   isString,
-  toAccountId,
   toAssetId,
+  toChainAccountId,
   type Eip712TypedData
 } from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
@@ -74,8 +74,8 @@ export const buildContractRegistryEntry = ({
   chainId: number
   contractAddress: string
   assetType: string
-}): { [key: AccountId]: AssetTypeAndUnknown } => {
-  const registry: { [key: AccountId]: AssetTypeAndUnknown } = {}
+}): { [key: ChainAccountId]: AssetTypeAndUnknown } => {
+  const registry: { [key: ChainAccountId]: AssetTypeAndUnknown } = {}
   if (!isAddress(contractAddress) || !isAssetType(assetType)) {
     throw new DecoderError({ message: 'Invalid contract registry entry', status: 400 })
   }
@@ -92,7 +92,7 @@ export const buildContractRegistry = (input: ContractRegistryInput): ContractReg
       factoryType: factoryType || WalletType.UNKNOWN
     }
     if (isString(contract)) {
-      if (!isAccountId(contract)) {
+      if (!isChainAccountId(contract)) {
         throw new DecoderError({
           message: 'Contract registry key is not a valid Caip10',
           status: 400,
@@ -112,11 +112,11 @@ export const buildContractKey = (
   chainId: number,
   contractAddress: Hex,
   namespace: Namespace = Namespace.EIP155
-): AccountId => toAccountId({ namespace, chainId, address: contractAddress })
+): ChainAccountId => toChainAccountId({ namespace, chainId, address: contractAddress })
 
 export const checkContractRegistry = (registry: Record<string, string>) => {
   Object.keys(registry).forEach((key) => {
-    if (!isAccountId(key)) {
+    if (!isChainAccountId(key)) {
       throw new DecoderError({
         message: 'Invalid contract registry key',
         status: 400,
@@ -151,7 +151,7 @@ export const buildTransactionKey = (txRequest: TransactionRequest): TransactionK
   if (!txRequest.nonce) {
     throw new DecoderError({ message: 'nonce needed to build transaction key', status: 400 })
   }
-  const account = toAccountId({
+  const account = toChainAccountId({
     chainId: txRequest.chainId,
     address: txRequest.from,
     namespace: Namespace.EIP155
@@ -197,15 +197,15 @@ export const decodePermit = (typedData: Eip712TypedData): Permit | null => {
   return {
     type: Intents.PERMIT,
     amount: fromHex(value, 'bigint').toString(),
-    owner: toAccountIdLowerCase({
+    owner: toChainAccountIdLowerCase({
       chainId,
       address: owner
     }),
-    spender: toAccountIdLowerCase({
+    spender: toChainAccountIdLowerCase({
       chainId,
       address: spender
     }),
-    token: toAccountIdLowerCase({
+    token: toChainAccountIdLowerCase({
       chainId,
       address: verifyingContract
     }),
@@ -223,15 +223,15 @@ export const decodePermit2 = (typedData: Eip712TypedData): Permit2 | null => {
   }
   return {
     type: Intents.PERMIT2,
-    owner: toAccountIdLowerCase({
+    owner: toChainAccountIdLowerCase({
       chainId: domain.chainId,
       address: message.details.owner
     }),
-    spender: toAccountIdLowerCase({
+    spender: toChainAccountIdLowerCase({
       chainId: domain.chainId,
       address: message.spender
     }),
-    token: toAccountIdLowerCase({
+    token: toChainAccountIdLowerCase({
       chainId: domain.chainId,
       address: message.details.token
     }),
@@ -310,8 +310,8 @@ export const getMasterContractAddress = (bytecode: Hex): string | null => {
   return null // Return null if the bytecode doesn't match the expected pattern
 }
 
-export const toAccountIdLowerCase = (input: SetOptional<Account, 'namespace'>): AccountId =>
-  toAccountId(input).toLowerCase() as AccountId
+export const toChainAccountIdLowerCase = (input: SetOptional<ChainAccount, 'namespace'>): ChainAccountId =>
+  toChainAccountId(input).toLowerCase() as ChainAccountId
 
 export const toAssetIdLowerCase = (input: SetOptional<Asset, 'namespace'>): AssetId =>
   toAssetId(input).toLowerCase() as AssetId

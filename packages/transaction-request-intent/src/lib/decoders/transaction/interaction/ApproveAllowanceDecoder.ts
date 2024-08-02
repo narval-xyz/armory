@@ -4,7 +4,7 @@ import { ApproveAllowanceParams } from '../../../extraction/types'
 import { ApproveTokenAllowance } from '../../../intent.types'
 import { MethodsMapping } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { toAccountIdLowerCase } from '../../../utils'
+import { toChainAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeApproveTokenAllowance = (
@@ -25,11 +25,11 @@ export const decodeApproveTokenAllowance = (
   const { amount, spender } = params
 
   const intent: ApproveTokenAllowance = {
-    spender: toAccountIdLowerCase({ chainId, address: spender }),
-    from: toAccountIdLowerCase({ chainId, address: from }),
+    spender: toChainAccountIdLowerCase({ chainId, address: spender }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
     type: Intents.APPROVE_TOKEN_ALLOWANCE,
     amount,
-    token: toAccountIdLowerCase({ chainId, address: to })
+    token: toChainAccountIdLowerCase({ chainId, address: to })
   }
 
   return intent

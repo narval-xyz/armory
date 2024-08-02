@@ -6,7 +6,7 @@ import { ExecuteAndRevertParams, ExecuteParams } from '../../../extraction/types
 import { Intent, UserOperation } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { toAccountIdLowerCase } from '../../../utils'
+import { toChainAccountIdLowerCase } from '../../../utils'
 import { decode } from '../../decode'
 import { extract } from '../../utils'
 
@@ -77,8 +77,8 @@ export const decodeUserOperation = (input: ContractCallInput, supportedMethods: 
   // TODO: Support ExecuteBatchV6 and ExecuteBatchV7 here
   return {
     type: Intents.USER_OPERATION,
-    from: toAccountIdLowerCase({ chainId, address: from }),
-    entrypoint: toAccountIdLowerCase({ chainId, address: to }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
+    entrypoint: toChainAccountIdLowerCase({ chainId, address: to }),
     operationIntents: intents
   }
 }

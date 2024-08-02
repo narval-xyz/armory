@@ -6,7 +6,7 @@ import { Erc1155SafeTransferFromParams, SafeBatchTransferFromParams } from '../.
 import { ERC1155Transfer, TransferErc1155 } from '../../../intent.types'
 import { MethodsMapping, SupportedMethodId } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { toAccountIdLowerCase } from '../../../utils'
+import { toChainAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeERC1155Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc1155 => {
@@ -72,10 +72,10 @@ function constructTransferErc1155Intent({
   chainId: number
 }): TransferErc1155 {
   return {
-    to: toAccountIdLowerCase({ chainId, address: to }),
-    from: toAccountIdLowerCase({ chainId, address: from }),
+    to: toChainAccountIdLowerCase({ chainId, address: to }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC1155,
     transfers,
-    contract: toAccountIdLowerCase({ chainId, address: contract })
+    contract: toChainAccountIdLowerCase({ chainId, address: contract })
   }
 }

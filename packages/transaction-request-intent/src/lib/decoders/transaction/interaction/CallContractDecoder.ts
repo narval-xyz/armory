@@ -1,13 +1,13 @@
 import { ContractCallInput, Intents } from '../../../domain'
 import { CallContract } from '../../../intent.types'
-import { toAccountIdLowerCase } from '../../../utils'
+import { toChainAccountIdLowerCase } from '../../../utils'
 
 export const decodeCallContract = (input: ContractCallInput): CallContract => {
   const { to, from, chainId, methodId } = input
 
   const intent: CallContract = {
-    from: toAccountIdLowerCase({ chainId, address: from }),
-    contract: toAccountIdLowerCase({ chainId, address: to }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
+    contract: toChainAccountIdLowerCase({ chainId, address: to }),
     type: Intents.CALL_CONTRACT,
     hexSignature: methodId
   }

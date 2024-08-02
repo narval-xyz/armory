@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Action } from '../type/action.type'
 import { EntityType, FiatCurrency, IdentityOperators, ValueOperators } from '../type/domain.type'
 import { AccountType, UserRole } from '../type/entity.type'
-import { AccountId } from '../util/caip.util'
+import { ChainAccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 import { hexSchema } from './hex.schema'
 
@@ -159,7 +159,7 @@ export const transferFiltersSchema = z.object({
   tokens: z.array(z.string()).min(1).optional(),
   users: z.array(z.string().min(1)).min(1).optional(),
   resources: z.array(z.string().min(1)).min(1).optional(),
-  destinations: z.array(AccountId).min(1).optional(),
+  destinations: z.array(ChainAccountId).min(1).optional(),
   chains: z.array(z.string().min(1)).min(1).optional(),
   userGroups: z.array(z.string().min(1)).min(1).optional(),
   accountGroups: z.array(z.string().min(1)).min(1).optional()
@@ -180,7 +180,7 @@ export const rateLimitConditionSchema = z.object({
 })
 
 export const userOperationAccountConditionSchema = z.object({
-  id: z.array(AccountId).min(1).optional(),
+  id: z.array(ChainAccountId).min(1).optional(),
   address: z.array(addressSchema).min(1).optional(),
   accountType: z.array(z.nativeEnum(AccountType)).min(1).optional(),
   classification: z.array(z.string().min(1)).min(1).optional()
@@ -193,9 +193,9 @@ export const userOperationTransfersConditionSchema = z.object({
 
 export const userOperationIntentsConditionSchema = z.object({
   type: z.array(intentSchema).min(1).optional(),
-  contract: z.array(AccountId).min(1).optional(),
+  contract: z.array(ChainAccountId).min(1).optional(),
   token: z.array(z.string().min(1)).min(1).optional(),
-  spender: z.array(AccountId).min(1).optional(),
+  spender: z.array(ChainAccountId).min(1).optional(),
   chainId: z.array(z.string().min(1)).min(1).optional(),
   hexSignature: z.array(hexSchema).min(1).optional(),
   algorithm: z.array(z.nativeEnum(Alg)).min(1).optional(),
@@ -272,7 +272,7 @@ export const accountAssignedCriterionSchema = z.object({
 // Intent Source Account
 export const sourceIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_SOURCE_ID),
-  args: z.array(AccountId).min(1)
+  args: z.array(ChainAccountId).min(1)
 })
 
 export const sourceAddressCriterionSchema = z.object({
@@ -293,7 +293,7 @@ export const sourceClassificationCriterionSchema = z.object({
 // Intent Destination Account
 export const destinationIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_DESTINATION_ID),
-  args: z.array(AccountId).min(1)
+  args: z.array(ChainAccountId).min(1)
 })
 
 export const destinationAddressCriterionSchema = z.object({
@@ -319,7 +319,7 @@ export const intentTypeCriterionSchema = z.object({
 
 export const intentContractCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_CONTRACT),
-  args: z.array(AccountId).min(1)
+  args: z.array(ChainAccountId).min(1)
 })
 
 export const intentTokenCriterionSchema = z.object({
@@ -329,7 +329,7 @@ export const intentTokenCriterionSchema = z.object({
 
 export const intentSpenderCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_SPENDER),
-  args: z.array(AccountId).min(1)
+  args: z.array(ChainAccountId).min(1)
 })
 
 export const intentChainIdCriterionSchema = z.object({
@@ -388,7 +388,7 @@ export const permitDeadlineCriterionSchema = z.object({
 // User Operations
 export const entrypointIdCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_ENTRYPOINT_ID),
-  args: z.array(AccountId).min(1)
+  args: z.array(ChainAccountId).min(1)
 })
 
 export const entrypointAddressCriterionSchema = z.object({
