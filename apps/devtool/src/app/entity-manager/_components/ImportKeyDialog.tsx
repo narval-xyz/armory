@@ -1,5 +1,4 @@
-import { faUpload, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { Permission } from '@narval/armory-sdk'
 import { AccountEntity, AccountType, Action, Entities, getAddress } from '@narval/policy-engine-shared'
 import { Hex } from '@narval/signature'
@@ -46,7 +45,7 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
         action: Action.GRANT_PERMISSION,
         resourceId: 'vault',
         nonce: uuid(),
-        permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
+        permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE]
       })
 
       if (!accessToken) {
@@ -93,8 +92,8 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
 
   return (
     <NarDialog
-      triggerButton={<NarButton label={'Import'} leftIcon={<FontAwesomeIcon icon={faUpload} />} />}
-      title={'Import'}
+      triggerButton={<NarButton label={'Import'} />}
+      title={'Import Account'}
       primaryButtonLabel={'Import'}
       isOpen={Boolean(props.isOpen)}
       onOpenChange={props.onOpenChange}

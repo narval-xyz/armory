@@ -6,7 +6,6 @@ import {
   faDatabase,
   faDotCircle,
   faIdBadge,
-  faPlus,
   faRotateRight,
   faShield,
   faSpinner,
@@ -39,7 +38,9 @@ import AccountForm from './AccountForm'
 import AssignAccountForm from './AssignAccountForm'
 import CredentialCard from './CredentialCard'
 import CredentialForm from './CredentialForm'
+import DeriveAccountsDialog from './DeriveAccountDialog'
 import EmptyState from './EmptyState'
+import GenerateWalletDialog from './GenerateWalletDialog'
 import ImportKeyDialog from './ImportKeyDialog'
 import Info from './Info'
 import Message from './Message'
@@ -79,7 +80,7 @@ export default function EntityManager() {
       isSigningPolicy,
       isSigningAndPushingEntity,
       isSigningAndPushingPolicy,
-      policyFetchError,
+      policyFetchError
     },
     getEntityStore,
     getPolicyStore,
@@ -197,6 +198,8 @@ export default function EntityManager() {
                   signAndPushEntity(entities)
                 }}
               />
+
+              <GenerateWalletDialog setEntities={setEntities} />
             </>
           )}
 
@@ -249,10 +252,12 @@ export default function EntityManager() {
                   onSave={() => setImportKeyDialogOpen(false)}
                 />
 
+                <DeriveAccountsDialog setEntities={setEntities} />
+
                 <NarDialog
-                  triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
-                  title="Add Account"
-                  primaryButtonLabel={'Add'}
+                  triggerButton={<NarButton label="Track" />}
+                  title="Track Account"
+                  primaryButtonLabel={'Track'}
                   isOpen={isAccountDialogOpen}
                   onOpenChange={setAccountDialogOpen}
                   onDismiss={() => {
@@ -301,7 +306,7 @@ export default function EntityManager() {
               </div>
 
               <NarDialog
-                triggerButton={<NarButton label="Add" leftIcon={<FontAwesomeIcon icon={faPlus} />} />}
+                triggerButton={<NarButton label="Add" />}
                 title="Add User"
                 primaryButtonLabel={'Add'}
                 isOpen={isAddUserDialogOpen}

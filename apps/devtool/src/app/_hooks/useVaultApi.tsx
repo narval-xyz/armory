@@ -188,9 +188,9 @@ const useVaultApi = () => {
       setErrors(undefined)
       setIsProcessing(true)
 
-      const { accessToken } = request
+      const { accessToken, ...data } = request
 
-      return vaultClient.generateWallet({ accessToken })
+      return vaultClient.generateWallet({ accessToken, data })
     } catch (error) {
       setErrors(extractErrorMessage(error))
       throw error
