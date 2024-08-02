@@ -125,7 +125,7 @@
     "tailwind-merge": "2.2.2",
     "traverse": "0.6.9",
     "tslib": "2.6.3",
-    "type-fest": "4.21.0",
+    "type-fest": "4.23.0",
     "usehooks-ts": "3.1.0",
     "uuid": "9.0.1",
     "viem": "2.16.2",
