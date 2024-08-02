@@ -28,7 +28,7 @@
     "@swc/helpers": "0.5.11",
     "@testing-library/react": "14.1.2",
     "@types/jest": "29.5.12",
-    "@types/lodash": "4.14.202",
+    "@types/lodash": "4.17.7",
     "@types/nock": "11.1.0",
     "@types/node": "18.16.9",
     "@types/react": "18.2.62",
