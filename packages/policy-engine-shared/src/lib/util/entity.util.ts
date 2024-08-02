@@ -227,3 +227,13 @@ export const updateUserAccounts = (
     userAccounts: [...notAssignedToUser, ...userAccounts]
   }
 }
+
+export const addAccount = (entities: Entities, account: AccountEntity): Entities => ({
+  ...entities,
+  accounts: [...entities.accounts, account]
+})
+
+export const addAccounts = (entities: Entities, accounts: AccountEntity[]): Entities => ({
+  ...entities,
+  accounts: [...entities.accounts, ...accounts]
+})
