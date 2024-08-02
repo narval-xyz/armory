@@ -76,6 +76,7 @@ export const criterionSchema = z.nativeEnum({
   CHECK_INTENT_PAYLOAD: 'checkIntentPayload',
   CHECK_INTENT_ALGORITHM: 'checkIntentAlgorithm',
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
+  CHECK_INTENT_TYPED_DATA_MESSAGE: 'checkIntentTypedDataMessage',
   // Intent Token Transfers
   CHECK_ERC1155_TOKEN_ID: 'checkErc1155TokenId',
   CHECK_ERC1155_TRANSFERS: 'checkErc1155Transfers',
@@ -133,6 +134,11 @@ export const signTypedDataDomainConditionSchema = z.object({
   name: z.array(z.string()).min(1).optional(),
   verifyingContract: z.array(addressSchema).min(1).optional()
 })
+
+export const signTypedDataMessageConditionSchema = z.array(z.object({
+  key: z.string().min(1),
+  value: z.union([z.string().min(1), z.number()])
+}))
 
 export const permitDeadlineConditionSchema = z.object({
   operator: z.nativeEnum(ValueOperators),
@@ -379,6 +385,11 @@ export const intentDomainCriterionSchema = z.object({
   args: signTypedDataDomainConditionSchema
 })
 
+export const intentTypedDataMessageCriterionSchema = z.object({
+  criterion: z.literal(criterionSchema.enum.CHECK_INTENT_TYPED_DATA_MESSAGE),
+  args: z.array(signTypedDataMessageConditionSchema),
+})
+
 // Intent Permit Deadline
 export const permitDeadlineCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_PERMIT_DEADLINE),
@@ -486,6 +497,7 @@ export const policyCriterionSchema = z.discriminatedUnion('criterion', [
   // Intent Sign Message
   intentAlgorithmCriterionSchema,
   intentDomainCriterionSchema,
+  intentTypedDataMessageCriterionSchema,
   intentMessageCriterionSchema,
   intentPayloadCriterionSchema,
   // Intent Permit Deadline
