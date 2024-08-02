@@ -293,7 +293,7 @@ describe('toData', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const firstAccount = FIXTURE.ADDRESS_BOOK[0]
 
-      expect(entities.addressBook[firstAccount.id]).toEqual(firstAccount)
+      expect(entities.addressBook[firstAccount.id.toLowerCase()]).toEqual(firstAccount)
     })
 
     it('indexes tokens by id', () => {

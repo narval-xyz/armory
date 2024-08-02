@@ -16,7 +16,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
-import { indexBy } from 'lodash/fp'
+import { indexBy, toLower } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Account, AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
 
@@ -217,7 +217,8 @@ export const toData = (entities: Entities): Data => {
 
   return {
     entities: {
-      addressBook: indexBy('id', entities.addressBook),
+      addressBook: indexBy((item) => toLower(item.id), entities.addressBook),
+      // TODO: @mattschoch 08/02/2024 - do all the other indexed keys need lowercased?
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
       userGroups: Object.fromEntries(userGroups),
