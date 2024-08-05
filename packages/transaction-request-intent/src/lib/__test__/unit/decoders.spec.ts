@@ -321,6 +321,10 @@ describe('decode', () => {
           name: 'Unicorn Milk Token',
           chainId: 137,
           verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
+        },
+        message: {
+          do: 'doingStuff(address stuff)',
+          stuff: '0x1234567890123456789012345678901234567890'
         }
       })
     })
