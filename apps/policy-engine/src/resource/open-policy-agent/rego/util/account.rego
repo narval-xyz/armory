@@ -18,7 +18,18 @@ getSource(intent) = data.entities.accounts[intent.from]
 
 getSource(intent) = data.entities.addressBook[intent.from]
 
+# INVARIANT: Returns the AddressBook entry over the Account to ensure the user
+# given classification not the implicit `managed`.
+getDestination(intent) = data.entities.addressBook[intent.to]
+
 getDestination(intent) = entry {
+	# Ensure eval_conflict_error doesn't happen on multiple outputs for the
+	# same function by making it mutualiy exclusive. Therefore, getDestination
+	# will return an AddressBook over Account.
+	#
+	# See https://docs.styra.com/opa/errors/eval-conflict-error/complete-rules-must-not-produce-multiple-outputs
+	not data.entities.addressBook[intent.to]
+
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
 	account.address == chainAccount.address
@@ -33,8 +44,6 @@ getDestination(intent) = entry {
 		"classification": "managed",
 	}
 }
-
-getDestination(intent) = data.entities.addressBook[intent.to]
 
 getEntryPoint(intent) = data.entities.accounts[intent.entrypoint]
 

@@ -1,6 +1,6 @@
 package main
 
-test_getDestination_looks_up_accounts_by_intent_to_address {
+test_getDestination_looks_up_Accounts_by_intent_to_property {
 	getDestination({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -18,7 +18,7 @@ test_getDestination_looks_up_accounts_by_intent_to_address {
 	}
 }
 
-test_getDestination_returns_managed_addressBook_entry_for_account_found {
+test_getDestination_returns_implicit_managed_AddressBook_for_Account_found {
 	entry = getDestination({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -43,7 +43,7 @@ test_getDestination_returns_managed_addressBook_entry_for_account_found {
 	}
 }
 
-test_getDestination_looks_up_addressBook_by_intent_to_chain_account_id {
+test_getDestination_looks_up_AddressBook_by_intent_to_property {
 	getDestination({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -61,7 +61,8 @@ test_getDestination_looks_up_addressBook_by_intent_to_chain_account_id {
 	}
 }
 
-test_getDestination_returns_account_over_addressBook {
+#
+test_getDestination_returns_AddressBook_over_Account {
 	entry = getDestination({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -83,6 +84,6 @@ test_getDestination_returns_account_over_addressBook {
 		}},
 	}
 
-	entry.id = "eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
-	entry.classification = "managed"
+	entry.id = "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
+	entry.classification = "internal"
 }
