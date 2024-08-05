@@ -1,6 +1,6 @@
 import { ZodTypeAny, z } from 'zod'
 import { credentialEntitySchema } from '../schema/entity.schema'
-import { AccountId } from '../util/caip.util'
+import { ChainAccountId } from '../util/caip.util'
 import {
   GrantPermissionAction,
   SerializedTransactionAction,
@@ -76,7 +76,7 @@ export type HistoricalTransfer = z.infer<typeof HistoricalTransfer>
 const Price = z.record(z.string(), z.number())
 
 export const Prices = z
-  .record(AccountId, Price)
+  .record(ChainAccountId, Price)
   .describe('Represents a collection of prices for different assets present in the authorization request')
 
 /**

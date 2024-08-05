@@ -4,17 +4,17 @@ import {
   CaipError,
   ErrorCode,
   Namespace,
-  getAccountId,
   getAssetId,
-  parseAccount,
-  safeGetAccountId,
+  getChainAccountId,
+  parseChainAccount,
   safeGetAssetId,
-  safeParseAccount,
+  safeGetChainAccountId,
   safeParseAsset,
+  safeParseChainAccount,
   safeParseCoin,
   safeParseToken,
-  toAccountId,
-  toAssetId
+  toAssetId,
+  toChainAccountId
 } from '../../caip.util'
 
 describe('caip', () => {
@@ -24,9 +24,9 @@ describe('caip', () => {
   const invalidAccountIdNamespace = 'invalid_namespace:1:0x1234567890abcdef'
   const invalidAccountIdAddress = `${Namespace.EIP155}:1:invalid_address`
 
-  describe('safeParseAccount', () => {
+  describe('safeParseChainAccount', () => {
     it('returns success for valid account id', () => {
-      expect(safeParseAccount(validAccountId)).toEqual({
+      expect(safeParseChainAccount(validAccountId)).toEqual({
         success: true,
         value: {
           namespace: Namespace.EIP155,
@@ -37,61 +37,61 @@ describe('caip', () => {
     })
 
     it('returns error for invalid account id format', () => {
-      expect(safeParseAccount(invalidAccountId)).toEqual({
+      expect(safeParseChainAccount(invalidAccountId)).toEqual({
         success: false,
         error: ErrorCode.INVALID_CAIP_10_FORMAT
       })
     })
 
     it('returns error for invalid namespace', () => {
-      expect(safeParseAccount(invalidAccountIdNamespace)).toEqual({
+      expect(safeParseChainAccount(invalidAccountIdNamespace)).toEqual({
         success: false,
         error: ErrorCode.INVALID_NAMESPACE
       })
     })
 
     it('returns error for invalid address', () => {
-      expect(safeParseAccount(invalidAccountIdAddress)).toEqual({
+      expect(safeParseChainAccount(invalidAccountIdAddress)).toEqual({
         success: false,
         error: ErrorCode.INVALID_ADDRESS
       })
     })
   })
 
-  describe('safeGetAccountId', () => {
+  describe('safeGetChainAccountId', () => {
     it('returns success for valid account id', () => {
-      expect(safeGetAccountId(validAccountId)).toEqual({
+      expect(safeGetChainAccountId(validAccountId)).toEqual({
         success: true,
         value: validAccountId
       })
     })
 
     it('returns error for invalid account id format', () => {
-      expect(safeGetAccountId(invalidAccountId)).toEqual({
+      expect(safeGetChainAccountId(invalidAccountId)).toEqual({
         success: false,
         error: ErrorCode.INVALID_CAIP_10_FORMAT
       })
     })
 
     it('returns error for invalid namespace', () => {
-      expect(safeGetAccountId(invalidAccountIdNamespace)).toEqual({
+      expect(safeGetChainAccountId(invalidAccountIdNamespace)).toEqual({
         success: false,
         error: ErrorCode.INVALID_NAMESPACE
       })
     })
 
     it('returns error for invalid address', () => {
-      expect(safeGetAccountId(invalidAccountIdAddress)).toEqual({
+      expect(safeGetChainAccountId(invalidAccountIdAddress)).toEqual({
         success: false,
         error: ErrorCode.INVALID_ADDRESS
       })
     })
   })
 
-  describe('toAccountId', () => {
+  describe('toChainAccountId', () => {
     it('converts arbitrary string to account id', () => {
       expect(
-        toAccountId({
+        toChainAccountId({
           namespace: Namespace.EIP155,
           chainId: 1,
           address: '0x1234567890abcdef'
@@ -100,10 +100,10 @@ describe('caip', () => {
     })
   })
 
-  describe('parseAccount', () => {
+  describe('parseChainAccount', () => {
     it('returns account from arbitrary string', () => {
-      expect(() => parseAccount(validAccountId)).not.toThrow()
-      expect(parseAccount(validAccountId)).toEqual({
+      expect(() => parseChainAccount(validAccountId)).not.toThrow()
+      expect(parseChainAccount(validAccountId)).toEqual({
         namespace: Namespace.EIP155,
         chainId: 1,
         address: validAddress
@@ -111,22 +111,22 @@ describe('caip', () => {
     })
 
     it('throws error for invalid account id formats', () => {
-      expect(() => parseAccount(invalidAccountId)).toThrow(CaipError)
-      expect(() => parseAccount(invalidAccountIdNamespace)).toThrow(CaipError)
-      expect(() => parseAccount(invalidAccountIdAddress)).toThrow(CaipError)
+      expect(() => parseChainAccount(invalidAccountId)).toThrow(CaipError)
+      expect(() => parseChainAccount(invalidAccountIdNamespace)).toThrow(CaipError)
+      expect(() => parseChainAccount(invalidAccountIdAddress)).toThrow(CaipError)
     })
   })
 
-  describe('getAccountId', () => {
+  describe('getChainAccountId', () => {
     it('returns account id from arbitrary string', () => {
-      expect(() => getAccountId(validAccountId)).not.toThrow()
-      expect(getAccountId(validAccountId)).toEqual(validAccountId)
+      expect(() => getChainAccountId(validAccountId)).not.toThrow()
+      expect(getChainAccountId(validAccountId)).toEqual(validAccountId)
     })
 
     it('throws error for invalid account id formats', () => {
-      expect(() => getAccountId(invalidAccountId)).toThrow(CaipError)
-      expect(() => getAccountId(invalidAccountIdNamespace)).toThrow(CaipError)
-      expect(() => getAccountId(invalidAccountIdAddress)).toThrow(CaipError)
+      expect(() => getChainAccountId(invalidAccountId)).toThrow(CaipError)
+      expect(() => getChainAccountId(invalidAccountIdNamespace)).toThrow(CaipError)
+      expect(() => getChainAccountId(invalidAccountIdAddress)).toThrow(CaipError)
     })
   })
 

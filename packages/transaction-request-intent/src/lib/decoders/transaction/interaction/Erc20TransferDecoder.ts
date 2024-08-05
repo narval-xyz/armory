@@ -5,7 +5,7 @@ import { TransferParams } from '../../../extraction/types'
 import { TransferErc20 } from '../../../intent.types'
 import { MethodsMapping } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { toAccountIdLowerCase, toAssetIdLowerCase } from '../../../utils'
+import { toAssetIdLowerCase, toChainAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc20 => {
@@ -18,8 +18,8 @@ export const decodeErc20Transfer = (input: ContractCallInput, supportedMethods: 
   const { amount, recipient } = params
 
   const intent: TransferErc20 = {
-    to: toAccountIdLowerCase({ chainId, address: recipient }),
-    from: toAccountIdLowerCase({ chainId, address: from }),
+    to: toChainAccountIdLowerCase({ chainId, address: recipient }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC20,
     amount,
     token: toAssetIdLowerCase({ assetType: AssetType.ERC20, chainId, address: to })

@@ -70,19 +70,19 @@ export const AssetId = z.union([NonCollectableAssetId, CollectableAssetId, CoinA
 /**
  * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
  */
-export const AccountId = z.custom<`${Namespace}:${number}:${string}`>((value) => {
+export const ChainAccountId = z.custom<`${Namespace}:${number}:${string}`>((value) => {
   const parse = z.string().safeParse(value)
 
   if (parse.success) {
-    return isAccountId(parse.data)
+    return isChainAccountId(parse.data)
   }
 
   return false
 })
 
-export type AccountId = z.infer<typeof AccountId>
+export type ChainAccountId = z.infer<typeof ChainAccountId>
 
-export type Account = {
+export type ChainAccount = {
   chainId: number
   address: Address
   namespace: Namespace
@@ -95,7 +95,7 @@ export type Account = {
  */
 export type AssetId = z.infer<typeof AssetId>
 
-export type Token = Account & {
+export type Token = ChainAccount & {
   assetType: AssetType
   assetId?: string
 }
@@ -140,7 +140,7 @@ const unsafeParse = <T>(fn: (value: string) => Result<T>, value: string): T => {
 // Account ID
 //
 
-const matchAccountId = (value: string) => {
+const matchChainAccountId = (value: string) => {
   const match = value.match(/^([^:]+):(\d+):(.+)$/)
 
   if (!match) {
@@ -160,8 +160,8 @@ const matchAccountId = (value: string) => {
  * @param value The account value to parse.
  * @returns The result of parsing the account value.
  */
-export const safeParseAccount = (value: string): Result<Account> => {
-  const match = matchAccountId(value)
+export const safeParseChainAccount = (value: string): Result<ChainAccount> => {
+  const match = matchChainAccountId(value)
 
   if (!match) {
     return {
@@ -204,13 +204,13 @@ export const safeParseAccount = (value: string): Result<Account> => {
  * @param value - The string value to parse.
  * @returns A Result object containing the account ID if successful, or an error if unsuccessful.
  */
-export const safeGetAccountId = (value: string): Result<AccountId> => {
-  const result = safeParseAccount(value)
+export const safeGetChainAccountId = (value: string): Result<ChainAccountId> => {
+  const result = safeParseChainAccount(value)
 
   if (result.success) {
     return {
       success: true,
-      value: toAccountId(result.value)
+      value: toChainAccountId(result.value)
     }
   }
 
@@ -224,7 +224,8 @@ export const safeGetAccountId = (value: string): Result<AccountId> => {
  * @throws {CaipError}
  * @returns The parsed account.
  */
-export const parseAccount = (value: string): Account => unsafeParse<Account>(safeParseAccount, value)
+export const parseChainAccount = (value: string): ChainAccount =>
+  unsafeParse<ChainAccount>(safeParseChainAccount, value)
 
 /**
  * Parses the value and returns the AccountId.
@@ -233,16 +234,17 @@ export const parseAccount = (value: string): Account => unsafeParse<Account>(saf
  * @throws {CaipError}
  * @returns The parsed AccountId.
  */
-export const getAccountId = (value: string): AccountId => unsafeParse<AccountId>(safeGetAccountId, value)
+export const getChainAccountId = (value: string): ChainAccountId =>
+  unsafeParse<ChainAccountId>(safeGetChainAccountId, value)
 
 /**
  * Converts an Account object to an AccountId string.
  *
- * @param {SetOptional<Account, 'namespace'>} account - The Account object to convert.
- * @returns {AccountId} The converted AccountId string.
+ * @param {SetOptional<ChainAccount, 'namespace'>} account - The Account object to convert.
+ * @returns {ChainAccountId} The converted AccountId string.
  */
-export const toAccountId = (input: SetOptional<Account, 'namespace'>): AccountId => {
-  const account: Account = {
+export const toChainAccountId = (input: SetOptional<ChainAccount, 'namespace'>): ChainAccountId => {
+  const account: ChainAccount = {
     ...input,
     namespace: input.namespace || Namespace.EIP155
   }
@@ -256,7 +258,7 @@ export const toAccountId = (input: SetOptional<Account, 'namespace'>): AccountId
  * @param value The value to check.
  * @returns True if the value is a valid account ID, false otherwise.
  */
-export const isAccountId = (value: string): boolean => safeParseAccount(value).success
+export const isChainAccountId = (value: string): boolean => safeParseChainAccount(value).success
 
 //
 // Asset ID

@@ -35,13 +35,13 @@ Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md
 > Unsafe operations will throw CaipError.
 
 ```typescript
-getAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
-parseAccount('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
+getChainAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
+parseChainAccount('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
 
 // Safe operations
-toAccountId(account)
-safeGetAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
-safeParseAccount('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
+toChainAccountId(account)
+safeGetChainAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
+safeParseChainAccount('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4')
 ```
 
 API for [CAIP-19 Asset ID

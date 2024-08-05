@@ -1,4 +1,10 @@
-import { AccountId, TransactionRequest, getAccountId, getAddress, getAssetId } from '@narval/policy-engine-shared'
+import {
+  ChainAccountId,
+  TransactionRequest,
+  getAddress,
+  getAssetId,
+  getChainAccountId
+} from '@narval/policy-engine-shared'
 import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'
 
@@ -202,14 +208,14 @@ export const SHY_ACCOUNT_1: AddressBookAccount = {
 }
 
 export const ACCOUNT_Q_137: AddressBookAccount = {
-  uid: getAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
+  uid: getChainAccountId('eip155:137:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
   address: getAddress('0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4'),
   chainId: 137,
   classification: 'wallet'
 }
 
 export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
-  uid: getAccountId('eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3'),
+  uid: getChainAccountId('eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3'),
   address: getAddress('0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3'),
   chainId: 137,
   classification: 'internal'
@@ -218,8 +224,8 @@ export const ACCOUNT_INTERNAL_WXZ_137: AddressBookAccount = {
 export const NATIVE_TRANSFER_INTENT: TransferNative = {
   type: Intents.TRANSFER_NATIVE,
   // TODO WHAT"S THIS?
-  to: 'eip155:137/eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as AccountId,
-  from: 'eip155:137/eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as AccountId,
+  to: 'eip155:137/eoa:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4' as ChainAccountId,
+  from: 'eip155:137/eoa:0x90d03a8971a2faa19a9d7ffdcbca28fe826a289b' as ChainAccountId,
   amount: '0x8000',
   token: getAssetId('eip155:1/slip44:60')
 }
@@ -235,8 +241,8 @@ const ERC20_TRANSFER_TX_REQUEST: TransactionRequest = {
 
 const ERC20_TRANSFER_INTENT: TransferErc20 = {
   type: Intents.TRANSFER_ERC20,
-  to: getAccountId('eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'),
-  from: getAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}`),
+  to: getChainAccountId('eip155:137:0x031d8c0ca142921c459bcb28104c0ff37928f9ed'),
+  from: getChainAccountId(`eip155:137:${ERC20_TRANSFER_TX_REQUEST.from.toLowerCase()}`),
   token: getAssetId(`eip155:137/erc20:${ERC20_TRANSFER_TX_REQUEST.to?.toLowerCase()}`),
   amount: '428406414311469998210669'
 }
@@ -252,9 +258,9 @@ const ERC721_SAFE_TRANSFER_FROM_TX_REQUEST: TransactionRequest = {
 
 const ERC721_SAFE_TRANSFER_FROM_INTENT: TransferErc721 = {
   type: Intents.TRANSFER_ERC721,
-  to: getAccountId('eip155:137:0xb253f6156e64b12ba0dec3974062dbbaee139f0c'),
-  from: getAccountId(`eip155:137:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}`),
-  contract: getAccountId(`eip155:137:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}`),
+  to: getChainAccountId('eip155:137:0xb253f6156e64b12ba0dec3974062dbbaee139f0c'),
+  from: getChainAccountId(`eip155:137:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}`),
+  contract: getChainAccountId(`eip155:137:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}`),
   token: getAssetId(`eip155:137/erc721:${ERC721_SAFE_TRANSFER_FROM_TX_REQUEST.to}/41173`)
 }
 
@@ -282,9 +288,9 @@ export const mockTransferFrom = {
     }
   } as TransactionInput,
   intent: {
-    to: getAccountId('eip155:137:0x59895c2cdaa07cc3ac20ef0918d2597a277b276c'),
-    from: getAccountId(`eip155:137:${TREASURY_WALLET_X.address}`),
-    contract: getAccountId(`eip155:137:${ACCOUNT_Q_137.address}`),
+    to: getChainAccountId('eip155:137:0x59895c2cdaa07cc3ac20ef0918d2597a277b276c'),
+    from: getChainAccountId(`eip155:137:${TREASURY_WALLET_X.address}`),
+    contract: getChainAccountId(`eip155:137:${ACCOUNT_Q_137.address}`),
     amount: '5532'
   }
 }
@@ -300,9 +306,9 @@ const ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST: TransactionRequest = {
 
 const ERC1155_SAFE_TRANSFER_FROM_INTENT: TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155,
-  to: getAccountId('eip155:137:0x00ca04c45da318d5b7e7b14d5381ca59f09c73f0'),
-  from: getAccountId(`eip155:137:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}`),
-  contract: getAccountId(`eip155:137:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}`),
+  to: getChainAccountId('eip155:137:0x00ca04c45da318d5b7e7b14d5381ca59f09c73f0'),
+  from: getChainAccountId(`eip155:137:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.from.toLowerCase()}`),
+  contract: getChainAccountId(`eip155:137:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to?.toLowerCase()}`),
   transfers: [
     {
       token: getAssetId(`eip155:137/erc1155:${ERC1155_SAFE_TRANSFER_FROM_TX_REQUEST.to}/175`),
@@ -328,9 +334,9 @@ const ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST = {
 
 const ERC1155_BATCH_SAFE_TRANSFER_FROM_INTENT = {
   type: Intents.TRANSFER_ERC1155,
-  from: getAccountId(`eip155:137:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.from.toLowerCase()}`),
-  to: getAccountId('eip155:137:0x383370726a5bd619e0d2af8ef37a58013b823a8c'),
-  contract: getAccountId(`eip155:137:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to?.toLowerCase()}`),
+  from: getChainAccountId(`eip155:137:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.from.toLowerCase()}`),
+  to: getChainAccountId('eip155:137:0x383370726a5bd619e0d2af8ef37a58013b823a8c'),
+  contract: getChainAccountId(`eip155:137:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to?.toLowerCase()}`),
   transfers: [
     {
       token: getAssetId(`eip155:137/erc1155:${ERC1155_BATCH_SAFE_TRANSFER_FROM_REQUEST.to}/2972`),

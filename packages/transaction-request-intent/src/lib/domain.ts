@@ -1,7 +1,7 @@
 import {
-  AccountId,
   Address,
   AssetType,
+  ChainAccountId,
   Hex,
   TransactionRequest,
   type Eip712TypedData
@@ -35,13 +35,13 @@ export type ContractInformation = {
   assetType: AssetType
 }
 export type ContractRegistryInput = {
-  contract: AccountId | { address: Address; chainId: number }
+  contract: ChainAccountId | { address: Address; chainId: number }
   assetType?: AssetType
   factoryType?: WalletType
 }[]
-export type ContractRegistry = Map<AccountId, ContractInformation>
+export type ContractRegistry = Map<ChainAccountId, ContractInformation>
 
-export type TransactionKey = `${AccountId}-${number}`
+export type TransactionKey = `${ChainAccountId}-${number}`
 export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 export type TransactionInput = {

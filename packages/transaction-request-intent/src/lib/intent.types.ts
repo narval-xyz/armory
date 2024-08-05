@@ -1,28 +1,28 @@
-import { AccountId, AssetId, Eip712Domain, Hex } from '@narval/policy-engine-shared'
+import { AssetId, ChainAccountId, Eip712Domain, Hex } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { Intents } from './domain'
 
 export type TransferNative = {
   type: Intents.TRANSFER_NATIVE
-  to: AccountId
-  from: AccountId
+  to: ChainAccountId
+  from: ChainAccountId
   token: AssetId
   amount: string
 }
 
 export type TransferErc20 = {
   type: Intents.TRANSFER_ERC20
-  to: AccountId
-  from: AccountId
+  to: ChainAccountId
+  from: ChainAccountId
   token: AssetId
   amount: string
 }
 
 export type TransferErc721 = {
   type: Intents.TRANSFER_ERC721
-  to: AccountId
-  from: AccountId
-  contract: AccountId
+  to: ChainAccountId
+  from: ChainAccountId
+  contract: ChainAccountId
   token: AssetId
 }
 
@@ -33,17 +33,17 @@ export type ERC1155Transfer = {
 
 export type TransferErc1155 = {
   type: Intents.TRANSFER_ERC1155
-  to: AccountId
-  from: AccountId
-  contract: AccountId
+  to: ChainAccountId
+  from: ChainAccountId
+  contract: ChainAccountId
   transfers: ERC1155Transfer[]
 }
 
 export type CallContract = {
   type: Intents.CALL_CONTRACT
-  to?: AccountId // in case we fall back to CallContract from a transfer function
-  from: AccountId
-  contract: AccountId
+  to?: ChainAccountId // in case we fall back to CallContract from a transfer function
+  from: ChainAccountId
+  contract: ChainAccountId
   hexSignature: Hex
 }
 
@@ -65,20 +65,20 @@ export type SignTypedData = {
 
 export type DeployContract = {
   type: Intents.DEPLOY_CONTRACT
-  from: AccountId
+  from: ChainAccountId
   chainId: number
 }
 
 export type DeployErc4337Wallet = {
   type: Intents.DEPLOY_ERC_4337_WALLET
-  from: AccountId
+  from: ChainAccountId
   bytecode: Hex
   chainId: number
 }
 
 export type DeploySafeWallet = {
   type: Intents.DEPLOY_SAFE_WALLET
-  from: AccountId
+  from: ChainAccountId
   chainId: number
 }
 
@@ -92,34 +92,34 @@ export type CancelTransaction = {
 
 export type ApproveTokenAllowance = {
   type: Intents.APPROVE_TOKEN_ALLOWANCE
-  from: AccountId
-  token: AccountId
-  spender: AccountId
+  from: ChainAccountId
+  token: ChainAccountId
+  spender: ChainAccountId
   amount: string
 }
 
 export type Permit = {
   type: Intents.PERMIT
-  owner: AccountId
-  spender: AccountId
+  owner: ChainAccountId
+  spender: ChainAccountId
   amount: string
-  token: AccountId
+  token: ChainAccountId
   deadline: number
 }
 
 export type Permit2 = {
   type: Intents.PERMIT2
-  owner: AccountId
-  spender: AccountId
+  owner: ChainAccountId
+  spender: ChainAccountId
   amount: string
-  token: AccountId
+  token: ChainAccountId
   deadline: number
 }
 
 export type UserOperation = {
   type: Intents.USER_OPERATION
-  from: AccountId
-  entrypoint: AccountId
+  from: ChainAccountId
+  entrypoint: ChainAccountId
   operationIntents: Intent[]
 }
 

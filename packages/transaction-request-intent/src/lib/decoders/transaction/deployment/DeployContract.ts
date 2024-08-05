@@ -1,6 +1,6 @@
 import { ContractDeploymentInput, ContractRegistry, Intents, WalletType } from '../../../domain'
 import { DeployContract, DeployErc4337Wallet, DeploySafeWallet } from '../../../intent.types'
-import { contractTypeLookup, toAccountIdLowerCase } from '../../../utils'
+import { contractTypeLookup, toChainAccountIdLowerCase } from '../../../utils'
 
 type DeploymentIntent = DeployContract | DeployErc4337Wallet | DeploySafeWallet
 
@@ -15,14 +15,14 @@ export const decodeContractDeployment = (
     // Return a DeploySafeWallet object
     return {
       type: Intents.DEPLOY_SAFE_WALLET,
-      from: toAccountIdLowerCase({ chainId, address: from }),
+      from: toChainAccountIdLowerCase({ chainId, address: from }),
       chainId
     }
   } else if (fromType?.factoryType === WalletType.ERC4337) {
     // Return a DeployErc4337Wallet object
     return {
       type: Intents.DEPLOY_ERC_4337_WALLET,
-      from: toAccountIdLowerCase({ chainId, address: from }),
+      from: toChainAccountIdLowerCase({ chainId, address: from }),
       chainId,
       bytecode: data
     }
@@ -30,7 +30,7 @@ export const decodeContractDeployment = (
     // Return a DeployContract object
     return {
       type: Intents.DEPLOY_CONTRACT,
-      from: toAccountIdLowerCase({ chainId, address: from }),
+      from: toChainAccountIdLowerCase({ chainId, address: from }),
       chainId
     }
   }

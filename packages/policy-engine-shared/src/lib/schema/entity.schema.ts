@@ -1,6 +1,6 @@
 import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
-import { AccountId } from '../util/caip.util'
+import { ChainAccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
 
 export const userRoleSchema = z.nativeEnum({
@@ -69,7 +69,7 @@ export const accountGroupMemberEntitySchema = z.object({
 })
 
 export const addressBookAccountEntitySchema = z.object({
-  id: AccountId,
+  id: ChainAccountId,
   address: addressSchema,
   chainId: z.number(),
   classification: accountClassificationSchema

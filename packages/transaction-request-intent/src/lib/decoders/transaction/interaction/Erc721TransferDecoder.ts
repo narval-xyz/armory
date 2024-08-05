@@ -5,7 +5,7 @@ import { Erc721SafeTransferFromParams } from '../../../extraction/types'
 import { TransferErc721 } from '../../../intent.types'
 import { MethodsMapping } from '../../../supported-methods'
 import { isSupportedMethodId } from '../../../typeguards'
-import { toAccountIdLowerCase, toAssetIdLowerCase } from '../../../utils'
+import { toAssetIdLowerCase, toChainAccountIdLowerCase } from '../../../utils'
 import { extract } from '../../utils'
 
 export const decodeErc721Transfer = (input: ContractCallInput, supportedMethods: MethodsMapping): TransferErc721 => {
@@ -18,8 +18,8 @@ export const decodeErc721Transfer = (input: ContractCallInput, supportedMethods:
   const { to, tokenId } = params
 
   const intent: TransferErc721 = {
-    to: toAccountIdLowerCase({ chainId, address: to }),
-    from: toAccountIdLowerCase({ chainId, address: from }),
+    to: toChainAccountIdLowerCase({ chainId, address: to }),
+    from: toChainAccountIdLowerCase({ chainId, address: from }),
     type: Intents.TRANSFER_ERC721,
     token: toAssetIdLowerCase({
       assetType: AssetType.ERC721,
@@ -27,7 +27,7 @@ export const decodeErc721Transfer = (input: ContractCallInput, supportedMethods:
       address: contract,
       assetId: tokenId.toString()
     }),
-    contract: toAccountIdLowerCase({ chainId, address: contract })
+    contract: toChainAccountIdLowerCase({ chainId, address: contract })
   }
 
   return intent

@@ -2,7 +2,7 @@
 
 import { faUpload, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AccountEntity, Namespace, UserAccountEntity, toAccountId } from '@narval/policy-engine-shared'
+import { AccountEntity, Namespace, UserAccountEntity, toChainAccountId } from '@narval/policy-engine-shared'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
@@ -77,7 +77,7 @@ const Accounts: FC<WalletsProps> = ({ accounts, userAccounts, onChange }) => {
     }
     let id = ''
     if (accountData.chainId) {
-      id = toAccountId({ ...accountData, chainId: Number(accountData.chainId) })
+      id = toChainAccountId({ ...accountData, chainId: Number(accountData.chainId) })
     } else if (accountData.accountType === 'eoa') {
       id = `${Namespace.EIP155}:eoa:${accountData.address}`
     } else {
