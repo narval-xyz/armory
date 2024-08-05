@@ -1,29 +1,69 @@
 package main
 
 typedDataInput = {
-    "typedData": {
-        "message": {
-            "walletAddress": "0x299697552cd035afd7e08600c4001fff48498263",
-            "immutablePassportAddress": "0xfa9582594f460d3cad2095f6270996ac25f89874",
-            "condition": "I agree to link this wallet to my Immutable Passport account.",
-            "nonce": "mTu2kYHDG9jt9ZTIp"
+      "action": "signTypedData",
+      "principal": {
+        "userId": "test-alice-user-uid",
+        "id": "0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94",
+        "key": {
+          "kty": "EC",
+          "alg": "ES256K",
+          "kid": "0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94",
+          "crv": "secp256k1",
+          "x": "zb-LwlHDtp5sV8E33k3H2TCm-LNTGIcFjODNWI4gHRY",
+          "y": "6Pbt6dwxAeS7yHp7YV2GbXs_Px0tWrTfeTv9erjC7zs"
         }
+      },
+      "approvals": [
+        {
+          "userId": "test-alice-user-uid",
+          "id": "0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94",
+          "key": {
+            "kty": "EC",
+            "alg": "ES256K",
+            "kid": "0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94",
+            "crv": "secp256k1",
+            "x": "zb-LwlHDtp5sV8E33k3H2TCm-LNTGIcFjODNWI4gHRY",
+            "y": "6Pbt6dwxAeS7yHp7YV2GbXs_Px0tWrTfeTv9erjC7zs"
+          }
+        }
+      ],
+      "intent": {
+        "type": "signTypedData",
+        "domain": {
+          "chainId": 1
+        },
+        "message": {
+          "walletAddress": "0x299697552cd035afd7e08600c4001fff48498263",
+          "immutablePassportAddress": "0xfa9582594f460d3cad2095f6270996ac25f89874",
+          "condition": "I agree to link this wallet to my Immutable Passport account.",
+          "nonce": "mTu2kYHDG9jt9ZTIp"
+        }
+      },
+      "resource": {
+        "uid": "eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495"
+      }
     }
-}
 
 test_checkIntentTypedDataMessageCondition {
     filters := [
         [{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}],
     ]
 
-    typedDataMessageCondition(filters) with input as typedDataInput with data.entities as entities
+    checkIntentTypedDataMessage(filters) with input as typedDataInput with data.entities as entities
 }
 
-test_checkIntentTypedDataMessageCondition_fail {
+test_checkIntentTypedDataMessageCondition_one_wrong_value_one_correct_value_in_condition_should_not_match {
     conditions := [
-        [{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}, {"key": "walletAddress", "value": "0xwrongaddress"}],
-        [],
+        [ {"key": "walletAddress", "value": "0xwrongaddress"}, {"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}],
     ]
+    not checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as entities
+}
 
-    not typedDataMessageCondition(conditions) with input as typedDataInput with data.entities as entities
+test_checkIntentTypedDataMessageCondition_one_wrong_condition_one_correct_condition_should_match {
+    conditions := [
+        [{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}],
+        [{"key": "wrongKey", "value": "0x299697552cd035afd7e08600c4001fff48498263"}]
+    ]
+    checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as entities
 }

@@ -380,7 +380,6 @@ describe('OpenPolicyAgentEngine', () => {
       })
     })
   })
-
   describe('scenario testing', () => {
     describe('checkDestinationClassification', () => {
       // Sample policy & data for this specific set of
@@ -559,6 +558,95 @@ describe('OpenPolicyAgentEngine', () => {
         const response = await e.evaluate(evaluation)
 
         expect(response.decision).toEqual(Decision.FORBID)
+      })
+    })
+    describe('checkIntentTypedDataMessage', () => {
+      const immortalTypedData = {
+        types: {
+          EIP712Domain: [
+            {
+              name: 'chainId',
+              type: 'uint256'
+            }
+          ],
+          LinkWallet: [
+            {
+              name: 'walletAddress',
+              type: 'address'
+            },
+            {
+              name: 'immutablePassportAddress',
+              type: 'address'
+            },
+            {
+              name: 'condition',
+              type: 'string'
+            },
+            {
+              name: 'nonce',
+              type: 'string'
+            }
+          ]
+        },
+        primaryType: 'LinkWallet',
+        domain: {
+          chainId: 1
+        },
+        message: {
+          walletAddress: '0x299697552cd035afd7e08600c4001fff48498263',
+          immutablePassportAddress: '0xfa9582594f460d3cad2095f6270996ac25f89874',
+          condition: 'I agree to link this wallet to my Immutable Passport account.',
+          nonce: 'mTu2kYHDG9jt9ZTIp'
+        }
+      }
+
+      it('permits Immortal log-in typed data with message.condition policy and assigned account', async () => {
+        const immortalPolicy: Policy[] = [
+          {
+            id: 'test-permit-login-uid',
+            then: Then.PERMIT,
+            description: 'permits immortal login with assigned account',
+            when: [
+              {
+                criterion: Criterion.CHECK_INTENT_TYPED_DATA_MESSAGE,
+                args: [
+                  [
+                    {
+                      key: 'condition',
+                      value: 'I agree to link this wallet to my Immutable Passport account.'
+                    }
+                  ]
+                ]
+              },
+              {
+                criterion: Criterion.CHECK_ACCOUNT_ASSIGNED,
+                args: null
+              }
+            ]
+          }
+        ]
+
+        const e = await engine.setPolicies(immortalPolicy).setEntities(FIXTURE.ENTITIES).load()
+
+        const request = {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: 'test-nonce',
+          typedData: immortalTypedData,
+          resourceId: FIXTURE.ACCOUNT.Testing.id
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+        expect(response.decision).toEqual(Decision.PERMIT)
+        expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
       })
     })
   })
