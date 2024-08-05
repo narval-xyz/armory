@@ -215,6 +215,17 @@ describe('Evaluation', () => {
                   verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
                   version: '1'
                 },
+                message: {
+                  from: {
+                    name: 'Alice',
+                    account: FIXTURE.VIEM_ACCOUNT.Alice.address
+                  },
+                  to: {
+                    name: 'Bob',
+                    account: FIXTURE.VIEM_ACCOUNT.Bob.address
+                  },
+                  contents: "Dear Bob, today we're going to the moon"
+                },
                 type: 'signTypedData'
               }
             }),
