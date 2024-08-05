@@ -383,7 +383,8 @@ describe('OpenPolicyAgentEngine', () => {
 
   describe('scenario testing', () => {
     describe('checkDestinationClassification', () => {
-      // Sample policy & data for this specific set of checkDestinationClassification scenarios
+      // Sample policy & data for this specific set of
+      // checkDestinationClassification scenarios.
       const policies: Policy[] = [
         {
           id: '1-allow-internal-transfers',
@@ -402,8 +403,10 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      // NOTE: this references Alice for the Credentials, but we're not importing from dev.fixtures.ts
-      // because we want this to be copy-pasteable as the actual JSON, so it can be e2e tested outside this unit test
+      // NOTE: this references Alice for the Credentials, but we're not
+      // importing from dev.fixtures.ts because we want this to be
+      // copy-pasteable as the actual JSON, so it can be e2e tested outside
+      // this unit test.
       const entities: Entities = {
         addressBook: [
           {
@@ -458,7 +461,8 @@ describe('OpenPolicyAgentEngine', () => {
           }
         ]
       }
-      it('allow transfers between managed accounts not in address book explicitly', async () => {
+
+      it('permits transfers between implicit managed accounts not in address book', async () => {
         const e = await new OpenPolicyAgentEngine({
           policies,
           entities,
@@ -487,10 +491,11 @@ describe('OpenPolicyAgentEngine', () => {
         }
 
         const response = await e.evaluate(evaluation)
+
         expect(response.decision).toEqual(Decision.PERMIT)
       })
 
-      it('allow transfers to account classified `internal` in address book', async () => {
+      it('permits transfers to account classified internal in address book', async () => {
         const e = await new OpenPolicyAgentEngine({
           policies,
           entities,
@@ -519,10 +524,11 @@ describe('OpenPolicyAgentEngine', () => {
         }
 
         const response = await e.evaluate(evaluation)
+
         expect(response.decision).toEqual(Decision.PERMIT)
       })
 
-      it('forbids transfer to account classified `counterparty` in address book', async () => {
+      it('forbids transfer to account classified counterparty in address book', async () => {
         const e = await new OpenPolicyAgentEngine({
           policies,
           entities,
@@ -551,6 +557,7 @@ describe('OpenPolicyAgentEngine', () => {
         }
 
         const response = await e.evaluate(evaluation)
+
         expect(response.decision).toEqual(Decision.FORBID)
       })
     })
