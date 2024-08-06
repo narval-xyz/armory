@@ -16,7 +16,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
-import { indexBy } from 'lodash/fp'
+import { indexBy, toLower } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Account, AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
 
@@ -28,7 +28,7 @@ type Mapping<R extends Request> = (
 ) => Input
 
 const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
-  const { chainId, entryPoint, ...userOpToBeHashed } = request.userOperation
+  const { chainId, entryPoint } = request.userOperation
 
   const result = safeDecode({
     input: {
@@ -173,12 +173,17 @@ export const toInput = (params: {
   })
 }
 
+// NOTE: Index entities by lower case ID is an important invariant for many
+// Rego rules performing a look up on the dataset.
+const index = <Entity extends { id: string }>(entities: Entity[]) => indexBy(({ id }) => toLower(id), entities)
+
 export const toData = (entities: Entities): Data => {
   const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
-    const group = groups.get(groupId)
+    const id = groupId.toLowerCase()
+    const group = groups.get(id)
 
     if (group) {
-      return groups.set(groupId, {
+      return groups.set(id, {
         id: groupId,
         users: group.users.concat(userId)
       })
@@ -217,11 +222,11 @@ export const toData = (entities: Entities): Data => {
 
   return {
     entities: {
-      addressBook: indexBy('id', entities.addressBook),
-      tokens: indexBy('id', entities.tokens),
-      users: indexBy('id', entities.users),
+      addressBook: index(entities.addressBook),
+      tokens: index(entities.tokens),
+      users: index(entities.users),
       userGroups: Object.fromEntries(userGroups),
-      accounts: indexBy('id', accounts),
+      accounts: index(accounts),
       accountGroups: Object.fromEntries(accountGroups)
     }
   }
