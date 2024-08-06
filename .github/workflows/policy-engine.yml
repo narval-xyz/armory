@@ -128,7 +128,10 @@ jobs:
         with:
           version: latest
 
-      - name: Test rego
+      - name: Code format
+        run: make policy-engine/rego/format/check
+
+      - name: Test
         run: make policy-engine/rego/test
 
   release:
