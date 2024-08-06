@@ -84,8 +84,8 @@ test_getDestination_returns_AddressBook_over_Account {
 		}},
 	}
 
-	entry.id = "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
-	entry.classification = "internal"
+	entry.id == "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
+	entry.classification == "internal"
 }
 
 test_getDestination_ignores_case_on_look_up {
@@ -107,6 +107,6 @@ test_getDestination_ignores_case_on_look_up {
 			},
 	}
 
-	entry.id = "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f"
-	entry.classification = "managed"
+	entry.id == "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f"
+	entry.classification == "managed"
 }
