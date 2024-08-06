@@ -3,8 +3,8 @@ import {
   Action,
   Criterion,
   Decision,
-  Entities,
   Eip712TypedData,
+  Entities,
   EntityType,
   EvaluationRequest,
   FIXTURE,
@@ -601,39 +601,81 @@ describe('OpenPolicyAgentEngine', () => {
         }
       } as unknown as Eip712TypedData
 
-      it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
-        const immutablePolicy: Policy[] = [
-          {
-            id: 'test-permit-login-uid',
-            then: 'permit',
-            description: 'permits immutable login with assigned account',
-            when: [
-              {
-                criterion: 'checkIntentTypedDataMessage',
-                args: [
-                  [
-                    {
-                      key: 'condition',
-                      value: 'I agree to link this wallet to my Immutable Passport account.'
-                    }
-                  ]
+      const policies: Policy[] = [
+        {
+          id: 'test-permit-login-uid',
+          then: 'permit',
+          description: 'permits immutable login with assigned account',
+          when: [
+            {
+              criterion: 'checkIntentTypedDataMessage',
+              args: [
+                [
+                  {
+                    key: 'condition',
+                    value: 'I agree to link this wallet to my Immutable Passport account.'
+                  }
                 ]
-              },
-              {
-                criterion: 'checkAccountAssigned',
-                args: null
-              }
-            ]
+              ]
+            },
+            {
+              criterion: 'checkAccountAssigned',
+              args: null
+            }
+          ]
+        }
+      ]
+
+      const entities: Entities = {
+        addressBook: [],
+        credentials: [
+          {
+            userId: 'test-alice-user-uid',
+            id: '0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94',
+            key: {
+              kty: 'EC',
+              alg: 'ES256K',
+              kid: '0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94',
+              crv: 'secp256k1',
+              x: 'zb-LwlHDtp5sV8E33k3H2TCm-LNTGIcFjODNWI4gHRY',
+              y: '6Pbt6dwxAeS7yHp7YV2GbXs_Px0tWrTfeTv9erjC7zs'
+            }
+          }
+        ],
+        tokens: [],
+        userGroupMembers: [],
+        userGroups: [],
+        userAccounts: [
+          {
+            accountId: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127',
+            userId: 'test-alice-user-uid'
+          }
+        ],
+        users: [
+          {
+            id: 'test-alice-user-uid',
+            role: 'admin'
+          }
+        ],
+        accountGroupMembers: [],
+        accountGroups: [],
+        accounts: [
+          {
+            id: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127',
+            address: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            accountType: 'eoa'
           }
         ]
+      }
 
-        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE.ENTITIES).load()
+      it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
+        const e = await engine.setPolicies(policies).setEntities(entities).load()
 
         const request = {
           action: Action.SIGN_TYPED_DATA,
           nonce: 'test-nonce',
           typedData: immutableTypedData,
-          resourceId: 'eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495'
+          resourceId: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127'
         }
 
         const evaluation: EvaluationRequest = {

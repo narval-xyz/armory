@@ -56,7 +56,7 @@ const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principa
     intent: result.intent,
     approvals,
     userOperation: SerializedUserOperationV6.parse(request.userOperation),
-    resource: { uid: request.resourceId },
+    resource: { uid: request.resourceId.toLowerCase() },
     feeds
   }
 }
@@ -75,8 +75,8 @@ const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, a
       principal,
       approvals,
       intent: result.intent,
-      transactionRequest: SerializedTransactionRequest.parse(request.transactionRequest),
-      resource: { uid: request.resourceId },
+      transactionRequest: lowercaseStringValues(SerializedTransactionRequest.parse(request.transactionRequest)),
+      resource: { uid: request.resourceId.toLowerCase() },
       feeds
     }
   }
@@ -102,7 +102,7 @@ const toSignTypedData: Mapping<SignTypedDataAction> = (request, principal, appro
       principal,
       approvals,
       intent: result.intent,
-      resource: { uid: request.resourceId }
+      resource: { uid: request.resourceId.toLowerCase() }
     }
   }
 
@@ -124,7 +124,7 @@ const toSignMessageOrSignRaw = (params: {
     action,
     principal,
     approvals,
-    resource: { uid: request.resourceId }
+    resource: { uid: request.resourceId.toLowerCase() }
   }
 }
 
@@ -139,9 +139,30 @@ const toGrantPermission: Mapping<GrantPermissionAction> = (request, principal, a
     action: request.action,
     principal,
     approvals,
-    resource: { uid: request.resourceId },
+    resource: { uid: request.resourceId.toLowerCase() },
     permissions: request.permissions
   }
+}
+
+function lowercaseStringValues(obj: any): any {
+  if (typeof obj === 'string') {
+    // Base case: If obj is a string, return its lowercase version
+    return obj.toLowerCase()
+  } else if (Array.isArray(obj)) {
+    // If obj is an array, recursively apply the function to each element
+    return obj.map(lowercaseStringValues)
+  } else if (typeof obj === 'object' && obj !== null) {
+    // If obj is an object, recursively apply the function to each value (without changing keys)
+    return Object.entries(obj).reduce(
+      (acc, [key, value]) => {
+        acc[key] = lowercaseStringValues(value) // Keep the key as is
+        return acc
+      },
+      {} as { [key: string]: any }
+    )
+  }
+  // Return the original obj if it's neither a string, array, nor object
+  return obj
 }
 
 export const toInput = (params: {
@@ -219,15 +240,16 @@ export const toData = (entities: Entities): Data => {
       return groups.set(groupId, { id: groupId, accounts: [accountId] })
     }
   }, new Map<string, AccountGroup>())
-
-  return {
+  const data: Data = {
     entities: {
-      addressBook: index(entities.addressBook),
-      tokens: index(entities.tokens),
-      users: index(entities.users),
-      userGroups: Object.fromEntries(userGroups),
-      accounts: index(accounts),
-      accountGroups: Object.fromEntries(accountGroups)
+      addressBook: lowercaseStringValues(index(entities.addressBook)),
+      tokens: lowercaseStringValues(index(entities.tokens)),
+      users: lowercaseStringValues(index(entities.users)),
+      userGroups: lowercaseStringValues(Object.fromEntries(userGroups)),
+      accounts: lowercaseStringValues(index(accounts)),
+      accountGroups: lowercaseStringValues(Object.fromEntries(accountGroups))
     }
   }
+
+  return data
 }

@@ -24,8 +24,6 @@ principalReq = {"userId": "test-bob-uid"}
 
 resourceReq = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 
-upperCaseResourceReq = {"uid": "eip155:eoa:0xDDCF208F219A6E6AF072F2CFDC615B2C1805F98E"}
-
 transactionRequestEIP1559 = {
 	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -137,16 +135,6 @@ requestWithLegacyTransaction = {
   "transactionRequest": transactionRequestLegacy,
   "principal": principalReq,
   "resource": resourceReq,
-  "intent": intentReq,
-  "approvals": approvalsReq,
-  "feeds": feedsReq,
-}
-
-requestWithUpperCasedResource = {
-  "action": "signTransaction",
-  "transactionRequest": transactionRequestEIP1559,
-  "principal": principalReq,
-  "resource": upperCaseResourceReq,
   "intent": intentReq,
   "approvals": approvalsReq,
   "feeds": feedsReq,

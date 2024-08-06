@@ -32,5 +32,3 @@ getUserGroups(id) = {group.id |
 	group = data.entities.userGroups[_]
 	id in group.users
 }
-
-toEntityId(value) = lower(value)
