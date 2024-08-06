@@ -30,7 +30,7 @@ forbid[{"policyId": "spendingLimitByRole"}] = reason {
 }
 
 # Alice can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
-forbid[{"policyId": "spendingLimitByUser"}] = reason {	
+forbid[{"policyId": "spendingLimitByUser"}] = reason {
 	checkAccountAssigned
 	checkAction({"signTransaction"})
 	checkPrincipalId({"test-alice-uid"})
@@ -43,9 +43,7 @@ forbid[{"policyId": "spendingLimitByUser"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {
-			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
-		},
+		"filters": {"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}},
 	})
 
 	reason = {
@@ -69,9 +67,7 @@ forbid[{"policyId": "spendingLimitByAccountResource"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {	
-			"resources": {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
-		},
+		"filters": {"resources": {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}},
 	})
 
 	reason = {
@@ -95,9 +91,7 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {
-			"userGroups": {"test-user-group-one-uid"}
-		},
+		"filters": {"userGroups": {"test-user-group-one-uid"}},
 	})
 
 	reason = {
@@ -121,9 +115,7 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] = reason {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {
-			"accountGroups": {"test-account-group-one-uid"}
-		},
+		"filters": {"accountGroups": {"test-account-group-one-uid"}},
 	})
 
 	reason = {
@@ -148,8 +140,8 @@ permit[{"policyId": "spendingLimitWithApprovals"}] = reason {
 			"value": (12 * 60) * 60,
 		},
 		"filters": {
-			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}, 
-			"users": {"test-alice-uid"}
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174", "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
+			"users": {"test-alice-uid"},
 		},
 	})
 
@@ -178,11 +170,11 @@ permit[{"policyId": "spendingLimitWithFixedPeriod"}] = reason {
 		"operator": "lte",
 		"timeWindow": {
 			"type": "fixed",
-			"value": "1d"
+			"value": "1d",
 		},
 		"filters": {
-			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}, 
-			"users": {"test-alice-uid"}
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"users": {"test-alice-uid"},
 		},
 	})
 

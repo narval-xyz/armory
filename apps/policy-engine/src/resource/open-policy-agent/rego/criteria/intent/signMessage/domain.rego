@@ -3,10 +3,10 @@ package main
 import future.keywords.in
 
 wildcardIntentDomain = {
-    "version": wildcard,
-    "chainId": wildcard,
-    "name": wildcard,
-    "verifyingContract": wildcard,
+	"version": wildcard,
+	"chainId": wildcard,
+	"name": wildcard,
+	"verifyingContract": wildcard,
 }
 
 checkDomainCondition(value, set) {

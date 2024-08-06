@@ -9,8 +9,8 @@ test_transferERC721 {
 			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"type": "transferERC721",
 			"contract": "eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
-			"token": "eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"
-		}
+			"token": "eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173",
+		},
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request with data.entities as entities
 	checkIntentType({"transferERC721"}) with input as erc721Request with data.entities as entities
@@ -41,9 +41,9 @@ test_transferERC1155 {
 				{
 					"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/55555",
 					"amount": "5",
-				}
-			]
-		}
+				},
+			],
+		},
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request with data.entities as entities
 	checkIntentType({"transferERC1155"}) with input as erc1155Request with data.entities as entities

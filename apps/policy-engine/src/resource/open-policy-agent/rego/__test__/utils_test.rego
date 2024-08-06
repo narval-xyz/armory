@@ -2,7 +2,7 @@ package main
 
 test_transformIntentToTransferObject {
 	res = transformIntentToTransferObject(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
-	
+
 	res == {
 		"amount": "1000000000000000000",
 		"chainId": 137,
@@ -12,7 +12,7 @@ test_transformIntentToTransferObject {
 		"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"timestamp": nowSeconds * 1000,
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 	}
 }
 

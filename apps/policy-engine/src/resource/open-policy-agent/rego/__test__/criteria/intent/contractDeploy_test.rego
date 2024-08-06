@@ -8,7 +8,7 @@ test_contractDeploy {
 			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"type": "deployContract",
 			"chainId": "137",
-		}
+		},
 	})
 	checkIntentType({"deployContract", "deployErc4337Account", "deploySafeAccount"}) with input as contractDeployRequest with data.entities as entities
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as contractDeployRequest with data.entities as entities

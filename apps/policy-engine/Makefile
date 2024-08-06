@@ -34,17 +34,17 @@ policy-engine/build:
 
 # === Code format ===
 
-policy-engine/format:
-	npx nx format:write --projects ${POLICY_ENGINE_PROJECT_NAME}
-
 policy-engine/lint:
 	npx nx lint ${POLICY_ENGINE_PROJECT_NAME} -- --fix
 
-policy-engine/format/check:
-	npx nx format:check --projects ${POLICY_ENGINE_PROJECT_NAME}
-
 policy-engine/lint/check:
 	npx nx lint ${POLICY_ENGINE_PROJECT_NAME}
+
+policy-engine/format:
+	npx nx format:write --projects ${POLICY_ENGINE_PROJECT_NAME}
+
+policy-engine/format/check:
+	npx nx format:check --projects ${POLICY_ENGINE_PROJECT_NAME}
 
 # === Database ===
 
@@ -144,10 +144,18 @@ policy-engine/rego/build:
 
 policy-engine/rego/test:
 	opa test \
-	--format="pretty" \
-	${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
-	--verbose \
-	${ARGS}
+		--format="pretty" \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
+		--verbose \
+		${ARGS}
+
+policy-engine/rego/format:
+	opa fmt \
+		--write ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
+policy-engine/rego/format/check:
+	opa fmt \
+		--fail ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
 
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
