@@ -101,7 +101,8 @@ export class AuthClient {
    * @returns A promise that resolves to the authorization response.
    */
   async evaluate(input: Evaluate, opts?: SignOptions): Promise<AuthorizationRequest> {
-    const jwtPayload = this.buildJwtPayload(input, opts)
+    const parsedRequest = Request.parse(input.request)
+    const jwtPayload = this.buildJwtPayload(parsedRequest, opts)
     const authentication = await this.signJwtPayload(jwtPayload)
     const request = SerializedAuthorizationRequest.pick({
       authentication: true,
@@ -137,9 +138,9 @@ export class AuthClient {
     return data
   }
 
-  private buildJwtPayload(input: Evaluate, opts?: SignOptions): Payload {
+  private buildJwtPayload(request: Request, opts?: SignOptions): Payload {
     return {
-      requestHash: hash(input.request),
+      requestHash: hash(request),
       sub: this.config.signer.jwk.kid,
       iss: this.config.clientId,
       iat: opts?.issuedAt?.getTime() || new Date().getTime()
