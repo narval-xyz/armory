@@ -30,14 +30,43 @@ typedDataInput = {
       ],
       "intent": {
         "type": "signTypedData",
-        "domain": {
-          "chainId": 1
-        },
-        "message": {
-          "walletAddress": "0x299697552cd035afd7e08600c4001fff48498263",
-          "immutablePassportAddress": "0xfa9582594f460d3cad2095f6270996ac25f89874",
-          "condition": "I agree to link this wallet to my Immutable Passport account.",
-          "nonce": "mTu2kYHDG9jt9ZTIp"
+        "typedData": {
+          "types": {
+            "EIP712Domain": [
+              {
+                "name": "chainId",
+                "type": "uint256"
+              }
+            ],
+            "LinkWallet": [
+              {
+                "name": "walletAddress",
+                "type": "address"
+              },
+              {
+                "name": "immutablePassportAddress",
+                "type": "address"
+              },
+              {
+                "name": "condition",
+                "type": "string"
+              },
+              {
+                "name": "nonce",
+                "type": "string"
+              }
+            ]
+          },
+          "primaryType": "LinkWallet",
+          "domain": {
+            "chainId": "1"
+          },
+          "message": {
+            "walletAddress": "0x299697552cd035afd7e08600c4001fff48498263",
+            "immutablePassportAddress": "0xfa9582594f460d3cad2095f6270996ac25f89874",
+            "condition": "I agree to link this wallet to my Immutable Passport account.",
+            "nonce": "mTu2kYHDG9jt9ZTIp"
+          }
         }
       },
       "resource": {

@@ -175,8 +175,7 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
 
 export const decodeTypedData = (typedData: Eip712TypedData): SignTypedData => ({
   type: Intents.SIGN_TYPED_DATA,
-  domain: typedData.domain,
-  message: typedData.message
+  typedData,
 })
 
 export const decodeMessage = (message: MessageInput): SignMessage => {

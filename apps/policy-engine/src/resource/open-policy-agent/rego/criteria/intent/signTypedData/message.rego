@@ -2,7 +2,7 @@ package main
 
 typedDataMessageKeyValueCheck(conditions) {
   count(conditions) > 0
-	inputMessage = input.intent.message
+	inputMessage = input.intent.typedData.message
     checkedConditions = [condition | 
     	condition = conditions[_]
         inputMessage[condition.key] == condition.value

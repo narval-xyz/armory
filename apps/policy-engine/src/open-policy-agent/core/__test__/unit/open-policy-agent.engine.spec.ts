@@ -4,6 +4,7 @@ import {
   Criterion,
   Decision,
   Entities,
+  Eip712TypedData,
   EntityType,
   EvaluationRequest,
   FIXTURE,
@@ -561,77 +562,77 @@ describe('OpenPolicyAgentEngine', () => {
       })
     })
     describe('checkIntentTypedDataMessage', () => {
-      const immortalTypedData = {
-        types: {
-          EIP712Domain: [
+      const immutableTypedData = {
+        "types": {
+          "EIP712Domain": [
             {
-              name: 'chainId',
-              type: 'uint256'
+              "name": 'chainId',
+              "type": 'uint256'
             }
           ],
-          LinkWallet: [
+          "LinkWallet": [
             {
-              name: 'walletAddress',
-              type: 'address'
+              "name": 'walletAddress',
+              "type": 'address'
             },
             {
-              name: 'immutablePassportAddress',
-              type: 'address'
+              "name": 'immutablePassportAddress',
+              "type": 'address'
             },
             {
-              name: 'condition',
-              type: 'string'
+              "name": 'condition',
+              "type": 'string'
             },
             {
-              name: 'nonce',
-              type: 'string'
+              "name": 'nonce',
+              "type": 'string'
             }
           ]
         },
-        primaryType: 'LinkWallet',
-        domain: {
-          chainId: 1
+        "primaryType": 'LinkWallet',
+        "domain": {
+          "chainId": "1"
         },
-        message: {
-          walletAddress: '0x299697552cd035afd7e08600c4001fff48498263',
-          immutablePassportAddress: '0xfa9582594f460d3cad2095f6270996ac25f89874',
-          condition: 'I agree to link this wallet to my Immutable Passport account.',
-          nonce: 'mTu2kYHDG9jt9ZTIp'
+        "message": {
+          "walletAddress": '0x299697552cd035afd7e08600c4001fff48498263',
+          "immutablePassportAddress": '0xfa9582594f460d3cad2095f6270996ac25f89874',
+          "condition": 'I agree to link this wallet to my Immutable Passport account.',
+          "nonce": 'mTu2kYHDG9jt9ZTIp'
         }
-      }
+      } as unknown as Eip712TypedData
 
-      it('permits Immortal log-in typed data with message.condition policy and assigned account', async () => {
-        const immortalPolicy: Policy[] = [
+      it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
+        const immutablePolicy: Policy[] = [
           {
-            id: 'test-permit-login-uid',
-            then: Then.PERMIT,
-            description: 'permits immortal login with assigned account',
-            when: [
+            "id": 'test-permit-login-uid',
+            "then": "permit",
+            "description": 'permits immutable login with assigned account',
+            "when": [
               {
-                criterion: Criterion.CHECK_INTENT_TYPED_DATA_MESSAGE,
-                args: [
+                "criterion": "checkIntentTypedDataMessage",
+                "args": [
                   [
                     {
-                      key: 'condition',
-                      value: 'I agree to link this wallet to my Immutable Passport account.'
+                      "key": 'condition',
+                      "value": 'I agree to link this wallet to my Immutable Passport account.'
                     }
                   ]
                 ]
               },
               {
-                criterion: Criterion.CHECK_ACCOUNT_ASSIGNED,
-                args: null
+                "criterion": "checkAccountAssigned",
+                "args": null
               }
             ]
           }
         ]
 
-        const e = await engine.setPolicies(immortalPolicy).setEntities(FIXTURE.ENTITIES).load()
+        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE.ENTITIES).load()
 
         const request = {
           action: Action.SIGN_TYPED_DATA,
           nonce: 'test-nonce',
-          typedData: immortalTypedData,
+          typedData: immutableTypedData,
           resourceId: FIXTURE.ACCOUNT.Testing.id
         }
 
