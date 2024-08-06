@@ -633,7 +633,7 @@ describe('OpenPolicyAgentEngine', () => {
           action: Action.SIGN_TYPED_DATA,
           nonce: 'test-nonce',
           typedData: immutableTypedData,
-          resourceId: FIXTURE.ACCOUNT.Testing.id
+          resourceId: 'eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495'
         }
 
         const evaluation: EvaluationRequest = {

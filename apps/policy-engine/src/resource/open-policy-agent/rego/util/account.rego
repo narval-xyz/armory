@@ -42,7 +42,7 @@ getDestination(intent) = entry {
 	# will return an AddressBook over Account.
 	#
 	# See https://docs.styra.com/opa/errors/eval-conflict-error/complete-rules-must-not-produce-multiple-outputs
-	not data.entities.addressBook[intent.to]
+	not data.entities.addressBook[toEntityId(intent.to)]
 
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
