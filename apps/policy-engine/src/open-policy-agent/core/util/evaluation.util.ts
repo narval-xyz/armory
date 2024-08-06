@@ -173,6 +173,8 @@ export const toInput = (params: {
   })
 }
 
+const index = <T extends { id: string }>(list: T[]) => indexBy(({ id }) => toLower(id), list)
+
 export const toData = (entities: Entities): Data => {
   const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
     const group = groups.get(groupId)
@@ -217,12 +219,11 @@ export const toData = (entities: Entities): Data => {
 
   return {
     entities: {
-      addressBook: indexBy((item) => toLower(item.id), entities.addressBook),
-      // TODO: @mattschoch 08/02/2024 - do all the other indexed keys need lowercased?
-      tokens: indexBy('id', entities.tokens),
-      users: indexBy('id', entities.users),
+      addressBook: index(entities.addressBook),
+      tokens: index(entities.tokens),
+      users: index(entities.users),
       userGroups: Object.fromEntries(userGroups),
-      accounts: indexBy('id', accounts),
+      accounts: index(accounts),
       accountGroups: Object.fromEntries(accountGroups)
     }
   }

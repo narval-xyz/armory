@@ -61,7 +61,7 @@ test_getDestination_looks_up_AddressBook_by_intent_to_property {
 	}
 }
 
-#
+
 test_getDestination_returns_AddressBook_over_Account {
 	entry = getDestination({
 		"type": "transferERC20",
@@ -86,4 +86,27 @@ test_getDestination_returns_AddressBook_over_Account {
 
 	entry.id = "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"
 	entry.classification = "internal"
+}
+
+test_getDestination_ignores_case_on_look_up {
+	entry = getDestination({
+			"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+			"from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",
+			"type": "transferNative",
+			"amount": "1000000000000000000",
+			"token": "eip155:1/slip44:60",
+	}) with data.entities as {
+			"addressBook": {},
+			"accounts": {
+				"eip155:eoa:0x76d1b7f9b3f69c435eef76a98a415332084a856f": {
+					"id": "eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
+					"address": "0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
+					"accountType": "eoa",
+					"assignees": [],
+				},
+			},
+	}
+
+	entry.id = "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f"
+	entry.classification = "managed"
 }

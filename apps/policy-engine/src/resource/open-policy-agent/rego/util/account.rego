@@ -1,5 +1,7 @@
 package main
 
+import data.armory.util.eth.isAddressEqual
+
 extractAddressFromAccountId(accountId) = result {
 	arr = split(accountId, ":")
 	result = arr[count(arr) - 1]
@@ -32,13 +34,13 @@ getDestination(intent) = entry {
 
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
-	account.address == chainAccount.address
+  isAddressEqual(account.address, chainAccount.address)
 	account.accountType == "eoa"
 
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
 	# which `classification` is always `managed`.
 	entry = {
-		"id": intent.to,
+		"id": toEntityId(intent.to),
 		"address": chainAccount.address,
 		"chainId": chainAccount.chainId,
 		"classification": "managed",
