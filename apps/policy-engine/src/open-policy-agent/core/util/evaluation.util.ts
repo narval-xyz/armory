@@ -173,6 +173,8 @@ export const toInput = (params: {
   })
 }
 
+// NOTE: Index entities by lower case ID is an important invariant for many
+// Rego rules performing a look up on the dataset.
 const index = <T extends { id: string }>(list: T[]) => indexBy(({ id }) => toLower(id), list)
 
 export const toData = (entities: Entities): Data => {

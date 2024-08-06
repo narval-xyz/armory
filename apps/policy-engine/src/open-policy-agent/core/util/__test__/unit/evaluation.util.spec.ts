@@ -289,49 +289,49 @@ describe('toInput', () => {
 
 describe('toData', () => {
   describe('entities', () => {
-    it('indexes address book accounts by id', () => {
+    it('indexes address book accounts by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const firstAccount = FIXTURE.ADDRESS_BOOK[0]
 
       expect(entities.addressBook[firstAccount.id.toLowerCase()]).toEqual(firstAccount)
     })
 
-    it('indexes tokens by id', () => {
+    it('indexes tokens by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const usdc = FIXTURE.TOKEN.usdc1
 
-      expect(entities.tokens[usdc.id]).toEqual(usdc)
+      expect(entities.tokens[usdc.id.toLowerCase()]).toEqual(usdc)
     })
 
-    it('indexes users by id', () => {
+    it('indexes users by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const alice = FIXTURE.USER.Alice
 
-      expect(entities.users[alice.id]).toEqual(alice)
+      expect(entities.users[alice.id.toLowerCase()]).toEqual(alice)
     })
 
-    it('indexes accounts by id', () => {
+    it('indexes accounts by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const account = FIXTURE.ACCOUNT.Testing
 
-      expect(entities.accounts[account.id]).toEqual({ ...account, assignees: ['test-alice-user-uid'] })
+      expect(entities.accounts[account.id.toLowerCase()]).toEqual({ ...account, assignees: ['test-alice-user-uid'] })
     })
 
-    it('indexes user groups with members by id', () => {
+    it('indexes user groups with members by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const group = FIXTURE.USER_GROUP.Engineering
 
-      expect(entities.userGroups[group.id]).toEqual({
+      expect(entities.userGroups[group.id.toLowerCase()]).toEqual({
         id: group.id,
         users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) => userId)
       })
     })
 
-    it('indexes account groups with members by id', () => {
+    it('indexes account groups with members by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const group = FIXTURE.ACCOUNT_GROUP.Treasury
 
-      expect(entities.accountGroups[group.id]).toEqual({
+      expect(entities.accountGroups[group.id.toLowerCase()]).toEqual({
         id: group.id,
         accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(
           ({ accountId }) => accountId
