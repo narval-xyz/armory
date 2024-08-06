@@ -563,65 +563,65 @@ describe('OpenPolicyAgentEngine', () => {
     })
     describe('checkIntentTypedDataMessage', () => {
       const immutableTypedData = {
-        "types": {
-          "EIP712Domain": [
+        types: {
+          EIP712Domain: [
             {
-              "name": 'chainId',
-              "type": 'uint256'
+              name: 'chainId',
+              type: 'uint256'
             }
           ],
-          "LinkWallet": [
+          LinkWallet: [
             {
-              "name": 'walletAddress',
-              "type": 'address'
+              name: 'walletAddress',
+              type: 'address'
             },
             {
-              "name": 'immutablePassportAddress',
-              "type": 'address'
+              name: 'immutablePassportAddress',
+              type: 'address'
             },
             {
-              "name": 'condition',
-              "type": 'string'
+              name: 'condition',
+              type: 'string'
             },
             {
-              "name": 'nonce',
-              "type": 'string'
+              name: 'nonce',
+              type: 'string'
             }
           ]
         },
-        "primaryType": 'LinkWallet',
-        "domain": {
-          "chainId": "1"
+        primaryType: 'LinkWallet',
+        domain: {
+          chainId: '1'
         },
-        "message": {
-          "walletAddress": '0x299697552cd035afd7e08600c4001fff48498263',
-          "immutablePassportAddress": '0xfa9582594f460d3cad2095f6270996ac25f89874',
-          "condition": 'I agree to link this wallet to my Immutable Passport account.',
-          "nonce": 'mTu2kYHDG9jt9ZTIp'
+        message: {
+          walletAddress: '0x299697552cd035afd7e08600c4001fff48498263',
+          immutablePassportAddress: '0xfa9582594f460d3cad2095f6270996ac25f89874',
+          condition: 'I agree to link this wallet to my Immutable Passport account.',
+          nonce: 'mTu2kYHDG9jt9ZTIp'
         }
       } as unknown as Eip712TypedData
 
       it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
         const immutablePolicy: Policy[] = [
           {
-            "id": 'test-permit-login-uid',
-            "then": "permit",
-            "description": 'permits immutable login with assigned account',
-            "when": [
+            id: 'test-permit-login-uid',
+            then: 'permit',
+            description: 'permits immutable login with assigned account',
+            when: [
               {
-                "criterion": "checkIntentTypedDataMessage",
-                "args": [
+                criterion: 'checkIntentTypedDataMessage',
+                args: [
                   [
                     {
-                      "key": 'condition',
-                      "value": 'I agree to link this wallet to my Immutable Passport account.'
+                      key: 'condition',
+                      value: 'I agree to link this wallet to my Immutable Passport account.'
                     }
                   ]
                 ]
               },
               {
-                "criterion": "checkAccountAssigned",
-                "args": null
+                criterion: 'checkAccountAssigned',
+                args: null
               }
             ]
           }
