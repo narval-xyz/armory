@@ -4,14 +4,14 @@ import data.armory.util.eth.isAddressEqual
 
 # EOA accounts are multichain by design.
 _getChainId(account, chainAccount) = chainId {
-  account.accountType == "eoa"
-  chainId := chainAccount.chainId
+	account.accountType == "eoa"
+	chainId := chainAccount.chainId
 }
 
 # Smart accounts are chain specific.
 _getChainId(account, chainAccount) = chainId {
-  account.accountType == "4337"
-  chainId := account.chainId
+	account.accountType == "4337"
+	chainId := account.chainId
 }
 
 extractAddressFromAccountId(accountId) = result {
@@ -48,7 +48,7 @@ getDestination(intent) = entry {
 	account = data.entities.accounts[_]
 	isAddressEqual(account.address, chainAccount.address)
 
-  chainId = _getChainId(account, chainAccount)
+	chainId = _getChainId(account, chainAccount)
 
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
 	# which `classification` is always `managed`.

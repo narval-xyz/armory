@@ -28,7 +28,7 @@ type Mapping<R extends Request> = (
 ) => Input
 
 const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
-  const { chainId, entryPoint, ...userOpToBeHashed } = request.userOperation
+  const { chainId, entryPoint } = request.userOperation
 
   const result = safeDecode({
     input: {
@@ -175,14 +175,15 @@ export const toInput = (params: {
 
 // NOTE: Index entities by lower case ID is an important invariant for many
 // Rego rules performing a look up on the dataset.
-const index = <T extends { id: string }>(list: T[]) => indexBy(({ id }) => toLower(id), list)
+const index = <Entity extends { id: string }>(entities: Entity[]) => indexBy(({ id }) => toLower(id), entities)
 
 export const toData = (entities: Entities): Data => {
   const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
-    const group = groups.get(groupId)
+    const id = groupId.toLowerCase()
+    const group = groups.get(id)
 
     if (group) {
-      return groups.set(groupId, {
+      return groups.set(id, {
         id: groupId,
         users: group.users.concat(userId)
       })
