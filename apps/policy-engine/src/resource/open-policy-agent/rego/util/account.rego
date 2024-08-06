@@ -34,7 +34,7 @@ getDestination(intent) = entry {
 
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
-  isAddressEqual(account.address, chainAccount.address)
+	isAddressEqual(account.address, chainAccount.address)
 	account.accountType == "eoa"
 
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
