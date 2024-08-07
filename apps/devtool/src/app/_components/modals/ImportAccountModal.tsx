@@ -12,6 +12,7 @@ import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import { extractErrorMessage } from '../../_lib/utils'
 import ValueWithCopy from '../ValueWithCopy'
 
 enum Steps {
@@ -44,6 +45,7 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
   const [importedAccount, setImportedAccount] = useState<ImportPrivateKeyResponse>()
   const [importedSeed, setImportedSeed] = useState<ImportSeedResponse>()
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
+  const [errors, setErrors] = useState<string>('')
 
   useEffect(() => {
     setAccessToken(props.accessToken)
@@ -70,6 +72,7 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
     setNewEntityStore(undefined)
     setPrivateKey('')
     setSeed('')
+    setErrors('')
     setCurrentStep(Steps.ImportAccountForm)
     setImportType(ImportType.PrivateKey)
   }
@@ -138,6 +141,8 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
       }
 
       setCurrentStep(Steps.ImportAccountSuccess)
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -151,6 +156,8 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
       setCurrentStep(Steps.SignAndPush)
       await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.Success)
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -261,6 +268,7 @@ const ImportAccountModal: FC<ImportAccountModalProps> = (props) => {
             <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
+        {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
       </div>
     </NarDialog>
   )

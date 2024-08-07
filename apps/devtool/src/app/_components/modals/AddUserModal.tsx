@@ -22,6 +22,7 @@ import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownM
 import NarInput from '../../_design-system/NarInput'
 import NarTextarea from '../../_design-system/NarTextarea'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import { extractErrorMessage } from '../../_lib/utils'
 
 enum Steps {
   AddUserForm,
@@ -66,6 +67,7 @@ const AddUserModal = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [userForm, setUserForm] = useState<AddUserForm>(initUserFormState)
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
+  const [errors, setErrors] = useState<string>('')
 
   const isFormValid = useMemo(() => {
     const isValidUserRole = userForm.role && userRoleSchema.safeParse(userForm.role).success
@@ -146,6 +148,8 @@ const AddUserModal = () => {
 
       setNewEntityStore(entities)
       setCurrentStep(Steps.AddUserSuccess)
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -160,6 +164,8 @@ const AddUserModal = () => {
       await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.Success)
       await getEntityStore()
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -291,6 +297,7 @@ const AddUserModal = () => {
             <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
+        {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
       </div>
     </NarDialog>
   )

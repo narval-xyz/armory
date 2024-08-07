@@ -63,11 +63,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -115,11 +115,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -160,11 +160,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignMessageAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -193,11 +193,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignRawAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -226,11 +226,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as GrantPermissionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -246,6 +246,7 @@ describe('toInput', () => {
       expect(input.permissions).toEqual(request.permissions)
     })
   })
+
   describe(`when action is ${Action.SIGN_USER_OPERATION}`, () => {
     let evaluation: EvaluationRequest
 
@@ -265,11 +266,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignUserOperationAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -289,11 +290,13 @@ describe('toInput', () => {
 
 describe('toData', () => {
   describe('entities', () => {
+    const lowerCaseId = <T extends { id: string }>(value: T) => ({ ...value, id: value.id.toLowerCase() })
+
     it('indexes address book accounts by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const firstAccount = FIXTURE.ADDRESS_BOOK[0]
 
-      expect(entities.addressBook[firstAccount.id.toLowerCase()]).toEqual(firstAccount)
+      expect(entities.addressBook[firstAccount.id.toLowerCase()]).toEqual(lowerCaseId(firstAccount))
     })
 
     it('indexes tokens by lower case id', () => {
@@ -314,7 +317,10 @@ describe('toData', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
       const account = FIXTURE.ACCOUNT.Testing
 
-      expect(entities.accounts[account.id.toLowerCase()]).toEqual({ ...account, assignees: ['test-alice-user-uid'] })
+      expect(entities.accounts[account.id.toLowerCase()]).toEqual({
+        ...lowerCaseId(account),
+        assignees: ['test-alice-user-uid']
+      })
     })
 
     it('indexes user groups with members by lower case id', () => {
@@ -322,8 +328,10 @@ describe('toData', () => {
       const group = FIXTURE.USER_GROUP.Engineering
 
       expect(entities.userGroups[group.id.toLowerCase()]).toEqual({
-        id: group.id,
-        users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) => userId)
+        id: group.id.toLowerCase(),
+        users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) =>
+          userId.toLowerCase()
+        )
       })
     })
 
@@ -332,9 +340,9 @@ describe('toData', () => {
       const group = FIXTURE.ACCOUNT_GROUP.Treasury
 
       expect(entities.accountGroups[group.id.toLowerCase()]).toEqual({
-        id: group.id,
-        accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(
-          ({ accountId }) => accountId
+        id: group.id.toLowerCase(),
+        accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
+          accountId.toLowerCase()
         )
       })
     })

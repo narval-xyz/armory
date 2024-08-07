@@ -19,7 +19,7 @@ checkDomainCondition(value, set) {
 }
 
 checkIntentDomain(filters) {
-	domain = object.union(wildcardIntentDomain, input.intent.domain)
+	domain = object.union(wildcardIntentDomain, input.intent.typedData.domain)
 	conditions = object.union(wildcardIntentDomain, filters)
 	checkDomainCondition(domain.version, conditions.version)
 	checkDomainCondition(numberToString(domain.chainId), conditions.chainId)

@@ -316,11 +316,30 @@ describe('decode', () => {
       })
       expect(decoded).toEqual({
         type: Intents.SIGN_TYPED_DATA,
-        domain: {
-          version: '0.1.0',
-          name: 'Unicorn Milk Token',
-          chainId: 137,
-          verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
+        typedData: {
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' }
+            ],
+            DoStuff: [
+              { name: 'do', type: 'function' },
+              { name: 'stuff', type: 'address' }
+            ]
+          },
+          primaryType: 'DoStuff',
+          domain: {
+            name: 'Unicorn Milk Token',
+            version: '0.1.0',
+            chainId: 137,
+            verifyingContract: '0x64060aB139Feaae7f06Ca4E63189D86aDEb51691'
+          },
+          message: {
+            do: 'doingStuff(address stuff)',
+            stuff: '0x1234567890123456789012345678901234567890'
+          }
         }
       })
     })

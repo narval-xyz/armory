@@ -209,11 +209,36 @@ describe('Evaluation', () => {
             }),
             ...(payload.request.action === Action.SIGN_TYPED_DATA && {
               transactionRequestIntent: {
-                domain: {
-                  chainId: 1,
-                  name: 'Ether Mail',
-                  verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-                  version: '1'
+                typedData: {
+                  domain: {
+                    name: 'Ether Mail',
+                    version: '1',
+                    chainId: 1,
+                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+                  },
+                  primaryType: 'Mail',
+                  types: {
+                    Person: [
+                      { name: 'name', type: 'string' },
+                      { name: 'account', type: 'address' }
+                    ],
+                    Mail: [
+                      { name: 'from', type: 'Person' },
+                      { name: 'to', type: 'Person' },
+                      { name: 'contents', type: 'string' }
+                    ]
+                  },
+                  message: {
+                    from: {
+                      name: 'Alice',
+                      account: FIXTURE.VIEM_ACCOUNT.Alice.address
+                    },
+                    to: {
+                      name: 'Bob',
+                      account: FIXTURE.VIEM_ACCOUNT.Bob.address
+                    },
+                    contents: "Dear Bob, today we're going to the moon"
+                  }
                 },
                 type: 'signTypedData'
               }
