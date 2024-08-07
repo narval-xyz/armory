@@ -53,7 +53,7 @@ getDestination(intent) = entry {
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
 	# which `classification` is always `managed`.
 	entry = {
-		"id": toEntityId(intent.to),
+		"id": intent.to,
 		"address": chainAccount.address,
 		"chainId": chainId,
 		"classification": "managed",

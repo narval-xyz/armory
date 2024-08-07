@@ -3,6 +3,7 @@ import {
   Action,
   Criterion,
   Decision,
+  Eip712TypedData,
   Entities,
   EntityType,
   EvaluationRequest,
@@ -559,6 +560,95 @@ describe('OpenPolicyAgentEngine', () => {
         const response = await e.evaluate(evaluation)
 
         expect(response.decision).toEqual(Decision.FORBID)
+      })
+    })
+    describe('checkIntentTypedDataMessage', () => {
+      const immutableTypedData = {
+        types: {
+          EIP712Domain: [
+            {
+              name: 'chainId',
+              type: 'uint256'
+            }
+          ],
+          LinkWallet: [
+            {
+              name: 'walletAddress',
+              type: 'address'
+            },
+            {
+              name: 'immutablePassportAddress',
+              type: 'address'
+            },
+            {
+              name: 'condition',
+              type: 'string'
+            },
+            {
+              name: 'nonce',
+              type: 'string'
+            }
+          ]
+        },
+        primaryType: 'LinkWallet',
+        domain: {
+          chainId: '1'
+        },
+        message: {
+          walletAddress: '0x299697552cd035afd7e08600c4001fff48498263',
+          immutablePassportAddress: '0xfa9582594f460d3cad2095f6270996ac25f89874',
+          condition: 'I agree to link this wallet to my Immutable Passport account.',
+          nonce: 'mTu2kYHDG9jt9ZTIp'
+        }
+      } as unknown as Eip712TypedData
+
+      it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
+        const immutablePolicy: Policy[] = [
+          {
+            id: 'test-permit-login-uid',
+            then: 'permit',
+            description: 'permits immutable login with assigned account',
+            when: [
+              {
+                criterion: 'checkIntentTypedDataMessage',
+                args: [
+                  [
+                    {
+                      key: 'condition',
+                      value: 'I agree to link this wallet to my Immutable Passport account.'
+                    }
+                  ]
+                ]
+              },
+              {
+                criterion: 'checkAccountAssigned',
+                args: null
+              }
+            ]
+          }
+        ]
+
+        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE.ENTITIES).load()
+
+        const request = {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: 'test-nonce',
+          typedData: immutableTypedData,
+          resourceId: 'eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+        expect(response.decision).toEqual(Decision.PERMIT)
+        expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
       })
     })
   })
