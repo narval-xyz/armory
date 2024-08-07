@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-resource = data.entities.accounts[lower(input.resource.uid)]
+resource = data.entities.accounts[input.resource.uid]
 
 checkAccountAssigned {
 	account = data.entities.accounts[resource.id]

@@ -42,7 +42,7 @@ getDestination(intent) = entry {
 	# will return an AddressBook over Account.
 	#
 	# See https://docs.styra.com/opa/errors/eval-conflict-error/complete-rules-must-not-produce-multiple-outputs
-	not data.entities.addressBook[toEntityId(intent.to)]
+	not data.entities.addressBook[intent.to]
 
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
@@ -53,7 +53,7 @@ getDestination(intent) = entry {
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
 	# which `classification` is always `managed`.
 	entry = {
-		"id": toEntityId(intent.to),
+		"id": intent.to,
 		"address": chainAccount.address,
 		"chainId": chainId,
 		"classification": "managed",

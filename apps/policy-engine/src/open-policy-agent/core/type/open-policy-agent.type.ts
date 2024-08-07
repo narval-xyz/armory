@@ -35,6 +35,8 @@ export type Input = {
 // TODO: (@wcalderipe, 18/03/24) Check with @samteb how can we replace these
 // types by entities defined at @narval/policy-engine-shared.
 
+// IMPORTANT: Index entities by lower case ID is an important invariant for
+// many Rego rules performing a look up on the dataset.
 const Id = z.string().toLowerCase()
 
 export const UserGroup = userGroupEntitySchema.extend({
@@ -54,17 +56,6 @@ export const AccountGroup = accountGroupEntitySchema.extend({
   accounts: z.array(Id)
 })
 export type AccountGroup = z.infer<typeof AccountGroup>
-
-// export type Data = {
-//   entities: {
-//     addressBook: Record<string, AddressBookAccountEntity>
-//     tokens: Record<string, TokenEntity>
-//     users: Record<string, UserEntity>
-//     userGroups: Record<string, UserGroup>
-//     accounts: Record<string, Account>
-//     accountGroups: Record<string, AccountGroupEntity>
-//   }
-// }
 
 export const Data = z.object({
   entities: z.object({

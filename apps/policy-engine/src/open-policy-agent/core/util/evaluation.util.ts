@@ -163,7 +163,10 @@ export const toInput = (params: {
   const mapper = mappers.get(action)
 
   if (mapper) {
-    return mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds)
+    return {
+      ...mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds),
+      resource: { uid: evaluation.request.resourceId.toLowerCase() }
+    }
   }
 
   throw new OpenPolicyAgentException({

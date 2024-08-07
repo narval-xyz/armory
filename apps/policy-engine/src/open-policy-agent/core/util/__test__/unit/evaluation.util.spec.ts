@@ -63,11 +63,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -115,11 +115,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -160,11 +160,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignMessageAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -193,11 +193,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignRawAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -226,11 +226,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as GrantPermissionAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
@@ -246,6 +246,7 @@ describe('toInput', () => {
       expect(input.permissions).toEqual(request.permissions)
     })
   })
+
   describe(`when action is ${Action.SIGN_USER_OPERATION}`, () => {
     let evaluation: EvaluationRequest
 
@@ -265,11 +266,11 @@ describe('toInput', () => {
       expect(input.principal).toEqual(principal)
     })
 
-    it('maps resource', () => {
+    it('maps resource uid to lower case', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignUserOperationAction
 
-      expect(input.resource).toEqual({ uid: request.resourceId })
+      expect(input.resource).toEqual({ uid: request.resourceId.toLowerCase() })
     })
 
     it('maps approvals', () => {
