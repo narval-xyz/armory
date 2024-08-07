@@ -16,7 +16,7 @@ import {
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
-import { indexBy, toLower } from 'lodash/fp'
+import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
 import { Account, AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
 
@@ -173,10 +173,6 @@ export const toInput = (params: {
   })
 }
 
-// NOTE: Index entities by lower case ID is an important invariant for many
-// Rego rules performing a look up on the dataset.
-const index = <Entity extends { id: string }>(entities: Entity[]) => indexBy(({ id }) => toLower(id), entities)
-
 export const toData = (entities: Entities): Data => {
   const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
     const id = groupId.toLowerCase()
@@ -220,14 +216,18 @@ export const toData = (entities: Entities): Data => {
     }
   }, new Map<string, AccountGroup>())
 
-  return {
+  const data: Data = {
     entities: {
-      addressBook: index(entities.addressBook),
-      tokens: index(entities.tokens),
-      users: index(entities.users),
+      addressBook: indexBy('id', entities.addressBook),
+      tokens: indexBy('id', entities.tokens),
+      users: indexBy('id', entities.users),
       userGroups: Object.fromEntries(userGroups),
-      accounts: index(accounts),
+      accounts: indexBy('id', accounts),
       accountGroups: Object.fromEntries(accountGroups)
     }
   }
+
+  // IMPORTANT: The Data schema converts IDs to lower case because we don't
+  // want to be doing defensive programming in Rego.
+  return Data.parse(data)
 }

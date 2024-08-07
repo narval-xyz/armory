@@ -1,15 +1,15 @@
 import {
-  AccountEntity,
-  AccountGroupEntity,
   Action,
-  AddressBookAccountEntity,
   CredentialEntity,
   Feed,
   SerializedTransactionRequest,
   SerializedUserOperationV6,
-  TokenEntity,
-  UserEntity,
-  UserGroupEntity
+  accountEntitySchema,
+  accountGroupEntitySchema,
+  addressBookAccountEntitySchema,
+  tokenEntitySchema,
+  userEntitySchema,
+  userGroupEntitySchema
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -35,27 +35,47 @@ export type Input = {
 // TODO: (@wcalderipe, 18/03/24) Check with @samteb how can we replace these
 // types by entities defined at @narval/policy-engine-shared.
 
-export type UserGroup = UserGroupEntity & {
-  users: string[] // userIds
-}
+const Id = z.string().toLowerCase()
 
-export type Account = AccountEntity & {
-  assignees: string[] // userIds
-}
+export const UserGroup = userGroupEntitySchema.extend({
+  id: Id,
+  users: z.array(Id)
+})
+export type UserGroup = z.infer<typeof UserGroup>
 
-export type AccountGroup = AccountGroupEntity & {
-  accounts: string[] // accountIds
-}
+export const Account = accountEntitySchema.extend({
+  id: Id,
+  assignees: z.array(Id)
+})
+export type Account = z.infer<typeof Account>
 
-export type Data = {
-  entities: {
-    addressBook: Record<string, AddressBookAccountEntity>
-    tokens: Record<string, TokenEntity>
-    users: Record<string, UserEntity>
-    userGroups: Record<string, UserGroup>
-    accounts: Record<string, Account>
-    accountGroups: Record<string, AccountGroupEntity>
-  }
-}
+export const AccountGroup = accountGroupEntitySchema.extend({
+  id: Id,
+  accounts: z.array(Id)
+})
+export type AccountGroup = z.infer<typeof AccountGroup>
+
+// export type Data = {
+//   entities: {
+//     addressBook: Record<string, AddressBookAccountEntity>
+//     tokens: Record<string, TokenEntity>
+//     users: Record<string, UserEntity>
+//     userGroups: Record<string, UserGroup>
+//     accounts: Record<string, Account>
+//     accountGroups: Record<string, AccountGroupEntity>
+//   }
+// }
+
+export const Data = z.object({
+  entities: z.object({
+    addressBook: z.record(Id, addressBookAccountEntitySchema.extend({ id: Id })),
+    tokens: z.record(Id, tokenEntitySchema.extend({ id: Id })),
+    users: z.record(Id, userEntitySchema.extend({ id: Id })),
+    accountGroups: z.record(Id, AccountGroup),
+    userGroups: z.record(Id, UserGroup),
+    accounts: z.record(Id, Account)
+  })
+})
+export type Data = z.infer<typeof Data>
 
 export type Result = z.infer<typeof resultSchema>
