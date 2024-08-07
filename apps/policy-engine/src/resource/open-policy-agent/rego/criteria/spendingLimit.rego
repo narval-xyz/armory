@@ -102,7 +102,7 @@ calculateCurrentSpendings(params) = result {
 		checkTransferTimeWindow(transfer.timestamp, timeWindow)
 
 		spending = calculateTransferSpending(transfer, conditions.currency)
-	])	
+	])
 }
 
 checkSpendingLimit(params) {

@@ -10,7 +10,7 @@ test_permit {
 			"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 			"amount": "1000000000000000000",
 			"deadline": 1634025600, # in ms
-		}
+		},
 	})
 	checkIntentType({"permit", "permit2"}) with input as permitRequest with data.entities as entities
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as permitRequest with data.entities as entities

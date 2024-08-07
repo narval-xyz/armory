@@ -7,7 +7,7 @@ test_checkSignMessage {
 		"intent": {
 			"type": "signMessage",
 			"message": "Hello world!",
-		}
+		},
 	})
 	checkAction({"signMessage"}) with input as signMessageRequest with data.entities as entities
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest with data.entities as entities
@@ -23,8 +23,8 @@ test_checkSignRawPayload {
 		"intent": {
 			"type": "signRawPayload",
 			"payload": "Hello world!",
-			"algorithm": "ES256K"
-		}
+			"algorithm": "ES256K",
+		},
 	})
 	checkAction({"signRaw"}) with input as signRawPayloadRequest with data.entities as entities
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest with data.entities as entities
@@ -40,15 +40,13 @@ test_checkSignTypedData {
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
 			"type": "signTypedData",
-      "typedData": {
-        "domain": {
-			  	"version": "2",
-			  	"chainId": 137,
-			  	"name": "LINK",
-			  	"verifyingContract": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-			  },
-      }
-		}
+			"typedData": {"domain": {
+				"version": "2",
+				"chainId": 137,
+				"name": "LINK",
+				"verifyingContract": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			}},
+		},
 	})
 	checkAction({"signTypedData"}) with input as signTypedDataRequest with data.entities as entities
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest with data.entities as entities

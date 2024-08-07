@@ -4,11 +4,14 @@ import future.keywords.in
 
 intentAmount = to_number(input.intent.amount)
 
-getAmountCondition(filters) = object.union({
-	"currency": wildcard,
-	"operator": wildcard,
-	"value": wildcard
-}, filters)
+getAmountCondition(filters) = object.union(
+	{
+		"currency": wildcard,
+		"operator": wildcard,
+		"value": wildcard,
+	},
+	filters,
+)
 
 calculateIntentAmount(currency) = result {
 	currency == wildcard

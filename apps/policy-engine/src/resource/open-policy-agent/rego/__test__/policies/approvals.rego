@@ -6,7 +6,7 @@ permit[{"policyId": "approvalByUsers"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
-	transferValueCondition = { "operator": "lte", "value": "1000000000000000000"}
+	transferValueCondition = {"operator": "lte", "value": "1000000000000000000"}
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
@@ -36,7 +36,7 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
-	transferValueCondition = { "operator": "lte", "value": "1000000000000000000"}
+	transferValueCondition = {"operator": "lte", "value": "1000000000000000000"}
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
@@ -66,7 +66,7 @@ permit[{"policyId": "approvalByUserRoles"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
-	transferValueCondition = { "operator": "lte", "value": "1000000000000000000"}
+	transferValueCondition = {"operator": "lte", "value": "1000000000000000000"}
 	approvalsRequired = [{
 		"approvalCount": 2,
 		"countPrincipal": false,
@@ -96,8 +96,8 @@ permit[{"policyId": "withoutApprovals"}] = reason {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
-	transferValueCondition = { "operator": "lte", "value": "1000000000000000000"}
-	
+	transferValueCondition = {"operator": "lte", "value": "1000000000000000000"}
+
 	checkAccountAssigned
 	checkNonceExists
 	checkAction({"signTransaction"})

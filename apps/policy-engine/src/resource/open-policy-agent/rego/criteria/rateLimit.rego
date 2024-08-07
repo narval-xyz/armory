@@ -25,7 +25,7 @@ rateLimitWildcardConditions = {
 
 calculateCurrentRate(params) = result {
 	conditions = object.union(rateLimitWildcardConditions, params)
-    rateLimit = conditions.limit
+	rateLimit = conditions.limit
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
 	transfers = array.concat(transferFeed, intentTransferObjects)
@@ -35,7 +35,7 @@ calculateCurrentRate(params) = result {
 
 		# filter by principal
 		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)
-		
+
 		# filter by tokens
 		checkTransferCondition(transfer.token, filters.tokens)
 
@@ -70,7 +70,7 @@ calculateCurrentRate(params) = result {
 
 checkRateLimit(params) {
 	conditions = object.union(rateLimitWildcardConditions, params)
-    rateLimit = to_number(conditions.limit)
+	rateLimit = to_number(conditions.limit)
 
 	calculateCurrentRate(conditions) <= rateLimit
 }

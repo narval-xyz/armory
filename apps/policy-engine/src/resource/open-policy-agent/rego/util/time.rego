@@ -2,7 +2,7 @@ package main
 
 # DON'T CHANGE 01 AND 02
 # 01 always displays current month
-# 02 always displays current day 
+# 02 always displays current day
 dateFormat = "2006-01-02" # YYYY-MM-DD
 
 todayFormatted = time.format([time.now_ns(), "UTC", dateFormat])
