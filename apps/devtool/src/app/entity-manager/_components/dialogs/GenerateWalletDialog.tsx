@@ -6,12 +6,12 @@ import { GenerateKeyResponse, Permission } from '@narval/armory-sdk'
 import { AccountType, Action, Entities, EntityUtil, hexSchema } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import ValueWithCopy from '../../_components/ValueWithCopy'
-import NarButton from '../../_design-system/NarButton'
-import NarDialog from '../../_design-system/NarDialog'
-import NarInput from '../../_design-system/NarInput'
-import useAuthServerApi from '../../_hooks/useAuthServerApi'
-import useVaultApi from '../../_hooks/useVaultApi'
+import ValueWithCopy from '../../../_components/ValueWithCopy'
+import NarButton from '../../../_design-system/NarButton'
+import NarDialog from '../../../_design-system/NarDialog'
+import NarInput from '../../../_design-system/NarInput'
+import useAuthServerApi from '../../../_hooks/useAuthServerApi'
+import useVaultApi from '../../../_hooks/useVaultApi'
 
 enum Steps {
   FORM,

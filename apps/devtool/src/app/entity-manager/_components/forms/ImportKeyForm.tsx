@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { english, generateMnemonic, generatePrivateKey } from 'viem/accounts'
-import NarButton from '../../_design-system/NarButton'
-import NarInput from '../../_design-system/NarInput'
+import NarButton from '../../../_design-system/NarButton'
+import NarInput from '../../../_design-system/NarInput'
 
 export enum KeyType {
   PRIVATE_KEY,

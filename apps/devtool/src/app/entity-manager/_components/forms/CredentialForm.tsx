@@ -1,9 +1,9 @@
 import { CredentialEntity, UserEntity, isAddress } from '@narval/policy-engine-shared'
 import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import NarButton from '../../_design-system/NarButton'
-import NarInput from '../../_design-system/NarInput'
-import NarTextarea from '../../_design-system/NarTextarea'
+import NarButton from '../../../_design-system/NarButton'
+import NarInput from '../../../_design-system/NarInput'
+import NarTextarea from '../../../_design-system/NarTextarea'
 
 interface CredentialFormProps {
   credential?: CredentialEntity

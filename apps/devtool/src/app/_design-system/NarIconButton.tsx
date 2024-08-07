@@ -1,3 +1,4 @@
+import { SizeProp } from '@fortawesome/fontawesome-svg-core'
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ForwardedRef, forwardRef, ReactNode } from 'react'
@@ -5,6 +6,7 @@ import { classNames } from '../_lib/utils'
 
 interface NarIconButtonProps {
   icon: IconDefinition
+  iconSize?: SizeProp
   className?: string
   spin?: boolean
   children?: ReactNode
@@ -14,7 +16,7 @@ interface NarIconButtonProps {
 
 const NarIconButton = forwardRef(
   (
-    { icon, className, spin, children, disabled, onClick, ...props }: NarIconButtonProps,
+    { icon, iconSize, className, spin, children, disabled, onClick, ...props }: NarIconButtonProps,
     forwardedRef: ForwardedRef<HTMLButtonElement>
   ) => (
     <button
@@ -27,7 +29,7 @@ const NarIconButton = forwardRef(
       disabled={disabled}
       onClick={onClick}
     >
-      <FontAwesomeIcon icon={icon} spin={spin} />
+      <FontAwesomeIcon icon={icon} spin={spin} size={iconSize} />
       {children}
     </button>
   )

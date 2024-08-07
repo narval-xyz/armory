@@ -4,14 +4,14 @@ import { AccountEntity, AccountType, Action, Entities, getAddress } from '@narva
 import { Hex } from '@narval/signature'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../../_design-system/NarButton'
-import NarDialog from '../../_design-system/NarDialog'
-import useAuthServerApi from '../../_hooks/useAuthServerApi'
-import useVaultApi from '../../_hooks/useVaultApi'
-import { ensurePrefix } from '../../_lib/utils'
-import ImportKeyForm, { KeyType } from './ImportKeyForm'
-import Info from './Info'
-import Message from './Message'
+import NarButton from '../../../_design-system/NarButton'
+import NarDialog from '../../../_design-system/NarDialog'
+import useAuthServerApi from '../../../_hooks/useAuthServerApi'
+import useVaultApi from '../../../_hooks/useVaultApi'
+import { ensurePrefix } from '../../../_lib/utils'
+import Info from '../Info'
+import Message from '../Message'
+import ImportKeyForm, { KeyType } from '../forms/ImportKeyForm'
 
 interface ImportKeyDialogProp {
   isOpen?: boolean
