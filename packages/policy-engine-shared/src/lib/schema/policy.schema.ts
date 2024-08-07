@@ -135,10 +135,12 @@ export const signTypedDataDomainConditionSchema = z.object({
   verifyingContract: z.array(addressSchema).min(1).optional()
 })
 
-export const signTypedDataMessageConditionSchema = z.array(z.object({
-  key: z.string().min(1),
-  value: z.union([z.string().min(1), z.number()])
-}))
+export const signTypedDataMessageConditionSchema = z.array(
+  z.object({
+    key: z.string().min(1),
+    value: z.union([z.string().min(1), z.number()])
+  })
+)
 
 export const permitDeadlineConditionSchema = z.object({
   operator: z.nativeEnum(ValueOperators),
@@ -387,7 +389,7 @@ export const intentDomainCriterionSchema = z.object({
 
 export const intentTypedDataMessageCriterionSchema = z.object({
   criterion: z.literal(criterionSchema.enum.CHECK_INTENT_TYPED_DATA_MESSAGE),
-  args: z.array(signTypedDataMessageConditionSchema),
+  args: z.array(signTypedDataMessageConditionSchema)
 })
 
 // Intent Permit Deadline

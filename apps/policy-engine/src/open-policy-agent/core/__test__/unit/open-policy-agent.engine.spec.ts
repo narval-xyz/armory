@@ -3,8 +3,8 @@ import {
   Action,
   Criterion,
   Decision,
-  Entities,
   Eip712TypedData,
+  Entities,
   EntityType,
   EvaluationRequest,
   FIXTURE,
@@ -381,6 +381,7 @@ describe('OpenPolicyAgentEngine', () => {
       })
     })
   })
+
   describe('scenario testing', () => {
     describe('checkDestinationClassification', () => {
       // Sample policy & data for this specific set of
