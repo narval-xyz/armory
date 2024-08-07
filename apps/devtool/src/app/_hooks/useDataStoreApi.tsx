@@ -98,6 +98,7 @@ const useDataStoreApi = () => {
     } catch (error) {
       setEntityError(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, entityFetchError: true }))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: false }))
     }
@@ -113,6 +114,7 @@ const useDataStoreApi = () => {
     } catch (error) {
       setPolicyError(extractErrorMessage(error))
       setProcessingStatus((prev) => ({ ...prev, policyFetchError: true }))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isFetchingPolicy: false }))
     }
@@ -163,6 +165,7 @@ const useDataStoreApi = () => {
       setEntityStore({ signature, data })
     } catch (error) {
       setPageError(extractErrorMessage(error))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningEntity: false }))
     }
@@ -180,6 +183,7 @@ const useDataStoreApi = () => {
       setPolicyStore({ signature, data })
     } catch (error) {
       setPageError(extractErrorMessage(error))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningPolicy: false }))
     }
@@ -195,6 +199,7 @@ const useDataStoreApi = () => {
       await getEntityStore()
     } catch (error) {
       setPageError(extractErrorMessage(error))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingEntity: false }))
     }
@@ -210,6 +215,7 @@ const useDataStoreApi = () => {
       await getPolicyStore()
     } catch (error) {
       setPageError(extractErrorMessage(error))
+      throw error
     } finally {
       setProcessingStatus((prev) => ({ ...prev, isSigningAndPushingPolicy: false }))
     }

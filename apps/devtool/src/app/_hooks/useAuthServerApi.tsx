@@ -174,6 +174,7 @@ const useAuthServerApi = () => {
       setTimeout(() => setIsSynced(false), 5000)
     } catch (error) {
       setErrors(extractErrorMessage(error))
+      throw error
     } finally {
       setIsProcessing(false)
     }
