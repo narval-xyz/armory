@@ -1,35 +1,31 @@
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { FC, ReactNode, useState } from 'react'
 import { classNames } from '../_lib/utils'
 import NarIconButton from './NarIconButton'
 
 interface NarCollapsibleProps {
+  icon?: IconDefinition
   title: string
   children: ReactNode
 }
 
-const NarCollapsible: FC<NarCollapsibleProps> = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false)
+const NarCollapsible: FC<NarCollapsibleProps> = ({ icon, title, children }) => {
+  const [isOpen, setIsOpen] = useState(true)
 
   return (
-    <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible.Root className="w-full" open={isOpen} onOpenChange={setIsOpen}>
       <div
         className={classNames(
-          'flex items-center  px-[24px] py-[20px] bg-nv-neutrals-600',
+          'flex items-center gap-2 px-[24px] py-[20px] bg-nv-neutrals-600',
           isOpen ? 'rounded-t-[8px]' : 'rounded-[8px]'
         )}
       >
+        {icon && <FontAwesomeIcon icon={icon} />}
         <div className="flex items-center gap-[8px] flex-1">{title}</div>
         <Collapsible.Trigger asChild>
           <NarIconButton icon={isOpen ? faChevronUp : faChevronDown} />
-          {/* <button className="rounded-full h-[25px] w-[25px] inline-flex items-center justify-center outline-none">
-            {isOpen ? (
-              <FontAwesomeIcon icon={faChevronUp} size="sm" />
-            ) : (
-              <FontAwesomeIcon icon={faChevronDown} size="sm" />
-            )}
-          </button> */}
         </Collapsible.Trigger>
       </div>
       <Collapsible.Content

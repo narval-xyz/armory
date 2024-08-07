@@ -2,8 +2,8 @@
 
 import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import NarButton from '../../_design-system/NarButton'
-import NarInput from '../../_design-system/NarInput'
+import NarButton from '../../../_design-system/NarButton'
+import NarInput from '../../../_design-system/NarInput'
 
 interface AccountFormProps {
   account?: AccountEntity

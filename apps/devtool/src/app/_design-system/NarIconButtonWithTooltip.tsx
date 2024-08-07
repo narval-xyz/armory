@@ -1,14 +1,14 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
-import NarIconButton from '../../_design-system/NarIconButton'
-import NarTooltip from '../../_design-system/NarTooltip'
+import NarIconButton from './NarIconButton'
+import NarTooltip from './NarTooltip'
 
-interface CardButtonProps {
+interface NarIconButtonWithTooltipProps {
   icon: IconDefinition
   onClick: () => void
   alt: string
 }
 
-export default function CardButton({ icon, onClick, alt }: CardButtonProps) {
+export default function NarIconButtonWithTooltip({ icon, onClick, alt }: NarIconButtonWithTooltipProps) {
   return (
     <NarTooltip
       side="top"

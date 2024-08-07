@@ -1,7 +1,6 @@
 import { faTrash, faUnlink } from '@fortawesome/free-solid-svg-icons'
 import { AccountEntity, AccountType } from '@narval/policy-engine-shared'
-import Card from './Card'
-import CardButton from './CardActionButton'
+import NarIconButtonWithTooltip from '../../../_design-system/NarIconButtonWithTooltip'
 
 interface AccountCardProps {
   account: AccountEntity
@@ -35,7 +34,7 @@ const getChainId = (chainId: number): string => {
 
 export default function AccountCardProps({ account, onDeleteClick, onUnassignClick }: AccountCardProps) {
   return (
-    <Card>
+    <div className="flex items-center">
       <div className="flex grow items-center gap-4">
         <span className="w-[400px] truncate">{account.address}</span>
         <span
@@ -45,14 +44,14 @@ export default function AccountCardProps({ account, onDeleteClick, onUnassignCli
         </span>
         {account.chainId && <span className="text-white/50">{getChainId(account.chainId)}</span>}
       </div>
-
       {(onDeleteClick || onUnassignClick) && (
         <div className="flex items-center gap-2">
-          {onDeleteClick && <CardButton icon={faTrash} onClick={onDeleteClick} alt="Delete account" />}
-
-          {onUnassignClick && <CardButton icon={faUnlink} onClick={onUnassignClick} alt="Unassign account" />}
+          {onDeleteClick && <NarIconButtonWithTooltip icon={faTrash} onClick={onDeleteClick} alt="Delete account" />}
+          {onUnassignClick && (
+            <NarIconButtonWithTooltip icon={faUnlink} onClick={onUnassignClick} alt="Unassign account" />
+          )}
         </div>
       )}
-    </Card>
+    </div>
   )
 }

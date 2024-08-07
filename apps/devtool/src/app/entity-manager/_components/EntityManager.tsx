@@ -29,23 +29,24 @@ import { z } from 'zod'
 import CodeEditor from '../../_components/CodeEditor'
 import AuthConfigModal, { ConfigForm } from '../../_components/modals/AuthConfigModal'
 import NarButton from '../../_design-system/NarButton'
+import NarCollapsible from '../../_design-system/NarCollapsible'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useStore from '../../_hooks/useStore'
 import DataEditor from '../../data-store/_components/DataEditor'
-import AccountCard from './AccountCard'
-import AccountForm from './AccountForm'
-import AssignAccountForm from './AssignAccountForm'
-import CredentialCard from './CredentialCard'
-import CredentialForm from './CredentialForm'
-import DeriveAccountsDialog from './DeriveAccountDialog'
 import EmptyState from './EmptyState'
-import GenerateWalletDialog from './GenerateWalletDialog'
-import ImportKeyDialog from './ImportKeyDialog'
 import Info from './Info'
 import Message from './Message'
-import UserCard from './UserCard'
-import UserForm from './UserForm'
+import AccountCard from './cards/AccountCard'
+import CredentialCard from './cards/CredentialCard'
+import UserCard from './cards/UserCard'
+import DeriveAccountsDialog from './dialogs/DeriveAccountDialog'
+import GenerateWalletDialog from './dialogs/GenerateWalletDialog'
+import ImportKeyDialog from './dialogs/ImportKeyDialog'
+import AccountForm from './forms/AccountForm'
+import AssignAccountForm from './forms/AssignAccountForm'
+import CredentialForm from './forms/CredentialForm'
+import UserForm from './forms/UserForm'
 
 enum View {
   ENTITY,
@@ -371,6 +372,8 @@ export default function EntityManager() {
                   <li key={user.id}>
                     <UserCard
                       user={user}
+                      nbAccounts={accounts.length}
+                      nbCredentials={credentials.length}
                       onAssignAccountClick={() => {
                         setUser(user)
                         setAssignAccountDialogOpen(true)
@@ -386,54 +389,57 @@ export default function EntityManager() {
                         setEditUserDialogOpen(true)
                       }}
                       onDeleteClick={() => setEntities(EntityUtil.removeUserById(entities, user.id))}
-                    />
+                    >
+                      <div className="flex flex-col gap-4 mt-4">
+                        {accounts.length > 0 && (
+                          <div className="pl-8 flex items-center">
+                            <NarCollapsible icon={faWallet} title={`${accounts.length} Accounts`}>
+                              <ul className="w-full">
+                                {EntityUtil.getUserAssignedAccounts(entities, user).map((acc) => (
+                                  <li
+                                    key={`${user.id}-${acc.id}`}
+                                    className="first:pt-0 last:pb-0 last:border-b-0 py-4 border-b-2 border-nv-black"
+                                  >
+                                    <AccountCard
+                                      account={acc}
+                                      onUnassignClick={() => {
+                                        const existingUserAccounts = EntityUtil.getUserAccounts(entities, user)
+                                        const updatedUserAccounts = existingUserAccounts.filter(
+                                          (ua) => ua.accountId !== acc.id && ua.userId === user.id
+                                        )
 
-                    {accounts.length > 0 && (
-                      <>
-                        <div className="pl-8 flex items-center gap-2 text-lg text-semibold grow my-4">
-                          <FontAwesomeIcon icon={faWallet} />
-                          <h2>Accounts</h2>
-                        </div>
-
-                        <ul>
-                          {EntityUtil.getUserAssignedAccounts(entities, user).map((acc) => (
-                            <li key={`${user.id}-${acc.id}`} className="flex flex-col pl-8 mb-4">
-                              <AccountCard
-                                account={acc}
-                                onUnassignClick={() => {
-                                  const existingUserAccounts = EntityUtil.getUserAccounts(entities, user)
-                                  const updatedUserAccounts = existingUserAccounts.filter(
-                                    (ua) => ua.accountId !== acc.id && ua.userId === user.id
-                                  )
-
-                                  setEntities(EntityUtil.updateUserAccounts(entities, user, updatedUserAccounts))
-                                }}
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-
-                    {credentials.length > 0 && (
-                      <>
-                        <div className="pl-8 flex items-center gap-2 text-lg text-semibold grow my-4">
-                          <FontAwesomeIcon icon={faIdBadge} />
-                          <h2>Credentials</h2>
-                        </div>
-
-                        <ul>
-                          {credentials.map((cred) => (
-                            <li key={`${user.id}-${cred.id}`} className="flex flex-col pl-8 mb-4">
-                              <CredentialCard
-                                credential={cred}
-                                onDeleteClick={() => setEntities(EntityUtil.removeCredentialById(entities, cred.id))}
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
+                                        setEntities(EntityUtil.updateUserAccounts(entities, user, updatedUserAccounts))
+                                      }}
+                                    />
+                                  </li>
+                                ))}
+                              </ul>
+                            </NarCollapsible>
+                          </div>
+                        )}
+                        {credentials.length > 0 && (
+                          <div className="pl-8 flex items-center">
+                            <NarCollapsible icon={faIdBadge} title={`${credentials.length} Credentials`}>
+                              <ul className="w-full">
+                                {credentials.map((cred) => (
+                                  <li
+                                    key={`${user.id}-${cred.id}`}
+                                    className="first:pt-0 last:pb-0 last:border-b-0 py-4 border-b-2 border-nv-black"
+                                  >
+                                    <CredentialCard
+                                      credential={cred}
+                                      onDeleteClick={() =>
+                                        setEntities(EntityUtil.removeCredentialById(entities, cred.id))
+                                      }
+                                    />
+                                  </li>
+                                ))}
+                              </ul>
+                            </NarCollapsible>
+                          </div>
+                        )}
+                      </div>
+                    </UserCard>
                   </li>
                 )
               })}

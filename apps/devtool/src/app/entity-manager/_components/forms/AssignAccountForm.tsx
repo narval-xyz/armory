@@ -1,6 +1,6 @@
 import { AccountEntity, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import NarCheckbox from '../../_design-system/NarCheckbox'
+import NarCheckbox from '../../../_design-system/NarCheckbox'
 
 interface AssignAccountFormProps {
   user: UserEntity

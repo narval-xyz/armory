@@ -5,10 +5,10 @@ import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@na
 import { capitalize } from 'lodash'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../../_design-system/NarButton'
-import NarDropdownMenu, { DropdownItem } from '../../_design-system/NarDropdownMenu'
-import NarInput from '../../_design-system/NarInput'
-import NarTextarea from '../../_design-system/NarTextarea'
+import NarButton from '../../../_design-system/NarButton'
+import NarDropdownMenu, { DropdownItem } from '../../../_design-system/NarDropdownMenu'
+import NarInput from '../../../_design-system/NarInput'
+import NarTextarea from '../../../_design-system/NarTextarea'
 import CredentialForm from './CredentialForm'
 
 enum CredentialType {

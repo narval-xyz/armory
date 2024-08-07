@@ -5,11 +5,11 @@ import { AccountType, Action, Entities, EntityUtil, hexSchema } from '@narval/po
 import { parseInt } from 'lodash'
 import { Dispatch, FC, SetStateAction, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import NarButton from '../../_design-system/NarButton'
-import NarDialog from '../../_design-system/NarDialog'
-import NarInput from '../../_design-system/NarInput'
-import useAuthServerApi from '../../_hooks/useAuthServerApi'
-import useVaultApi from '../../_hooks/useVaultApi'
+import NarButton from '../../../_design-system/NarButton'
+import NarDialog from '../../../_design-system/NarDialog'
+import NarInput from '../../../_design-system/NarInput'
+import useAuthServerApi from '../../../_hooks/useAuthServerApi'
+import useVaultApi from '../../../_hooks/useVaultApi'
 
 interface DeriveAccountsDialogProps {
   setEntities: Dispatch<SetStateAction<Entities>>
