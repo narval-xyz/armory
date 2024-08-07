@@ -34,7 +34,7 @@ const getChainId = (chainId: number): string => {
 
 export default function AccountCardProps({ account, onDeleteClick, onUnassignClick }: AccountCardProps) {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center w-full">
       <div className="flex grow items-center gap-4">
         <span className="w-[400px] truncate">{account.address}</span>
         <span
