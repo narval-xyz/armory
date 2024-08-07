@@ -28,7 +28,7 @@ type Mapping<R extends Request> = (
 ) => Input
 
 const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principal, approvals, feeds): Input => {
-  const { chainId, entryPoint, ...userOpToBeHashed } = request.userOperation
+  const { chainId, entryPoint } = request.userOperation
 
   const result = safeDecode({
     input: {
@@ -163,7 +163,10 @@ export const toInput = (params: {
   const mapper = mappers.get(action)
 
   if (mapper) {
-    return mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds)
+    return {
+      ...mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds),
+      resource: { uid: evaluation.request.resourceId.toLowerCase() }
+    }
   }
 
   throw new OpenPolicyAgentException({
@@ -175,10 +178,11 @@ export const toInput = (params: {
 
 export const toData = (entities: Entities): Data => {
   const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
-    const group = groups.get(groupId)
+    const id = groupId.toLowerCase()
+    const group = groups.get(id)
 
     if (group) {
-      return groups.set(groupId, {
+      return groups.set(id, {
         id: groupId,
         users: group.users.concat(userId)
       })
@@ -215,7 +219,7 @@ export const toData = (entities: Entities): Data => {
     }
   }, new Map<string, AccountGroup>())
 
-  return {
+  const data: Data = {
     entities: {
       addressBook: indexBy('id', entities.addressBook),
       tokens: indexBy('id', entities.tokens),
@@ -225,4 +229,8 @@ export const toData = (entities: Entities): Data => {
       accountGroups: Object.fromEntries(accountGroups)
     }
   }
+
+  // IMPORTANT: The Data schema converts IDs to lower case because we don't
+  // want to be doing defensive programming in Rego.
+  return Data.parse(data)
 }

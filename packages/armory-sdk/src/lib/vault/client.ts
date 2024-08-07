@@ -188,9 +188,10 @@ export class VaultClient {
 
   async sign({ data, accessToken }: { data: Request; accessToken: AccessToken }): Promise<SignatureDto> {
     const token = getBearerToken(accessToken)
+    const parsedRequest = Request.parse(data)
 
     const { data: signature } = await this.signHttp.sign(this.config.clientId, token, {
-      request: SerializedSignableRequest.parse(data)
+      request: SerializedSignableRequest.parse(parsedRequest)
     })
 
     return signature

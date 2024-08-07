@@ -3,6 +3,8 @@ import {
   Action,
   Criterion,
   Decision,
+  Eip712TypedData,
+  Entities,
   EntityType,
   EvaluationRequest,
   FIXTURE,
@@ -376,6 +378,277 @@ describe('OpenPolicyAgentEngine', () => {
           missing: [missingApproval, missingApproval2],
           satisfied: [satisfiedApproval, satisfiedApproval2]
         }
+      })
+    })
+  })
+
+  describe('scenario testing', () => {
+    describe('checkDestinationClassification', () => {
+      // Sample policy & data for this specific set of
+      // checkDestinationClassification scenarios.
+      const policies: Policy[] = [
+        {
+          id: '1-allow-internal-transfers',
+          description: 'Permit accounts to transfer between each other or to whitelisted internal address',
+          when: [
+            {
+              criterion: 'checkIntentType',
+              args: ['transferNative', 'transferErc20', 'transferErc721', 'transferErc1155']
+            },
+            {
+              criterion: 'checkDestinationClassification',
+              args: ['managed', 'internal']
+            }
+          ],
+          then: 'permit'
+        }
+      ]
+
+      // NOTE: this references Alice for the Credentials, but we're not
+      // importing from dev.fixtures.ts because we want this to be
+      // copy-pasteable as the actual JSON, so it can be e2e tested outside
+      // this unit test.
+      const entities: Entities = {
+        addressBook: [
+          {
+            id: 'eip155:1:0x9f38879167acCf7401351027EE3f9247A71cd0c5',
+            address: '0x9f38879167acCf7401351027EE3f9247A71cd0c5',
+            chainId: 1,
+            classification: 'internal'
+          },
+          {
+            id: 'eip155:1:0x0f610AC9F0091f8F573c33f15155afE8aD747495',
+            address: '0x0f610AC9F0091f8F573c33f15155afE8aD747495',
+            chainId: 1,
+            classification: 'counterparty'
+          }
+        ],
+        credentials: [
+          {
+            userId: 'test-alice-user-uid',
+            id: '0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94',
+            key: {
+              kty: 'EC',
+              alg: 'ES256K',
+              kid: '0x4fca4ebdd44d54a470a273cb6c131303892cb754f0d374a860fab7936bb95d94',
+              crv: 'secp256k1',
+              x: 'zb-LwlHDtp5sV8E33k3H2TCm-LNTGIcFjODNWI4gHRY',
+              y: '6Pbt6dwxAeS7yHp7YV2GbXs_Px0tWrTfeTv9erjC7zs'
+            }
+          }
+        ],
+        tokens: [],
+        userGroupMembers: [],
+        userGroups: [],
+        userAccounts: [],
+        users: [
+          {
+            id: 'test-alice-user-uid',
+            role: 'admin'
+          }
+        ],
+        accountGroupMembers: [],
+        accountGroups: [],
+        accounts: [
+          {
+            id: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127',
+            address: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            accountType: 'eoa'
+          },
+          {
+            id: 'eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            address: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            accountType: 'eoa'
+          }
+        ]
+      }
+
+      it('permits transfers between implicit managed accounts not in address book', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: '0xde0b6b3a7640000', // 1 ETH
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.PERMIT)
+      })
+
+      it('permits transfers to account classified internal in address book', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x9f38879167acCf7401351027EE3f9247A71cd0c5',
+            value: '0xde0b6b3a7640000', // 1 ETH
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.PERMIT)
+      })
+
+      it('forbids transfer to account classified counterparty in address book', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x0f610AC9F0091f8F573c33f15155afE8aD747495',
+            value: '0xde0b6b3a7640000', // 1 ETH
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
+      })
+    })
+    describe('checkIntentTypedDataMessage', () => {
+      const immutableTypedData = {
+        types: {
+          EIP712Domain: [
+            {
+              name: 'chainId',
+              type: 'uint256'
+            }
+          ],
+          LinkWallet: [
+            {
+              name: 'walletAddress',
+              type: 'address'
+            },
+            {
+              name: 'immutablePassportAddress',
+              type: 'address'
+            },
+            {
+              name: 'condition',
+              type: 'string'
+            },
+            {
+              name: 'nonce',
+              type: 'string'
+            }
+          ]
+        },
+        primaryType: 'LinkWallet',
+        domain: {
+          chainId: '1'
+        },
+        message: {
+          walletAddress: '0x299697552cd035afd7e08600c4001fff48498263',
+          immutablePassportAddress: '0xfa9582594f460d3cad2095f6270996ac25f89874',
+          condition: 'I agree to link this wallet to my Immutable Passport account.',
+          nonce: 'mTu2kYHDG9jt9ZTIp'
+        }
+      } as unknown as Eip712TypedData
+
+      it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
+        const immutablePolicy: Policy[] = [
+          {
+            id: 'test-permit-login-uid',
+            then: 'permit',
+            description: 'permits immutable login with assigned account',
+            when: [
+              {
+                criterion: 'checkIntentTypedDataMessage',
+                args: [
+                  [
+                    {
+                      key: 'condition',
+                      value: 'I agree to link this wallet to my Immutable Passport account.'
+                    }
+                  ]
+                ]
+              },
+              {
+                criterion: 'checkAccountAssigned',
+                args: null
+              }
+            ]
+          }
+        ]
+
+        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE.ENTITIES).load()
+
+        const request = {
+          action: Action.SIGN_TYPED_DATA,
+          nonce: 'test-nonce',
+          typedData: immutableTypedData,
+          resourceId: 'eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+            sub: FIXTURE.USER.Alice.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+        expect(response.decision).toEqual(Decision.PERMIT)
+        expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
       })
     })
   })
