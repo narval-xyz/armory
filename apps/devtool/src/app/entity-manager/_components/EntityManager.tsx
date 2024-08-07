@@ -287,9 +287,9 @@ export default function EntityManager() {
               />
             )}
 
-            <ul className="flex flex-col gap-4">
+            <ul className="w-full">
               {entities.accounts.map((acc) => (
-                <li key={acc.id}>
+                <li key={acc.id} className="border-t-2 border-nv-white py-4">
                   <AccountCard
                     account={acc}
                     onDeleteClick={() => setEntities(EntityUtil.removeAccountById(entities, acc.id))}
