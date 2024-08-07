@@ -14,7 +14,7 @@ import { ensurePrefix } from '../_lib/utils'
 import CodeEditor from './CodeEditor'
 import ValueWithCopy from './ValueWithCopy'
 import CreateWalletModal from './modals/CreateWalletModal'
-import ImportWalletModal from './modals/ImportAccountModal'
+import ImportAccountModal from './modals/ImportAccountModal'
 
 enum Template {
   ERC20 = 'ERC20',
@@ -243,7 +243,7 @@ const Playground: FC<PlaygroundProps> = ({ title, configModal, errors, authorize
             />
           )}
           {vaultClientId && (
-            <ImportWalletModal
+            <ImportAccountModal
               accessToken={vaultAccessToken}
               importAccount={handleImportAccount}
               importWallet={handleImportWallet}

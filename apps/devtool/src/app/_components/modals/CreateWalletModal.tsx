@@ -11,6 +11,7 @@ import NarCopyButton from '../../_design-system/NarCopyButton'
 import NarDialog from '../../_design-system/NarDialog'
 import NarInput from '../../_design-system/NarInput'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
+import { extractErrorMessage } from '../../_lib/utils'
 import ValueWithCopy from '../ValueWithCopy'
 
 enum Steps {
@@ -42,6 +43,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
   const [generatedWallet, setGeneratedWallet] = useState<GenerateKeyResponse>()
   const [derivedWallet, setDerivedWallet] = useState<PublicAccount>()
   const [newEntityStore, setNewEntityStore] = useState<Entities>()
+  const [errors, setErrors] = useState<string>('')
 
   useEffect(() => {
     setAccessToken(props.accessToken)
@@ -136,6 +138,8 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       }
 
       setCurrentStep(Steps.CreateWalletSuccess)
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -149,6 +153,8 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       setCurrentStep(Steps.SignAndPush)
       await signAndPushEntity(newEntityStore)
       setCurrentStep(Steps.Success)
+    } catch (error: any) {
+      setErrors(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
@@ -266,6 +272,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
             <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
+        {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
       </div>
     </NarDialog>
   )
