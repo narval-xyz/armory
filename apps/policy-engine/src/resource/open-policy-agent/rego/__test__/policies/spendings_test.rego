@@ -265,8 +265,8 @@ test_spendingLimitWithFixedPeriod {
 						"initiatedBy": "test-alice-uid",
 					},
 				],
-			}
-		]
+			},
+		],
 	})
 
 	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as entities
@@ -278,4 +278,3 @@ test_spendingLimitWithFixedPeriod {
 		"type": "permit",
 	}
 }
-

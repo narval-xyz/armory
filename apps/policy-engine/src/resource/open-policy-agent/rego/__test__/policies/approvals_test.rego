@@ -2,11 +2,11 @@ package main
 
 test_approvalByUsers {
 	approvalByUsersReq = object.union(requestWithEip1559Transaction, {
-		"principal": {"userId": "test-alice-uid"}, 
+		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bob-uid"},
 			{"userId": "test-bar-uid"},
-		]
+		],
 	})
 
 	res = permit[{"policyId": "approvalByUsers"}] with input as approvalByUsersReq with data.entities as entities
@@ -26,11 +26,11 @@ test_approvalByUsers {
 
 test_approvalByUserGroups {
 	approvalByUserGroupsReq = object.union(requestWithEip1559Transaction, {
-		"principal": {"userId": "test-alice-uid"}, 
+		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bob-uid"},
 			{"userId": "test-bar-uid"},
-		]
+		],
 	})
 
 	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as entities
@@ -50,11 +50,11 @@ test_approvalByUserGroups {
 
 test_approvalByUserRoles {
 	approvalByUserRolesReq = object.union(requestWithEip1559Transaction, {
-		"principal": {"userId": "test-alice-uid"}, 
+		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bar-uid"},
 			{"userId": "test-foo-uid"},
-		]
+		],
 	})
 
 	res = permit[{"policyId": "approvalByUserRoles"}] with input as approvalByUserRolesReq with data.entities as entities
@@ -78,7 +78,7 @@ test_withoutApprovalsEIP1559 {
 		"transactionRequest": transactionRequestEIP1559,
 		"principal": principalReq,
 		"resource": resourceReq,
-		"intent": intentReq
+		"intent": intentReq,
 	}
 
 	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
@@ -97,7 +97,7 @@ test_withoutApprovalsLegacy {
 		"transactionRequest": transactionRequestLegacy,
 		"principal": principalReq,
 		"resource": resourceReq,
-		"intent": intentReq
+		"intent": intentReq,
 	}
 
 	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities

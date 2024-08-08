@@ -5,13 +5,13 @@ import future.keywords.in
 getIntentTransfers(intent) = intent.transfers
 
 checkUserOperationTokensTransfers(intent, condition) {
-    condition == wildcard
+	condition == wildcard
 }
 
 checkUserOperationTokensTransfers(intent, condition) {
-    condition != wildcard
-    intentTransfers = getIntentTransfers(intent)
-    transfer = intentTransfers[_]
+	condition != wildcard
+	intentTransfers = getIntentTransfers(intent)
+	transfer = intentTransfers[_]
 	transfer.token in condition
 }
 

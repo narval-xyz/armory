@@ -1,6 +1,6 @@
 'use client'
 
-import { faCheckCircle, faChevronDown, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faChevronDown, faPlus, faSpinner, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   CredentialEntity,
@@ -28,7 +28,8 @@ enum Steps {
   AddUserForm,
   AddUserSuccess,
   SignAndPush,
-  Success
+  Success,
+  Error
 }
 
 enum CredentialType {
@@ -90,7 +91,7 @@ const AddUserModal = () => {
     if (currentStep === Steps.AddUserSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.Success) {
+    if ([Steps.Success, Steps.Error].includes(currentStep)) {
       return 'Ok'
     }
 
@@ -166,6 +167,7 @@ const AddUserModal = () => {
       await getEntityStore()
     } catch (error: any) {
       setErrors(extractErrorMessage(error))
+      setCurrentStep(Steps.Error)
     } finally {
       setIsProcessing(false)
     }
@@ -181,7 +183,7 @@ const AddUserModal = () => {
       onDismiss={handleClose}
       onSave={currentStep === Steps.AddUserForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
-      isConfirm={currentStep === Steps.Success}
+      isConfirm={[Steps.Success, Steps.Error].includes(currentStep)}
       isSaveDisabled={isProcessing || !isFormValid}
     >
       <div className="w-[650px] px-12 py-4">
@@ -297,7 +299,12 @@ const AddUserModal = () => {
             <p className="text-nv-lg">Data store updated successfully!</p>
           </div>
         )}
-        {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
+        {currentStep === Steps.Error && (
+          <div className="flex flex-col items-center justify-center gap-[8px]">
+            <FontAwesomeIcon className="text-nv-red-500" icon={faXmarkCircle} size="xl" />
+            {errors && <p className="text-nv-lg">An error occurred: {errors}</p>}
+          </div>
+        )}
       </div>
     </NarDialog>
   )

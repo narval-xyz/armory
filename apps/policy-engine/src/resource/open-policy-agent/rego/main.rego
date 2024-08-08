@@ -5,9 +5,9 @@ import future.keywords.in
 wildcard = "*"
 
 actions = {
-	"signTransaction": "signTransaction", 
-	"signRaw": "signRaw", 
-	"signMessage": "signMessage", 
+	"signTransaction": "signTransaction",
+	"signRaw": "signRaw",
+	"signMessage": "signMessage",
 	"signTypedData": "signTypedData",
 	"grantPermission": "grantPermission",
 }

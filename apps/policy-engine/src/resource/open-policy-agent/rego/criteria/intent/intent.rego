@@ -3,27 +3,27 @@ package main
 import future.keywords.in
 
 checkIntentType(values) {
-    input.intent.type in values
+	input.intent.type in values
 }
 
 checkIntentContract(values) {
-    input.intent.contract in values
+	input.intent.contract in values
 }
 
 checkIntentToken(values) {
-    input.intent.token in values
+	input.intent.token in values
 }
 
 checkIntentSpender(values) {
-    input.intent.spender in values
+	input.intent.spender in values
 }
 
 checkIntentChainId(values) {
-    numberToString(input.intent.chainId) in values
+	numberToString(input.intent.chainId) in values
 }
 
 checkIntentHexSignature(values) {
-    input.intent.hexSignature in values
+	input.intent.hexSignature in values
 }
 
 checkIntentAlgorithm(values) {
@@ -31,5 +31,5 @@ checkIntentAlgorithm(values) {
 }
 
 checkIntentBeneficiary(values) {
-    input.intent.beneficiary in values
+	input.intent.beneficiary in values
 }

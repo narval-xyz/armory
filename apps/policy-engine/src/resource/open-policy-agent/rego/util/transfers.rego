@@ -15,7 +15,7 @@ transformIntentToTransferObject(intent) = result {
 		"rates": {},
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId
+		"initiatedBy": input.principal.userId,
 	}
 }
 
@@ -32,7 +32,7 @@ transformIntentToTransferObject(intent) = result {
 		"rates": {},
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId
+		"initiatedBy": input.principal.userId,
 	}
 }
 
@@ -48,7 +48,7 @@ transformIntentToTransferObject(intent) = result {
 		"rates": priceFeed[contract],
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId
+		"initiatedBy": input.principal.userId,
 	}
 }
 
@@ -64,7 +64,7 @@ transformIntentToTransferObject(intent) = result {
 		"rates": priceFeed[token],
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId
+		"initiatedBy": input.principal.userId,
 	}
 }
 
@@ -75,7 +75,7 @@ intentTransferObjects = result {
 
 intentTransferObjects = result {
 	input.intent.type == "userOperation"
-	result = [transferObject | 
+	result = [transferObject |
 		userOperationIntent = input.intent.operationIntents[_]
 		transferObject = transformIntentToTransferObject(userOperationIntent)
 	]
@@ -176,11 +176,11 @@ checkTransferTimeWindow(timestamp, timeWindow) {
 # Check By Transfer Amount
 
 checkTransferAmount(amount, condition) {
-    condition.operator == wildcard
+	condition.operator == wildcard
 }
 
 checkTransferAmount(amount, condition) {
-    condition.value == wildcard
+	condition.value == wildcard
 }
 
 checkTransferAmount(amount, condition) {

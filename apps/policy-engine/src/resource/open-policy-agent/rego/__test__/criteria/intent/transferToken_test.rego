@@ -10,7 +10,7 @@ test_transferNative {
 			"type": "transferNative",
 			"amount": "1000000000000000000",
 			"token": "eip155:137/slip44:966",
-		}
+		},
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as nativeRequest with data.entities as entities
 	checkIntentType({"transferNative"}) with input as nativeRequest with data.entities as entities
@@ -30,7 +30,7 @@ test_transferERC20 {
 			"type": "transferERC20",
 			"amount": "1000000000000000000",
 			"contract": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		}
+		},
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc20Request with data.entities as entities
 	checkIntentType({"transferERC20"}) with input as erc20Request with data.entities as entities
