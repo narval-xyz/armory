@@ -280,7 +280,6 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
             {errors && <p className="text-nv-lg">An error occurred: {errors}</p>}
           </div>
         )}
-        {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
       </div>
     </NarDialog>
   )

@@ -1,4 +1,4 @@
-import { Jwk, hash, verifyJwt } from '@narval/signature'
+import { Jwk, Jwt, hash, verifyJwt } from '@narval/signature'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
@@ -13,7 +13,17 @@ export class SignatureService {
     payload: { signature: string; data: unknown }
     date: Date | undefined
   }) {
-    const validJwt = await verifyJwt(payload.signature, pubKey)
+    let validJwt: Jwt
+
+    try {
+      validJwt = await verifyJwt(payload.signature, pubKey)
+    } catch (error) {
+      throw new ApplicationException({
+        message: error.message,
+        context: error.context,
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN
+      })
+    }
 
     if (validJwt.payload.data !== hash(payload.data)) {
       throw new ApplicationException({

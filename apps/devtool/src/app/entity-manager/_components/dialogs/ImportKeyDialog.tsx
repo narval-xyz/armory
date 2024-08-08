@@ -1,3 +1,5 @@
+'use client'
+
 import { faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { Permission } from '@narval/armory-sdk'
 import { AccountEntity, AccountType, Action, Entities, getAddress } from '@narval/policy-engine-shared'
@@ -8,38 +10,48 @@ import NarButton from '../../../_design-system/NarButton'
 import NarDialog from '../../../_design-system/NarDialog'
 import useAuthServerApi from '../../../_hooks/useAuthServerApi'
 import useVaultApi from '../../../_hooks/useVaultApi'
-import { ensurePrefix } from '../../../_lib/utils'
+import { ensurePrefix, extractErrorMessage } from '../../../_lib/utils'
 import Info from '../Info'
 import Message from '../Message'
 import ImportKeyForm, { KeyType } from '../forms/ImportKeyForm'
 
 interface ImportKeyDialogProp {
-  isOpen?: boolean
+  triggerButton?: React.ReactNode
   setEntities: Dispatch<SetStateAction<Entities>>
-  onDismiss: () => void
-  onOpenChange: (isOpen: boolean) => void
-  onSave: () => void
 }
 
-export default function ImportKeyDialog(props: ImportKeyDialogProp) {
+export default function ImportKeyDialog({ triggerButton, setEntities }: ImportKeyDialogProp) {
   const { requestAccessToken } = useAuthServerApi()
   const { importAccount, importWallet } = useVaultApi()
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [importKey, setImportKey] = useState<{ key: string; keyType: KeyType }>()
-  const [isSaving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
   const addError = (error: string) => setErrors((prev) => [...prev, error])
 
+  const handleClose = () => {
+    setIsDialogOpen(false)
+    setImportKey(undefined)
+    setIsProcessing(false)
+    setErrors([])
+  }
+
   const addAccount = (account: AccountEntity) =>
-    props.setEntities((prev) => ({
+    setEntities((prev) => ({
       ...prev,
       accounts: [...prev.accounts, account]
     }))
 
   const onSave = async () => {
     try {
-      setSaving(true)
+      setIsProcessing(true)
+
+      if (!importKey) {
+        addError('Key is required')
+        return
+      }
 
       const accessToken = await requestAccessToken({
         action: Action.GRANT_PERMISSION,
@@ -50,56 +62,58 @@ export default function ImportKeyDialog(props: ImportKeyDialogProp) {
 
       if (!accessToken) {
         addError('Unable to issue an access token')
+        return
       }
 
-      if (accessToken && importKey) {
-        if (importKey.keyType === KeyType.PRIVATE_KEY) {
-          const account = await importAccount({
-            privateKey: ensurePrefix<Hex>(importKey.key, '0x'),
-            accessToken
+      if (importKey.keyType === KeyType.PRIVATE_KEY) {
+        const account = await importAccount({
+          privateKey: ensurePrefix<Hex>(importKey.key, '0x'),
+          accessToken
+        })
+
+        if (account) {
+          addAccount({
+            address: getAddress(account.address),
+            id: account.id,
+            accountType: AccountType.EOA
           })
-
-          if (account) {
-            addAccount({
-              address: getAddress(account.address),
-              id: account.id,
-              accountType: AccountType.EOA
-            })
-          }
-        }
-
-        if (importKey.keyType === KeyType.SEED_PHRASE) {
-          const wallet = await importWallet({
-            seed: importKey.key,
-            accessToken
-          })
-
-          if (wallet) {
-            addAccount({
-              address: getAddress(wallet.account.address),
-              id: wallet.account.id,
-              accountType: AccountType.EOA
-            })
-          }
         }
       }
 
-      props.onSave()
+      if (importKey.keyType === KeyType.SEED_PHRASE) {
+        const wallet = await importWallet({
+          seed: importKey.key,
+          accessToken
+        })
+
+        if (wallet) {
+          addAccount({
+            address: getAddress(wallet.account.address),
+            id: wallet.account.id,
+            accountType: AccountType.EOA
+          })
+        }
+      }
+
+      handleClose()
+    } catch (error) {
+      addError(extractErrorMessage(error))
     } finally {
-      setSaving(false)
+      setIsProcessing(false)
     }
   }
 
   return (
     <NarDialog
-      triggerButton={<NarButton label={'Import'} />}
-      title={'Import Account'}
-      primaryButtonLabel={'Import'}
-      isOpen={Boolean(props.isOpen)}
-      onOpenChange={props.onOpenChange}
-      onDismiss={props.onDismiss}
+      triggerButton={triggerButton || <NarButton label="Import" />}
+      title="Import Account"
+      primaryButtonLabel="Import"
+      isOpen={isDialogOpen}
+      onOpenChange={(val) => (val ? setIsDialogOpen(val) : handleClose())}
+      onDismiss={handleClose}
       onSave={onSave}
-      isSaving={isSaving}
+      isSaving={isProcessing}
+      isSaveDisabled={isProcessing}
     >
       <div className="w-[650px] px-12 py-4">
         <ImportKeyForm setImportKey={setImportKey} />

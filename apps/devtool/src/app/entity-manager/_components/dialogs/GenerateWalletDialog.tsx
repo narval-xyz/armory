@@ -1,6 +1,6 @@
 'use client'
 
-import { faCheckCircle, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faWallet, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { GenerateKeyResponse, Permission } from '@narval/armory-sdk'
 import { AccountType, Action, Entities, EntityUtil, hexSchema } from '@narval/policy-engine-shared'
@@ -12,6 +12,8 @@ import NarDialog from '../../../_design-system/NarDialog'
 import NarInput from '../../../_design-system/NarInput'
 import useAuthServerApi from '../../../_hooks/useAuthServerApi'
 import useVaultApi from '../../../_hooks/useVaultApi'
+import { extractErrorMessage } from '../../../_lib/utils'
+import Message from '../Message'
 
 enum Steps {
   FORM,
@@ -19,11 +21,10 @@ enum Steps {
 }
 
 interface GenerateWalletDialogProps {
-  isOpen?: boolean
   setEntities: Dispatch<SetStateAction<Entities>>
 }
 
-const GenerateWalletDialog: FC<GenerateWalletDialogProps> = (props) => {
+const GenerateWalletDialog: FC<GenerateWalletDialogProps> = ({ setEntities }) => {
   const { generateWallet } = useVaultApi()
   const { requestAccessToken } = useAuthServerApi()
 
@@ -32,20 +33,15 @@ const GenerateWalletDialog: FC<GenerateWalletDialogProps> = (props) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [keyId, setKeyId] = useState('')
   const [generatedWallet, setGeneratedWallet] = useState<GenerateKeyResponse>()
+  const [errors, setErrors] = useState<string[]>([])
 
-  const btnLabel = useMemo(() => {
-    const labels: Record<number, string> = {
-      [Steps.FORM]: 'Generate',
-      [Steps.SUCCESS]: 'Confirm'
-    }
-
-    return labels[currentStep] || 'Processing...'
-  }, [currentStep])
+  const addError = (error: string) => setErrors((prev) => [...prev, error])
 
   const handleClose = () => {
     setIsDialogOpen(false)
     setGeneratedWallet(undefined)
     setKeyId('')
+    setErrors([])
     setCurrentStep(Steps.FORM)
   }
 
@@ -60,30 +56,44 @@ const GenerateWalletDialog: FC<GenerateWalletDialogProps> = (props) => {
         permissions: [Permission.WALLET_CREATE]
       })
 
-      if (accessToken) {
-        const wallet = await generateWallet({
-          accessToken,
-          keyId
-        })
-
-        if (wallet) {
-          setGeneratedWallet(wallet)
-
-          props.setEntities((prev) =>
-            EntityUtil.addAccount(prev, {
-              id: wallet.account.id,
-              address: hexSchema.parse(wallet.account.address),
-              accountType: AccountType.EOA
-            })
-          )
-
-          setCurrentStep(Steps.SUCCESS)
-        }
+      if (!accessToken) {
+        addError('Unable to issue an access token')
+        return
       }
+
+      const wallet = await generateWallet({
+        accessToken,
+        keyId
+      })
+
+      if (wallet) {
+        setGeneratedWallet(wallet)
+
+        setEntities((prev) =>
+          EntityUtil.addAccount(prev, {
+            id: wallet.account.id,
+            address: hexSchema.parse(wallet.account.address),
+            accountType: AccountType.EOA
+          })
+        )
+
+        setCurrentStep(Steps.SUCCESS)
+      }
+    } catch (error) {
+      addError(extractErrorMessage(error))
     } finally {
       setIsProcessing(false)
     }
   }
+
+  const btnLabel = useMemo(() => {
+    const labels: Record<number, string> = {
+      [Steps.FORM]: 'Generate',
+      [Steps.SUCCESS]: 'Confirm'
+    }
+
+    return labels[currentStep] || 'Processing...'
+  }, [currentStep])
 
   return (
     <NarDialog
@@ -130,6 +140,12 @@ const GenerateWalletDialog: FC<GenerateWalletDialogProps> = (props) => {
             )}
             <p className="text-nv-lg">Save the wallet Key ID somewhere. You'll need it to derive accounts later.</p>
           </div>
+        )}
+
+        {errors.length > 0 && (
+          <Message icon={faXmarkCircle} color="danger" className="mt-6">
+            {errors.join(', ')}
+          </Message>
         )}
       </div>
     </NarDialog>
