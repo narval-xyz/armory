@@ -108,10 +108,9 @@ export default function EntityManager() {
   const [credential, setCredential] = useState<CredentialEntity | undefined>()
   const [isAddCredentialDialogOpen, setAddCredentialDialogOpen] = useState(false)
 
-  const [isAccountDialogOpen, setAccountDialogOpen] = useState(false)
   const [account, setAccount] = useState<AccountEntity | undefined>()
+  const [isAccountDialogOpen, setAccountDialogOpen] = useState(false)
 
-  const [isImportKeyDialogOpen, setImportKeyDialogOpen] = useState(false)
   const [isInitialized, setInitialized] = useState(false)
 
   const isReady = () => isInitialized && Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
@@ -169,7 +168,6 @@ export default function EntityManager() {
             onClick={() => setView(View.POLICY_JSON)}
           />
         </div>
-
         <div className="flex gap-2">
           {(view === View.ENTITY || view === View.ENTITY_JSON) && (
             <>
@@ -200,15 +198,12 @@ export default function EntityManager() {
                   />
                 }
                 disabled={isSigningAndPushingEntity}
-                onClick={() => {
-                  signAndPushEntity(entities)
-                }}
+                onClick={() => signAndPushEntity(entities)}
               />
 
               <GenerateWalletDialog setEntities={setEntities} />
             </>
           )}
-
           <AuthConfigModal onSave={onSaveAuthConfig} />
         </div>
       </div>
@@ -254,16 +249,8 @@ export default function EntityManager() {
                   </div>
 
                   <div className="flex gap-6">
-                    <ImportKeyDialog
-                      setEntities={setEntities}
-                      isOpen={isImportKeyDialogOpen}
-                      onOpenChange={setImportKeyDialogOpen}
-                      onDismiss={() => setImportKeyDialogOpen(false)}
-                      onSave={() => setImportKeyDialogOpen(false)}
-                    />
-
+                    <ImportKeyDialog setEntities={setEntities} />
                     <DeriveAccountsDialog setEntities={setEntities} />
-
                     <NarDialog
                       triggerButton={<NarButton label="Track" />}
                       title="Track Account"
@@ -540,13 +527,9 @@ export default function EntityManager() {
                     <div className="flex justify-items-center flex-col">
                       <span>{"You haven't added or imported any account yet."}</span>
                       <div className="flex text-center items-center gap-6 mt-6">
-                        <NarButton
-                          label="Import Account"
-                          variant="tertiary"
-                          onClick={() => {
-                            setAssignAccountDialogOpen(false)
-                            setImportKeyDialogOpen(true)
-                          }}
+                        <ImportKeyDialog
+                          triggerButton={<NarButton label="Import Account" variant="tertiary" />}
+                          setEntities={setEntities}
                         />
                         <span>or</span>
                         <NarButton
