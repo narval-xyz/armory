@@ -605,24 +605,24 @@ describe('OpenPolicyAgentEngine', () => {
       it('permits Immutable log-in typed data with message.condition policy and assigned account', async () => {
         const immutablePolicy: Policy[] = [
           {
-            "id": "test-permit-login-uid",
-            "then": "permit",
-            "description": "permits immutable login with assigned account",
-            "when": [
+            id: 'test-permit-login-uid',
+            then: 'permit',
+            description: 'permits immutable login with assigned account',
+            when: [
               {
-                "criterion": "checkIntentTypedDataMessage",
-                "args": [
+                criterion: 'checkIntentTypedDataMessage',
+                args: [
                   [
                     {
-                      "key": "condition",
-                      "value": "I agree to link this wallet to my Immutable Passport account."
+                      key: 'condition',
+                      value: 'I agree to link this wallet to my Immutable Passport account.'
                     }
                   ]
                 ]
               },
               {
-                "criterion": "checkAccountAssigned",
-                "args": null
+                criterion: 'checkAccountAssigned',
+                args: null
               }
             ]
           }

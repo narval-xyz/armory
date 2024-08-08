@@ -83,7 +83,7 @@ describe('toInput', () => {
       expect(input.transactionRequest).toEqual({
         ...request.transactionRequest,
         from: request.transactionRequest.from.toLowerCase(),
-        to: request.transactionRequest.to?.toLowerCase() || undefined,
+        to: request.transactionRequest.to?.toLowerCase() || undefined
       })
     })
 
