@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { Action, AssetId, AuthorizationRequest, Feed, JwtString } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Alg, Payload, SigningAlgs, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
 import { uniq } from 'lodash/fp'
@@ -42,7 +42,7 @@ export class PriceFeedService implements DataFeed<Prices> {
       iss: 'https://armory.narval.xyz',
       iat: now
     }
-    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlgs.EIP191 }, jwtSigner)
 
     return jwt
   }

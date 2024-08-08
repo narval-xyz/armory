@@ -7,7 +7,7 @@ import {
   VaultClient
 } from '@narval/armory-sdk'
 import { Request } from '@narval/policy-engine-shared'
-import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
+import { Alg, Jwk, RsaPublicKey, SigningAlgs, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
 import { exportJWK, importSPKI } from 'jose'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
@@ -42,7 +42,7 @@ const useVaultApi = () => {
       clientId: vaultClientId,
       signer: {
         jwk,
-        alg: SigningAlg.EIP191,
+        alg: SigningAlgs.EIP191,
         sign: signer
       }
     })

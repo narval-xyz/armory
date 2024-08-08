@@ -8,7 +8,7 @@ import {
   PolicyData,
   PolicyStore
 } from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
+import { SigningAlgs } from '@narval/signature'
 import { useEffect, useMemo, useState } from 'react'
 import { backOff, extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
@@ -52,7 +52,7 @@ const useDataStoreApi = () => {
       clientSecret: authClientSecret,
       signer: {
         jwk,
-        alg: SigningAlg.EIP191,
+        alg: SigningAlgs.EIP191,
         sign: signer
       }
     })
@@ -69,7 +69,7 @@ const useDataStoreApi = () => {
       clientSecret: authClientSecret,
       signer: {
         jwk,
-        alg: SigningAlg.EIP191,
+        alg: SigningAlgs.EIP191,
         sign: signer
       }
     })

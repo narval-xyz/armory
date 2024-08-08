@@ -20,6 +20,7 @@ import {
   Payload,
   PublicKey,
   SigningAlg,
+  SigningAlgs,
   type Jwt
 } from './types'
 import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex } from './utils'
@@ -219,15 +220,15 @@ async function verifySignature(jws: string, jwk: PublicKey, alg: SigningAlg): Pr
   const sig = base64UrlToHex(b64Sig)
 
   let isValid = false
-  if (alg === SigningAlg.EIP191) {
+  if (alg === SigningAlgs.EIP191) {
     isValid = await verifyEip191(sig, verificationMsg, jwk)
-  } else if (alg === SigningAlg.ES256K) {
+  } else if (alg === SigningAlgs.ES256K) {
     const hash = sha256Hash(verificationMsg)
     isValid = await verifySecp256k1(sig, hash, jwk)
-  } else if (alg === SigningAlg.ES256) {
+  } else if (alg === SigningAlgs.ES256) {
     const hash = sha256Hash(verificationMsg)
     isValid = await verifyP256(sig, hash, jwk)
-  } else if (alg === SigningAlg.RS256) {
+  } else if (alg === SigningAlgs.RS256) {
     // in RS256, the verification does the hashing internally, so pass the data itself not the hash
     isValid = await verifyRs256(sig, verificationMsg, jwk)
   }

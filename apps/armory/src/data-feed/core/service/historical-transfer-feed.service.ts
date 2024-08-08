@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { AuthorizationRequest, Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Alg, Payload, SigningAlgs, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -60,7 +60,7 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
       iss: 'https://armory.narval.xyz',
       iat: now
     }
-    const jwt = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, jwtSigner)
+    const jwt = await signJwt(payload, jwk, { alg: SigningAlgs.EIP191 }, jwtSigner)
 
     return jwt
   }

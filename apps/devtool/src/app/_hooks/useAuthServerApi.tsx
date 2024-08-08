@@ -1,24 +1,16 @@
 import {
   AuthAdminClient,
   AuthClient,
-  AuthorizationRequestStatus,
   EntityStoreClient,
   Evaluate,
   Request
 } from '@narval/armory-sdk'
-import { SigningAlg } from '@narval/signature'
+import { SigningAlgs } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { SetOptional } from 'type-fest'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
 import useStore from './useStore'
-
-const COMPLETED_STATUS: AuthorizationRequestStatus[] = [
-  AuthorizationRequestStatus.PERMITTED,
-  AuthorizationRequestStatus.FORBIDDEN,
-  AuthorizationRequestStatus.FAILED,
-  AuthorizationRequestStatus.CANCELED
-]
 
 export interface AuthClientData {
   authServerUrl: string
@@ -50,7 +42,7 @@ const useAuthServerApi = () => {
       clientSecret: authClientSecret,
       signer: {
         jwk,
-        alg: SigningAlg.EIP191,
+        alg: SigningAlgs.EIP191,
         sign: signer
       }
     })

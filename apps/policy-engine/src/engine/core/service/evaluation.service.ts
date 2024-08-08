@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
+import { Payload, SigningAlgs, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
@@ -129,7 +129,7 @@ export class EvaluationService {
       const jwt = await signJwt(
         jwtPayload,
         client.signer.publicKey,
-        { alg: SigningAlg.EIP191 },
+        { alg: SigningAlgs.EIP191 },
         this.signingService.buildSignerEip191(client.signer, evaluation.sessionId)
       )
       // Add the access token into the response

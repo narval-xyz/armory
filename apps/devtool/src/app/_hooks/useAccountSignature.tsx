@@ -1,4 +1,4 @@
-import { Curves, KeyTypes, PublicKey, SigningAlg, hexToBase64Url } from '@narval/signature'
+import { Curves, KeyTypes, PublicKey, SigningAlgs, hexToBase64Url } from '@narval/signature'
 import { signMessage } from '@wagmi/core'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
@@ -14,7 +14,7 @@ const useAccountSignature = () => {
     setJwk({
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: account.address,
       addr: account.address
     })

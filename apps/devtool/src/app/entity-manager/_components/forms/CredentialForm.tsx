@@ -1,5 +1,5 @@
 import { CredentialEntity, UserEntity, isAddress } from '@narval/policy-engine-shared'
-import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import { Curves, KeyTypes, SigningAlgs, jwkEoaSchema, publicKeySchema } from '@narval/signature'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarInput from '../../../_design-system/NarInput'
@@ -26,7 +26,7 @@ const ExternallyOwnedAccountCredentialForm: FC<CredentialFormProps> = ({ user, c
       const key = jwkEoaSchema.parse({
         kty: KeyTypes.EC,
         crv: Curves.SECP256K1,
-        alg: SigningAlg.ES256K,
+        alg: SigningAlgs.ES256K,
         kid: address,
         addr: address
       })

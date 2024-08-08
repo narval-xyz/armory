@@ -15,7 +15,6 @@ const decodeExecute = (callData: Hex, from: Address, chainId: number, supportedM
   const params = extract(supportedMethods, callData, SupportedMethodId.EXECUTE) as ExecuteParams
   const { to, value, data } = params
 
-  const valueHex = toHex(value)
   return decode({
     input: {
       type: InputType.TRANSACTION_REQUEST,

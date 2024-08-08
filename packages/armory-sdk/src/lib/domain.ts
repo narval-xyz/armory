@@ -1,5 +1,5 @@
 import { AccessToken } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, jwkSchema } from '@narval/signature'
+import { Payload, SigningAlgs, jwkSchema } from '@narval/signature'
 import { z } from 'zod'
 
 export const EngineAdminConfig = z.object({
@@ -10,7 +10,7 @@ export type EngineAdminConfig = z.infer<typeof EngineAdminConfig>
 
 export const UserSigner = z.object({
   jwk: jwkSchema,
-  alg: z.nativeEnum(SigningAlg).optional(),
+  alg: z.nativeEnum(SigningAlgs).optional(),
   signer: z.function().args(z.string()).returns(z.promise(z.string()))
 })
 export type UserSigner = z.infer<typeof UserSigner>
@@ -79,7 +79,7 @@ export const JwsdHeaderArgs = z.object({
   uri: z.string(),
   htm: HtmSchema,
   jwk: jwkSchema,
-  alg: z.nativeEnum(SigningAlg).optional(),
+  alg: z.nativeEnum(SigningAlgs).optional(),
   accessToken: AccessToken
 })
 export type JwsdHeaderArgs = z.infer<typeof JwsdHeaderArgs>

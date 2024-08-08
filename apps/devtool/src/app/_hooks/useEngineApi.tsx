@@ -6,7 +6,7 @@ import {
   syncPolicyEngine
 } from '@narval/armory-sdk'
 import { EvaluationRequest } from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
+import { SigningAlgs } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'
@@ -39,7 +39,7 @@ const useEngineApi = () => {
       engineClientId,
       engineClientSecret,
       jwk,
-      alg: SigningAlg.EIP191,
+      alg: SigningAlgs.EIP191,
       signer
     }
   }, [engineHost, engineClientId, engineClientSecret, jwk, signer])

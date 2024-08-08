@@ -12,6 +12,7 @@ export { resourceId } from './lib/utils'
 export type { Alg, PrivateKey, PublicKey, RsaPublicKey, SigningAlg } from '@narval/signature'
 
 export {
+  SigningAlgs,
   base64UrlToHex,
   buildSignerEip191,
   buildSignerForAlg,
@@ -49,4 +50,4 @@ export type {
   ValueOperators
 } from '@narval/policy-engine-shared'
 
-export { EntityUtil, getAddress, toHex } from '@narval/policy-engine-shared'
+export { EntityUtil, Foo, getAddress, toHex } from '@narval/policy-engine-shared'

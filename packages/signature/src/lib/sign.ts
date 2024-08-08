@@ -8,15 +8,27 @@ import { JwtError } from './error'
 import { hash } from './hash'
 import { canonicalize } from './json.util'
 import { jwkBaseSchema, privateKeySchema } from './schemas'
-import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
+import {
+  Alg,
+  EcdsaSignature,
+  Header,
+  Hex,
+  Jwk,
+  JwsdHeader,
+  PartialJwk,
+  Payload,
+  PrivateKey,
+  SigningAlg,
+  SigningAlgs
+} from './types'
 import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
 import { validateJwk } from './validate'
 
 const SigningAlgToKey = {
-  [SigningAlg.EIP191]: Alg.ES256K,
-  [SigningAlg.ES256K]: Alg.ES256K,
-  [SigningAlg.ES256]: Alg.ES256,
-  [SigningAlg.RS256]: Alg.RS256
+  [SigningAlgs.EIP191]: Alg.ES256K,
+  [SigningAlgs.ES256K]: Alg.ES256K,
+  [SigningAlgs.ES256]: Alg.ES256,
+  [SigningAlgs.RS256]: Alg.RS256
 }
 
 const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
@@ -129,16 +141,16 @@ export async function signJwt(
     })
     const privateKeyHex = await privateKeyToHex(privateKey)
     switch (header.alg) {
-      case SigningAlg.ES256K:
+      case SigningAlgs.ES256K:
         signature = await buildSignerEs256k(privateKeyHex)(messageToSign)
         break
-      case SigningAlg.EIP191:
+      case SigningAlgs.EIP191:
         signature = await buildSignerEip191(privateKeyHex)(messageToSign)
         break
-      case SigningAlg.ES256:
+      case SigningAlgs.ES256:
         signature = await buildSignerEs256(privateKeyHex)(messageToSign)
         break
-      case SigningAlg.RS256:
+      case SigningAlgs.RS256:
         signature = await buildSignerRs256(jwk)(messageToSign)
         break
       default: {
@@ -260,15 +272,15 @@ export const buildSignerForAlg = async (jwk: Jwk) => {
   })
   const { alg } = jwk
   switch (alg) {
-    case SigningAlg.ES256K: {
+    case SigningAlgs.ES256K: {
       const privateKeyHex = await privateKeyToHex(privateKey)
       return buildSignerEs256k(privateKeyHex)
     }
-    case SigningAlg.ES256: {
+    case SigningAlgs.ES256: {
       const privateKeyHex = await privateKeyToHex(privateKey)
       return buildSignerEs256(privateKeyHex)
     }
-    case SigningAlg.RS256:
+    case SigningAlgs.RS256:
       return buildSignerRs256(privateKey)
     default:
       throw new JwtError({

@@ -10,7 +10,7 @@ import {
   addressSchema,
   userRoleSchema
 } from '@narval/policy-engine-shared'
-import { Curves, KeyTypes, PublicKey, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import { Curves, KeyTypes, PublicKey, SigningAlgs, jwkEoaSchema, publicKeySchema } from '@narval/signature'
 import { capitalize } from 'lodash'
 import { useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
@@ -123,7 +123,7 @@ const AddUserModal = () => {
         key = jwkEoaSchema.parse({
           kty: KeyTypes.EC,
           crv: Curves.SECP256K1,
-          alg: SigningAlg.ES256K,
+          alg: SigningAlgs.ES256K,
           kid: userForm.publicKey,
           addr: userForm.publicKey
         })

@@ -23,14 +23,14 @@ export const Alg = {
 
 export type Alg = (typeof Alg)[keyof typeof Alg]
 
-export const SigningAlg = {
+export const SigningAlgs = {
   ES256K: 'ES256K',
   EIP191: 'EIP191', // ecdsa on secp256k1 with keccak256 & data prefixed w/ \x19Ethereum Signed Message:\n + len(message)
   ES256: 'ES256',
   RS256: 'RS256'
 } as const
 
-export type SigningAlg = (typeof SigningAlg)[keyof typeof SigningAlg]
+export type SigningAlg = (typeof SigningAlgs)[keyof typeof SigningAlgs]
 
 export const Use = {
   SIG: 'sig',

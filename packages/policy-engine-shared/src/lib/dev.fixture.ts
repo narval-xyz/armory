@@ -4,7 +4,7 @@ import {
   Hex,
   KeyTypes,
   Secp256k1PublicKey,
-  SigningAlg,
+  SigningAlgs,
   privateKeyToJwk,
   secp256k1PublicKeySchema
 } from '@narval/signature'
@@ -130,7 +130,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: VIEM_ACCOUNT.Root.address,
       addr: VIEM_ACCOUNT.Root.address
     }
@@ -141,7 +141,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: VIEM_ACCOUNT.Alice.address,
       addr: VIEM_ACCOUNT.Alice.address
     }
@@ -152,7 +152,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: VIEM_ACCOUNT.Bob.address,
       addr: VIEM_ACCOUNT.Bob.address
     }
@@ -163,7 +163,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: VIEM_ACCOUNT.Carol.address,
       addr: VIEM_ACCOUNT.Carol.address
     }
@@ -174,7 +174,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
     key: {
       kty: KeyTypes.EC,
       crv: Curves.SECP256K1,
-      alg: SigningAlg.ES256K,
+      alg: SigningAlgs.ES256K,
       kid: VIEM_ACCOUNT.Dave.address,
       addr: VIEM_ACCOUNT.Dave.address
     }

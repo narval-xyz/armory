@@ -6,7 +6,9 @@
   "targets": {
     "build": {
       "executor": "@nx/next:build",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/devtool"
@@ -32,13 +34,14 @@
         }
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+    "test:type": {
+      "executor": "nx:run-commands",
       "options": {
-        "jestConfig": "apps/devtool/jest.config.ts"
+        "command": "make devtool/test/type"
       }
     }
   },
-  "tags": ["type:application"]
+  "tags": [
+    "type:application"
+  ]
 }
