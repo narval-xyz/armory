@@ -33,6 +33,7 @@ import NarCollapsible from '../../_design-system/NarCollapsible'
 import NarDialog from '../../_design-system/NarDialog'
 import useDataStoreApi from '../../_hooks/useDataStoreApi'
 import useStore from '../../_hooks/useStore'
+import { extractErrorMessage } from '../../_lib/utils'
 import DataEditor from '../../data-store/_components/DataEditor'
 import Card from './Card'
 import EmptyState from './EmptyState'
@@ -114,6 +115,14 @@ export default function EntityManager() {
   const [isInitialized, setInitialized] = useState(false)
 
   const isReady = () => isInitialized && Ready.safeParse({ authClientId, authUrl, vaultUrl, vaultClientId }).success
+
+  const signAndPushEntityWithErrorHandling = async () => {
+    try {
+      await signAndPushEntity(entities)
+    } catch (error) {
+      setErrors([extractErrorMessage(error)])
+    }
+  }
 
   const onSaveAuthConfig = (config: ConfigForm) => {
     setEntityDataStoreUrl(`${config.authUrl}/entities?clientId=${config.authClientId}`)
@@ -198,7 +207,7 @@ export default function EntityManager() {
                   />
                 }
                 disabled={isSigningAndPushingEntity}
-                onClick={() => signAndPushEntity(entities)}
+                onClick={() => signAndPushEntityWithErrorHandling()}
               />
 
               <GenerateWalletDialog setEntities={setEntities} />

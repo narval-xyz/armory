@@ -1,6 +1,7 @@
 import { EntityStore } from '@narval/policy-engine-shared'
 import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { ApplicationException } from 'apps/armory/src/shared/exception/application.exception'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { SetEntityStoreResponse } from '../../http/rest/dto/set-entity-store.dto'
@@ -35,11 +36,18 @@ export class EntityDataStoreService extends SignatureService {
 
     const latestDataStore = await this.entitydataStoreRepository.getLatestDataStore(clientId)
 
-    await this.verifySignature({
-      payload,
-      pubKey: publicKeySchema.parse(client.dataStore.entityPublicKey),
-      date: latestDataStore?.createdAt
-    })
+    try {
+      await this.verifySignature({
+        payload,
+        pubKey: publicKeySchema.parse(client.dataStore.entityPublicKey),
+        date: latestDataStore?.createdAt
+      })
+    } catch (error) {
+      throw new ApplicationException({
+        message: 'Invalid signature',
+        suggestedHttpStatusCode: HttpStatus.FORBIDDEN
+      })
+    }
 
     const { data, version } = await this.entitydataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
