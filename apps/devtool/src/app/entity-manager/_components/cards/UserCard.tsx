@@ -51,13 +51,15 @@ export default function UserCard({
         <div className="grid grid-cols-8 grow">
           <div className="col-span-2 truncate">{user.id}</div>
           <div className="col-span-6 flex items-center gap-8">
-            <div
-              className={`flex items-center h-[24px] px-[12px] text-nv-2xs rounded-full ${getRoleBadgeColor(user.role)}`}
-            >
-              {capitalize(user.role)}
+            <div className="w-[120px]">
+              <div
+                className={`flex items-center w-fit h-[24px] px-[12px] text-nv-2xs rounded-full ${getRoleBadgeColor(user.role)}`}
+              >
+                {capitalize(user.role)}
+              </div>
             </div>
-            <span>{nbAccounts} Accounts</span>
-            <span>{nbCredentials} Credentials</span>
+            <div className="w-[120px]">{nbAccounts} Accounts</div>
+            <div className="w-[120px]">{nbCredentials} Credentials</div>
           </div>
         </div>
         <div className="flex items-center gap-8">
