@@ -75,7 +75,11 @@ const toSignTransaction: Mapping<SignTransactionAction> = (request, principal, a
       principal,
       approvals,
       intent: result.intent,
-      transactionRequest: SerializedTransactionRequest.parse(request.transactionRequest),
+      transactionRequest: SerializedTransactionRequest.parse({
+        ...request.transactionRequest,
+        to: request.transactionRequest.to?.toLowerCase() || undefined,
+        from: request.transactionRequest.from.toLowerCase()
+      }),
       resource: { uid: request.resourceId },
       feeds
     }

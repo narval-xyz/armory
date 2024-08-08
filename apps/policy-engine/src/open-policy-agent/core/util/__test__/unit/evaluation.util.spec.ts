@@ -76,11 +76,15 @@ describe('toInput', () => {
       expect(input.approvals).toEqual(approvals)
     })
 
-    it('maps transaction request', () => {
+    it('maps transaction request with lowercased to and from', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignTransactionAction
 
-      expect(input.transactionRequest).toEqual(request.transactionRequest)
+      expect(input.transactionRequest).toEqual({
+        ...request.transactionRequest,
+        from: request.transactionRequest.from.toLowerCase(),
+        to: request.transactionRequest.to?.toLowerCase() || undefined,
+      })
     })
 
     it('adds decoded intent', () => {
