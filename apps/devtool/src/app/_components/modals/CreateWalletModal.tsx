@@ -1,6 +1,6 @@
 'use client'
 
-import { faCheckCircle, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faPlus, faSpinner, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DeriveAccountResponse, GenerateKeyResponse, PublicAccount } from '@narval/armory-sdk'
 import { AccountType, Entities, hexSchema } from '@narval/policy-engine-shared'
@@ -18,7 +18,8 @@ enum Steps {
   CreateWalletForm,
   CreateWalletSuccess,
   SignAndPush,
-  Success
+  Success,
+  Error
 }
 
 enum CreateWalletType {
@@ -56,7 +57,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
     if (currentStep === Steps.CreateWalletSuccess) {
       return 'Sign and Push'
     }
-    if (currentStep === Steps.Success) {
+    if ([Steps.Success, Steps.Error].includes(currentStep)) {
       return 'Ok'
     }
 
@@ -155,6 +156,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       setCurrentStep(Steps.Success)
     } catch (error: any) {
       setErrors(extractErrorMessage(error))
+      setCurrentStep(Steps.Error)
     } finally {
       setIsProcessing(false)
     }
@@ -170,7 +172,7 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
       onDismiss={handleClose}
       onSave={currentStep === Steps.CreateWalletForm ? handleSave : handleSignAndPush}
       isSaving={isProcessing}
-      isConfirm={currentStep === Steps.Success}
+      isConfirm={[Steps.Success, Steps.Error].includes(currentStep)}
       isSaveDisabled={(!key && creationType === CreateWalletType.DeriveWallets) || isProcessing}
     >
       <div className="w-[750px] px-12 py-4">
@@ -270,6 +272,12 @@ const CreateWalletModal: FC<CreateWalletModalProps> = (props) => {
           <div className="flex flex-col items-center justify-center gap-[8px]">
             <FontAwesomeIcon className="text-nv-green-500" icon={faCheckCircle} size="xl" />
             <p className="text-nv-lg">Data store updated successfully!</p>
+          </div>
+        )}
+        {currentStep === Steps.Error && (
+          <div className="flex flex-col items-center justify-center gap-[8px]">
+            <FontAwesomeIcon className="text-nv-red-500" icon={faXmarkCircle} size="xl" />
+            {errors && <p className="text-nv-lg">An error occurred: {errors}</p>}
           </div>
         )}
         {errors && <div className="text-nv-red-500 mb-[18px]">{errors}</div>}
