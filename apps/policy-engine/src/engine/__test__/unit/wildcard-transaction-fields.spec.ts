@@ -13,7 +13,7 @@ import {
   findType0UndefinedWildcardableFields,
   findType2UndefinedWildcardableFields,
   findUndefinedWildcardableFields
-} from '../../wildcard-transaction-fields'
+} from '../../core/util/wildcard-transaction-fields'
 
 describe('findUndefinedWildcardableFields', () => {
   it('returns the correct undefined wildcardable fields for type 0 transaction', () => {
@@ -64,13 +64,10 @@ describe('findUndefinedWildcardableFields', () => {
       chainId: 137,
       from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
       maxFeePerGas: 100n,
+      maxPriorityFeePerGas: 100n,
       nonce: 0
     }
-    expect(findUndefinedWildcardableFields(transaction)).toEqual([
-      WildcardableFields.GAS,
-      WildcardableFields.GAS_PRICE,
-      WildcardableFields.MAX_PRIORITY_FEE_PER_GAS
-    ])
+    expect(findUndefinedWildcardableFields(transaction)).toEqual([WildcardableFields.GAS, WildcardableFields.GAS_PRICE])
   })
 })
 

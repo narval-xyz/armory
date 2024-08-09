@@ -22,7 +22,7 @@ import {
   SigningAlg,
   type Jwt
 } from './types'
-import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex } from './utils'
+import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex, requestWithoutWildcardFields } from './utils'
 import { buildJwkValidator } from './validate'
 
 export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
@@ -110,7 +110,14 @@ export const checkAuthorizedParty = (payload: Payload, opts: JwtVerifyOptions): 
 
 export const checkRequestHash = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   if (opts.requestHash) {
-    const requestHash = typeof opts.requestHash === 'string' ? opts.requestHash : hash(opts.requestHash)
+    const requestHash =
+      typeof opts.requestHash === 'string'
+        ? opts.requestHash
+        : hash(
+            opts.acceptWildcard
+              ? requestWithoutWildcardFields(opts.requestHash, payload.hashWildcard, opts.acceptWildcard)
+              : opts.requestHash
+          )
     if (!payload.requestHash || requestHash !== payload.requestHash) {
       throw new JwtError({ message: 'Invalid request hash', context: { payload } })
     }
