@@ -70,6 +70,11 @@ describe('buildPermitTokenPayload for signTransaction action', () => {
       cnf,
       iat: nowSeconds(),
       requestHash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
+      hashWildcard: [
+        'transactionRequest.gas',
+        'transactionRequest.maxFeePerGas',
+        'transactionRequest.maxPriorityFeePerGas'
+      ],
       sub: 'test-alice-user-uid'
     })
   })

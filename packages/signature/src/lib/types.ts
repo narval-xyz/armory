@@ -215,6 +215,7 @@ export type PayloadAccessSchema = z.infer<typeof PayloadAccessSchema>
  * @param {string | string[]} [aud] - The audience of the JWT.
  * @param {string} [azp] - The authorized party of the JWT. Typically a client-id.
  * @param {string} [jti] - The JWT ID.
+ * @param {string[]} [hashWildcard] - The paths to be ignored in the request before comparison with payload.hash.
  * @param {Jwk} cnf - The client-bound key.
  *
  */
@@ -231,6 +232,7 @@ export const Payload = z.intersection(
     azp: z.string().optional(),
     cnf: publicKeySchema.optional(),
     requestHash: z.string().optional(),
+    hashWildcard: z.array(z.string()).optional(),
     data: z.string().optional(),
     access: z.array(PayloadAccessSchema).optional()
   })
@@ -295,6 +297,12 @@ export type JwtVerifyOptions = {
    * Hash of the data, or the data itself which will be hashed then compared
    */
   data?: Hex | object
+
+  /**
+   * Pathes that can be wildcarded in the request before hashing
+   * If enabled, incoming request will be hashed without the field found both here and in payload.hashWildcard before comparison with payload.requestHash
+   */
+  allowWildcard?: string[]
 
   access?: { resource: string; permissions?: string[] }[]
 }

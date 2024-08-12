@@ -1,3 +1,4 @@
+import { hash } from '../../hash'
 import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
 import {
@@ -17,6 +18,7 @@ import {
   privateKeyToJwk,
   publicKeyToHex,
   publicKeyToJwk,
+  requestWithoutWildcardFields,
   rsaPrivateKeyToPublicKey
 } from '../../utils'
 import { validateJwk } from '../../validate'
@@ -231,4 +233,102 @@ describe('privateKeyToJwk', () => {
   //   const jwk = privateKeyToJwk(hex, Alg.RS256)
   //   expect(rsaPrivateKeySchema.safeParse(jwk).success).toBe(true)
   // })
+})
+
+describe('hashRequestWithoutWildcardFields', () => {
+  const transaction = {
+    chainId: 137,
+    from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+    maxFeePerGas: '100',
+    maxPriorityFeePerGas: '100',
+    nonce: 0
+  }
+
+  const request = {
+    action: 'signTransaction',
+    nonce: '123',
+    transactionRequest: transaction,
+    resourceId: 'eip155:eoa:0x084e6a5e3442d348ba5e149e362846be6fcf2e9e'
+  }
+
+  const wildcardedFields = ['transactionRequest.maxFeePerGas', 'transactionRequest.maxPriorityFeePerGas']
+
+  const transactionWithoutWildcards = {
+    chainId: 137,
+    from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+    nonce: 0
+  }
+  it('hashes the request without wildcard fields accepted in options', () => {
+    const hashedRequest = hash(
+      requestWithoutWildcardFields(request, wildcardedFields, [
+        'transactionRequest.maxFeePerGas',
+        'transactionRequest.maxPriorityFeePerGas'
+      ])
+    )
+    const expectedHash = hash({
+      ...request,
+      transactionRequest: transactionWithoutWildcards
+    })
+
+    expect(hashedRequest).toEqual(expectedHash)
+  })
+
+  it("doesn't modify the original request", () => {
+    requestWithoutWildcardFields(request, wildcardedFields)
+    expect(request.transactionRequest).toEqual(transaction)
+  })
+
+  it("hashes the full object if request doesn't have the wildcarded fields", () => {
+    const hashedRequest = hash(
+      requestWithoutWildcardFields(request, ['some.invalid.path', 'transaction.invalid', 'typedData'])
+    )
+    const expectedHash = hash(request)
+
+    expect(hashedRequest).toEqual(expectedHash)
+  })
+
+  it('hashes the full object if no wildcarded fields are provided', () => {
+    const hashedRequest = hash(requestWithoutWildcardFields(request, []))
+    const expectedHash = hash(request)
+
+    expect(hashedRequest).toEqual(expectedHash)
+  })
+
+  it('supports bignumber values', () => {
+    const transaction = {
+      chainId: 137,
+      from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+      maxFeePerGas: 100n,
+      maxPriorityFeePerGas: 100n,
+      nonce: 0
+    }
+
+    const request = {
+      action: 'signTransaction',
+      nonce: '123',
+      transactionRequest: transaction,
+      resourceId: 'eip155:eoa:0x084e6a5e3442d348ba5e149e362846be6fcf2e9e'
+    }
+  
+    const wildcardedFields = ['transactionRequest.maxFeePerGas', 'transactionRequest.maxPriorityFeePerGas']
+  
+    const transactionWithoutWildcards = {
+      chainId: 137,
+      from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+      nonce: 0
+    }
+
+    const hashedRequest = hash(
+      requestWithoutWildcardFields(request, wildcardedFields, [
+        'transactionRequest.maxFeePerGas',
+        'transactionRequest.maxPriorityFeePerGas'
+      ])
+    )
+    const expectedHash = hash({
+      ...request,
+      transactionRequest: transactionWithoutWildcards
+    })
+
+    expect(hashedRequest).toEqual(expectedHash)
+  })
 })

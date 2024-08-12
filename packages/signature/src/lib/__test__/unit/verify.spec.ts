@@ -752,6 +752,59 @@ describe('checkRequestHash', () => {
     const result = checkRequestHash(payload, opts)
     expect(result).toEqual(true)
   })
+
+  it('hashes all fields of the request object if opts.allowWildcard is not set', () => {
+    const request = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const requestHash = hash(request)
+
+    const payload: Payload = {
+      requestHash,
+      hashWildcard: ['method', 'url']
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: {
+        method: 'POST',
+        url: 'https://example.com',
+        body: 'Hello, world!'
+      }
+    }
+    const result = checkRequestHash(payload, opts)
+    expect(result).toEqual(true)
+  })
+
+  it('throws if all the field wildcarded are not in opts.allowWildcard', () => {
+    const request = {
+      method: 'POST',
+      url: 'https://example.com',
+      body: 'Hello, world!'
+    }
+    const requestHash = hash({ body: request.body })
+
+    const payload: Payload = {
+      requestHash,
+      hashWildcard: ['method', 'url']
+    }
+
+    const opts: JwtVerifyOptions = {
+      requestHash: {
+        method: 'POST',
+        url: 'https://example.com',
+        body: 'Hello, world!'
+      },
+      allowWildcard: ['method']
+    }
+    try {
+      checkRequestHash(payload, opts)
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(JwtError)
+      expect(err.message).toEqual('Invalid request hash')
+    }
+  })
 })
 
 describe('checkDataHash', () => {

@@ -167,6 +167,7 @@ export const JwsdHeader = z.object({
  * @param {number} [exp] - The time the JWT expires.
  * @param {string} sub - The subject of the JWT.
  * @param {string} [aud] - The audience of the JWT.
+ * @param {string[]} [hashWildcard] - A list of paths that were not hashed in the request.
  * @param {string} [jti] - The JWT ID.
  * @param {Jwk} cnf - The client-bound key.
  *
@@ -180,6 +181,7 @@ export const Payload = z.object({
   jti: z.string().optional(),
   cnf: publicKeySchema.optional(),
   requestHash: z.string().optional(),
+  hashWildcard: z.array(z.string()).optional(),
   data: z.string().optional()
 })
 

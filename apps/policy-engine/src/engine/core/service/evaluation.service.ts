@@ -6,6 +6,7 @@ import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
+import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields.util'
 import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
 
@@ -36,12 +37,15 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
   const iat = evaluation.metadata?.issuedAt || nowSeconds()
   const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
 
+  const hashWildcard = buildTransactionRequestHashWildcard(evaluation.request)
+
   const payload: Payload = {
     sub: evaluation.principal.userId,
     iat,
     ...(exp && { exp }),
     ...(audience && { aud: audience }),
     ...(issuer && { iss: issuer }),
+    hashWildcard,
     // jti: TODO
     cnf: evaluation.principal.key
   }

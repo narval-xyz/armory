@@ -3,6 +3,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
+import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
@@ -344,3 +345,12 @@ export const generateJwk = async <T = Jwk>(
 export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
 
 export const getPublicKey = (key: Jwk): PublicKey => publicKeySchema.parse(key)
+
+export const requestWithoutWildcardFields = (
+  request: object,
+  wildcardPaths: string[] = [],
+  allowedPaths: string[] = []
+): object => {
+  const validPaths = wildcardPaths.filter((path) => allowedPaths.includes(path))
+  return omit(cloneDeep(request), validPaths)
+}

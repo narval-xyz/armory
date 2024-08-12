@@ -123,6 +123,12 @@ export interface ClientDto {
     'allowKeyExport'?: boolean;
     /**
      * 
+     * @type {Array<string>}
+     * @memberof ClientDto
+     */
+    'allowWildcard'?: Array<string>;
+    /**
+     * 
      * @type {string}
      * @memberof ClientDto
      */
@@ -188,6 +194,12 @@ export interface CreateClientDto {
      * @memberof CreateClientDto
      */
     'allowKeyExport'?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CreateClientDto
+     */
+    'allowWildcard'?: Array<string>;
     /**
      * 
      * @type {string}
