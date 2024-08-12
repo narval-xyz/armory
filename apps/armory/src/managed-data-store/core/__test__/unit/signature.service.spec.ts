@@ -54,7 +54,7 @@ describe(SignatureService.name, () => {
         payload: { signature, data: FIXTURE.ENTITIES },
         date: new Date('2023-01-01')
       })
-    ).rejects.toThrow('Invalid JWT: Invalid signature')
+    ).rejects.toThrow('Invalid signature')
   })
 
   it('returns true if the payload iat is more recent than the db createdAt date', async () => {
