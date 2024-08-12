@@ -36,6 +36,7 @@ export class ClientController {
       issuer: body.issuer,
       maxTokenAge: body.maxTokenAge,
       allowKeyExport: body.allowKeyExport,
+      allowWildcard: body.allowWildcard,
       backupPublicKey: body.backupPublicKey,
       baseUrl: body.baseUrl,
       createdAt: now,
