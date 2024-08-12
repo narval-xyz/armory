@@ -13,7 +13,7 @@ import {
   findType0UndefinedWildcardableFields,
   findType2UndefinedWildcardableFields,
   findUndefinedWildcardableFields
-} from '../../core/util/wildcard-transaction-fields.util'
+} from '../../wildcard-transaction-fields.util'
 
 describe('findUndefinedWildcardableFields', () => {
   it('returns the correct undefined wildcardable fields for type 0 transaction', () => {
