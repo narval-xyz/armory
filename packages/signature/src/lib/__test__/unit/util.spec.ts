@@ -239,8 +239,8 @@ describe('hashRequestWithoutWildcardFields', () => {
   const transaction = {
     chainId: 137,
     from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
-    maxFeePerGas: 100n,
-    maxPriorityFeePerGas: 100n,
+    maxFeePerGas: '100',
+    maxPriorityFeePerGas: '100',
     nonce: 0
   }
 
