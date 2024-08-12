@@ -19,19 +19,13 @@ import {
   toHex
 } from '../../packages/policy-engine-shared/src'
 
-export type Sdk = {
-  authClient: AuthClient
-  vaultClient: VaultClient
-  entityStoreClient: EntityStoreClient
-  policyStoreClient: PolicyStoreClient
-}
 
 export const armoryClient = (configs: {
   auth: AuthConfig
   vault: VaultConfig
   entityStore: DataStoreConfig
   policyStore: DataStoreConfig
-}): Sdk => {
+}) => {
   const authClient = new AuthClient(configs.auth)
   const vaultClient = new VaultClient(configs.vault)
   const entityStoreClient = new EntityStoreClient(configs.entityStore)

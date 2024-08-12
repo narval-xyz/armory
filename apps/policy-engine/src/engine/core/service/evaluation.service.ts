@@ -6,7 +6,7 @@ import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
 import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
-import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields'
+import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields.util'
 import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
 

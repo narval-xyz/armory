@@ -293,4 +293,42 @@ describe('hashRequestWithoutWildcardFields', () => {
 
     expect(hashedRequest).toEqual(expectedHash)
   })
+
+  it('supports bignumber values', () => {
+    const transaction = {
+      chainId: 137,
+      from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+      maxFeePerGas: 100n,
+      maxPriorityFeePerGas: 100n,
+      nonce: 0
+    }
+
+    const request = {
+      action: 'signTransaction',
+      nonce: '123',
+      transactionRequest: transaction,
+      resourceId: 'eip155:eoa:0x084e6a5e3442d348ba5e149e362846be6fcf2e9e'
+    }
+  
+    const wildcardedFields = ['transactionRequest.maxFeePerGas', 'transactionRequest.maxPriorityFeePerGas']
+  
+    const transactionWithoutWildcards = {
+      chainId: 137,
+      from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',
+      nonce: 0
+    }
+
+    const hashedRequest = hash(
+      requestWithoutWildcardFields(request, wildcardedFields, [
+        'transactionRequest.maxFeePerGas',
+        'transactionRequest.maxPriorityFeePerGas'
+      ])
+    )
+    const expectedHash = hash({
+      ...request,
+      transactionRequest: transactionWithoutWildcards
+    })
+
+    expect(hashedRequest).toEqual(expectedHash)
+  })
 })

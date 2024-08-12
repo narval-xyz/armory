@@ -3,7 +3,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
-import { unset } from 'lodash'
+import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
@@ -352,10 +352,5 @@ export const requestWithoutWildcardFields = (
   allowedPaths: string[] = []
 ): object => {
   const validPaths = wildcardPaths.filter((path) => allowedPaths.includes(path))
-  const requestCopy = JSON.parse(JSON.stringify(request))
-  validPaths.forEach((path) => {
-    unset(requestCopy, path)
-  })
-
-  return requestCopy
+  return omit(cloneDeep(request), validPaths)
 }
