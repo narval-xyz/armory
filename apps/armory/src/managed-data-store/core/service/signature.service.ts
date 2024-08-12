@@ -19,8 +19,8 @@ export class SignatureService {
       validJwt = await verifyJwt(payload.signature, pubKey)
     } catch (error) {
       throw new ApplicationException({
-        message: error.message,
-        context: error.context,
+        message: `Invalid JWT: ${error.message}`,
+        origin: error,
         suggestedHttpStatusCode: HttpStatus.FORBIDDEN
       })
     }
