@@ -6,11 +6,17 @@ import {
   VaultClient,
   credential
 } from '@narval-xyz/armory-sdk'
-import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '../../packages/policy-engine-shared/src'
-import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
-import { Intents } from '../../packages/transaction-request-intent/src'
 import { v4 } from 'uuid'
-import { SignableMessage } from 'viem'
+import {
+  Action,
+  Criterion,
+  Entities,
+  Policy,
+  Then,
+  UserEntity,
+  UserRole
+} from '../../packages/policy-engine-shared/src'
+import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
   const policies: Policy[] = [
@@ -24,7 +30,7 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         }
       ],
       then: Then.PERMIT
-    },
+    }
     // {
     //   id: v4(),
     //   description: 'Forbid native transfer within user operations',
@@ -53,14 +59,14 @@ enum ValueType {
   PRIMITIVE = 'primitive',
   JSON = 'json',
   RESOURCE = 'resource'
-};
+}
 
 enum JsonOperator {
   CONTAINS = 'contains',
   NOT_CONTAINS = 'not_contains',
   EQ = 'eq',
   NEQ = 'neq',
-  SOME = 'some',
+  SOME = 'some'
 }
 
 enum PrimitiveOperator {
@@ -69,34 +75,33 @@ enum PrimitiveOperator {
   IN = 'in',
   NIN = 'nin',
   CONTAINS = 'contains',
-  NOT_CONTAINS = 'not_contains',
+  NOT_CONTAINS = 'not_contains'
 }
 
-type Primitive = string | number | boolean | null;
+type Primitive = string | number | boolean | null
 
 type JsonMatcher = {
-  type: ValueType.JSON;
-  key: string;
-  operator: JsonOperator;
-  value: Matcher[];
+  type: ValueType.JSON
+  key: string
+  operator: JsonOperator
+  value: Matcher[]
 }
 
 type PrimitiveMatcher = {
-  type: ValueType.PRIMITIVE;
-  key: string;
-  operator: PrimitiveOperator;
-  value: Primitive;
+  type: ValueType.PRIMITIVE
+  key: string
+  operator: PrimitiveOperator
+  value: Primitive
 }
 
 type ResourceMatcher = {
-  type: ValueType.RESOURCE;
-  key: string;
-  operator: PrimitiveOperator;
-  value: Primitive;
+  type: ValueType.RESOURCE
+  key: string
+  operator: PrimitiveOperator
+  value: Primitive
 }
 
-type Matcher = PrimitiveMatcher | JsonMatcher | ResourceMatcher;
-
+type Matcher = PrimitiveMatcher | JsonMatcher | ResourceMatcher
 
 const setEntities = async (entityStoreClient: EntityStoreClient, ROOT_USER_CRED: Hex) => {
   const user: UserEntity = {

@@ -1,14 +1,13 @@
 /* eslint-disable no-console */
-import "dotenv/config"
 import { Request, TransactionRequest, resourceId } from '@narval-xyz/armory-sdk'
+import 'dotenv/config'
+import { uniqueId } from 'lodash'
+import { hexSchema } from '../../packages/policy-engine-shared/src'
 import { armoryClient } from './armory.account'
 import { setInitialState } from './armory.data'
 import { getArmoryConfig } from './armory.sdk'
-import { hexSchema } from '../../packages/policy-engine-shared/src'
-import { uniqueId } from "lodash"
 
-
-const partialTx =   {
+const partialTx = {
   from: '0x084e6A5e3442D348BA5e149E362846BE6fcf2E9E',
   to: '0x9c874A1034275f4Aa960f141265e9bF86a5b1334',
   chainId: 137,
@@ -20,13 +19,12 @@ const partialTx =   {
 const fullTx = {
   ...partialTx,
   gas: 123n,
-  maxFeePerGas: 456n,
-  maxPriorityFeePerGas: 789n,
-  nonce: 192,
+  maxFeePerGas: 789n,
+  maxPriorityFeePerGas: 456n,
+  nonce: 192
 } as TransactionRequest
 
 const main = async () => {
-
   console.log('Starting...')
 
   const ROOT_USER_CRED = hexSchema.parse(process.env.ROOT_USER_CRED)
@@ -39,25 +37,27 @@ const main = async () => {
     action: 'signTransaction',
     resourceId: resourceId(signerAddress),
     transactionRequest: partialTx,
-    nonce,
+    nonce
+  }
+
+
+  const fullRequest: Request = {
+    ...partialRequest,
+    transactionRequest: fullTx
   }
 
   const accessToken = await armory.authClient.requestAccessToken(partialRequest, {
     id: uniqueId()
   })
 
-  const fullRequest: Request = {
-    ...partialRequest,
-    transactionRequest: fullTx,
-  }
-  
+
   const res = await armory.vaultClient.sign({
     data: fullRequest,
     accessToken
   })
-  
+
   console.log('res', res)
-  
+
   console.log('Finished')
 }
 

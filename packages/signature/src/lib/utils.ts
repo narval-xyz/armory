@@ -352,7 +352,7 @@ export const requestWithoutWildcardFields = (
   allowedPaths: string[] = []
 ): object => {
   const validPaths = wildcardPaths.filter((path) => allowedPaths.includes(path))
-  const requestCopy = { ...request }
+  const requestCopy = JSON.parse(JSON.stringify(request))
   validPaths.forEach((path) => {
     unset(requestCopy, path)
   })

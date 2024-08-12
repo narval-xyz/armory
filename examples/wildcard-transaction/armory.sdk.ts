@@ -5,12 +5,12 @@ import {
   VaultAdminClient,
   VaultConfig,
   createHttpDataStore
-} from '@narval-xyz/armory-sdk'
-import { Hex } from '../../packages/policy-engine-shared/src'
-import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
+} from '@narval/armory-sdk'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
+import { Hex } from '../../packages/policy-engine-shared/src'
+import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => '2cfa9d09a28f1de9108d18c38f5d5304e6708744c7d7194cbc754aef3455edc7e9270e2f28f052622257'
@@ -45,7 +45,14 @@ const createClient = async () => {
 
   await vaultAdminClient.createClient({
     clientId: authClient.id,
-    engineJwk: authClient.policyEngine.nodes[0].publicKey
+    engineJwk: authClient.policyEngine.nodes[0].publicKey,
+    allowWildcard: [
+      'transactionRequest.maxPriorityFeePerGas',
+      'transactionRequest.maxFeePerGas',
+      'transactionRequest.gas',
+      'transactionRequest.gasPrice',
+      'transactionRequest.nonce',
+    ]
   })
 
   return {
