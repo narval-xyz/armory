@@ -183,6 +183,11 @@ export class AuthClient {
       return { value: permit.signature }
     }
 
+    if (authorization.errors?.length) {
+      const error = authorization?.errors?.map(({ message }) => message).join(', ') || 'Failed'
+      throw new ArmorySdkException(error, { authorization })
+    }
+
     throw new ArmorySdkException('Unauthorized', { authorization })
   }
 }
