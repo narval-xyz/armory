@@ -753,7 +753,7 @@ describe('checkRequestHash', () => {
     expect(result).toEqual(true)
   })
 
-  it('hashes all fields of the request object if opts.acceptWildcard is not set', () => {
+  it('hashes all fields of the request object if opts.allowWildcard is not set', () => {
     const request = {
       method: 'POST',
       url: 'https://example.com',
@@ -777,7 +777,7 @@ describe('checkRequestHash', () => {
     expect(result).toEqual(true)
   })
 
-  it('throws if all the field wildcarded are not in opts.acceptWildcard', () => {
+  it('throws if all the field wildcarded are not in opts.allowWildcard', () => {
     const request = {
       method: 'POST',
       url: 'https://example.com',
@@ -796,7 +796,7 @@ describe('checkRequestHash', () => {
         url: 'https://example.com',
         body: 'Hello, world!'
       },
-      acceptWildcard: ['method']
+      allowWildcard: ['method']
     }
     try {
       checkRequestHash(payload, opts)

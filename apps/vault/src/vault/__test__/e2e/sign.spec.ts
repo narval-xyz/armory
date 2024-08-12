@@ -42,6 +42,7 @@ describe('Sign', () => {
   const adminApiKey = 'test-admin-api-key'
 
   const clientId = uuid()
+  const clientIdWithoutWildcard = uuid()
 
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
@@ -49,6 +50,19 @@ describe('Sign', () => {
 
   const client: Client = {
     clientId,
+    engineJwk: clientPublicJWK,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    allowWildcard: [
+      'path.to.allow',
+      'transactionRequest.maxFeePerGas',
+      'transactionRequest.maxPriorityFeePerGas',
+      'transactionRequest.gas'
+    ]
+  }
+
+  const clientWithoutWildcard: Client = {
+    clientId: clientIdWithoutWildcard,
     engineJwk: clientPublicJWK,
     createdAt: new Date(),
     updatedAt: new Date()
@@ -129,7 +143,11 @@ describe('Sign', () => {
 
     await clientService.save(client)
 
+    await clientService.save(clientWithoutWildcard)
+
     await accountRepository.save(clientId, account)
+
+    await accountRepository.save(clientIdWithoutWildcard, account)
 
     await testPrismaService.truncateAll()
 
@@ -291,6 +309,73 @@ describe('Sign', () => {
       expect(status).toEqual(HttpStatus.FORBIDDEN)
     })
 
+    it('validates a request with wildcard path configured', async () => {
+      const payload = { request: getSignTransactionRequest() }
+      const { request: requestWithGas } = payload
+
+      const requestWithoutGas = {
+        ...requestWithGas,
+        transactionRequest: {
+          ...requestWithGas.transactionRequest,
+          gas: undefined,
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined
+        }
+      }
+
+      // Auth Server signs a token with some fields wildcarded
+      const accessToken = await getAccessToken(requestWithoutGas, {
+        hashWildcard: [
+          'transactionRequest.gas',
+          'transactionRequest.maxFeePerGas',
+          'transactionRequest.maxPriorityFeePerGas'
+        ]
+      })
+
+      // Vault receives the request with the actual values, and the accessToken that signed the partial transaction saying which fields are wildcarded
+      const { status } = await request(app.getHttpServer())
+        .post('/sign')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send(payload)
+
+      // Client was configured to allow wildcarding of these fields, so the request is valid
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+
+    it('returns unauthorized if no wildcard paths are configured', async () => {
+      const payload = { request: getSignTransactionRequest() }
+      const { request: requestWithGas } = payload
+
+      const requestWithoutGas = {
+        ...requestWithGas,
+        transactionRequest: {
+          ...requestWithGas.transactionRequest,
+          gas: undefined,
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined
+        }
+      }
+
+      // Auth Server signs a token with some fields wildcarded
+      const accessToken = await getAccessToken(requestWithoutGas)
+
+      // Vault receives the request with the actual values, and the accessToken that signed the partial transaction saying which fields are wildcarded
+      const { status, body } = await request(app.getHttpServer())
+        .post('/sign')
+        .set(REQUEST_HEADER_CLIENT_ID, clientIdWithoutWildcard)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send(payload)
+
+      // Client was not configured to allow wildcarding of these fields, so the request is invalid
+      expect(status).toEqual(HttpStatus.FORBIDDEN)
+      expect(body).toEqual({
+        message: 'Invalid request hash',
+        statusCode: HttpStatus.FORBIDDEN,
+        stack: expect.any(String),
+        origin: expect.any(Object)
+      })
+    })
     describe('jwsd', () => {
       it('returns error when auth is client-bound but no jwsd header', async () => {
         const payload = { request: getSignTransactionRequest() }

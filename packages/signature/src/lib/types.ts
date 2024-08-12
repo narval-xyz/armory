@@ -302,7 +302,7 @@ export type JwtVerifyOptions = {
    * Pathes that can be wildcarded in the request before hashing
    * If enabled, incoming request will be hashed without the field found both here and in payload.hashWildcard before comparison with payload.requestHash
    */
-  acceptWildcard?: string[]
+  allowWildcard?: string[]
 
   access?: { resource: string; permissions?: string[] }[]
 }

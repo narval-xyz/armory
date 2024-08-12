@@ -3,6 +3,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
+import { unset } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
@@ -345,39 +346,16 @@ export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
 
 export const getPublicKey = (key: Jwk): PublicKey => publicKeySchema.parse(key)
 
-export const removeFieldByPath = (obj: object, path: string) => {
-  const parts = path.split('.')
-  const lastPart = parts.pop()
-
-  let current: any = obj
-  for (const part of parts) {
-    if (current && typeof current === 'object' && part in current) {
-      current = current[part]
-    } else {
-      return
-    }
-  }
-
-  if (current && lastPart && typeof current === 'object') {
-    current[lastPart] = undefined
-  }
-}
-
 export const requestWithoutWildcardFields = (
   request: object,
   wildcardPaths: string[] = [],
   allowedPaths: string[] = []
 ): object => {
   const validPaths = wildcardPaths.filter((path) => allowedPaths.includes(path))
-  console.log('###validPaths', validPaths)
-  console.log('###request', request)
-  console.log('###wildcardPaths', wildcardPaths)
-  console.log('###allowedPaths', allowedPaths)
   const requestCopy = { ...request }
   validPaths.forEach((path) => {
-    removeFieldByPath(requestCopy, path)
+    unset(requestCopy, path)
   })
 
-  console.log('###requestCopy', requestCopy)
   return requestCopy
 }

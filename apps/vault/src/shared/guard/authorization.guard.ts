@@ -71,6 +71,7 @@ export class AuthorizationGuard implements CanActivate {
       audience: client.audience,
       issuer: client.issuer,
       maxTokenAge: client.maxTokenAge,
+      allowWildcard: client.allowWildcard,
       ...(requestHash && { requestHash }),
       ...(access && { access })
     }

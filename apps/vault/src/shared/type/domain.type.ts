@@ -10,6 +10,7 @@ export const CreateClientInput = z.object({
   maxTokenAge: z.number().optional(),
   backupPublicKey: rsaPublicKeySchema.optional(),
   allowKeyExport: z.boolean().optional(),
+  allowWildcard: z.array(z.string()).optional(),
   baseUrl: z.string().optional()
 })
 export type CreateClientInput = z.infer<typeof CreateClientInput>
@@ -26,6 +27,9 @@ export const Client = z.object({
   // Backup key export options.
   backupPublicKey: rsaPublicKeySchema.optional(),
   allowKeyExport: z.boolean().optional(),
+
+  // Allow to hash without these paths from the request.
+  allowWildcard: z.array(z.string()).optional(),
 
   // Override if you want to use a different baseUrl for a single client.
   baseUrl: z.string().optional(),
