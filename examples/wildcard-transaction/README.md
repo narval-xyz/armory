@@ -1,10 +1,10 @@
-# Protecting a Smart Account Using the Armory Stack
+# Use Wildcard Values for transactionRequest gas values and nonce
 
-This example demonstrates how to protect a Smart Account using the Armory stack. Follow these steps to set up and configure your environment.
+This example demonstrates how to authorize a transaction request without nonce or gas values, and still send a full transaction request to the vault.
 
 ## Prerequisites
 
-Before starting, ensure you are registered with Pimlico and have your API key.
+Before starting, ensure you have a private key in hexadecimal format you can put to the .env file.
 
 ## Step 1: Set Up the Armory Repository
 
@@ -43,23 +43,19 @@ Before starting, ensure you are registered with Pimlico and have your API key.
 
 ## Step 2: Fill in Your Environment Variables
 
-Open `armory/examples/vault-signer-4337/.env` and fill in the following values:
+Open `armory/examples/wildcard-transaction/.env` and fill in the following values:
 
-- `PIMLICO_API_KEY`: This is the API key that will be used to make requests to the Pimlico API in order to create your Smart Accounts and broadcast the sign user operation on-chain.
 - `ROOT_USER_CRED`: A private key you own, in hexadecimal format. Create a new MetaMask account, copy the private key, and paste it here.
 
-## Step 3: [OPTIONAL] Change Policies and Entities
+## Step 3: Run the Example
 
-This example defaults to your first Policy and Entity set. If you don't change the default, it will create one policy that allows users with the role `admin` to do anything, and one user with the role `admin` tied to the `ROOT_USER_CRED` that you provided.
-
-You will also find a commented policy that forbids native transfer. If you uncomment this policy and run the example another time, you will have a "Forbid" response. It is because the operation that is trying to be performed in the User Operation signed is a native transfer.
-
-You will need to get familiar with the way we build policies, and then you can change the code in `armory/examples/vault-signer-4337/armory.data.ts`.
-
-## Step 4: Run the Example
-
-Open a terminal in `armory/examples/vault-signer-4337`
+Open a terminal in `armory/examples/wildcard-transaction`
 
 ```sh
 npm start
 ```
+
+## Step r: [OPTIONAL] Change `allowWildcard` values in vault config
+
+Open `examples/wildcard-transaction/armory.sdk.ts`. Line 49, remove the array or put an empty one. Re-run the example, it fails with Unauthorized request.
+

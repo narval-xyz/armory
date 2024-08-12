@@ -40,7 +40,6 @@ const main = async () => {
     nonce
   }
 
-
   const fullRequest: Request = {
     ...partialRequest,
     transactionRequest: fullTx
@@ -49,7 +48,6 @@ const main = async () => {
   const accessToken = await armory.authClient.requestAccessToken(partialRequest, {
     id: uniqueId()
   })
-
 
   const res = await armory.vaultClient.sign({
     data: fullRequest,
