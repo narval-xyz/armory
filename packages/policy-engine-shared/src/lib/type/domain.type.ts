@@ -213,3 +213,9 @@ export type SerializedEvaluationResponse = z.infer<typeof SerializedEvaluationRe
 export type Hex = `0x${string}`
 
 export type Address = `0x${string}`
+
+export const LowercasedCredentialEntity = credentialEntitySchema.extend({
+  id: z.string().toLowerCase(),
+  userId: z.string().toLowerCase()
+})
+export type LowercasedCredentialEntity = z.infer<typeof LowercasedCredentialEntity>

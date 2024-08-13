@@ -20,7 +20,7 @@ import {
   generateSignUserOperationRequest
 } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
-import { toData, toInput } from '../../evaluation.util'
+import { lowercaseInputInvariant, toData, toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
   const principal = FIXTURE.CREDENTIAL.Alice
@@ -350,5 +350,85 @@ describe('toData', () => {
         )
       })
     })
+  })
+})
+
+describe('lowercaseInputInvariant', () => {
+  it('lowercases principal', async () => {
+    const principal = FIXTURE.CREDENTIAL.Alice
+    const preparedInput = lowercaseInputInvariant({
+      evaluation: await generateSignTransactionRequest(),
+      principal,
+      approvals: []
+    })
+
+    expect(preparedInput.principal.id).toEqual(principal.id.toLowerCase())
+  })
+
+  it('lowercases approvals.id', async () => {
+    const approvals = [FIXTURE.CREDENTIAL.Alice, FIXTURE.CREDENTIAL.Bob, FIXTURE.CREDENTIAL.Carol]
+    const preparedInput = lowercaseInputInvariant({
+      evaluation: await generateSignTransactionRequest(),
+      principal: FIXTURE.CREDENTIAL.Alice,
+      approvals
+    })
+
+    approvals.map((approval) => {
+      expect(preparedInput.approvals?.find((a) => a.id === approval.id.toLowerCase())).toBeDefined()
+    })
+  })
+
+  it("lowercases transactionRequest's addresses in signTransaction action", async () => {
+    const evaluation = await generateSignTransactionRequest()
+    const preparedInput = lowercaseInputInvariant({ evaluation, principal: FIXTURE.CREDENTIAL.Alice, approvals: [] })
+    const request = evaluation.request as SignTransactionAction
+
+    expect((preparedInput.evaluation.request as SignTransactionAction).transactionRequest.from).toEqual(
+      request.transactionRequest.from.toLowerCase()
+    )
+    expect((preparedInput.evaluation.request as SignTransactionAction).transactionRequest.to).toEqual(
+      request.transactionRequest.to?.toLowerCase()
+    )
+  })
+
+  it('lowercases resource', async () => {
+    const evaluation = await generateSignTransactionRequest()
+    const preparedInput = lowercaseInputInvariant({ evaluation, principal: FIXTURE.CREDENTIAL.Alice, approvals: [] })
+    const request = evaluation.request as SignTransactionAction
+
+    expect(preparedInput.evaluation.request.resourceId).toEqual(request.resourceId.toLowerCase())
+  })
+
+  it("doesn't add transactionRequest to input if action is not signTransaction", async () => {
+    const evaluation = await generateSignMessageRequest()
+    const preparedInput = lowercaseInputInvariant({ evaluation, principal: FIXTURE.CREDENTIAL.Alice, approvals: [] })
+
+    expect(preparedInput.evaluation.request).not.toHaveProperty('transactionRequest')
+  })
+
+  it('lowercases addresses in signUserOperation request', async () => {
+    const evaluation = await generateSignUserOperationRequest()
+    const preparedInput = lowercaseInputInvariant({ evaluation, principal: FIXTURE.CREDENTIAL.Alice, approvals: [] })
+    const request = evaluation.request as SignUserOperationAction
+
+    expect((preparedInput.evaluation.request as SignUserOperationAction).userOperation.sender).toEqual(
+      request.userOperation.sender.toLowerCase()
+    )
+    expect((preparedInput.evaluation.request as SignUserOperationAction).userOperation.factoryAddress).toEqual(
+      request.userOperation.factoryAddress.toLowerCase()
+    )
+    expect((preparedInput.evaluation.request as SignUserOperationAction).userOperation.entryPoint).toEqual(
+      request.userOperation.entryPoint.toLowerCase()
+    )
+  })
+
+  it('lowercases verifyingContract in signTypedData request', async () => {
+    const evaluation = await generateSignTypedDataRequest()
+    const preparedInput = lowercaseInputInvariant({ evaluation, principal: FIXTURE.CREDENTIAL.Alice, approvals: [] })
+    const request = evaluation.request as SignTypedDataAction
+
+    expect((preparedInput.evaluation.request as SignTypedDataAction).typedData.domain.verifyingContract).toEqual(
+      request.typedData?.domain?.verifyingContract?.toLowerCase()
+    )
   })
 })

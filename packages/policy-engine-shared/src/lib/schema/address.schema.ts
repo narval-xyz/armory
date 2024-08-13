@@ -20,3 +20,18 @@ export const addressSchema = z.custom<`0x${string}`>(
     message: 'value is an invalid Ethereum address'
   }
 )
+
+export const lowerCasedAddress = z
+  .custom<`0x${string}`>(
+    (value) => {
+      if (typeof value === 'string') {
+        const lowerCasedValue = value.toLowerCase()
+        return isAddress(lowerCasedValue)
+      }
+      return false
+    },
+    {
+      message: 'value is an invalid Ethereum address'
+    }
+  )
+  .transform((value) => value.toLowerCase() as `0x${string}`)

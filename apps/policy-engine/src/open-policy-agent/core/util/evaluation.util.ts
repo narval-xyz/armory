@@ -5,6 +5,10 @@ import {
   EvaluationRequest,
   Feed,
   GrantPermissionAction,
+  LowerCasedEip712TypedData,
+  LowerCasedUserOperationV6,
+  LowercasedCredentialEntity,
+  LowercasedTransactionRequest,
   Request,
   SerializedTransactionRequest,
   SerializedUserOperationV6,
@@ -148,6 +152,59 @@ const toGrantPermission: Mapping<GrantPermissionAction> = (request, principal, a
   }
 }
 
+export const lowerCaseEvaluationRequest = (request: Request): Request => {
+  const resourceId = request.resourceId.toLowerCase()
+  switch (request.action) {
+    case Action.SIGN_TRANSACTION:
+      return {
+        ...request,
+        resourceId,
+        transactionRequest: LowercasedTransactionRequest.parse(request.transactionRequest)
+      }
+    case Action.SIGN_USER_OPERATION:
+      return {
+        ...request,
+        resourceId,
+        userOperation: LowerCasedUserOperationV6.parse(request.userOperation)
+      }
+    case Action.SIGN_TYPED_DATA:
+      return {
+        ...request,
+        resourceId,
+        typedData: LowerCasedEip712TypedData.parse(request.typedData)
+      }
+    default:
+      return {
+        ...request,
+        resourceId
+      }
+  }
+}
+
+export const lowercaseInputInvariant = ({
+  evaluation,
+  principal,
+  approvals
+}: {
+  evaluation: EvaluationRequest
+  principal: CredentialEntity
+  approvals?: CredentialEntity[]
+}) => {
+  const request = lowerCaseEvaluationRequest(evaluation.request)
+
+  return {
+    evaluation: {
+      ...evaluation,
+      request
+    },
+    approvals: approvals?.map((approval) => LowercasedCredentialEntity.parse(approval)),
+    principal: LowercasedCredentialEntity.parse(principal),
+    resource: {
+      uid: request.resourceId
+    }
+  }
+}
+
 export const toInput = (params: {
   evaluation: EvaluationRequest
   principal: CredentialEntity
@@ -166,10 +223,17 @@ export const toInput = (params: {
   ])
   const mapper = mappers.get(action)
 
+  const {
+    evaluation: lowercasedEvaluation,
+    principal: lowercasedPrincipal,
+    approvals: lowercasedApprovals,
+    resource: lowercasedResource
+  } = lowercaseInputInvariant(params)
+
   if (mapper) {
     return {
-      ...mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds),
-      resource: { uid: evaluation.request.resourceId.toLowerCase() }
+      ...mapper(lowercasedEvaluation, lowercasedPrincipal, lowercasedApprovals, evaluation.feeds),
+      resource: lowercasedResource
     }
   }
 
