@@ -55,7 +55,12 @@ const toSignUserOperation: Mapping<SignUserOperationAction> = (request, principa
     principal,
     intent: result.intent,
     approvals,
-    userOperation: SerializedUserOperationV6.parse(request.userOperation),
+    userOperation: SerializedUserOperationV6.parse({
+      ...request.userOperation,
+      sender: request.userOperation.sender.toLowerCase(),
+      factoryAddress: request.userOperation.factoryAddress.toLowerCase(),
+      entryPoint: request.userOperation.entryPoint.toLowerCase()
+    }),
     resource: { uid: request.resourceId },
     feeds
   }
@@ -166,9 +171,15 @@ export const toInput = (params: {
   ])
   const mapper = mappers.get(action)
 
+  const lowercasedPrincipal = {
+    userId: params.principal.userId.toLowerCase(),
+    id: params.principal.id.toLowerCase(),
+    key: params.principal.key
+  }
+
   if (mapper) {
     return {
-      ...mapper(evaluation.request, params.principal, params.approvals, evaluation.feeds),
+      ...mapper(evaluation.request, lowercasedPrincipal, params.approvals, evaluation.feeds),
       resource: { uid: evaluation.request.resourceId.toLowerCase() }
     }
   }

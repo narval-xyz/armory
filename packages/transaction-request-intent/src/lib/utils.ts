@@ -4,6 +4,7 @@ import {
   AssetType,
   ChainAccount,
   ChainAccountId,
+  Eip712TypedData,
   Hex,
   Namespace,
   TransactionRequest,
@@ -12,9 +13,7 @@ import {
   isChainAccountId,
   isString,
   toAssetId,
-  toChainAccountId,
-  type Eip712TypedData
-} from '@narval/policy-engine-shared'
+  toChainAccountId} from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
@@ -175,7 +174,13 @@ export const buildTransactionRegistry = (input: TransactionRegistryInput): Trans
 
 export const decodeTypedData = (typedData: Eip712TypedData): SignTypedData => ({
   type: Intents.SIGN_TYPED_DATA,
-  typedData
+  typedData: Eip712TypedData.parse({
+    ...typedData,
+    domain: {
+      ...typedData.domain,
+      verifyingContract: typedData.domain.verifyingContract?.toLowerCase()
+    }
+  })
 })
 
 export const decodeMessage = (message: MessageInput): SignMessage => {

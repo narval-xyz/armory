@@ -87,6 +87,18 @@ describe('toInput', () => {
       })
     })
 
+    it('lowercases principal', () => {
+      const principal = {
+        id: 'NoTLowerCasedId',
+        userId: 'NotLOWECasedId',
+        key: FIXTURE.CREDENTIAL.Alice.key
+      }
+      const input = toInput({ evaluation, principal, approvals })
+
+      expect(input.principal.id).toEqual(principal.id.toLowerCase())
+      expect(input.principal.userId).toEqual(principal.userId.toLowerCase())
+    })
+
     it('adds decoded intent', () => {
       const input = toInput({ evaluation, principal, approvals })
       const intent = decode({
@@ -283,11 +295,18 @@ describe('toInput', () => {
       expect(input.approvals).toEqual(approvals)
     })
 
-    it('maps user operation', () => {
+    it('maps user operation with lowercased addresses', () => {
       const input = toInput({ evaluation, principal, approvals })
       const request = evaluation.request as SignUserOperationAction
 
-      expect(input.userOperation).toEqual(SerializedUserOperationV6.parse(request.userOperation))
+      expect(input.userOperation).toEqual(
+        SerializedUserOperationV6.parse({
+          ...request.userOperation,
+          sender: request.userOperation.sender.toLowerCase(),
+          entryPoint: request.userOperation.entryPoint.toLowerCase(),
+          factoryAddress: request.userOperation.factoryAddress.toLowerCase()
+        })
+      )
     })
   })
 })
