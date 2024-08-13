@@ -26,6 +26,7 @@ export const credentialEntitySchema = z.object({
   id: z.string(),
   userId: z.string(),
   key: publicKeySchema
+  // TODO @ptroger: Should we be allowing a private key to be passed in entity data ?
 })
 
 export const clientEntitySchema = z.object({

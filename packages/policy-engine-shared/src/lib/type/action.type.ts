@@ -1,6 +1,6 @@
 import { fromHex } from 'viem'
 import { z } from 'zod'
-import { addressSchema, lowerCasedAddress } from '../schema/address.schema'
+import { addressSchema } from '../schema/address.schema'
 import { hexSchema } from '../schema/hex.schema'
 import { isHexString } from '../util/typeguards'
 
@@ -70,24 +70,6 @@ export const SerializedTransactionRequestLegacy = TransactionRequestLegacy.exten
 })
 export type SerializedTransactionRequestLegacy = z.infer<typeof SerializedTransactionRequestLegacy>
 
-export const LowercasedTransactionRequestLegacy = TransactionRequestLegacy.extend({
-  from: lowerCasedAddress,
-  to: lowerCasedAddress.nullable().optional()
-})
-export type LowercasedTransactionRequestLegacy = z.infer<typeof LowercasedTransactionRequestLegacy>
-
-export const LowercasedTransactionRequestEIP1559 = TransactionRequestEIP1559.extend({
-  from: lowerCasedAddress,
-  to: lowerCasedAddress.nullable().optional()
-})
-export type LowercasedTransactionRequestEIP1559 = z.infer<typeof LowercasedTransactionRequestEIP1559>
-
-export const LowercasedTransactionRequest = z.union([
-  LowercasedTransactionRequestEIP1559,
-  LowercasedTransactionRequestLegacy
-])
-export type LowercasedTransactionRequest = z.infer<typeof LowercasedTransactionRequest>
-
 export const TransactionRequest = z.union([TransactionRequestEIP1559, TransactionRequestLegacy])
 export type TransactionRequest = z.infer<typeof TransactionRequest>
 
@@ -116,13 +98,6 @@ export const UserOperationV6 = z.object({
 })
 export type UserOperationV6 = z.infer<typeof UserOperationV6>
 
-export const LowerCasedUserOperationV6 = UserOperationV6.extend({
-  sender: lowerCasedAddress,
-  entryPoint: lowerCasedAddress,
-  factoryAddress: lowerCasedAddress
-})
-export type LowerCasedUserOperationV6 = z.infer<typeof LowerCasedUserOperationV6>
-
 export const Eip712Domain = z.object({
   name: z.string().optional(),
   version: z.string().optional(),
@@ -131,11 +106,6 @@ export const Eip712Domain = z.object({
   salt: hexSchema.optional()
 })
 export type Eip712Domain = z.infer<typeof Eip712Domain>
-
-export const LowerCasedEip712Domain = Eip712Domain.extend({
-  verifyingContract: lowerCasedAddress.optional()
-})
-export type LowerCasedEip712Domain = z.infer<typeof LowerCasedEip712Domain>
 
 export const Eip712TypedData = z.object({
   domain: Eip712Domain,
@@ -161,11 +131,6 @@ export const Eip712TypedData = z.object({
   }, z.record(z.unknown()))
 })
 export type Eip712TypedData = z.infer<typeof Eip712TypedData>
-
-export const LowerCasedEip712TypedData = Eip712TypedData.extend({
-  domain: LowerCasedEip712Domain
-})
-export type LowerCasedEip712TypedData = z.infer<typeof LowerCasedEip712TypedData>
 
 export const SerializedEip712TypedData = Eip712TypedData.transform((val) => {
   return {
