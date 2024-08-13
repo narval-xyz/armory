@@ -25,28 +25,31 @@ export {
   signJwt
 } from '@narval/signature'
 
-export type {
+export {
   AccessToken,
-  AccountEntity,
   AccountType,
   Action,
-  Address,
   CreateAuthorizationRequest,
   Criterion,
   Decision,
   Eip712TypedData,
-  Entities,
   EntityType,
-  Hex,
   JwtString,
-  Policy,
-  PolicyCriterion,
   Request,
   Then,
   TransactionRequest,
-  UserEntity,
   UserRole,
   ValueOperators
+} from '@narval/policy-engine-shared'
+
+export type {
+  AccountEntity,
+  Address,
+  Entities,
+  Hex,
+  Policy,
+  PolicyCriterion,
+  UserEntity
 } from '@narval/policy-engine-shared'
 
 export { EntityUtil, getAddress, toHex } from '@narval/policy-engine-shared'
