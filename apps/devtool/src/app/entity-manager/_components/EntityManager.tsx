@@ -143,10 +143,6 @@ export default function EntityManager() {
     }
   }, [entityStore, setEntities])
 
-  if (!isInitialized || !entityStore) {
-    return null
-  }
-
   if (!isReady()) {
     return (
       <EmptyState
