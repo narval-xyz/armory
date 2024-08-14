@@ -44,21 +44,12 @@ services:
     networks:
       - armory_stack
     environment:
-      - NODE_ENV=development
       - PORT=3010
-      - APP_UID=local-dev-armory-instance-1
-      - ADMIN_API_KEY=171c50ec62122b8c08362dcf9dce9b016ed615cfc7b90d4bc3fe5b223d967fb2 # armory-admin-api-key
       - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/armory?schema=public
-      - APP_DATABASE_USERNAME=postgres
-      - APP_DATABASE_PASSWORD=postgres
-      - APP_DATABASE_HOST=host.docker.internal
-      - APP_DATABASE_PORT=5432
-      - APP_DATABASE_NAME=armory
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - MANAGED_DATASTORE_BASE_URL=http://armory:3010/v1/data
-      - POLICY_ENGINE_URLS=http://policy_engine:3010
-      - POLICY_ENGINE_ADMIN_API_KEYS=engine-admin-api-key
+      - POLICY_ENGINE_URLS=http://policy_engine_0:3010,http://policy_engine_1:3010,http://policy_engine_2:3010
+      - POLICY_ENGINE_ADMIN_API_KEYS=engine-admin-api-key,engine-admin-api-key,engine-admin-api-key
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
@@ -68,32 +59,78 @@ services:
       redis:
         condition: service_started
 
-  policy_engine:
+  policy_engine_0:
     image: armory/local:latest
     build:
       context: ./
       dockerfile: local.dockerfile
-    container_name: policy-engine
+    container_name: policy-engine-0
     command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
     ports:
       - '3020:3010'
     networks:
       - armory_stack
     environment:
-      - NODE_ENV=development
-      - PORT=3010
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-0?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8500
+      - TSM_API_KEY=apikey0
+      - TSM_PLAYER_COUNT=3
       - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
-      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine?schema=public
-      - APP_DATABASE_USERNAME=postgres
-      - APP_DATABASE_PASSWORD=postgres
-      - APP_DATABASE_HOST=host.docker.internal
-      - APP_DATABASE_PORT=5432
-      - APP_DATABASE_NAME=engine
-      - APP_UID=local-dev-engine-instance-1
-      - MASTER_PASSWORD=unsafe-local-dev-master-password
-      - RESOURCE_PATH=./apps/policy-engine/src/resource
-      - KEYRING_TYPE=raw
-      - SIGNING_PROTOCOL=simple
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      postgres:
+        condition: service_healthy
+      armory:
+        condition: service_started
+
+  policy_engine_1:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: policy-engine-1
+    command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
+    ports:
+      - '3021:3010'
+    networks:
+      - armory_stack
+    environment:
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-1?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8501
+      - TSM_API_KEY=apikey1
+      - TSM_PLAYER_COUNT=3
+      - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
+    volumes:
+      - ./packages:/app/packages
+      - ./apps:/app/apps
+    depends_on:
+      postgres:
+        condition: service_healthy
+      armory:
+        condition: service_started
+
+  policy_engine_2:
+    image: armory/local:latest
+    build:
+      context: ./
+      dockerfile: local.dockerfile
+    container_name: policy-engine-2
+    command: ['/bin/bash', '-c', 'make policy-engine/db/migrate/deploy && make policy-engine/start/dev']
+    ports:
+      - '3022:3010'
+    networks:
+      - armory_stack
+    environment:
+      - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/engine-2?schema=public
+      - SIGNING_PROTOCOL=mpc
+      - TSM_URL=http://host.docker.internal:8502
+      - TSM_API_KEY=apikey2
+      - TSM_PLAYER_COUNT=3
+      - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
@@ -115,40 +152,15 @@ services:
     networks:
       - armory_stack
     environment:
-      - NODE_ENV=development
       - PORT=3010
-      - ADMIN_API_KEY=d4a6b4c1cb71dbdb68a1dd429ad737369f74b9e264b9dfa639258753987caaad # vault-admin-api-key
       - APP_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/vault?schema=public
-      - APP_DATABASE_USERNAME=postgres
-      - APP_DATABASE_PASSWORD=postgres
-      - APP_DATABASE_HOST=host.docker.internal
-      - APP_DATABASE_PORT=5432
-      - APP_DATABASE_NAME=vault
-      - APP_UID=local-dev-vault-instance-1
-      - MASTER_PASSWORD=unsafe-local-dev-master-password
-      - KEYRING_TYPE=raw
-      - BASE_URL=http://localhost:3011
+      - ADMIN_API_KEY=d4a6b4c1cb71dbdb68a1dd429ad737369f74b9e264b9dfa639258753987caaad # vault-admin-api-key
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
     depends_on:
       postgres:
         condition: service_healthy
-
-  devtool:
-    image: armory/local:latest
-    build:
-      context: ./
-      dockerfile: local.dockerfile
-    container_name: devtool
-    command: ['/bin/bash', '-c', 'make devtool/start/dev']
-    ports:
-      - '4200:4200'
-    networks:
-      - armory_stack
-    volumes:
-      - ./packages:/app/packages
-      - ./apps:/app/apps
 
 volumes:
   postgres_data:
