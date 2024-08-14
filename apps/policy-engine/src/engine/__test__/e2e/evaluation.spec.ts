@@ -214,7 +214,7 @@ describe('Evaluation', () => {
                     name: 'Ether Mail',
                     version: '1',
                     chainId: 1,
-                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'.toLowerCase()
                   },
                   primaryType: 'Mail',
                   types: {
