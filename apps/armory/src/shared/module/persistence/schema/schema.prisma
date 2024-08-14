@@ -122,10 +122,8 @@ model EvaluationLog {
 }
 
 model ApprovalRequirement {
-  id                 String   @id @default(uuid()) @db.VarChar(255)
-  evaluationLogId    String   @map("evaluation_log_id") @db.VarChar(255)
-  clientId           String   @map("client_id")
-  requestId          String   @map("request_id")
+  id           String @id @default(uuid()) @db.VarChar(255)
+  evaluationId String @map("evaluation_id") @db.VarChar(255)
 
   approvalCount      Int      @map("approval_count")
   approvalEntityType String   @map("approval_entity_type")
@@ -133,7 +131,7 @@ model ApprovalRequirement {
   countPrincipal     Boolean  @map("count_principal")
   isSatisfied        Boolean  @map("is_satisfied")
 
-  EvaluationLog EvaluationLog @relation(fields: [evaluationLogId], references: [id])
+  EvaluationLog EvaluationLog @relation(fields: [evaluationId], references: [id])
 
   @@map("approval_requirement")
 }
