@@ -1,17 +1,13 @@
 import { ConfigService } from '@narval/config-module'
-import { Action, AssetId, AuthorizationRequest, Feed, JwtString } from '@narval/policy-engine-shared'
+import { AssetId, AuthorizationRequest, Feed, JwtString } from '@narval/policy-engine-shared'
 import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
-import { InputType, Intents, safeDecode } from '@narval/transaction-request-intent'
 import { Injectable } from '@nestjs/common'
-import { uniq } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
 import { FIAT_ID_USD } from '../../../armory.constant'
 import { PriceService } from '../../../price/core/service/price.service'
-import { getChain } from '../../../shared/core/lib/chains.lib'
 import { Prices } from '../../../shared/core/type/price.type'
 import { DataFeed } from '../type/data-feed.type'
-
 @Injectable()
 export class PriceFeedService implements DataFeed<Prices> {
   static SOURCE_ID = 'armory/price-feed'
@@ -62,6 +58,7 @@ export class PriceFeedService implements DataFeed<Prices> {
     // TODO (@wcalderipe, 01/02/2024): De-risk the price values by taking a
     // median of multiple sources.
     const prices = await this.priceService.getPrices({
+      // see comment in getAssetIds. This only returns the caip19 of the chain, not the caip19 of an erc20 token
       from: this.getAssetIds(input),
       to: [FIAT_ID_USD]
     })
@@ -75,27 +72,29 @@ export class PriceFeedService implements DataFeed<Prices> {
   }
 
   private getAssetIds(authzRequest: AuthorizationRequest): AssetId[] {
-    if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
-      const result = safeDecode({
-        input: {
-          type: InputType.TRANSACTION_REQUEST,
-          txRequest: authzRequest.request.transactionRequest
-        }
-      })
-
-      const chain = getChain(authzRequest.request.transactionRequest.chainId)
-
-      if (result.success) {
-        const { intent } = result
-
-        if (intent.type === Intents.TRANSFER_NATIVE) {
-          return uniq([chain.coin.id, intent.token])
-        }
-      }
-
-      return [chain.coin.id]
-    }
-
     return []
+  // Problem: this always returns the coinId of the chain, not the caip19 of an erc20 token. Even if its not a transfer_native intent
+  //   if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
+  //     const result = safeDecode({
+  //       input: {
+  //         type: InputType.TRANSACTION_REQUEST,
+  //         txRequest: authzRequest.request.transactionRequest
+  //       }
+  //     })
+
+  //     const chain = getChain(authzRequest.request.transactionRequest.chainId)
+
+  //     if (result.success) {
+  //       const { intent } = result
+
+  //       if (intent.type === Intents.TRANSFER_NATIVE) {
+  //         return uniq([chain.coin.id, intent.token])
+  //       }
+  //     }
+
+  //     return [chain.coin.id]
+  //   }
+
+  //   return []
   }
 }
