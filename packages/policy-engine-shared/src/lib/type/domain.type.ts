@@ -188,16 +188,18 @@ export const AccessToken = z.object({
 })
 export type AccessToken = z.infer<typeof AccessToken>
 
+export const ApprovalRequirementObject = z.object({
+  required: z.array(ApprovalRequirement).optional(),
+  missing: z.array(ApprovalRequirement).optional(),
+  satisfied: z.array(ApprovalRequirement).optional()
+})
+
+export type ApprovalRequirementObject = z.infer<typeof ApprovalRequirementObject>
+
 export const EvaluationResponse = z.object({
   decision: z.nativeEnum(Decision),
   request: Request.optional(),
-  approvals: z
-    .object({
-      required: z.array(ApprovalRequirement).optional(),
-      missing: z.array(ApprovalRequirement).optional(),
-      satisfied: z.array(ApprovalRequirement).optional()
-    })
-    .optional(),
+  approvals: ApprovalRequirementObject.optional(),
   principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
   transactionRequestIntent: z.unknown().optional(),

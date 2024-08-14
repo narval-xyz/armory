@@ -5,6 +5,7 @@ import {
   CreateAuthorizationRequest,
   Evaluation
 } from '@narval/policy-engine-shared'
+import { hash } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -21,6 +22,7 @@ export class AuthorizationRequestRepository {
     const request = createRequestSchema.parse(input.request)
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
+    const approvalRequirements = this.toApprovalRequirements(input.evaluations)
     const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
     const model = await this.prismaService.authorizationRequest.create({
@@ -40,33 +42,66 @@ export class AuthorizationRequestRepository {
             data: approvals
           }
         },
-        errors: {
+        approvalRequirements: {
           createMany: {
-            data: errors
+            data: approvalRequirements
           }
         },
         evaluationLog: {
           createMany: {
             data: evaluationLogs
           }
+        },
+        errors: {
+          createMany: {
+            data: errors
+          }
         }
       },
       include: {
         approvals: true,
-        errors: true,
-        evaluationLog: true
+        approvalRequirements: true,
+        evaluationLog: true,
+        errors: true
       }
     })
 
     return decodeAuthorizationRequest(model)
   }
 
+  private toApprovalRequirements(evaluations?: Evaluation[]) {
+    return (
+      evaluations?.flatMap(({ id: evaluationId, approvalRequirements }) => {
+        const satisfied =
+          approvalRequirements?.satisfied?.map((approvalRequirement) => ({
+            id: hash(approvalRequirement),
+            ...approvalRequirement
+          })) || []
+
+        return (
+          approvalRequirements?.required?.map((approvalRequirement) => ({
+            evaluationId,
+            isSatisfied: satisfied.find((s) => s.id === hash(approvalRequirement)) ? true : false,
+            ...approvalRequirement
+          })) || []
+        )
+      }) || []
+    )
+  }
+
   private toEvaluationLogs(clientId?: string, evaluations?: Evaluation[]) {
     if (clientId && evaluations?.length) {
-      return evaluations.map((evaluation) => ({
-        ...evaluation,
-        clientId
-      }))
+      return evaluations?.map((e) => {
+        const { transactionRequestIntent, approvalRequirements, ...evaluation } = e
+
+        return {
+          ...evaluation,
+          clientId,
+          transactionRequestIntent: transactionRequestIntent
+            ? JSON.parse(JSON.stringify(transactionRequestIntent))
+            : null
+        }
+      })
     }
 
     return []
@@ -101,6 +136,7 @@ export class AuthorizationRequestRepository {
     const { id, clientId, status } = input
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
+    const approvalRequirements = this.toApprovalRequirements(input.evaluations)
     const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
@@ -111,6 +147,12 @@ export class AuthorizationRequestRepository {
         approvals: {
           createMany: {
             data: approvals,
+            skipDuplicates: true
+          }
+        },
+        approvalRequirements: {
+          createMany: {
+            data: approvalRequirements,
             skipDuplicates: true
           }
         },
@@ -129,6 +171,7 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
+        approvalRequirements: true,
         evaluationLog: true,
         errors: true
       }

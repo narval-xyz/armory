@@ -4,7 +4,8 @@ ALTER TABLE "evaluation_log" ADD COLUMN     "transaction_request_intent" JSONB;
 -- CreateTable
 CREATE TABLE "approval_requirement" (
     "id" VARCHAR(255) NOT NULL,
-    "evaluation_id" VARCHAR(255) NOT NULL,
+    "evaluation_id" TEXT NOT NULL,
+    "request_id" TEXT NOT NULL,
     "approval_count" INTEGER NOT NULL,
     "approval_entity_type" TEXT NOT NULL,
     "entity_ids" TEXT[],
@@ -16,3 +17,6 @@ CREATE TABLE "approval_requirement" (
 
 -- AddForeignKey
 ALTER TABLE "approval_requirement" ADD CONSTRAINT "approval_requirement_evaluation_id_fkey" FOREIGN KEY ("evaluation_id") REFERENCES "evaluation_log"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "approval_requirement" ADD CONSTRAINT "approval_requirement_request_id_fkey" FOREIGN KEY ("request_id") REFERENCES "authorization_request"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
