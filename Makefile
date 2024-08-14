@@ -95,8 +95,7 @@ docker/up:
 docker/stop:
 	docker-compose stop
 
-# Starts the Armory stack in Docker containers.
-# Useful when you want to use MPC as the signing protocol.
+# Starts the whole Armory stack in Docker containers.
 docker/stack/up:
 	docker-compose up --detach
 
@@ -104,11 +103,19 @@ docker/stack/stop:
 	docker-compose stop
 
 docker/stack/build:
-	docker build \
+	docker buildx build \
+		--platform linux/amd64 \
 		--file local.dockerfile \
 		--tag armory/local:latest \
 		. --load
 
+# Starts the whole Armory stack for MPC in Docker containers.
+# Requires the mpc nodes to be configured seprately.
+docker/mpc/up:
+	docker-compose -f docker-compose.mpc.yml up --detach
+
+docker/mpc/stop:
+	docker-compose -f docker-compose.mpc.yml stop
 
 # === Git ===
 git/tag/push:
