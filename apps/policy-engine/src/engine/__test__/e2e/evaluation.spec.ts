@@ -253,7 +253,7 @@ describe('Evaluation', () => {
                     amount: '1',
                     from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
                     to: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Bob.address.toLowerCase()}`,
-                    token: `eip155:${sepolia.id}/slip44:966`,
+                    token: `eip155:${sepolia.id}/slip44:60`,
                     type: 'transferNative'
                   }
                 ]

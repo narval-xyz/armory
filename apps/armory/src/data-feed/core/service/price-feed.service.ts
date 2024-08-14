@@ -73,28 +73,28 @@ export class PriceFeedService implements DataFeed<Prices> {
 
   private getAssetIds(authzRequest: AuthorizationRequest): AssetId[] {
     return []
-  // Problem: this always returns the coinId of the chain, not the caip19 of an erc20 token. Even if its not a transfer_native intent
-  //   if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
-  //     const result = safeDecode({
-  //       input: {
-  //         type: InputType.TRANSACTION_REQUEST,
-  //         txRequest: authzRequest.request.transactionRequest
-  //       }
-  //     })
+    // Problem: this always returns the coinId of the chain, not the caip19 of an erc20 token. Even if its not a transfer_native intent
+    //   if (authzRequest.request.action === Action.SIGN_TRANSACTION) {
+    //     const result = safeDecode({
+    //       input: {
+    //         type: InputType.TRANSACTION_REQUEST,
+    //         txRequest: authzRequest.request.transactionRequest
+    //       }
+    //     })
 
-  //     const chain = getChain(authzRequest.request.transactionRequest.chainId)
+    //     const chain = getChain(authzRequest.request.transactionRequest.chainId)
 
-  //     if (result.success) {
-  //       const { intent } = result
+    //     if (result.success) {
+    //       const { intent } = result
 
-  //       if (intent.type === Intents.TRANSFER_NATIVE) {
-  //         return uniq([chain.coin.id, intent.token])
-  //       }
-  //     }
+    //       if (intent.type === Intents.TRANSFER_NATIVE) {
+    //         return uniq([chain.coin.id, intent.token])
+    //       }
+    //     }
 
-  //     return [chain.coin.id]
-  //   }
+    //     return [chain.coin.id]
+    //   }
 
-  //   return []
+    //   return []
   }
 }
