@@ -80,13 +80,14 @@ describe(PriceFeedService.name, () => {
       })
     })
 
-    it('calls price service', async () => {
-      await service.getFeed(authzRequest)
+    // 15-08-2024 @mattschoch - skipping because price feed is currently disabled
+    // it('calls price service', async () => {
+    //   await service.getFeed(authzRequest)
 
-      expect(priceServiceMock.getPrices).toHaveBeenCalledWith({
-        from: [POLYGON.coin.id],
-        to: [FIAT_ID_USD]
-      })
-    })
+    //   expect(priceServiceMock.getPrices).toHaveBeenCalledWith({
+    //     from: [POLYGON.coin.id],
+    //     to: [FIAT_ID_USD]
+    //   })
+    // })
   })
 })
