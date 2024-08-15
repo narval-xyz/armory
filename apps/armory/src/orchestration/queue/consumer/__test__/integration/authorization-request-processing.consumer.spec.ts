@@ -52,8 +52,6 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
     dataSecret: secret.hash('test-data-secret'),
     name: 'Test Client',
     enginePublicKey: {},
-    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
-    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -139,8 +137,18 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
       data: {
         ...client,
         enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
+        dataStoreKeys: {
+          create: [
+            {
+              storeType: 'entity',
+              publicKey: FIXTURE.EOA_CREDENTIAL.Root.key as Prisma.InputJsonValue
+            },
+            {
+              storeType: 'policy',
+              publicKey: FIXTURE.EOA_CREDENTIAL.Root.key as Prisma.InputJsonValue
+            }
+          ]
+        }
       }
     })
     await repository.create(authzRequest)

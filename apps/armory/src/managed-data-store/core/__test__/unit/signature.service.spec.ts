@@ -21,7 +21,7 @@ describe(SignatureService.name, () => {
 
     await expect(() =>
       signatureService.verifySignature({
-        pubKey: jwk,
+        keys: [jwk],
         payload: { signature, data: FIXTURE.ENTITIES },
         date: new Date('2024-01-01')
       })
@@ -42,7 +42,7 @@ describe(SignatureService.name, () => {
 
     await expect(() =>
       signatureService.verifySignature({
-        pubKey: jwk,
+        keys: [jwk],
         payload: { signature, data: FIXTURE.ENTITIES },
         date: new Date('2023-01-01')
       })
@@ -50,11 +50,11 @@ describe(SignatureService.name, () => {
 
     await expect(() =>
       signatureService.verifySignature({
-        pubKey: jwk,
+        keys: [jwk],
         payload: { signature, data: FIXTURE.ENTITIES },
         date: new Date('2023-01-01')
       })
-    ).rejects.toThrow('Invalid signature')
+    ).rejects.toThrow('Signature not valid for keys')
   })
 
   it('returns true if the payload iat is more recent than the db createdAt date', async () => {
@@ -68,7 +68,32 @@ describe(SignatureService.name, () => {
     const signature = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, buildSignerEip191(DATA_STORE_PRIVATE_KEY))
 
     const result = await signatureService.verifySignature({
-      pubKey: jwk,
+      keys: [jwk],
+      payload: { signature, data: FIXTURE.ENTITIES },
+      date: new Date('2023-01-01')
+    })
+
+    expect(result).toEqual(true)
+  })
+
+  it('verifies a signature with multiple keys when kid does not match', async () => {
+    const payload: Payload = {
+      data: hash(FIXTURE.ENTITIES),
+      sub: 'test-root-user-uid',
+      iss: 'https://armory.narval.xyz',
+      iat: Math.floor(new Date('2024-01-01').getTime() / 1000) // in seconds
+    }
+
+    const secondaryDataKey = generatePrivateKey()
+    const secondJwk = secp256k1PrivateKeyToJwk(secondaryDataKey)
+    secondJwk.kid = 'secondary-data-key' // overwrite the kid to ensure no matches.
+
+    const primaryJwk = { ...jwk, kid: 'primary-data-key' } // overwrite the kid to ensure no matches
+
+    const signature = await signJwt(payload, jwk, { alg: SigningAlg.EIP191 }, buildSignerEip191(DATA_STORE_PRIVATE_KEY))
+
+    const result = await signatureService.verifySignature({
+      keys: [secondJwk, primaryJwk],
       payload: { signature, data: FIXTURE.ENTITIES },
       date: new Date('2023-01-01')
     })

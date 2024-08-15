@@ -46,8 +46,8 @@ export class ClientService {
       dataSecret: null,
       name: input.name,
       dataStore: {
-        entityPublicKey: entityDataStore.keys[0],
-        policyPublicKey: policyDataStore.keys[0]
+        entityPublicKeys: entityDataStore.keys,
+        policyPublicKeys: policyDataStore.keys
       },
       policyEngine: { nodes: [] },
       createdAt: now,
@@ -77,6 +77,9 @@ export class ClientService {
     client.policyEngine = { nodes }
 
     const createdClient = await this.clientRepository.save(client)
+
+    // Trigger a cluster data sync, since we likely _just_ created the datastore.
+    await this.clusterService.sync(clientId)
 
     return {
       ...this.buildPublicClient({

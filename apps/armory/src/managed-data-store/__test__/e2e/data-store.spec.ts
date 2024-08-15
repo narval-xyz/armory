@@ -107,8 +107,8 @@ describe('Data Store', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       dataStore: {
-        entityPublicKey: getPublicKey(dataStorePrivateKey),
-        policyPublicKey: getPublicKey(dataStorePrivateKey)
+        entityPublicKeys: [getPublicKey(dataStorePrivateKey)],
+        policyPublicKeys: [getPublicKey(dataStorePrivateKey)]
       },
       policyEngine: {
         nodes: [

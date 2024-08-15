@@ -1,6 +1,6 @@
-import { publicKeySchema } from '@narval/signature'
+import { PublicKey, publicKeySchema } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
-import { Client as Model, Prisma } from '@prisma/client/armory'
+import { DataStoreKey, Client as Model, Prisma } from '@prisma/client/armory'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { Client } from '../../core/type/client.type'
 
@@ -10,7 +10,14 @@ export class ClientRepository {
 
   async findById(id: string): Promise<Client | null> {
     const model = await this.prismaService.client.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        dataStoreKeys: {
+          where: {
+            deletedAt: null
+          }
+        }
+      }
     })
 
     if (model) {
@@ -21,14 +28,29 @@ export class ClientRepository {
   }
 
   async save(client: Client): Promise<Client> {
+    const dataStoreKeys = this.encodeDataStoreKeys(client)
+
+    const clientData = this.encode(client)
+
     await this.prismaService.client.create({
-      data: this.encode(client)
+      data: {
+        ...clientData,
+        dataStoreKeys: {
+          createMany: {
+            data: dataStoreKeys
+          }
+        }
+      }
     })
 
     return client
   }
 
-  private decode(model: Model): Client {
+  private decode(
+    model: Model & {
+      dataStoreKeys: DataStoreKey[]
+    }
+  ): Client {
     return {
       id: model.id,
       clientSecret: model.clientSecret,
@@ -36,13 +58,21 @@ export class ClientRepository {
       name: model.name,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
-      dataStore: {
-        entityPublicKey: publicKeySchema.parse(model.entityPublicKey),
-        policyPublicKey: publicKeySchema.parse(model.policyPublicKey)
-      },
+      dataStore: this.decodeDataStoreKeys(model.dataStoreKeys),
       policyEngine: {
         nodes: []
       }
+    }
+  }
+
+  private decodeDataStoreKeys(model: DataStoreKey[]): { entityPublicKeys: PublicKey[]; policyPublicKeys: PublicKey[] } {
+    return {
+      entityPublicKeys: model
+        .filter((key) => key.storeType === 'entity')
+        .map((key) => publicKeySchema.parse(key.publicKey)),
+      policyPublicKeys: model
+        .filter((key) => key.storeType === 'policy')
+        .map((key) => publicKeySchema.parse(key.publicKey))
     }
   }
 
@@ -54,9 +84,20 @@ export class ClientRepository {
       name: client.name,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt,
-      enginePublicKey: publicKeySchema.parse(client.dataStore.entityPublicKey) as Prisma.InputJsonValue,
-      entityPublicKey: publicKeySchema.parse(client.dataStore.entityPublicKey) as Prisma.InputJsonValue,
-      policyPublicKey: publicKeySchema.parse(client.dataStore.policyPublicKey) as Prisma.InputJsonValue
+      enginePublicKey: publicKeySchema.parse(client.policyEngine.nodes[0].publicKey) as Prisma.InputJsonValue
     }
+  }
+
+  private encodeDataStoreKeys(client: Client) {
+    const entityDataStoreKeys = client.dataStore.entityPublicKeys.map((key) => ({
+      storeType: 'entity',
+      publicKey: publicKeySchema.parse(key)
+    }))
+    const policyDataStoreKeys = client.dataStore.policyPublicKeys.map((key) => ({
+      storeType: 'policy',
+      publicKey: publicKeySchema.parse(key)
+    }))
+    const dataStoreKeys = [...entityDataStoreKeys, ...policyDataStoreKeys]
+    return dataStoreKeys
   }
 }

@@ -1,5 +1,4 @@
 import { EntityStore } from '@narval/policy-engine-shared'
-import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
@@ -10,7 +9,7 @@ import { SignatureService } from './signature.service'
 @Injectable()
 export class EntityDataStoreService extends SignatureService {
   constructor(
-    private entitydataStoreRepository: EntityDataStoreRepository,
+    private entityDataStoreRepository: EntityDataStoreRepository,
     private clientService: ClientService,
     private clusterService: ClusterService
   ) {
@@ -18,7 +17,7 @@ export class EntityDataStoreService extends SignatureService {
   }
 
   async getEntities(clientId: string): Promise<EntityStore | null> {
-    const entityStore = await this.entitydataStoreRepository.getLatestDataStore(clientId)
+    const entityStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
 
     return entityStore ? EntityStore.parse(entityStore.data) : null
   }
@@ -33,15 +32,15 @@ export class EntityDataStoreService extends SignatureService {
       })
     }
 
-    const latestDataStore = await this.entitydataStoreRepository.getLatestDataStore(clientId)
+    const latestDataStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
 
     await this.verifySignature({
       payload,
-      pubKey: publicKeySchema.parse(client.dataStore.entityPublicKey),
+      keys: client.dataStore.entityPublicKeys,
       date: latestDataStore?.createdAt
     })
 
-    const { data, version } = await this.entitydataStoreRepository.setDataStore(clientId, {
+    const { data, version } = await this.entityDataStoreRepository.setDataStore(clientId, {
       version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
       data: EntityStore.parse(payload)
     })

@@ -81,7 +81,8 @@ policy-engine/db/create-migration:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \
 		prisma migrate dev \
 			--schema ${POLICY_ENGINE_DATABASE_SCHEMA} \
-			--name ${NAME}
+			--name ${NAME} \
+			--create-only
 
 policy-engine/db/seed:
 	npx dotenv -e ${POLICY_ENGINE_PROJECT_DIR}/.env -- \

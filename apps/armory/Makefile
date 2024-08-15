@@ -72,7 +72,8 @@ armory/db/create-migration:
 	npx dotenv -e ${ARMORY_PROJECT_DIR}/.env -- \
 		prisma migrate dev \
 			--schema ${ARMORY_DATABASE_SCHEMA} \
-			--name ${NAME}
+			--name ${NAME} \
+			--create-only
 
 # To maintain seed data within their respective modules and then import them
 # into the main seed.ts file for execution, it's necessary to compile the
