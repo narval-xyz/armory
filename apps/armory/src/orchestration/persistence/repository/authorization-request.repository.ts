@@ -76,7 +76,7 @@ export class AuthorizationRequestRepository {
   }) {
     const evaluationLogs = this.toEvaluationLogs(requestId, clientId, evaluations)
 
-    const evaluationLogsModel = await Promise.all(
+    await Promise.all(
       evaluationLogs.map(({ approvalRequirements, ...evaluation }) =>
         this.prismaService.evaluationLog.create({
           data: {
@@ -94,10 +94,12 @@ export class AuthorizationRequestRepository {
       )
     )
 
-    return evaluationLogsModel.map((e) => ({
-      ...e,
-      approvalRequirements: this.toApprovalRequirementObject(e.approvals)
-    }))
+    return this.prismaService.evaluationLog.findMany({
+      where: { requestId },
+      include: {
+        approvals: true
+      }
+    })
   }
 
   private toApprovalRequirementModel(requirements?: ApprovalRequirementsObject) {
@@ -211,6 +213,7 @@ export class AuthorizationRequestRepository {
     })
 
     const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
+
     const evaluations = await this.createEvaluationLogs({
       requestId: id,
       clientId,
