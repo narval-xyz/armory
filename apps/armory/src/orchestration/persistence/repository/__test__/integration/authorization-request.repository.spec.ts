@@ -116,7 +116,8 @@ describe(AuthorizationRequestRepository.name, () => {
         id: '404853b2-1338-47f5-be17-a1aa78da8010',
         decision: 'Permit',
         signature: 'test-signature',
-        createdAt: new Date()
+        createdAt: new Date(),
+        transactionRequestIntent: null
       }
 
       await repository.create({
@@ -239,6 +240,7 @@ describe(AuthorizationRequestRepository.name, () => {
             id: '404853b2-1338-47f5-be17-a1aa78da8010',
             decision: 'Permit',
             signature: 'test-signature',
+            transactionRequestIntent: null,
             createdAt: new Date()
           }
         ]
@@ -251,6 +253,7 @@ describe(AuthorizationRequestRepository.name, () => {
             id: 'cc329386-a2dd-4024-86fd-323a630ed703',
             decision: 'Permit',
             signature: 'test-signature',
+            transactionRequestIntent: null,
             createdAt: new Date()
           }
         ]
