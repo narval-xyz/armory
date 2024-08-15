@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Action, SerializedTransactionRequest, TransactionRequest } from './action.type'
-import { ApprovalRequirementObject, JwtString, Request, SerializedRequest } from './domain.type'
+import { ApprovalRequirementsObject, JwtString, Request, SerializedRequest } from './domain.type'
 
 export const AuthorizationRequestStatus = {
   CREATED: 'CREATED',
@@ -18,7 +18,7 @@ export const Evaluation = z.object({
   decision: z.string(),
   signature: z.string().nullable(),
   transactionRequestIntent: z.unknown().optional(),
-  approvalRequirements: ApprovalRequirementObject.optional(),
+  approvalRequirements: ApprovalRequirementsObject.optional(),
   createdAt: z.coerce.date()
 })
 export type Evaluation = z.infer<typeof Evaluation>

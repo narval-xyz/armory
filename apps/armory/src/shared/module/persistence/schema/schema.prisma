@@ -73,11 +73,10 @@ model AuthorizationRequest {
   createdAt      DateTime                   @default(now()) @map("created_at")
   updatedAt      DateTime                   @default(now()) @updatedAt @map("updated_at")
 
-  evaluationLog        EvaluationLog[]
-  approvalRequirements ApprovalRequirement[]
-  approvals            AuthorizationRequestApproval[]
-  metadata             Json?
-  errors               AuthorizationRequestError[]
+  evaluationLog EvaluationLog[]
+  approvals     AuthorizationRequestApproval[]
+  metadata      Json?
+  errors        AuthorizationRequestError[]
 
   @@map("authorization_request")
 }
@@ -125,7 +124,6 @@ model EvaluationLog {
 model ApprovalRequirement {
   id           String @id @default(uuid()) @db.VarChar(255)
   evaluationId String @map("evaluation_id")
-  requestId    String @map("request_id")
 
   approvalCount      Int      @map("approval_count")
   approvalEntityType String   @map("approval_entity_type")
@@ -133,8 +131,7 @@ model ApprovalRequirement {
   countPrincipal     Boolean  @map("count_principal")
   isSatisfied        Boolean  @map("is_satisfied")
 
-  evaluationLog EvaluationLog        @relation(fields: [evaluationId], references: [id])
-  request       AuthorizationRequest @relation(fields: [requestId], references: [id])
+  evaluationLog EvaluationLog @relation(fields: [evaluationId], references: [id])
 
   @@map("approval_requirement")
 }
