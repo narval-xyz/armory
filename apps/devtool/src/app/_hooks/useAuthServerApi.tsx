@@ -30,6 +30,7 @@ export interface AuthClientData {
   entityPublicKey: string
   policyDataStoreUrl: string
   policyPublicKey: string
+  allowSelfSignedData: boolean
 }
 
 const useAuthServerApi = () => {
@@ -80,7 +81,8 @@ const useAuthServerApi = () => {
         entityDataStoreUrl,
         entityPublicKey,
         policyDataStoreUrl,
-        policyPublicKey
+        policyPublicKey,
+        allowSelfSignedData
       } = authClientData
 
       const authAdminClient = new AuthAdminClient({
@@ -114,7 +116,8 @@ const useAuthServerApi = () => {
               url: policyDataStoreUrl
             },
             keys: [JSON.parse(policyPublicKey)]
-          }
+          },
+          allowSelfSignedData
         }
       })
 

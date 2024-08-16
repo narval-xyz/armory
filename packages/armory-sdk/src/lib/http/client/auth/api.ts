@@ -835,8 +835,85 @@ export interface AuthorizationResponseDtoEvaluationsInner {
      * @type {any}
      * @memberof AuthorizationResponseDtoEvaluationsInner
      */
+    'transactionRequestIntent'?: any;
+    /**
+     * 
+     * @type {AuthorizationResponseDtoEvaluationsInnerApprovalRequirements}
+     * @memberof AuthorizationResponseDtoEvaluationsInner
+     */
+    'approvalRequirements'?: AuthorizationResponseDtoEvaluationsInnerApprovalRequirements;
+    /**
+     * 
+     * @type {any}
+     * @memberof AuthorizationResponseDtoEvaluationsInner
+     */
     'createdAt': any;
 }
+/**
+ * 
+ * @export
+ * @interface AuthorizationResponseDtoEvaluationsInnerApprovalRequirements
+ */
+export interface AuthorizationResponseDtoEvaluationsInnerApprovalRequirements {
+    /**
+     * 
+     * @type {Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirements
+     */
+    'required'?: Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>;
+    /**
+     * 
+     * @type {Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirements
+     */
+    'missing'?: Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>;
+    /**
+     * 
+     * @type {Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirements
+     */
+    'satisfied'?: Array<AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner>;
+}
+/**
+ * 
+ * @export
+ * @interface AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner
+ */
+export interface AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner {
+    /**
+     * 
+     * @type {number}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner
+     */
+    'approvalCount': number;
+    /**
+     * The number of requried approvals
+     * @type {string}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner
+     */
+    'approvalEntityType': AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInnerApprovalEntityTypeEnum;
+    /**
+     * List of entities IDs that must satisfy the requirements
+     * @type {Array<string>}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner
+     */
+    'entityIds': Array<string>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInner
+     */
+    'countPrincipal': boolean;
+}
+
+export const AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInnerApprovalEntityTypeEnum = {
+    User: 'Narval::User',
+    UserRole: 'Narval::UserRole',
+    UserGroup: 'Narval::UserGroup'
+} as const;
+
+export type AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInnerApprovalEntityTypeEnum = typeof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInnerApprovalEntityTypeEnum[keyof typeof AuthorizationResponseDtoEvaluationsInnerApprovalRequirementsRequiredInnerApprovalEntityTypeEnum];
+
 /**
  * 
  * @export
@@ -898,6 +975,12 @@ export interface CreateClientRequestDtoDataStore {
      * @memberof CreateClientRequestDtoDataStore
      */
     'policy': CreateClientRequestDtoDataStoreEntity;
+    /**
+     * Whether to include the engine key in the entity and policy keys
+     * @type {boolean}
+     * @memberof CreateClientRequestDtoDataStore
+     */
+    'allowSelfSignedData'?: boolean;
 }
 /**
  * 
@@ -1146,16 +1229,16 @@ export interface CreateClientResponseDto {
 export interface CreateClientResponseDtoDataStore {
     /**
      * 
-     * @type {CreateClientRequestDtoDataStoreEntityKeysInner}
+     * @type {Array<CreateClientRequestDtoDataStoreEntityKeysInner>}
      * @memberof CreateClientResponseDtoDataStore
      */
-    'entityPublicKey': CreateClientRequestDtoDataStoreEntityKeysInner;
+    'entityPublicKeys': Array<CreateClientRequestDtoDataStoreEntityKeysInner>;
     /**
      * 
-     * @type {CreateClientRequestDtoDataStoreEntityKeysInner}
+     * @type {Array<CreateClientRequestDtoDataStoreEntityKeysInner>}
      * @memberof CreateClientResponseDtoDataStore
      */
-    'policyPublicKey': CreateClientRequestDtoDataStoreEntityKeysInner;
+    'policyPublicKeys': Array<CreateClientRequestDtoDataStoreEntityKeysInner>;
     /**
      * 
      * @type {string}

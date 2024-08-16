@@ -99,7 +99,8 @@ describe(ClusterService.name, () => {
         clientId,
         nodes: [nodeUrl],
         entityDataStore: dataStoreConfig,
-        policyDataStore: dataStoreConfig
+        policyDataStore: dataStoreConfig,
+        allowSelfSignedData: false
       })
 
       expect(node).toEqual({
@@ -118,7 +119,8 @@ describe(ClusterService.name, () => {
         clientId,
         nodes: [nodeUrl],
         entityDataStore: dataStoreConfig,
-        policyDataStore: dataStoreConfig
+        policyDataStore: dataStoreConfig,
+        allowSelfSignedData: false
       })
 
       const nodes = await policyEngineNodeRepository.findByUrl(nodeUrl)

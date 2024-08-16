@@ -28,9 +28,10 @@ export class ClientService {
     unsafeKeyId?: string
     entityDataStore: DataStoreConfiguration
     policyDataStore: DataStoreConfiguration
+    allowSelfSignedData?: boolean
   }): Promise<Client> {
     const now = new Date()
-    const { unsafeKeyId, entityDataStore, policyDataStore } = input
+    const { unsafeKeyId, entityDataStore, policyDataStore, allowSelfSignedData } = input
     const clientId = input.clientId || uuid()
     // If we are generating the secret, we'll want to return the full thing to
     // the user one time.
@@ -45,6 +46,13 @@ export class ClientService {
     const signer = {
       keyId: keypair.publicKey.kid,
       ...keypair
+    }
+
+    // If we are allowing self-signed data, we need to include the engine's key in the data store.
+    // This will allow the engine to sign datasets as well, and then it'll have it's own key for verification.
+    if (allowSelfSignedData) {
+      entityDataStore.keys.push(signer.publicKey)
+      policyDataStore.keys.push(signer.publicKey)
     }
 
     const client = await this.save(

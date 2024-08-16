@@ -23,6 +23,7 @@ export const CreatePolicyEngineCluster = z.object({
   clientId: z.string(),
   nodes: z.array(z.string().url()).min(1),
   entityDataStore: DataStoreConfiguration,
-  policyDataStore: DataStoreConfiguration
+  policyDataStore: DataStoreConfiguration,
+  allowSelfSignedData: z.boolean().optional()
 })
 export type CreatePolicyEngineCluster = z.infer<typeof CreatePolicyEngineCluster>

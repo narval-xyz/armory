@@ -19,7 +19,12 @@ export const CreateClientInput = z.object({
   clientSecret: z.string().min(1).optional(),
   dataStore: z.object({
     entity: DataStoreConfiguration,
-    policy: DataStoreConfiguration
+    policy: DataStoreConfiguration,
+    allowSelfSignedData: z
+      .boolean()
+      .default(false)
+      .optional()
+      .describe('Whether to include the engine key in the entity and policy keys')
   }),
   policyEngineNodes: z.array(z.string()).optional()
 })

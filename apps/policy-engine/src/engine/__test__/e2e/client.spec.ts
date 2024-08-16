@@ -140,6 +140,35 @@ describe('Client', () => {
       expect(body.clientSecret).toEqual(clientSecret)
     })
 
+    it('creates a new client with engine key in the entity and policy keys for self-signed data', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({ ...createClientPayload, allowSelfSignedData: true })
+
+      const actualClient = await clientRepository.findById(clientId)
+      const hex = await privateKeyToHex(actualClient?.signer.privateKey as PrivateKey)
+      const actualPublicKey = secp256k1PrivateKeyToPublicJwk(hex)
+
+      expect(body).toEqual({
+        ...actualClient,
+        clientSecret: expect.any(String),
+        signer: { publicKey: actualPublicKey },
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      expect(actualClient?.dataStore.entity.keys).toEqual([
+        ...createClientPayload.entityDataStore.keys,
+        actualPublicKey
+      ])
+      expect(actualClient?.dataStore.policy.keys).toEqual([
+        ...createClientPayload.policyDataStore.keys,
+        actualPublicKey
+      ])
+    })
+
     it('does not expose the signer private key', async () => {
       const { body } = await request(app.getHttpServer())
         .post('/clients')
