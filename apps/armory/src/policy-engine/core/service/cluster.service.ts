@@ -40,7 +40,8 @@ export class ClusterService {
     const data = {
       clientId: input.clientId,
       entityDataStore: input.entityDataStore,
-      policyDataStore: input.policyDataStore
+      policyDataStore: input.policyDataStore,
+      allowSelfSignedData: input.allowSelfSignedData
     }
 
     // TODO: (@wcalderipe, 15/05/24): Add retry on failure.

@@ -26,6 +26,7 @@ const initForm: AuthClientData = {
   id: '',
   name: '',
   useManagedDataStore: true,
+  allowSelfSignedData: true,
   entityDataStoreUrl: '',
   entityPublicKey: '',
   policyDataStoreUrl: '',
@@ -150,6 +151,11 @@ const AddAuthClientModal = () => {
                   policyDataStoreUrl: initPolicyDataStoreUrl(form.id, useManagedDataStore)
                 })
               }
+            />
+            <NarCheckbox
+              label="Allow Engine to self-sign data store"
+              checked={form.allowSelfSignedData}
+              onCheckedChange={(allowSelfSignedData) => updateForm({ allowSelfSignedData })}
             />
             <div className="flex gap-[24px]">
               <div className="flex flex-col gap-[8px] w-1/2">

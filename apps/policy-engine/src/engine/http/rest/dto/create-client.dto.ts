@@ -1,5 +1,5 @@
+import { CreateClient, PublicClient } from '@narval/policy-engine-shared'
 import { createZodDto } from 'nestjs-zod'
-import { CreateClient, PublicClient } from '../../../../shared/type/domain.type'
 
 export class CreateClientRequestDto extends createZodDto(CreateClient) {}
 

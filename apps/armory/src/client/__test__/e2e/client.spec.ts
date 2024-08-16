@@ -234,6 +234,45 @@ describe('Client', () => {
       })
     })
 
+    it('creates a new client with engine key in entity and policy keys for self-signed data', async () => {
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send({
+          ...createClientPayload,
+          useManagedDataStore: true,
+          dataStore: { ...createClientPayload.dataStore, allowSelfSignedData: true }
+        })
+
+      const actualClient = await clientService.findById(body.id)
+      const dataStore = {
+        ...actualClient?.dataStore,
+        entityDataUrl: `${managedDataStoreBaseUrl}/entities?clientId=${body.id}`,
+        policyDataUrl: `${managedDataStoreBaseUrl}/policies?clientId=${body.id}`
+      }
+
+      expect(body).toEqual({
+        ...actualClient,
+        dataStore,
+        dataSecret: null,
+        clientSecret: expect.any(String),
+        createdAt: actualClient?.createdAt.toISOString(),
+        updatedAt: actualClient?.updatedAt.toISOString()
+      })
+      expect(actualClient?.dataStore.entityPublicKeys).toEqual([
+        ...createClientPayload.dataStore.entity.keys,
+        body.policyEngine.nodes[0].publicKey
+      ])
+      expect(actualClient?.dataStore.policyPublicKeys).toEqual([
+        ...createClientPayload.dataStore.policy.keys,
+        body.policyEngine.nodes[0].publicKey
+      ])
+
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+
     it('responds with unprocessable entity when payload is invalid', async () => {
       const { status } = await request(app.getHttpServer())
         .post('/clients')

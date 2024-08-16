@@ -30,7 +30,8 @@ export class ClientController {
       clientSecret: body.clientSecret,
       unsafeKeyId: body.keyId,
       entityDataStore: body.entityDataStore,
-      policyDataStore: body.policyDataStore
+      policyDataStore: body.policyDataStore,
+      allowSelfSignedData: body.allowSelfSignedData
     })
 
     return CreateClientResponseDto.create(client)

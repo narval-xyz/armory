@@ -71,10 +71,17 @@ export class ClientService {
       clientId,
       nodes: input.policyEngineNodes || this.getDefaultPolicyEngineNodes(),
       entityDataStore,
-      policyDataStore
+      policyDataStore,
+      allowSelfSignedData: input.dataStore.allowSelfSignedData
     })
 
     client.policyEngine = { nodes }
+
+    // If we configured engine to include it's own key in the datastore signers, then we will track that here as well.
+    if (input.dataStore.allowSelfSignedData) {
+      client.dataStore.entityPublicKeys.push(nodes[0].publicKey)
+      client.dataStore.policyPublicKeys.push(nodes[0].publicKey)
+    }
 
     const createdClient = await this.clientRepository.save(client)
 

@@ -41,7 +41,7 @@ describe(HttpDataStoreRepository.name, () => {
     })
 
     it('throws a DataStoreException when it fails to fetch', async () => {
-      nock(dataStoreHost).get(dataStoreEndpoint).reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
+      nock(dataStoreHost).get(dataStoreEndpoint).times(4).reply(HttpStatus.INTERNAL_SERVER_ERROR, {})
 
       await expect(() => repository.fetch(source)).rejects.toThrow(DataStoreException)
     })
