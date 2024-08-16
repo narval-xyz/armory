@@ -1,6 +1,6 @@
 import {
   ApprovalRequirement,
-  ApprovalRequirementsObject,
+  Approvals,
   AuthorizationRequest,
   AuthorizationRequestError,
   AuthorizationRequestStatus,
@@ -74,80 +74,51 @@ export class AuthorizationRequestRepository {
     clientId?: string
     evaluations?: Evaluation[]
   }) {
-    const evaluationLogs = this.toEvaluationLogs(requestId, clientId, evaluations)
+    const evaluationLogs = this.toEvaluationLogs({ requestId, clientId, evaluations })
+    const approvalRequirements = this.toApprovalRequirements(evaluations)
 
-    await Promise.all(
-      evaluationLogs.map(({ approvalRequirements, ...evaluation }) =>
-        this.prismaService.evaluationLog.create({
-          data: {
-            ...evaluation,
-            approvals: {
-              createMany: {
-                data: approvalRequirements
-              }
-            }
-          },
-          include: {
-            approvals: true
-          }
-        })
-      )
-    )
+    await this.prismaService.evaluationLog.createMany({
+      data: evaluationLogs
+    })
 
-    return this.prismaService.evaluationLog.findMany({
+    await this.prismaService.approvalRequirement.createMany({
+      data: approvalRequirements
+    })
+
+    return this.getEvaluationLogs(requestId)
+  }
+
+  private async getEvaluationLogs(requestId: string) {
+    const evaluationLogs = await this.prismaService.evaluationLog.findMany({
       where: { requestId },
       include: {
         approvals: true
       }
     })
+
+    return evaluationLogs.map(({ approvals, ...evaluation }) => ({
+      ...evaluation,
+      approvalRequirements: this.toApprovals(approvals)
+    }))
   }
 
-  private toApprovalRequirementModel(requirements?: ApprovalRequirementsObject) {
-    const satisfied =
-      requirements?.satisfied?.map((approvalRequirement) => ({
-        id: hash(approvalRequirement),
-        ...approvalRequirement
-      })) || []
-
-    return (
-      requirements?.required?.map((requirement) => ({
-        isSatisfied: satisfied.find((s) => s.id === hash(requirement)) ? true : false,
-        ...requirement
-      })) || []
-    )
-  }
-
-  private toApprovalRequirementObject(requirements: ApprovalRequirementModel[]): ApprovalRequirementsObject {
-    const result: Required<ApprovalRequirementsObject> = {
-      required: [],
-      satisfied: [],
-      missing: []
-    }
-
-    requirements.forEach((r) => {
-      const requirement = ApprovalRequirement.parse(r)
-
-      if (r.isSatisfied) {
-        result.satisfied.push(requirement)
-      } else {
-        result.missing.push(requirement)
-      }
-      result.required.push(requirement)
-    })
-
-    return result
-  }
-
-  private toEvaluationLogs(requestId: string, clientId?: string, evaluations?: Evaluation[]) {
+  private toEvaluationLogs({
+    requestId,
+    clientId,
+    evaluations
+  }: {
+    requestId: string
+    clientId?: string
+    evaluations?: Evaluation[]
+  }) {
     if (clientId && evaluations?.length) {
-      return evaluations?.map((e) => {
+      return evaluations.map((e) => {
         const { transactionRequestIntent, approvalRequirements, ...evaluation } = e
 
         return {
           ...evaluation,
           requestId,
           clientId,
-          approvalRequirements: this.toApprovalRequirementModel(approvalRequirements),
           transactionRequestIntent: transactionRequestIntent
             ? JSON.parse(JSON.stringify(transactionRequestIntent))
             : null
@@ -156,6 +127,49 @@ export class AuthorizationRequestRepository {
     }
 
     return []
+  }
+
+  private toApprovalRequirements(evaluations?: Evaluation[]) {
+    return (
+      evaluations?.flatMap((e) => {
+        const { id: evaluationId, approvalRequirements } = e
+
+        const satisfied =
+          approvalRequirements?.satisfied?.map((approvalRequirement) => ({
+            ...approvalRequirement,
+            id: hash(approvalRequirement)
+          })) || []
+
+        return (
+          approvalRequirements?.required?.map((requirement) => ({
+            isSatisfied: satisfied.find((s) => s.id === hash(requirement)) ? true : false,
+            evaluationId,
+            ...requirement
+          })) || []
+        )
+      }) || []
+    )
+  }
+
+  private toApprovals(requirements: ApprovalRequirementModel[]): Approvals {
+    const result: Required<Approvals> = requirements.reduce(
+      (acc, r) => {
+        const requirement = ApprovalRequirement.parse(r)
+
+        if (r.isSatisfied) {
+          acc.satisfied.push(requirement)
+        } else {
+          acc.missing.push(requirement)
+        }
+
+        acc.required.push(requirement)
+
+        return acc
+      },
+      { required: [], satisfied: [], missing: [] } as Required<Approvals>
+    )
+
+    return result
   }
 
   private toErrors(clientId?: string, errors?: AuthorizationRequestError[]) {
@@ -235,18 +249,7 @@ export class AuthorizationRequestRepository {
 
     if (authorizationRequestModel) {
       const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
-
-      const evaluationLogsModel = await this.prismaService.evaluationLog.findMany({
-        where: { requestId: id },
-        include: {
-          approvals: true
-        }
-      })
-
-      const evaluations = evaluationLogsModel.map((e) => ({
-        ...e,
-        approvalRequirements: this.toApprovalRequirementObject(e.approvals)
-      }))
+      const evaluations = await this.getEvaluationLogs(id)
 
       return { ...authRequest, evaluations }
     }

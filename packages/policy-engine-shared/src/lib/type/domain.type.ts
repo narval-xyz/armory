@@ -175,6 +175,11 @@ export const SerializedEvaluationRequest = EvaluationRequest.extend({
 })
 export type SerializedEvaluationRequest = z.infer<typeof SerializedEvaluationRequest>
 
+export const AccessToken = z.object({
+  value: JwtString
+})
+export type AccessToken = z.infer<typeof AccessToken>
+
 export const ApprovalRequirement = z.object({
   approvalCount: z.number().min(0),
   approvalEntityType: z.nativeEnum(EntityType).describe('The number of requried approvals'),
@@ -183,23 +188,18 @@ export const ApprovalRequirement = z.object({
 })
 export type ApprovalRequirement = z.infer<typeof ApprovalRequirement>
 
-export const AccessToken = z.object({
-  value: JwtString
-})
-export type AccessToken = z.infer<typeof AccessToken>
-
-export const ApprovalRequirementsObject = z.object({
+export const Approvals = z.object({
   required: z.array(ApprovalRequirement).optional(),
   missing: z.array(ApprovalRequirement).optional(),
   satisfied: z.array(ApprovalRequirement).optional()
 })
 
-export type ApprovalRequirementsObject = z.infer<typeof ApprovalRequirementsObject>
+export type Approvals = z.infer<typeof Approvals>
 
 export const EvaluationResponse = z.object({
   decision: z.nativeEnum(Decision),
   request: Request.optional(),
-  approvals: ApprovalRequirementsObject.optional(),
+  approvals: Approvals.optional(),
   principal: credentialEntitySchema.optional().describe('The credential identified as the principal in the request'),
   accessToken: AccessToken.optional(),
   transactionRequestIntent: z.unknown().optional(),

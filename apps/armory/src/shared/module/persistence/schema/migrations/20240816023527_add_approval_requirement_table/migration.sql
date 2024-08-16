@@ -10,6 +10,7 @@ CREATE TABLE "approval_requirement" (
     "entity_ids" TEXT[],
     "count_principal" BOOLEAN NOT NULL,
     "is_satisfied" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "approval_requirement_pkey" PRIMARY KEY ("id")
 );

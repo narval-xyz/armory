@@ -130,6 +130,7 @@ model ApprovalRequirement {
   entityIds          String[] @map("entity_ids")
   countPrincipal     Boolean  @map("count_principal")
   isSatisfied        Boolean  @map("is_satisfied")
+  createdAt          DateTime @default(now()) @map("created_at")
 
   evaluationLog EvaluationLog @relation(fields: [evaluationId], references: [id])
 
