@@ -6,7 +6,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@noble/curves": "1.4.0",
+    "@noble/curves": "1.5.0",
     "axios": "1.7.2",
     "jose": "5.5.0",
     "lodash": "4.17.21",
