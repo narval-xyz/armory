@@ -66,10 +66,6 @@ jobs:
         with:
           version: latest
 
-      - name: Install dependencies
-        run: |
-          make install/ci
-
       - name: Code format
         shell: bash
         run: |
