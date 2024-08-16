@@ -13,7 +13,7 @@ describe('generateKeyEncryptionKey', () => {
   })
 
   it('generates a kek with a custom length', () => {
-    const kek = generateKeyEncryptionKey(password, salt, { lenght: 64 })
+    const kek = generateKeyEncryptionKey(password, salt, { length: 64 })
 
     expect(kek.length).toEqual(64)
   })
