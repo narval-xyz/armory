@@ -4,6 +4,7 @@ import {
   Action,
   AuthorizationRequest,
   AuthorizationRequestError,
+  EntityType,
   Evaluation,
   FIXTURE,
   SignTransaction
@@ -116,27 +117,40 @@ describe(AuthorizationRequestRepository.name, () => {
         id: '404853b2-1338-47f5-be17-a1aa78da8010',
         decision: 'Permit',
         signature: 'test-signature',
-        createdAt: new Date()
+        createdAt: new Date(),
+        transactionRequestIntent: {
+          action: Action.SIGN_MESSAGE,
+          nonce: '99',
+          resourceId: '239bb48b-f708-47ba-97fa-ef336be4dffe',
+          message: 'Test request'
+        },
+        approvalRequirements: {
+          required: [
+            {
+              approvalCount: 1,
+              approvalEntityType: EntityType.User,
+              entityIds: [client.id],
+              countPrincipal: true
+            }
+          ],
+          missing: [
+            {
+              approvalCount: 1,
+              approvalEntityType: EntityType.User,
+              entityIds: [client.id],
+              countPrincipal: true
+            }
+          ],
+          satisfied: []
+        }
       }
 
-      await repository.create({
+      const { evaluations } = await repository.create({
         ...signMessageRequest,
         evaluations: [permit]
       })
 
-      const evaluations = await testPrismaService.getClient().evaluationLog.findMany({
-        where: {
-          requestId: signMessageRequest.id
-        }
-      })
-
-      expect(evaluations).toEqual([
-        {
-          ...permit,
-          requestId: signMessageRequest.id,
-          clientId: signMessageRequest.clientId
-        }
-      ])
+      expect(evaluations).toEqual([permit])
     })
 
     it('creates approvals', async () => {
@@ -237,8 +251,28 @@ describe(AuthorizationRequestRepository.name, () => {
         evaluations: [
           {
             id: '404853b2-1338-47f5-be17-a1aa78da8010',
-            decision: 'Permit',
+            decision: 'Confirm',
             signature: 'test-signature',
+            transactionRequestIntent: null,
+            approvalRequirements: {
+              required: [
+                {
+                  approvalCount: 1,
+                  approvalEntityType: EntityType.User,
+                  entityIds: [client.id],
+                  countPrincipal: true
+                }
+              ],
+              missing: [
+                {
+                  approvalCount: 1,
+                  approvalEntityType: EntityType.User,
+                  entityIds: [client.id],
+                  countPrincipal: true
+                }
+              ],
+              satisfied: []
+            },
             createdAt: new Date()
           }
         ]
@@ -251,6 +285,26 @@ describe(AuthorizationRequestRepository.name, () => {
             id: 'cc329386-a2dd-4024-86fd-323a630ed703',
             decision: 'Permit',
             signature: 'test-signature',
+            approvalRequirements: {
+              required: [
+                {
+                  approvalCount: 1,
+                  approvalEntityType: EntityType.User,
+                  entityIds: [client.id],
+                  countPrincipal: true
+                }
+              ],
+              missing: [],
+              satisfied: [
+                {
+                  approvalCount: 1,
+                  approvalEntityType: EntityType.User,
+                  entityIds: [client.id],
+                  countPrincipal: true
+                }
+              ]
+            },
+            transactionRequestIntent: null,
             createdAt: new Date()
           }
         ]
@@ -261,6 +315,14 @@ describe(AuthorizationRequestRepository.name, () => {
       expect(authzRequestOne.evaluations.length).toEqual(1)
       expect(authzRequestTwo.evaluations.length).toEqual(2)
       expect(actual?.evaluations.length).toEqual(2)
+
+      expect(actual?.evaluations[0].approvalRequirements?.required?.length).toEqual(1)
+      expect(actual?.evaluations[0].approvalRequirements?.missing?.length).toEqual(1)
+      expect(actual?.evaluations[0].approvalRequirements?.satisfied?.length).toEqual(0)
+
+      expect(actual?.evaluations[1].approvalRequirements?.required?.length).toEqual(1)
+      expect(actual?.evaluations[1].approvalRequirements?.missing?.length).toEqual(0)
+      expect(actual?.evaluations[1].approvalRequirements?.satisfied?.length).toEqual(1)
     })
 
     it('appends approvals', async () => {

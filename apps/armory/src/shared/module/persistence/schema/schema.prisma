@@ -106,16 +106,35 @@ model AuthorizationRequestError {
 }
 
 model EvaluationLog {
-  id        String   @id @default(uuid()) @db.VarChar(255)
-  clientId  String   @map("client_id")
-  requestId String   @map("request_id")
-  decision  String
-  signature String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id                       String   @id @default(uuid()) @db.VarChar(255)
+  clientId                 String   @map("client_id")
+  requestId                String   @map("request_id")
+  transactionRequestIntent Json?    @map("transaction_request_intent")
+  decision                 String
+  signature                String?
+  createdAt                DateTime @default(now()) @map("created_at")
+
+  approvals ApprovalRequirement[]
 
   request AuthorizationRequest @relation(fields: [requestId], references: [id])
 
   @@map("evaluation_log")
+}
+
+model ApprovalRequirement {
+  id           String @id @default(uuid()) @db.VarChar(255)
+  evaluationId String @map("evaluation_id")
+
+  approvalCount      Int      @map("approval_count")
+  approvalEntityType String   @map("approval_entity_type")
+  entityIds          String[] @map("entity_ids")
+  countPrincipal     Boolean  @map("count_principal")
+  isSatisfied        Boolean  @map("is_satisfied")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  evaluationLog EvaluationLog @relation(fields: [evaluationId], references: [id])
+
+  @@map("approval_requirement")
 }
 
 //

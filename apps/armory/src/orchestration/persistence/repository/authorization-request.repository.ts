@@ -5,10 +5,13 @@ import {
   CreateAuthorizationRequest,
   Evaluation
 } from '@narval/policy-engine-shared'
-import { Injectable } from '@nestjs/common'
+import { hash } from '@narval/signature'
+import { HttpStatus, Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
-import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
+import { decodeAuthorizationRequest, decodeEvaluationLog } from '../decode/authorization-request.decode'
 import { createRequestSchema } from '../schema/request.schema'
 
 @Injectable()
@@ -21,9 +24,8 @@ export class AuthorizationRequestRepository {
     const request = createRequestSchema.parse(input.request)
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
-    const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
-    const model = await this.prismaService.authorizationRequest.create({
+    await this.prismaService.authorizationRequest.create({
       data: {
         id,
         status,
@@ -44,35 +46,115 @@ export class AuthorizationRequestRepository {
           createMany: {
             data: errors
           }
-        },
-        evaluationLog: {
-          createMany: {
-            data: evaluationLogs
-          }
         }
       },
       include: {
         approvals: true,
-        errors: true,
-        evaluationLog: true
+        errors: true
       }
     })
 
-    return decodeAuthorizationRequest(model)
+    await this.createEvaluationLogs({
+      requestId: id,
+      clientId,
+      evaluations: input.evaluations
+    })
+
+    const authRequest = await this.findById(id)
+    if (!authRequest) {
+      throw new ApplicationException({
+        message: 'Authorization request not found',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+    return authRequest
   }
 
-  private toEvaluationLogs(clientId?: string, evaluations?: Evaluation[]) {
+  private async createEvaluationLogs({
+    requestId,
+    clientId,
+    evaluations
+  }: {
+    requestId: string
+    clientId?: string
+    evaluations?: Evaluation[]
+  }) {
+    const evaluationLogs = this.toEvaluationLogs({ requestId, clientId, evaluations })
+    const approvalRequirements = this.toApprovalRequirements(evaluations)
+
+    await this.prismaService.evaluationLog.createMany({
+      data: evaluationLogs
+    })
+
+    await this.prismaService.approvalRequirement.createMany({
+      data: approvalRequirements
+    })
+
+    return this.getEvaluationLogs(requestId)
+  }
+
+  private async getEvaluationLogs(requestId: string) {
+    const evaluationLogs = await this.prismaService.evaluationLog.findMany({
+      where: { requestId },
+      include: {
+        approvals: true
+      }
+    })
+
+    return evaluationLogs.map(decodeEvaluationLog)
+  }
+
+  private toEvaluationLogs({
+    requestId,
+    clientId,
+    evaluations
+  }: {
+    requestId: string
+    clientId?: string
+    evaluations?: Evaluation[]
+  }): Prisma.EvaluationLogCreateManyInput[] {
     if (clientId && evaluations?.length) {
-      return evaluations.map((evaluation) => ({
-        ...evaluation,
-        clientId
-      }))
+      return evaluations.map((e) => {
+        const { transactionRequestIntent, approvalRequirements, ...evaluation } = e
+
+        return {
+          ...evaluation,
+          requestId,
+          clientId,
+          transactionRequestIntent: transactionRequestIntent as Prisma.InputJsonObject | undefined
+        }
+      })
     }
 
     return []
   }
 
-  private toErrors(clientId?: string, errors?: AuthorizationRequestError[]) {
+  private toApprovalRequirements(evaluations?: Evaluation[]): Prisma.ApprovalRequirementCreateManyInput[] {
+    return (
+      evaluations?.flatMap((e) => {
+        const { id: evaluationId, approvalRequirements } = e
+
+        const satisfied =
+          approvalRequirements?.satisfied?.map((approvalRequirement) => ({
+            ...approvalRequirement,
+            id: hash(approvalRequirement)
+          })) || []
+
+        return (
+          approvalRequirements?.required?.map((requirement) => ({
+            isSatisfied: satisfied.find((s) => s.id === hash(requirement)) ? true : false,
+            evaluationId,
+            ...requirement
+          })) || []
+        )
+      }) || []
+    )
+  }
+
+  private toErrors(
+    clientId?: string,
+    errors?: AuthorizationRequestError[]
+  ): Prisma.AuthorizationRequestErrorCreateManyRequestInput[] {
     if (clientId && errors?.length) {
       return errors.map((error) => ({
         id: error.id,
@@ -101,22 +183,15 @@ export class AuthorizationRequestRepository {
     const { id, clientId, status } = input
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
-    const evaluationLogs = this.toEvaluationLogs(clientId, input.evaluations)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
-    const model = await this.prismaService.authorizationRequest.update({
+    await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
         approvals: {
           createMany: {
             data: approvals,
-            skipDuplicates: true
-          }
-        },
-        evaluationLog: {
-          createMany: {
-            data: evaluationLogs,
             skipDuplicates: true
           }
         },
@@ -129,26 +204,43 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
-        evaluationLog: true,
         errors: true
       }
     })
 
-    return decodeAuthorizationRequest(model)
+    await this.createEvaluationLogs({
+      requestId: id,
+      clientId,
+      evaluations: input.evaluations
+    })
+
+    const authRequest = await this.findById(id)
+    if (!authRequest) {
+      throw new ApplicationException({
+        message: 'Authorization request not found',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+    return authRequest
   }
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
-    const model = await this.prismaService.authorizationRequest.findUnique({
+    const authorizationRequestModel = await this.prismaService.authorizationRequest.findUnique({
       where: { id },
       include: {
         approvals: true,
-        evaluationLog: true,
-        errors: true
+        errors: true,
+        evaluationLog: {
+          include: {
+            approvals: true
+          }
+        }
       }
     })
 
-    if (model) {
-      return decodeAuthorizationRequest(model)
+    if (authorizationRequestModel) {
+      const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
+      return authRequest
     }
 
     return null
@@ -163,7 +255,11 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
-        evaluationLog: true,
+        evaluationLog: {
+          include: {
+            approvals: true
+          }
+        },
         errors: true
       }
     })

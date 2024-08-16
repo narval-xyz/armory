@@ -147,6 +147,8 @@ export class AuthorizationRequestService {
           id: uuid(),
           decision: evaluation.decision,
           signature: evaluation.accessToken?.value || null,
+          approvalRequirements: evaluation.approvals,
+          transactionRequestIntent: evaluation.transactionRequestIntent,
           createdAt: new Date()
         }
       ]
