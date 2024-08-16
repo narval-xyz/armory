@@ -13,10 +13,10 @@ export const isolateBuffer = (buffer: Buffer): Buffer => {
 export const generateKeyEncryptionKey = (
   password: string,
   salt: string,
-  options?: { iterations?: number; lenght: number }
+  options?: { iterations?: number; length: number }
 ): Buffer => {
-  const iterations = options?.lenght || 1_000_000
-  const length = options?.lenght || 32
+  const iterations = options?.length || 1_000_000
+  const length = options?.length || 32
 
   const kek = pbkdf2Sync(password.normalize(), salt.normalize(), iterations, length, 'sha256')
 
