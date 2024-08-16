@@ -16,6 +16,14 @@ auth system, able to be deployed in a variety of secure configurations.
 
 ![Armory Stack diagram](./resources/armory-stack.png)
 
+## Requirements
+
+Node.js 21+
+
+Docker
+
+OPA CLI (if not running in Docker) [link](https://www.openpolicyagent.org/docs/latest/#running-opa)
+
 ## Getting started
 
 To setup the project, run the following command:
@@ -42,12 +50,10 @@ make docker/up
 make docker/stop
 ```
 
-Alternatively, you can run the entire stack in Docker containers. This is
-useful when using the MPC as a signing protocol in the Policy Engine.
+Alternatively, you can run the entire development stack in Docker containers.
 
 > [!IMPORTANT]
-> You also need a locally running TSM cluster, which is not included in this
-> repository.
+> This builds a local dev image that mounts your filesystem into the container. Only db schema, dependency, or config changes require re-building. Do not use this build for production.
 
 ```bash
 # Build the application's image.

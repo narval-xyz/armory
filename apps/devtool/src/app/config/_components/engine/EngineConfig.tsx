@@ -11,7 +11,7 @@ const EngineConfig = () => {
   return (
     <div className="flex flex-col gap-[48px]">
       <div className="flex items-center">
-        <div className="text-nv-2xl grow">Policy Engine</div>
+        <div className="text-nv-2xl grow">Policy Engine (if not using Auth)</div>
         <AddEngineClientModal />
       </div>
       <div className="flex flex-col gap-6">
