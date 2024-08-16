@@ -155,12 +155,22 @@ export type AssetTypeAndUnknown = AssetType | Misc.UNKNOWN
 export enum SupportedChains {
   ETHEREUM = 1,
   POLYGON = 137,
-  OPTIMISM = 10
+  OPTIMISM = 10,
+  BNB = 56,
+  FTM = 250,
+  ARBITRUM = 42161,
+  AVALANCHE = 43114,
+  CELO = 42220,
 }
 
 export enum Slip44SupportedAddresses {
   ETH = 60,
-  MATIC = 966
+  MATIC = 966,
+  BNB = 714,
+  FTM = 1007,
+  ARBITRUM = 9001,
+  AVALANCHE = 9000,
+  CELO = 52752,
 }
 export const PERMIT2_ADDRESS = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'

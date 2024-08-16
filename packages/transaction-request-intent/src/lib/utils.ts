@@ -330,7 +330,32 @@ export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
 }
 
 export const nativeCaip19 = (chainId: number): AssetId => {
-  const coinType = chainId === SupportedChains.ETHEREUM ? Slip44SupportedAddresses.ETH : Slip44SupportedAddresses.MATIC
+  let coinType;
+  switch (chainId) {
+    case SupportedChains.CELO:
+      coinType = Slip44SupportedAddresses.CELO
+      break
+    case SupportedChains.BNB:
+      coinType = Slip44SupportedAddresses.BNB
+      break
+    case SupportedChains.AVALANCHE:
+      coinType = Slip44SupportedAddresses.AVALANCHE
+      break
+    case SupportedChains.ARBITRUM:
+      coinType = Slip44SupportedAddresses.ARBITRUM
+      break
+    case SupportedChains.FTM:
+      coinType = Slip44SupportedAddresses.FTM
+      break
+    case SupportedChains.POLYGON:
+      coinType = Slip44SupportedAddresses.MATIC
+      break
+    case SupportedChains.OPTIMISM:
+      coinType = Slip44SupportedAddresses.ETH
+      break
+    default:
+      coinType = Slip44SupportedAddresses.ETH
+  }
   return toAssetId({
     chainId,
     assetType: AssetType.SLIP44,
