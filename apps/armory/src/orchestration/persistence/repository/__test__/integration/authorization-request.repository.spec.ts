@@ -150,13 +150,7 @@ describe(AuthorizationRequestRepository.name, () => {
         evaluations: [permit]
       })
 
-      expect(evaluations).toEqual([
-        {
-          ...permit,
-          requestId: signMessageRequest.id,
-          clientId: signMessageRequest.clientId
-        }
-      ])
+      expect(evaluations).toEqual([permit])
     })
 
     it('creates approvals', async () => {

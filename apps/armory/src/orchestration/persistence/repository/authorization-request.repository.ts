@@ -1,6 +1,4 @@
 import {
-  ApprovalRequirement,
-  Approvals,
   AuthorizationRequest,
   AuthorizationRequestError,
   AuthorizationRequestStatus,
@@ -8,11 +6,12 @@ import {
   Evaluation
 } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
-import { Injectable } from '@nestjs/common'
-import { ApprovalRequirement as ApprovalRequirementModel } from '@prisma/client/armory'
+import { HttpStatus, Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
+import { ApplicationException } from '../../../shared/exception/application.exception'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
-import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
+import { decodeAuthorizationRequest, decodeEvaluationLog } from '../decode/authorization-request.decode'
 import { createRequestSchema } from '../schema/request.schema'
 
 @Injectable()
@@ -26,7 +25,7 @@ export class AuthorizationRequestRepository {
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
 
-    const authorizationRequestModel = await this.prismaService.authorizationRequest.create({
+    await this.prismaService.authorizationRequest.create({
       data: {
         id,
         status,
@@ -55,14 +54,20 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
-    const evaluations = await this.createEvaluationLogs({
+    await this.createEvaluationLogs({
       requestId: id,
       clientId,
       evaluations: input.evaluations
     })
 
-    return { ...authRequest, evaluations }
+    const authRequest = await this.findById(id)
+    if (!authRequest) {
+      throw new ApplicationException({
+        message: 'Authorization request not found',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+    return authRequest
   }
 
   private async createEvaluationLogs({
@@ -96,10 +101,7 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    return evaluationLogs.map(({ approvals, ...evaluation }) => ({
-      ...evaluation,
-      approvalRequirements: this.toApprovals(approvals)
-    }))
+    return evaluationLogs.map(decodeEvaluationLog)
   }
 
   private toEvaluationLogs({
@@ -110,7 +112,7 @@ export class AuthorizationRequestRepository {
     requestId: string
     clientId?: string
     evaluations?: Evaluation[]
-  }) {
+  }): Prisma.EvaluationLogCreateManyInput[] {
     if (clientId && evaluations?.length) {
       return evaluations.map((e) => {
         const { transactionRequestIntent, approvalRequirements, ...evaluation } = e
@@ -119,9 +121,7 @@ export class AuthorizationRequestRepository {
           ...evaluation,
           requestId,
           clientId,
-          transactionRequestIntent: transactionRequestIntent
-            ? JSON.parse(JSON.stringify(transactionRequestIntent))
-            : null
+          transactionRequestIntent: transactionRequestIntent as Prisma.InputJsonObject | undefined
         }
       })
     }
@@ -129,7 +129,7 @@ export class AuthorizationRequestRepository {
     return []
   }
 
-  private toApprovalRequirements(evaluations?: Evaluation[]) {
+  private toApprovalRequirements(evaluations?: Evaluation[]): Prisma.ApprovalRequirementCreateManyInput[] {
     return (
       evaluations?.flatMap((e) => {
         const { id: evaluationId, approvalRequirements } = e
@@ -151,28 +151,10 @@ export class AuthorizationRequestRepository {
     )
   }
 
-  private toApprovals(requirements: ApprovalRequirementModel[]): Approvals {
-    const result: Required<Approvals> = requirements.reduce(
-      (acc, r) => {
-        const requirement = ApprovalRequirement.parse(r)
-
-        if (r.isSatisfied) {
-          acc.satisfied.push(requirement)
-        } else {
-          acc.missing.push(requirement)
-        }
-
-        acc.required.push(requirement)
-
-        return acc
-      },
-      { required: [], satisfied: [], missing: [] } as Required<Approvals>
-    )
-
-    return result
-  }
-
-  private toErrors(clientId?: string, errors?: AuthorizationRequestError[]) {
+  private toErrors(
+    clientId?: string,
+    errors?: AuthorizationRequestError[]
+  ): Prisma.AuthorizationRequestErrorCreateManyRequestInput[] {
     if (clientId && errors?.length) {
       return errors.map((error) => ({
         id: error.id,
@@ -203,7 +185,7 @@ export class AuthorizationRequestRepository {
     const errors = this.toErrors(clientId, input.errors)
 
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
-    const authorizationRequestModel = await this.prismaService.authorizationRequest.update({
+    await this.prismaService.authorizationRequest.update({
       where: { id },
       data: {
         status,
@@ -226,15 +208,20 @@ export class AuthorizationRequestRepository {
       }
     })
 
-    const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
-
-    const evaluations = await this.createEvaluationLogs({
+    await this.createEvaluationLogs({
       requestId: id,
       clientId,
       evaluations: input.evaluations
     })
 
-    return { ...authRequest, evaluations }
+    const authRequest = await this.findById(id)
+    if (!authRequest) {
+      throw new ApplicationException({
+        message: 'Authorization request not found',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+    return authRequest
   }
 
   async findById(id: string): Promise<AuthorizationRequest | null> {
@@ -242,16 +229,18 @@ export class AuthorizationRequestRepository {
       where: { id },
       include: {
         approvals: true,
-        evaluationLog: true,
-        errors: true
+        errors: true,
+        evaluationLog: {
+          include: {
+            approvals: true
+          }
+        }
       }
     })
 
     if (authorizationRequestModel) {
       const authRequest = decodeAuthorizationRequest(authorizationRequestModel)
-      const evaluations = await this.getEvaluationLogs(id)
-
-      return { ...authRequest, evaluations }
+      return authRequest
     }
 
     return null
@@ -266,7 +255,11 @@ export class AuthorizationRequestRepository {
       },
       include: {
         approvals: true,
-        evaluationLog: true,
+        evaluationLog: {
+          include: {
+            approvals: true
+          }
+        },
         errors: true
       }
     })
