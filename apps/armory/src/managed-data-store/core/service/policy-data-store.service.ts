@@ -1,5 +1,4 @@
 import { PolicyStore } from '@narval/policy-engine-shared'
-import { publicKeySchema } from '@narval/signature'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
@@ -36,7 +35,7 @@ export class PolicyDataStoreService extends SignatureService {
 
     await this.verifySignature({
       payload,
-      pubKey: publicKeySchema.parse(client.dataStore.policyPublicKey),
+      keys: client.dataStore.policyPublicKeys,
       date: latestDataStore?.createdAt
     })
 

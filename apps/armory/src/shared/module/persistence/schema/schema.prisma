@@ -27,12 +27,28 @@ model Client {
   clientSecret    String   @map("client_secret")
   dataSecret      String?  @map("data_secret")
   enginePublicKey Json     @map("engine_public_key")
-  entityPublicKey Json     @map("entity_public_key")
-  policyPublicKey Json     @map("policy_public_key")
+  entityPublicKey Json?    @map("entity_public_key") @ignore // deprecated 15-08-2024 @mattschoch, use dataStoreKeys instead
+  policyPublicKey Json?    @map("policy_public_key") @ignore // deprecated 15-08-2024 @mattschoch, use dataStoreKeys instead
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
+  dataStoreKeys DataStoreKey[]
+
   @@map("client")
+}
+
+model DataStoreKey {
+  id        String    @id @default(uuid()) @db.VarChar(255)
+  clientId  String    @map("client_id")
+  storeType String    @map("store_type") // entity or policy
+  publicKey Json      @map("public_key") // JWK of the public key
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@map("data_store_key")
 }
 
 model Engine {

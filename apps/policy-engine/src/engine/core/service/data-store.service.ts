@@ -46,6 +46,13 @@ export class DataStoreService {
     const validation = EntityUtil.validate(entityData.entity.data)
 
     if (validation.success) {
+      if (!entitySignature.entity.signature) {
+        throw new DataStoreException({
+          message: 'Entity data is unsigned',
+          suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+        })
+      }
+
       const signatureVerification = await this.verifySignature({
         data: entityData.entity.data,
         signature: entitySignature.entity.signature,
@@ -77,6 +84,13 @@ export class DataStoreService {
       this.fetchBySource(store.data, PolicyData),
       this.fetchBySource(store.signature, PolicySignature)
     ])
+
+    if (!policySignature.policy.signature) {
+      throw new DataStoreException({
+        message: 'Policy data is unsigned',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    }
 
     const signatureVerification = await this.verifySignature({
       data: policyData.policy.data,

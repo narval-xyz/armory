@@ -16,8 +16,6 @@ const clients: Client[] = [
     clientSecret: secret.hash('client-secret'),
     dataSecret: secret.hash('data-secret'),
     enginePublicKey: {},
-    entityPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
-    policyPublicKey: FIXTURE.EOA_CREDENTIAL.Root.key,
     createdAt: now,
     updatedAt: now
   }
@@ -39,8 +37,20 @@ async function main() {
       data: {
         ...client,
         enginePublicKey: client.enginePublicKey as Prisma.InputJsonValue,
-        policyPublicKey: client.policyPublicKey as Prisma.InputJsonValue,
-        entityPublicKey: client.entityPublicKey as Prisma.InputJsonValue
+        dataStoreKeys: {
+          createMany: {
+            data: [
+              {
+                storeType: 'policy',
+                publicKey: FIXTURE.EOA_CREDENTIAL.Root.key as Prisma.InputJsonValue
+              },
+              {
+                storeType: 'entity',
+                publicKey: FIXTURE.EOA_CREDENTIAL.Root.key as Prisma.InputJsonValue
+              }
+            ]
+          }
+        }
       }
     })
   }

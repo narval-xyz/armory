@@ -40,7 +40,6 @@ export class ClientService {
 
     // For MPC, we need a unique sessionId; we'll just generate it from the data
     // since this isn't tx signing so it happens just once
-    // TODO: Blockdaemon SessionID must not be longer than 28 characters
     const sessionId = hash(input)
     const keypair = await this.signingService.generateKey(keyId, sessionId)
     const signer = {
@@ -48,17 +47,20 @@ export class ClientService {
       ...keypair
     }
 
-    const client = await this.save({
-      clientId,
-      clientSecret,
-      dataStore: {
-        entity: entityDataStore,
-        policy: policyDataStore
+    const client = await this.save(
+      {
+        clientId,
+        clientSecret,
+        dataStore: {
+          entity: entityDataStore,
+          policy: policyDataStore
+        },
+        signer,
+        createdAt: now,
+        updatedAt: now
       },
-      signer,
-      createdAt: now,
-      updatedAt: now
-    })
+      { syncAfter: false } // new clients often won't have data stores configured yet, so require a manual sync after creation.
+    )
 
     return {
       ...client,

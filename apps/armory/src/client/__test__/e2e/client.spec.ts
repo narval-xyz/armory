@@ -47,6 +47,7 @@ const mockPolicyEngineServer = (url: string, clientId: string) => {
   }
 
   nock(url).post('/v1/clients').reply(HttpStatus.CREATED, createClientResponse)
+  nock(url).post('/v1/clients/sync').reply(HttpStatus.OK, { success: true })
 }
 
 describe('Client', () => {
@@ -64,6 +65,7 @@ describe('Client', () => {
   const adminApiKey = 'test-admin-api-key'
 
   const entityStorePublicKey = getPublicKey(privateKeyToJwk(generatePrivateKey()))
+  const entityStorePublicKey2 = getPublicKey(privateKeyToJwk(generatePrivateKey()))
 
   const policyStorePublicKey = getPublicKey(privateKeyToJwk(generatePrivateKey()))
 
@@ -117,7 +119,7 @@ describe('Client', () => {
         entity: {
           data: dataStoreSource,
           signature: dataStoreSource,
-          keys: [entityStorePublicKey]
+          keys: [entityStorePublicKey, entityStorePublicKey2] // test w/ 2 keys
         },
         policy: {
           data: dataStoreSource,
@@ -151,15 +153,15 @@ describe('Client', () => {
         updatedAt: actualClient?.updatedAt.toISOString()
       })
 
-      expect(actualClient?.dataStore.entityPublicKey).toEqual(createClientPayload.dataStore.entity.keys[0])
-      expect(actualClient?.dataStore.policyPublicKey).toEqual(createClientPayload.dataStore.policy.keys[0])
+      expect(actualClient?.dataStore.entityPublicKeys).toEqual(createClientPayload.dataStore.entity.keys)
+      expect(actualClient?.dataStore.policyPublicKeys).toEqual(createClientPayload.dataStore.policy.keys)
 
       expect(status).toEqual(HttpStatus.CREATED)
     })
 
     it('creates a new client with given policy engines', async () => {
       mockPolicyEngineServer(policyEngineNodeUrl, clientId)
-      mockPolicyEngineServer(policyEngineNodeUrl, clientId)
+      mockPolicyEngineServer(policyEngineNodeUrl, clientId) // second mock is required because it gets called twice since we duplicate the url; test will fail if you delete this.
 
       const createClientWithGivenPolicyEngine: CreateClientRequestDto = {
         ...createClientPayload,

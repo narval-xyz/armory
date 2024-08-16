@@ -33,8 +33,8 @@ export const Client = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   dataStore: z.object({
-    entityPublicKey: jwkSchema,
-    policyPublicKey: jwkSchema
+    entityPublicKeys: z.array(jwkSchema).min(1),
+    policyPublicKeys: z.array(jwkSchema).min(1)
   }),
   policyEngine: z.object({
     nodes: z.array(PolicyEngineNode)

@@ -46,8 +46,8 @@ describe(DataStoreGuard.name, () => {
       clientSecret: secret.hash(clientSecret),
       dataSecret: secret.hash(dataSecret),
       dataStore: {
-        entityPublicKey: publicKey,
-        policyPublicKey: publicKey
+        entityPublicKeys: [publicKey],
+        policyPublicKeys: [publicKey]
       },
       policyEngine: {
         nodes: [

@@ -70,7 +70,8 @@ vault/db/create-migration:
 	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
 		prisma migrate dev \
 			--schema ${VAULT_DATABASE_SCHEMA} \
-			--name ${NAME}
+			--name ${NAME} \
+			--create-only
 
 vault/db/seed:
 	npx dotenv -e ${VAULT_PROJECT_DIR}/.env -- \
