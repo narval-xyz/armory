@@ -4,10 +4,13 @@ import * as chainObject from 'viem/chains'
 import { registeredCoinTypes } from 'slip44';
 import { HttpStatus } from '@nestjs/common';
 import { ChainRegistry } from '@narval/transaction-request-intent';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const buildNativeSlip44 = (): ChainRegistry => {
   const chains = Object.values(chainObject);
 
+  let count = 0;
   const chainRegistry: ChainRegistry = new Map();
   chains.forEach((chain) => {
     const tokenSlip44 = registeredCoinTypes.find(([
@@ -23,16 +26,24 @@ export const buildNativeSlip44 = (): ChainRegistry => {
         nativeSlip44: tokenSlip44[0],
       });
     } else {
-      console.warn(`Slip44 not found for native token: ${chain.nativeCurrency.symbol}`);
+      console.error(`Slip44 not found for native token: ${chain.nativeCurrency.symbol}`);
+      count++;
     }
   });
 
+  console.log(`Slip44 not found for ${count} native tokens`);
   return chainRegistry;
 }
 
 const main = () => {
+  const fileName = 'chain-registry.json';
+  const relativePath = '../resource';
+  const filePath = path.resolve(__dirname, relativePath, fileName);
+
   const registry = buildNativeSlip44();
-  console.log(registry);
+  const obj = Object.fromEntries(registry);
+  fs.writeFileSync(filePath, JSON.stringify(obj, null, 2), 'utf8');
+  console.log(`JSON written to ${filePath}`);
 };
 
 main();
