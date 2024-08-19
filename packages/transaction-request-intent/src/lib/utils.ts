@@ -18,6 +18,7 @@ import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
   AssetTypeAndUnknown,
+  ChainRegistry,
   ContractCallInput,
   ContractInformation,
   ContractRegistry,
@@ -28,8 +29,6 @@ import {
   NULL_METHOD_ID,
   NativeTransferInput,
   PERMIT2_DOMAIN,
-  Slip44SupportedAddresses,
-  SupportedChains,
   TransactionCategory,
   TransactionKey,
   TransactionRegistry,
@@ -329,38 +328,17 @@ export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
   return Intents.TRANSFER_NATIVE
 }
 
-export const nativeCaip19 = (chainId: number): AssetId => {
-  let coinType;
-  switch (chainId) {
-    case SupportedChains.CELO:
-      coinType = Slip44SupportedAddresses.CELO
-      break
-    case SupportedChains.BNB:
-      coinType = Slip44SupportedAddresses.BNB
-      break
-    case SupportedChains.AVALANCHE:
-      coinType = Slip44SupportedAddresses.AVALANCHE
-      break
-    case SupportedChains.ARBITRUM:
-      coinType = Slip44SupportedAddresses.ARBITRUM
-      break
-    case SupportedChains.FTM:
-      coinType = Slip44SupportedAddresses.FTM
-      break
-    case SupportedChains.POLYGON:
-      coinType = Slip44SupportedAddresses.MATIC
-      break
-    case SupportedChains.OPTIMISM:
-      coinType = Slip44SupportedAddresses.ETH
-      break
-    default:
-      coinType = Slip44SupportedAddresses.ETH
+export const nativeCaip19 = (chainId: number, registry: ChainRegistry): AssetId => {
+  const chain = registry.get(chainId)
+  if (chain?.nativeSlip44 !== undefined) {
+    return toAssetId({
+      chainId,
+      assetType: AssetType.SLIP44,
+      namespace: Namespace.EIP155,
+      coinType: chain.nativeSlip44
+    })
   }
-  return toAssetId({
-    chainId,
-    assetType: AssetType.SLIP44,
-    coinType
-  })
+  throw new DecoderError({ message: 'Chain not supported', status: 400 })
 }
 
 export const getMethod = (methodId: SupportedMethodId, supportedMethods: MethodsMapping) => {

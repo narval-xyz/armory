@@ -12,6 +12,7 @@ import {
 } from '../../domain'
 import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
+  defaultChainRegistry,
   mockCancelTransaction,
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
@@ -128,6 +129,35 @@ describe('decode', () => {
           hexSignature: '0xf2d12b12'
         })
       })
+      it('decodes a native transfer using config', () => {
+
+        const registry = defaultChainRegistry()
+        registry.forEach((data, chainId) => {
+          const decoded = decode({
+            input: {
+              type: InputType.TRANSACTION_REQUEST,
+              txRequest: {
+                to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
+                value: '0x4124',
+                from: '0xEd123cf8e3bA51c6C15DA1eAc74B2b5DEEA31448',
+                chainId,
+                nonce: 10
+              }
+            },
+            config: {
+              chainRegistry: registry
+            }
+          })
+          expect(decoded).toEqual({
+            type: Intents.TRANSFER_NATIVE,
+            to: `eip155:${chainId}:0x031d8c0ca142921c459bcb28104c0ff37928f9ed`,
+            from: `eip155:${chainId}:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448`,
+            amount: '16676',
+            token: `eip155:${chainId}/slip44:${data.nativeSlip44}`
+          })
+        })
+        expect.assertions(registry.size)
+      })
     })
     describe('transaction management', () => {
       // SET A FAILED TO TRANSACTION ON FIRST MOCK DATA
@@ -151,7 +181,8 @@ describe('decode', () => {
             txRequest: mockErc20Transfer.input.txRequest
           },
           config: {
-            transactionRegistry: trxRegistry
+            transactionRegistry: trxRegistry,
+            chainRegistry: defaultChainRegistry()
           }
         })
         expect(decoded).toEqual({
@@ -216,7 +247,9 @@ describe('decode', () => {
             }
           },
           config: {
-            contractRegistry
+            contractRegistry,
+            chainRegistry: defaultChainRegistry()
+
           }
         })
         expect(decoded).toEqual({
@@ -236,7 +269,8 @@ describe('decode', () => {
             }
           },
           config: {
-            contractRegistry
+            contractRegistry,
+            chainRegistry: defaultChainRegistry()
           }
         })
         expect(decoded).toEqual({
@@ -257,7 +291,8 @@ describe('decode', () => {
             }
           },
           config: {
-            contractRegistry
+            contractRegistry,
+            chainRegistry: defaultChainRegistry()
           }
         })
         expect(decoded).toEqual({

@@ -1,4 +1,4 @@
-import { ApplicationException } from '../../../shared/exception/application.exception'
+import { ApplicationException } from '../../exception/application.exception'
 import { extractChain } from 'viem'
 import * as chainObject from 'viem/chains'
 import { registeredCoinTypes } from 'slip44';
@@ -26,7 +26,11 @@ export const buildNativeSlip44 = (): ChainRegistry => {
         nativeSlip44: tokenSlip44[0],
       });
     } else {
-      console.error(`Slip44 not found for native token: ${chain.nativeCurrency.symbol}`);
+      console.error(`Slip44 not found for native token: ${JSON.stringify({
+        symbol: chain.nativeCurrency.symbol,
+        chainId: chain.id,
+        name: chain.name
+      }, null, 2)}`);
       count++;
     }
   });

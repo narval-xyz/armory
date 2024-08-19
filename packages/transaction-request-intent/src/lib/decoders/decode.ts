@@ -1,4 +1,6 @@
+import { defaultChainRegistry } from '../__test__/unit/mocks'
 import {
+  ChainRegistry,
   Config,
   ContractCallInput,
   ContractRegistry,
@@ -42,8 +44,9 @@ import { decodeNativeTransfer } from './transaction/native/NativeTransferDecoder
 
 const defaultConfig: Config = {
   supportedMethods: SUPPORTED_METHODS,
+  chainRegistry: defaultChainRegistry(),
   contractRegistry: undefined,
-  transactionRegistry: undefined
+  transactionRegistry: undefined,
 }
 
 const decodeContractCall = (input: ContractCallInput, intent: Intents, supportedMethods: MethodsMapping) => {
@@ -70,6 +73,7 @@ const decodeContractCall = (input: ContractCallInput, intent: Intents, supported
 const decodeTransactionInput = (
   input: TransactionInput,
   supportedMethods: MethodsMapping,
+  chains: ChainRegistry,
   contractRegistry?: ContractRegistry
 ) => {
   const { txRequest } = input
@@ -80,7 +84,7 @@ const decodeTransactionInput = (
   switch (category) {
     case TransactionCategory.NATIVE_TRANSFER: {
       const validatedTxRequest = validateNativeTransferInput(txRequest)
-      return decodeNativeTransfer(validatedTxRequest)
+      return decodeNativeTransfer(validatedTxRequest, chains)
     }
     case TransactionCategory.CONTRACT_INTERACTION: {
       const validatedTxRequest = validateContractInteractionInput(txRequest, methodId)
@@ -139,10 +143,10 @@ const decodeTypedDataInput = (input: TypedDataInput): TypedDataIntent => {
 }
 
 const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?: Config }): Intent => {
-  const { supportedMethods = SUPPORTED_METHODS, contractRegistry, transactionRegistry } = config
+  const { supportedMethods = SUPPORTED_METHODS, chainRegistry = defaultChainRegistry(), contractRegistry, transactionRegistry } = config
   switch (input.type) {
     case InputType.TRANSACTION_REQUEST: {
-      const decoded = decodeTransactionInput(input, supportedMethods, contractRegistry)
+      const decoded = decodeTransactionInput(input, supportedMethods, chainRegistry, contractRegistry)
       return wrapTransactionManagementIntents(decoded, input, transactionRegistry)
     }
     case InputType.TYPED_DATA:

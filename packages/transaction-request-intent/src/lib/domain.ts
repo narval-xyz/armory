@@ -47,9 +47,10 @@ export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
 
 type ChainId = number
 type ChainData = {
-  nativeSlip44: number
+  nativeSlip44?: number
 }
-export type ChainRegistry = Map<ChainId, ChainData>
+
+export class ChainRegistry extends Map<ChainId, ChainData> {}
 
 export type TransactionInput = {
   type: InputType.TRANSACTION_REQUEST
@@ -89,7 +90,7 @@ export type Config = {
   contractRegistry?: ContractRegistry
   transactionRegistry?: TransactionRegistry
   supportedMethods?: MethodsMapping
-  chains?: ChainRegistry
+  chainRegistry?: ChainRegistry
 }
 export type DecodeInput = TransactionInput | MessageInput | RawInput | TypedDataInput
 

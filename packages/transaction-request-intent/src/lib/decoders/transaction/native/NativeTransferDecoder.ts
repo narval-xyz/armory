@@ -1,8 +1,8 @@
-import { Intents, NativeTransferInput } from '../../../domain'
+import { ChainRegistry, Intents, NativeTransferInput } from '../../../domain'
 import { CancelTransaction, TransferNative } from '../../../intent.types'
 import { checkCancelTransaction, nativeCaip19, toChainAccountIdLowerCase } from '../../../utils'
 
-export const decodeNativeTransfer = (input: NativeTransferInput): TransferNative | CancelTransaction => {
+export const decodeNativeTransfer = (input: NativeTransferInput, chains: ChainRegistry): TransferNative | CancelTransaction => {
   const intentType = checkCancelTransaction(input)
   if (intentType === Intents.CANCEL_TRANSACTION) {
     return { type: intentType }
@@ -19,6 +19,6 @@ export const decodeNativeTransfer = (input: NativeTransferInput): TransferNative
     }),
     type: Intents.TRANSFER_NATIVE,
     amount: Number(input.value).toString(),
-    token: nativeCaip19(input.chainId)
+    token: nativeCaip19(input.chainId, chains)
   }
 }
