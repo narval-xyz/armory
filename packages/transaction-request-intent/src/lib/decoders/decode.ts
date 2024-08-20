@@ -1,21 +1,23 @@
-import { defaultChainRegistry } from '../__test__/unit/mocks'
+import { toChainAccountId } from '@narval/policy-engine-shared'
+import { CHAINS } from '../__test__/default-chains'
 import {
-  ChainRegistry,
   Config,
+  ConfigInput,
   ContractCallInput,
-  ContractRegistry,
   DecodeInput,
   InputType,
   Intents,
   SafeDecodeOutput,
   TransactionCategory,
   TransactionInput,
-  TransactionRegistry,
   TransactionStatus,
   TypedDataInput
 } from '../domain'
 import { DecoderError } from '../error'
 import { Intent, TypedDataIntent } from '../intent.types'
+import { ChainRegistry } from '../registry/chain-registry'
+import { ContractRegistry } from '../registry/contract-registry'
+import { TransactionKey, TransactionRegistry } from '../registry/transaction-registry'
 import { MethodsMapping, SUPPORTED_METHODS } from '../supported-methods'
 import { isSupportedMethodId } from '../typeguards'
 import {
@@ -25,8 +27,7 @@ import {
   decodeTypedData,
   getCategory,
   getMethodId,
-  getTransactionIntentType,
-  transactionLookup
+  getTransactionIntentType
 } from '../utils'
 import {
   validateContractDeploymentInput,
@@ -41,13 +42,6 @@ import { decodeErc20Transfer } from './transaction/interaction/Erc20TransferDeco
 import { decodeErc721Transfer } from './transaction/interaction/Erc721TransferDecoder'
 import { decodeUserOperation } from './transaction/interaction/UserOperationDecoder'
 import { decodeNativeTransfer } from './transaction/native/NativeTransferDecoder'
-
-const defaultConfig: Config = {
-  supportedMethods: SUPPORTED_METHODS,
-  chainRegistry: defaultChainRegistry(),
-  contractRegistry: undefined,
-  transactionRegistry: undefined,
-}
 
 const decodeContractCall = (input: ContractCallInput, intent: Intents, supportedMethods: MethodsMapping) => {
   if (!isSupportedMethodId(input.methodId)) {
@@ -108,9 +102,17 @@ const wrapTransactionManagementIntents = (
   transactionRegistry?: TransactionRegistry
 ): Intent => {
   const { txRequest } = input
-  if (!transactionRegistry || !txRequest.nonce || intent.type === Intents.CANCEL_TRANSACTION) return intent
-  const trxStatus = transactionLookup(txRequest, transactionRegistry)
-  if (trxStatus === TransactionStatus.PENDING) {
+  if (
+    !transactionRegistry ||
+    transactionRegistry.size === 0 ||
+    !txRequest.nonce ||
+    intent.type === Intents.CANCEL_TRANSACTION
+  )
+    return intent
+  const { chainId, from, nonce } = txRequest
+  const key = TransactionKey.parse([toChainAccountId({ chainId, address: from }), nonce])
+  const trxStatus = transactionRegistry.get(key)
+  if (trxStatus === TransactionStatus.FAILED) {
     return {
       type: Intents.RETRY_TRANSACTION
     }
@@ -142,8 +144,22 @@ const decodeTypedDataInput = (input: TypedDataInput): TypedDataIntent => {
   }
 }
 
-const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?: Config }): Intent => {
-  const { supportedMethods = SUPPORTED_METHODS, chainRegistry = defaultChainRegistry(), contractRegistry, transactionRegistry } = config
+export const prepareConfig = (config: ConfigInput): Config => {
+  const { chainRegistryInput, contractRegistryInput, transactionRegistryInput, supportedMethods } = config
+  const chainRegistry = new ChainRegistry(chainRegistryInput || CHAINS)
+  const contractRegistry = new ContractRegistry(contractRegistryInput)
+  const transactionRegistry = new TransactionRegistry(transactionRegistryInput)
+  return {
+    chainRegistry,
+    contractRegistry,
+    transactionRegistry,
+    supportedMethods: supportedMethods || SUPPORTED_METHODS
+  }
+}
+
+const decode = ({ input, configInput = {} }: { input: DecodeInput; configInput?: ConfigInput }): Intent => {
+  const { chainRegistry, contractRegistry, transactionRegistry, supportedMethods } = prepareConfig(configInput)
+
   switch (input.type) {
     case InputType.TRANSACTION_REQUEST: {
       const decoded = decodeTransactionInput(input, supportedMethods, chainRegistry, contractRegistry)
@@ -164,9 +180,15 @@ const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?
   }
 }
 
-const safeDecode = ({ input, config = defaultConfig }: { input: DecodeInput; config?: Config }): SafeDecodeOutput => {
+const safeDecode = ({
+  input,
+  configInput = {}
+}: {
+  input: DecodeInput
+  configInput?: ConfigInput
+}): SafeDecodeOutput => {
   try {
-    const intent = decode({ input, config })
+    const intent = decode({ input, configInput })
     return {
       success: true,
       intent

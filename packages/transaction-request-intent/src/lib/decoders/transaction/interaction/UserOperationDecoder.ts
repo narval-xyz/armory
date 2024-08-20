@@ -27,7 +27,7 @@ const decodeExecute = (callData: Hex, from: Address, chainId: number, supportedM
         chainId
       }
     },
-    config: {
+    configInput: {
       supportedMethods
     }
   })
@@ -54,7 +54,7 @@ const decodeExecuteAndRevert = (
         chainId
       }
     },
-    config: {
+    configInput: {
       supportedMethods
     }
   })

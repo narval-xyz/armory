@@ -1,14 +1,9 @@
-import {
-  Address,
-  AssetId,
-  AssetType,
-  ChainAccountId,
-  Hex,
-  TransactionRequest,
-  type Eip712TypedData
-} from '@narval/policy-engine-shared'
+import { Address, AssetType, Hex, TransactionRequest, type Eip712TypedData } from '@narval/policy-engine-shared'
 import { Alg } from '@narval/signature'
 import { Intent } from './intent.types'
+import { ChainRegistry, ChainRegistryInput } from './registry/chain-registry'
+import { ContractRegistry, ContractRegistryInput } from './registry/contract-registry'
+import { TransactionRegistry, TransactionRegistryInput } from './registry/transaction-registry'
 import { MethodsMapping } from './supported-methods'
 
 export type Raw = {
@@ -30,27 +25,6 @@ export type TypedDataInput = {
   type: InputType.TYPED_DATA
   typedData: Eip712TypedData
 }
-
-export type ContractInformation = {
-  factoryType: WalletType
-  assetType: AssetType
-}
-export type ContractRegistryInput = {
-  contract: ChainAccountId | { address: Address; chainId: number }
-  assetType?: AssetType
-  factoryType?: WalletType
-}[]
-export type ContractRegistry = Map<ChainAccountId, ContractInformation>
-
-export type TransactionKey = `${ChainAccountId}-${number}`
-export type TransactionRegistry = Map<TransactionKey, TransactionStatus>
-
-type ChainId = number
-type ChainData = {
-  nativeSlip44?: number
-}
-
-export class ChainRegistry extends Map<ChainId, ChainData> {}
 
 export type TransactionInput = {
   type: InputType.TRANSACTION_REQUEST
@@ -86,12 +60,20 @@ export type ValidatedInput = ContractCallInput | NativeTransferInput | ContractD
 export type ContractInteractionDecoder = (input: ContractCallInput) => Intent
 export type NativeTransferDecoder = (input: NativeTransferInput) => Intent
 
-export type Config = {
-  contractRegistry?: ContractRegistry
-  transactionRegistry?: TransactionRegistry
+export type ConfigInput = {
+  contractRegistryInput?: ContractRegistryInput
+  transactionRegistryInput?: TransactionRegistryInput
   supportedMethods?: MethodsMapping
-  chainRegistry?: ChainRegistry
+  chainRegistryInput?: ChainRegistryInput
 }
+
+export type Config = {
+  contractRegistry: ContractRegistry
+  transactionRegistry: TransactionRegistry
+  supportedMethods: MethodsMapping
+  chainRegistry: ChainRegistry
+}
+
 export type DecodeInput = TransactionInput | MessageInput | RawInput | TypedDataInput
 
 type DecodeSuccess = {

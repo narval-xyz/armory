@@ -5,10 +5,10 @@ import {
   getAssetId,
   getChainAccountId
 } from '@narval/policy-engine-shared'
-import { ChainRegistry, DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
+import { DecodeInput, InputType, Intents, TransactionInput } from '../../domain'
 import { TransferErc1155, TransferErc20, TransferErc721, TransferNative } from '../../intent.types'
-import { registeredCoinTypes } from 'slip44';
-import { chains } from '../default-chains';
+import { ChainRegistry } from '../../registry/chain-registry'
+import { CHAINS } from '../default-chains'
 
 export const ONE_ETH = BigInt('1000000000000000000')
 
@@ -378,9 +378,9 @@ export const mockCancelTransaction: DecodeInput = {
 }
 
 export const defaultChainRegistry = (): ChainRegistry => {
-  const chainRegistry = new ChainRegistry();
-  for (const [key, value] of Object.entries(chains)) {
-    chainRegistry.set(+key, value);
+  const chainRegistry = new ChainRegistry()
+  for (const [key, value] of Object.entries(CHAINS)) {
+    chainRegistry.set(+key, value)
   }
-  return chainRegistry;
+  return chainRegistry
 }

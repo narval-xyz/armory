@@ -1,5 +1,7 @@
-import { ContractDeploymentInput, ContractRegistry, Intents, WalletType } from '../../../domain'
+import { Hex } from '@narval/signature'
+import { ContractDeploymentInput, Intents, WalletType } from '../../../domain'
 import { DeployContract, DeployErc4337Wallet, DeploySafeWallet } from '../../../intent.types'
+import { ContractRegistry } from '../../../registry/contract-registry'
 import { contractTypeLookup, toChainAccountIdLowerCase } from '../../../utils'
 
 type DeploymentIntent = DeployContract | DeployErc4337Wallet | DeploySafeWallet
@@ -9,7 +11,7 @@ export const decodeContractDeployment = (
   registry?: ContractRegistry
 ): DeploymentIntent => {
   const { from, chainId, data } = input
-  const fromType = contractTypeLookup(chainId, from, registry)
+  const fromType = contractTypeLookup(chainId, from.toLowerCase() as Hex, registry)
 
   if (fromType?.factoryType === WalletType.SAFE) {
     // Return a DeploySafeWallet object

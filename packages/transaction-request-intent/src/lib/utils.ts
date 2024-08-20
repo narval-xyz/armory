@@ -7,38 +7,28 @@ import {
   Eip712TypedData,
   Hex,
   Namespace,
-  TransactionRequest,
   assertHexString,
-  isAddress,
-  isChainAccountId,
-  isString,
   toAssetId,
-  toChainAccountId} from '@narval/policy-engine-shared'
+  toChainAccountId
+} from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
-  AssetTypeAndUnknown,
-  ChainRegistry,
   ContractCallInput,
-  ContractInformation,
-  ContractRegistry,
-  ContractRegistryInput,
   Intents,
   MessageInput,
-  Misc,
   NULL_METHOD_ID,
   NativeTransferInput,
   PERMIT2_DOMAIN,
   TransactionCategory,
-  TransactionKey,
-  TransactionRegistry,
-  TransactionStatus,
   WalletType
 } from './domain'
 import { DecoderError } from './error'
 import { Permit, Permit2, SignMessage, SignTypedData } from './intent.types'
+import { ChainId, ChainRegistry } from './registry/chain-registry'
+import { ContractInformation, ContractRegistry } from './registry/contract-registry'
 import { MethodsMapping, SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
-import { isAssetType, isPermit, isPermit2, isSupportedMethodId } from './typeguards'
+import { isPermit, isPermit2, isSupportedMethodId } from './typeguards'
 
 export const getMethodId = (data?: string): Hex => {
   if (!data || data === '0x') {
@@ -64,73 +54,11 @@ export const getCategory = (methodId: Hex, to?: Hex | null, value?: Hex | null):
   return TransactionCategory.CONTRACT_INTERACTION
 }
 
-export const buildContractRegistryEntry = ({
-  chainId,
-  contractAddress,
-  assetType
-}: {
-  chainId: number
-  contractAddress: string
-  assetType: string
-}): { [key: ChainAccountId]: AssetTypeAndUnknown } => {
-  const registry: { [key: ChainAccountId]: AssetTypeAndUnknown } = {}
-  if (!isAddress(contractAddress) || !isAssetType(assetType)) {
-    throw new DecoderError({ message: 'Invalid contract registry entry', status: 400 })
-  }
-  const key = buildContractKey(chainId, contractAddress as Address)
-  registry[key] = assetType
-  return registry
-}
-
-export const buildContractRegistry = (input: ContractRegistryInput): ContractRegistry => {
-  const registry = new Map()
-  input.forEach(({ contract, assetType, factoryType }) => {
-    const information = {
-      assetType: assetType || Misc.UNKNOWN,
-      factoryType: factoryType || WalletType.UNKNOWN
-    }
-    if (isString(contract)) {
-      if (!isChainAccountId(contract)) {
-        throw new DecoderError({
-          message: 'Contract registry key is not a valid Caip10',
-          status: 400,
-          context: { contract, input }
-        })
-      }
-      registry.set(contract.toLowerCase(), information)
-    } else {
-      const key = buildContractKey(contract.chainId, contract.address)
-      registry.set(key, information)
-    }
-  })
-  return registry
-}
-
 export const buildContractKey = (
   chainId: number,
   contractAddress: Hex,
   namespace: Namespace = Namespace.EIP155
 ): ChainAccountId => toChainAccountId({ namespace, chainId, address: contractAddress })
-
-export const checkContractRegistry = (registry: Record<string, string>) => {
-  Object.keys(registry).forEach((key) => {
-    if (!isChainAccountId(key)) {
-      throw new DecoderError({
-        message: 'Invalid contract registry key',
-        status: 400,
-        context: { key, value: registry[key] }
-      })
-    }
-    if (!isAssetType(registry[key])) {
-      throw new DecoderError({
-        message: 'Invalid contract registry value',
-        status: 400,
-        context: { key, value: registry[key] }
-      })
-    }
-  })
-  return true
-}
 
 export const contractTypeLookup = (
   chainId: number,
@@ -143,32 +71,6 @@ export const contractTypeLookup = (
     return value
   }
   return undefined
-}
-
-export const buildTransactionKey = (txRequest: TransactionRequest): TransactionKey => {
-  if (!txRequest.nonce) {
-    throw new DecoderError({ message: 'nonce needed to build transaction key', status: 400 })
-  }
-  const account = toChainAccountId({
-    chainId: txRequest.chainId,
-    address: txRequest.from,
-    namespace: Namespace.EIP155
-  })
-  return `${account}-${txRequest.nonce}`
-}
-
-export type TransactionRegistryInput = {
-  txRequest: TransactionRequest
-  status: TransactionStatus
-}[]
-
-export const buildTransactionRegistry = (input: TransactionRegistryInput): TransactionRegistry => {
-  const registry = new Map()
-  input.forEach(({ txRequest, status }) => {
-    const key = buildTransactionKey(txRequest)
-    registry.set(key, status)
-  })
-  return registry
 }
 
 export const decodeTypedData = (typedData: Eip712TypedData): SignTypedData => ({
@@ -244,17 +146,6 @@ export const decodePermit2 = (typedData: Eip712TypedData): Permit2 | null => {
   }
 }
 
-export const transactionLookup = (
-  txRequest: TransactionRequest,
-  transactionRegistry?: TransactionRegistry
-): TransactionStatus | undefined => {
-  const key: TransactionKey = buildTransactionKey(txRequest)
-  if (transactionRegistry) {
-    return transactionRegistry.get(key)
-  }
-  return undefined
-}
-
 export const getTransactionIntentType = ({
   methodId,
   txRequest,
@@ -328,7 +219,7 @@ export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
   return Intents.TRANSFER_NATIVE
 }
 
-export const nativeCaip19 = (chainId: number, registry: ChainRegistry): AssetId => {
+export const nativeCaip19 = (chainId: ChainId, registry: ChainRegistry): AssetId => {
   const chain = registry.get(chainId)
   if (chain?.nativeSlip44 !== undefined) {
     return toAssetId({
