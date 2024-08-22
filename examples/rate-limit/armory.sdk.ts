@@ -2,46 +2,47 @@ import {
   AuthAdminClient,
   AuthConfig,
   DataStoreConfig,
+  Hex,
   VaultAdminClient,
   VaultConfig,
-  createHttpDataStore
-} from '@narval/armory-sdk'
+  buildSignerForAlg,
+  createHttpDataStore,
+  getPublicKey,
+  privateKeyToJwk
+} from '@narval-xyz/armory-sdk'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 
-import { Hex } from '../../packages/policy-engine-shared/src'
-import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const getAuthHost = () => 'http://localhost:3005'
-const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const getVaultHost = () => 'http://localhost:3011'
-const getVaultAdminApiKey = () => 'vault-admin-api-key'
+const authHost = process.env.AUTH_HOST
+const vaultHost = process.env.VAULT_HOST
+const authAdminApiKey = process.env.AUTH_API_KEY
+const vaultAdminApiKey = process.env.VAULT_API_KEY
+if (!authHost || !vaultHost || !authAdminApiKey || !vaultAdminApiKey) {
+  throw new Error('Missing environment variables')
+}
 
 const createClient = async (SYSTEM_MANAGER_KEY: Hex) => {
+
+
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
-    host: getAuthHost(),
-    adminApiKey: getAuthAdminApiKey()
+    host: authHost,
+    adminApiKey: authAdminApiKey
   })
   const vaultAdminClient = new VaultAdminClient({
-    host: getVaultHost(),
-    adminApiKey: getVaultAdminApiKey()
+    host: vaultHost,
+    adminApiKey: vaultAdminApiKey
   })
 
-  const acc = privateKeyToAccount(SYSTEM_MANAGER_KEY);
-  console.log('###acc', acc)
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
-  console.log("###Jwk", jwk)
   const publicKey = getPublicKey(jwk)
 
-  console.log
 
   const authClient = await authAdminClient.createClient({
     id: clientId,
     name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
     dataStore: createHttpDataStore({
-      host: getAuthHost(),
+      host: authHost,
       clientId,
       keys: [publicKey]
     }),
@@ -59,9 +60,6 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex) => {
 }
 
 export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
-  const authHost = getAuthHost()
-  const vaultHost = getVaultHost()
-
   const { clientId } = await createClient(SYSTEM_MANAGER_KEY)
 
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
@@ -70,7 +68,7 @@ export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
     clientId,
     signer: {
       jwk,
-      alg: SigningAlg.ES256K,
+      alg: 'ES256K',
       sign: await buildSignerForAlg(jwk)
     }
   }
@@ -80,7 +78,7 @@ export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
     clientId,
     signer: {
       jwk,
-      alg: SigningAlg.ES256K,
+      alg: 'ES256K',
       sign: await buildSignerForAlg(jwk)
     }
   }
@@ -90,7 +88,7 @@ export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
     clientId,
     signer: {
       jwk,
-      alg: SigningAlg.ES256K,
+      alg: 'ES256K',
       sign: await buildSignerForAlg(jwk)
     }
   }
@@ -100,7 +98,7 @@ export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
     clientId,
     signer: {
       jwk,
-      alg: SigningAlg.ES256K,
+      alg: 'ES256K',
       sign: await buildSignerForAlg(jwk)
     }
   }

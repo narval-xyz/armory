@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import 'dotenv/config'
 import fs from 'fs'
-import { hexSchema } from '../../packages/policy-engine-shared/src'
 import { armoryClient } from './armory.account'
 import { setInitialState } from './armory.data'
 import { getArmoryConfig } from './armory.sdk'
 import { privateKeyToHex } from '@narval-xyz/armory-sdk/signature'
 import { Hex } from '@narval-xyz/armory-sdk'
+import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
 
 const main = async () => {
   console.log('Starting...')
@@ -36,20 +36,16 @@ const main = async () => {
   const policySigner = await privateKeyToHex(config.policyStore.signer?.jwk)
 
   const envVariables = {
-    VAULT_HOST: 'http://localhost:3011',
     VAULT_CLIENT_ID: config.vault.clientId,
     VAULT_SIGNER: vaultSigner,
-    AUTH_HOST: 'http://localhost:3005',
     AUTH_CLIENT_ID: config.auth.clientId,
     AUTH_SIGNER: authSigner,
     ENTITY_HOST: 'http://localhost:3005',
     ENTITY_CLIENT_ID: config.entityStore.clientId,
     ENTITY_SIGNER: entitySigner,
-    ENTITY_CLIENT_SECRET: process.env.ENTITY_CLIENT_SECRET || 'your-secret-here',
     POLICY_HOST: 'http://localhost:3005',
     POLICY_CLIENT_ID: config.policyStore.clientId,
     POLICY_SIGNER: policySigner,
-    POLICY_CLIENT_SECRET: process.env.POLICY_CLIENT_SECRET || 'your-secret-here',
     SIGNER_ADDRESS: signerAddress,
   }
 

@@ -1,29 +1,17 @@
 import {
-  Address,
-  ArmoryClientConfig,
   AuthClient,
   EntityStoreClient,
   Permission,
   PolicyStoreClient,
   PublicKey,
   VaultClient,
-  credential,
-  publicKeyToJwk
 } from '@narval-xyz/armory-sdk'
 import { v4 } from 'uuid'
-import {
-  Action,
-  Criterion,
-  Entities,
-  Policy,
-  Then,
-  UserEntity,
-  UserRole
-} from '../../packages/policy-engine-shared/src'
-import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
-import { CredentialEntity } from '@narval-xyz/armory-sdk/policy-engine-shared'
-import { Curves, jwkEoaSchema, KeyTypes, SigningAlg } from '@narval/signature'
+import { AccountEntity, CredentialEntity } from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { Curves, jwkEoaSchema, KeyTypes, privateKeyToJwk, SigningAlg } from '@narval/signature'
 import { addressToKid, publicKeySchema } from '@narval-xyz/armory-sdk/signature'
+import { Action, Criterion, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
+import { Hex } from 'viem'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
   const policies: Policy[] = [
@@ -70,21 +58,6 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
     },
     {
       id: v4(),
-      description: 'Allows member to transferNative',
-      when: [
-        {
-          criterion: Criterion.CHECK_PRINCIPAL_ROLE,
-          args: [UserRole.MEMBER]
-        },
-        {
-          criterion: Criterion.CHECK_INTENT_TYPE,
-          args: ['transferNative']
-        },
-      ],
-      then: Then.PERMIT
-    },
-    {
-      id: v4(),
       description: 'Forbid member to transferNative more than 3 times',
       when: [
         {
@@ -97,10 +70,10 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         },
         {
           criterion: Criterion.CHECK_RATE_LIMIT,
-          args: { limit: 3 }
+          args: { limit: 2 }
         },
       ],
-      then: Then.FORBID
+      then: Then.PERMIT
     },
   ]
   await policyStoreClient.signAndPush(policies)
@@ -120,7 +93,8 @@ export const createPublicKey = (credInput: Hex): PublicKey => {
 
 const setEntities = async (
   entityStoreClient: EntityStoreClient,
-  userAndCredentials: { credential: Hex; role: UserRole; id?: string }[]
+  userAndCredentials: { credential: Hex; role: UserRole; id?: string }[],
+  accounts: AccountEntity[]
 ) => {
   const entitiesInput = userAndCredentials.reduce(
     (acc, { credential: credInput, role, id }) => {
@@ -145,6 +119,7 @@ const setEntities = async (
     {
       users: [] as UserEntity[],
       credentials: [] as CredentialEntity[],
+      accounts,
     }
   );
 
@@ -166,17 +141,23 @@ export const setInitialState = async (
   }
 ) => {
   const { vaultClient, authClient, entityStoreClient, policyStoreClient } = armory
-  await setPolicies(policyStoreClient)
-  await setEntities(entityStoreClient, userAndCredentials)
 
+  await setPolicies(policyStoreClient)
+  await setEntities(entityStoreClient, userAndCredentials, [])
+  
   const accessToken = await authClient.requestAccessToken({
     action: Action.GRANT_PERMISSION,
     resourceId: 'vault',
     nonce: v4(),
     permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
   })
-
+  
   const { account } = await vaultClient.generateWallet({ accessToken })
 
-  return { address: account.address as Hex }
+  await setEntities(entityStoreClient, userAndCredentials, [{
+    id: account.id,
+    accountType: 'eoa',
+    address: account.address as Hex,
+  }])
+  return account
 }
