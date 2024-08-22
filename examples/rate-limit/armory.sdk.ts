@@ -8,18 +8,17 @@ import {
 } from '@narval/armory-sdk'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
-import { generatePrivateKey } from 'viem/accounts'
+
 import { Hex } from '../../packages/policy-engine-shared/src'
 import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const getVaultHost = () => 'http://localhost:3011'
 const getVaultAdminApiKey = () => 'vault-admin-api-key'
 
-const createClient = async () => {
-  const DATA_STORE_PRIVATE_KEY = privateKeyToJwk(generatePrivateKey())
-
+const createClient = async (SYSTEM_MANAGER_KEY: Hex) => {
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
     host: getAuthHost(),
@@ -30,7 +29,13 @@ const createClient = async () => {
     adminApiKey: getVaultAdminApiKey()
   })
 
-  const publicKey = getPublicKey(DATA_STORE_PRIVATE_KEY)
+  const acc = privateKeyToAccount(SYSTEM_MANAGER_KEY);
+  console.log('###acc', acc)
+  const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
+  console.log("###Jwk", jwk)
+  const publicKey = getPublicKey(jwk)
+
+  console.log
 
   const authClient = await authAdminClient.createClient({
     id: clientId,
@@ -46,34 +51,27 @@ const createClient = async () => {
   await vaultAdminClient.createClient({
     clientId: authClient.id,
     engineJwk: authClient.policyEngine.nodes[0].publicKey,
-    allowWildcard: [
-      'transactionRequest.maxPriorityFeePerGas',
-      'transactionRequest.maxFeePerGas',
-      'transactionRequest.gas',
-      'transactionRequest.gasPrice',
-      'transactionRequest.nonce',
-    ]
   })
 
   return {
     clientId,
-    DATA_STORE_PRIVATE_KEY
   }
 }
 
-export const getArmoryConfig = async (ROOT_USER_CRED: Hex) => {
+export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
   const authHost = getAuthHost()
   const vaultHost = getVaultHost()
 
-  const { clientId, DATA_STORE_PRIVATE_KEY } = await createClient()
+  const { clientId } = await createClient(SYSTEM_MANAGER_KEY)
 
+  const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const auth: AuthConfig = {
     host: authHost,
     clientId,
     signer: {
-      jwk: privateKeyToJwk(ROOT_USER_CRED),
+      jwk,
       alg: SigningAlg.ES256K,
-      sign: await buildSignerForAlg(privateKeyToJwk(ROOT_USER_CRED))
+      sign: await buildSignerForAlg(jwk)
     }
   }
 
@@ -81,9 +79,9 @@ export const getArmoryConfig = async (ROOT_USER_CRED: Hex) => {
     host: vaultHost,
     clientId,
     signer: {
-      jwk: privateKeyToJwk(ROOT_USER_CRED),
+      jwk,
       alg: SigningAlg.ES256K,
-      sign: await buildSignerForAlg(privateKeyToJwk(ROOT_USER_CRED))
+      sign: await buildSignerForAlg(jwk)
     }
   }
 
@@ -91,9 +89,9 @@ export const getArmoryConfig = async (ROOT_USER_CRED: Hex) => {
     host: authHost,
     clientId,
     signer: {
-      jwk: DATA_STORE_PRIVATE_KEY,
+      jwk,
       alg: SigningAlg.ES256K,
-      sign: await buildSignerForAlg(DATA_STORE_PRIVATE_KEY)
+      sign: await buildSignerForAlg(jwk)
     }
   }
 
@@ -101,9 +99,9 @@ export const getArmoryConfig = async (ROOT_USER_CRED: Hex) => {
     host: authHost,
     clientId,
     signer: {
-      jwk: DATA_STORE_PRIVATE_KEY,
+      jwk,
       alg: SigningAlg.ES256K,
-      sign: await buildSignerForAlg(DATA_STORE_PRIVATE_KEY)
+      sign: await buildSignerForAlg(jwk)
     }
   }
 

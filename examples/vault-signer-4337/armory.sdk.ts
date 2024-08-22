@@ -10,16 +10,16 @@ import { Hex } from '../../packages/policy-engine-shared/src'
 import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
-import { generatePrivateKey } from 'viem/accounts'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { privateKeyToHex } from '@narval-xyz/armory-sdk/signature'
 
 const getAuthHost = () => 'http://localhost:3005'
-const getAuthAdminApiKey = () => '2cfa9d09a28f1de9108d18c38f5d5304e6708744c7d7194cbc754aef3455edc7e9270e2f28f052622257'
+const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const getVaultHost = () => 'http://localhost:3011'
-const getVaultAdminApiKey = () => 'b8795927715a31131072b3b6490f9705d56895aa2d1f89d9bdd39b1c815cb3dfe71e5f72c6ef174f00ca'
+const getVaultAdminApiKey = () => 'vault-admin-api-key'
 
 const createClient = async () => {
   const DATA_STORE_PRIVATE_KEY = privateKeyToJwk(generatePrivateKey())
-
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
     host: getAuthHost(),
