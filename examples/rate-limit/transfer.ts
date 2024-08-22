@@ -48,7 +48,7 @@ if (!userType) {
   const POLICY_CLIENT_ID = process.env.POLICY_CLIENT_ID
   const POLICY_CLIENT_SECRET = process.env.POLICY_CLIENT_SECRET
 
-  if (!VAULT_HOST || !VAULT_CLIENT_ID || !AUTH_HOST || !AUTH_CLIENT_ID || !ENTITY_HOST || !ENTITY_CLIENT_ID || !ENTITY_CLIENT_SECRET || !POLICY_HOST || !POLICY_CLIENT_ID || !POLICY_CLIENT_SECRET) {
+  if (!VAULT_HOST || !VAULT_CLIENT_ID || !AUTH_HOST || !AUTH_CLIENT_ID || !ENTITY_HOST || !ENTITY_CLIENT_ID || !POLICY_HOST || !POLICY_CLIENT_ID) {
     console.error('Missing environment variables')
     return
   }

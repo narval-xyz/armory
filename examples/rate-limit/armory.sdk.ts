@@ -13,16 +13,17 @@ import {
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 
-const authHost = process.env.AUTH_HOST
-const vaultHost = process.env.VAULT_HOST
-const authAdminApiKey = process.env.AUTH_API_KEY
-const vaultAdminApiKey = process.env.VAULT_API_KEY
-if (!authHost || !vaultHost || !authAdminApiKey || !vaultAdminApiKey) {
-  throw new Error('Missing environment variables')
-}
-
-const createClient = async (SYSTEM_MANAGER_KEY: Hex) => {
-
+const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
+  authHost,
+  authAdminApiKey,
+  vaultHost,
+  vaultAdminApiKey
+}: {
+  vaultHost: string,
+  authHost: string,
+  authAdminApiKey: string,
+  vaultAdminApiKey: string
+}) => {
 
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
@@ -59,8 +60,23 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex) => {
   }
 }
 
-export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex) => {
-  const { clientId } = await createClient(SYSTEM_MANAGER_KEY)
+export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex, {
+  authHost,
+  authAdminApiKey,
+  vaultHost,
+  vaultAdminApiKey
+}: {
+  vaultHost: string,
+  authHost: string,
+  authAdminApiKey: string,
+  vaultAdminApiKey: string
+}) => {
+  const { clientId } = await createClient(SYSTEM_MANAGER_KEY, {
+    authAdminApiKey,
+    authHost,
+    vaultAdminApiKey,
+    vaultHost
+  })
 
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const auth: AuthConfig = {

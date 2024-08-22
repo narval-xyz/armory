@@ -12,7 +12,20 @@ const main = async () => {
   console.log('Starting...')
 
   const SYSTEM_MANAGER_KEY = hexSchema.parse(process.env.SYSTEM_MANAGER_KEY?.toLowerCase())
-  const config = await getArmoryConfig(SYSTEM_MANAGER_KEY)
+  const vaultHost = process.env.VAULT_HOST
+  const authHost = process.env.AUTH_HOST
+  const vaultAdminApiKey = process.env.VAULT_API_KEY
+  const authAdminApiKey = process.env.AUTH_API_KEY
+
+  if (!vaultAdminApiKey || !authHost || !authAdminApiKey || !vaultHost) {
+    throw new Error('Missing configuration')
+  }
+  const config = await getArmoryConfig(SYSTEM_MANAGER_KEY, {
+    vaultAdminApiKey,
+    vaultHost,
+    authAdminApiKey,
+    authHost
+  })
   const armory = armoryClient(config)
 
   const ADMIN_USER_ADDR = hexSchema.parse(process.env.ADMIN_USER_ADDR).toLowerCase()
