@@ -25,6 +25,7 @@ import {
 } from '../http/client/auth'
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
+import { AuthorizationResponse } from '../types'
 import {
   AuthAdminConfig,
   AuthClientHttp,
@@ -159,6 +160,17 @@ export class AuthClient {
 
   private getPollingIntervalMs(): number {
     return this.config.pollingIntervalMs || 250
+  }
+
+  async approve(requestId: string): Promise<AuthorizationResponseDto> {
+    const { request } = AuthorizationResponse.parse(
+      await this.authorizationHttp.getById(requestId, this.config.clientId)
+    )
+    const signature = await this.signJwtPayload(this.buildJwtPayload(request))
+
+    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, signature)
+
+    return data
   }
 
   async requestAccessToken(

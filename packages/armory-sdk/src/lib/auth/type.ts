@@ -34,6 +34,20 @@ export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 
 export type AuthorizationHttp = {
   /**
+   * Adds an approval to an authorization request.
+   *
+   * @param {string} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  approve(
+    id: string,
+    clientId: string,
+    body: string,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<AuthorizationResponseDto>
+
+  /**
    * Submits a new authorization request for evaluation.
    *
    * @param {string} clientId
