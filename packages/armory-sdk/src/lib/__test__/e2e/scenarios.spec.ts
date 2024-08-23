@@ -20,13 +20,7 @@ const getVaultHost = () => 'http://localhost:3011'
 const getVaultAdminApiKey = () => 'vault-admin-api-key'
 
 describe('End to end scenarios', () => {
-  beforeEach(() => {
-    jest.useRealTimers()
-  })
-
   describe('rate limiting', () => {
-    const bobUserId = 'test-bob-user-uid'
-    const aliceUserId = 'test-alice-user-uid'
     const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
     const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 
@@ -145,7 +139,7 @@ describe('End to end scenarios', () => {
           when: [
             {
               criterion: 'checkRateLimit',
-              args: { limit: 2, timeWindow: { type: 'fixed', period: '1d' } }
+              args: { limit: 2, timeWindow: { type: 'fixed', period: '1d' }, filters: { perPrincipal: true } }
             },
             {
               criterion: 'checkIntentType',
@@ -162,6 +156,18 @@ describe('End to end scenarios', () => {
 
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
     })
+    it('alice-admin does a transfer that is not counted against the rate limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
+    })
+
     it('permits member bob to do a first transfer', async () => {
       // First transfer
       const { authClient, vaultClient } = await userClient(bobPrivateKey, {
@@ -385,6 +391,18 @@ describe('End to end scenarios', () => {
         }
       ]
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+    })
+
+    it('alice-admin does a transfer that is not counted against the rate limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
     })
 
     it('permits member bob to do a transfer', async () => {
@@ -628,6 +646,18 @@ describe('End to end scenarios', () => {
         }
       ]
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+    })
+
+    it('alice-admin does a transfer that is not counted against the spending limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
     })
 
     it('permits treasury-group member bob to do a transfer', async () => {
@@ -884,15 +914,13 @@ describe('End to end scenarios', () => {
               }
             },
             {
-              "criterion": "checkApprovals",
-              "args": [
+              criterion: 'checkApprovals',
+              args: [
                 {
-                  "approvalCount": 2,
-                  "countPrincipal": false,
-                  "approvalEntityType": "Narval::UserRole" as EntityType,
-                  "entityIds": [
-                    "admin"
-                  ]
+                  approvalCount: 2,
+                  countPrincipal: false,
+                  approvalEntityType: 'Narval::UserRole' as EntityType,
+                  entityIds: ['admin']
                 }
               ]
             }
@@ -901,6 +929,18 @@ describe('End to end scenarios', () => {
         }
       ]
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+    })
+
+    it('alice-admin does a transfer that is not counted against the spending limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
     })
 
     it('permits treasury-group member bob to do a transfer', async () => {
@@ -979,7 +1019,6 @@ describe('End to end scenarios', () => {
 
       const response = await authClient.requestAccessToken(request)
       expect(response).toMatchObject({ value: expect.any(String) })
-
     })
   })
 })

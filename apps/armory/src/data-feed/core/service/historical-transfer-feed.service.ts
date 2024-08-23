@@ -1,7 +1,8 @@
 import { ConfigService } from '@narval/config-module'
 import { AuthorizationRequest, Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Alg, Payload, SigningAlg, decodeJwt, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
+import { ApplicationException } from 'apps/armory/src/shared/exception/application.exception'
 import { omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Config } from '../../../armory.config'
@@ -85,11 +86,26 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
   }
 
   static build(transfers: Transfer[]): HistoricalTransfer[] {
-    return transfers.map((transfer) => ({
-      ...omit('clientId', transfer),
-      amount: transfer.amount.toString(),
-      timestamp: transfer.createdAt.getTime(),
-      rates: buildHistoricalTranferRates(transfer.rates)
-    }))
+    return transfers.map((transfer) => {
+      const initiatedBy = decodeJwt(transfer.initiatedBy).payload.sub
+      if (!initiatedBy) {
+        throw new ApplicationException({
+          message: 'Decoded JWT for approved transfer does not contain a sub field',
+          context: {
+            transfer,
+            initiatedBy,
+            decodedJwt: decodeJwt(transfer.initiatedBy)
+          },
+          suggestedHttpStatusCode: 500
+        })
+      }
+      return {
+        ...omit('clientId', transfer),
+        initiatedBy,
+        amount: transfer.amount.toString(),
+        timestamp: transfer.createdAt.getTime(),
+        rates: buildHistoricalTranferRates(transfer.rates)
+      }
+    })
   }
 }
