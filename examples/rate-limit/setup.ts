@@ -62,20 +62,34 @@ const main = async () => {
     SIGNER_ADDRESS: signerAddress,
   }
 
-  let envContent = ''
+  // Load the existing .env file if it exists
+  let existingEnvContent = ''
+  if (fs.existsSync('.env')) {
+    existingEnvContent = fs.readFileSync('.env', 'utf-8')
+  }
 
-  for (const [key, value] of Object.entries(envVariables)) {
-    if (!process.env[key]) {
-      envContent += `${key}=${value}\n`
+  // Split the existing content into lines and create a key-value map
+  const existingEnv = existingEnvContent.split('\n').reduce((acc, line) => {
+    const [key, value] = line.split('=')
+    if (key && value !== undefined) {
+      acc[key] = value
     }
+    return acc
+  }, {} as Record<string, string>)
+
+  // Update or add new variables
+  for (const [key, value] of Object.entries(envVariables)) {
+    existingEnv[key] = value
   }
 
-  if (envContent) {
-    fs.appendFileSync('.env', '\n' + envContent.trim() + '\n')
-    console.log('New environment variables appended to .env file')
-  } else {
-    console.log('All environment variables already exist. No changes made.')
-  }
+  // Convert the map back to the .env file format
+  const newEnvContent = Object.entries(existingEnv)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('\n')
+
+  // Write the updated content back to the .env file
+  fs.writeFileSync('.env', newEnvContent)
+  console.log('Environment variables have been updated in the .env file')
 
   console.log('Finished')
 }

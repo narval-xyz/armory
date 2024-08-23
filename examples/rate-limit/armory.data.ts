@@ -70,7 +70,7 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         },
         {
           criterion: Criterion.CHECK_RATE_LIMIT,
-          args: { limit: 2 }
+          args: { limit: 2, filters: { perPrincipal: true }}
         },
       ],
       then: Then.PERMIT
