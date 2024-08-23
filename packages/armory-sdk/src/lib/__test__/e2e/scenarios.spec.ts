@@ -18,15 +18,15 @@ const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const getVaultHost = () => 'http://localhost:3011'
 const getVaultAdminApiKey = () => 'vault-admin-api-key'
+const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
+const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
+const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
+
+let authClientId: string
+let vaultClientId: string
 
 describe('End to end scenarios', () => {
   describe('rate limiting', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -238,12 +238,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('spending limits', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -467,13 +461,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('group rate limits', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-    const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -728,13 +715,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('group spending limits requires an approval', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-    const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
