@@ -19,21 +19,15 @@ const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const getVaultHost = () => 'http://localhost:3011'
 const getVaultAdminApiKey = () => 'vault-admin-api-key'
+const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
+const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
+const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
+
+let authClientId: string
+let vaultClientId: string
 
 describe('End to end scenarios', () => {
-  beforeEach(() => {
-    jest.useRealTimers()
-  })
-
   describe('rate limiting', () => {
-    const bobUserId = 'test-bob-user-uid'
-    const aliceUserId = 'test-alice-user-uid'
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -146,7 +140,7 @@ describe('End to end scenarios', () => {
           when: [
             {
               criterion: 'checkRateLimit',
-              args: { limit: 2, timeWindow: { type: 'fixed', period: '1d' } }
+              args: { limit: 2, timeWindow: { type: 'fixed', period: '1d' }, filters: { perPrincipal: true } }
             },
             {
               criterion: 'checkIntentType',
@@ -163,6 +157,18 @@ describe('End to end scenarios', () => {
 
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
     })
+    it('alice-admin does a transfer that is not counted against the rate limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
+    })
+
     it('permits member bob to do a first transfer', async () => {
       // First transfer
       const { authClient, vaultClient } = await userClient(bobPrivateKey, {
@@ -233,12 +239,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('spending limits', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -388,6 +388,18 @@ describe('End to end scenarios', () => {
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
     })
 
+    it('alice-admin does a transfer that is not counted against the rate limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
+    })
+
     it('permits member bob to do a transfer', async () => {
       const { authClient } = await userClient(bobPrivateKey, {
         authHost: getAuthHost(),
@@ -450,13 +462,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('group rate limits', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-    const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -631,6 +636,18 @@ describe('End to end scenarios', () => {
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
     })
 
+    it('alice-admin does a transfer that is not counted against the spending limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
+    })
+
     it('permits treasury-group member bob to do a transfer', async () => {
       const { authClient } = await userClient(bobPrivateKey, {
         authHost: getAuthHost(),
@@ -699,13 +716,6 @@ describe('End to end scenarios', () => {
   })
 
   describe('group spending limits requires an approval', () => {
-    const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-    const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-    const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-
-    let authClientId: string
-    let vaultClientId: string
-
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce',
@@ -900,6 +910,18 @@ describe('End to end scenarios', () => {
         }
       ]
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+    })
+
+    it('alice-admin does a transfer that is not counted against the spending limit', async () => {
+      const { authClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const response = await authClient.requestAccessToken(request)
+      expect(response).toMatchObject({ value: expect.any(String) })
     })
 
     it('permits treasury-group member bob to do a transfer', async () => {
