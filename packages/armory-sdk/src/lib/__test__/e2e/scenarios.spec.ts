@@ -1,6 +1,7 @@
 /* eslint-disable jest/consistent-test-it */
 import { Action, Entities, EntityType, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
 import { generatePrivateKey } from 'viem/accounts'
+import { AuthorizationResponse } from '../../types'
 import { armoryClient, getArmoryConfig, setInitialState, userClient } from '../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
@@ -884,15 +885,13 @@ describe('End to end scenarios', () => {
               }
             },
             {
-              "criterion": "checkApprovals",
-              "args": [
+              criterion: 'checkApprovals',
+              args: [
                 {
-                  "approvalCount": 2,
-                  "countPrincipal": false,
-                  "approvalEntityType": "Narval::UserRole" as EntityType,
-                  "entityIds": [
-                    "admin"
-                  ]
+                  approvalCount: 2,
+                  countPrincipal: false,
+                  approvalEntityType: 'Narval::UserRole' as EntityType,
+                  entityIds: ['admin']
                 }
               ]
             }
@@ -970,16 +969,34 @@ describe('End to end scenarios', () => {
     })
 
     it('permits bob to exceed limit with alice-admin approval', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
+      const { authClient: adminClient } = await userClient(alicePrivateKey, {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
         authClientId
       })
 
-      const response = await authClient.requestAccessToken(request)
-      expect(response).toMatchObject({ value: expect.any(String) })
+      const { authClient } = await userClient(bobPrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
 
+      let authId: string
+      await authClient.requestAccessToken(request).catch((error: any) => {
+        authId = (error.context.authorization as AuthorizationResponse).id
+
+        expect(authId).toEqual(expect.any(String))
+        expect(error.message).toEqual('Unauthorized')
+
+        adminClient.approve(authId)
+      })
+
+      setTimeout(async () => {
+        const response = await authClient.requestAccessToken(request, { id: authId })
+        expect(response).toMatchObject({ value: expect.any(String) })
+      }, 5000)
     })
   })
 })
