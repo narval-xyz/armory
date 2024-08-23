@@ -8,7 +8,6 @@ import {
   Hex,
   Policy,
   PolicyStoreClient,
-  UserRole,
   VaultAdminClient,
   VaultClient,
   VaultConfig,
@@ -20,18 +19,20 @@ import {
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 
-const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
-  authHost,
-  authAdminApiKey,
-  vaultHost,
-  vaultAdminApiKey
-}: {
-  vaultHost: string,
-  authHost: string,
-  authAdminApiKey: string,
-  vaultAdminApiKey: string
-}) => {
-
+const createClient = async (
+  SYSTEM_MANAGER_KEY: Hex,
+  {
+    authHost,
+    authAdminApiKey,
+    vaultHost,
+    vaultAdminApiKey
+  }: {
+    vaultHost: string
+    authHost: string
+    authAdminApiKey: string
+    vaultAdminApiKey: string
+  }
+) => {
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
     host: authHost,
@@ -44,7 +45,6 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
 
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const publicKey = getPublicKey(jwk)
-
 
   const authClient = await authAdminClient.createClient({
     id: clientId,
@@ -59,25 +59,28 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
 
   await vaultAdminClient.createClient({
     clientId: authClient.id,
-    engineJwk: authClient.policyEngine.nodes[0].publicKey,
+    engineJwk: authClient.policyEngine.nodes[0].publicKey
   })
 
   return {
-    clientId,
+    clientId
   }
 }
 
-export const endUserConfig = async (userKey: Hex, {
-  authHost,
-  vaultHost,
-  vaultClientId,
-  authClientId,
-}: {
-  vaultHost: string,
-  authHost: string,
-  vaultClientId: string,
-  authClientId: string,
-}) => {
+export const endUserConfig = async (
+  userKey: Hex,
+  {
+    authHost,
+    vaultHost,
+    vaultClientId,
+    authClientId
+  }: {
+    vaultHost: string
+    authHost: string
+    vaultClientId: string
+    authClientId: string
+  }
+) => {
   const jwk = privateKeyToJwk(userKey)
   const auth: AuthConfig = {
     host: authHost,
@@ -100,24 +103,27 @@ export const endUserConfig = async (userKey: Hex, {
   }
   return {
     auth,
-    vault,
+    vault
   }
 }
 
-export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex, {
-  authHost,
-  authAdminApiKey,
-  vaultHost,
-  vaultAdminApiKey
-}: {
-  vaultHost: string,
-  authHost: string,
-  authAdminApiKey: string,
-  vaultAdminApiKey: string
-}): Promise<{
-  auth: AuthConfig,
-  vault: VaultConfig,
-  entityStore: DataStoreConfig,
+export const getArmoryConfig = async (
+  SYSTEM_MANAGER_KEY: Hex,
+  {
+    authHost,
+    authAdminApiKey,
+    vaultHost,
+    vaultAdminApiKey
+  }: {
+    vaultHost: string
+    authHost: string
+    authAdminApiKey: string
+    vaultAdminApiKey: string
+  }
+): Promise<{
+  auth: AuthConfig
+  vault: VaultConfig
+  entityStore: DataStoreConfig
   policyStore: DataStoreConfig
 }> => {
   const { clientId } = await createClient(SYSTEM_MANAGER_KEY, {
@@ -176,36 +182,37 @@ export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex, {
   }
 }
 
-export const setInitialState = async (
-  {
-    entityStoreClient,
-    policyStoreClient,
-    policies,
-    entities
-  }: {
-    entityStoreClient: EntityStoreClient,
-    policyStoreClient: PolicyStoreClient
-    policies?: Policy[],
-    entities?: Entities
-  }) => {
-    if (entities)
-      entityStoreClient.signAndPush(entities)
-    if (policies) {
-      policyStoreClient.signAndPush(policies)
-    }
-} 
-
-export const userClient = async (userKey: Hex, {
-  authHost,
-  vaultHost,
-  vaultClientId,
-  authClientId,
+export const setInitialState = async ({
+  entityStoreClient,
+  policyStoreClient,
+  policies,
+  entities
 }: {
-  vaultHost: string,
-  authHost: string,
-  vaultClientId: string,
-  authClientId: string,
+  entityStoreClient: EntityStoreClient
+  policyStoreClient: PolicyStoreClient
+  policies?: Policy[]
+  entities?: Entities
 }) => {
+  if (entities) entityStoreClient.signAndPush(entities)
+  if (policies) {
+    policyStoreClient.signAndPush(policies)
+  }
+}
+
+export const userClient = async (
+  userKey: Hex,
+  {
+    authHost,
+    vaultHost,
+    vaultClientId,
+    authClientId
+  }: {
+    vaultHost: string
+    authHost: string
+    vaultClientId: string
+    authClientId: string
+  }
+) => {
   const { auth, vault } = await endUserConfig(userKey, {
     authHost,
     vaultHost,

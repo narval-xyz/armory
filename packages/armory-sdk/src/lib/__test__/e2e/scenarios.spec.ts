@@ -1,51 +1,8 @@
 /* eslint-disable jest/consistent-test-it */
-import {
-  AccessToken,
-  AccountEntity,
-  AccountType,
-  Action,
-  CreateAuthorizationRequest,
-  Criterion,
-  Decision,
-  Entities,
-  EntityUtil,
-  EvaluationRequest,
-  FIXTURE,
-  JwtString,
-  Policy,
-  Request,
-  Then,
-  UserEntity,
-  UserRole,
-  ValueOperators
-} from '@narval/policy-engine-shared'
-import {
-  RsaPublicKey,
-  SigningAlg,
-  buildSignerEip191,
-  buildSignerForAlg,
-  getPublicKey,
-  hash,
-  privateKeyToJwk,
-  secp256k1PrivateKeyToJwk,
-  signJwt
-} from '@narval/signature'
-import { format } from 'date-fns'
-import { v4 as uuid } from 'uuid'
-import { english, generateMnemonic, generatePrivateKey, privateKeyToAccount, privateKeyToAddress } from 'viem/accounts'
-import { AuthAdminClient, AuthClient } from '../../auth/client'
-import { EntityStoreClient, PolicyStoreClient } from '../../data-store/client'
-import { DataStoreConfig } from '../../data-store/type'
-import { createHttpDataStore, credential } from '../../data-store/util'
-import { Permission } from '../../domain'
-import { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from '../../http/client/auth'
-import { ClientDto, WalletDto } from '../../http/client/vault'
-import { SignOptions, Signer } from '../../shared/type'
-import { resourceId } from '../../utils'
-import { VaultAdminClient, VaultClient } from '../../vault/client'
-import { armoryClient, endUserConfig, getArmoryConfig, setInitialState, userClient } from '../util/setup'
-import { Hex } from 'viem'
-import { HttpStatus } from '@nestjs/common'
+import { Action, Entities, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
+import { privateKeyToJwk } from '@narval/signature'
+import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
+import { armoryClient, getArmoryConfig, setInitialState, userClient } from '../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -69,7 +26,6 @@ const getVaultHost = () => 'http://localhost:3011'
 const getVaultAdminApiKey = () => 'vault-admin-api-key'
 
 describe('End to end scenarios', () => {
-
   describe('rate limiting', () => {
     const bobUserId = 'test-bob-user-uid'
     const aliceUserId = 'test-alice-user-uid'
@@ -90,7 +46,7 @@ describe('End to end scenarios', () => {
       },
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
-    beforeAll(async () => {      
+    beforeAll(async () => {
       const config = await getArmoryConfig(systemManagerHexPk, {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
@@ -98,10 +54,10 @@ describe('End to end scenarios', () => {
         authAdminApiKey: getAuthAdminApiKey()
       })
 
-      const { vault, auth } = config;
+      const { vault, auth } = config
       vaultClientId = vault.clientId
       authClientId = auth.clientId
-  
+
       const { entityStoreClient, policyStoreClient, authClient, vaultClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
@@ -132,15 +88,15 @@ describe('End to end scenarios', () => {
             }
           },
           {
-            userId: "test-bob-user-uid",
-            id: "0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166",
+            userId: 'test-bob-user-uid',
+            id: '0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166',
             key: {
               kty: 'EC',
               crv: 'secp256k1',
               alg: 'ES256K',
               kid: '0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166',
               x: 'm5zj9v8I_UvB-15y7t7RmQXmyNmPuvAQPDdU71LRkUA',
-              y: 'Az5R7PGJbmKdPpK2-jmUh7xyuaOZlCIFNU4I83xy5lU',
+              y: 'Az5R7PGJbmKdPpK2-jmUh7xyuaOZlCIFNU4I83xy5lU'
             }
           }
         ],
@@ -175,37 +131,37 @@ describe('End to end scenarios', () => {
       }
       const policies: Policy[] = [
         {
-          "id": "1-admin-can-do-anything",
-          "description": "admin can do any action",
-          "when": [
+          id: '1-admin-can-do-anything',
+          description: 'admin can do any action',
+          when: [
             {
-              "criterion": 'checkPrincipalRole',
-              "args": ['admin']
+              criterion: 'checkPrincipalRole',
+              args: ['admin']
             }
           ],
-          "then": 'permit'
+          then: 'permit'
         },
         {
-          "id": '1-allow-2-transfer-per-day',
-          "description": 'Permit members to transfer native 2 times per day',
-          "when": [
+          id: '1-allow-2-transfer-per-day',
+          description: 'Permit members to transfer native 2 times per day',
+          when: [
             {
-              "criterion": 'checkRateLimit',
-              "args": { limit: 2, timeWindow: { type: 'fixed', period: '1d' }}
+              criterion: 'checkRateLimit',
+              args: { limit: 2, timeWindow: { type: 'fixed', period: '1d' } }
             },
             {
-              "criterion": 'checkIntentType',
-              "args": ['transferNative']
+              criterion: 'checkIntentType',
+              args: ['transferNative']
             },
             {
-              "criterion": 'checkPrincipalRole',
-              "args": ['member']
+              criterion: 'checkPrincipalRole',
+              args: ['member']
             }
           ],
-          "then": 'permit'
+          then: 'permit'
         }
       ]
-  
+
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
     })
     it('permits member bob to do a first transfer', async () => {
@@ -214,7 +170,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -227,7 +183,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -240,7 +196,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       try {
@@ -255,7 +211,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -284,7 +240,7 @@ describe('End to end scenarios', () => {
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
 
-    beforeAll(async () => {      
+    beforeAll(async () => {
       const config = await getArmoryConfig(systemManagerHexPk, {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
@@ -292,10 +248,10 @@ describe('End to end scenarios', () => {
         authAdminApiKey: getAuthAdminApiKey()
       })
 
-      const { vault, auth } = config;
+      const { vault, auth } = config
       vaultClientId = vault.clientId
       authClientId = auth.clientId
-  
+
       const { entityStoreClient, policyStoreClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
@@ -326,15 +282,15 @@ describe('End to end scenarios', () => {
             }
           },
           {
-            userId: "test-bob-user-uid",
-            id: "0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166",
+            userId: 'test-bob-user-uid',
+            id: '0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166',
             key: {
               kty: 'EC',
               crv: 'secp256k1',
               alg: 'ES256K',
               kid: '0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166',
               x: 'm5zj9v8I_UvB-15y7t7RmQXmyNmPuvAQPDdU71LRkUA',
-              y: 'Az5R7PGJbmKdPpK2-jmUh7xyuaOZlCIFNU4I83xy5lU',
+              y: 'Az5R7PGJbmKdPpK2-jmUh7xyuaOZlCIFNU4I83xy5lU'
             }
           }
         ],
@@ -369,49 +325,49 @@ describe('End to end scenarios', () => {
       }
       const policies: Policy[] = [
         {
-          "id": "1-admin-can-do-anything",
-          "description": "admin can do any action",
-          "when": [
+          id: '1-admin-can-do-anything',
+          description: 'admin can do any action',
+          when: [
             {
-              "criterion": 'checkPrincipalRole',
-              "args": ['admin']
+              criterion: 'checkPrincipalRole',
+              args: ['admin']
             }
           ],
-          "then": 'permit'
+          then: 'permit'
         },
         {
-          "id": "member-can-transfer-1-eth",
-          "description": "member can transfer 1 ETH",
-          "when": [
+          id: 'member-can-transfer-1-eth',
+          description: 'member can transfer 1 ETH',
+          when: [
             {
-              "criterion": "checkAction",
-              "args": ["signTransaction"]
+              criterion: 'checkAction',
+              args: ['signTransaction']
             },
             {
-              "criterion": "checkIntentType",
-              "args": ["transferNative"]
+              criterion: 'checkIntentType',
+              args: ['transferNative']
             },
             {
-              "criterion": "checkIntentToken",
-              "args": ["eip155:1/slip44:60"]
+              criterion: 'checkIntentToken',
+              args: ['eip155:1/slip44:60']
             },
             {
-              "criterion": "checkSpendingLimit",
-              "args": {
-                "limit": "1000000000000000000",
-                "operator": "lte" as ValueOperators,
-                "timeWindow": {
-                  "type": "rolling",
-                  "value": 86400
+              criterion: 'checkSpendingLimit',
+              args: {
+                limit: '1000000000000000000',
+                operator: 'lte' as ValueOperators,
+                timeWindow: {
+                  type: 'rolling',
+                  value: 86400
                 },
-                "filters": {
-                  "perPrincipal": true,
-                  "tokens": ["eip155:1/slip44:60"]
+                filters: {
+                  perPrincipal: true,
+                  tokens: ['eip155:1/slip44:60']
                 }
               }
             }
           ],
-          "then": "permit"
+          then: 'permit'
         }
       ]
       setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
@@ -422,7 +378,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -433,7 +389,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -444,7 +400,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -455,7 +411,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       try {
@@ -470,7 +426,7 @@ describe('End to end scenarios', () => {
         authHost: getAuthHost(),
         vaultHost: getVaultHost(),
         vaultClientId,
-        authClientId,
+        authClientId
       })
 
       const response = await authClient.requestAccessToken(request)
