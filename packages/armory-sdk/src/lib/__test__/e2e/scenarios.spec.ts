@@ -996,7 +996,38 @@ describe('End to end scenarios', () => {
       setTimeout(async () => {
         const response = await authClient.requestAccessToken(request, { id: authId })
         expect(response).toMatchObject({ value: expect.any(String) })
-      }, 5000)
+      }, 1000)
+    })
+
+    it('permits carol to exceed limit with alice-admin approval', async () => {
+      const { authClient: adminClient } = await userClient(alicePrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      const { authClient } = await userClient(carolPrivateKey, {
+        authHost: getAuthHost(),
+        vaultHost: getVaultHost(),
+        vaultClientId,
+        authClientId
+      })
+
+      let authId: string
+      await authClient.requestAccessToken(request).catch((error: any) => {
+        authId = (error.context.authorization as AuthorizationResponse).id
+
+        expect(authId).toEqual(expect.any(String))
+        expect(error.message).toEqual('Unauthorized')
+
+        adminClient.approve(authId)
+      })
+
+      setTimeout(async () => {
+        const response = await authClient.requestAccessToken(request, { id: authId })
+        expect(response).toMatchObject({ value: expect.any(String) })
+      }, 1000)
     })
   })
 })
