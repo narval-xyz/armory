@@ -51,7 +51,7 @@ const createClient = async () => {
       'transactionRequest.maxFeePerGas',
       'transactionRequest.gas',
       'transactionRequest.gasPrice',
-      'transactionRequest.nonce',
+      'transactionRequest.nonce'
     ]
   })
 

@@ -13,18 +13,20 @@ import {
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 
-const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
-  authHost,
-  authAdminApiKey,
-  vaultHost,
-  vaultAdminApiKey
-}: {
-  vaultHost: string,
-  authHost: string,
-  authAdminApiKey: string,
-  vaultAdminApiKey: string
-}) => {
-
+const createClient = async (
+  SYSTEM_MANAGER_KEY: Hex,
+  {
+    authHost,
+    authAdminApiKey,
+    vaultHost,
+    vaultAdminApiKey
+  }: {
+    vaultHost: string
+    authHost: string
+    authAdminApiKey: string
+    vaultAdminApiKey: string
+  }
+) => {
   const clientId = v4()
   const authAdminClient = new AuthAdminClient({
     host: authHost,
@@ -37,7 +39,6 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
 
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const publicKey = getPublicKey(jwk)
-
 
   const authClient = await authAdminClient.createClient({
     id: clientId,
@@ -52,25 +53,28 @@ const createClient = async (SYSTEM_MANAGER_KEY: Hex, {
 
   await vaultAdminClient.createClient({
     clientId: authClient.id,
-    engineJwk: authClient.policyEngine.nodes[0].publicKey,
+    engineJwk: authClient.policyEngine.nodes[0].publicKey
   })
 
   return {
-    clientId,
+    clientId
   }
 }
 
-export const getArmoryConfig = async (SYSTEM_MANAGER_KEY: Hex, {
-  authHost,
-  authAdminApiKey,
-  vaultHost,
-  vaultAdminApiKey
-}: {
-  vaultHost: string,
-  authHost: string,
-  authAdminApiKey: string,
-  vaultAdminApiKey: string
-}) => {
+export const getArmoryConfig = async (
+  SYSTEM_MANAGER_KEY: Hex,
+  {
+    authHost,
+    authAdminApiKey,
+    vaultHost,
+    vaultAdminApiKey
+  }: {
+    vaultHost: string
+    authHost: string
+    authAdminApiKey: string
+    vaultAdminApiKey: string
+  }
+) => {
   const { clientId } = await createClient(SYSTEM_MANAGER_KEY, {
     authAdminApiKey,
     authHost,

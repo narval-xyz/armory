@@ -6,12 +6,11 @@ import {
   VaultConfig,
   createHttpDataStore
 } from '@narval-xyz/armory-sdk'
-import { Hex } from '../../packages/policy-engine-shared/src'
-import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { privateKeyToHex } from '@narval-xyz/armory-sdk/signature'
+import { generatePrivateKey } from 'viem/accounts'
+import { Hex } from '../../packages/policy-engine-shared/src'
+import { SigningAlg, buildSignerForAlg, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'

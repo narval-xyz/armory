@@ -182,9 +182,9 @@ describe('User Journeys', () => {
         dataSecret: null,
         dataStore: {
           entityDataUrl: expect.any(String),
-          entityPublicKey: publicKey,
+          entityPublicKeys: [publicKey],
           policyDataUrl: expect.any(String),
-          policyPublicKey: publicKey
+          policyPublicKeys: [publicKey]
         },
         policyEngine: {
           nodes: expect.arrayContaining([

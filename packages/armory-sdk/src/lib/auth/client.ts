@@ -163,12 +163,10 @@ export class AuthClient {
   }
 
   async approve(requestId: string): Promise<AuthorizationResponseDto> {
-    const { request } = AuthorizationResponse.parse(
-      await this.authorizationHttp.getById(requestId, this.config.clientId)
-    )
+    const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
+    const { request } = AuthorizationResponse.parse(res.data)
     const signature = await this.signJwtPayload(this.buildJwtPayload(request))
-
-    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, signature)
+    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
 
     return data
   }

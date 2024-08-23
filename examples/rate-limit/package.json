@@ -1,7 +1,7 @@
 {
-  "name": "wildcard-transactions",
+  "name": "rate-limit-example",
   "version": "1.0.0",
-  "description": "A typescript example to setup and use the armory stack to authorize transactions without nonce or gas values",
+  "description": "A typescript example to setup and use the armory stack to rate limit transactions",
   "main": "index.js",
   "scripts": {
     "setup": "tsx setup.ts",

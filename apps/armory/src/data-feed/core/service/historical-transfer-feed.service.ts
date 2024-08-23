@@ -1,6 +1,6 @@
 import { ConfigService } from '@narval/config-module'
 import { AuthorizationRequest, Feed, HistoricalTransfer, JwtString } from '@narval/policy-engine-shared'
-import { Alg, Payload, SigningAlg, decodeJwt, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
+import { Alg, Payload, SigningAlg, hash, hexToBase64Url, privateKeyToJwk, signJwt } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { omit } from 'lodash/fp'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -8,7 +8,6 @@ import { Config } from '../../../armory.config'
 import { DataFeed } from '../../../data-feed/core/type/data-feed.type'
 import { FiatId, Price } from '../../../shared/core/type/price.type'
 import { Transfer } from '../../../shared/core/type/transfer-tracking.type'
-import { ApplicationException } from '../../../shared/exception/application.exception'
 import { TransferTrackingService } from '../../../transfer-tracking/core/service/transfer-tracking.service'
 
 const buildHistoricalTranferRates = (rates: Price): Record<string, string> => {
@@ -87,21 +86,8 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
 
   static build(transfers: Transfer[]): HistoricalTransfer[] {
     return transfers.map((transfer) => {
-      const initiatedBy = decodeJwt(transfer.initiatedBy).payload.sub
-      if (!initiatedBy) {
-        throw new ApplicationException({
-          message: 'Decoded JWT for approved transfer does not contain a sub field',
-          context: {
-            transfer,
-            initiatedBy,
-            decodedJwt: decodeJwt(transfer.initiatedBy)
-          },
-          suggestedHttpStatusCode: 500
-        })
-      }
       return {
         ...omit('clientId', transfer),
-        initiatedBy,
         amount: transfer.amount.toString(),
         timestamp: transfer.createdAt.getTime(),
         rates: buildHistoricalTranferRates(transfer.rates)

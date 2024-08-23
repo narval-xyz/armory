@@ -13,7 +13,8 @@ import {
   isChainAccountId,
   isString,
   toAssetId,
-  toChainAccountId} from '@narval/policy-engine-shared'
+  toChainAccountId
+} from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
 import { Address, fromHex, presignMessagePrefix } from 'viem'
 import {
@@ -330,7 +331,7 @@ export const checkCancelTransaction = (input: NativeTransferInput): Intents => {
 }
 
 export const nativeCaip19 = (chainId: number): AssetId => {
-  let coinType;
+  let coinType
   switch (chainId) {
     case SupportedChains.CELO:
       coinType = Slip44SupportedAddresses.CELO

@@ -4,13 +4,13 @@ import {
   Permission,
   PolicyStoreClient,
   PublicKey,
-  VaultClient,
+  VaultClient
 } from '@narval-xyz/armory-sdk'
-import { v4 } from 'uuid'
 import { AccountEntity, CredentialEntity } from '@narval-xyz/armory-sdk/policy-engine-shared'
-import { Curves, jwkEoaSchema, KeyTypes, privateKeyToJwk, SigningAlg } from '@narval/signature'
 import { addressToKid, publicKeySchema } from '@narval-xyz/armory-sdk/signature'
 import { Action, Criterion, Policy, Then, UserEntity, UserRole } from '@narval/policy-engine-shared'
+import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, privateKeyToJwk } from '@narval/signature'
+import { v4 } from 'uuid'
 import { Hex } from 'viem'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
@@ -70,11 +70,11 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         },
         {
           criterion: Criterion.CHECK_RATE_LIMIT,
-          args: { limit: 2, filters: { perPrincipal: true }}
-        },
+          args: { limit: 2, filters: { perPrincipal: true } }
+        }
       ],
       then: Then.PERMIT
-    },
+    }
   ]
   await policyStoreClient.signAndPush(policies)
 }
@@ -86,9 +86,9 @@ export const createPublicKey = (credInput: Hex): PublicKey => {
         crv: Curves.SECP256K1,
         alg: SigningAlg.ES256K,
         kid: addressToKid(credInput),
-        addr: credInput,
+        addr: credInput
       })
-    : publicKeySchema.parse(privateKeyToJwk(credInput, 'ES256K'));
+    : publicKeySchema.parse(privateKeyToJwk(credInput, 'ES256K'))
 }
 
 const setEntities = async (
@@ -100,64 +100,64 @@ const setEntities = async (
     (acc, { credential: credInput, role, id }) => {
       const user: UserEntity = {
         id: id || v4(),
-        role,
-      };
+        role
+      }
 
-      const publicKey = createPublicKey(credInput);
+      const publicKey = createPublicKey(credInput)
 
       const cred: CredentialEntity = {
         id: publicKey.kid,
         key: publicKey,
-        userId: user.id,
-      };
+        userId: user.id
+      }
 
-      acc.users.push(user);
-      acc.credentials.push(cred);
+      acc.users.push(user)
+      acc.credentials.push(cred)
 
-      return acc;
+      return acc
     },
     {
       users: [] as UserEntity[],
       credentials: [] as CredentialEntity[],
-      accounts,
+      accounts
     }
-  );
+  )
 
-  await entityStoreClient.signAndPush(entitiesInput);
-};
+  await entityStoreClient.signAndPush(entitiesInput)
+}
 
-export const setInitialState = async (
-  {
-    armory,
-    userAndCredentials,
-  }: {
-    armory: {
-      vaultClient: VaultClient,
-      authClient: AuthClient,
-      entityStoreClient: EntityStoreClient,
-      policyStoreClient: PolicyStoreClient
-    },
-    userAndCredentials: { credential: Hex, role: UserRole, id?: string }[]
+export const setInitialState = async ({
+  armory,
+  userAndCredentials
+}: {
+  armory: {
+    vaultClient: VaultClient
+    authClient: AuthClient
+    entityStoreClient: EntityStoreClient
+    policyStoreClient: PolicyStoreClient
   }
-) => {
+  userAndCredentials: { credential: Hex; role: UserRole; id?: string }[]
+}) => {
   const { vaultClient, authClient, entityStoreClient, policyStoreClient } = armory
 
   await setPolicies(policyStoreClient)
   await setEntities(entityStoreClient, userAndCredentials, [])
-  
+
   const accessToken = await authClient.requestAccessToken({
     action: Action.GRANT_PERMISSION,
     resourceId: 'vault',
     nonce: v4(),
     permissions: [Permission.WALLET_IMPORT, Permission.WALLET_CREATE, Permission.WALLET_READ]
   })
-  
+
   const { account } = await vaultClient.generateWallet({ accessToken })
 
-  await setEntities(entityStoreClient, userAndCredentials, [{
-    id: account.id,
-    accountType: 'eoa',
-    address: account.address as Hex,
-  }])
+  await setEntities(entityStoreClient, userAndCredentials, [
+    {
+      id: account.id,
+      accountType: 'eoa',
+      address: account.address as Hex
+    }
+  ])
   return account
 }

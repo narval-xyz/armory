@@ -5,7 +5,7 @@ import {
   EntityStoreClient,
   PolicyStoreClient,
   VaultClient,
-  VaultConfig,
+  VaultConfig
 } from '@narval-xyz/armory-sdk'
 
 export const armoryClient = (configs: {

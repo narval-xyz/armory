@@ -1,8 +1,8 @@
 /* eslint-disable jest/consistent-test-it */
 import { Action, Entities, EntityType, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
-import { generatePrivateKey } from 'viem/accounts'
+import { v4 } from 'uuid'
 import { AuthorizationResponse } from '../../types'
-import { armoryClient, getArmoryConfig, setInitialState, userClient } from '../util/setup'
+import { buildAuthClient, createClient, saveDataStore } from '../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -13,18 +13,13 @@ export const advanceTime = (hours: number): void => {
   jest.setSystemTime(Date.now() + hours * 60 * 60 * 1000)
 }
 
-const systemManagerHexPk = generatePrivateKey()
+const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const getVaultHost = () => 'http://localhost:3011'
-const getVaultAdminApiKey = () => 'vault-admin-api-key'
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-
-let authClientId: string
-let vaultClientId: string
 
 describe('End to end scenarios', () => {
   describe('rate limiting', () => {
@@ -39,19 +34,10 @@ describe('End to end scenarios', () => {
       },
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
+    // Generate a new client ID for each test run, otherwise historical data with persist between tests if using a long-lived db.
+    const clientId = v4()
+
     beforeAll(async () => {
-      const config = await getArmoryConfig(systemManagerHexPk, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultAdminApiKey: getVaultAdminApiKey(),
-        authAdminApiKey: getAuthAdminApiKey()
-      })
-
-      const { vault, auth } = config
-      vaultClientId = vault.clientId
-      authClientId = auth.clientId
-
-      const { entityStoreClient, policyStoreClient, authClient, vaultClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
           {
@@ -155,14 +141,22 @@ describe('End to end scenarios', () => {
         }
       ]
 
-      setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+      await createClient(systemManagerHexPk, {
+        clientId,
+        authHost: getAuthHost(),
+        authAdminApiKey: getAuthAdminApiKey()
+      })
+      await saveDataStore(systemManagerHexPk, {
+        clientId,
+        host: getAuthHost(),
+        entities,
+        policies
+      })
     })
     it('alice-admin does a transfer that is not counted against the rate limit', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -171,11 +165,9 @@ describe('End to end scenarios', () => {
 
     it('permits member bob to do a first transfer', async () => {
       // First transfer
-      const { authClient, vaultClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -184,11 +176,9 @@ describe('End to end scenarios', () => {
 
     it('permits member bob to do a second transfer', async () => {
       // Second transfer
-      const { authClient, vaultClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -196,12 +186,11 @@ describe('End to end scenarios', () => {
     })
 
     it('forbids member bob to do a third transfer', async () => {
+      expect.assertions(1)
       // Third transfer
-      const { authClient, vaultClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
@@ -212,30 +201,14 @@ describe('End to end scenarios', () => {
     })
 
     it('permits admin alice to do a transfer', async () => {
-      const { authClient, vaultClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
       expect(response).toMatchObject({ value: expect.any(String) })
     })
-
-    // it('permits member bob to do a transfer after the time window has passed', async () => {
-    //   const { authClient } = await userClient(bobPrivateKey, {
-    //     authHost: getAuthHost(),
-    //     vaultHost: getVaultHost(),
-    //     vaultClientId,
-    //     authClientId
-    //   })
-
-    //   advanceTime(24);
-
-    //   const response = await authClient.requestAccessToken(request)
-    //   expect(response).toMatchObject({ value: expect.any(String) })
-    // })
   })
 
   describe('spending limits', () => {
@@ -251,19 +224,10 @@ describe('End to end scenarios', () => {
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
 
+    // Generate a new client ID for each test run, otherwise historical data with persist between tests if using a long-lived db.
+    const clientId = v4()
+
     beforeAll(async () => {
-      const config = await getArmoryConfig(systemManagerHexPk, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultAdminApiKey: getVaultAdminApiKey(),
-        authAdminApiKey: getAuthAdminApiKey()
-      })
-
-      const { vault, auth } = config
-      vaultClientId = vault.clientId
-      authClientId = auth.clientId
-
-      const { entityStoreClient, policyStoreClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
           {
@@ -385,15 +349,24 @@ describe('End to end scenarios', () => {
           then: 'permit'
         }
       ]
-      setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+
+      await createClient(systemManagerHexPk, {
+        clientId,
+        authHost: getAuthHost(),
+        authAdminApiKey: getAuthAdminApiKey()
+      })
+      await saveDataStore(systemManagerHexPk, {
+        clientId,
+        host: getAuthHost(),
+        entities,
+        policies
+      })
     })
 
     it('alice-admin does a transfer that is not counted against the rate limit', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -401,44 +374,40 @@ describe('End to end scenarios', () => {
     })
 
     it('permits member bob to do a transfer', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
       expect(response).toMatchObject({ value: expect.any(String) })
     })
+
     it('permits member bob to do a second transfer', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
       expect(response).toMatchObject({ value: expect.any(String) })
     })
+
     it('permits member bob to do a third transfer', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
       expect(response).toMatchObject({ value: expect.any(String) })
     })
+
     it('forbids member bob to exceed the limit', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      expect.assertions(1)
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
@@ -449,11 +418,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits admin alice to do a transfer', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -474,19 +441,10 @@ describe('End to end scenarios', () => {
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
 
+    // Generate a new client ID for each test run, otherwise historical data with persist between tests if using a long-lived db.
+    const clientId = v4()
+
     beforeAll(async () => {
-      const config = await getArmoryConfig(systemManagerHexPk, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultAdminApiKey: getVaultAdminApiKey(),
-        authAdminApiKey: getAuthAdminApiKey()
-      })
-
-      const { vault, auth } = config
-      vaultClientId = vault.clientId
-      authClientId = auth.clientId
-
-      const { entityStoreClient, policyStoreClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
           {
@@ -633,15 +591,24 @@ describe('End to end scenarios', () => {
           then: 'permit'
         }
       ]
-      setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+
+      await createClient(systemManagerHexPk, {
+        clientId,
+        authHost: getAuthHost(),
+        authAdminApiKey: getAuthAdminApiKey()
+      })
+      await saveDataStore(systemManagerHexPk, {
+        clientId,
+        host: getAuthHost(),
+        entities,
+        policies
+      })
     })
 
-    it('alice-admin does a transfer that is not counted against the spending limit', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+    it('alice-admin does a transfer that is not counted against the rate limit', async () => {
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -649,11 +616,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits treasury-group member bob to do a transfer', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -661,11 +626,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits treasury-group member carol to do a transfer', async () => {
-      const { authClient } = await userClient(carolPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(carolPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -673,11 +636,9 @@ describe('End to end scenarios', () => {
     })
 
     it('forbids member bob to exceed the limit', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
@@ -688,11 +649,9 @@ describe('End to end scenarios', () => {
     })
 
     it('forbids member carol to exceed the limit', async () => {
-      const { authClient } = await userClient(carolPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(carolPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
@@ -703,11 +662,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits admin alice to do a transfer', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -728,19 +685,10 @@ describe('End to end scenarios', () => {
       resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
     }
 
+    // Generate a new client ID for each test run, otherwise historical data with persist between tests if using a long-lived db.
+    const clientId = v4()
+
     beforeAll(async () => {
-      const config = await getArmoryConfig(systemManagerHexPk, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultAdminApiKey: getVaultAdminApiKey(),
-        authAdminApiKey: getAuthAdminApiKey()
-      })
-
-      const { vault, auth } = config
-      vaultClientId = vault.clientId
-      authClientId = auth.clientId
-
-      const { entityStoreClient, policyStoreClient } = armoryClient(config)
       const entities: Entities = {
         addressBook: [
           {
@@ -871,6 +819,21 @@ describe('End to end scenarios', () => {
             {
               criterion: 'checkPrincipalGroup',
               args: ['treasury-group-id']
+            },
+            {
+              criterion: 'checkSpendingLimit',
+              args: {
+                limit: '1000000000000000000',
+                operator: 'lte' as ValueOperators,
+                timeWindow: {
+                  type: 'rolling',
+                  value: 86400
+                },
+                filters: {
+                  userGroups: ['treasury-group-id'],
+                  tokens: ['eip155:1/slip44:60']
+                }
+              }
             }
           ],
           then: 'permit'
@@ -879,6 +842,22 @@ describe('End to end scenarios', () => {
           id: 'treasury-members-can-transfer-gt-1-eth-per-day-with-approval',
           description: 'treasury group members transfers for more than 1 ETH per day requires an admin approval',
           when: [
+            {
+              criterion: 'checkAction',
+              args: ['signTransaction']
+            },
+            {
+              criterion: 'checkIntentType',
+              args: ['transferNative']
+            },
+            {
+              criterion: 'checkIntentToken',
+              args: ['eip155:1/slip44:60']
+            },
+            {
+              criterion: 'checkPrincipalGroup',
+              args: ['treasury-group-id']
+            },
             {
               criterion: 'checkSpendingLimit',
               args: {
@@ -898,7 +877,7 @@ describe('End to end scenarios', () => {
               criterion: 'checkApprovals',
               args: [
                 {
-                  approvalCount: 2,
+                  approvalCount: 1,
                   countPrincipal: false,
                   approvalEntityType: 'Narval::UserRole' as EntityType,
                   entityIds: ['admin']
@@ -909,15 +888,24 @@ describe('End to end scenarios', () => {
           then: 'permit'
         }
       ]
-      setInitialState({ entityStoreClient, policyStoreClient, entities, policies })
+
+      await createClient(systemManagerHexPk, {
+        clientId,
+        authHost: getAuthHost(),
+        authAdminApiKey: getAuthAdminApiKey()
+      })
+      await saveDataStore(systemManagerHexPk, {
+        clientId,
+        host: getAuthHost(),
+        entities,
+        policies
+      })
     })
 
     it('alice-admin does a transfer that is not counted against the spending limit', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -925,11 +913,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits treasury-group member bob to do a transfer', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -937,11 +923,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits treasury-group member carol to do a transfer', async () => {
-      const { authClient } = await userClient(carolPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(carolPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -949,26 +933,25 @@ describe('End to end scenarios', () => {
     })
 
     it('forbids member bob to exceed the limit', async () => {
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      expect.assertions(1)
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        const res = await authClient.requestAccessToken(request)
+        console.log(res)
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
     })
 
     it('forbids member carol to exceed the limit', async () => {
-      const { authClient } = await userClient(carolPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      expect.assertions(1)
+      const { authClient } = await buildAuthClient(carolPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       try {
@@ -979,11 +962,9 @@ describe('End to end scenarios', () => {
     })
 
     it('permits admin alice to do a transfer', async () => {
-      const { authClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
       const response = await authClient.requestAccessToken(request)
@@ -991,65 +972,60 @@ describe('End to end scenarios', () => {
     })
 
     it('permits bob to exceed limit with alice-admin approval', async () => {
-      const { authClient: adminClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      expect.assertions(3)
+      const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
-      const { authClient } = await userClient(bobPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
-      let authId: string
-      await authClient.requestAccessToken(request).catch((error: any) => {
+      let authId: string | undefined = undefined
+      await authClient.requestAccessToken(request).catch(async (error: any) => {
         authId = (error.context.authorization as AuthorizationResponse).id
-
         expect(authId).toEqual(expect.any(String))
         expect(error.message).toEqual('Unauthorized')
 
-        adminClient.approve(authId)
+        await adminClient.approve(authId)
       })
-
-      setTimeout(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (authId) {
         const response = await authClient.requestAccessToken(request, { id: authId })
         expect(response).toMatchObject({ value: expect.any(String) })
-      }, 1000)
+      }
     })
 
     it('permits carol to exceed limit with alice-admin approval', async () => {
-      const { authClient: adminClient } = await userClient(alicePrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      expect.assertions(3)
+      const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
-      const { authClient } = await userClient(carolPrivateKey, {
-        authHost: getAuthHost(),
-        vaultHost: getVaultHost(),
-        vaultClientId,
-        authClientId
+      const { authClient } = await buildAuthClient(carolPrivateKey, {
+        host: getAuthHost(),
+        clientId
       })
 
-      let authId: string
-      await authClient.requestAccessToken(request).catch((error: any) => {
+      let authId: string | undefined = undefined
+      await authClient.requestAccessToken(request).catch(async (error: any) => {
         authId = (error.context.authorization as AuthorizationResponse).id
 
         expect(authId).toEqual(expect.any(String))
         expect(error.message).toEqual('Unauthorized')
 
-        adminClient.approve(authId)
+        const res = await adminClient.approve(authId)
       })
 
-      setTimeout(async () => {
+      // Use await instead of setTimeout
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (authId) {
         const response = await authClient.requestAccessToken(request, { id: authId })
         expect(response).toMatchObject({ value: expect.any(String) })
-      }, 1000)
+      }
     })
   })
 })

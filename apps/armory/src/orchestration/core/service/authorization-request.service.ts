@@ -102,11 +102,17 @@ export class AuthorizationRequestService {
     try {
       const authzRequest = await this.authzRequestRepository.update({
         id: requestId,
-        approvals: [sig]
+        approvals: [sig],
+        status: AuthorizationRequestStatus.APPROVING
       })
 
       await this.evaluate(authzRequest)
     } catch (error) {
+      this.logger.error('Error approving authorization request', {
+        requestId,
+        sig,
+        error
+      })
       await this.authzRequestApprovalRepository.updateMany({
         requestId,
         sig,
@@ -165,6 +171,17 @@ export class AuthorizationRequestService {
           to: [FIAT_ID_USD]
         })
 
+        // This should never happen, a successful permit always has a principal, so this is just a fail-safe check.
+        if (!evaluation.principal?.userId) {
+          throw new ApplicationException({
+            message: 'Principal userId not found',
+            context: {
+              evaluation
+            },
+            suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+          })
+        }
+
         const transfer = {
           resourceId: authzRequest.request.resourceId,
           clientId: authzRequest.clientId,
@@ -173,9 +190,7 @@ export class AuthorizationRequestService {
           to: intent.to,
           token: intent.token,
           chainId: authzRequest.request.transactionRequest.chainId,
-          // TODO: (@mattschoch) Get real initiator? -- this used to reference publicKey but
-          // should actually pull data out of a decoded JWT
-          initiatedBy: authzRequest.authentication,
+          initiatedBy: evaluation.principal?.userId,
           createdAt: new Date(),
           amount: BigInt(intent.amount),
           rates: transferPrices[intent.token] || {}

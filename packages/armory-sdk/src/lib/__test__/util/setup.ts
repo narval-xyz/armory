@@ -9,7 +9,6 @@ import {
   Policy,
   PolicyStoreClient,
   VaultAdminClient,
-  VaultClient,
   VaultConfig,
   buildSignerForAlg,
   createHttpDataStore,
@@ -19,72 +18,73 @@ import {
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 
-const createClient = async (
+export const createClient = async (
   SYSTEM_MANAGER_KEY: Hex,
   {
+    clientId,
     authHost,
     authAdminApiKey,
     vaultHost,
     vaultAdminApiKey
   }: {
-    vaultHost: string
+    clientId?: string
     authHost: string
     authAdminApiKey: string
-    vaultAdminApiKey: string
+    vaultHost?: string
+    vaultAdminApiKey?: string
   }
 ) => {
-  const clientId = v4()
+  const newClientId = clientId || v4()
   const authAdminClient = new AuthAdminClient({
     host: authHost,
     adminApiKey: authAdminApiKey
-  })
-  const vaultAdminClient = new VaultAdminClient({
-    host: vaultHost,
-    adminApiKey: vaultAdminApiKey
   })
 
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const publicKey = getPublicKey(jwk)
 
   const authClient = await authAdminClient.createClient({
-    id: clientId,
+    id: newClientId,
     name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
     dataStore: createHttpDataStore({
       host: authHost,
-      clientId,
+      clientId: newClientId,
       keys: [publicKey]
     }),
     useManagedDataStore: true
   })
 
-  await vaultAdminClient.createClient({
-    clientId: authClient.id,
-    engineJwk: authClient.policyEngine.nodes[0].publicKey
-  })
+  // Optionally create a vault
+  if (vaultHost && vaultAdminApiKey) {
+    const vaultAdminClient = new VaultAdminClient({
+      host: vaultHost,
+      adminApiKey: vaultAdminApiKey
+    })
+    await vaultAdminClient.createClient({
+      clientId: authClient.id,
+      engineJwk: authClient.policyEngine.nodes[0].publicKey
+    })
+  }
 
   return {
-    clientId
+    clientId: newClientId
   }
 }
 
-export const endUserConfig = async (
+const buildConfig = async (
   userKey: Hex,
   {
-    authHost,
-    vaultHost,
-    vaultClientId,
-    authClientId
+    host,
+    clientId
   }: {
-    vaultHost: string
-    authHost: string
-    vaultClientId: string
-    authClientId: string
+    host: string
+    clientId: string
   }
 ) => {
   const jwk = privateKeyToJwk(userKey)
-  const auth: AuthConfig = {
-    host: authHost,
-    clientId: authClientId,
+  const config: VaultConfig | AuthConfig = {
+    host,
+    clientId,
     signer: {
       jwk,
       alg: 'ES256K',
@@ -92,67 +92,23 @@ export const endUserConfig = async (
     }
   }
 
-  const vault: VaultConfig = {
-    host: vaultHost,
-    clientId: vaultClientId,
-    signer: {
-      jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
-    }
-  }
-  return {
-    auth,
-    vault
-  }
+  return config
 }
 
-export const getArmoryConfig = async (
+export const buildDataStoreConfig = async (
   SYSTEM_MANAGER_KEY: Hex,
   {
     authHost,
-    authAdminApiKey,
-    vaultHost,
-    vaultAdminApiKey
+    clientId
   }: {
-    vaultHost: string
     authHost: string
-    authAdminApiKey: string
-    vaultAdminApiKey: string
+    clientId: string
   }
 ): Promise<{
-  auth: AuthConfig
-  vault: VaultConfig
   entityStore: DataStoreConfig
   policyStore: DataStoreConfig
 }> => {
-  const { clientId } = await createClient(SYSTEM_MANAGER_KEY, {
-    authAdminApiKey,
-    authHost,
-    vaultAdminApiKey,
-    vaultHost
-  })
-
   const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
-  const auth: AuthConfig = {
-    host: authHost,
-    clientId,
-    signer: {
-      jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
-    }
-  }
-
-  const vault: VaultConfig = {
-    host: vaultHost,
-    clientId,
-    signer: {
-      jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
-    }
-  }
 
   const entityStore: DataStoreConfig = {
     host: authHost,
@@ -175,74 +131,54 @@ export const getArmoryConfig = async (
   }
 
   return {
-    auth,
-    vault,
     entityStore,
     policyStore
   }
 }
 
-export const setInitialState = async ({
-  entityStoreClient,
-  policyStoreClient,
-  policies,
-  entities
-}: {
-  entityStoreClient: EntityStoreClient
-  policyStoreClient: PolicyStoreClient
-  policies?: Policy[]
-  entities?: Entities
-}) => {
-  if (entities) entityStoreClient.signAndPush(entities)
-  if (policies) {
-    policyStoreClient.signAndPush(policies)
-  }
-}
-
-export const userClient = async (
-  userKey: Hex,
+export const saveDataStore = async (
+  SYSTEM_MANAGER_KEY: Hex,
   {
-    authHost,
-    vaultHost,
-    vaultClientId,
-    authClientId
+    clientId,
+    host,
+    entities,
+    policies
   }: {
-    vaultHost: string
-    authHost: string
-    vaultClientId: string
-    authClientId: string
+    clientId: string
+    host: string
+    entities?: Entities
+    policies?: Policy[]
   }
 ) => {
-  const { auth, vault } = await endUserConfig(userKey, {
-    authHost,
-    vaultHost,
-    vaultClientId,
-    authClientId
+  const config = await buildDataStoreConfig(SYSTEM_MANAGER_KEY, {
+    authHost: host,
+    clientId
   })
 
-  const authClient = new AuthClient(auth)
-  const vaultClient = new VaultClient(vault)
-  return {
-    authClient,
-    vaultClient
-  }
+  const entityStoreClient = new EntityStoreClient(config.entityStore)
+  const policyStoreClient = new PolicyStoreClient(config.policyStore)
+
+  if (entities) await entityStoreClient.signAndPush(entities)
+  if (policies) await policyStoreClient.signAndPush(policies)
 }
 
-export const armoryClient = (configs: {
-  auth: AuthConfig
-  vault: VaultConfig
-  entityStore: DataStoreConfig
-  policyStore: DataStoreConfig
-}) => {
-  const authClient = new AuthClient(configs.auth)
-  const vaultClient = new VaultClient(configs.vault)
-  const entityStoreClient = new EntityStoreClient(configs.entityStore)
-  const policyStoreClient = new PolicyStoreClient(configs.policyStore)
+export const buildAuthClient = async (
+  userKey: Hex,
+  {
+    host,
+    clientId
+  }: {
+    host: string
+    clientId: string
+  }
+) => {
+  const config = await buildConfig(userKey, {
+    host: host,
+    clientId: clientId
+  })
 
+  const authClient = new AuthClient(config)
   return {
-    authClient,
-    vaultClient,
-    entityStoreClient,
-    policyStoreClient
+    authClient
   }
 }

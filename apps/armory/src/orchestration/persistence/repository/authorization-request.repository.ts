@@ -181,9 +181,10 @@ export class AuthorizationRequestRepository {
       Pick<AuthorizationRequest, 'id'>
   ): Promise<AuthorizationRequest> {
     const { id, clientId, status } = input
-    const approvals = (input.approvals || []).map((sig) => ({ sig }))
+    const approvals: Prisma.AuthorizationRequestApprovalCreateManyRequestInput[] = (input.approvals || []).map(
+      (sig) => ({ sig })
+    )
     const errors = this.toErrors(clientId, input.errors)
-
     // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
     await this.prismaService.authorizationRequest.update({
       where: { id },

@@ -58,4 +58,3 @@ npm start
 ## Step r: [OPTIONAL] Change `allowWildcard` values in vault config
 
 Open `examples/wildcard-transaction/armory.sdk.ts`. Line 49, remove the array or put an empty one. Re-run the example, it fails with Unauthorized request.
-

@@ -4,7 +4,7 @@ import { ApiClientIdGuard } from '../../../../shared/decorator/api-client-id-gua
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ErrorResponseDto } from '../../../../shared/dto/error-response.dto'
 import { AuthorizationRequestService } from '../../../core/service/authorization-request.service'
-import { AuthorizationRequestDto } from '../../../http/rest/dto/authorization-request.dto'
+import { ApprovalDto, AuthorizationRequestDto } from '../../../http/rest/dto/authorization-request.dto'
 import { AuthorizationResponseDto } from '../../../http/rest/dto/authorization-response.dto'
 import { toCreateAuthorizationRequest } from '../../../http/rest/util'
 
@@ -70,9 +70,8 @@ export class AuthorizationRequestController {
     status: HttpStatus.CREATED,
     type: AuthorizationResponseDto
   })
-  async approve(@Param('id') id: string, @Body() body: string): Promise<AuthorizationResponseDto> {
-    const authzRequest = await this.authorizationRequestService.approve(id, body)
-
+  async approve(@Param('id') id: string, @Body() body: ApprovalDto): Promise<AuthorizationResponseDto> {
+    const authzRequest = await this.authorizationRequestService.approve(id, body.signature)
     return AuthorizationResponseDto.create(authzRequest)
   }
 }

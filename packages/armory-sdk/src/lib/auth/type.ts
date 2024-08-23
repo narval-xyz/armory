@@ -3,6 +3,7 @@ import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
 import { SetOptional } from 'type-fest'
 import { z } from 'zod'
 import {
+  ApprovalDto,
   AuthorizationRequestDto,
   AuthorizationResponseDto,
   CreateClientResponseDto as CreateAuthClientResponse,
@@ -43,7 +44,7 @@ export type AuthorizationHttp = {
   approve(
     id: string,
     clientId: string,
-    body: string,
+    body: ApprovalDto,
     options?: RawAxiosRequestConfig
   ): AxiosPromise<AuthorizationResponseDto>
 

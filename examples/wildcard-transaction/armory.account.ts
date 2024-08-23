@@ -19,7 +19,6 @@ import {
   toHex
 } from '../../packages/policy-engine-shared/src'
 
-
 export const armoryClient = (configs: {
   auth: AuthConfig
   vault: VaultConfig

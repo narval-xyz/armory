@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
-import { Action, UserOperationV6 } from '../../packages/policy-engine-shared/src'
 import { SimpleSmartAccount } from 'permissionless/accounts'
 import { v4 } from 'uuid'
 import { HttpTransport } from 'viem'
 import { getChainId } from 'viem/actions'
+import { Action, UserOperationV6 } from '../../packages/policy-engine-shared/src'
 import { Sdk } from './armory.account'
 
 export const simpleSmartAccountWithNarval = (

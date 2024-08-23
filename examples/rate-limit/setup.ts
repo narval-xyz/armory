@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
+import { Hex } from '@narval-xyz/armory-sdk'
+import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { privateKeyToHex } from '@narval-xyz/armory-sdk/signature'
 import 'dotenv/config'
 import fs from 'fs'
 import { armoryClient } from './armory.account'
 import { setInitialState } from './armory.data'
 import { getArmoryConfig } from './armory.sdk'
-import { privateKeyToHex } from '@narval-xyz/armory-sdk/signature'
-import { Hex } from '@narval-xyz/armory-sdk'
-import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
 
 const main = async () => {
   console.log('Starting...')
@@ -59,7 +59,7 @@ const main = async () => {
     POLICY_HOST: 'http://localhost:3005',
     POLICY_CLIENT_ID: config.policyStore.clientId,
     POLICY_SIGNER: policySigner,
-    SIGNER_ADDRESS: signerAddress,
+    SIGNER_ADDRESS: signerAddress
   }
 
   // Load the existing .env file if it exists
@@ -69,13 +69,16 @@ const main = async () => {
   }
 
   // Split the existing content into lines and create a key-value map
-  const existingEnv = existingEnvContent.split('\n').reduce((acc, line) => {
-    const [key, value] = line.split('=')
-    if (key && value !== undefined) {
-      acc[key] = value
-    }
-    return acc
-  }, {} as Record<string, string>)
+  const existingEnv = existingEnvContent.split('\n').reduce(
+    (acc, line) => {
+      const [key, value] = line.split('=')
+      if (key && value !== undefined) {
+        acc[key] = value
+      }
+      return acc
+    },
+    {} as Record<string, string>
+  )
 
   // Update or add new variables
   for (const [key, value] of Object.entries(envVariables)) {
