@@ -26,7 +26,6 @@ export const createHttpDataStore = (opts: {
     url: `${host}/v1/data/policies?clientId=${clientId}`
   }
 
-  console.log(`###keys: ${JSON.stringify(keys, null, 2)}`)
   return {
     entity: {
       data: entityStoreSource,

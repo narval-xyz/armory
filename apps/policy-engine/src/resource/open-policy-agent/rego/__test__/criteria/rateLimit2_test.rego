@@ -4,7 +4,7 @@ test_pierre {
     inputReq = {
         "action":"signTransaction",
         "principal":{
-            "userId":"4fdccb92-ab7c-4f86-a4ec-8fd2ed5f590c",
+            "userId":"test-bob-user-uid",
             "id":"0x9f3eb979684b374f8ac3a58b5ae5371124d669458044f2bb0a4e54073467fa56",
             "key":{
                 "kty":"EC",
@@ -17,7 +17,7 @@ test_pierre {
         "approvals":[
             {
                 "id":"0x9f3eb979684b374f8ac3a58b5ae5371124d669458044f2bb0a4e54073467fa56",
-                "userId":"4fdccb92-ab7c-4f86-a4ec-8fd2ed5f590c",
+                "userId":"test-bob-user-uid",
                 "key":{
                     "kty":"EC",
                     "crv":"secp256k1",
@@ -71,10 +71,24 @@ test_pierre {
                     "rates":{},
                     "initiatedBy":"eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDlmM2ViOTc5Njg0YjM3NGY4YWMzYTU4YjVhZTUzNzExMjRkNjY5NDU4MDQ0ZjJiYjBhNGU1NDA3MzQ2N2ZhNTYiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MjQzMjIyNTU0OTMsImlzcyI6ImYyYWM3MGRlLWZlNjItNGEzYy1hZjBlLTlmNDhhYzA1ZTFlMCIsInJlcXVlc3RIYXNoIjoiMHgwY2IxYzQ5NmU4NGNmMGY4MDI5YzMyMTIzMTBlZDc0YTdmODM5YmRiMTg4MTNiNDY0MjI4ZDg1ZWRhYzAwODg0Iiwic3ViIjoiMHg5ZjNlYjk3OTY4NGIzNzRmOGFjM2E1OGI1YWU1MzcxMTI0ZDY2OTQ1ODA0NGYyYmIwYTRlNTQwNzM0NjdmYTU2In0.L2o4SwfCWHNla3dCVcR6ZWi64aQRcyBjdKj5ee68ahU3YVLDVVcPwnilVxZcFerUhGQ5RSdE7t4c71NDY29G1hw",
                     "createdAt":"2024-08-22T10:24:15.729Z",
-                    "timestamp":1724322255729
+                    "timestamp":time.now_ns()
+                    },
+                    {
+                    "id":"111118953-2d66-4f42-ae98-8bfd7f26ed98",
+                    "resourceId":"eip155:eoa:0x9d69015a1d9899477d23b9cc52ea60cda48b3c86",
+                    "requestId":"bbd17368-fc97-45d7-a07b-bf9bdf158cc2",
+                    "chainId":137,
+                    "from":"eip155:137:0x084e6a5e3442d348ba5e149e362846be6fcf2e9e",
+                    "to":"eip155:137:0x9c874a1034275f4aa960f141265e9bf86a5b1334",
+                    "token":"eip155:137/slip44:966",
+                    "amount":"1",
+                    "rates":{},
+                    "initiatedBy":"eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDlmM2ViOTc5Njg0YjM3NGY4YWMzYTU4YjVhZTUzNzExMjRkNjY5NDU4MDQ0ZjJiYjBhNGU1NDA3MzQ2N2ZhNTYiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MjQzMjIyNTU0OTMsImlzcyI6ImYyYWM3MGRlLWZlNjItNGEzYy1hZjBlLTlmNDhhYzA1ZTFlMCIsInJlcXVlc3RIYXNoIjoiMHgwY2IxYzQ5NmU4NGNmMGY4MDI5YzMyMTIzMTBlZDc0YTdmODM5YmRiMTg4MTNiNDY0MjI4ZDg1ZWRhYzAwODg0Iiwic3ViIjoiMHg5ZjNlYjk3OTY4NGIzNzRmOGFjM2E1OGI1YWU1MzcxMTI0ZDY2OTQ1ODA0NGYyYmIwYTRlNTQwNzM0NjdmYTU2In0.L2o4SwfCWHNla3dCVcR6ZWi64aQRcyBjdKj5ee68ahU3YVLDVVcPwnilVxZcFerUhGQ5RSdE7t4c71NDY29G1hw",
+                    "createdAt":"2024-08-22T10:24:15.729Z",
+                    "timestamp":time.now_ns()
                     }
                 ]
-            }
+            },
         ]
     }
     entitiesReq = {
@@ -120,14 +134,15 @@ test_pierre {
           }
         }
       }
-
-    res = calculateCurrentRate({
-        "limit": 3,
+    res = checkRateLimit({
+        "limit": 1,
         "timeWindow": {
             "type": "fixed",
             "period": "1d",
+        },
+        "filters": {
+          "perPrincipal": true,
         }
     }) with input as inputReq with data.entities as entitiesReq
-
-    print(res)
+    print("res", res)
 }
