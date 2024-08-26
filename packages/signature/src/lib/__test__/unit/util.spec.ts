@@ -309,9 +309,9 @@ describe('hashRequestWithoutWildcardFields', () => {
       transactionRequest: transaction,
       resourceId: 'eip155:eoa:0x084e6a5e3442d348ba5e149e362846be6fcf2e9e'
     }
-  
+
     const wildcardedFields = ['transactionRequest.maxFeePerGas', 'transactionRequest.maxPriorityFeePerGas']
-  
+
     const transactionWithoutWildcards = {
       chainId: 137,
       from: '0x084e6a5e3442d348ba5e149e362846be6fcf2e9e',

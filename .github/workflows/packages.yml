@@ -85,7 +85,7 @@ jobs:
           npx nx affected --target test:e2e \
             --exclude tag:type:application \
             --base=origin/main \
-            --testPathIgnorePatterns=packages/armory-sdk/src/lib/__test__/e2e/user-journeys.spec.ts
+            --testPathIgnorePatterns=packages/armory-sdk/src/lib/__test__/e2e/*
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'

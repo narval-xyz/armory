@@ -5,7 +5,7 @@ ARMORY_DATABASE_SCHEMA := ${ARMORY_PROJECT_DIR}/src/shared/module/persistence/sc
 # === Start ===
 
 armory/start/dev:
-	npx nx serve ${ARMORY_PROJECT_NAME}
+	npx nx serve ${ARMORY_PROJECT_NAME} -- --port 9230
 
 # === Setup ===
 

@@ -8,9 +8,16 @@ import {
   VaultConfig,
   resourceId
 } from '@narval-xyz/armory-sdk'
-import { Action, Address, Eip712TypedData, Request, TransactionRequest, toHex } from '../../packages/policy-engine-shared/src'
 import { v4 } from 'uuid'
 import { toAccount } from 'viem/accounts'
+import {
+  Action,
+  Address,
+  Eip712TypedData,
+  Request,
+  TransactionRequest,
+  toHex
+} from '../../packages/policy-engine-shared/src'
 
 export type Sdk = {
   authClient: AuthClient

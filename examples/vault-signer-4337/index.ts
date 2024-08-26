@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
-import "dotenv/config"
 import { resourceId } from '@narval-xyz/armory-sdk'
+import 'dotenv/config'
 import { createSmartAccountClient, ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
 import { signerToSimpleSmartAccount } from 'permissionless/accounts'
 import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico'
 import { createPublicClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
+import { hexSchema } from '../../packages/policy-engine-shared/src'
 import { armoryClient, armoryUserOperationSigner } from './armory.account'
 import { setInitialState } from './armory.data'
 import { getArmoryConfig } from './armory.sdk'
 import { simpleSmartAccountWithNarval } from './armory.smart-account'
-import { hexSchema } from '../../packages/policy-engine-shared/src'
 
 const main = async () => {
   console.log('Starting...')

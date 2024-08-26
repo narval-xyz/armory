@@ -160,7 +160,7 @@ export enum SupportedChains {
   FTM = 250,
   ARBITRUM = 42161,
   AVALANCHE = 43114,
-  CELO = 42220,
+  CELO = 42220
 }
 
 export enum Slip44SupportedAddresses {
@@ -170,7 +170,7 @@ export enum Slip44SupportedAddresses {
   FTM = 1007,
   ARBITRUM = 9001,
   AVALANCHE = 9000,
-  CELO = 52752,
+  CELO = 52752
 }
 export const PERMIT2_ADDRESS = '0x000000000022d473030f116ddee9f6b43ac78ba3'
 export const NULL_METHOD_ID = '0x00000000'

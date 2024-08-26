@@ -5,6 +5,7 @@ import {
   AuthorizationRequestStatus,
   Decision,
   EvaluationResponse,
+  FIXTURE,
   SignTransaction,
   getChainAccountId
 } from '@narval/policy-engine-shared'
@@ -124,7 +125,8 @@ describe(AuthorizationRequestService.name, () => {
 
       expect(authzRequestRepositoryMock.update).toHaveBeenCalledWith({
         id: authzRequest.id,
-        approvals: [jwt]
+        approvals: [jwt],
+        status: AuthorizationRequestStatus.APPROVING
       })
       expect(service.evaluate).toHaveBeenCalledWith(updatedAuthzRequest)
     })
@@ -137,6 +139,7 @@ describe(AuthorizationRequestService.name, () => {
       accessToken: {
         value: jwt
       },
+      principal: FIXTURE.CREDENTIAL.Bob,
       transactionRequestIntent: {
         type: Intents.TRANSFER_NATIVE,
         amount: '1000000000000000000',
@@ -224,7 +227,7 @@ describe(AuthorizationRequestService.name, () => {
         chainId: request.transactionRequest.chainId,
         clientId: authzRequest.clientId,
         requestId: authzRequest.id,
-        initiatedBy: authzRequest.authentication, // TODO: this will change when the underlying data is corrected.
+        initiatedBy: FIXTURE.CREDENTIAL.Bob.userId,
         rates: {
           'fiat:usd': 0.99
         },

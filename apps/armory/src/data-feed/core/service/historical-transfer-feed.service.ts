@@ -85,11 +85,13 @@ export class HistoricalTransferFeedService implements DataFeed<HistoricalTransfe
   }
 
   static build(transfers: Transfer[]): HistoricalTransfer[] {
-    return transfers.map((transfer) => ({
-      ...omit('clientId', transfer),
-      amount: transfer.amount.toString(),
-      timestamp: transfer.createdAt.getTime(),
-      rates: buildHistoricalTranferRates(transfer.rates)
-    }))
+    return transfers.map((transfer) => {
+      return {
+        ...omit('clientId', transfer),
+        amount: transfer.amount.toString(),
+        timestamp: transfer.createdAt.getTime(),
+        rates: buildHistoricalTranferRates(transfer.rates)
+      }
+    })
   }
 }

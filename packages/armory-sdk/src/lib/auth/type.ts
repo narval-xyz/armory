@@ -1,8 +1,9 @@
-import { CreateAuthorizationRequest } from '@narval/policy-engine-shared'
+import { AccessToken, Approvals, CreateAuthorizationRequest, Decision } from '@narval/policy-engine-shared'
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
 import { SetOptional } from 'type-fest'
 import { z } from 'zod'
 import {
+  ApprovalDto,
   AuthorizationRequestDto,
   AuthorizationResponseDto,
   CreateClientResponseDto as CreateAuthClientResponse,
@@ -33,6 +34,20 @@ export const AuthAdminConfig = z.object({
 export type AuthAdminConfig = z.infer<typeof AuthAdminConfig>
 
 export type AuthorizationHttp = {
+  /**
+   * Adds an approval to an authorization request.
+   *
+   * @param {string} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  approve(
+    id: string,
+    clientId: string,
+    body: ApprovalDto,
+    options?: RawAxiosRequestConfig
+  ): AxiosPromise<AuthorizationResponseDto>
+
   /**
    * Submits a new authorization request for evaluation.
    *
@@ -77,3 +92,8 @@ export type RequestAccessTokenOptions = SignOptions &
   SetOptional<Pick<CreateAuthorizationRequest, 'id' | 'approvals'>, 'id' | 'approvals'>
 
 export type Evaluate = Omit<CreateAuthorizationRequest, 'authentication' | 'clientId'>
+
+export type AuthorizationResult =
+  | { authId: string; decision: Decision.PERMIT; accessToken: AccessToken }
+  | { authId: string; decision: Decision.CONFIRM; approvals: Approvals }
+  | { authId: string; decision: Decision.FORBID }
