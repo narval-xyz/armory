@@ -1,17 +1,13 @@
 import { Alg } from '@narval/signature'
 import { Hex } from 'viem'
 import { decode } from '../../decoders/decode'
+import { InputType, Intents, MessageInput, PERMIT2_ADDRESS, TransactionStatus, WalletType } from '../../domain'
+import { ChainData, ChainId } from '../../registry/chain-registry'
+import { ContractRegistryInput } from '../../registry/contract-registry'
+import { TransactionRegistryInput } from '../../registry/transaction-registry'
+import { CHAINS } from '../default-chains'
 import {
-  ContractRegistry,
-  InputType,
-  Intents,
-  MessageInput,
-  PERMIT2_ADDRESS,
-  TransactionStatus,
-  WalletType
-} from '../../domain'
-import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
-import {
+  defaultChainRegistry,
   mockCancelTransaction,
   mockErc1155BatchSafeTransferFrom,
   mockErc1155SafeTransferFrom,
@@ -20,7 +16,6 @@ import {
 } from './mocks'
 
 describe('decode', () => {
-  const transactionRegistry = buildTransactionRegistry([])
   describe('transaction request input', () => {
     describe('transfers', () => {
       it('decodes erc20 transfer', () => {
@@ -128,30 +123,50 @@ describe('decode', () => {
           hexSignature: '0xf2d12b12'
         })
       })
+      it('decodes a native transfer using config', () => {
+        const registry = defaultChainRegistry()
+        registry.forEach((data: ChainData, chainId: ChainId) => {
+          const decoded = decode({
+            input: {
+              type: InputType.TRANSACTION_REQUEST,
+              txRequest: {
+                to: '0x031d8C0cA142921c459bCB28104c0FF37928F9eD',
+                value: '0x4124',
+                from: '0xEd123cf8e3bA51c6C15DA1eAc74B2b5DEEA31448',
+                chainId,
+                nonce: 10
+              }
+            },
+            configInput: {
+              chainRegistryInput: CHAINS
+            }
+          })
+          expect(decoded).toEqual({
+            type: Intents.TRANSFER_NATIVE,
+            to: `eip155:${chainId}:0x031d8c0ca142921c459bcb28104c0ff37928f9ed`,
+            from: `eip155:${chainId}:0xed123cf8e3ba51c6c15da1eac74b2b5deea31448`,
+            amount: '16676',
+            token: `eip155:${chainId}/slip44:${data.nativeSlip44}`
+          })
+        })
+        expect.assertions(registry.size)
+      })
     })
     describe('transaction management', () => {
-      // SET A FAILED TO TRANSACTION ON FIRST MOCK DATA
-      const key = buildTransactionKey(mockErc20Transfer.input.txRequest)
-      transactionRegistry.set(key, TransactionStatus.FAILED)
-      it('should find the transaction in the registry', () => {
-        const trxStatus = transactionRegistry.get(buildTransactionKey(mockErc20Transfer.input.txRequest))
-        expect(trxStatus).toEqual(TransactionStatus.FAILED)
-      })
-      // NOW ITS A PENDING
       it('decodes retry transaction', () => {
-        const trxRegistry = buildTransactionRegistry([
+        const transactionRegistryInput: TransactionRegistryInput = [
           {
             txRequest: mockErc20Transfer.input.txRequest,
-            status: TransactionStatus.PENDING
+            status: TransactionStatus.FAILED
           }
-        ])
+        ]
         const decoded = decode({
           input: {
             type: InputType.TRANSACTION_REQUEST,
             txRequest: mockErc20Transfer.input.txRequest
           },
-          config: {
-            transactionRegistry: trxRegistry
+          configInput: {
+            transactionRegistryInput
           }
         })
         expect(decoded).toEqual({
@@ -159,52 +174,53 @@ describe('decode', () => {
         })
       })
       it('decodes cancel transaction', () => {
-        transactionRegistry.set(key, TransactionStatus.PENDING)
-        const decoded = decode({ input: mockCancelTransaction })
+        const transactionRegistryInput: TransactionRegistryInput = [
+          {
+            txRequest: mockErc20Transfer.input.txRequest,
+            status: TransactionStatus.PENDING
+          }
+        ]
+        const decoded = decode({ input: mockCancelTransaction, configInput: { transactionRegistryInput } })
         expect(decoded).toEqual({
           type: Intents.CANCEL_TRANSACTION
         })
       })
     })
     describe('contract creation', () => {
-      let contractRegistry: ContractRegistry
-
       const knownSafeFactory = '0xaaad8C0cA142921c459bCB28104c0FF37928F9eD'
       const knownSafeMaster = '0xbbbd8C0cA142921c459bCB28104c0FF37928F9eD'
       const knownErc4337Factory = '0xcccd8C0cA142921c459bCB28104c0FF37928F9eD'
       const knownErc4337Master = '0xdddd8C0cA142921c459bCB28104c0FF37928F9eD'
-      beforeEach(() => {
-        contractRegistry = buildContractRegistry([
-          {
-            contract: {
-              address: knownSafeFactory,
-              chainId: 137
-            },
-            factoryType: WalletType.SAFE
+      const contractRegistryInput: ContractRegistryInput = [
+        {
+          contract: {
+            address: knownSafeFactory,
+            chainId: 137
           },
-          {
-            contract: {
-              address: knownSafeMaster,
-              chainId: 1
-            },
-            factoryType: WalletType.SAFE
+          factoryType: WalletType.SAFE
+        },
+        {
+          contract: {
+            address: knownSafeMaster,
+            chainId: 1
           },
-          {
-            contract: {
-              address: knownErc4337Factory,
-              chainId: 137
-            },
-            factoryType: WalletType.ERC4337
+          factoryType: WalletType.SAFE
+        },
+        {
+          contract: {
+            address: knownErc4337Factory,
+            chainId: 137
           },
-          {
-            contract: {
-              address: knownErc4337Master,
-              chainId: 1
-            },
-            factoryType: WalletType.ERC4337
-          }
-        ])
-      })
+          factoryType: WalletType.ERC4337
+        },
+        {
+          contract: {
+            address: knownErc4337Master,
+            chainId: 1
+          },
+          factoryType: WalletType.ERC4337
+        }
+      ]
       it('decodes safe wallet creation deployment from a known factory', () => {
         const decoded = decode({
           input: {
@@ -215,8 +231,8 @@ describe('decode', () => {
               data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
             }
           },
-          config: {
-            contractRegistry
+          configInput: {
+            contractRegistryInput
           }
         })
         expect(decoded).toEqual({
@@ -235,8 +251,8 @@ describe('decode', () => {
               data: '0x41284124120948012849081209470127490127940790127490712038017403178947109247'
             }
           },
-          config: {
-            contractRegistry
+          configInput: {
+            contractRegistryInput
           }
         })
         expect(decoded).toEqual({
@@ -256,8 +272,8 @@ describe('decode', () => {
               data: '0x'
             }
           },
-          config: {
-            contractRegistry
+          configInput: {
+            contractRegistryInput
           }
         })
         expect(decoded).toEqual({
