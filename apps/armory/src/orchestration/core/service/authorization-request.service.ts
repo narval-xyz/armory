@@ -143,25 +143,9 @@ export class AuthorizationRequestService {
     })
 
     const status = getStatus(evaluation.decision)
-
-    const authzRequest = await this.authzRequestRepository.update({
-      id: input.id,
-      clientId: input.clientId,
-      status,
-      evaluations: [
-        {
-          id: uuid(),
-          decision: evaluation.decision,
-          signature: evaluation.accessToken?.value || null,
-          approvalRequirements: evaluation.approvals,
-          transactionRequestIntent: evaluation.transactionRequestIntent,
-          createdAt: new Date()
-        }
-      ]
-    })
-
+    // NOTE: we will track the transfer before we update the status to PERMITTED so that we don't have a brief window where a second transfer can come in before the history is tracked.
     // TODO: (@wcalderipe, 01/02/24) Move to the TransferTrackingService.
-    if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
+    if (input.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
       // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
       const intent = evaluation.transactionRequestIntent as Intent
 
@@ -183,13 +167,13 @@ export class AuthorizationRequestService {
         }
 
         const transfer = {
-          resourceId: authzRequest.request.resourceId,
-          clientId: authzRequest.clientId,
-          requestId: authzRequest.id,
+          resourceId: input.request.resourceId,
+          clientId: input.clientId,
+          requestId: input.id,
           from: intent.from,
           to: intent.to,
           token: intent.token,
-          chainId: authzRequest.request.transactionRequest.chainId,
+          chainId: input.request.transactionRequest.chainId,
           initiatedBy: evaluation.principal?.userId,
           createdAt: new Date(),
           amount: BigInt(intent.amount),
@@ -199,6 +183,22 @@ export class AuthorizationRequestService {
         await this.transferTrackingService.track(transfer)
       }
     }
+
+    const authzRequest = await this.authzRequestRepository.update({
+      id: input.id,
+      clientId: input.clientId,
+      status,
+      evaluations: [
+        {
+          id: uuid(),
+          decision: evaluation.decision,
+          signature: evaluation.accessToken?.value || null,
+          approvalRequirements: evaluation.approvals,
+          transactionRequestIntent: evaluation.transactionRequestIntent,
+          createdAt: new Date()
+        }
+      ]
+    })
 
     this.logger.log('Authorization request status updated', {
       clientId: authzRequest.clientId,

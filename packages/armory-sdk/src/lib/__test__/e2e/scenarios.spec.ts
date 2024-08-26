@@ -29,11 +29,13 @@ const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
 
+const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
+
 describe('End to end scenarios', () => {
   describe('rate limiting by principal', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
-      nonce: 'test-nonce',
+      nonce: 'test-nonce-1',
       transactionRequest: {
         from: '0x0301e2724a40E934Cce3345928b88956901aA127',
         to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
@@ -167,7 +169,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -178,7 +180,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -189,7 +191,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -202,7 +204,7 @@ describe('End to end scenarios', () => {
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -214,7 +216,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
   })
@@ -222,7 +224,7 @@ describe('End to end scenarios', () => {
   describe('rate limiting by groupId', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
-      nonce: 'test-nonce',
+      nonce: 'test-nonce-2',
       transactionRequest: {
         from: '0x0301e2724a40E934Cce3345928b88956901aA127',
         to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
@@ -402,7 +404,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -412,7 +414,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -422,31 +424,33 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
     it('forbids member bob to exceed the limit', async () => {
+      expect.assertions(1)
       const { authClient } = await buildAuthClient(bobPrivateKey, {
         host: getAuthHost(),
         clientId
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
     })
 
     it('forbids member carol to exceed the limit', async () => {
+      expect.assertions(1)
       const { authClient } = await buildAuthClient(carolPrivateKey, {
         host: getAuthHost(),
         clientId
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -458,7 +462,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
   })
@@ -466,7 +470,7 @@ describe('End to end scenarios', () => {
   describe('spending limits', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
-      nonce: 'test-nonce',
+      nonce: 'test-nonce-3',
       transactionRequest: {
         from: '0x0301e2724a40E934Cce3345928b88956901aA127',
         to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
@@ -621,7 +625,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -630,8 +634,7 @@ describe('End to end scenarios', () => {
         host: getAuthHost(),
         clientId
       })
-
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -640,8 +643,7 @@ describe('End to end scenarios', () => {
         host: getAuthHost(),
         clientId
       })
-
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -650,8 +652,7 @@ describe('End to end scenarios', () => {
         host: getAuthHost(),
         clientId
       })
-
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -663,7 +664,7 @@ describe('End to end scenarios', () => {
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -674,8 +675,7 @@ describe('End to end scenarios', () => {
         host: getAuthHost(),
         clientId
       })
-
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
   })
@@ -683,7 +683,7 @@ describe('End to end scenarios', () => {
   describe('approvals by groupId and spending limit', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
-      nonce: 'test-nonce',
+      nonce: 'test-nonce-4',
       transactionRequest: {
         from: '0x0301e2724a40E934Cce3345928b88956901aA127',
         to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
@@ -916,7 +916,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -926,7 +926,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -936,7 +936,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -948,7 +948,7 @@ describe('End to end scenarios', () => {
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -962,7 +962,7 @@ describe('End to end scenarios', () => {
       })
 
       try {
-        await authClient.requestAccessToken(request)
+        await authClient.requestAccessToken(genNonce(request))
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -974,7 +974,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const response = await authClient.requestAccessToken(request)
+      const response = await authClient.requestAccessToken(genNonce(request))
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
@@ -991,7 +991,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const res = await authClient.authorize(request)
+      const res = await authClient.authorize(genNonce(request))
       expect(res.decision).toEqual(Decision.CONFIRM)
 
       if (res.decision === Decision.CONFIRM) {
@@ -1015,7 +1015,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const res = await authClient.authorize(request)
+      const res = await authClient.authorize(genNonce(request))
       expect(res.decision).toEqual(Decision.CONFIRM)
 
       if (res.decision === Decision.CONFIRM) {

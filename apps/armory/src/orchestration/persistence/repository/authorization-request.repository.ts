@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client/armory'
 import { v4 as uuid } from 'uuid'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
-import { decodeAuthorizationRequest, decodeEvaluationLog } from '../decode/authorization-request.decode'
+import { decodeAuthorizationRequest } from '../decode/authorization-request.decode'
 import { createRequestSchema } from '../schema/request.schema'
 
 @Injectable()
@@ -25,39 +25,46 @@ export class AuthorizationRequestRepository {
     const approvals = (input.approvals || []).map((sig) => ({ sig }))
     const errors = this.toErrors(clientId, input.errors)
 
-    await this.prismaService.authorizationRequest.create({
-      data: {
-        id,
-        status,
-        clientId,
-        request,
-        idempotencyKey,
-        createdAt,
-        updatedAt,
-        action: request.action,
-        authnSig: authentication,
-        metadata,
-        approvals: {
-          createMany: {
-            data: approvals
+    const evaluationLogs = this.toEvaluationLogs({ requestId: id, clientId, evaluations: input.evaluations })
+    const approvalRequirements = this.toApprovalRequirements(input.evaluations)
+
+    await this.prismaService.$transaction(async (prisma) => {
+      await prisma.authorizationRequest.create({
+        data: {
+          id,
+          status,
+          clientId,
+          request,
+          idempotencyKey,
+          createdAt,
+          updatedAt,
+          action: request.action,
+          authnSig: authentication,
+          metadata,
+          approvals: {
+            createMany: {
+              data: approvals
+            }
+          },
+          errors: {
+            createMany: {
+              data: errors
+            }
           }
         },
-        errors: {
-          createMany: {
-            data: errors
-          }
+        include: {
+          approvals: true,
+          errors: true
         }
-      },
-      include: {
-        approvals: true,
-        errors: true
-      }
-    })
+      })
 
-    await this.createEvaluationLogs({
-      requestId: id,
-      clientId,
-      evaluations: input.evaluations
+      await prisma.evaluationLog.createMany({
+        data: evaluationLogs
+      })
+
+      await prisma.approvalRequirement.createMany({
+        data: approvalRequirements
+      })
     })
 
     const authRequest = await this.findById(id)
@@ -68,40 +75,6 @@ export class AuthorizationRequestRepository {
       })
     }
     return authRequest
-  }
-
-  private async createEvaluationLogs({
-    requestId,
-    clientId,
-    evaluations
-  }: {
-    requestId: string
-    clientId?: string
-    evaluations?: Evaluation[]
-  }) {
-    const evaluationLogs = this.toEvaluationLogs({ requestId, clientId, evaluations })
-    const approvalRequirements = this.toApprovalRequirements(evaluations)
-
-    await this.prismaService.evaluationLog.createMany({
-      data: evaluationLogs
-    })
-
-    await this.prismaService.approvalRequirement.createMany({
-      data: approvalRequirements
-    })
-
-    return this.getEvaluationLogs(requestId)
-  }
-
-  private async getEvaluationLogs(requestId: string) {
-    const evaluationLogs = await this.prismaService.evaluationLog.findMany({
-      where: { requestId },
-      include: {
-        approvals: true
-      }
-    })
-
-    return evaluationLogs.map(decodeEvaluationLog)
   }
 
   private toEvaluationLogs({
@@ -185,34 +158,39 @@ export class AuthorizationRequestRepository {
       (sig) => ({ sig })
     )
     const errors = this.toErrors(clientId, input.errors)
-    // TODO (@wcalderipe, 19/01/24): Cover the skipDuplicate with tests.
-    await this.prismaService.authorizationRequest.update({
-      where: { id },
-      data: {
-        status,
-        approvals: {
-          createMany: {
-            data: approvals,
-            skipDuplicates: true
-          }
-        },
-        errors: {
-          createMany: {
-            data: errors,
-            skipDuplicates: true
-          }
+
+    const updateData: Prisma.AuthorizationRequestUpdateInput = {
+      status,
+      approvals: {
+        createMany: {
+          data: approvals,
+          skipDuplicates: true
         }
       },
-      include: {
-        approvals: true,
-        errors: true
+      errors: {
+        createMany: {
+          data: errors,
+          skipDuplicates: true
+        }
       }
-    })
+    }
+    const evaluationLogs = this.toEvaluationLogs({ requestId: id, clientId, evaluations: input.evaluations })
+    const approvalRequirements = this.toApprovalRequirements(input.evaluations)
 
-    await this.createEvaluationLogs({
-      requestId: id,
-      clientId,
-      evaluations: input.evaluations
+    // Do the update in a tx to avoid partial updates.
+    await this.prismaService.$transaction(async (prisma) => {
+      await prisma.authorizationRequest.update({
+        where: { id },
+        data: updateData
+      })
+
+      await prisma.evaluationLog.createMany({
+        data: evaluationLogs
+      })
+
+      await prisma.approvalRequirement.createMany({
+        data: approvalRequirements
+      })
     })
 
     const authRequest = await this.findById(id)
