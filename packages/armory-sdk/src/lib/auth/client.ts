@@ -162,6 +162,13 @@ export class AuthClient {
     return this.config.pollingIntervalMs || 250
   }
 
+
+  /**
+   * Approves an authorization request.
+   *
+   * @param requestId - The ID of the authorization request to approve.
+   * @returns A promise that resolves to the authorization response.
+   */
   async approve(requestId: string): Promise<AuthorizationResponseDto> {
     const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
     const { request } = AuthorizationResponse.parse(res.data)
@@ -171,6 +178,16 @@ export class AuthClient {
     return data
   }
 
+  /**
+   * Gets an access token by ID.
+   * - It fetches the AuthServer for the access token
+   * - It returns the last engine signature from the evaluations
+   * - It throws an exception if authorization was not permitted
+   * 
+   * This method should be used to fetch a token after the authorization request has been approved.
+   * @param requestId 
+   * @returns 
+   */
   async getAccessToken(requestId: string): Promise<AccessToken> {
     const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
     const { request } = AuthorizationResponse.parse(res.data)
@@ -185,6 +202,7 @@ export class AuthClient {
 
     throw new ArmorySdkException('Unauthorized', { data });
   }
+
 
   async requireResponse(
     request: SetOptional<Request, 'nonce'>,
@@ -216,6 +234,16 @@ export class AuthClient {
     throw new ArmorySdkException('Unauthorized', { authorization })
   }
 
+  /**
+   *  This method is used to request an access token from the authorization server.
+   * - It ALWAYS creates a new authorization request.
+   * - It ALWAYS expects a PERMIT decision
+   * - It ALWAYS returns an access token
+   * 
+   * @param request 
+   * @param opts 
+   * @returns 
+   */
   async requestAccessToken(
     request: SetOptional<Request, 'nonce'>,
     opts?: RequestAccessTokenOptions
