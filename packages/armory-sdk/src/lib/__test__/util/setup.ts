@@ -1,22 +1,10 @@
-import {
-  AuthAdminClient,
-  AuthClient,
-  AuthConfig,
-  DataStoreConfig,
-  Entities,
-  EntityStoreClient,
-  Hex,
-  Policy,
-  PolicyStoreClient,
-  VaultAdminClient,
-  VaultConfig,
-  buildSignerForAlg,
-  createHttpDataStore,
-  getPublicKey,
-  privateKeyToJwk
-} from '@narval/armory-sdk'
+import { Entities, Hex, Policy } from '@narval/policy-engine-shared'
+import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
+import { AuthAdminClient, AuthClient, AuthConfig } from '../../auth'
+import { DataStoreConfig, EntityStoreClient, PolicyStoreClient, createHttpDataStore } from '../../data-store'
+import { VaultAdminClient, VaultConfig } from '../../vault'
 
 export const createClient = async (
   SYSTEM_MANAGER_KEY: Hex,

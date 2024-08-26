@@ -1,4 +1,4 @@
-import { CreateAuthorizationRequest } from '@narval/policy-engine-shared'
+import { AccessToken, Approvals, CreateAuthorizationRequest, Decision } from '@narval/policy-engine-shared'
 import { AxiosPromise, RawAxiosRequestConfig } from 'axios'
 import { SetOptional } from 'type-fest'
 import { z } from 'zod'
@@ -92,3 +92,8 @@ export type RequestAccessTokenOptions = SignOptions &
   SetOptional<Pick<CreateAuthorizationRequest, 'id' | 'approvals'>, 'id' | 'approvals'>
 
 export type Evaluate = Omit<CreateAuthorizationRequest, 'authentication' | 'clientId'>
+
+export type AuthorizationResult =
+  | { authId: string; decision: Decision.PERMIT; accessToken: AccessToken }
+  | { authId: string; decision: Decision.CONFIRM; approvals: Approvals }
+  | { authId: string; decision: Decision.FORBID }

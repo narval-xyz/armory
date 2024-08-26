@@ -1,7 +1,15 @@
 /* eslint-disable jest/consistent-test-it */
-import { Action, Decision, Entities, EntityType, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
+import {
+  Action,
+  Decision,
+  Entities,
+  EntityType,
+  FIXTURE,
+  Policy,
+  Request,
+  ValueOperators
+} from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import { AuthorizationResponse } from '../../types'
 import { buildAuthClient, createClient, saveDataStore } from '../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
@@ -940,8 +948,7 @@ describe('End to end scenarios', () => {
       })
 
       try {
-        const res = await authClient.requestAccessToken(request)
-        console.log(res)
+        await authClient.requestAccessToken(request)
       } catch (error: any) {
         expect(error.message).toEqual('Unauthorized')
       }
@@ -984,7 +991,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const res = await authClient.requireResponse(request);
+      const res = await authClient.authorize(request)
       expect(res.decision).toEqual(Decision.CONFIRM)
 
       if (res.decision === Decision.CONFIRM) {
@@ -1008,7 +1015,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const res = await authClient.requireResponse(request);
+      const res = await authClient.authorize(request)
       expect(res.decision).toEqual(Decision.CONFIRM)
 
       if (res.decision === Decision.CONFIRM) {

@@ -31,6 +31,7 @@ import {
   AuthClientHttp,
   AuthConfig,
   AuthorizationHttp,
+  AuthorizationResult,
   Evaluate,
   RequestAccessTokenOptions
 } from './type'
@@ -162,7 +163,6 @@ export class AuthClient {
     return this.config.pollingIntervalMs || 250
   }
 
-
   /**
    * Approves an authorization request.
    *
@@ -183,10 +183,10 @@ export class AuthClient {
    * - It fetches the AuthServer for the access token
    * - It returns the last engine signature from the evaluations
    * - It throws an exception if authorization was not permitted
-   * 
+   *
    * This method should be used to fetch a token after the authorization request has been approved.
-   * @param requestId 
-   * @returns 
+   * @param requestId
+   * @returns
    */
   async getAccessToken(requestId: string): Promise<AccessToken> {
     const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
@@ -194,20 +194,30 @@ export class AuthClient {
     const signature = await this.signJwtPayload(this.buildJwtPayload(request))
     const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
 
-    const lastSignature = [...data.evaluations].reverse().find(e => e.signature !== null)?.signature;
+    const lastSignature = reverse([...data.evaluations]).find((e) => e.signature !== null)?.signature
 
     if (lastSignature) {
-      return { value: lastSignature };
+      return { value: lastSignature }
     }
 
-    throw new ArmorySdkException('Unauthorized', { data });
+    throw new ArmorySdkException('Unauthorized', { data })
   }
 
-
-  async requireResponse(
+  /**
+   * This method is used to authorize a request.
+   * - It ALWAYS creates a new authorization request.
+   * - It returns an access token if the decision is PERMIT
+   * - It returns a list of approvals if the decision is CONFIRM
+   * - It returns a FORBID decision if the decision is FORBID
+   *
+   * @param request
+   * @param opts
+   * @returns
+   */
+  async authorize(
     request: SetOptional<Request, 'nonce'>,
     opts?: RequestAccessTokenOptions
-  ): Promise<{ decision: Decision.PERMIT, accessToken: AccessToken} | { decision: Decision.CONFIRM, authId: string }> {
+  ): Promise<AuthorizationResult> {
     const authorization = await this.evaluate(
       {
         id: opts?.id || uuid(),
@@ -224,14 +234,17 @@ export class AuthClient {
     const confirm = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.CONFIRM)
 
     if (permit && permit.signature) {
-      return { decision: Decision.PERMIT, accessToken: { value: permit.signature }}
+      return { authId: authorization.id, decision: Decision.PERMIT, accessToken: { value: permit.signature } }
     }
 
     if (confirm) {
-      return { decision: Decision.CONFIRM, authId: authorization.id }
+      if (!confirm.approvalRequirements) {
+        throw new ArmorySdkException('Missing approval requirements', { authorization })
+      }
+      return { authId: authorization.id, decision: Decision.CONFIRM, approvals: confirm.approvalRequirements }
     }
 
-    throw new ArmorySdkException('Unauthorized', { authorization })
+    return { authId: authorization.id, decision: Decision.FORBID }
   }
 
   /**
@@ -239,10 +252,10 @@ export class AuthClient {
    * - It ALWAYS creates a new authorization request.
    * - It ALWAYS expects a PERMIT decision
    * - It ALWAYS returns an access token
-   * 
-   * @param request 
-   * @param opts 
-   * @returns 
+   *
+   * @param request
+   * @param opts
+   * @returns
    */
   async requestAccessToken(
     request: SetOptional<Request, 'nonce'>,
