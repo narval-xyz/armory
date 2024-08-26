@@ -189,17 +189,13 @@ export class AuthClient {
    */
   async getAccessToken(requestId: string): Promise<AccessToken> {
     const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
-    const { request } = AuthorizationResponse.parse(res.data)
-    const signature = await this.signJwtPayload(this.buildJwtPayload(request))
-    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
-
-    const lastSignature = reverse([...data.evaluations]).find((e) => e.signature !== null)?.signature
+    const lastSignature = reverse(res.data.evaluations).find((e) => e.signature !== null)?.signature
 
     if (lastSignature) {
       return { value: lastSignature }
     }
 
-    throw new ArmorySdkException('Unauthorized', { data })
+    throw new ArmorySdkException('Unauthorized', { res })
   }
 
   findApprovalRequirements(authRequest: AuthorizationResponseDto) {
