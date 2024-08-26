@@ -174,7 +174,6 @@ export class AuthClient {
     const { request } = AuthorizationResponse.parse(res.data)
     const signature = await this.signJwtPayload(this.buildJwtPayload(request))
     const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
-
     return data
   }
 
@@ -201,6 +200,14 @@ export class AuthClient {
     }
 
     throw new ArmorySdkException('Unauthorized', { data })
+  }
+
+  findApprovalRequirements(authRequest: AuthorizationResponseDto) {
+    const requirements = reverse(authRequest.evaluations).find(
+      ({ decision }) => decision === Decision.CONFIRM
+    )?.approvalRequirements
+
+    return requirements
   }
 
   /**
