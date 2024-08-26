@@ -1,5 +1,5 @@
 /* eslint-disable jest/consistent-test-it */
-import { Action, Entities, EntityType, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
+import { Action, Decision, Entities, EntityType, FIXTURE, Policy, Request, ValueOperators } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import { AuthorizationResponse } from '../../types'
 import { buildAuthClient, createClient, saveDataStore } from '../util/setup'
@@ -972,7 +972,8 @@ describe('End to end scenarios', () => {
     })
 
     it('permits bob to exceed limit with alice-admin approval', async () => {
-      expect.assertions(3)
+      expect.assertions(2)
+
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
         host: getAuthHost(),
         clientId
@@ -983,23 +984,20 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      let authId: string | undefined = undefined
-      await authClient.requestAccessToken(request).catch(async (error: any) => {
-        authId = (error.context.authorization as AuthorizationResponse).id
-        expect(authId).toEqual(expect.any(String))
-        expect(error.message).toEqual('Unauthorized')
+      const res = await authClient.requireResponse(request);
+      expect(res.decision).toEqual(Decision.CONFIRM)
 
-        await adminClient.approve(authId)
-      })
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      if (authId) {
-        const response = await authClient.requestAccessToken(request, { id: authId })
-        expect(response).toMatchObject({ value: expect.any(String) })
+      if (res.decision === Decision.CONFIRM) {
+        await adminClient.approve(res.authId)
+
+        const accessToken = await authClient.getAccessToken(res.authId)
+        expect(accessToken).toMatchObject({ value: expect.any(String) })
       }
     })
 
     it('permits carol to exceed limit with alice-admin approval', async () => {
-      expect.assertions(3)
+      expect.assertions(2)
+
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
         host: getAuthHost(),
         clientId
@@ -1010,21 +1008,14 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      let authId: string | undefined = undefined
-      await authClient.requestAccessToken(request).catch(async (error: any) => {
-        authId = (error.context.authorization as AuthorizationResponse).id
+      const res = await authClient.requireResponse(request);
+      expect(res.decision).toEqual(Decision.CONFIRM)
 
-        expect(authId).toEqual(expect.any(String))
-        expect(error.message).toEqual('Unauthorized')
+      if (res.decision === Decision.CONFIRM) {
+        await adminClient.approve(res.authId)
 
-        const res = await adminClient.approve(authId)
-      })
-
-      // Use await instead of setTimeout
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      if (authId) {
-        const response = await authClient.requestAccessToken(request, { id: authId })
-        expect(response).toMatchObject({ value: expect.any(String) })
+        const accessToken = await authClient.getAccessToken(res.authId)
+        expect(accessToken).toMatchObject({ value: expect.any(String) })
       }
     })
   })

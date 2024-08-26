@@ -171,6 +171,51 @@ export class AuthClient {
     return data
   }
 
+  async getAccessToken(requestId: string): Promise<AccessToken> {
+    const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
+    const { request } = AuthorizationResponse.parse(res.data)
+    const signature = await this.signJwtPayload(this.buildJwtPayload(request))
+    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
+
+    const lastSignature = [...data.evaluations].reverse().find(e => e.signature !== null)?.signature;
+
+    if (lastSignature) {
+      return { value: lastSignature };
+    }
+
+    throw new ArmorySdkException('Unauthorized', { data });
+  }
+
+  async requireResponse(
+    request: SetOptional<Request, 'nonce'>,
+    opts?: RequestAccessTokenOptions
+  ): Promise<{ decision: Decision.PERMIT, accessToken: AccessToken} | { decision: Decision.CONFIRM, authId: string }> {
+    const authorization = await this.evaluate(
+      {
+        id: opts?.id || uuid(),
+        approvals: opts?.approvals || [],
+        request: {
+          ...request,
+          nonce: request.nonce || uuid()
+        }
+      },
+      opts
+    )
+
+    const permit = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.PERMIT)
+    const confirm = reverse(authorization.evaluations).find(({ decision }) => decision === Decision.CONFIRM)
+
+    if (permit && permit.signature) {
+      return { decision: Decision.PERMIT, accessToken: { value: permit.signature }}
+    }
+
+    if (confirm) {
+      return { decision: Decision.CONFIRM, authId: authorization.id }
+    }
+
+    throw new ArmorySdkException('Unauthorized', { authorization })
+  }
+
   async requestAccessToken(
     request: SetOptional<Request, 'nonce'>,
     opts?: RequestAccessTokenOptions
