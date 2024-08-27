@@ -241,6 +241,30 @@ export const ACCOUNT: Record<Accounts, AccountEntity> = {
     accountType: AccountType.EOA
   }
 }
+/*
+{
+  Testing: {
+    id: 'eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495',
+    address: '0x0f610AC9F0091f8F573c33f15155afE8aD747495',
+    accountType: 'eoa'
+  },
+  Engineering: {
+    id: 'eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5',
+    address: '0x9f38879167acCf7401351027EE3f9247A71cd0c5',
+    accountType: 'eoa'
+  },
+  Treasury: {
+    id: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127',
+    address: '0x0301e2724a40E934Cce3345928b88956901aA127',
+    accountType: 'eoa'
+  },
+  Operation: {
+    id: 'eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+    address: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+    accountType: 'eoa'
+  }
+}
+*/
 
 export const ACCOUNT_GROUP: Record<Groups, AccountGroupEntity> = {
   Engineering: {

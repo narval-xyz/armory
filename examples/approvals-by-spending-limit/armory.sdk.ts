@@ -1,95 +1,43 @@
 import {
-  AuthAdminClient,
+  AuthClient,
   AuthConfig,
   DataStoreConfig,
+  EntityStoreClient,
   Hex,
-  VaultAdminClient,
+  PolicyStoreClient,
+  VaultClient,
   VaultConfig,
-  buildSignerForAlg,
-  createHttpDataStore,
-  getPublicKey,
+  buildSignerEip191,
   privateKeyToJwk
 } from '@narval-xyz/armory-sdk'
-import { format } from 'date-fns'
-import { v4 } from 'uuid'
+import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { privateKeyToAddress } from 'viem/accounts'
 
-const createClient = async (
-  SYSTEM_MANAGER_KEY: Hex,
+export const getArmoryClients = async (
+  dataStoreSignerPrivateKey: Hex,
   {
+    clientId,
+    clientSecret,
     authHost,
-    authAdminApiKey,
-    vaultHost,
-    vaultAdminApiKey
-  }: {
-    vaultHost: string
-    authHost: string
-    authAdminApiKey: string
-    vaultAdminApiKey: string
-  }
-) => {
-  const clientId = v4()
-  const authAdminClient = new AuthAdminClient({
-    host: authHost,
-    adminApiKey: authAdminApiKey
-  })
-  const vaultAdminClient = new VaultAdminClient({
-    host: vaultHost,
-    adminApiKey: vaultAdminApiKey
-  })
-
-  const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
-  const publicKey = getPublicKey(jwk)
-
-  const authClient = await authAdminClient.createClient({
-    id: clientId,
-    name: `Armory SDK E2E test ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`,
-    dataStore: createHttpDataStore({
-      host: authHost,
-      clientId,
-      keys: [publicKey]
-    }),
-    useManagedDataStore: true
-  })
-
-  await vaultAdminClient.createClient({
-    clientId: authClient.id,
-    engineJwk: authClient.policyEngine.nodes[0].publicKey
-  })
-
-  return {
-    clientId
-  }
-}
-
-export const getArmoryConfig = async (
-  SYSTEM_MANAGER_KEY: Hex,
-  {
-    authHost,
-    authAdminApiKey,
-    vaultHost,
-    vaultAdminApiKey
-  }: {
-    vaultHost: string
-    authHost: string
-    authAdminApiKey: string
-    vaultAdminApiKey: string
-  }
-) => {
-  const { clientId } = await createClient(SYSTEM_MANAGER_KEY, {
-    authAdminApiKey,
-    authHost,
-    vaultAdminApiKey,
     vaultHost
-  })
+  }: {
+    clientId: string
+    clientSecret: string
+    vaultHost: string
+    authHost: string
+  }
+) => {
+  const address = privateKeyToAddress(dataStoreSignerPrivateKey)
+  // Note: when manually configuring, we set it up w/ an EOA as the datastore signer, so we need to match the keyId here
+  const jwk = privateKeyToJwk(dataStoreSignerPrivateKey, 'ES256K', address)
 
-  const jwk = privateKeyToJwk(SYSTEM_MANAGER_KEY)
   const auth: AuthConfig = {
     host: authHost,
     clientId,
     signer: {
       jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
+      alg: 'EIP191',
+      sign: await buildSignerEip191(dataStoreSignerPrivateKey)
     }
   }
 
@@ -98,35 +46,61 @@ export const getArmoryConfig = async (
     clientId,
     signer: {
       jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
+      alg: 'EIP191',
+      sign: await buildSignerEip191(dataStoreSignerPrivateKey)
     }
   }
 
   const entityStore: DataStoreConfig = {
     host: authHost,
     clientId,
+    clientSecret,
     signer: {
       jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
+      alg: 'EIP191',
+      sign: await buildSignerEip191(dataStoreSignerPrivateKey)
     }
   }
 
   const policyStore: DataStoreConfig = {
     host: authHost,
     clientId,
+    clientSecret,
     signer: {
       jwk,
-      alg: 'ES256K',
-      sign: await buildSignerForAlg(jwk)
+      alg: 'EIP191',
+      sign: await buildSignerEip191(dataStoreSignerPrivateKey)
     }
   }
 
+  const authClient = new AuthClient(auth)
+  const vaultClient = new VaultClient(vault)
+  const entityStoreClient = new EntityStoreClient(entityStore)
+  const policyStoreClient = new PolicyStoreClient(policyStore)
+
   return {
-    auth,
-    vault,
-    entityStore,
-    policyStore
+    authClient,
+    vaultClient,
+    entityStoreClient,
+    policyStoreClient
   }
+}
+
+export const getArmoryClientsFromEnv = async () => {
+  const dataStoreSignerPrivateKey = hexSchema.parse(process.env.DATA_STORE_SIGNER_PRIVATE_KEY)
+  const vaultHost = process.env.VAULT_HOST
+  const authHost = process.env.AUTH_HOST
+  const clientId = process.env.CLIENT_ID
+  const clientSecret = process.env.CLIENT_SECRET
+
+  if (!authHost || !vaultHost || !clientId || !clientSecret) {
+    throw new Error('Missing configuration')
+  }
+
+  return getArmoryClients(dataStoreSignerPrivateKey, {
+    clientId,
+    clientSecret,
+    vaultHost,
+    authHost
+  })
 }

@@ -4,7 +4,7 @@
   "description": "A typescript example to setup and use the armory stack with approvals by spending limit",
   "main": "index.js",
   "scripts": {
-    "setup": "tsx setup.ts",
+    "setup": "tsx 1-setup.ts",
     "transfer-admin": "tsx transfer.ts --user=admin",
     "transfer-member": "tsx transfer.ts --user=member",
     "approve-admin": "tsx approve.ts --user=admin",
@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@narval-xyz/armory-sdk": "0.7.0",
+    "@narval-xyz/armory-sdk": "0.8.1",
     "dotenv": "^16.4.5",
     "minimist": "^1.2.8",
     "tsx": "^4.16.2",
