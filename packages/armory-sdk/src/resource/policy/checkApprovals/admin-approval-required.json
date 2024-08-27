@@ -1,0 +1,18 @@
+{
+  "id": "an admin approval is required",
+  "description": "an admin approval is required",
+  "when": [
+    {
+      "criterion": "checkApprovals",
+      "args": [
+        {
+          "approvalCount": 1,
+          "countPrincipal": false,
+          "approvalEntityType": "Narval::UserRole",
+          "entityIds": ["admin"]
+        }
+      ]
+    }
+  ],
+  "then": "permit"
+}

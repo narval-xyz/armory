@@ -1,0 +1,11 @@
+{
+  "id": "1-admin-can-do-anything",
+  "description": "admin can do any action",
+  "when": [
+    {
+      "criterion": "checkPrincipalRole",
+      "args": ["admin"]
+    }
+  ],
+  "then": "permit"
+}

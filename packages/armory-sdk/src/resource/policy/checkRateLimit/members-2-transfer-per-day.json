@@ -1,0 +1,28 @@
+{
+  "id": "1-allow-2-transfer-per-day",
+  "description": "Permit members to transfer native 2 times per day",
+  "when": [
+    {
+      "criterion": "checkRateLimit",
+      "args": {
+        "limit": 2,
+        "timeWindow": {
+          "type": "fixed",
+          "period": "1d"
+        },
+        "filters": {
+          "perPrincipal": true
+        }
+      }
+    },
+    {
+      "criterion": "checkIntentType",
+      "args": ["transferNative"]
+    },
+    {
+      "criterion": "checkPrincipalRole",
+      "args": ["member"]
+    }
+  ],
+  "then": "permit"
+}

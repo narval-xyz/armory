@@ -1,0 +1,22 @@
+{
+  "id": "treasury-members-can-transfer-1-eth",
+  "description": "treasury group members can transfer 1 ETH",
+  "when": [
+    {
+      "criterion": "checkSpendingLimit",
+      "args": {
+        "limit": "1000000000000000000",
+        "operator": "lte",
+        "timeWindow": {
+          "type": "rolling",
+          "value": 86400
+        },
+        "filters": {
+          "userGroups": ["treasury-group-id"],
+          "tokens": ["eip155:1/slip44:60"]
+        }
+      }
+    }
+  ],
+  "then": "permit"
+}
