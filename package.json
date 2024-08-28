@@ -57,7 +57,7 @@
     "lint-staged": "15.2.0",
     "nock": "13.5.4",
     "nx": "19.4.4",
-    "postcss": "8.4.38",
+    "postcss": "8.4.41",
     "prettier": "3.2.5",
     "prettier-plugin-organize-imports": "3.2.4",
     "prisma": "5.16.2",
