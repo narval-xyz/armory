@@ -49,6 +49,19 @@
         "x": "OA4p5YjB0XBUzMuE6qhSwcSCLDu-yf9VekwcE320fWw",
         "y": "nLK5Qr_VHqZD9rVCLMHToXvdE9KuTn6w--PJ9jcpdUU"
       }
+    },
+    {
+      "userId": "test-dave-user-uid",
+      "id": "0x1d76eff4362bf8e292d5ceedcc89925cbef5f12dbdd2023c88887a863d444303",
+      "key": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "alg": "ES256K",
+        "kid": "0x1d76eff4362bf8e292d5ceedcc89925cbef5f12dbdd2023c88887a863d444303",
+        "x": "B8XJz6mktivOJjgyb3sRlSSaLQ4lfW0filHdLUzf37Q",
+        "y": "WUXcs1yEu8f9qBksL0y2psQ3yFDJtjRRJtNX9hGQplY",
+        "d": "gqDPTw_f1C2T_zKLc7_byci0-V9a7froIFl1P8CKGA8"
+      }
     }
   ],
   "tokens": [],
@@ -80,6 +93,10 @@
     {
       "id": "test-carol-user-uid",
       "role": "member"
+    },
+    {
+      "id": "test-dave-user-uid",
+      "role": "admin"
     }
   ],
   "accountGroupMembers": [],
