@@ -9,9 +9,12 @@ export * from './lib/vault'
 
 export { resourceId } from './lib/utils'
 
-export type { Alg, PrivateKey, PublicKey, RsaPublicKey, SigningAlg } from '@narval/signature'
+export type { Alg, PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
 
 export {
+  Curves,
+  KeyTypes,
+  SigningAlg,
   base64UrlToHex,
   buildSignerEip191,
   buildSignerForAlg,
@@ -19,37 +22,44 @@ export {
   getPublicKey,
   hash,
   hexToBase64Url,
+  jwkEoaSchema,
   jwkSchema,
   privateKeyToJwk,
+  publicKeySchema,
   publicKeyToJwk,
   signJwt
 } from '@narval/signature'
 
-export {
+export type {
   AccessToken,
-  AccountType,
-  Action,
+  AccountEntity,
+  Address,
   CreateAuthorizationRequest,
+  CredentialEntity,
   Criterion,
   Decision,
   Eip712TypedData,
+  Entities,
   EntityType,
+  Hex,
   JwtString,
+  Policy,
+  PolicyCriterion,
   Request,
   Then,
   TransactionRequest,
+  UserAccountEntity,
+  UserEntity,
+  ValueOperators,
+} from '@narval/policy-engine-shared'
+
+export {
+  AccountType,
+  Action,
+  EntityUtil,
   UserRole,
-  ValueOperators
+  getAddress,
+  hexSchema,
+  isAddress,
+  toHex
 } from '@narval/policy-engine-shared'
-
-export type {
-  AccountEntity,
-  Address,
-  Entities,
-  Hex,
-  Policy,
-  PolicyCriterion,
-  UserEntity
-} from '@narval/policy-engine-shared'
-
-export { EntityUtil, getAddress, toHex } from '@narval/policy-engine-shared'

@@ -6,7 +6,7 @@ import {
   faTrash,
   faWallet
 } from '@fortawesome/free-solid-svg-icons'
-import { UserEntity } from '@narval/policy-engine-shared'
+import { UserEntity } from '@narval/armory-sdk'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { capitalize } from 'lodash/fp'
 import { useState } from 'react'

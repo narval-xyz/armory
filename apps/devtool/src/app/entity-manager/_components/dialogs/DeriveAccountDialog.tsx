@@ -1,8 +1,7 @@
 'use client'
 
 import { faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
-import { Permission } from '@narval/armory-sdk'
-import { AccountType, Action, Entities, EntityUtil, hexSchema } from '@narval/policy-engine-shared'
+import { AccountType, Action, Entities, EntityUtil, Permission, hexSchema } from '@narval/armory-sdk'
 import { parseInt } from 'lodash'
 import { Dispatch, FC, SetStateAction, useState } from 'react'
 import { v4 as uuid } from 'uuid'

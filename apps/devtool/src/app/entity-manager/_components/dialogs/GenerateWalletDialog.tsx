@@ -2,8 +2,15 @@
 
 import { faCheckCircle, faWallet, faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { GenerateKeyResponse, Permission } from '@narval/armory-sdk'
-import { AccountType, Action, Entities, EntityUtil, hexSchema } from '@narval/policy-engine-shared'
+import {
+  AccountType,
+  Action,
+  Entities,
+  EntityUtil,
+  GenerateKeyResponse,
+  Permission,
+  hexSchema
+} from '@narval/armory-sdk'
 import { Dispatch, FC, SetStateAction, useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import ValueWithCopy from '../../../_components/ValueWithCopy'

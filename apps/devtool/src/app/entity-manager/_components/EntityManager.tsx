@@ -21,9 +21,9 @@ import {
   Entities,
   EntityUtil,
   UserAccountEntity,
-  UserEntity
-} from '@narval/policy-engine-shared'
-import { hash } from '@narval/signature'
+  UserEntity,
+  hash
+} from '@narval/armory-sdk'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import CodeEditor from '../../_components/CodeEditor'

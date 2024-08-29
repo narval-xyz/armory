@@ -1,5 +1,5 @@
 import { faTrash, faUnlink } from '@fortawesome/free-solid-svg-icons'
-import { AccountEntity } from '@narval/policy-engine-shared'
+import { AccountEntity } from '@narval/armory-sdk'
 import NarIconButtonWithTooltip from '../../../_design-system/NarIconButtonWithTooltip'
 
 interface AccountCardProps {

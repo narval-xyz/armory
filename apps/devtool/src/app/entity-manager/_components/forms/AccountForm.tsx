@@ -1,6 +1,6 @@
 'use client'
 
-import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/policy-engine-shared'
+import { AccountEntity, AccountType, getAddress, isAddress } from '@narval/armory-sdk'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarInput from '../../../_design-system/NarInput'
 

@@ -1,5 +1,13 @@
-import { CredentialEntity, UserEntity, isAddress } from '@narval/policy-engine-shared'
-import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import {
+  CredentialEntity,
+  Curves,
+  KeyTypes,
+  SigningAlg,
+  UserEntity,
+  isAddress,
+  jwkEoaSchema,
+  publicKeySchema
+} from '@narval/armory-sdk'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import NarButton from '../../../_design-system/NarButton'
 import NarInput from '../../../_design-system/NarInput'
