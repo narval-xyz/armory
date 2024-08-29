@@ -1,7 +1,16 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CredentialEntity, UserEntity, UserRole, isAddress } from '@narval/policy-engine-shared'
-import { Curves, KeyTypes, SigningAlg, jwkEoaSchema, publicKeySchema } from '@narval/signature'
+import {
+  CredentialEntity,
+  Curves,
+  KeyTypes,
+  SigningAlg,
+  UserEntity,
+  UserRole,
+  isAddress,
+  jwkEoaSchema,
+  publicKeySchema
+} from '@narval/armory-sdk'
 import { capitalize } from 'lodash'
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'

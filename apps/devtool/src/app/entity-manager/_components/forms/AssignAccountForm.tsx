@@ -1,4 +1,4 @@
-import { AccountEntity, UserAccountEntity, UserEntity } from '@narval/policy-engine-shared'
+import { AccountEntity, UserAccountEntity, UserEntity } from '@narval/armory-sdk'
 import { Dispatch, FC, SetStateAction, useCallback } from 'react'
 import MultiSelectList from '../MultiselectList'
 

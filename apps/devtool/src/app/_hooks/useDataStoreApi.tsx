@@ -1,14 +1,15 @@
-import { EntityStoreClient, PolicyStoreClient } from '@narval/armory-sdk'
 import {
   Entities,
   EntityData,
   EntityStore,
+  EntityStoreClient,
   EntityUtil,
   Policy,
   PolicyData,
-  PolicyStore
-} from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
+  PolicyStore,
+  PolicyStoreClient,
+  SigningAlg
+} from '@narval/armory-sdk'
 import { useEffect, useMemo, useState } from 'react'
 import { backOff, extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'

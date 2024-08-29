@@ -4,9 +4,9 @@ import {
   AuthorizationRequestStatus,
   EntityStoreClient,
   Evaluate,
-  Request
+  Request,
+  SigningAlg
 } from '@narval/armory-sdk'
-import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { SetOptional } from 'type-fest'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'

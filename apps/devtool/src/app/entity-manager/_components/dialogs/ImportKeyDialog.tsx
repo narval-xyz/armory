@@ -1,9 +1,7 @@
 'use client'
 
 import { faXmarkCircle } from '@fortawesome/free-solid-svg-icons'
-import { Permission } from '@narval/armory-sdk'
-import { AccountEntity, AccountType, Action, Entities, getAddress } from '@narval/policy-engine-shared'
-import { Hex } from '@narval/signature'
+import { AccountEntity, AccountType, Action, Entities, Hex, Permission, getAddress } from '@narval/armory-sdk'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import NarButton from '../../../_design-system/NarButton'

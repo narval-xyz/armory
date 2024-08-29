@@ -1,5 +1,5 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { CredentialEntity } from '@narval/policy-engine-shared'
+import { CredentialEntity } from '@narval/armory-sdk'
 import NarIconButtonWithTooltip from '../../../_design-system/NarIconButtonWithTooltip'
 
 interface CredentialCardProps {
