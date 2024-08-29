@@ -21,4 +21,5 @@ As first steps, to get this example up and running you need to:
 ```
 npm start
 ```
+
 Note: this command is for bash; it will load in your .env file.

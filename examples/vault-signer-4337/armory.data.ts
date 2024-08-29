@@ -6,10 +6,17 @@ import {
   VaultClient,
   credential
 } from '@narval-xyz/armory-sdk'
-import { Action, Criterion, Entities, Policy, Then, UserEntity, UserRole } from '../../packages/policy-engine-shared/src'
-import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
-import { Intents } from '../../packages/transaction-request-intent/src'
 import { v4 } from 'uuid'
+import {
+  Action,
+  Criterion,
+  Entities,
+  Policy,
+  Then,
+  UserEntity,
+  UserRole
+} from '../../packages/policy-engine-shared/src'
+import { Hex, getPublicKey, privateKeyToJwk } from '../../packages/signature/src'
 
 const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
   const policies: Policy[] = [
@@ -23,7 +30,7 @@ const setPolicies = async (policyStoreClient: PolicyStoreClient) => {
         }
       ],
       then: Then.PERMIT
-    },
+    }
     // {
     //   id: v4(),
     //   description: 'Forbid native transfer within user operations',

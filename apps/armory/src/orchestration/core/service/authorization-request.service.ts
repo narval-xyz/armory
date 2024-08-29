@@ -102,11 +102,17 @@ export class AuthorizationRequestService {
     try {
       const authzRequest = await this.authzRequestRepository.update({
         id: requestId,
-        approvals: [sig]
+        approvals: [sig],
+        status: AuthorizationRequestStatus.APPROVING
       })
 
       await this.evaluate(authzRequest)
     } catch (error) {
+      this.logger.error('Error approving authorization request', {
+        requestId,
+        sig,
+        error
+      })
       await this.authzRequestApprovalRepository.updateMany({
         requestId,
         sig,
@@ -137,6 +143,46 @@ export class AuthorizationRequestService {
     })
 
     const status = getStatus(evaluation.decision)
+    // NOTE: we will track the transfer before we update the status to PERMITTED so that we don't have a brief window where a second transfer can come in before the history is tracked.
+    // TODO: (@wcalderipe, 01/02/24) Move to the TransferTrackingService.
+    if (input.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
+      // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
+      const intent = evaluation.transactionRequestIntent as Intent
+
+      if (intent && (Intents.TRANSFER_NATIVE === intent.type || Intents.TRANSFER_ERC20 === intent.type)) {
+        const transferPrices = await this.priceService.getPrices({
+          from: [intent.token],
+          to: [FIAT_ID_USD]
+        })
+
+        // This should never happen, a successful permit always has a principal, so this is just a fail-safe check.
+        if (!evaluation.principal?.userId) {
+          throw new ApplicationException({
+            message: 'Principal userId not found',
+            context: {
+              evaluation
+            },
+            suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+          })
+        }
+
+        const transfer = {
+          resourceId: input.request.resourceId,
+          clientId: input.clientId,
+          requestId: input.id,
+          from: intent.from,
+          to: intent.to,
+          token: intent.token,
+          chainId: input.request.transactionRequest.chainId,
+          initiatedBy: evaluation.principal?.userId,
+          createdAt: new Date(),
+          amount: BigInt(intent.amount),
+          rates: transferPrices[intent.token] || {}
+        }
+
+        await this.transferTrackingService.track(transfer)
+      }
+    }
 
     const authzRequest = await this.authzRequestRepository.update({
       id: input.id,
@@ -153,37 +199,6 @@ export class AuthorizationRequestService {
         }
       ]
     })
-
-    // TODO: (@wcalderipe, 01/02/24) Move to the TransferTrackingService.
-    if (authzRequest.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
-      // TODO: (@wcalderipe, 08/02/24) Remove the cast `as Intent`.
-      const intent = evaluation.transactionRequestIntent as Intent
-
-      if (intent && (Intents.TRANSFER_NATIVE === intent.type || Intents.TRANSFER_ERC20 === intent.type)) {
-        const transferPrices = await this.priceService.getPrices({
-          from: [intent.token],
-          to: [FIAT_ID_USD]
-        })
-
-        const transfer = {
-          resourceId: authzRequest.request.resourceId,
-          clientId: authzRequest.clientId,
-          requestId: authzRequest.id,
-          from: intent.from,
-          to: intent.to,
-          token: intent.token,
-          chainId: authzRequest.request.transactionRequest.chainId,
-          // TODO: (@mattschoch) Get real initiator? -- this used to reference publicKey but
-          // should actually pull data out of a decoded JWT
-          initiatedBy: authzRequest.authentication,
-          createdAt: new Date(),
-          amount: BigInt(intent.amount),
-          rates: transferPrices[intent.token] || {}
-        }
-
-        await this.transferTrackingService.track(transfer)
-      }
-    }
 
     this.logger.log('Authorization request status updated', {
       clientId: authzRequest.clientId,
