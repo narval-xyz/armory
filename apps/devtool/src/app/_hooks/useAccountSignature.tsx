@@ -1,4 +1,4 @@
-import { Curves, KeyTypes, PublicKey, SigningAlg, hexToBase64Url } from '@narval/signature'
+import { Curves, KeyTypes, PublicKey, SigningAlg, hexToBase64Url } from '@narval/armory-sdk'
 import { signMessage } from '@wagmi/core'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'

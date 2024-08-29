@@ -9,7 +9,7 @@ export * from './lib/vault'
 
 export { resourceId } from './lib/utils'
 
-export type { Alg, PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
+export type { Alg, Jwk, PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
 
 export {
   Curves,
@@ -27,6 +27,8 @@ export {
   privateKeyToJwk,
   publicKeySchema,
   publicKeyToJwk,
+  rsaKeyToKid,
+  rsaPublicKeySchema,
   signJwt
 } from '@narval/signature'
 
@@ -41,6 +43,7 @@ export type {
   Eip712TypedData,
   Entities,
   EntityType,
+  EvaluationRequest,
   Hex,
   JwtString,
   Policy,
@@ -50,13 +53,17 @@ export type {
   TransactionRequest,
   UserAccountEntity,
   UserEntity,
-  ValueOperators,
+  ValueOperators
 } from '@narval/policy-engine-shared'
 
 export {
   AccountType,
   Action,
+  EntityData,
+  EntityStore,
   EntityUtil,
+  PolicyData,
+  PolicyStore,
   UserRole,
   getAddress,
   hexSchema,

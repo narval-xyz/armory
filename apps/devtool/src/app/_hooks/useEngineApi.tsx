@@ -1,12 +1,12 @@
 import {
   EngineClientConfig,
+  EvaluationRequest,
+  SigningAlg,
   onboardEngineClient,
   pingEngine,
   sendEvaluationRequest,
   syncPolicyEngine
 } from '@narval/armory-sdk'
-import { EvaluationRequest } from '@narval/policy-engine-shared'
-import { SigningAlg } from '@narval/signature'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getUrlProtocol } from '../_lib/utils'
 import useAccountSignature from './useAccountSignature'

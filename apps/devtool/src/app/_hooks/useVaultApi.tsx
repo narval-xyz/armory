@@ -3,11 +3,15 @@ import {
   GenerateKeyRequest,
   ImportPrivateKeyRequest,
   ImportSeedRequest,
+  Jwk,
+  Request,
+  RsaPublicKey,
+  SigningAlg,
   VaultAdminClient,
-  VaultClient
+  VaultClient,
+  rsaKeyToKid,
+  rsaPublicKeySchema
 } from '@narval/armory-sdk'
-import { Request } from '@narval/policy-engine-shared'
-import { Alg, Jwk, RsaPublicKey, SigningAlg, rsaKeyToKid, rsaPublicKeySchema } from '@narval/signature'
 import { exportJWK, importSPKI } from 'jose'
 import { useMemo, useState } from 'react'
 import { extractErrorMessage, getHost, isValidUrl } from '../_lib/utils'
@@ -81,13 +85,13 @@ const useVaultApi = () => {
       } = vaultClientData
 
       const getJwkFromRsaPem = async (pem: string): Promise<RsaPublicKey | null> => {
-        const key = await importSPKI(pem, Alg.RS256, { extractable: true })
+        const key = await importSPKI(pem, SigningAlg.RS256, { extractable: true })
         const jwk = await exportJWK(key)
         const kid = rsaKeyToKid(jwk as Jwk)
 
         return rsaPublicKeySchema.parse({
           ...jwk,
-          alg: Alg.RS256,
+          alg: SigningAlg.RS256,
           kid
         })
       }
