@@ -17,7 +17,6 @@ import {
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 
 describe('checkApprovals', () => {
