@@ -1,16 +1,8 @@
 /* eslint-disable jest/consistent-test-it */
-import {
-  Action,
-  Decision,
-  entitiesSchema,
-  EntityType,
-  FIXTURE,
-  Policy,
-  Request,
-  ValueOperators
-} from '@narval/policy-engine-shared'
+import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import defaultEntities from '../../../../resource/entity/default.json'
+import approvalsAndSpendingLimit from '../../../../resource/policy/set/approvals-and-spending-limit.json'
 import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
@@ -26,13 +18,13 @@ const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
+const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
+const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
 
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
 
-describe('End to end scenarios', () => {
+describe('approvals and spending limits', () => {
   describe('members can spend up to 1 eth per day, above an approval is required', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
@@ -51,107 +43,7 @@ describe('End to end scenarios', () => {
 
     beforeAll(async () => {
       const entities = entitiesSchema.parse(defaultEntities)
-
-      const policies: Policy[] = [
-        {
-          id: '1-admin-can-do-anything',
-          description: 'admin can do any action',
-          when: [
-            {
-              criterion: 'checkPrincipalRole',
-              args: ['admin']
-            }
-          ],
-          then: 'permit'
-        },
-        {
-          id: 'treasury-members-can-transfer-1-eth',
-          description: 'treasury group members can transfer 1 ETH',
-          when: [
-            {
-              criterion: 'checkAction',
-              args: ['signTransaction']
-            },
-            {
-              criterion: 'checkIntentType',
-              args: ['transferNative']
-            },
-            {
-              criterion: 'checkIntentToken',
-              args: ['eip155:1/slip44:60']
-            },
-            {
-              criterion: 'checkPrincipalGroup',
-              args: ['treasury-group-id']
-            },
-            {
-              criterion: 'checkSpendingLimit',
-              args: {
-                limit: '1000000000000000000',
-                operator: 'lte' as ValueOperators,
-                timeWindow: {
-                  type: 'rolling',
-                  value: 86400
-                },
-                filters: {
-                  userGroups: ['treasury-group-id'],
-                  tokens: ['eip155:1/slip44:60']
-                }
-              }
-            }
-          ],
-          then: 'permit'
-        },
-        {
-          id: 'treasury-members-can-transfer-gt-1-eth-per-day-with-approval',
-          description: 'treasury group members transfers for more than 1 ETH per day requires an admin approval',
-          when: [
-            {
-              criterion: 'checkAction',
-              args: ['signTransaction']
-            },
-            {
-              criterion: 'checkIntentType',
-              args: ['transferNative']
-            },
-            {
-              criterion: 'checkIntentToken',
-              args: ['eip155:1/slip44:60']
-            },
-            {
-              criterion: 'checkPrincipalGroup',
-              args: ['treasury-group-id']
-            },
-            {
-              criterion: 'checkSpendingLimit',
-              args: {
-                limit: '1000000000000000000',
-                operator: 'gt' as ValueOperators,
-                timeWindow: {
-                  type: 'rolling',
-                  value: 86400
-                },
-                filters: {
-                  userGroups: ['treasury-group-id'],
-                  tokens: ['eip155:1/slip44:60']
-                }
-              }
-            },
-            {
-              criterion: 'checkApprovals',
-              args: [
-                {
-                  approvalCount: 1,
-                  countPrincipal: false,
-                  approvalEntityType: 'Narval::UserRole' as EntityType,
-                  entityIds: ['admin']
-                }
-              ]
-            }
-          ],
-          then: 'permit'
-        }
-      ]
+      const policies = approvalsAndSpendingLimit.map((policy) => policySchema.parse(policy))
 
       await createClient(systemManagerHexPk, {
         clientId,
@@ -176,8 +68,8 @@ describe('End to end scenarios', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits treasury-group member bob to do a transfer', async () => {
-      const { authClient } = await buildAuthClient(bobPrivateKey, {
+    it('permits treasury-group member dave to do a transfer', async () => {
+      const { authClient } = await buildAuthClient(davePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -186,8 +78,8 @@ describe('End to end scenarios', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits treasury-group member carol to do a transfer', async () => {
-      const { authClient } = await buildAuthClient(carolPrivateKey, {
+    it('permits treasury-group member antoine to do a transfer', async () => {
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -196,9 +88,9 @@ describe('End to end scenarios', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('forbids member bob to exceed the limit', async () => {
+    it('forbids member dave to exceed the limit', async () => {
       expect.assertions(1)
-      const { authClient } = await buildAuthClient(bobPrivateKey, {
+      const { authClient } = await buildAuthClient(davePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -210,9 +102,9 @@ describe('End to end scenarios', () => {
       }
     })
 
-    it('forbids member carol to exceed the limit', async () => {
+    it('forbids member antoine to exceed the limit', async () => {
       expect.assertions(1)
-      const { authClient } = await buildAuthClient(carolPrivateKey, {
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -234,7 +126,7 @@ describe('End to end scenarios', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits bob to exceed limit with alice-admin approval', async () => {
+    it('permits dave to exceed limit with alice-admin approval', async () => {
       expect.assertions(2)
 
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
@@ -242,7 +134,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const { authClient } = await buildAuthClient(bobPrivateKey, {
+      const { authClient } = await buildAuthClient(davePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -260,7 +152,7 @@ describe('End to end scenarios', () => {
       }
     })
 
-    it('permits carol to exceed limit with alice-admin approval', async () => {
+    it('permits antoine to exceed limit with alice-admin approval', async () => {
       expect.assertions(2)
 
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
@@ -268,7 +160,7 @@ describe('End to end scenarios', () => {
         clientId
       })
 
-      const { authClient } = await buildAuthClient(carolPrivateKey, {
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
         host: getAuthHost(),
         clientId
       })

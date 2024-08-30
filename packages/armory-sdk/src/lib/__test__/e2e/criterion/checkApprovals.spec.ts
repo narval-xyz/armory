@@ -15,9 +15,10 @@ import {
 } from '../../util/setup'
 
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
-const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
+const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
+const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 
 describe('checkApprovals', () => {
   describe('entity type', () => {
@@ -55,7 +56,7 @@ describe('checkApprovals', () => {
     })
 
     it('get an accessToken after approval from an admin', async () => {
-      const { authClient } = await buildAuthClient(bobPrivateKey, {
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -110,15 +111,18 @@ describe('checkApprovals', () => {
       })
     })
 
-    it('is still unauthorized after an admin approval', async () => {
-      expect.assertions(3)
+    let authId: string
 
-      const { authClient } = await buildAuthClient(bobPrivateKey, {
+    it('is still unauthorized after an admin approval', async () => {
+      expect.assertions(2)
+
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
         host: getAuthHost(),
         clientId
       })
 
-      const { decision, authId } = await authClient.authorize(genNonce(request))
+      const { decision, authId: reqId } = await authClient.authorize(genNonce(request))
+      authId = reqId
       expect(decision).toBe(Decision.CONFIRM)
 
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
@@ -133,13 +137,41 @@ describe('checkApprovals', () => {
       } catch (e: any) {
         expect(e.message).toEqual('Unauthorized')
       }
+    })
 
-      const { authClient: secondAdminClient } = await buildAuthClient(davePrivateKey, {
+    it("doesn't authorize if same admin approves twice", async () => {
+      expect.assertions(1)
+      const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
         host: getAuthHost(),
         clientId
       })
 
-      await secondAdminClient.approve(authId)
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+        host: getAuthHost(),
+        clientId
+      })
+
+      await adminClient.approve(authId)
+
+      try {
+        const accessToken = await authClient.getAccessToken(authId)
+      } catch (e: any) {
+        expect(e.message).toEqual('Unauthorized')
+      }
+    })
+
+    it('is authorized after a second admin approval', async () => {
+      const { authClient: adminClient } = await buildAuthClient(bobPrivateKey, {
+        host: getAuthHost(),
+        clientId
+      })
+
+      await adminClient.approve(authId)
+
+      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+        host: getAuthHost(),
+        clientId
+      })
 
       const accessToken = await authClient.getAccessToken(authId)
 

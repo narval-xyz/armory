@@ -1,0 +1,100 @@
+[
+  {
+    "id": "1-admin-can-do-anything",
+    "description": "admin can do any action",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["admin"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "treasury-members-can-transfer-1-eth",
+    "description": "treasury group members can transfer 1 ETH",
+    "when": [
+      {
+        "criterion": "checkAction",
+        "args": ["signTransaction"]
+      },
+      {
+        "criterion": "checkIntentType",
+        "args": ["transferNative"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["test-treasury-user-group-uid"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "1000000000000000000",
+          "operator": "lte",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "userGroups": ["test-treasury-user-group-uid"],
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "treasury-members-can-transfer-gt-1-eth-per-day-with-approval",
+    "description": "treasury group members transfers for more than 1 ETH per day requires an admin approval",
+    "when": [
+      {
+        "criterion": "checkAction",
+        "args": ["signTransaction"]
+      },
+      {
+        "criterion": "checkIntentType",
+        "args": ["transferNative"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["test-treasury-user-group-uid"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "1000000000000000000",
+          "operator": "gt",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "userGroups": ["test-treasury-user-group-uid"],
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkApprovals",
+        "args": [
+          {
+            "approvalCount": 1,
+            "countPrincipal": false,
+            "approvalEntityType": "Narval::UserRole",
+            "entityIds": ["admin"]
+          }
+        ]
+      }
+    ],
+    "then": "permit"
+  }
+]

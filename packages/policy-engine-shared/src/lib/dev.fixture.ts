@@ -31,7 +31,7 @@ import {
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
-const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
+const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave', 'Antoine'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
 const ACCOUNTS_NAME = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
@@ -53,7 +53,9 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0xccc1472fce4ec74a1e3f9653776acfc790cd0743
   Carol: '0x33be709d0e3ffcd9ffa3d983d3fe3a55c34ab4eb4db2577847667262094f1786',
   // 0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d
-  Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
+  Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f',
+  // 0xeee3b0b3b4b7b8b9babbbcbdbebfc0c1c2c3c4c5
+  Antoine: '0x3e4989d1d83959d9dbec1f14bfb0685cfd15f4fd5037dc6e37e88e01838aef65'
 }
 
 export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
@@ -61,7 +63,8 @@ export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
   Alice: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K)),
   Bob: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K)),
   Carol: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K)),
-  Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K))
+  Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K)),
+  Antoine: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Antoine, Alg.ES256K))
 }
 
 export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
@@ -69,7 +72,8 @@ export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
   Carol: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Carol),
-  Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave)
+  Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave),
+  Antoine: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Antoine)
 }
 
 export const USER: Record<Personas, UserEntity> = {
@@ -91,6 +95,10 @@ export const USER: Record<Personas, UserEntity> = {
   },
   Dave: {
     id: 'test-dave-user-uid',
+    role: UserRole.MEMBER
+  },
+  Antoine: {
+    id: 'test-antoine-user-uid',
     role: UserRole.MEMBER
   }
 }
@@ -120,6 +128,11 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
     userId: USER.Dave.id,
     id: PUBLIC_KEYS_JWK.Dave.kid,
     key: PUBLIC_KEYS_JWK.Dave
+  },
+  Antoine: {
+    userId: USER.Antoine.id,
+    id: PUBLIC_KEYS_JWK.Antoine.kid,
+    key: PUBLIC_KEYS_JWK.Antoine
   }
 }
 
@@ -178,6 +191,17 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       kid: VIEM_ACCOUNT.Dave.address,
       addr: VIEM_ACCOUNT.Dave.address
     }
+  },
+  Antoine: {
+    id: VIEM_ACCOUNT.Antoine.address,
+    userId: USER.Antoine.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: VIEM_ACCOUNT.Antoine.address,
+      addr: VIEM_ACCOUNT.Antoine.address
+    }
   }
 }
 
@@ -202,6 +226,14 @@ export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   {
     groupId: USER_GROUP.Treasury.id,
     userId: USER.Bob.id
+  },
+  {
+    groupId: USER_GROUP.Treasury.id,
+    userId: USER.Antoine.id
+  },
+  {
+    groupId: USER_GROUP.Treasury.id,
+    userId: USER.Dave.id
   }
 ]
 
