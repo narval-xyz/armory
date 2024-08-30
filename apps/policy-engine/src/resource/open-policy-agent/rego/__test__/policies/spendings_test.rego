@@ -278,3 +278,40 @@ test_spendingLimitWithFixedPeriod {
 		"type": "permit",
 	}
 }
+
+test_spendingLimitWithoutHistoricalData {
+	transactionRequest = object.union(requestWithEip1559Transaction.transactionRequest, {"value": "0x10F0CF064DD5920000000"})
+	spendingLimitWithApprovalsReq = object.union(requestWithEip1559Transaction, {
+		"principal": {"userId": "test-alice-uid"},
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
+			{"userId": "test-bob-uid"},
+			{"userId": "test-bar-uid"},
+		],
+		"transactionRequest": transactionRequest,
+		"feeds": [
+			{
+				"source": "armory/price-feed",
+				"sig": {},
+				"data": {
+					"eip155:137/slip44:966": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+					"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+						"fiat:usd": "0.99",
+						"fiat:eur": "1.10",
+					},
+				},
+			},
+			{
+				"source": "armory/historical-transfer-feed",
+				"sig": {},
+				"data": [],
+			},
+		],
+	})
+
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
+
+	print("res", res)
+}
