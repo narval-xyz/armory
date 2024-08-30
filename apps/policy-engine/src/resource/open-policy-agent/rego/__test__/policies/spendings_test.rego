@@ -315,3 +315,61 @@ test_spendingLimitWithoutHistoricalData {
 
 	print("res", res)
 }
+
+test_spendingLimitWithRange {
+	spendingLimitWithRangeReq = {
+		"action": "signTransaction",
+		"transactionRequest": {
+			"chainId": 1,
+			"from": "0x0301e2724a40e934cce3345928b88956901aa127",
+			"to": "0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+			"value": "0x4563918244F40000"
+		},
+		"principal": {"userId": "test-alice-uid"},
+		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
+		"intent": {
+			"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+			"from": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"type": "transferNative",
+			"amount": "5000000000000000000",
+			"token": "eip155:1/slip44:60",
+			"chainId": 1,
+		},
+		"feeds": [
+			{
+				"source": "armory/price-feed",
+				"sig": "",
+				"data": {},
+			},
+			{
+				"source": "armory/historical-transfer-feed",
+				"sig": "",
+				"data": [
+				    {
+						"id": "7a2c9055-0b1f-41df-91c8-e76f06b12a4f",
+						"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+						"requestId": "67c09036-650a-4287-84d9-edc349d66748",
+						"chainId": 1,
+						"from": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+						"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+						"token": "eip155:1/slip44:60",
+						"amount": "1000000000000000000",
+						"rates": {},
+						"initiatedBy": "test-alice-uid",
+						"createdAt": "2024-08-30T12:24:22.081Z",
+						"timestamp": 1725023081 * 1000,
+					}
+				],
+			},
+		],
+	}
+
+	res = permit[{"policyId": "spendingLimitWithRange"}] with input as spendingLimitWithRangeReq with data.entities as entities
+
+	res == {
+		"approvalsMissing": [],
+		"approvalsSatisfied": [],
+		"policyId": "spendingLimitWithRange",
+		"type": "permit",
+	}
+}

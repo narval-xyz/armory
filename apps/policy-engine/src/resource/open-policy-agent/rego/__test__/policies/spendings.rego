@@ -170,7 +170,7 @@ permit[{"policyId": "spendingLimitWithFixedPeriod"}] = reason {
 		"operator": "lte",
 		"timeWindow": {
 			"type": "fixed",
-			"value": "1d",
+			"period": "1d",
 		},
 		"filters": {
 			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
@@ -181,6 +181,41 @@ permit[{"policyId": "spendingLimitWithFixedPeriod"}] = reason {
 	reason = {
 		"type": "permit",
 		"policyId": "spendingLimitWithFixedPeriod",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
+}
+
+permit[{"policyId": "spendingLimitWithRange"}] = reason {
+	checkIntentToken({"eip155:1/slip44:60"})
+	checkSpendingLimit({
+		"limit": "1000000000000000000",
+		"operator": "gt",
+		"timeWindow": {
+			"type": "rolling",
+			"value": 86400,
+		},
+		"filters": {
+			"perPrincipal": true,
+			"tokens": {"eip155:1/slip44:60"},
+		},
+	})
+	checkSpendingLimit({
+		"limit": "10000000000000000000",
+		"operator": "lte",
+		"timeWindow": {
+			"type": "rolling",
+			"value": 86400,
+		},
+		"filters": {
+			"perPrincipal": true,
+			"tokens": {"eip155:1/slip44:60"},
+		},
+	})
+
+	reason = {
+		"type": "permit",
+		"policyId": "spendingLimitWithRange",
 		"approvalsSatisfied": [],
 		"approvalsMissing": [],
 	}
