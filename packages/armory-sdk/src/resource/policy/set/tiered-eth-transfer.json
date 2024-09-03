@@ -5,11 +5,15 @@
     "when": [
       {
         "criterion": "checkPrincipalRole",
-        "args": ["member"]
+        "args": [
+          "member"
+        ]
       },
       {
         "criterion": "checkIntentToken",
-        "args": ["eip155:1/slip44:60"]
+        "args": [
+          "eip155:1/slip44:60"
+        ]
       },
       {
         "criterion": "checkSpendingLimit",
@@ -22,7 +26,9 @@
           },
           "filters": {
             "perPrincipal": true,
-            "tokens": ["eip155:1/slip44:60"]
+            "tokens": [
+              "eip155:1/slip44:60"
+            ]
           }
         }
       }
@@ -34,14 +40,6 @@
     "description": "Require manager approval for transfers between 1-10 ETH per day",
     "when": [
       {
-        "criterion": "checkPrincipalRole",
-        "args": ["member"]
-      },
-      {
-        "criterion": "checkIntentToken",
-        "args": ["eip155:1/slip44:60"]
-      },
-      {
         "criterion": "checkSpendingLimit",
         "args": {
           "limit": "1000000000000000000",
@@ -52,7 +50,26 @@
           },
           "filters": {
             "perPrincipal": true,
-            "tokens": ["eip155:1/slip44:60"]
+            "tokens": [
+              "eip155:1/slip44:60"
+            ]
+          }
+        }
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "10000000000000000000",
+          "operator": "lte",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": [
+              "eip155:1/slip44:60"
+            ]
           }
         }
       },
@@ -63,7 +80,9 @@
             "approvalCount": 1,
             "countPrincipal": false,
             "approvalEntityType": "Narval::UserRole",
-            "entityIds": ["manager"]
+            "entityIds": [
+              "manager"
+            ]
           }
         ]
       }

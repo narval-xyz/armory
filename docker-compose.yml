@@ -28,7 +28,10 @@ services:
     environment:
       ALLOW_EMPTY_PASSWORD: 'true'
     logging:
-      driver: none
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - ./.data/redis:/data
 

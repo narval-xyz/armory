@@ -373,3 +373,51 @@ test_spendingLimitWithRange {
 		"type": "permit",
 	}
 }
+
+test_spendingLimitTooHighForRange {
+    spendingLimitTooHighForRangeReq = {
+  "action": "signTransaction",
+	"principal": {"userId": "test-alice-uid"},
+	"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
+  "approvals": [
+    {
+      "id": "0x6af10b6d5024963972ba832486ea1ae29f1b99cb1191abe444b52e98c69f7487",
+      "userId": "test-antoine-user-uid",
+      "key": {
+        "kty": "EC",
+        "alg": "ES256K",
+        "kid": "0x6af10b6d5024963972ba832486ea1ae29f1b99cb1191abe444b52e98c69f7487",
+        "crv": "secp256k1",
+        "x": "QwUuAC2s22VKwoS5uPTZgcTN_ztkwt9VWKRae3bikEQ",
+        "y": "lZgwfE7ZDz9af9_PZxq9B7pVwAarfIaFESATYp-Q7Uk"
+      }
+    }
+  ],
+  "intent": {
+    "to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+    "from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",
+    "type": "transferNative",
+    "amount": "1000000000000000000000",
+    "token": "eip155:1/slip44:60"
+  },
+  "transactionRequest": {
+    "chainId": 1,
+    "from": "0x0301e2724a40e934cce3345928b88956901aa127",
+    "to": "0x76d1b7f9b3f69c435eef76a98a415332084a856f",
+    "value": "0x8AC7230489E80000"
+  },
+  "feeds": [
+    {
+      "source": "armory/price-feed",
+      "sig": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDBjNjIwZjRiYzhlOTMxMTBiZDljZDc5ZTVkNjM3YTI0MGQ1NWUwZjI3MzNmZDdlOTViNzM0N2QzYjA2MjMxZmMiLCJ0eXAiOiJKV1QifQ.eyJkYXRhIjoiMHg0NDEzNmZhMzU1YjM2NzhhMTE0NmFkMTZmN2U4NjQ5ZTk0ZmI0ZmMyMWZlNzdlODMxMGMwNjBmNjFjYWFmZjhhIiwiaWF0IjoxNzI1Mjg3MjEwLCJpc3MiOiJodHRwczovL2FybW9yeS5uYXJ2YWwueHl6Iiwic3ViIjoiMHg2OTY2MzEzNDAwMTZGY2FFMmJCYmEyREQ3QmYxZjFBMkY4ZTJBNTRmIn0.jgr7A-dB_tHX42IDG0Cx8fE7Mtu1xBb5g3oW3qdbRl4-j4XmOdZjdOS6m73yNQ-Dz-RbCxQrbSk3zwaQODrHJBw",
+      "data": {}
+    },
+    {
+      "source": "armory/historical-transfer-feed",
+      "sig": "eyJhbGciOiJFSVAxOTEiLCJraWQiOiIweDY2YTY3YWI1ODI2OWY0NGFhYmE2NDUxNzZmNGI5M2Y1ZTY3MTU2N2I0NTQ0MjkwZTE5OGU5ODYxYzM0OTNkMmQiLCJ0eXAiOiJKV1QifQ.eyJkYXRhIjoiMHg0ZjUzY2RhMThjMmJhYTBjMDM1NGJiNWY5YTNlY2JlNWVkMTJhYjRkOGUxMWJhODczYzJmMTExNjEyMDJiOTQ1IiwiaWF0IjoxNzI1Mjg3MjEwLCJpc3MiOiJodHRwczovL2FybW9yeS5uYXJ2YWwueHl6Iiwic3ViIjoiMHhkOWYzYjNhMDY3ZmU0NmI2M0U0YjBkZUZlQjJBMGI3YWU2N2E4MjIxIn0.jzwVozBI4oOaBUQn3b1TdDlg1I9IN29xVwx2xy3MujN53TuZIweIgTcBqmRtnppRqAdZUo51R7k8Y6PDO8j-gBw",
+      "data": []
+    }
+  ]
+}
+    not permit[{"policyId": "minimalSpendingLimit"}] with input as spendingLimitTooHighForRangeReq with data.entities as {}
+}

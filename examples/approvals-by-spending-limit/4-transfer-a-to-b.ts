@@ -16,7 +16,7 @@ const transactionRequest = {
   from: '0x0301e2724a40E934Cce3345928b88956901aA127', // Account A
   to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F', // Account B
   chainId: 1,
-  value: '0x429D069189E0000', // 0.3 ETH
+  value: '0x7FFFFFFFFFFFFDFF', // 0.3 ETH
   gas: 123n,
   maxFeePerGas: 789n,
   maxPriorityFeePerGas: 456n,
