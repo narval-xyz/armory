@@ -25,3 +25,8 @@ test_checkIntentAmountValue {
 	checkIntentAmount({"currency": "fiat:usd", "operator": operators.greaterThanOrEqual, "value": oneMaticValue}) with input as requestWithEip1559Transaction with data.entities as entities
 	checkIntentAmount({"currency": "fiat:usd", "operator": operators.lessThanOrEqual, "value": oneMaticValue}) with input as requestWithEip1559Transaction with data.entities as entities
 }
+
+test_checkIntentAmount2 {
+	requ := object.union(requestWithEip1559Transaction, {"intent": object.union(requestWithEip1559Transaction.intent, {"amount": "9223372036854776000"})})
+	checkIntentAmount({"operator": operators.greaterThan, "value": "10"}) with input as requ with data.entities as entities
+}

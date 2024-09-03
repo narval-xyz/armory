@@ -14,6 +14,7 @@ import {
   Request,
   SignMessageAction,
   Then,
+  ValueOperators,
   toHex
 } from '@narval/policy-engine-shared'
 import { SigningAlg, buildSignerEip191, hash, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
@@ -649,6 +650,159 @@ describe('OpenPolicyAgentEngine', () => {
         const response = await e.evaluate(evaluation)
         expect(response.decision).toEqual(Decision.PERMIT)
         expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
+      })
+    })
+
+    describe('checkIntentAmount', () => {
+      const policies: Policy[] = [
+        {
+          id: 'can transfer 1 wei',
+          description: 'Permit to transfer up to 1 wei',
+          when: [
+            {
+              criterion: 'checkIntentAmount',
+              args: {
+                value: '1',
+                operator: 'lte' as ValueOperators
+              }
+            }
+          ],
+          then: 'permit'
+        }
+      ]
+
+      const entities = FIXTURE.ENTITIES
+
+      it('permits a transfer of 1 wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: '0x1',
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.PERMIT)
+      })
+
+      it('forbids a transfer of 2 wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: '0x2',
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
+      })
+
+      it('forbids a transfer of 9223372036854775295 wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: '0x7FFFFFFFFFFFFDFF',
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
+      })
+
+      it('forbids a transfer of 9223372036854775296 wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: '0x7FFFFFFFFFFFFE00',
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
       })
     })
   })
