@@ -88,7 +88,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
           const now = new Date()
           const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
           return startOfDay.getTime() * 1000000
-        }
+        },
       })
 
       this.opa.setData(toData(this.getEntities()))

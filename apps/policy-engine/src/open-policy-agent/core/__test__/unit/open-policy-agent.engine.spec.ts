@@ -836,7 +836,72 @@ describe('OpenPolicyAgentEngine', () => {
         const response = await e.evaluate(evaluation)
 
         expect(response.decision).toEqual(Decision.FORBID)
+    })
+      it('forbids a transfer of 9223372036854775808  wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: toHex(9223372036854775808n),
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
       })
+      it('forbids a transfer of 18446744073709551617  wei', async () => {
+        const e = await new OpenPolicyAgentEngine({
+          policies,
+          entities,
+          resourcePath: await getConfig('resourcePath')
+        }).load()
+
+        const request: Request = {
+          action: Action.SIGN_TRANSACTION,
+          nonce: 'test-nonce',
+          transactionRequest: {
+            from: '0x0301e2724a40E934Cce3345928b88956901aA127',
+            to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
+            value: toHex(18446744073709552102n),
+            chainId: 1
+          },
+          resourceId: 'eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127'
+        }
+
+        const evaluation: EvaluationRequest = {
+          authentication: await getJwt({
+            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE.USER.Bob.id,
+            request
+          }),
+          request
+        }
+
+        const response = await e.evaluate(evaluation)
+
+        expect(response.decision).toEqual(Decision.FORBID)
+      })
+      
 
       // 10k eth
       it('forbids a transfer of 10000000000000000000000 wei', async () => {
