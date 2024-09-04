@@ -123,6 +123,19 @@ export class AuthorizationRequestService {
     return this.authzRequestRepository.findById(requestId)
   }
 
+  safeBigInt(value: string | number): bigint {
+    try {
+      return BigInt(value)
+    } catch (error) {
+      throw new ApplicationException({
+        message: 'Invalid BigInt value',
+        context: { value },
+        origin: error,
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
+      })
+    }
+  }
+
   async evaluate(input: AuthorizationRequest): Promise<AuthorizationRequest> {
     this.logger.log('Start authorization request evaluation', {
       requestId: input.id,
@@ -165,7 +178,6 @@ export class AuthorizationRequestService {
             suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
           })
         }
-
         const transfer = {
           resourceId: input.request.resourceId,
           clientId: input.clientId,
@@ -176,7 +188,7 @@ export class AuthorizationRequestService {
           chainId: input.request.transactionRequest.chainId,
           initiatedBy: evaluation.principal?.userId,
           createdAt: new Date(),
-          amount: BigInt(intent.amount),
+          amount: this.safeBigInt(intent.amount),
           rates: transferPrices[intent.token] || {}
         }
 
