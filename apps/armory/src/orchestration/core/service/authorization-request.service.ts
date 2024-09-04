@@ -123,7 +123,7 @@ export class AuthorizationRequestService {
     return this.authzRequestRepository.findById(requestId)
   }
 
-  safeBigInt(value: string | number): bigint {
+  bigIntWithError(value: string | number): bigint {
     try {
       return BigInt(value)
     } catch (error) {
@@ -188,7 +188,7 @@ export class AuthorizationRequestService {
           chainId: input.request.transactionRequest.chainId,
           initiatedBy: evaluation.principal?.userId,
           createdAt: new Date(),
-          amount: this.safeBigInt(intent.amount),
+          amount: this.bigIntWithError(intent.amount),
           rates: transferPrices[intent.token] || {}
         }
 
