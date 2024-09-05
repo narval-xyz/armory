@@ -132,8 +132,8 @@ export class AuthorizationRequestRepository {
       return errors.map((error) => ({
         id: error.id,
         clientId,
-        name: error.name,
-        message: error.message
+        name: error.name || 'Unknown error',
+        message: error.message || ''
       }))
     }
 
