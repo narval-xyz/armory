@@ -154,13 +154,22 @@ export const approvalConditionSchema = z.object({
   entityIds: z.array(z.string().min(1))
 })
 
-export const timeWindowSchema = z.object({
-  type: timeWindowTypeSchema.optional(),
-  period: timeWindowPeriodSchema.optional(),
-  value: z.number().optional(),
+const fixedTimeWindowSchema = z.object({
+  type: z.literal('rolling'),
+  value: z.number().int(),
   startDate: z.number().int().optional(),
   endDate: z.number().int().optional()
 })
+
+const rollingTimeWindowSchema = z.object({
+  type: z.literal('fixed'),
+  period: timeWindowPeriodSchema,
+  startDate: z.number().int().optional(),
+  endDate: z.number().int().optional()
+})
+
+
+export const timeWindowSchema = z.discriminatedUnion('type', [rollingTimeWindowSchema, fixedTimeWindowSchema])
 
 export const transferFiltersSchema = z.object({
   perPrincipal: z.boolean().optional(),
