@@ -88,7 +88,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
           const now = new Date()
           const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
           return startOfDay.getTime() * 1000000
-        },
+        }
       })
 
       this.opa.setData(toData(this.getEntities()))
@@ -171,7 +171,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     credentials: { principal: CredentialEntity; approvals?: CredentialEntity[] }
   ): Promise<{ results: Result[]; transactionRequestIntent?: Intent }> {
     if (!this.opa) {
-      throw new OpenPolicyAgentException({  
+      throw new OpenPolicyAgentException({
         message: 'Open Policy Agent engine not loaded',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
       })
