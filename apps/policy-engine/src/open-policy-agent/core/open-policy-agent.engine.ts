@@ -171,7 +171,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     credentials: { principal: CredentialEntity; approvals?: CredentialEntity[] }
   ): Promise<{ results: Result[]; transactionRequestIntent?: Intent }> {
     if (!this.opa) {
-      throw new OpenPolicyAgentException({
+      throw new OpenPolicyAgentException({  
         message: 'Open Policy Agent engine not loaded',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
       })

@@ -836,7 +836,7 @@ describe('OpenPolicyAgentEngine', () => {
         const response = await e.evaluate(evaluation)
 
         expect(response.decision).toEqual(Decision.FORBID)
-    })
+      })
       it('forbids a transfer of 9223372036854775808  wei', async () => {
         const e = await new OpenPolicyAgentEngine({
           policies,
@@ -901,7 +901,6 @@ describe('OpenPolicyAgentEngine', () => {
 
         expect(response.decision).toEqual(Decision.FORBID)
       })
-      
 
       // 10k eth
       it('forbids a transfer of 10000000000000000000000 wei', async () => {
