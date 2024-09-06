@@ -4,7 +4,7 @@ FROM node:21 as build
 WORKDIR /usr/src/app
 
 # Install the OPA binary, which we'll need to actually run evals
-RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.64.1/opa_linux_amd64_static && \
+RUN curl -L -o opa https://raw.githubusercontent.com/Ptroger/opa-bugfix-build/main/opa && \
     chmod 755 opa && \
     mv opa /usr/local/bin/opa && \
     opa version
@@ -48,4 +48,3 @@ ENV RESOURCE_PATH=/usr/src/app/dist/apps/policy-engine/resource
 
 EXPOSE 3010
 CMD ["node", "dist/apps/policy-engine/main.js"]
-

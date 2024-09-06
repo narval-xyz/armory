@@ -18,7 +18,7 @@ export const decodeNativeTransfer = (input: NativeTransferInput): TransferNative
       chainId: input.chainId
     }),
     type: Intents.TRANSFER_NATIVE,
-    amount: Number(input.value).toString(),
+    amount: BigInt(input.value).toString(),
     token: nativeCaip19(input.chainId)
   }
 }
