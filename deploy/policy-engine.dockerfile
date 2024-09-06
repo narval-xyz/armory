@@ -4,7 +4,7 @@ FROM node:21 as build
 WORKDIR /usr/src/app
 
 # Install the OPA binary, which we'll need to actually run evals
-RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.64.1/opa_linux_amd64_static && \
+RUN curl -L -o opa https://raw.githubusercontent.com/Ptroger/opa-bugfix-build/main/opa && \
     chmod 755 opa && \
     mv opa /usr/local/bin/opa && \
     opa version
@@ -12,7 +12,11 @@ RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.64.1/opa_linux_amd64
 COPY package*.json ./
 COPY .npmrc ./
 
+# Update npm
+RUN npm install -g npm@latest
+
 RUN npm ci && npm cache clean --force
+
 
 # Copy the local code to the container's workspace.
 COPY packages ./packages
@@ -35,8 +39,6 @@ COPY ./deploy/db-migrator.sh .
 RUN chmod +x ./db-migrator.sh
 
 # Copy built application and node_modules
-# We need node_modules to run the application and it's more efficient to copy the whole thing from the previous step
-# rather than installing it again, even though this includes devDependencies b/c it can use the cache to speed up builds unless deps change.
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/local/bin/opa /usr/local/bin/opa
@@ -48,4 +50,3 @@ ENV RESOURCE_PATH=/usr/src/app/dist/apps/policy-engine/resource
 
 EXPOSE 3010
 CMD ["node", "dist/apps/policy-engine/main.js"]
-
