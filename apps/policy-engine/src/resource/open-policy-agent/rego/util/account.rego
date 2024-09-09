@@ -46,7 +46,7 @@ getDestination(intent) = entry {
 
 	chainAccount = parseChainAccount(intent.to)
 	account = data.entities.accounts[_]
-	isAddressEqual(account.address, chainAccount.address)
+	isAddressEqual(account.address, chainAccount.address) == true
 
 	chainId = _getChainId(account, chainAccount)
 

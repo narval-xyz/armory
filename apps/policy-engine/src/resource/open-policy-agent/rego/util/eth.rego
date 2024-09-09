@@ -1,3 +1,5 @@
 package armory.util.eth
 
-isAddressEqual(a, b) = {lower(a) == lower(b)}
+isAddressEqual(a, b) = result {
+	result := lower(a) == lower(b)
+}

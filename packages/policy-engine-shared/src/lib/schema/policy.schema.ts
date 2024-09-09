@@ -168,7 +168,6 @@ const rollingTimeWindowSchema = z.object({
   endDate: z.number().int().optional()
 })
 
-
 export const timeWindowSchema = z.discriminatedUnion('type', [rollingTimeWindowSchema, fixedTimeWindowSchema])
 
 export const transferFiltersSchema = z.object({
