@@ -45,10 +45,10 @@ getDestination(intent) = entry {
 	not data.entities.addressBook[intent.to]
 
 	chainAccount = parseChainAccount(intent.to)
-  account = data.entities.accounts[_]
-  isAddressEqual(account.address, chainAccount.address) == true
-	
-  chainId = _getChainId(account, chainAccount)
+	account = data.entities.accounts[_]
+	isAddressEqual(account.address, chainAccount.address) == true
+
+	chainId = _getChainId(account, chainAccount)
 
 	# INVARIANT: Every EOA Account is an implicity AddressBook on every chain
 	# which `classification` is always `managed`.
