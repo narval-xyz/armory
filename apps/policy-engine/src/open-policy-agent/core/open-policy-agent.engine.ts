@@ -189,8 +189,6 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     // an array of results with an inner result. We perform a typecast here to
     // satisfy TypeScript compiler. Later, we parse the schema a few lines
     // below to ensure type-safety for data coming from external sources.
-
-    console.log('###input ', JSON.stringify(input, null, 2))
     const results = (await this.opa.evaluate(input, POLICY_ENTRYPOINT)) as { result: unknown }[]
 
     const parse = z.array(resultSchema).safeParse(results.map(({ result }) => result))
