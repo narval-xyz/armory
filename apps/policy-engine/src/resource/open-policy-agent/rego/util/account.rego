@@ -31,15 +31,9 @@ parseChainAccount(accountId) = chainAccount {
 
 getAccountFromAddress(address) = accountData {
 	account = data.entities.accounts[_]
-	isAddressEqual(account.address, address) == true
-	accountGroups = getAccountGroups(account.id)
-	accountData := object.union(account, {"accountGroups": accountGroups})
-}
 
-# Build chainAccount by merging accountData and addressBookData
-buildChainAccount(chainAccount, accountData, addressBookData) = built {
-	addressBookData
-	accountData
+	isAddressEqual(account.address, chainAccount.address) == true
+	chainId = _getChainId(account, chainAccount)
 
 	built := {
 		"id": chainAccount.id,

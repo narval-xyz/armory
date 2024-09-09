@@ -31,7 +31,7 @@ import {
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
-const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave', 'Antoine'] as const
+const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave', 'Antoine', 'SystemManager'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
 const ACCOUNTS_NAME = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
@@ -55,7 +55,9 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d
   Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f',
   // 0xeee3b0b3b4b7b8b9babbbcbdbebfc0c1c2c3c4c5
-  Antoine: '0x3e4989d1d83959d9dbec1f14bfb0685cfd15f4fd5037dc6e37e88e01838aef65'
+  Antoine: '0x3e4989d1d83959d9dbec1f14bfb0685cfd15f4fd5037dc6e37e88e01838aef65',
+  // 0x0xfffFA973C351Df1BE703dA81b0C6BE08Abc51500
+  SystemManager: '0xa05bf30ec3423e414b16ba737cab1f17b2bf938133007ceb5b4cf55a20eea36a'
 }
 
 export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
@@ -64,7 +66,8 @@ export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
   Bob: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K)),
   Carol: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K)),
   Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K)),
-  Antoine: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Antoine, Alg.ES256K))
+  Antoine: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Antoine, Alg.ES256K)),
+  SystemManager: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.SystemManager, Alg.ES256K))
 }
 
 export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
@@ -73,7 +76,8 @@ export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
   Carol: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Carol),
   Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave),
-  Antoine: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Antoine)
+  Antoine: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Antoine),
+  SystemManager: privateKeyToAccount(UNSAFE_PRIVATE_KEY.SystemManager)
 }
 
 export const USER: Record<Personas, UserEntity> = {
@@ -100,6 +104,10 @@ export const USER: Record<Personas, UserEntity> = {
   Antoine: {
     id: 'test-antoine-user-uid',
     role: UserRole.MEMBER
+  },
+  SystemManager: {
+    id: 'test-system-manager-user-uid',
+    role: UserRole.MANAGER
   }
 }
 
@@ -133,6 +141,11 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
     userId: USER.Antoine.id,
     id: PUBLIC_KEYS_JWK.Antoine.kid,
     key: PUBLIC_KEYS_JWK.Antoine
+  },
+  SystemManager: {
+    userId: USER.SystemManager.id,
+    id: PUBLIC_KEYS_JWK.SystemManager.kid,
+    key: PUBLIC_KEYS_JWK.SystemManager
   }
 }
 
@@ -201,6 +214,17 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       alg: SigningAlg.ES256K,
       kid: VIEM_ACCOUNT.Antoine.address,
       addr: VIEM_ACCOUNT.Antoine.address
+    }
+  },
+  SystemManager: {
+    id: VIEM_ACCOUNT.SystemManager.address,
+    userId: USER.SystemManager.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: VIEM_ACCOUNT.SystemManager.address,
+      addr: VIEM_ACCOUNT.SystemManager.address
     }
   }
 }

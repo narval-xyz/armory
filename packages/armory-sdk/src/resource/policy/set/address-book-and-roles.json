@@ -1,0 +1,13 @@
+[
+  {
+    "id": "3-members-can-transfer-managed-to-internal",
+    "description": "members can transfer from managed to internal or managed accounts",
+    "when": [
+      {
+        "criterion": "checkDestinationClassification",
+        "args": ["internal", "managed"]
+      }
+    ],
+    "then": "permit"
+  }
+]
