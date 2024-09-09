@@ -222,15 +222,15 @@ permit[{"policyId": "spendingLimitWithRange"}] = reason {
 }
 
 pemrmit[{"policyId": "minimalSpendingLimit"}] = reason {
-  checkSpendingLimit({
-    "limit": "1",
-    "operator": "lte",
-  })
+	checkSpendingLimit({
+		"limit": "1",
+		"operator": "lte",
+	})
 
-  reason = {
-    "type": "permit",
-    "policyId": "minimalSpendingLimit",
-    "approvalsSatisfied": [],
-    "approvalsMissing": [],
-  }
+	reason = {
+		"type": "permit",
+		"policyId": "minimalSpendingLimit",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
 }

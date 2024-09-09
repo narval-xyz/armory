@@ -27,10 +27,6 @@ test_checkIntentAmountValue {
 }
 
 test_checkIntentAmount2 {
-  requ := object.union(requestWithEip1559Transaction, {
-		"intent": object.union(requestWithEip1559Transaction.intent, {
-      "amount": "100000000000000000000000000000000000000000000000000000000000000000000",
-    }),
-	})
-  checkIntentAmount({"operator": operators.greaterThan, "value": "10" }) with input as requ with data.entities as entities
+	requ := object.union(requestWithEip1559Transaction, {"intent": object.union(requestWithEip1559Transaction.intent, {"amount": "100000000000000000000000000000000000000000000000000000000000000000000"})})
+	checkIntentAmount({"operator": operators.greaterThan, "value": "10"}) with input as requ with data.entities as entities
 }
