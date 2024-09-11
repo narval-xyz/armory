@@ -312,8 +312,6 @@ test_spendingLimitWithoutHistoricalData {
 	})
 
 	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
-
-	print("res", res)
 }
 
 test_spendingLimitWithRange {
