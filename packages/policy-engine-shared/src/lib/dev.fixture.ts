@@ -43,6 +43,12 @@ export const CLIENT: ClientEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
 }
 
+export const AddressBookAddresses = {
+  External: '0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43' as Hex,
+  Internal: '0x2227be636c3ad8cf9d08ba8bdba4abd2ef29bd23' as Hex,
+  CounterParty: '0x3331472fce4ec74a1e3f9653776acfc790cd0743' as Hex
+}
+
 export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0x000c0d191308a336356bee3813cc17f6868972c4
   Root: '0xa95b097938cc1d1a800d2b10d2a175f979613c940868460fd66830059fc1e418',
@@ -395,6 +401,24 @@ export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
     address: ACCOUNT.Operation.address,
     chainId: 137,
     classification: AccountClassification.MANAGED
+  },
+  {
+    id: `eip155:1:${AddressBookAddresses.External}`,
+    address: AddressBookAddresses.External,
+    chainId: 1,
+    classification: AccountClassification.EXTERNAL
+  },
+  {
+    id: `eip155:137:${AddressBookAddresses.Internal}`,
+    address: AddressBookAddresses.Internal,
+    chainId: 137,
+    classification: AccountClassification.INTERNAL
+  },
+  {
+    id: `eip155:1:${AddressBookAddresses.CounterParty}`,
+    address: AddressBookAddresses.CounterParty,
+    chainId: 1,
+    classification: AccountClassification.COUNTERPARTY
   }
 ]
 

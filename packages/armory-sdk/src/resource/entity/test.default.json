@@ -29,6 +29,24 @@
       "address": "0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
       "chainId": 137,
       "classification": "managed"
+    },
+    {
+      "id": "eip155:1:0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+      "address": "0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+      "chainId": 1,
+      "classification": "external"
+    },
+    {
+      "id": "eip155:137:0x2227be636c3ad8cf9d08ba8bdba4abd2ef29bd23",
+      "address": "0x2227be636c3ad8cf9d08ba8bdba4abd2ef29bd23",
+      "chainId": 137,
+      "classification": "internal"
+    },
+    {
+      "id": "eip155:1:0x3331472fce4ec74a1e3f9653776acfc790cd0743",
+      "address": "0x3331472fce4ec74a1e3f9653776acfc790cd0743",
+      "chainId": 1,
+      "classification": "counterparty"
     }
   ],
   "credentials": [
