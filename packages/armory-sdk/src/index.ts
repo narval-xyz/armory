@@ -20,6 +20,7 @@ export {
   buildSignerEip191,
   buildSignerForAlg,
   eip191Hash,
+  generateJwk,
   getPublicKey,
   hash,
   hexToBase64Url,
