@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1-uniswap-trader-permissions",
+    "description": "Uniswap traders can sign messages using trading accounts",
+    "when": [
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["uniswap-traders"]
+      },
+      {
+        "criterion": "checkAccountGroup",
+        "args": ["uniswap-trading-accounts"]
+      },
+      {
+        "criterion": "checkAction",
+        "args": ["signMessage"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "2-uniswap-trader-permit",
+    "description": "Uniswap traders can permit using trading accounts",
+    "when": [
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["uniswap-traders"]
+      },
+      {
+        "criterion": "checkAccountGroup",
+        "args": ["uniswap-trading-accounts"]
+      },
+      {
+        "criterion": "checkIntentType",
+        "args": ["permit", "permit2"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "3-uniswap-interaction-control",
+    "description": "Uniswap traders can call specific Uniswap functions on uniswap protocol using uniswap trading accounts",
+    "when": [
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["uniswap-traders"]
+      },
+      {
+        "criterion": "checkAccountGroup",
+        "args": ["uniswap-trading-accounts"]
+      },
+      {
+        "criterion": "checkIntentType",
+        "args": ["callContract"]
+      },
+      {
+        "criterion": "checkIntentHexSignature",
+        "args": ["0xac9650d8", "0x3593564c"]
+      },
+      {
+        "criterion": "checkIntentContract",
+        "args": ["eip155:1:0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad"]
+      }
+    ],
+    "then": "permit"
+  }
+]

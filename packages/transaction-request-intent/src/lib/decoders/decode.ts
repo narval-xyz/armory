@@ -5,6 +5,7 @@ import {
   DecodeInput,
   InputType,
   Intents,
+  PERMIT2_DOMAIN,
   SafeDecodeOutput,
   TransactionCategory,
   TransactionInput,
@@ -123,19 +124,14 @@ const wrapTransactionManagementIntents = (
 
 const decodeTypedDataInput = (input: TypedDataInput): TypedDataIntent => {
   const { typedData } = input
-  const { primaryType } = typedData
-  switch (primaryType) {
-    case 'Permit2': {
-      const decoded = decodePermit2(typedData)
-      return decoded || decodeTypedData(typedData)
-    }
-    case 'Permit': {
-      const decoded = decodePermit(typedData)
-      return decoded || decodeTypedData(typedData)
-    }
-    default:
-      return decodeTypedData(typedData)
+  const { primaryType, domain } = typedData
+  if (domain.name === PERMIT2_DOMAIN.name) {
+    return decodePermit2(typedData) || decodeTypedData(typedData)
   }
+  if (primaryType === 'Permit') {
+    return decodePermit(typedData) || decodeTypedData(typedData)
+  }
+  return decodeTypedData(typedData)
 }
 
 const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?: Config }): Intent => {
