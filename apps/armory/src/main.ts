@@ -66,6 +66,7 @@ async function bootstrap(): Promise<void> {
   const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
+  // Increase the POST JSON payload size to support bigger data stores.
   application.use(json({ limit: '50mb' }))
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
