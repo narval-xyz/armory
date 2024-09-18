@@ -152,13 +152,13 @@ entities = {
 			"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 137,
-			"classification": "account",
+			"classification": "managed",
 		},
 		"eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
 			"id": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 1,
-			"classification": "account",
+			"classification": "managed",
 		},
 	},
 	"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {

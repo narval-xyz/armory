@@ -107,12 +107,9 @@ calculateCurrentSpendings(params) = result {
 
 checkSpendingLimit(params) {
 	conditions = object.union(spendingWildcardConditions, params)
-	print("conditions: ", conditions)
 	spendings = calculateCurrentSpendings(conditions)
 	operator = conditions.operator
 	limit = to_number(conditions.limit)
 
-	print("spendings: ", spendings)
-	print("limit: ", limit)
 	checkSpendingOperator(spendings, operator, limit)
 }

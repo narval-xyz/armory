@@ -73,15 +73,10 @@ getIntentSourceChainAccount(intent) = source {
 
 # Get source information when there is only an account entry
 getIntentSourceChainAccount(intent) = source {
-	print("from: ", intent.from, "\n")
 	chainAccount = parseChainAccount(intent.from)
 
-	print("chainAccount: ", chainAccount, "\n")
 	accountData := getAccountFromAddress(chainAccount.address)
-	print("accountData: ", accountData, "\n")
-	print("abentry: ", data.entities.addressBook[intent.from], "\n")
 	not data.entities.addressBook[intent.from]
-	print("accountData: ", accountData, "\n")
 	source = {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -92,7 +87,6 @@ getIntentSourceChainAccount(intent) = source {
 		"assignees": accountData.assignees,
 		"accountGroups": accountData.accountGroups,
 	}
-	print("source: ", source, "\n")
 }
 
 # Get source information when there is only an address book entry
@@ -113,15 +107,10 @@ getIntentSourceChainAccount(intent) = source {
 
 # Get source information when there is both an account and address book entry
 getIntentSourceChainAccount(intent) = source {
-	print("BOTH: ", "\n")
 	chainAccount = parseChainAccount(intent.from)
 	addressBookData = data.entities.addressBook[intent.from]
 	accountData = getAccountFromAddress(chainAccount.address)
-	print("chainAccount: ", chainAccount, "\n")
-	print("accountData: ", accountData, "\n")
-	print("addressBookData: ", addressBookData, "\n")
 	source = buildChainAccount(chainAccount, accountData, addressBookData)
-	print("source: ", source, "\n")
 }
 
 # Get destination information when there is neither account or address book entry, but an intent.to
@@ -141,11 +130,8 @@ getIntentDestinationChainAccount(intent) = destination {
 getIntentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
 
-	print("chainAccount: ", chainAccount, "\n")
 	not data.entities.addressBook[intent.to]
-	print("data.entities.accounts: ", data.entities.accounts, "\n")
 	accountData = getAccountFromAddress(chainAccount.address)
-	print("accountData: ", accountData, "\n")
 
 	destination = {
 		"id": chainAccount.id,
@@ -157,8 +143,6 @@ getIntentDestinationChainAccount(intent) = destination {
 		"assignees": accountData.assignees,
 		"accountGroups": accountData.accountGroups,
 	}
-
-	print("destination: ", destination, "\n")
 }
 
 # Get destination information when there is only an address book entry

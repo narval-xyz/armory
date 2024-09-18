@@ -18,7 +18,7 @@ permit[{"policyId": "userOperationWithTransfers"}] = reason {
 			"source": {
 				"id": ["eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
 				"address": ["0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
-				"classification": ["account"],
+				"classification": ["managed"],
 			},
 			"destination": {
 				"id": ["eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"],
@@ -36,7 +36,7 @@ permit[{"policyId": "userOperationWithTransfers"}] = reason {
 			"source": {
 				"id": ["eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
 				"address": ["0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
-				"classification": ["account"],
+				"classification": ["managed"],
 			},
 			"destination": {
 				"id": ["eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"],
