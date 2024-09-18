@@ -3,7 +3,7 @@ package main
 test_userOperationWithTransfers {
 	userOperationWithTransfersRequest = object.union(requestWithEip1559Transaction, {"intent": {
 		"type": "userOperation",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"entrypoint": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"beneficiary": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"operationIntents": [

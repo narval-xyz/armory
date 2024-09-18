@@ -6,7 +6,7 @@ test_transformIntentToTransferObject {
 	res == {
 		"amount": "1000000000000000000",
 		"chainId": 137,
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"initiatedBy": "test-bob-uid",
 		"rates": {"fiat:eur": "1.10", "fiat:usd": "0.99"},
 		"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",

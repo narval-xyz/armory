@@ -7,6 +7,6 @@ checkUserOperationSource(key, intent, condition) {
 }
 
 checkUserOperationSource(key, intent, condition) {
-	source = getSource(intent)
+	source = getIntentSourceChainAccount(intent)
 	source[key] in condition[key]
 }
