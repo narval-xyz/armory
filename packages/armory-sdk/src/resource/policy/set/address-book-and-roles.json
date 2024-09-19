@@ -61,12 +61,12 @@
         "args": ["test-bob-user-uid"]
       },
       {
-        "criterion": "checkAccountId",
-        "args": ["eip155:eoa:0x0f610ac9f0091f8f573c33f15155afe8ad747495"]
+        "criterion": "checkAccountAddress",
+        "args": ["0x0f610AC9F0091f8F573c33f15155afE8aD747495"]
       },
       {
-        "criterion": "checkDestinationId",
-        "args": ["eip155:137:0x76d1b7f9b3f69c435eef76a98a415332084a856f"]
+        "criterion": "checkDestinationAddress",
+        "args": ["0x76d1b7f9b3f69c435eef76a98a415332084a856f"]
       }
     ],
     "then": "permit"

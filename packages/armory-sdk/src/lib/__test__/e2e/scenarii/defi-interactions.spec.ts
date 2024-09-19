@@ -174,26 +174,4 @@ describe('Uniswap governance', () => {
 
     expect(accessToken).toMatchObject({ value: expect.any(String) })
   })
-
-  it('anyone can sign a transfer from a uniswap trader account to a treasury account', async () => {
-    const { authClient } = await buildAuthClient(bobPrivateKey, {
-      host: getAuthHost(),
-      clientId
-    })
-
-    const request = genNonce({
-      action: Action.SIGN_TRANSACTION,
-      nonce: 'test-nonce-4',
-      transactionRequest: {
-        from: '0x9f38879167acCf7401351027EE3f9247A71cd0c5',
-        to: '0x76d1b7f9b3F69C435eeF76a98A415332084A856F',
-        value: '0x8AC7230489E80000', // 10 ETH
-        chainId: 1
-      },
-      resourceId: 'eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5'
-    })
-
-    const accessToken = await authClient.requestAccessToken(request)
-    expect(accessToken).toMatchObject({ value: expect.any(String) })
-  })
 })

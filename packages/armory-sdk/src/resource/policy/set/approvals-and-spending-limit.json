@@ -11,6 +11,25 @@
     "then": "permit"
   },
   {
+    "id": "treasury-members-can-transfer",
+    "description": "treasury group members can transfer any amount",
+    "when": [
+      {
+        "criterion": "checkAction",
+        "args": ["signTransaction"]
+      },
+      {
+        "criterion": "checkIntentType",
+        "args": ["transferNative"]
+      },
+      {
+        "criterion": "checkPrincipalGroup",
+        "args": ["test-treasury-user-group-uid"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
     "id": "treasury-members-can-transfer-1-eth",
     "description": "treasury group members can transfer 1 ETH",
     "when": [

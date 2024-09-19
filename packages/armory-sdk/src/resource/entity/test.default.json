@@ -1,36 +1,6 @@
 {
   "addressBook": [
     {
-      "id": "eip155:137:0x0f610AC9F0091f8F573c33f15155afE8aD747495",
-      "address": "0x0f610AC9F0091f8F573c33f15155afE8aD747495",
-      "chainId": 137,
-      "classification": "managed"
-    },
-    {
-      "id": "eip155:1:0x9f38879167acCf7401351027EE3f9247A71cd0c5",
-      "address": "0x9f38879167acCf7401351027EE3f9247A71cd0c5",
-      "chainId": 1,
-      "classification": "managed"
-    },
-    {
-      "id": "eip155:137:0x9f38879167acCf7401351027EE3f9247A71cd0c5",
-      "address": "0x0301e2724a40E934Cce3345928b88956901aA127",
-      "chainId": 137,
-      "classification": "managed"
-    },
-    {
-      "id": "eip155:1:0x0301e2724a40E934Cce3345928b88956901aA127",
-      "address": "0x0301e2724a40E934Cce3345928b88956901aA127",
-      "chainId": 1,
-      "classification": "managed"
-    },
-    {
-      "id": "eip155:137:0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
-      "address": "0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
-      "chainId": 137,
-      "classification": "managed"
-    },
-    {
       "id": "eip155:1:0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
       "address": "0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
       "chainId": 1,

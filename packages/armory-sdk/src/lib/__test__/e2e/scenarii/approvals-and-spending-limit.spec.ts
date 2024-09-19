@@ -68,6 +68,21 @@ describe('approvals and spending limits', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
+    it('treasury-group member dave does a non-eth transfer that is counted against the spending limit', async () => {
+      const { authClient } = await buildAuthClient(davePrivateKey, {
+        host: getAuthHost(),
+        clientId
+      })
+
+      const response = await authClient.requestAccessToken(
+        genNonce({
+          ...request,
+          transactionRequest: { ...request.transactionRequest, chainId: 137 }
+        })
+      )
+      expect(response).toMatchObject({ value: expect.any(String) })
+    })
+
     it('permits treasury-group member dave to do a transfer', async () => {
       const { authClient } = await buildAuthClient(davePrivateKey, {
         host: getAuthHost(),
