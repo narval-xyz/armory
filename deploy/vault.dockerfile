@@ -19,20 +19,21 @@ RUN make vault/db/generate-types && \
     make vault/build && \
     rm -rf apps/ && rm -rf packages/
 
-FROM node:21 as final
+FROM node:21-slim as final
 
 WORKDIR /usr/src/app
+RUN apt-get update && apt-get install -y openssl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set up DB migration capability
 COPY apps/vault/src/shared/module/persistence/schema ./schema
 COPY ./deploy/db-migrator.sh .
 RUN chmod +x ./db-migrator.sh
 
-# Copy built application and node_modules
-# We need node_modules to run the application and it's more efficient to copy the whole thing from the previous step
-# rather than installing it again, even though this includes devDependencies b/c it can use the cache to speed up builds unless deps change.
+# Copy built application, which includes a pruned package.json
+# Then install just the dependencies we need for that.
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/node_modules ./node_modules
+RUN npm ci --prefix ./dist/apps/vault --only=production
+COPY --from=build /usr/src/app/node_modules/@prisma/client/vault ./dist/apps/vault/node_modules/@prisma/client/vault
 
 ENV NODE_ENV=production
 ENV PORT=3011
