@@ -62,7 +62,7 @@
       },
       {
         "criterion": "checkAccountId",
-        "args": ["eip155:eoa:0x0F610ac9f0091f8f573c33f15155afe8ad747495"]
+        "args": ["eip155:eoa:0x0f610ac9f0091f8f573c33f15155afe8ad747495"]
       },
       {
         "criterion": "checkDestinationId",
