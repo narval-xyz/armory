@@ -407,7 +407,7 @@ test_spendingLimitTooHighForRange {
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"approvals": [{
 			"id": "0x6af10b6d5024963972ba832486ea1ae29f1b99cb1191abe444b52e98c69f7487",
-			"userId": "test-antoine-user-uid",
+			"userId": "test-eric-user-uid",
 			"key": {
 				"kty": "EC",
 				"alg": "ES256K",

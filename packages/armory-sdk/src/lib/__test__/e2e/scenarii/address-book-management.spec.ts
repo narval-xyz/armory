@@ -23,7 +23,7 @@ const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const systemManagerPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.SystemManager
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
@@ -55,8 +55,8 @@ describe('address book management', () => {
     })
   })
 
-  it('permits member antoine to send from managed to internal', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+  it('permits member eric to send from managed to internal', async () => {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -78,8 +78,8 @@ describe('address book management', () => {
     expect(decision).toEqual(Decision.PERMIT)
   })
 
-  it('forbids member antoine to send from managed to unknown', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+  it('forbids member eric to send from managed to unknown', async () => {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -171,8 +171,8 @@ describe('address book management', () => {
     expect(decision).toEqual(Decision.PERMIT)
   })
 
-  it('permits member antoine to send to now known address', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+  it('permits member eric to send to now known address', async () => {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })

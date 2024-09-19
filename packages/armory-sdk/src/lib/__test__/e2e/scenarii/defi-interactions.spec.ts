@@ -23,7 +23,7 @@ const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
 
@@ -48,7 +48,7 @@ describe('Uniswap governance', () => {
   })
 
   it('uniswap traders can signMessage with uniswap trader accounts', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -112,7 +112,7 @@ describe('Uniswap governance', () => {
       message: permitSinglePayload
     }
 
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -129,7 +129,7 @@ describe('Uniswap governance', () => {
   })
 
   it('uniswap traders can call multicall with uniswap trader accounts on universal router', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -152,7 +152,7 @@ describe('Uniswap governance', () => {
   })
 
   it('uniswap traders can call swap with uniswap trader accounts on universal router', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })

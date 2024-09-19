@@ -20,7 +20,7 @@ const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
 const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
 
@@ -78,8 +78,8 @@ describe('approvals and spending limits', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits treasury-group member antoine to do a transfer', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    it('permits treasury-group member eric to do a transfer', async () => {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -102,9 +102,9 @@ describe('approvals and spending limits', () => {
       }
     })
 
-    it('forbids member antoine to exceed the limit', async () => {
+    it('forbids member eric to exceed the limit', async () => {
       expect.assertions(1)
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -152,7 +152,7 @@ describe('approvals and spending limits', () => {
       }
     })
 
-    it('permits antoine to exceed limit with alice-admin approval', async () => {
+    it('permits eric to exceed limit with alice-admin approval', async () => {
       expect.assertions(2)
 
       const { authClient: adminClient } = await buildAuthClient(alicePrivateKey, {
@@ -160,7 +160,7 @@ describe('approvals and spending limits', () => {
         clientId
       })
 
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })

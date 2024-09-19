@@ -15,7 +15,7 @@ import {
 } from '../../util/setup'
 
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 
@@ -55,7 +55,7 @@ describe('checkApprovals', () => {
     })
 
     it('get an accessToken after approval from an admin', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -115,7 +115,7 @@ describe('checkApprovals', () => {
     it('is still unauthorized after an admin approval', async () => {
       expect.assertions(2)
 
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -145,7 +145,7 @@ describe('checkApprovals', () => {
         clientId
       })
 
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -167,7 +167,7 @@ describe('checkApprovals', () => {
 
       await adminClient.approve(authId)
 
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })

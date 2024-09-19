@@ -15,7 +15,7 @@ import {
 } from '../../util/setup'
 
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 
@@ -64,8 +64,8 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits treasury-group member antoine to do a transfer', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    it('permits treasury-group member eric to do a transfer', async () => {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -84,9 +84,9 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('forbids member antoine to exceed the limit', async () => {
+    it('forbids member eric to exceed the limit', async () => {
       expect.assertions(1)
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -166,8 +166,8 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits member antoine to do a transfer', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    it('permits member eric to do a transfer', async () => {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -175,8 +175,8 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits member antoine to do a second transfer', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    it('permits member eric to do a second transfer', async () => {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -184,8 +184,8 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('permits member antoine to do a third transfer', async () => {
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    it('permits member eric to do a third transfer', async () => {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })
@@ -193,9 +193,9 @@ describe('checkSpendingLimit', () => {
       expect(response).toMatchObject({ value: expect.any(String) })
     })
 
-    it('forbids member antoine to exceed the limit', async () => {
+    it('forbids member eric to exceed the limit', async () => {
       expect.assertions(1)
-      const { authClient } = await buildAuthClient(antoinePrivateKey, {
+      const { authClient } = await buildAuthClient(ericPrivateKey, {
         host: getAuthHost(),
         clientId
       })

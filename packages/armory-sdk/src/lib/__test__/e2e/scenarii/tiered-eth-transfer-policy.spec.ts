@@ -13,7 +13,7 @@ const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const antoinePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Antoine
+const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
 const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
@@ -59,7 +59,7 @@ describe('tiered approvals and spending limits', () => {
   })
 
   it('permits member to transfer less than or equal to 1 ETH', async () => {
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -84,7 +84,7 @@ describe('tiered approvals and spending limits', () => {
       clientId
     })
 
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -116,7 +116,7 @@ describe('tiered approvals and spending limits', () => {
       clientId
     })
 
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })
@@ -157,7 +157,7 @@ describe('tiered approvals and spending limits', () => {
       clientId
     })
 
-    const { authClient } = await buildAuthClient(antoinePrivateKey, {
+    const { authClient } = await buildAuthClient(ericPrivateKey, {
       host: getAuthHost(),
       clientId
     })

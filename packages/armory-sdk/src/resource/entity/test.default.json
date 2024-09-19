@@ -111,7 +111,7 @@
       }
     },
     {
-      "userId": "test-antoine-user-uid",
+      "userId": "test-eric-user-uid",
       "id": "0x6af10b6d5024963972ba832486ea1ae29f1b99cb1191abe444b52e98c69f7487",
       "key": {
         "kty": "EC",
@@ -191,7 +191,7 @@
     },
     {
       "id": "0xeee7798380DF797a12B459BA0d4d48cBa8e66B37",
-      "userId": "test-antoine-user-uid",
+      "userId": "test-eric-user-uid",
       "key": {
         "kty": "EC",
         "crv": "secp256k1",
@@ -243,7 +243,7 @@
     },
     {
       "groupId": "test-treasury-user-group-uid",
-      "userId": "test-antoine-user-uid"
+      "userId": "test-eric-user-uid"
     },
     {
       "groupId": "test-treasury-user-group-uid",
@@ -294,7 +294,7 @@
       "role": "member"
     },
     {
-      "id": "test-antoine-user-uid",
+      "id": "test-eric-user-uid",
       "role": "member"
     },
     {
