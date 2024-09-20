@@ -81,7 +81,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
         regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath)
       })
 
-      this.opa = await loadPolicy(wasm, 7, {
+      this.opa = await loadPolicy(wasm, 1000, {
         'time.now_ns': () => new Date().getTime() * 1000000,
         'time.format': () => new Date().toISOString().split('T')[0],
         'time.parse_ns': () => {
