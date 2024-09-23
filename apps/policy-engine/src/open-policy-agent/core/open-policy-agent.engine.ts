@@ -81,6 +81,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
         regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath)
       })
 
+      // Each page is 64kb and it defaults it to 5.
+      // We arbitrarily initialise it to 1000 instead to give us more mb of memory.
       this.opa = await loadPolicy(wasm, 1000, {
         'time.now_ns': () => new Date().getTime() * 1000000,
         'time.format': () => new Date().toISOString().split('T')[0],
