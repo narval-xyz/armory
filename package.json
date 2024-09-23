@@ -70,7 +70,7 @@
     "zod-fixture": "2.5.1"
   },
   "dependencies": {
-    "@aws-crypto/client-node": "4.0.0",
+    "@aws-crypto/client-node": "4.0.1",
     "@bull-board/api": "5.20.1",
     "@bull-board/express": "5.20.1",
     "@bull-board/nestjs": "5.20.1",
