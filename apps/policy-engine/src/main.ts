@@ -2,6 +2,7 @@ import { ConfigService } from '@narval/config-module'
 import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import { json } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
 import { ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from './policy-engine.constant'
@@ -54,6 +55,9 @@ async function bootstrap() {
   const configService = application.get(ConfigService<Config>)
   const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
+
+  // Increase the POST JSON payload size to support bigger data stores.
+  application.use(json({ limit: '50mb' }))
 
   // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
   // close on exit.
