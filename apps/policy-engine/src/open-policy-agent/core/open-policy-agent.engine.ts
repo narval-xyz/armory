@@ -81,7 +81,9 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
         regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath)
       })
 
-      this.opa = await loadPolicy(wasm, undefined, {
+      // Each page is 64kb and it defaults it to 5.
+      // We arbitrarily initialise it to 1000 instead to give us more mb of memory.
+      this.opa = await loadPolicy(wasm, this.megabytesToWasmPages(64), {
         'time.now_ns': () => new Date().getTime() * 1000000,
         'time.format': () => new Date().toISOString().split('T')[0],
         'time.parse_ns': () => {
@@ -263,5 +265,17 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private isPermitMissingApproval(result: Result): boolean {
     return Boolean(result.reasons?.some((reason) => reason.type === 'permit' && reason.approvalsMissing.length > 0))
+  }
+
+  /**
+   * Converts a given megabytes number into WebAssembly page units.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/WebAssembly/JavaScript_interface/Memory/Memory
+   * @see https://github.com/open-policy-agent/npm-opa-wasm/blob/c02cf137bf3e7c3a15cb619acc14df3d161509ad/src/opa.js#L459-L478
+   */
+  private megabytesToWasmPages(mb: number): number {
+    const pageSizeInKb = 64
+
+    return Math.floor((mb * 1000) / pageSizeInKb)
   }
 }
