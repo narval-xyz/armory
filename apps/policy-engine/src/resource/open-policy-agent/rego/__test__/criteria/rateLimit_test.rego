@@ -4,7 +4,7 @@ rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"amount": "200000000000000000",
@@ -31,8 +31,8 @@ rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 				{
 					"amount": "200000000000000000",
 					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
+					"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 					"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 					"timestamp": (getStartDateInNanoSeconds("1d") / 1000000) + ((60 * 60) * 1000), # current day plus 1 hour
@@ -42,8 +42,8 @@ rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 				{
 					"amount": "200000000000000000",
 					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
+					"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 					"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 					"timestamp": (getStartDateInNanoSeconds("1d") / 1000000) - (((2 * 60) * 60) * 1000), # the day before minus 2 hours
@@ -53,8 +53,8 @@ rateFixedPeriodRequest = object.union(requestWithEip1559Transaction, {
 				{
 					"amount": "200000000000000000",
 					"resourceId": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-					"to": "eip155:eoa:0x000c0d191308a336356bee3813cc17f6868972c4",
+					"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+					"to": "eip155:137:0x000c0d191308a336356bee3813cc17f6868972c4",
 					"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 					"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
 					"timestamp": (getStartDateInNanoSeconds("1d") / 1000000) - ((60 * 60) * 1000), # the day before minus 1 hour
@@ -155,27 +155,27 @@ test_calculateCurrentRateByFixedPeriod {
 test_calculateCurrentRateForUserOperationIntent {
 	userOperationRequest = object.union(rateFixedPeriodRequest, {"intent": {
 		"type": "userOperation",
-		"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"entrypoint": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"beneficiary": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"operationIntents": [
 			{
 				"type": "transferNative",
-				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 				"token": "eip155:137/slip44:966",
 				"amount": "1000000000000000000", # 1 MATIC
 			},
 			{
 				"type": "transferNative",
-				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 				"token": "eip155:137/slip44:966",
 				"amount": "5000000000000000000", # 5 MATIC
 			},
 			{
 				"type": "transferERC20",
-				"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+				"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 				"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 				"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 				"amount": "2000000000000000000", # 2 USDC

@@ -1,7 +1,7 @@
 package main
 
-test_getDestination_looks_up_Accounts_by_intent_to_property {
-	getDestination({
+test_getIntentDestinationChainAccount_looks_up_Accounts_by_intent_to_property {
+	getIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -18,8 +18,8 @@ test_getDestination_looks_up_Accounts_by_intent_to_property {
 	}
 }
 
-test_getDestination_returns_implicit_managed_AddressBook_for_EOA_Account_found {
-	entry = getDestination({
+test_getIntentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_Account_found {
+	entry = getIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -40,11 +40,14 @@ test_getDestination_returns_implicit_managed_AddressBook_for_EOA_Account_found {
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"chainId": 137,
 		"classification": "managed",
+		"accountType": "eoa",
+		"assignees": [],
+		"accountGroups": set(),
 	}
 }
 
-test_getDestination_returns_implicit_managed_AddressBook_for_smart_Account_found {
-	entry = getDestination({
+test_getIntentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smart_Account_found {
+	entry = getIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -66,11 +69,14 @@ test_getDestination_returns_implicit_managed_AddressBook_for_smart_Account_found
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"chainId": 137,
 		"classification": "managed",
+		"accountType": "4337",
+		"assignees": [],
+		"accountGroups": set(),
 	}
 }
 
-test_getDestination_looks_up_AddressBook_by_intent_to_property {
-	getDestination({
+test_getIntentDestinationChainAccount_looks_up_AddressBook_by_intent_to_property {
+	getIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -87,8 +93,8 @@ test_getDestination_looks_up_AddressBook_by_intent_to_property {
 	}
 }
 
-test_getDestination_returns_AddressBook_over_Account {
-	entry = getDestination({
+test_getIntentDestinationChainAccount_returns_AddressBook_over_Account {
+	entry = getIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -113,8 +119,8 @@ test_getDestination_returns_AddressBook_over_Account {
 	entry.classification == "internal"
 }
 
-test_getDestination_ignores_case_on_look_up {
-	entry = getDestination({
+test_getIntentDestinationChainAccount_ignores_case_on_look_up {
+	entry = getIntentDestinationChainAccount({
 		"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
 		"from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",
 		"type": "transferNative",

@@ -7,6 +7,6 @@ checkUserOperationDestination(key, intent, condition) {
 }
 
 checkUserOperationDestination(key, intent, condition) {
-	destination = getDestination(intent)
+	destination = getIntentDestinationChainAccount(intent)
 	destination[key] in condition[key]
 }

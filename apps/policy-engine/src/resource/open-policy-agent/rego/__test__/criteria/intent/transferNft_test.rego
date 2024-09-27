@@ -5,7 +5,7 @@ test_transferERC721 {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"type": "transferERC721",
 			"contract": "eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
@@ -14,7 +14,7 @@ test_transferERC721 {
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request with data.entities as entities
 	checkIntentType({"transferERC721"}) with input as erc721Request with data.entities as entities
-	checkSourceId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request with data.entities as entities
+	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc721Request with data.entities as entities
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc721Request with data.entities as entities
 	checkIntentContract({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc721Request with data.entities as entities
 	checkIntentToken({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request with data.entities as entities
@@ -25,7 +25,7 @@ test_transferERC1155 {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 		"intent": {
-			"from": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"type": "transferERC1155",
 			"contract": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4",
@@ -47,7 +47,7 @@ test_transferERC1155 {
 	})
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request with data.entities as entities
 	checkIntentType({"transferERC1155"}) with input as erc1155Request with data.entities as entities
-	checkSourceId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request with data.entities as entities
+	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as erc1155Request with data.entities as entities
 	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as erc1155Request with data.entities as entities
 	checkIntentContract({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4"}) with input as erc1155Request with data.entities as entities
 	checkErc1155TokenId({"eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc1155Request with data.entities as entities

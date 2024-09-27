@@ -2,6 +2,8 @@ package main
 
 import future.keywords.in
 
+import data.armory.util.eth.isAddressEqual
+
 transformIntentToTransferObject(intent) = result {
 	contract = intent.contract
 	not priceFeed[contract]
@@ -120,6 +122,18 @@ checkTransferByUserGroups(userId, values) {
 
 checkTransferByAccountGroups(accountId, values) {
 	values == wildcard
+}
+
+## if accountId is not an eoa id
+checkTransferByAccountGroups(chainAccountId, values) {
+	chainAccount = parseChainAccount(chainAccountId)
+	account = data.entities.accounts[_]
+	isAddressEqual(account.address, chainAccount.address) == true
+
+	values != wildcard
+	groups = getAccountGroups(account.id)
+	group = groups[_]
+	group in values
 }
 
 checkTransferByAccountGroups(accountId, values) {
