@@ -1,21 +1,21 @@
 package main
 
-import data.armory.util.case.findMatchingElementIgnoreCase
+import data.armory.util.case.findCaseInsensitive
 
 import future.keywords.in
 
-resource := data.entities.accounts[lower(input.resource.uid)]
+account := data.entities.accounts[lower(input.resource.uid)]
 
 principal := data.entities.users[lower(input.principal.userId)]
 
 principalGroups = {group.id |
 	some group in data.entities.userGroups
-	findMatchingElementIgnoreCase(input.principal.userId, group.users)
+	findCaseInsensitive(input.principal.userId, group.users)
 }
 
 accountGroups = {group.id |
 	group = data.entities.accountGroups[_]
-	findMatchingElementIgnoreCase(input.principal.resource.uid, group.users)
+	findCaseInsensitive(input.principal.resource.uid, group.users)
 }
 
 approversRoles = {user.role |
@@ -26,17 +26,17 @@ approversRoles = {user.role |
 approversGroups = {group.id |
 	approval = input.approvals[_]
 	group = data.entities.userGroups[_]
-	approval.userId in group.users
+  findCaseInsensitive(approval.userId, group.users)
 }
 
 getAccountGroups(id) = {group.id |
 	group = data.entities.accountGroups[_]
-	id in group.accounts
+  findCaseInsensitive(id, group.users)
 }
 
 getUserGroups(id) = {group.id |
 	group = data.entities.userGroups[_]
-	id in group.users
+  findCaseInsensitive(id, group.users)
 }
 
 getAddressBookEntry(id) = entry {

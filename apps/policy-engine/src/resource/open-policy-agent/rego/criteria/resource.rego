@@ -1,31 +1,30 @@
 package main
 
+import data.armory.util.case.findCaseInsensitive
+
 import future.keywords.in
 
-resource = data.entities.accounts[input.resource.uid]
-
 checkAccountAssigned {
-	account = data.entities.accounts[resource.id]
-	principal.id in account.assignees
+  findCaseInsensitive(principal.id, account.assignees)
 }
 
 checkAccountId(values) {
-	resource.id in values
+  findCaseInsensitive(account.id, values)
 }
 
 checkAccountAddress(values) {
-	resource.address in values
+  findCaseInsensitive(account.address, values)
 }
 
 checkAccountType(values) {
-	resource.accountType in values
+  account.type in values
 }
 
 checkAccountChainId(values) {
-	numberToString(resource.chainId) in values
+	numberToString(account.chainId) in values
 }
 
 checkAccountGroup(values) {
 	group = accountGroups[_]
-	group in values
+  findCaseInsensitive(group, values)
 }

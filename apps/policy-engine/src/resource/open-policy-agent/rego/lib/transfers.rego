@@ -10,7 +10,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": resource.id,
+		"resourceId": account.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": contract,
@@ -27,7 +27,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": resource.id,
+		"resourceId": account.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
@@ -43,7 +43,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": resource.id,
+		"resourceId": account.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": contract,
@@ -59,7 +59,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": resource.id,
+		"resourceId": account.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,

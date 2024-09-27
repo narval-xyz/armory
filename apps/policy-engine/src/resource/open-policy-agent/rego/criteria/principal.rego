@@ -1,12 +1,12 @@
 package main
 
-import data.armory.util.case.findMatchingElementIgnoreCase
+import data.armory.util.case.findCaseInsensitive
 
 import future.keywords.in
 
 ## Id are lowercased
 checkPrincipalId(values) {
-	findMatchingElementIgnoreCase(principal.id, values)
+	findCaseInsensitive(principal.id, values)
 }
 
 ## roles are constants
@@ -17,5 +17,5 @@ checkPrincipalRole(values) {
 ## Ids are lowercased
 checkPrincipalGroup(values) {
 	some group in principalGroups
-	findMatchingElementIgnoreCase(group, values)
+	findCaseInsensitive(group, values)
 }
