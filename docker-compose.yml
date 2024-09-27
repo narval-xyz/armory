@@ -27,8 +27,6 @@ services:
       - armory_stack
     environment:
       ALLOW_EMPTY_PASSWORD: 'true'
-    logging:
-      driver: none
     volumes:
       - ./.data/redis:/data
 

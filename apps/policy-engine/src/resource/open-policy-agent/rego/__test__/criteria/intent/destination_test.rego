@@ -27,7 +27,7 @@ test_checkDestinationClassification_on_no_addressbook_or_account {
 	req = {
 		"action": "signTransaction",
 		"principal": {
-			"userId": "test-antoine-user-uid",
+			"userId": "test-eric-user-uid",
 			"id": "0x6af10b6d5024963972ba832486ea1ae29f1b99cb1191abe444b52e98c69f7487",
 			"key": {
 				"kty": "EC",

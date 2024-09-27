@@ -1,0 +1,74 @@
+[
+  {
+    "id": "0-system-manager-can-derive-accounts",
+    "description": "system manager can derive accounts",
+    "when": [
+      {
+        "criterion": "checkPrincipalId",
+        "args": ["test-system-manager-user-uid"]
+      },
+      {
+        "criterion": "checkPermission",
+        "args": ["wallet:read", "wallet:create", "wallet:import"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "1-managers-can-use-managed-and-internal-up-to-counterparty-accounts",
+    "description": "managers can use with managed and internal up to counterparty accounts",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["manager"]
+      },
+      {
+        "criterion": "checkDestinationClassification",
+        "args": ["counterparty", "internal", "managed"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "2-members-can-transfer-managed-to-internal",
+    "description": "members can transfer from managed to internal or managed accounts",
+    "when": [
+      {
+        "criterion": "checkIntentType",
+        "args": ["transferNative", "transferErc20", "transferErc721", "transferErc1155"]
+      },
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["member"]
+      },
+      {
+        "criterion": "checkDestinationClassification",
+        "args": ["internal", "managed"]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "3-bob-can-transfer-to-and-from-specific-account",
+    "description": "bob can transfer from a specific account to another specific account",
+    "when": [
+      {
+        "criterion": "checkIntentType",
+        "args": ["transferNative", "transferErc20", "transferErc721", "transferErc1155"]
+      },
+      {
+        "criterion": "checkPrincipalId",
+        "args": ["test-bob-user-uid"]
+      },
+      {
+        "criterion": "checkAccountAddress",
+        "args": ["0x0f610AC9F0091f8F573c33f15155afE8aD747495"]
+      },
+      {
+        "criterion": "checkDestinationAddress",
+        "args": ["0x76d1b7f9b3f69c435eef76a98a415332084a856f"]
+      }
+    ],
+    "then": "permit"
+  }
+]

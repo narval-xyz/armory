@@ -1,0 +1,185 @@
+[
+  {
+    "id": "tier1-low-value-transfers",
+    "description": "Permit members to transfer up to 1 ETH per day without approval",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["member"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "1000000000000000000",
+          "operator": "lte",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "tier2-medium-value-transfers",
+    "description": "Require manager approval for transfers between 1-10 ETH per day",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["member"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "1000000000000000000",
+          "operator": "gt",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "10000000000000000000",
+          "operator": "lte",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkApprovals",
+        "args": [
+          {
+            "approvalCount": 1,
+            "countPrincipal": false,
+            "approvalEntityType": "Narval::UserRole",
+            "entityIds": ["manager"]
+          }
+        ]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "tier3-high-value-transfers",
+    "description": "Require one admin approval for transfers between 10-100 ETH per day",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["member"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "10000000000000000000",
+          "operator": "gt",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "100000000000000000000",
+          "operator": "lte",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkApprovals",
+        "args": [
+          {
+            "approvalCount": 1,
+            "countPrincipal": false,
+            "approvalEntityType": "Narval::UserRole",
+            "entityIds": ["admin"]
+          }
+        ]
+      }
+    ],
+    "then": "permit"
+  },
+  {
+    "id": "tier4-very-high-value-transfers",
+    "description": "Require two admin approvals for transfers above 100 ETH",
+    "when": [
+      {
+        "criterion": "checkPrincipalRole",
+        "args": ["member"]
+      },
+      {
+        "criterion": "checkIntentToken",
+        "args": ["eip155:1/slip44:60"]
+      },
+      {
+        "criterion": "checkSpendingLimit",
+        "args": {
+          "limit": "100000000000000000000",
+          "operator": "gt",
+          "timeWindow": {
+            "type": "rolling",
+            "value": 86400
+          },
+          "filters": {
+            "perPrincipal": true,
+            "tokens": ["eip155:1/slip44:60"]
+          }
+        }
+      },
+      {
+        "criterion": "checkApprovals",
+        "args": [
+          {
+            "approvalCount": 2,
+            "countPrincipal": false,
+            "approvalEntityType": "Narval::UserRole",
+            "entityIds": ["admin"]
+          }
+        ]
+      }
+    ],
+    "then": "permit"
+  }
+]

@@ -27,31 +27,6 @@ test_checkIntentAmountValue {
 }
 
 test_checkIntentAmount2 {
-	requ := {
-		"action": "signTransaction",
-		"principal": {
-			"userId": "test-bob-user-uid",
-			"id": "0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166",
-		},
-		"approvals": [{
-			"userId": "test-bob-user-uid",
-			"id": "0x7e431d5b570ba38e2e036387a596219ae9076e8a488a6149b491892b03582166",
-		}],
-		"intent": {
-			"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
-			"from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",
-			"type": "transferNative",
-			"amount": "9223372036854776000",
-			"token": "eip155:1/slip44:60",
-		},
-		"transactionRequest": {
-			"chainId": 1,
-			"from": "0x0301e2724a40e934cce3345928b88956901aa127",
-			"to": "0x76d1b7f9b3f69c435eef76a98a415332084a856f",
-			"value": "0x80000000000000c0",
-		},
-		"resource": {"uid": "eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127"},
-	}
-
-	checkIntentAmount({"operator": operators.greaterThanOrEqual, "value": "1"}) with input as requ
+	requ := object.union(requestWithEip1559Transaction, {"intent": object.union(requestWithEip1559Transaction.intent, {"amount": "100000000000000000000000000000000000000000000000000000000000000000000"})})
+	checkIntentAmount({"operator": operators.greaterThan, "value": "10"}) with input as requ with data.entities as entities
 }

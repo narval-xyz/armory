@@ -1,10 +1,15 @@
-import { Entities, Hex, Policy } from '@narval/policy-engine-shared'
+import { Entities, Hex, Policy, policySchema, Request } from '@narval/policy-engine-shared'
 import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
 import { AuthAdminClient, AuthClient, AuthConfig } from '../../auth'
-import { DataStoreConfig, EntityStoreClient, PolicyStoreClient, createHttpDataStore } from '../../data-store'
+import { createHttpDataStore, DataStoreConfig, EntityStoreClient, PolicyStoreClient } from '../../data-store'
 import { VaultAdminClient, VaultConfig } from '../../vault'
+
+export const getAuthHost = () => 'http://localhost:3005'
+export const getAuthAdminApiKey = () => 'armory-admin-api-key'
+
+export const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
 
 export const createClient = async (
   SYSTEM_MANAGER_KEY: Hex,
@@ -169,4 +174,9 @@ export const buildAuthClient = async (
   return {
     authClient
   }
+}
+
+export const buildPolicy = (objects: unknown[]): Policy[] => {
+  const policies = objects.map((obj) => policySchema.parse(obj))
+  return policies
 }

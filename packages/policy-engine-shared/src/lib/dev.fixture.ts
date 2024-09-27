@@ -31,7 +31,7 @@ import {
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
-const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave'] as const
+const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave', 'Eric', 'SystemManager'] as const
 const GROUPS = ['Engineering', 'Treasury'] as const
 const ACCOUNTS_NAME = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
@@ -41,6 +41,12 @@ type Accounts = (typeof ACCOUNTS_NAME)[number]
 
 export const CLIENT: ClientEntity = {
   id: '7d704a62-d15e-4382-a826-1eb41563043b'
+}
+
+export const AddressBookAddresses = {
+  External: '0x1118ee1cbaa1856f4550c6fc24abb16c5c9b2a43' as Hex,
+  Internal: '0x2227be636c3ad8cf9d08ba8bdba4abd2ef29bd23' as Hex,
+  CounterParty: '0x3331472fce4ec74a1e3f9653776acfc790cd0743' as Hex
 }
 
 export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
@@ -53,7 +59,11 @@ export const UNSAFE_PRIVATE_KEY: Record<Personas, `0x${string}`> = {
   // 0xccc1472fce4ec74a1e3f9653776acfc790cd0743
   Carol: '0x33be709d0e3ffcd9ffa3d983d3fe3a55c34ab4eb4db2577847667262094f1786',
   // 0xddd26a02e7c54e8dc373b9d2dcb309ecdeca815d
-  Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f'
+  Dave: '0x82a0cf4f0fdfd42d93ff328b73bfdbc9c8b4f95f5aedfae82059753fc08a180f',
+  // 0xeee3b0b3b4b7b8b9babbbcbdbebfc0c1c2c3c4c5
+  Eric: '0x3e4989d1d83959d9dbec1f14bfb0685cfd15f4fd5037dc6e37e88e01838aef65',
+  // 0x0xfffFA973C351Df1BE703dA81b0C6BE08Abc51500
+  SystemManager: '0xa05bf30ec3423e414b16ba737cab1f17b2bf938133007ceb5b4cf55a20eea36a'
 }
 
 export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
@@ -61,7 +71,9 @@ export const PUBLIC_KEYS_JWK: Record<Personas, Secp256k1PublicKey> = {
   Alice: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K)),
   Bob: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K)),
   Carol: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K)),
-  Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K))
+  Dave: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Dave, Alg.ES256K)),
+  Eric: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.Eric, Alg.ES256K)),
+  SystemManager: secp256k1PublicKeySchema.parse(privateKeyToJwk(UNSAFE_PRIVATE_KEY.SystemManager, Alg.ES256K))
 }
 
 export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
@@ -69,7 +81,9 @@ export const VIEM_ACCOUNT: Record<Personas, PrivateKeyAccount> = {
   Alice: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Alice),
   Bob: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Bob),
   Carol: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Carol),
-  Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave)
+  Dave: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Dave),
+  Eric: privateKeyToAccount(UNSAFE_PRIVATE_KEY.Eric),
+  SystemManager: privateKeyToAccount(UNSAFE_PRIVATE_KEY.SystemManager)
 }
 
 export const USER: Record<Personas, UserEntity> = {
@@ -92,6 +106,14 @@ export const USER: Record<Personas, UserEntity> = {
   Dave: {
     id: 'test-dave-user-uid',
     role: UserRole.MEMBER
+  },
+  Eric: {
+    id: 'test-eric-user-uid',
+    role: UserRole.MEMBER
+  },
+  SystemManager: {
+    id: 'test-system-manager-user-uid',
+    role: UserRole.MANAGER
   }
 }
 
@@ -120,6 +142,16 @@ export const CREDENTIAL: Record<Personas, CredentialEntity> = {
     userId: USER.Dave.id,
     id: PUBLIC_KEYS_JWK.Dave.kid,
     key: PUBLIC_KEYS_JWK.Dave
+  },
+  Eric: {
+    userId: USER.Eric.id,
+    id: PUBLIC_KEYS_JWK.Eric.kid,
+    key: PUBLIC_KEYS_JWK.Eric
+  },
+  SystemManager: {
+    userId: USER.SystemManager.id,
+    id: PUBLIC_KEYS_JWK.SystemManager.kid,
+    key: PUBLIC_KEYS_JWK.SystemManager
   }
 }
 
@@ -178,6 +210,28 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
       kid: VIEM_ACCOUNT.Dave.address,
       addr: VIEM_ACCOUNT.Dave.address
     }
+  },
+  Eric: {
+    id: VIEM_ACCOUNT.Eric.address,
+    userId: USER.Eric.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: VIEM_ACCOUNT.Eric.address,
+      addr: VIEM_ACCOUNT.Eric.address
+    }
+  },
+  SystemManager: {
+    id: VIEM_ACCOUNT.SystemManager.address,
+    userId: USER.SystemManager.id,
+    key: {
+      kty: KeyTypes.EC,
+      crv: Curves.SECP256K1,
+      alg: SigningAlg.ES256K,
+      kid: VIEM_ACCOUNT.SystemManager.address,
+      addr: VIEM_ACCOUNT.SystemManager.address
+    }
   }
 }
 
@@ -202,6 +256,14 @@ export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   {
     groupId: USER_GROUP.Treasury.id,
     userId: USER.Bob.id
+  },
+  {
+    groupId: USER_GROUP.Treasury.id,
+    userId: USER.Eric.id
+  },
+  {
+    groupId: USER_GROUP.Treasury.id,
+    userId: USER.Dave.id
   }
 ]
 
@@ -339,6 +401,24 @@ export const ADDRESS_BOOK: AddressBookAccountEntity[] = [
     address: ACCOUNT.Operation.address,
     chainId: 137,
     classification: AccountClassification.MANAGED
+  },
+  {
+    id: `eip155:1:${AddressBookAddresses.External}`,
+    address: AddressBookAddresses.External,
+    chainId: 1,
+    classification: AccountClassification.EXTERNAL
+  },
+  {
+    id: `eip155:137:${AddressBookAddresses.Internal}`,
+    address: AddressBookAddresses.Internal,
+    chainId: 137,
+    classification: AccountClassification.INTERNAL
+  },
+  {
+    id: `eip155:1:${AddressBookAddresses.CounterParty}`,
+    address: AddressBookAddresses.CounterParty,
+    chainId: 1,
+    classification: AccountClassification.COUNTERPARTY
   }
 ]
 
