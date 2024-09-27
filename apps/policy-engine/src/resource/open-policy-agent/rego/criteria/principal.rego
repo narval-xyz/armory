@@ -1,18 +1,21 @@
 package main
 
+import data.armory.util.case.findMatchingElementIgnoreCase
+
 import future.keywords.in
 
-principal = data.entities.users[input.principal.userId]
-
+## Id are lowercased
 checkPrincipalId(values) {
-	principal.id in values
+	findMatchingElementIgnoreCase(principal.id, values)
 }
 
+## roles are constants
 checkPrincipalRole(values) {
 	principal.role in values
 }
 
+## Ids are lowercased
 checkPrincipalGroup(values) {
-	group = principalGroups[_]
-	group in values
+	some group in principalGroups
+	findMatchingElementIgnoreCase(group, values)
 }
