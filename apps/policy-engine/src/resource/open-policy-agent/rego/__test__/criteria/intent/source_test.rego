@@ -12,7 +12,7 @@ test_source {
 		"classification": "managed",
 		"accountType": "eoa",
 		"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid"],
-		"accountGroups": {"test-account-group-one-uid"},
+		"groups": {"test-account-group-one-uid"},
 	}
 
 	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as requestWithEip1559Transaction with data.entities as entities

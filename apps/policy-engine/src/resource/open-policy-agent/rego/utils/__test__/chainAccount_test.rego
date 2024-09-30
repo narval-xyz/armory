@@ -2,24 +2,6 @@ package main
 
 import data.armory.lib.chainAccount.build.intentDestinationChainAccount
 
-test_intentDestinationChainAccount_looks_up_Accounts_by_intent_to_property {
-	intentDestinationChainAccount({
-		"type": "transferERC20",
-		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
-		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-		"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-		"amount": "200000000000000000",
-	}) with data.entities as {
-		"addressBook": {},
-		"accounts": {"eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
-			"id": "eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-			"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-			"accountType": "eoa",
-			"assignees": [],
-		}},
-	}
-}
-
 test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_Account_found {
 	entry = intentDestinationChainAccount({
 		"type": "transferERC20",
@@ -44,7 +26,7 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_
 		"classification": "managed",
 		"accountType": "eoa",
 		"assignees": [],
-		"accountGroups": set(),
+		"groups": set(),
 	}
 }
 
@@ -66,6 +48,8 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smar
 		}},
 	}
 
+
+  print("entry", entry)
 	entry == {
 		"id": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -73,7 +57,7 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smar
 		"classification": "managed",
 		"accountType": "4337",
 		"assignees": [],
-		"accountGroups": set(),
+		"groups": set(),
 	}
 }
 

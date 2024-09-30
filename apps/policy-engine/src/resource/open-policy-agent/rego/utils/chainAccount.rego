@@ -44,7 +44,7 @@ mergeAccountAndAddressBook(chainAccount, accountData, addressBookData) = built {
 		# TODO: @ptroger add addressBookGroups when implemented
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
@@ -53,7 +53,7 @@ intentSourceChainAccount(intent) = source {
 	intent.from
 	chainAccount = parseChainAccount(intent.from)
 
-	not get.accountFromAddress(chainAccount.address)
+	not get.accountFromChainAccount(chainAccount)
 	not data.entities.addressBook[intent.from]
 	source := {
 		"id": intent.from,
@@ -69,7 +69,7 @@ intentSourceChainAccount(intent) = source {
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	accountData := get.accountFromAddress(chainAccount.address)
+	accountData := get.accountFromChainAccount(chainAccount)
 	not data.entities.addressBook[intent.from]
 	source := {
 		"id": chainAccount.id,
@@ -79,7 +79,7 @@ intentSourceChainAccount(intent) = source {
 		# we can default to 'managed' because its in entities.accounts
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
@@ -87,7 +87,7 @@ intentSourceChainAccount(intent) = source {
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	not get.accountFromAddress(chainAccount.address)
+	not get.accountFromChainAccount(chainAccount)
 	addressBookData = data.entities.addressBook[intent.from]
 
 	source := {
@@ -103,7 +103,7 @@ intentSourceChainAccount(intent) = source {
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 	addressBookData = data.entities.addressBook[intent.from]
-	accountData = get.accountFromAddress(chainAccount.address)
+	accountData = get.accountFromChainAccount(chainAccount)
 	source := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }
 
@@ -111,7 +111,7 @@ intentSourceChainAccount(intent) = source {
 intentDestinationChainAccount(intent) = destination {
 	intent.to
 	chainAccount = parseChainAccount(intent.to)
-	not get.accountFromAddress(chainAccount.address)
+	not get.accountFromChainAccount(chainAccount)
 	not data.entities.addressBook[intent.to]
 	destination := {
 		"id": intent.to,
@@ -123,10 +123,10 @@ intentDestinationChainAccount(intent) = destination {
 # Get destination information when there is only an account entry
 intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-
 	not data.entities.addressBook[intent.to]
-	accountData = get.accountFromAddress(chainAccount.address)
 
+  print("address", chainAccount.address)
+	accountData = get.accountFromChainAccount(chainAccount)
 	destination := {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -135,14 +135,14 @@ intentDestinationChainAccount(intent) = destination {
 		# we can default to 'managed' because its in entities.accounts
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
 # Get destination information when there is only an address book entry
 intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-	not get.accountFromAddress(chainAccount.address)
+	not get.accountFromChainAccount(chainAccount)
 	addressBookData = data.entities.addressBook[intent.to]
 
 	destination := {
@@ -157,7 +157,7 @@ intentDestinationChainAccount(intent) = destination {
 intentDestinationChainAccount(intent) = destination {
 	addressBookData = data.entities.addressBook[intent.to]
 	chainAccount = parseChainAccount(intent.to)
-	accountData = get.accountFromAddress(chainAccount.address)
+	accountData = get.accountFromChainAccount(chainAccount)
 
 	destination := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }

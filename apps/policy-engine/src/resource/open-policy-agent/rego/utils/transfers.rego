@@ -129,7 +129,7 @@ checkTransferByAccountGroups(accountId, values) {
 ## if accountId is not an eoa id
 checkTransferByAccountGroups(chainAccountId, values) {
 	address := parseChainAccount(chainAccountId).address
-	groups := get.accountFromAddress(address).groups
+	groups := get.accountFromChainAccount(address).groups
 
 	values != wildcard
 	groups = get.accountGroups(resource.id)

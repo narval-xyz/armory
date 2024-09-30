@@ -20,8 +20,8 @@ test_account {
 	account == account_upper
 }
 
-test_accountFromAddress {
-	account := get.accountFromAddress("0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
+test_accountFromChainAccount {
+	account := get.accountFromChainAccount("0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
 	expected := {
 		"accountType": "eoa",
 		"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
@@ -32,7 +32,7 @@ test_accountFromAddress {
 	account == expected
 
 	# Test case insensitivity
-	account_upper := get.accountFromAddress("0xDDCF208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
+	account_upper := get.accountFromChainAccount("0xDDCF208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
 	account == account_upper
 }
 
@@ -104,7 +104,7 @@ test_nonexistent_data {
 	account := get.account("eip155:eoa:0xnonexistent") with data.entities as entities
 	account == null
 
-	account_from_address := get.accountFromAddress("0xnonexistent") with data.entities as entities
+	account_from_address := get.accountFromChainAccount("0xnonexistent") with data.entities as entities
 	account_from_address == null
 
 	groups := get.accountGroups("eip155:eoa:0xnonexistent") with data.entities as entities

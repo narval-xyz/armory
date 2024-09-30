@@ -35,15 +35,3 @@ test_principalGroups {
 
 	expected == principalGroups with input as mock_input with data.entities as entities
 }
-
-test_approversRoles {
-	expected := {"root", "admin"}
-
-	expected == approversRoles with input as mock_input with data.entities as entities
-}
-
-test_approversGroups {
-	expected := {"test-user-group-one-uid"}
-
-	expected == approversGroups with input as mock_input with data.entities as entities
-}

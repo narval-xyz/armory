@@ -8,11 +8,18 @@ account(id) = accountData {
 	accountData := object.union(account, {"groups": groups})
 }
 
-accountFromAddress(address) = accountData {
-	key := concat(":", ["eip155:eoa", lower(address)])
+accountFromChainAccount(chainAccount) = accountData {
+	eoaKey := concat(":", ["eip155:eoa", lower(address)])
 	account := data.entities.accounts[key]
 	groups := accountGroups(key)
 	accountData := object.union(account, {"groups": groups})
+}
+
+accountFromChainAccount(chainAccount) = accountData {
+  smartAccountKey := concat(":", [chainAccount.chainId, chainAccount.accountType, lower(chainAccount.address)])
+  account := data.entities.accounts[smartAccountKey]
+  groups := accountGroups(smartAccountKey)
+  accountData := object.union(account, {"groups": groups})
 }
 
 accountGroups(accountId) = groups {
