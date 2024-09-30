@@ -26,17 +26,17 @@ approversRoles = {user.role |
 approversGroups = {group.id |
 	approval = input.approvals[_]
 	group = data.entities.userGroups[_]
-  findCaseInsensitive(approval.userId, group.users)
+	findCaseInsensitive(approval.userId, group.users)
 }
 
 getAccountGroups(id) = {group.id |
 	group = data.entities.accountGroups[_]
-  findCaseInsensitive(id, group.users)
+	findCaseInsensitive(id, group.users)
 }
 
 getUserGroups(id) = {group.id |
 	group = data.entities.userGroups[_]
-  findCaseInsensitive(id, group.users)
+	findCaseInsensitive(id, group.users)
 }
 
 getAddressBookEntry(id) = entry {

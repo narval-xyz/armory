@@ -32,6 +32,7 @@ parseChainAccount(accountId) = chainAccount {
 getAccountFromAddress(address) = accountData {
 	account = data.entities.accounts[_]
 	equalsIgnoreCase(account.address, chainAccount.address) == true
+}
 
 # Build chainAccount by merging accountData and addressBookData
 buildChainAccount(chainAccount, accountData, addressBookData) = built {
