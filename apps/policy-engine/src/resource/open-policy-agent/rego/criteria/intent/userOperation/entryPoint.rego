@@ -1,5 +1,6 @@
 package main
 
+import data.armory.lib.chainAccount.build.getEntryPoint
 import future.keywords.in
 
 checkEntryPointId(values) {

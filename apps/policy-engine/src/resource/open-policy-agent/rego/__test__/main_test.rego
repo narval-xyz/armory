@@ -161,7 +161,7 @@ entities = {
 			"classification": "managed",
 		},
 	},
-	"tokens": {"eip155:137/erc20:0x2791BCa1f2de4661ed88a30c99a7a9449aa84174": {
+	"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
 		"id": "eip155:137/erc20:0x2791bCA1f2de4661ed88a30c99a7a9449aa84174",
 		"address": "0x2791bca1f2de4661ED88a30c99a7a9449aa84174",
 		"symbol": "USDC",

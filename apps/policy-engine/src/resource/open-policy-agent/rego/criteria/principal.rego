@@ -1,6 +1,6 @@
 package main
 
-import data.armory.util.case.findCaseInsensitive
+import data.armory.lib.case.findCaseInsensitive
 
 import future.keywords.in
 

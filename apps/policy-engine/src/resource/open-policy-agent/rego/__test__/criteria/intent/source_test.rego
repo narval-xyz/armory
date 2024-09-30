@@ -1,7 +1,9 @@
 package main
 
+import data.armory.lib.chainAccount.build
+
 test_source {
-	res = getIntentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
+	res = build.intentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
 
 	res == {
 		"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",

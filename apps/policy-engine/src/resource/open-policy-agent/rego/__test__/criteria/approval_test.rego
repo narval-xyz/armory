@@ -1,12 +1,12 @@
 package main
 
 test_approversRoles {
-	roles = approversRoles with input as requestWithEip1559Transaction with data.entities as entities
+	roles = input.approversRoles with input as requestWithEip1559Transaction with data.entities as entities
 	roles == {"root", "member", "admin"}
 }
 
 test_approversGroups {
-	groups = approversGroups with input as requestWithEip1559Transaction with data.entities as entities
+	groups = input.approversGroups with input as requestWithEip1559Transaction with data.entities as entities
 	groups == {"test-user-group-one-uid", "test-user-group-two-uid"}
 }
 

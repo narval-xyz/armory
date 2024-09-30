@@ -1,23 +1,25 @@
 package main
 
+import data.armory.lib.chainAccount.build
+
 import future.keywords.in
 
 checkSourceId(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.id in values
 }
 
 checkSourceAddress(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.address in values
 }
 
 checkSourceAccountType(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.accountType in values
 }
 
 checkSourceClassification(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.classification in values
 }

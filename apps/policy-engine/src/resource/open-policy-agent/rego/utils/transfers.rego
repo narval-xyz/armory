@@ -2,7 +2,9 @@ package main
 
 import future.keywords.in
 
-import data.armory.util.case.equalsIgnoreCase
+import data.armory.entities.get
+import data.armory.lib.case.equalsIgnoreCase
+import data.armory.lib.chainAccount.build.parseChainAccount
 
 transformIntentToTransferObject(intent) = result {
 	contract = intent.contract
@@ -10,7 +12,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": account.id,
+		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": contract,
@@ -27,7 +29,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": account.id,
+		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
@@ -43,7 +45,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": account.id,
+		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": contract,
@@ -59,7 +61,7 @@ transformIntentToTransferObject(intent) = result {
 
 	result = {
 		"amount": intent.amount,
-		"resourceId": account.id,
+		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
@@ -113,7 +115,7 @@ checkTransferByUserGroups(userId, values) {
 
 checkTransferByUserGroups(userId, values) {
 	values != wildcard
-	groups = getUserGroups(userId)
+	groups = get.userGroups(userId)
 	group = groups[_]
 	group in values
 }
@@ -126,19 +128,18 @@ checkTransferByAccountGroups(accountId, values) {
 
 ## if accountId is not an eoa id
 checkTransferByAccountGroups(chainAccountId, values) {
-	chainAccount = parseChainAccount(chainAccountId)
-	account = data.entities.accounts[_]
-	equalsIgnoreCase(account.address, chainAccount.address) == true
+	address := parseChainAccount(chainAccountId).address
+	groups := get.accountFromAddress(address).groups
 
 	values != wildcard
-	groups = getAccountGroups(account.id)
+	groups = get.accountGroups(resource.id)
 	group = groups[_]
 	group in values
 }
 
 checkTransferByAccountGroups(accountId, values) {
 	values != wildcard
-	groups = getAccountGroups(accountId)
+	groups = get.accountGroups(accountId)
 	group = groups[_]
 	group in values
 }

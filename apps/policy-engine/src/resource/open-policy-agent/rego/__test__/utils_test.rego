@@ -1,5 +1,7 @@
 package main
 
+import data.armory.lib.chainAccount.build.extractAddressFromAccountId
+
 test_transformIntentToTransferObject {
 	res = transformIntentToTransferObject(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
 

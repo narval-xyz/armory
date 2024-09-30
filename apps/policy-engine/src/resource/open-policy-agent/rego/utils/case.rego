@@ -1,4 +1,4 @@
-package armory.util.case
+package armory.lib.case
 
 import future.keywords.in
 
