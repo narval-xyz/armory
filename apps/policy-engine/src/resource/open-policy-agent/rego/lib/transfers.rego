@@ -2,7 +2,7 @@ package main
 
 import future.keywords.in
 
-import data.armory.util.eth.isAddressEqual
+import data.armory.util.case.equalsIgnoreCase
 
 transformIntentToTransferObject(intent) = result {
 	contract = intent.contract
@@ -128,7 +128,7 @@ checkTransferByAccountGroups(accountId, values) {
 checkTransferByAccountGroups(chainAccountId, values) {
 	chainAccount = parseChainAccount(chainAccountId)
 	account = data.entities.accounts[_]
-	isAddressEqual(account.address, chainAccount.address) == true
+	equalsIgnoreCase(account.address, chainAccount.address) == true
 
 	values != wildcard
 	groups = getAccountGroups(account.id)
