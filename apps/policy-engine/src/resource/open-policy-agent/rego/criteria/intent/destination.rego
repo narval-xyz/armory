@@ -1,16 +1,17 @@
 package main
 
+import data.armory.lib.case.findCaseInsensitive
 import data.armory.lib.chainAccount.build
 import future.keywords.in
 
 checkDestinationId(values) {
 	destination = build.intentDestinationChainAccount(input.intent)
-	destination.id in values
+	findCaseInsensitive(destination.id, values)
 }
 
 checkDestinationAddress(values) {
 	destination = build.intentDestinationChainAccount(input.intent)
-	destination.address in values
+	findCaseInsensitive(destination.address, values)
 }
 
 checkDestinationAccountType(values) {

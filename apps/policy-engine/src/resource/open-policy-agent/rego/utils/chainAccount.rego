@@ -53,8 +53,9 @@ intentSourceChainAccount(intent) = source {
 	intent.from
 	chainAccount = parseChainAccount(intent.from)
 
-	not get.accountFromChainAccount(chainAccount)
-	not data.entities.addressBook[intent.from]
+	get.account(chainAccount.address) == null
+	get.addressBookEntry(intent.from) == null
+
 	source := {
 		"id": intent.from,
 		"address": chainAccount.address,
@@ -69,8 +70,9 @@ intentSourceChainAccount(intent) = source {
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	accountData := get.accountFromChainAccount(chainAccount)
-	not data.entities.addressBook[intent.from]
+	accountData := get.account(chainAccount.address)
+	get.addressBookEntry(intent.from) == null
+
 	source := {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -87,8 +89,8 @@ intentSourceChainAccount(intent) = source {
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	not get.accountFromChainAccount(chainAccount)
-	addressBookData = data.entities.addressBook[intent.from]
+	get.account(chainAccount.address) == null
+	addressBookData = get.addressBookEntry(intent.from)
 
 	source := {
 		"id": chainAccount.id,
@@ -102,8 +104,8 @@ intentSourceChainAccount(intent) = source {
 # Get source information when there is both an account and address book entry
 intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
-	addressBookData = data.entities.addressBook[intent.from]
-	accountData = get.accountFromChainAccount(chainAccount)
+	addressBookData = get.addressBookEntry(intent.from)
+	accountData = get.account(chainAccount.address)
 	source := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }
 
@@ -111,8 +113,8 @@ intentSourceChainAccount(intent) = source {
 intentDestinationChainAccount(intent) = destination {
 	intent.to
 	chainAccount = parseChainAccount(intent.to)
-	not get.accountFromChainAccount(chainAccount)
-	not data.entities.addressBook[intent.to]
+	get.account(chainAccount.address) == null
+	get.addressBookEntry(intent.to) == null
 	destination := {
 		"id": intent.to,
 		"address": chainAccount.address,
@@ -123,10 +125,8 @@ intentDestinationChainAccount(intent) = destination {
 # Get destination information when there is only an account entry
 intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-	not data.entities.addressBook[intent.to]
-
-  print("address", chainAccount.address)
-	accountData = get.accountFromChainAccount(chainAccount)
+	get.addressBookEntry(intent.to) == null
+	accountData = get.account(chainAccount.address)
 	destination := {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -142,8 +142,8 @@ intentDestinationChainAccount(intent) = destination {
 # Get destination information when there is only an address book entry
 intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-	not get.accountFromChainAccount(chainAccount)
-	addressBookData = data.entities.addressBook[intent.to]
+	get.account(chainAccount.address) == null
+	addressBookData = data.entities.addressBook[lower(intent.to)]
 
 	destination := {
 		"id": chainAccount.id,
@@ -155,9 +155,9 @@ intentDestinationChainAccount(intent) = destination {
 
 # Get destination information when there is both an account and address book entry
 intentDestinationChainAccount(intent) = destination {
-	addressBookData = data.entities.addressBook[intent.to]
+	addressBookData = get.addressBookEntry(intent.to)
 	chainAccount = parseChainAccount(intent.to)
-	accountData = get.accountFromChainAccount(chainAccount)
+	accountData = get.account(chainAccount.address)
 
 	destination := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }

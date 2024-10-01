@@ -48,8 +48,6 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smar
 		}},
 	}
 
-
-  print("entry", entry)
 	entry == {
 		"id": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",

@@ -125,6 +125,17 @@ export type UserOperation = {
 
 export type TypedDataIntent = SignTypedData | Permit | Permit2
 
+// from
+// to
+// owner
+// spender
+// token
+// entrypoint
+// bytecode
+// contract
+// hexSignature
+
+
 export type Intent =
   | TransferNative
   | TransferErc20

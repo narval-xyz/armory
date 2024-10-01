@@ -1,11 +1,13 @@
 package main
 
+import data.armory.lib.case.equalsIgnoreCase
+import data.armory.lib.case.findCaseInsensitive
 import future.keywords.in
 
 getApprovalsCount(possibleApprovers) = result {
 	matchedApprovers = {approval.userId |
 		approval = input.approvals[_]
-		approval.userId in possibleApprovers
+		findCaseInsensitive(approval.userId, possibleApprovers)
 	}
 	result = count(matchedApprovers)
 }
@@ -24,7 +26,7 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::User"
 	possibleApprovers = {entity |
 		entity = approval.entityIds[_]
-		entity != principal.id
+		equalsIgnoreCase(entity, principal.id) == false
 	}
 	result = getApprovalsCount(possibleApprovers)
 }
@@ -36,7 +38,7 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = data.entities.userGroups[entity].users
+		users = data.entities.userGroups[lower(entity)].users
 		user = users[_]
 	} | {principal.id}
 
@@ -48,9 +50,9 @@ checkApproval(approval) = result {
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = data.entities.userGroups[entity].users
+		users = data.entities.userGroups[lower(entity)].users
 		user = users[_]
-		user != principal.id
+		equalsIgnoreCase(user, principal.id) == false
 	}
 
 	result = getApprovalsCount(possibleApprovers)
@@ -75,7 +77,7 @@ checkApproval(approval) = result {
 	possibleApprovers = {user.id |
 		user = data.entities.users[_]
 		user.role in approval.entityIds
-		user.id != principal.id
+		equalsIgnoreCase(user.id, principal.id) == false
 	}
 
 	result = getApprovalsCount(possibleApprovers)

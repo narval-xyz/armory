@@ -93,7 +93,6 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] = reason {
 		},
 		"filters": {"userGroups": {"test-user-group-one-uid"}},
 	})
-
 	reason = {
 		"type": "forbid",
 		"policyId": "spendingLimitByUserGroup",

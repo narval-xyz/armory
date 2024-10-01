@@ -19,10 +19,8 @@ equalsIgnoreCase(a, b) = result {
 ## findCaseInsensitive("foo", {"bar", "foo", "baz"}) => true
 ## findCaseInsensitive("foo", {"bar", "baz"}) => false
 ##
-findCaseInsensitive(needle, set) = matching {
+findCaseInsensitive(needle, set) {
 	lowerNeedle := lower(needle)
-	matching := {elem |
-		some elem in set
-		lower(elem) == needle
-	}
+	some elem in set
+	lower(elem) == lowerNeedle
 }

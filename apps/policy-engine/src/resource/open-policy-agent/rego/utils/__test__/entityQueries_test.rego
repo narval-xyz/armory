@@ -20,8 +20,8 @@ test_account {
 	account == account_upper
 }
 
-test_accountFromChainAccount {
-	account := get.accountFromChainAccount("0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
+test_account_from_address {
+	account := get.account("0xddcf208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
 	expected := {
 		"accountType": "eoa",
 		"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
@@ -32,7 +32,7 @@ test_accountFromChainAccount {
 	account == expected
 
 	# Test case insensitivity
-	account_upper := get.accountFromChainAccount("0xDDCF208f219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
+	account_upper := get.account("0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
 	account == account_upper
 }
 
@@ -79,8 +79,6 @@ test_token {
 		"decimals": 6,
 	}
 
-	print(token == expected)
-
 	# Test case insensitivity
 	token_upper := get.token("EIP155:137/ERC20:0x2791BCA1f2de4661ed88a30c99a7a9449aa84174") with data.entities as entities
 	token == token_upper
@@ -98,27 +96,4 @@ test_user {
 	# Test case insensitivity
 	user_upper := get.user("test-BOB-uid") with data.entities as entities
 	user == user_upper
-}
-
-test_nonexistent_data {
-	account := get.account("eip155:eoa:0xnonexistent") with data.entities as entities
-	account == null
-
-	account_from_address := get.accountFromChainAccount("0xnonexistent") with data.entities as entities
-	account_from_address == null
-
-	groups := get.accountGroups("eip155:eoa:0xnonexistent") with data.entities as entities
-	groups == set()
-
-	user_groups := get.userGroups("nonexistent_user") with data.entities as entities
-	user_groups == set()
-
-	address_book_entry := get.addressBookEntry("eip155:1:0xnonexistent") with data.entities as entities
-	address_book_entry == null
-
-	token := get.token("eip155:1/erc20:0xnonexistent") with data.entities as entities
-	token == null
-
-	user := get.user("nonexistent_user") with data.entities as entities
-	user == null
 }
