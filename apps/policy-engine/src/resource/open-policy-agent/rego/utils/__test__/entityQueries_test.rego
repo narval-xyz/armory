@@ -37,21 +37,44 @@ test_account_from_address {
 }
 
 test_accountGroups {
-	groups := get.accountGroups("eip155:eoa:0xddcf208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
-	groups == {"test-account-group-ONE-uid"}
+	# Test finding a group by ID
+	group := get.accountGroups("test-account-group-ONE-uid") with data.entities as entities
+	expected_group := {
+		"id": "test-account-group-ONE-uid",
+		"accounts": [
+			"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e",
+		],
+		"name": "dev",
+	}
+	group == expected_group
 
 	# Test case insensitivity
-	groups_upper := get.accountGroups("EIP155:EOA:0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as entities
-	groups == groups_upper
+	groups_upper := get.accountGroups("test-account-group-one-uid") with data.entities as entities
+	group == groups_upper
+
+	# Test non-existent input
+	non_existent := get.accountGroups("unknown") with data.entities as entities
+	non_existent == null
 }
 
 test_userGroups {
-	groups := get.userGroups("test-bob-uid") with data.entities as entities
-	groups == {"test-USER-group-one-uid", "test-USER-group-two-uid"}
+	# Test finding a group by ID
+	group := get.userGroups("test-USER-group-one-uid") with data.entities as entities
+	expected_group := {
+		"id": "test-USER-group-one-uid",
+		"name": "dev",
+		"users": ["test-Bob-uid", "test-Bar-uid"],
+	}
+	group == expected_group
 
 	# Test case insensitivity
-	groups_upper := get.userGroups("TEST-bob-UID") with data.entities as entities
-	groups == groups_upper
+	groups_upper := get.userGroups("test-user-group-one-UID") with data.entities as entities
+	group == groups_upper
+
+	# Test non-existent input
+	non_existent := get.userGroups("unknown") with data.entities as entities
+	non_existent == null
 }
 
 test_addressBookEntry {
@@ -96,4 +119,17 @@ test_user {
 	# Test case insensitivity
 	user_upper := get.user("test-BOB-uid") with data.entities as entities
 	user == user_upper
+}
+
+test_usersByRole {
+	root := get.usersByRole("root") with data.entities as entities
+
+	root == {"test-BOB-uid"}
+
+	admin := get.usersByRole("admin") with data.entities as entities
+	admin == {
+		"test-Bar-uid",
+		"test-Foo-uid",
+		"0xAAA8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+	}
 }

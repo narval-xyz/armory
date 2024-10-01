@@ -120,7 +120,7 @@ checkTransferByUserGroups(userId, values) {
 
 checkTransferByUserGroups(userId, values) {
 	values != wildcard
-	groups = get.userGroups(userId)
+	groups = get.user(userId).groups
 	group := groups[_]
 	res := findCaseInsensitive(group, values)
 }
@@ -143,7 +143,7 @@ checkTransferByAccountGroups(chainAccountId, values) {
 
 checkTransferByAccountGroups(accountId, values) {
 	values != wildcard
-	groups = get.accountGroups(accountId)
+	groups = get.account(accountId).groups
 	group = groups[_]
 	findCaseInsensitive(group, values)
 }

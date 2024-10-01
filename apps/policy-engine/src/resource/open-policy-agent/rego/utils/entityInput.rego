@@ -7,4 +7,4 @@ resource := get.account(input.resource.uid)
 
 principal := get.user(input.principal.userId)
 
-principalGroups = get.userGroups(input.principal.userId)
+principalGroups = principal.groups

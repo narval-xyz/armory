@@ -17,7 +17,7 @@ test_resource {
 	groups = resource.groups with input as requestWithEip1559Transaction with data.entities as entities
 	groups == {"test-account-group-ONE-uid"}
 
-	accountGroupsById = get.accountGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e") with input as requestWithEip1559Transaction with data.entities as entities
+	accountGroupsById = get.account("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e").groups with input as requestWithEip1559Transaction with data.entities as entities
 	accountGroupsById == {"test-account-group-ONE-uid"}
 
 	checkAccountId({"eip155:eoa:0xdDcF208f219a6e6af072f2cfdc615b2c1805F98E"}) with input as requestWithEip1559Transaction with data.entities as entities

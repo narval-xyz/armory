@@ -39,38 +39,38 @@ export const criterionSchema = z.nativeEnum({
   // Action
   CHECK_ACTION: 'checkAction',
   // Resource
-  CHECK_RESOURCE: 'checkResource', // TODO
+  CHECK_RESOURCE: 'checkResource',
   // Permission
   CHECK_PERMISSION: 'checkPermission',
   // Principal
-  CHECK_PRINCIPAL_ID: 'checkPrincipalId', // TODO
+  CHECK_PRINCIPAL_ID: 'checkPrincipalId',
   CHECK_PRINCIPAL_ROLE: 'checkPrincipalRole',
-  CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup', // TODO
+  CHECK_PRINCIPAL_GROUP: 'checkPrincipalGroup',
   // Resource Account
-  CHECK_ACCOUNT_ID: 'checkAccountId', // TODO
-  CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress', // TODO
+  CHECK_ACCOUNT_ID: 'checkAccountId',
+  CHECK_ACCOUNT_ADDRESS: 'checkAccountAddress',
   CHECK_ACCOUNT_TYPE: 'checkAccountType',
   CHECK_ACCOUNT_CHAIN_ID: 'checkAccountChainId',
-  CHECK_ACCOUNT_GROUP: 'checkAccountGroup', // TODO
+  CHECK_ACCOUNT_GROUP: 'checkAccountGroup',
   CHECK_ACCOUNT_ASSIGNED: 'checkAccountAssigned',
   // Intent Source Account
-  CHECK_SOURCE_ID: 'checkSourceId', // TODO
-  CHECK_SOURCE_ADDRESS: 'checkSourceAddress', // TODO
+  CHECK_SOURCE_ID: 'checkSourceId',
+  CHECK_SOURCE_ADDRESS: 'checkSourceAddress',
   CHECK_SOURCE_ACCOUNT_TYPE: 'checkSourceAccountType',
   CHECK_SOURCE_CLASSIFICATION: 'checkSourceClassification',
   // Intent Destination Account
-  CHECK_DESTINATION_ID: 'checkDestinationId', // TODO
-  CHECK_DESTINATION_ADDRESS: 'checkDestinationAddress', // TODO
+  CHECK_DESTINATION_ID: 'checkDestinationId',
+  CHECK_DESTINATION_ADDRESS: 'checkDestinationAddress',
   CHECK_DESTINATION_ACCOUNT_TYPE: 'checkDestinationAccountType',
   CHECK_DESTINATION_CLASSIFICATION: 'checkDestinationClassification',
   // Intent
   CHECK_INTENT_TYPE: 'checkIntentType',
   CHECK_INTENT_CHAIN_ID: 'checkIntentChainId',
   CHECK_INTENT_AMOUNT: 'checkIntentAmount',
-  CHECK_INTENT_CONTRACT: 'checkIntentContract', // TODO
-  CHECK_INTENT_SPENDER: 'checkIntentSpender', // TODO
-  CHECK_INTENT_TOKEN: 'checkIntentToken', // TODO
-  CHECK_INTENT_HEX_SIGNATURE: 'checkIntentHexSignature', // TODO
+  CHECK_INTENT_CONTRACT: 'checkIntentContract',
+  CHECK_INTENT_SPENDER: 'checkIntentSpender',
+  CHECK_INTENT_TOKEN: 'checkIntentToken',
+  CHECK_INTENT_HEX_SIGNATURE: 'checkIntentHexSignature',
   // Intent Sign Message
   CHECK_INTENT_MESSAGE: 'checkIntentMessage',
   CHECK_INTENT_PAYLOAD: 'checkIntentPayload',
@@ -78,7 +78,7 @@ export const criterionSchema = z.nativeEnum({
   CHECK_INTENT_DOMAIN: 'checkIntentDomain',
   CHECK_INTENT_TYPED_DATA_MESSAGE: 'checkIntentTypedDataMessage',
   // Intent Token Transfers
-  CHECK_ERC1155_TOKEN_ID: 'checkErc1155TokenId', // TODO
+  CHECK_ERC1155_TOKEN_ID: 'checkErc1155TokenId',
   CHECK_ERC1155_TRANSFERS: 'checkErc1155Transfers',
   // Intent Permit Deadline
   CHECK_PERMIT_DEADLINE: 'checkPermitDeadline',

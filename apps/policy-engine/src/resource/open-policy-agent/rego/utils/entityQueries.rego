@@ -10,7 +10,6 @@ accountById(id) = account {
 }
 
 # Helper function to find an account by its address
-# This function is case insensitive
 # It returns the first account found with the given address
 # There should be only one account with a given address
 accountByAddress(address) = account {
@@ -20,19 +19,12 @@ accountByAddress(address) = account {
 	}[_]
 }
 
-# Helper function to prepare account data
-prepareAccountData(account) = accountData {
-	groups := accountGroups(account.id)
-	accountData := object.union(account, {"groups": groups})
-}
-
 ## Account
 ## Input: string
-## Output: account object from data.entities.accounts | null
-##
-## This function doesn't assumes wether the input is an ID or an address. It just tries its best to find an account giving a string.
-##  - It first treats input as an ID.
-##  - If not found, it treats input as an address.
+## Output: account object with its groups | null
+## This function doesn't assumes wether the string is an ID or an address. It just tries its best to find an account giving a string.
+##  - It first treats string as an ID, and try to lookup at account index.
+##  - If not found, it treats string as an address, and try to find a matching address.
 ##
 ## 1st: It lookups the index.
 ## Index is created before evaluation lowercased.
@@ -94,11 +86,13 @@ prepareAccountData(account) = accountData {
 account(string) = accountData {
 	# First, try to find the account by ID
 	account := accountById(string)
-	accountData := prepareAccountData(account)
+	accountGroups := groupsByAccount(account.id)
+	accountData := object.union(account, {"groups": accountGroups})
 } else = accountData {
 	# If not found by ID, try to find by address
 	account := accountByAddress(string)
-	accountData := prepareAccountData(account)
+	accountGroups := groupsByAccount(account.id)
+	accountData := object.union(account, {"groups": accountGroups})
 } else = null
 
 # If not found by ID or address, return null
@@ -106,71 +100,113 @@ account(string) = accountData {
 ## Account Groups
 ##
 ## Input: string
-## Output: set
+## Output: accountGroup object | null
 ##
-## This function returns the groups of an account.
+## This function first tries to find an account group by its ID.
 ##
 ## Example entity data:
 ## {
-## 	"entities": {
-## 		"accountGroups": {
-## 			"test-account-group-ONE-uid": {
-## 				"id": "test-account-group-ONE-uid",
-## 				"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
-## 				"name": "dev",
-## 			},
-## 		},
-## 	},
+##   "entities": {
+##     "accountGroups": {
+##       "test-account-group-ONE-uid": {
+##         "id": "test-account-group-ONE-uid",
+##         "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
+##         "name": "dev",
+##       },
+##     },
+##   },
 ## }
 ##
-## get.accountGroups("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
+## get.accountGroups("test-account-group-ONE-uid")
+## RETURNS {
+##   "id": "test-account-group-ONE-uid",
+##   "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
+##   "name": "dev",
+## }
+##
+##
+## get.accountGroups("unknown")
+## RETURNS null
+accountGroups(string) = group {
+	group := data.entities.accountGroups[lower(string)]
+} else = null
+
+## Groups by Account
+##
+## Input: string
+## Output: set of account group IDs | null
+##
+## This function returns a set of account group IDs that the account is a member of.
+##
+## get.groupsByAccount("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
 ## RETURNS {"test-account-group-ONE-uid"}
 ##
-## get.accountGroups("eip155:eoa:0x123")
+## get.groupsByAccount("unknown")
 ## RETURNS {}
-accountGroups(accountId) = groups {
+groupsByAccount(accountId) = groups {
 	groups := {group.id |
 		group := data.entities.accountGroups[_]
 		findCaseInsensitive(accountId, group.accounts)
 	}
-} else = {}
+} else = null
 
 ## User Groups
 ##
 ## Input: string
-## Output: set
+## Output: userGroup object | null
 ##
-## This function returns the groups of a user.
+## This function first tries to find a user group by its ID.
 ##
 ## Example entity data:
 ## {
-## 	"entities": {
-## 		"userGroups": {
-## 			"test-user-group-one-uid": {
-## 				"id": "test-USER-group-one-uid",
-## 				"name": "dev",
-## 				"users": ["test-Bob-uid", "test-Bar-uid"],
-## 			},
-## 		},
-## 	},
+##   "entities": {
+##     "userGroups": {
+##       "test-user-group-one-uid": {
+##         "id": "test-USER-group-one-uid",
+##         "name": "dev",
+##         "users": ["test-Bob-uid", "test-Bar-uid"],
+##       },
+##     },
+##   },
 ## }
 ##
-## get.userGroups("test-bob-uid")
+## get.userGroups("test-USER-group-one-uid")
+## RETURNS {
+##   "id": "test-USER-group-one-uid",
+##   "name": "dev",
+##   "users": ["test-Bob-uid", "test-Bar-uid"],
+## }
+##
+##
+## get.userGroups("unknown")
+## RETURNS null
+userGroups(string) = group {
+	group := data.entities.userGroups[lower(string)]
+} else = null
+
+## Groups by User
+##
+## Input: string
+## Output: set of user group IDs | null
+##
+## This function returns a set of user group IDs that the user is a member of.
+##
+## get.groupsByUser("test-bob-uid")
 ## RETURNS {"test-USER-group-one-uid"}
 ##
-## get.userGroups("test-foo-uid")
+## get.groupsByUser("unknown")
 ## RETURNS {}
-userGroups(userId) = groups {
+groupsByUser(userId) = groups {
 	groups := {group.id |
 		group := data.entities.userGroups[_]
 		findCaseInsensitive(userId, group.users)
 	}
-} else = {}
+} else = null
 
 ## Address Book Entry
 ##
 ## Input: string
-## Output: addressBookEntry object from data.entities.addressBook | null
+## Output: addressBookEntry object | null
 ##
 ## This function returns an address book entry.
 ##
@@ -205,7 +241,7 @@ addressBookEntry(id) = entry {
 ## Token
 ##
 ## Input: string
-## Output: token object from data.entities.tokens | null
+## Output: token object | null
 ##
 ## This function returns a token.
 ##
@@ -242,7 +278,7 @@ token(id) = tokenData {
 ## User
 ##
 ## Input: string
-## Output: user object from data.entities.users | null
+## Output: user object with groups | null
 ##
 ## This function returns a user.
 ##
@@ -274,6 +310,40 @@ token(id) = tokenData {
 ## RETURNS null
 user(id) = userData {
 	user := data.entities.users[lower(id)]
-	groups := userGroups(user.id)
+	groups := groupsByUser(user.id)
 	userData := object.union(user, {"groups": groups})
+} else = null
+
+## User by role
+##
+## Input: 'admin' | 'root' | 'member' | 'manager' | 'wildcard'
+## Output: set of user IDs | null
+##
+## This function returns a set of user IDs that have the given role.
+##
+## Example entity data:
+## {
+## 	"entities": {
+## 		"users": {
+## 			"test-bob-uid": {
+## 				"id": "test-BOB-uid",
+## 				"role": "root",
+## 			},
+## 		  "test-alice-uid": {
+## 			  "id": "test-Alice-uid",
+## 			  "role": "member",
+## 		  },
+## 		},
+## }
+##
+## get.usersByRole("root")
+## RETURNS {"test-BOB-uid"}
+##
+## get.usersByRole("admin")
+## RETURNS null
+usersByRole(role) = users {
+	users := {user.id |
+		user := data.entities.users[_]
+		user.role == role
+	}
 } else = null

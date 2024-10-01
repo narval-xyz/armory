@@ -143,7 +143,7 @@ intentDestinationChainAccount(intent) = destination {
 intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
 	get.account(chainAccount.address) == null
-	addressBookData = data.entities.addressBook[lower(intent.to)]
+	addressBookData = get.addressBookEntry(intent.to)
 
 	destination := {
 		"id": chainAccount.id,
@@ -162,6 +162,9 @@ intentDestinationChainAccount(intent) = destination {
 	destination := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }
 
-getEntryPoint(intent) = data.entities.accounts[intent.entrypoint]
-
-getEntryPoint(intent) = data.entities.addressBook[intent.entrypoint]
+getEntryPoint(intent) = entrypoint {
+	entrypoint := get.account(intent.entrypoint)
+	entrypoint != null
+} else = entrypoint {
+	entrypoint := get.addressBookEntry(intent.entrypoint)
+}
