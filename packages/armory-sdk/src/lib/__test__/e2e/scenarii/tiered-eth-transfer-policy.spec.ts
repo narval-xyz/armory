@@ -1,8 +1,8 @@
 /* eslint-disable jest/consistent-test-it */
 import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request, toHex } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../../../resource/entity/test.default.json'
-import tieredEthTransfer from '../../../../resource/policy/set/tiered-eth-transfer.json'
+import defaultEntities from '../../resource/entity/test.default.json'
+import tieredEthTransfer from '../../resource/policy/set/tiered-eth-transfer.json'
 import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
