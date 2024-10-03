@@ -1,5 +1,6 @@
 package main
 
+import data.armory.lib.case.findCaseInsensitive
 import future.keywords.in
 
 checkIntentType(values) {
@@ -7,15 +8,15 @@ checkIntentType(values) {
 }
 
 checkIntentContract(values) {
-	input.intent.contract in values
+	findCaseInsensitive(input.intent.contract, values)
 }
 
 checkIntentToken(values) {
-	input.intent.token in values
+	findCaseInsensitive(input.intent.token, values)
 }
 
 checkIntentSpender(values) {
-	input.intent.spender in values
+	findCaseInsensitive(input.intent.spender, values)
 }
 
 checkIntentChainId(values) {
@@ -23,7 +24,7 @@ checkIntentChainId(values) {
 }
 
 checkIntentHexSignature(values) {
-	input.intent.hexSignature in values
+	findCaseInsensitive(input.intent.hexSignature, values)
 }
 
 checkIntentAlgorithm(values) {

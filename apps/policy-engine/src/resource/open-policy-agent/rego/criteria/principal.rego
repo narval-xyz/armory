@@ -1,18 +1,25 @@
 package main
 
+import data.armory.entities.get
+import data.armory.lib.case.findCaseInsensitive
+
 import future.keywords.in
 
-principal = data.entities.users[input.principal.userId]
-
+## Id are lowercased
 checkPrincipalId(values) {
-	principal.id in values
+	principal := get.user(input.principal.userId)
+	findCaseInsensitive(principal.id, values)
 }
 
+## roles are constants
 checkPrincipalRole(values) {
+	principal := get.user(input.principal.userId)
 	principal.role in values
 }
 
+## Ids are lowercased
 checkPrincipalGroup(values) {
-	group = principalGroups[_]
-	group in values
+	principalGroups := get.user(input.principal.userId).groups
+	some group in principalGroups
+	findCaseInsensitive(group, values)
 }

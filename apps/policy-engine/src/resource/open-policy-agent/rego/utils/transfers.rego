@@ -2,12 +2,18 @@ package main
 
 import future.keywords.in
 
-import data.armory.util.eth.isAddressEqual
+import data.armory.entities.get
+import data.armory.lib.case.equalsIgnoreCase
+import data.armory.lib.case.findCaseInsensitive
+import data.armory.lib.chainAccount.build.parseChainAccount
 
 transformIntentToTransferObject(intent) = result {
 	contract = intent.contract
 	not priceFeed[contract]
 
+	resource := get.account(input.resource.uid)
+	principal := get.user(input.principal.userId)
+
 	result = {
 		"amount": intent.amount,
 		"resourceId": resource.id,
@@ -21,11 +27,15 @@ transformIntentToTransferObject(intent) = result {
 	}
 }
 
+# Case 1: When token is not in priceFeed
 transformIntentToTransferObject(intent) = result {
-	token = intent.token
-	not priceFeed[token]
+	token := intent.token
+	not priceFeed[lower(token)]
 
-	result = {
+	resource := get.account(input.resource.uid)
+	principal := get.user(input.principal.userId)
+
+	result := {
 		"amount": intent.amount,
 		"resourceId": resource.id,
 		"from": intent.from,
@@ -38,32 +48,41 @@ transformIntentToTransferObject(intent) = result {
 	}
 }
 
+# Case 2: When token is in priceFeed
 transformIntentToTransferObject(intent) = result {
-	contract = intent.contract
+	token := intent.token
+	priceFeed[lower(token)]
 
-	result = {
+	resource := get.account(input.resource.uid)
+	principal := get.user(input.principal.userId)
+
+	result := {
 		"amount": intent.amount,
 		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
-		"token": contract,
-		"rates": priceFeed[contract],
+		"token": token,
+		"rates": priceFeed[lower(token)],
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
 	}
 }
 
+# Case 3: When intent has a contract field instead of token
 transformIntentToTransferObject(intent) = result {
-	token = intent.token
+	token := intent.contract
 
-	result = {
+	resource := get.account(input.resource.uid)
+	principal := get.user(input.principal.userId)
+
+	result := {
 		"amount": intent.amount,
 		"resourceId": resource.id,
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
-		"rates": priceFeed[token],
+		"rates": priceFeed[lower(token)],
 		"timestamp": nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
@@ -91,7 +110,7 @@ checkTransferCondition(value, set) {
 
 checkTransferCondition(value, set) {
 	set != wildcard
-	value in set
+	findCaseInsensitive(value, set)
 }
 
 # Check By Principal
@@ -101,8 +120,9 @@ checkTransferByPrincipal(initiator, perPrincipal) {
 }
 
 checkTransferByPrincipal(initiator, perPrincipal) {
+	principal := get.user(input.principal.userId)
 	perPrincipal == true
-	principal.id == initiator
+	equalsIgnoreCase(initiator, principal.id)
 }
 
 # Check By User Groups
@@ -113,34 +133,32 @@ checkTransferByUserGroups(userId, values) {
 
 checkTransferByUserGroups(userId, values) {
 	values != wildcard
-	groups = getUserGroups(userId)
-	group = groups[_]
-	group in values
+	groups = get.user(userId).groups
+	group := groups[_]
+	res := findCaseInsensitive(group, values)
 }
 
 # Check By Account Groups
-
 checkTransferByAccountGroups(accountId, values) {
 	values == wildcard
 }
 
 ## if accountId is not an eoa id
 checkTransferByAccountGroups(chainAccountId, values) {
-	chainAccount = parseChainAccount(chainAccountId)
-	account = data.entities.accounts[_]
-	isAddressEqual(account.address, chainAccount.address) == true
-
 	values != wildcard
-	groups = getAccountGroups(account.id)
-	group = groups[_]
-	group in values
+
+	address := parseChainAccount(chainAccountId).address
+	groups := get.account(address).groups
+
+	group := groups[_]
+	findCaseInsensitive(group, values)
 }
 
 checkTransferByAccountGroups(accountId, values) {
 	values != wildcard
-	groups = getAccountGroups(accountId)
+	groups = get.account(accountId).groups
 	group = groups[_]
-	group in values
+	findCaseInsensitive(group, values)
 }
 
 # Check By Start Date

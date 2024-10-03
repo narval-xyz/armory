@@ -1,6 +1,7 @@
-package main
+package armory.lib.chainAccount.build
 
-import data.armory.util.eth.isAddressEqual
+import data.armory.entities.get
+import data.armory.lib.case.equalsIgnoreCase
 
 # EOA accounts are multichain by design.
 _getChainId(account, chainAccount) = chainId {
@@ -29,15 +30,8 @@ parseChainAccount(accountId) = chainAccount {
 	}
 }
 
-getAccountFromAddress(address) = accountData {
-	account = data.entities.accounts[_]
-	isAddressEqual(account.address, address) == true
-	accountGroups = getAccountGroups(account.id)
-	accountData := object.union(account, {"accountGroups": accountGroups})
-}
-
 # Build chainAccount by merging accountData and addressBookData
-buildChainAccount(chainAccount, accountData, addressBookData) = built {
+mergeAccountAndAddressBook(chainAccount, accountData, addressBookData) = built {
 	addressBookData
 	accountData
 
@@ -50,17 +44,18 @@ buildChainAccount(chainAccount, accountData, addressBookData) = built {
 		# TODO: @ptroger add addressBookGroups when implemented
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
 # Default source information when 'from' address is not found in account or address book
-getIntentSourceChainAccount(intent) = source {
+intentSourceChainAccount(intent) = source {
 	intent.from
 	chainAccount = parseChainAccount(intent.from)
 
-	not getAccountFromAddress(chainAccount.address)
-	not data.entities.addressBook[intent.from]
+	get.account(chainAccount.address) == null
+	get.addressBookEntry(intent.from) == null
+
 	source := {
 		"id": intent.from,
 		"address": chainAccount.address,
@@ -72,11 +67,12 @@ getIntentSourceChainAccount(intent) = source {
 }
 
 # Get source information when there is only an account entry
-getIntentSourceChainAccount(intent) = source {
+intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	accountData := getAccountFromAddress(chainAccount.address)
-	not data.entities.addressBook[intent.from]
+	accountData := get.account(chainAccount.address)
+	get.addressBookEntry(intent.from) == null
+
 	source := {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -85,16 +81,16 @@ getIntentSourceChainAccount(intent) = source {
 		# we can default to 'managed' because its in entities.accounts
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
 # Get source information when there is only an address book entry
-getIntentSourceChainAccount(intent) = source {
+intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
 
-	not getAccountFromAddress(chainAccount.address)
-	addressBookData = data.entities.addressBook[intent.from]
+	get.account(chainAccount.address) == null
+	addressBookData = get.addressBookEntry(intent.from)
 
 	source := {
 		"id": chainAccount.id,
@@ -106,19 +102,19 @@ getIntentSourceChainAccount(intent) = source {
 }
 
 # Get source information when there is both an account and address book entry
-getIntentSourceChainAccount(intent) = source {
+intentSourceChainAccount(intent) = source {
 	chainAccount = parseChainAccount(intent.from)
-	addressBookData = data.entities.addressBook[intent.from]
-	accountData = getAccountFromAddress(chainAccount.address)
-	source := buildChainAccount(chainAccount, accountData, addressBookData)
+	addressBookData = get.addressBookEntry(intent.from)
+	accountData = get.account(chainAccount.address)
+	source := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }
 
 # Get destination information when there is neither account or address book entry, but an intent.to
-getIntentDestinationChainAccount(intent) = destination {
+intentDestinationChainAccount(intent) = destination {
 	intent.to
 	chainAccount = parseChainAccount(intent.to)
-	not getAccountFromAddress(chainAccount.address)
-	not data.entities.addressBook[intent.to]
+	get.account(chainAccount.address) == null
+	get.addressBookEntry(intent.to) == null
 	destination := {
 		"id": intent.to,
 		"address": chainAccount.address,
@@ -127,12 +123,10 @@ getIntentDestinationChainAccount(intent) = destination {
 }
 
 # Get destination information when there is only an account entry
-getIntentDestinationChainAccount(intent) = destination {
+intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-
-	not data.entities.addressBook[intent.to]
-	accountData = getAccountFromAddress(chainAccount.address)
-
+	get.addressBookEntry(intent.to) == null
+	accountData = get.account(chainAccount.address)
 	destination := {
 		"id": chainAccount.id,
 		"address": chainAccount.address,
@@ -141,15 +135,15 @@ getIntentDestinationChainAccount(intent) = destination {
 		# we can default to 'managed' because its in entities.accounts
 		"accountType": accountData.accountType,
 		"assignees": accountData.assignees,
-		"accountGroups": accountData.accountGroups,
+		"groups": accountData.groups,
 	}
 }
 
 # Get destination information when there is only an address book entry
-getIntentDestinationChainAccount(intent) = destination {
+intentDestinationChainAccount(intent) = destination {
 	chainAccount = parseChainAccount(intent.to)
-	not getAccountFromAddress(chainAccount.address)
-	addressBookData = data.entities.addressBook[intent.to]
+	get.account(chainAccount.address) == null
+	addressBookData = get.addressBookEntry(intent.to)
 
 	destination := {
 		"id": chainAccount.id,
@@ -160,14 +154,17 @@ getIntentDestinationChainAccount(intent) = destination {
 }
 
 # Get destination information when there is both an account and address book entry
-getIntentDestinationChainAccount(intent) = destination {
-	addressBookData = data.entities.addressBook[intent.to]
+intentDestinationChainAccount(intent) = destination {
+	addressBookData = get.addressBookEntry(intent.to)
 	chainAccount = parseChainAccount(intent.to)
-	accountData = getAccountFromAddress(chainAccount.address)
+	accountData = get.account(chainAccount.address)
 
-	destination := buildChainAccount(chainAccount, accountData, addressBookData)
+	destination := mergeAccountAndAddressBook(chainAccount, accountData, addressBookData)
 }
 
-getEntryPoint(intent) = data.entities.accounts[intent.entrypoint]
-
-getEntryPoint(intent) = data.entities.addressBook[intent.entrypoint]
+getEntryPoint(intent) = entrypoint {
+	entrypoint := get.account(intent.entrypoint)
+	entrypoint != null
+} else = entrypoint {
+	entrypoint := get.addressBookEntry(intent.entrypoint)
+}
