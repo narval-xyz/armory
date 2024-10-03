@@ -8,8 +8,8 @@ import {
   Request
 } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defiEntities from '../../../../resource/entity/defi-interaction.json'
-import defiInteractionPolicy from '../../../../resource/policy/set/defi-interaction.json'
+import defiEntities from '../../resource/entity/defi-interaction.json'
+import defiInteractionPolicy from '../../resource/policy/set/defi-interaction.json'
 import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000

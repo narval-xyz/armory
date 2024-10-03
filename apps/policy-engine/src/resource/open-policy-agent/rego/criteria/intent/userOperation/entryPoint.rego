@@ -1,15 +1,18 @@
 package main
 
+import data.armory.lib.case.findCaseInsensitive
+import data.armory.lib.chainAccount.build.getEntryPoint
 import future.keywords.in
 
 checkEntryPointId(values) {
 	entrypoint = getEntryPoint(input.intent)
-	entrypoint.id in values
+	print("entrypoint.id: ", entrypoint.id)
+	findCaseInsensitive(entrypoint.id, values)
 }
 
 checkEntryPointAddress(values) {
 	entrypoint = getEntryPoint(input.intent)
-	entrypoint.address in values
+	findCaseInsensitive(entrypoint.address, values)
 }
 
 checkEntryPointAccountType(values) {

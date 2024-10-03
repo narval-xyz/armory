@@ -1,23 +1,26 @@
 package main
 
+import data.armory.lib.case.findCaseInsensitive
+import data.armory.lib.chainAccount.build
+
 import future.keywords.in
 
 checkSourceId(values) {
-	source = getIntentSourceChainAccount(input.intent)
-	source.id in values
+	source = build.intentSourceChainAccount(input.intent)
+	findCaseInsensitive(source.id, values)
 }
 
 checkSourceAddress(values) {
-	source = getIntentSourceChainAccount(input.intent)
-	source.address in values
+	source = build.intentSourceChainAccount(input.intent)
+	findCaseInsensitive(source.address, values)
 }
 
 checkSourceAccountType(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.accountType in values
 }
 
 checkSourceClassification(values) {
-	source = getIntentSourceChainAccount(input.intent)
+	source = build.intentSourceChainAccount(input.intent)
 	source.classification in values
 }

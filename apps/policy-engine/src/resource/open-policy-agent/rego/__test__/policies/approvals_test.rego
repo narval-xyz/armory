@@ -35,7 +35,7 @@ test_approvalByUserGroups {
 
 	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as entities
 
-	res == {
+	expected := {
 		"approvalsMissing": [],
 		"approvalsSatisfied": [{
 			"approvalCount": 2,
@@ -46,6 +46,7 @@ test_approvalByUserGroups {
 		"policyId": "approvalByUserGroups",
 		"type": "permit",
 	}
+	res == expected
 }
 
 test_approvalByUserRoles {
