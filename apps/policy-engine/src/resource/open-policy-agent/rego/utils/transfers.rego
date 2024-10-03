@@ -11,6 +11,9 @@ transformIntentToTransferObject(intent) = result {
 	contract = intent.contract
 	not priceFeed[contract]
 
+  resource := get.account(input.resource.uid)
+  principal := get.user(input.principal.userId)
+
 	result = {
 		"amount": intent.amount,
 		"resourceId": resource.id,
@@ -28,6 +31,9 @@ transformIntentToTransferObject(intent) = result {
 transformIntentToTransferObject(intent) = result {
 	token := intent.token
 	not priceFeed[lower(token)]
+
+  resource := get.account(input.resource.uid)
+  principal := get.user(input.principal.userId)
 
 	result := {
 		"amount": intent.amount,
@@ -47,6 +53,9 @@ transformIntentToTransferObject(intent) = result {
 	token := intent.token
 	priceFeed[lower(token)]
 
+  resource := get.account(input.resource.uid)
+  principal := get.user(input.principal.userId)
+
 	result := {
 		"amount": intent.amount,
 		"resourceId": resource.id,
@@ -63,6 +72,9 @@ transformIntentToTransferObject(intent) = result {
 # Case 3: When intent has a contract field instead of token
 transformIntentToTransferObject(intent) = result {
 	token := intent.contract
+
+  resource := get.account(input.resource.uid)
+  principal := get.user(input.principal.userId)
 
 	result := {
 		"amount": intent.amount,
@@ -108,6 +120,7 @@ checkTransferByPrincipal(initiator, perPrincipal) {
 }
 
 checkTransferByPrincipal(initiator, perPrincipal) {
+  principal := get.user(input.principal.userId)
 	perPrincipal == true
 	equalsIgnoreCase(initiator, principal.id)
 }

@@ -11,7 +11,8 @@ accountById(id) = account {
 
 # Helper function to find an account by its address
 # It returns the first account found with the given address
-# There should be only one account with a given address
+
+## NOTE: When/if we actuallys support Smart Accounts, we will need to return all accounts with the given address
 accountByAddress(address) = account {
 	account := {account |
 		account := data.entities.accounts[_]
@@ -20,6 +21,11 @@ accountByAddress(address) = account {
 }
 
 ## Account
+##
+## !! IMPORTANT !!
+## This query finds an account by its ID or address. This works because currently we only support EOA accounts.
+## If we support Smart Accounts in the future, this query will likely need to be splitted in two.
+##
 ## Input: string
 ## Output: account object with its groups | null
 ## This function doesn't assumes wether the string is an ID or an address. It just tries its best to find an account giving a string.
