@@ -1,6 +1,5 @@
 package main
 
-import data.armory.lib.chainAccount.build
 import future.keywords.in
 
 checkUserOperationSource(key, intent, condition) {
@@ -8,6 +7,6 @@ checkUserOperationSource(key, intent, condition) {
 }
 
 checkUserOperationSource(key, intent, condition) {
-	source = build.intentSourceChainAccount(intent)
+	source = getIntentSourceChainAccount(intent)
 	source[key] in condition[key]
 }

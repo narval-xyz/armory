@@ -1,9 +1,9 @@
 import { Action, Decision, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../resource/entity/test.default.json'
-import twoAdminApproval from '../../resource/policy/checkApprovals/2-admin-approval-required.json'
-import adminApproval from '../../resource/policy/checkApprovals/admin-approval-required.json'
-import adminPermitAll from '../../resource/policy/checkPrincipalRole/admin-permit-all.json'
+import defaultEntities from '../../../../resource/entity/test.default.json'
+import twoAdminApproval from '../../../../resource/policy/checkApprovals/2-admin-approval-required.json'
+import adminApproval from '../../../../resource/policy/checkApprovals/admin-approval-required.json'
+import adminPermitAll from '../../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
 import {
   buildAuthClient,
   buildPolicy,

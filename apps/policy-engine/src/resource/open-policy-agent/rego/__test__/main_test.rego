@@ -20,13 +20,13 @@ tenHoursAgo = (nowSeconds - ((10 * 60) * 60)) * 1000 # in ms
 
 nineHoursAgo = (nowSeconds - ((9 * 60) * 60)) * 1000 # in ms
 
-principalReq = {"userId": "test-bob-Uid"}
+principalReq = {"userId": "test-bob-uid"}
 
-resourceReq = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E"}
+resourceReq = {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 
 transactionRequestEIP1559 = {
-	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
-	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7A3",
+	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 	"chainId": 137,
 	"maxFeePerGas": "20000000000",
 	"maxPriorityFeePerGas": "3000000000",
@@ -38,12 +38,12 @@ transactionRequestEIP1559 = {
 }
 
 transactionRequestLegacy = {
-	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
-	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7A3",
+	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 	"chainId": 137,
 	"gas": "21000",
 	"gasPrice": "20000000000",
-	"value": "0xde0b6b3A7640000",
+	"value": "0xde0b6b3a7640000",
 	"data": "0x00000000",
 	"nonce": 192,
 	"type": "0",
@@ -51,17 +51,17 @@ transactionRequestLegacy = {
 
 intentReq = {
 	"type": "transferERC20",
-	"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
-	"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7A3",
-	"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aA84174",
+	"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+	"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+	"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 	"amount": "1000000000000000000", # 1 USDC
 }
 
 approvalsReq = [
-	{"userId": "test-bob-uiD"},
-	{"userId": "test-alice-uiD"},
-	{"userId": "test-foo-uiD"},
-	{"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2A43"},
+	{"userId": "test-bob-uid"},
+	{"userId": "test-alice-uid"},
+	{"userId": "test-foo-uid"},
+	{"userId": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"},
 ]
 
 feedsReq = [
@@ -143,82 +143,82 @@ requestWithLegacyTransaction = {
 entities = {
 	"addressBook": {
 		"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
-			"id": "eip155:137:0xA45E21e9370ba031c5e1f47dedca74a7ce2ed7a3",
-			"address": "0xa45e21E9370Ba031c5e1f47dedca74a7ce2ed7a3",
+			"id": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
+			"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 			"chainId": 137,
 			"classification": "internal",
 		},
 		"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:137:0xDDcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"address": "0xddCF208f219a6e6af072f2cfdc615b2c1805f98e",
+			"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 137,
 			"classification": "managed",
 		},
 		"eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:1:0xDDCf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
+			"id": "eip155:1:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"chainId": 1,
 			"classification": "managed",
 		},
 	},
 	"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
-		"id": "eip155:137/erc20:0x2791bCA1f2de4661ed88a30c99a7a9449aa84174",
-		"address": "0x2791bca1f2de4661ED88a30c99a7a9449aa84174",
+		"id": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"address": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 		"symbol": "USDC",
 		"chainId": 137,
 		"decimals": 6,
 	}},
 	"users": {
 		"test-bob-uid": {
-			"id": "test-BOB-uid",
+			"id": "test-bob-uid",
 			"role": "root",
 		},
 		"test-alice-uid": {
-			"id": "test-Alice-uid",
+			"id": "test-alice-uid",
 			"role": "member",
 		},
 		"test-bar-uid": {
-			"id": "test-Bar-uid",
+			"id": "test-bar-uid",
 			"role": "admin",
 		},
 		"test-foo-uid": {
-			"id": "test-Foo-uid",
+			"id": "test-foo-uid",
 			"role": "admin",
 		},
 		"0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43": {
-			"id": "0xAAA8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
+			"id": "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43",
 			"role": "admin",
 		},
 	},
 	"userGroups": {
 		"test-user-group-one-uid": {
-			"id": "test-USER-group-one-uid",
+			"id": "test-user-group-one-uid",
 			"name": "dev",
-			"users": ["test-Bob-uid", "test-Bar-uid"],
+			"users": ["test-bob-uid", "test-bar-uid"],
 		},
 		"test-user-group-two-uid": {
-			"id": "test-USER-group-two-uid",
+			"id": "test-user-group-two-uid",
 			"name": "finance",
-			"users": ["tesT-Bob-uid", "test-bar-uid"],
+			"users": ["test-bob-uid", "test-bar-uid"],
 		},
 	},
 	"accounts": {
 		"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:eoa:0xDDcf208f219a6e6af072f2cfdc615b2c1805f98e",
-			"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
+			"id": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"accountType": "eoa",
-			"assignees": ["test-bOb-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid"],
+			"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid"],
 		},
 		"eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e": {
-			"id": "eip155:eoa:0xbbbb208f219a6e6af072F2cfdc615b2c1805f98e",
-			"address": "0xbbbb208f219a6e6af072f2cfdC615b2c1805f98e",
+			"id": "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
+			"address": "0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
 			"accountType": "eoa",
-			"assignees": ["test-Bob-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid", "0xAAA8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"],
+			"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid", "0xaaa8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"],
 		},
 	},
 	"accountGroups": {"test-account-group-one-uid": {
-		"id": "test-account-group-ONE-uid",
+		"id": "test-account-group-one-uid",
 		"name": "dev",
-		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e"],
+		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e"],
 	}},
 }

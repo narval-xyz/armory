@@ -1,12 +1,11 @@
 package main
 
-import data.armory.lib.case.findCaseInsensitive
 import future.keywords.every
 import future.keywords.in
 
 checkResource(values) {
 	input.action in {actions.grantPermission}
-	findCaseInsensitive(input.resource.uid, values)
+	input.resource.uid in values
 }
 
 checkPermission(grantedPermission) {

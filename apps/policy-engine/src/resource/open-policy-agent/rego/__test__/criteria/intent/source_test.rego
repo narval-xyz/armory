@@ -1,21 +1,17 @@
 package main
 
-import data.armory.lib.chainAccount.build
-
 test_source {
-	res = build.intentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
+	res = getIntentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as entities
 
-	expected := {
-		"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
-		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
+	res == {
+		"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+		"address": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"chainId": 137,
 		"classification": "managed",
 		"accountType": "eoa",
-		"assignees": ["test-bOb-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid"],
-		"groups": {"test-account-group-ONE-uid"},
+		"assignees": ["test-bob-uid", "test-alice-uid", "test-foo-uid", "test-bar-uid"],
+		"accountGroups": {"test-account-group-one-uid"},
 	}
-
-	expected == res
 
 	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as requestWithEip1559Transaction with data.entities as entities
 	checkSourceAddress({"0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as requestWithEip1559Transaction with data.entities as entities

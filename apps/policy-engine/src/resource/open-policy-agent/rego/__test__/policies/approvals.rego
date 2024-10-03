@@ -53,6 +53,7 @@ permit[{"policyId": "approvalByUserGroups"}] = reason {
 	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
+
 	reason = {
 		"type": "permit",
 		"policyId": "approvalByUserGroups",

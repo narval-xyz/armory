@@ -1,9 +1,9 @@
 import { Action, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../resource/entity/test.default.json'
-import adminPermitAll from '../../resource/policy/checkPrincipalRole/admin-permit-all.json'
-import treasuryMemberCanTransferOneEthFixed from '../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-fixed.json'
-import treasuryMemberCanTransferOneEthRolling from '../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-rolling.json'
+import defaultEntities from '../../../../resource/entity/test.default.json'
+import adminPermitAll from '../../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
+import treasuryMemberCanTransferOneEthFixed from '../../../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-fixed.json'
+import treasuryMemberCanTransferOneEthRolling from '../../../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-rolling.json'
 import {
   buildAuthClient,
   buildPolicy,

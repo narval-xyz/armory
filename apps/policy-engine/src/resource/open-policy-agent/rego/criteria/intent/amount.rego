@@ -21,14 +21,14 @@ calculateIntentAmount(currency) = result {
 calculateIntentAmount(currency) = result {
 	currency != wildcard
 	token = input.intent.token
-	price = to_number(priceFeed[lower(token)][lower(currency)])
+	price = to_number(priceFeed[token][currency])
 	result = intentAmount * price
 }
 
 calculateIntentAmount(currency) = result {
 	currency != wildcard
 	contract = input.intent.contract
-	price = to_number(priceFeed[lower(contract)][lower(currency)])
+	price = to_number(priceFeed[contract][currency])
 	result = intentAmount * price
 }
 

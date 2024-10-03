@@ -1,14 +1,11 @@
 package main
 
-import data.armory.entities.get
-import data.armory.lib.case.equalsIgnoreCase
-import data.armory.lib.case.findCaseInsensitive
 import future.keywords.in
 
 getApprovalsCount(possibleApprovers) = result {
 	matchedApprovers = {approval.userId |
 		approval = input.approvals[_]
-		findCaseInsensitive(approval.userId, possibleApprovers)
+		approval.userId in possibleApprovers
 	}
 	result = count(matchedApprovers)
 }
@@ -16,8 +13,6 @@ getApprovalsCount(possibleApprovers) = result {
 # User approvals
 
 checkApproval(approval) = result {
-  principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::User"
 	possibleApprovers = {entity | entity = approval.entityIds[_]} | {principal.id}
@@ -25,13 +20,11 @@ checkApproval(approval) = result {
 }
 
 checkApproval(approval) = result {
-    principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::User"
 	possibleApprovers = {entity |
 		entity = approval.entityIds[_]
-		equalsIgnoreCase(entity, principal.id) == false
+		entity != principal.id
 	}
 	result = getApprovalsCount(possibleApprovers)
 }
@@ -39,13 +32,11 @@ checkApproval(approval) = result {
 # User group approvals
 
 checkApproval(approval) = result {
-    principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = get.userGroups(entity).users
+		users = data.entities.userGroups[entity].users
 		user = users[_]
 	} | {principal.id}
 
@@ -53,15 +44,13 @@ checkApproval(approval) = result {
 }
 
 checkApproval(approval) = result {
-    principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserGroup"
 	possibleApprovers = {user |
 		entity = approval.entityIds[_]
-		users = get.userGroups(entity).users
+		users = data.entities.userGroups[entity].users
 		user = users[_]
-		equalsIgnoreCase(user, principal.id) == false
+		user != principal.id
 	}
 
 	result = getApprovalsCount(possibleApprovers)
@@ -70,39 +59,29 @@ checkApproval(approval) = result {
 # User role approvals
 
 checkApproval(approval) = result {
-    principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserRole"
-	possibleApprovers := {user |
-		role := approval.entityIds[_]
-		users := get.usersByRole(role)
-		user := users[_]
-	}
+	possibleApprovers = {user.id |
+		user = data.entities.users[_]
+		user.role in approval.entityIds
+	} | {principal.id}
 
 	result = getApprovalsCount(possibleApprovers)
 }
 
 checkApproval(approval) = result {
-    principal := get.user(input.principal.userId)
-  
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserRole"
-	role := approval.entityIds[_]
-
-	possibleApprovers := {user |
-		role_id := approval.entityIds[_]
-		users := get.usersByRole(role_id)
-		user := users[_]
-		equalsIgnoreCase(user, principal.id) == false
+	possibleApprovers = {user.id |
+		user = data.entities.users[_]
+		user.role in approval.entityIds
+		user.id != principal.id
 	}
 
 	result = getApprovalsCount(possibleApprovers)
 }
 
 checkApprovals(approvals) = result {
-    principal := get.user(input.principal.userId)
-  
 	approvalsMissing = [approval |
 		approval = approvals[_]
 		approvalCount = checkApproval(approval)

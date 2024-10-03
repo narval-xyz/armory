@@ -32,7 +32,7 @@ calculateTransferSpending(transfer, currency) = result {
 
 calculateTransferSpending(transfer, currency) = result {
 	currency != wildcard
-	result = to_number(transfer.amount) * to_number(transfer.rates[lower(currency)])
+	result = to_number(transfer.amount) * to_number(transfer.rates[currency])
 }
 
 # Check Spendings
