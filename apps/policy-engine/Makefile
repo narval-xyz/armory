@@ -151,8 +151,8 @@ policy-engine/rego/test:
 		${ARGS}
 
 policy-engine/rego/format:
-	regal fix \
-		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+	opa fmt \
+		--write ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
 
 policy-engine/rego/format/check:
 	opa fmt \
