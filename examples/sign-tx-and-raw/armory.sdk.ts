@@ -86,7 +86,7 @@ export const getArmoryClients = async (
 }
 
 export const getArmoryClientsFromEnv = async () => {
-  const dataStoreSignerPrivateKey = hexSchema.parse(process.env.DATA_STORE_SIGNER_PRIVATE_KEY)
+  const systemManagerPrivateKey = hexSchema.parse(process.env.SYSTEM_MANAGER_PRIVATE_KEY)
   const vaultHost = process.env.VAULT_HOST
   const authHost = process.env.AUTH_HOST
   const clientId = process.env.CLIENT_ID
@@ -96,7 +96,7 @@ export const getArmoryClientsFromEnv = async () => {
     throw new Error('Missing configuration')
   }
 
-  return getArmoryClients(dataStoreSignerPrivateKey, {
+  return getArmoryClients(systemManagerPrivateKey, {
     clientId,
     clientSecret,
     vaultHost,

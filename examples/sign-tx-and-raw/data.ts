@@ -1,11 +1,5 @@
 import { AuthClient, EntityStoreClient, PolicyStoreClient, VaultClient } from '@narval-xyz/armory-sdk'
-import {
-  CredentialEntity,
-  EntityType,
-  Policy,
-  hexSchema,
-  policySchema
-} from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { CredentialEntity, hexSchema, policySchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
 import { PublicKey, privateKeyToJwk, publicKeySchema } from '@narval-xyz/armory-sdk/signature'
 import { WalletDtoAccount } from '@narval-xyz/armory-sdk/src/lib/http/client/vault'
 import { Hex } from 'viem'
@@ -25,6 +19,17 @@ const policies = [
       {
         criterion: 'checkPermission',
         args: ['wallet:read', 'wallet:create', 'wallet:import']
+      }
+    ],
+    then: 'permit'
+  },
+  {
+    id: '2-admin-full-access',
+    description: 'Allow all for Admins',
+    when: [
+      {
+        criterion: 'checkPrincipalRole',
+        args: ['admin']
       }
     ],
     then: 'permit'
@@ -112,41 +117,6 @@ export const whiteList = async ({
   await entityStoreClient.signAndPush(newEntities)
 }
 
-export const addPolicy = async ({ policyStoreClient }: { policyStoreClient: PolicyStoreClient }) => {
-  const newPolicy: Policy = {
-    id: '2-outgoing-transfer-requires-2-of-2-approvals',
-    description:
-      'Both P1 and P2 must approve an outgoing transaction. Transaction must be to a whitelisted counterparty address.',
-    when: [
-      {
-        criterion: 'checkAction',
-        args: ['signTransaction']
-      },
-      {
-        criterion: 'checkDestinationClassification',
-        args: ['counterparty']
-      },
-      {
-        criterion: 'checkApprovals',
-        args: [
-          {
-            approvalCount: 2,
-            countPrincipal: true,
-            approvalEntityType: 'Narval::User' as EntityType,
-            entityIds: ['player-one-user-id', 'player-two-user-id']
-          }
-        ]
-      }
-    ],
-    then: 'permit'
-  }
-
-  const { data: currentPolicies } = await policyStoreClient.fetch()
-  const newPolicies = [...currentPolicies, newPolicy]
-
-  await policyStoreClient.signAndPush(newPolicies)
-}
-
 type ArmoryStack = {
   authClient: AuthClient
   vaultClient: VaultClient
@@ -162,7 +132,7 @@ export class SystemManager {
   }
 
   public static async create(): Promise<SystemManager> {
-    const dataStoreSignerPrivateKey = hexSchema.parse(process.env.DATA_STORE_SIGNER_PRIVATE_KEY)
+    const systemManagerPrivateKey = hexSchema.parse(process.env.SYSTEM_MANAGER_PRIVATE_KEY)
     const vaultHost = process.env.VAULT_HOST
     const authHost = process.env.AUTH_HOST
     const clientId = process.env.CLIENT_ID
@@ -171,9 +141,9 @@ export class SystemManager {
     if (!authHost || !vaultHost || !clientId || !clientSecret) {
       throw new Error('Missing configuration')
     }
-    const keyId = privateKeyToAddress(dataStoreSignerPrivateKey)
+    const keyId = privateKeyToAddress(systemManagerPrivateKey)
     const systemManagerArmory = await getArmoryClients(
-      dataStoreSignerPrivateKey,
+      systemManagerPrivateKey,
       {
         clientId,
         clientSecret,
@@ -199,14 +169,6 @@ export class SystemManager {
 
   async addAccount(account: WalletDtoAccount) {
     await addAccount({ entityStoreClient: this.systemManagerArmory.entityStoreClient, account })
-  }
-
-  async whiteList({ address, chainId }: { address: string; chainId: number }) {
-    await whiteList({ entityStoreClient: this.systemManagerArmory.entityStoreClient, address, chainId })
-  }
-
-  async addPolicy() {
-    await addPolicy({ policyStoreClient: this.systemManagerArmory.policyStoreClient })
   }
 
   async initializeEntities() {

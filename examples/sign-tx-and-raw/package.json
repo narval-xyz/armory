@@ -1,5 +1,5 @@
 {
-  "name": "escrow-multisig",
+  "name": "sign-tx-and-raw",
   "version": "1.0.0",
   "description": "A typescript example to setup and use the armory stack",
   "main": "index.js",
