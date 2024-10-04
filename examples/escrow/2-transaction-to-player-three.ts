@@ -1,5 +1,5 @@
-import { Decision, resourceId, TransactionRequest } from '@narval-xyz/armory-sdk'
-import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { resourceId, TransactionRequest } from '@narval-xyz/armory-sdk'
+import { Decision, hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
 import 'dotenv/config'
 import minimist from 'minimist'
 import { v4 } from 'uuid'
