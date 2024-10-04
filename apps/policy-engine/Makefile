@@ -150,13 +150,14 @@ policy-engine/rego/test:
 		--verbose \
 		${ARGS}
 
-policy-engine/rego/format:
+policy-engine/rego/lint:
 	regal fix \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
 
-policy-engine/rego/format/check:
-	opa fmt \
-		--fail ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+policy-engine/rego/lint/check:
+	regal lint \
+		--format github \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
 
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
