@@ -1,0 +1,21 @@
+rules:
+  style:
+    todo-comment:
+      # don't error on TODO comments
+      level: warning
+    prefer-snake-case:
+      # At Narval, we use camel case to comply with our naming conventions
+      level: ignore
+  custom:
+    # custom rule configuration
+    prefer-camel-case:
+      regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
+      level: warning
+      message: Names should use camelCase
+    naming-convention:
+      level: error
+      conventions:
+        # ensure all package names start with "armory"
+        - pattern: '^armory\.[a-z_\.]+$'
+          targets:
+            - package
