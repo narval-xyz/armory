@@ -150,14 +150,24 @@ policy-engine/rego/test:
 		--verbose \
 		${ARGS}
 
-policy-engine/rego/lint:
+policy-engine/rego/format:
+	opa fmt \
+		--write ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
+policy-engine/rego/format/check:
+	opa fmt \
+		--fail ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
+policy-engine/rego/lint/fix:
 	regal fix \
-		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/armory \
+		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 
 policy-engine/rego/lint/check:
 	regal lint \
 		--format github \
-		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/armory \
+		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch

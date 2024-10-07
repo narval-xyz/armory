@@ -1,10 +1,18 @@
 rules:
   style:
+    rule-length:
+      level: error
+      max-rule-length: 50
+    line-length:
+      level: ignore
     todo-comment:
       # don't error on TODO comments
       level: warning
     prefer-snake-case:
       # At Narval, we use camel case to comply with our naming conventions
+      level: ignore
+    external-reference:
+      # TODO: set back to error and authorize external references only in entity/input querying packages
       level: ignore
   custom:
     # custom rule configuration
@@ -12,10 +20,9 @@ rules:
       regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
       level: warning
       message: Names should use camelCase
-    naming-convention:
-      level: error
-      conventions:
-        # ensure all package names start with "armory"
-        - pattern: '^armory\.[a-z_\.]+$'
-          targets:
-            - package
+  idiomatic:
+    directory-package-mismatch:
+      level: ignore
+  testing:
+    test-outside-test-package:
+      level: ignore
