@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
@@ -11,11 +11,11 @@ test_checkSignMessage if {
 			"message": "Hello world!",
 		},
 	})
-	checkAction({"signMessage"}) with input as signMessageRequest with data.entities as entities
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest with data.entities as entities
-	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest with data.entities as entities
-	checkIntentMessage({"operator": operators.equal, "value": "Hello world!"}) with input as signMessageRequest with data.entities as entities
-	checkIntentMessage({"operator": operators.contaiins, "value": "Hello"}) with input as signMessageRequest with data.entities as entities
+	checkAction({"signMessage"}) with input as signMessageRequest with data.entities as testEntities
+	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest with data.entities as testEntities
+	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest with data.entities as testEntities
+	checkIntentMessage({"operator": operators.equal, "value": "Hello world!"}) with input as signMessageRequest with data.entities as testEntities
+	checkIntentMessage({"operator": operators.contaiins, "value": "Hello"}) with input as signMessageRequest with data.entities as testEntities
 }
 
 test_checkSignRawPayload if {
@@ -28,12 +28,12 @@ test_checkSignRawPayload if {
 			"algorithm": "ES256K",
 		},
 	})
-	checkAction({"signRaw"}) with input as signRawPayloadRequest with data.entities as entities
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest with data.entities as entities
-	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest with data.entities as entities
-	checkIntentPayload({"operator": operators.equal, "value": "Hello world!"}) with input as signRawPayloadRequest with data.entities as entities
-	checkIntentPayload({"operator": operators.contaiins, "value": "Hello"}) with input as signRawPayloadRequest with data.entities as entities
-	checkIntentAlgorithm({"ES256K"}) with input as signRawPayloadRequest with data.entities as entities
+	checkAction({"signRaw"}) with input as signRawPayloadRequest with data.entities as testEntities
+	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest with data.entities as testEntities
+	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest with data.entities as testEntities
+	checkIntentPayload({"operator": operators.equal, "value": "Hello world!"}) with input as signRawPayloadRequest with data.entities as testEntities
+	checkIntentPayload({"operator": operators.contaiins, "value": "Hello"}) with input as signRawPayloadRequest with data.entities as testEntities
+	checkIntentAlgorithm({"ES256K"}) with input as signRawPayloadRequest with data.entities as testEntities
 }
 
 test_checkSignTypedData if {
@@ -50,12 +50,12 @@ test_checkSignTypedData if {
 			}},
 		},
 	})
-	checkAction({"signTypedData"}) with input as signTypedDataRequest with data.entities as entities
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest with data.entities as entities
-	checkIntentType({"signTypedData"}) with input as signTypedDataRequest with data.entities as entities
+	checkAction({"signTypedData"}) with input as signTypedDataRequest with data.entities as testEntities
+	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signTypedDataRequest with data.entities as testEntities
+	checkIntentType({"signTypedData"}) with input as signTypedDataRequest with data.entities as testEntities
 	checkIntentDomain({
 		"chainId": ["1", "137"],
 		"name": ["UNI", "LINK"],
 		"verifyingContract": ["eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"],
-	}) with input as signTypedDataRequest with data.entities as entities
+	}) with input as signTypedDataRequest with data.entities as testEntities
 }

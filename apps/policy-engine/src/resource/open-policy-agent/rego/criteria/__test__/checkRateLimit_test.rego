@@ -1,5 +1,6 @@
-package armory.criteria
+package criteria
 
+import data.armory.lib
 import rego.v1
 
 rateFixedPeriodRequest := object.union(requestWithEip1559Transaction, {
@@ -81,7 +82,7 @@ test_calculateCurrentRateByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 2
 }
 
@@ -98,7 +99,7 @@ test_calculateCurrentRateByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 3
 }
 
@@ -115,7 +116,7 @@ test_calculateCurrentRateByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 1
 }
 
@@ -132,7 +133,7 @@ test_calculateCurrentRateByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as testEntities
 
 	res == 2
 }
@@ -150,7 +151,7 @@ test_calculateCurrentRateByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as testEntities
 	res == 0
 }
 
@@ -197,7 +198,7 @@ test_calculateCurrentRateForUserOperationIntent if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as userOperationRequest with data.entities as entities
+	res = calculateCurrentRate(conditions) with input as userOperationRequest with data.entities as testEntities
 	res == 2
 }
 
@@ -338,7 +339,7 @@ test_checkRateLimitPerPrincipal if {
 			"period": "1d",
 		},
 		"filters": {"perPrincipal": true},
-	}) with input as inputReq with data.entities as entitiesReq
+	}) with input as inputReq with data.entities as testEntities
 
 	res = checkRateLimit({
 		"limit": 3,
@@ -347,5 +348,5 @@ test_checkRateLimitPerPrincipal if {
 			"period": "1d",
 		},
 		"filters": {"perPrincipal": true},
-	}) with input as inputReq with data.entities as entitiesReq
+	}) with input as inputReq with data.entities as testEntities
 }

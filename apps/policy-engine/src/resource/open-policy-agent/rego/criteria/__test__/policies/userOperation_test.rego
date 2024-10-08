@@ -1,4 +1,4 @@
-package armory.policies
+package criteria
 
 import rego.v1
 
@@ -26,7 +26,7 @@ test_userOperationWithTransfers if {
 		],
 	}})
 
-	res = permit[{"policyId": "userOperationWithTransfers"}] with input as userOperationWithTransfersRequest with data.entities as entities
+	res = permit[{"policyId": "userOperationWithTransfers"}] with input as userOperationWithTransfersRequest with data.entities as testEntities
 
 	res == {
 		"type": "permit",

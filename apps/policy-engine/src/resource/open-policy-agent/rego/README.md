@@ -1,4 +1,4 @@
-### Criteria
+## Criteria
 - The implementation of all Armory criteria
 - Depends on Armory utils
 
@@ -11,4 +11,4 @@
 - Depends on lib
 
 ### Lib
-- Utils that are not domain specific, like case insensitive comparison or time utils.
+- Utils that are not domain specific, like case insensitive comparison or time.

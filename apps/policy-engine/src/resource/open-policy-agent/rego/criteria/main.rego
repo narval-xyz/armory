@@ -19,7 +19,7 @@ operators := {
 	"greaterThanOrEqual": "gte",
 	"lessThan": "lt",
 	"lessThanOrEqual": "lte",
-	"contains": "contains",
+	"contaiins": "contains",
 }
 
 chainAssetId := {

@@ -5,19 +5,15 @@ import rego.v1
 import data.armory.lib
 
 # Helper function to find an account by its lowercased ID
-getAccountById(id) := account if {
-	account := data.entities.accounts[lower(id)]
-}
+getAccountById(id) := data.entities.accounts[lower(id)]
 
 # Helper function to find an account by its address
 # It returns the first account found with the given address
 
 ## NOTE: When/if we actuallys support Smart Accounts, we will need to return all accounts with the given address
 getAccountByAddress(address) := account if {
-	account := {account |
-		account := data.entities.accounts[_]
-		lib.caseInsensitiveEqual(account.address, address)
-	}[_]
+	some account in data.entities.accounts
+	lib.caseInsensitiveEqual(account.address, address)
 }
 
 ## Account
@@ -92,13 +88,13 @@ getAccountByAddress(address) := account if {
 ## Query4: entities.getAccount("foo") => null
 getAccount(string) := accountData if {
 	# First, try to find the account by ID
-	account := accountById(string)
-	accountGroups := groupsByAccount(account.id)
+	account := getAccountById(string)
+	accountGroups := getGroupsByAccount(account.id)
 	accountData := object.union(account, {"groups": accountGroups})
 } else := accountData if {
 	# If not found by ID, try to find by address
-	account := accountByAddress(string)
-	accountGroups := groupsByAccount(account.id)
+	account := getAccountByAddress(string)
+	accountGroups := getGroupsByAccount(account.id)
 	accountData := object.union(account, {"groups": accountGroups})
 } else := null
 
@@ -124,7 +120,7 @@ getAccount(string) := accountData if {
 ##   },
 ## }
 ##
-## entities.getAccountGroups("test-account-group-ONE-uid")
+## entities.getAccountGroup("test-account-group-ONE-uid")
 ## RETURNS {
 ##   "id": "test-account-group-ONE-uid",
 ##   "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
@@ -132,9 +128,9 @@ getAccount(string) := accountData if {
 ## }
 ##
 ##
-## entities.getAccountGroups("unknown")
+## entities.getAccountGroup("unknown")
 ## RETURNS null
-getAccountGroups(string) := group if {
+getAccountGroup(string) := group if {
 	group := data.entities.accountGroups[lower(string)]
 } else := null
 
@@ -150,9 +146,9 @@ getAccountGroups(string) := group if {
 ##
 ## entities.getGroupsByAccount("unknown")
 ## RETURNS {}
-groupsByAccount(accountId) := groups if {
+getGroupsByAccount(accountId) := groups if {
 	groups := {group.id |
-		group := data.entities.accountGroups[_]
+		some group in data.entities.accountGroups
 		lib.caseInsensitiveFindInSet(accountId, group.accounts)
 	}
 } else := null
@@ -205,7 +201,7 @@ getUserGroup(string) := group if {
 ## RETURNS {}
 getGroupsByUser(userId) := groups if {
 	groups := {group.id |
-		group := data.entities.userGroups[_]
+		some group in data.entities.userGroups
 		lib.caseInsensitiveFindInSet(userId, group.users)
 	}
 } else := null
@@ -350,7 +346,7 @@ getUser(id) := userData if {
 ## RETURNS null
 getUsersByRole(role) := users if {
 	users := {user.id |
-		user := data.entities.users[_]
+		some user in data.entities.users
 		user.role == role
 	}
 } else := null

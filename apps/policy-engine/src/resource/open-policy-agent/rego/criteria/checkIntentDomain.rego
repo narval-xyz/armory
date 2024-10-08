@@ -1,7 +1,7 @@
 package criteria
 
-import rego.v1
 import data.armory.lib
+import rego.v1
 
 wildcardIntentDomain := {
 	"version": wildcard,

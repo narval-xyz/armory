@@ -1,4 +1,4 @@
-package criteria.intent
+package criteria
 
 import data.armory.lib
 import rego.v1
@@ -8,7 +8,7 @@ checkErc1155Transfers(conditions) if {
 	matches = [e |
 		some transfer in intentTransfers
 		some condition in conditions
-		lib.caseInsensitiveEquals(transfer.erc1155TokenId, condition.erc1155TokenId)
+		lib.caseInsensitiveEqual(transfer.erc1155TokenId, condition.erc1155TokenId)
 
 		e = [transfer, condition]
 	]
@@ -17,7 +17,7 @@ checkErc1155Transfers(conditions) if {
 		some m in matches
 		transfer = m[0]
 		condition = m[1]
-		checkTransferAmount(transfer.amount, condition)
+  checkTransferAmount(transfer.amount, condition)
 	]
 
 	count(intentTransfers) == count(validTransfers)

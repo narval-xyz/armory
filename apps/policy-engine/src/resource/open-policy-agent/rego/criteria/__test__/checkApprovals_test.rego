@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
@@ -9,7 +9,7 @@ test_checkApprovalByUserIdOneApproval if {
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 1
 }
 
@@ -20,7 +20,7 @@ test_checkApprovalByUserIdNoApproval if {
 		"approvalEntityType": "Narval::User",
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 0
 }
 
@@ -31,7 +31,7 @@ test_checkApprovalByUserGroupOneApproval if {
 		"approvalEntityType": "Narval::UserGroup",
 		"entityIds": ["test-user-group-one-uid"],
 	}
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 1
 }
 
@@ -43,7 +43,7 @@ test_checkApprovalByUserGroupNoApproval if {
 		"entityIds": ["test-user-group-one-uid"],
 	}
 
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 
 	res == 0
 }
@@ -55,7 +55,7 @@ test_checkApprovalByUserRoleTwoApprovals if {
 		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 2
 }
 
@@ -66,7 +66,7 @@ test_checkApprovalByUserRoleThreeApprovals if {
 		"approvalEntityType": "Narval::UserRole",
 		"entityIds": ["root", "admin"],
 	}
-	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 3
 }
 
@@ -99,7 +99,7 @@ test_checkApprovalWithoutCountingDuplicates if {
 		"entityIds": ["test-bar-uid"],
 	}
 
-	res = checkApproval(requiredApproval) with input as requestWithDuplicates with data.entities as entities
+	res = checkApproval(requiredApproval) with input as requestWithDuplicates with data.entities as testEntities
 
 	res == 1
 }
@@ -119,7 +119,7 @@ test_checkApprovals if {
 		"entityIds": ["test-bob-uid", "test-bar-uid", "test-approver-uid"],
 	}
 
-	res = checkApprovals([satisfied, missing]) with input as requestWithEip1559Transaction with data.entities as entities
+	res = checkApprovals([satisfied, missing]) with input as requestWithEip1559Transaction with data.entities as testEntities
 
 	res == {
 		"approvalsSatisfied": [satisfied],

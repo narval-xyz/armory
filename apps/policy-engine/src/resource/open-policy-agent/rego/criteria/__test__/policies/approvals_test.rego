@@ -1,4 +1,4 @@
-package armory.policies
+package criteria
 
 import rego.v1
 
@@ -11,7 +11,7 @@ test_approvalByUsers if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUsers"}] with input as approvalByUsersReq with data.entities as entities
+	res = permit[{"policyId": "approvalByUsers"}] with input as approvalByUsersReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [],
@@ -35,7 +35,7 @@ test_approvalByUserGroups if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as entities
+	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as testEntities
 
 	expected := {
 		"approvalsMissing": [],
@@ -60,7 +60,7 @@ test_approvalByUserRoles if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUserRoles"}] with input as approvalByUserRolesReq with data.entities as entities
+	res = permit[{"policyId": "approvalByUserRoles"}] with input as approvalByUserRolesReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [],
@@ -84,7 +84,7 @@ test_withoutApprovalsEIP1559 if {
 		"intent": intentReq,
 	}
 
-	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as testEntities
 
 	res == {
 		"type": "permit",
@@ -103,7 +103,7 @@ test_withoutApprovalsLegacy if {
 		"intent": intentReq,
 	}
 
-	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as entities
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as testEntities
 
 	res == {
 		"type": "permit",

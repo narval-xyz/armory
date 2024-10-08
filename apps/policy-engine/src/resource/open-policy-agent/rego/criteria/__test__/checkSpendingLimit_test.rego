@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import data.armory.lib
 import rego.v1
@@ -81,7 +81,7 @@ test_calculateCurrentSpendingsByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 400000000000000000
 }
 
@@ -98,7 +98,7 @@ test_calculateCurrentSpendingsByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -114,7 +114,7 @@ test_calculateCurrentSpendingsByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 1000000000000000000
 }
 
@@ -130,7 +130,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testEntities
 	res == 400000000000000000
 }
 
@@ -147,7 +147,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testEntities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -163,7 +163,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testEntities
 	res == 0
 }
 
@@ -173,7 +173,7 @@ test_calculateCurrentSpendingsByPrincipal if {
 		"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
 	}}
 
-	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as requestWithEip1559Transaction with data.entities as testEntities
 	res == 1000000000000000000
 }
 
@@ -185,7 +185,7 @@ test_calculateCurrentSpendingsByPrincipal if {
 		"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
 	}}
 
-	res = calculateCurrentSpendings(conditions) with input as perPrincipalReq with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as perPrincipalReq with data.entities as testEntities
 	res == 1600000000000000000
 }
 
@@ -234,7 +234,7 @@ test_calculateCurrentSpendingsForUserOperationIntent if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as userOperationRequest with data.entities as entities
+	res = calculateCurrentSpendings(conditions) with input as userOperationRequest with data.entities as testEntities
 
 	res == 2400000000000000000
 }

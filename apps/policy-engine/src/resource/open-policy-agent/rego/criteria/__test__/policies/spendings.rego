@@ -1,13 +1,12 @@
-package armory.policies
-
+package criteria
 import rego.v1
 
 # Members can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
 forbid[{"policyId": "spendingLimitByRole"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -31,11 +30,11 @@ forbid[{"policyId": "spendingLimitByRole"}] := reason if {
 
 # Alice can't transfer >$5k usd value of USDC in 12 hours on a rolling basis
 forbid[{"policyId": "spendingLimitByUser"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkPrincipalId({"test-alice-uid"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkPrincipalId({"test-alice-uid"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -56,10 +55,10 @@ forbid[{"policyId": "spendingLimitByUser"}] := reason if {
 
 # Resource account can't transfer > $5k usd value in 12 hours on a rolling basis
 forbid[{"policyId": "spendingLimitByAccountResource"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -80,10 +79,10 @@ forbid[{"policyId": "spendingLimitByAccountResource"}] := reason if {
 
 # User group can't transfer > $5k usd value in 12 hours on a rolling basis
 forbid[{"policyId": "spendingLimitByUserGroup"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -103,10 +102,10 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] := reason if {
 
 # Account group can't transfer > $5k usd value in 12 hours on a rolling basis
 forbid[{"policyId": "spendingLimitByAccountGroup"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -127,10 +126,10 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] := reason if {
 
 # If Alice transfers >$5k usd value of USDC in a 12 hour rolling window, then require approvals
 permit[{"policyId": "spendingLimitWithApprovals"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "5000000000",
 		"operator": "gt",
 		"currency": "fiat:usd",
@@ -144,7 +143,7 @@ permit[{"policyId": "spendingLimitWithApprovals"}] := reason if {
 		},
 	})
 
-	approvals = criteria.checkApprovals([{
+	approvals = checkApprovals([{
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::User",
@@ -161,10 +160,10 @@ permit[{"policyId": "spendingLimitWithApprovals"}] := reason if {
 
 # Allow Alice to transfer up to 1 USDC per day
 permit[{"policyId": "spendingLimitWithFixedPeriod"}] := reason if {
-	criteria.checkAccountAssigned
-	criteria.checkAction({"signTransaction"})
-	criteria.checkIntentType({"transferERC20"})
-	criteria.checkSpendingLimit({
+	checkAccountAssigned
+	checkAction({"signTransaction"})
+	checkIntentType({"transferERC20"})
+	checkSpendingLimit({
 		"limit": "1000000000000000000",
 		"operator": "lte",
 		"timeWindow": {
@@ -186,8 +185,8 @@ permit[{"policyId": "spendingLimitWithFixedPeriod"}] := reason if {
 }
 
 permit[{"policyId": "spendingLimitWithRange"}] := reason if {
-	criteria.checkIntentToken({"eip155:1/slip44:60"})
-	criteria.checkSpendingLimit({
+	checkIntentToken({"eip155:1/slip44:60"})
+	checkSpendingLimit({
 		"limit": "1000000000000000000",
 		"operator": "gt",
 		"timeWindow": {
@@ -199,7 +198,7 @@ permit[{"policyId": "spendingLimitWithRange"}] := reason if {
 			"tokens": {"eip155:1/slip44:60"},
 		},
 	})
-	criteria.checkSpendingLimit({
+	checkSpendingLimit({
 		"limit": "10000000000000000000",
 		"operator": "lte",
 		"timeWindow": {
@@ -221,7 +220,7 @@ permit[{"policyId": "spendingLimitWithRange"}] := reason if {
 }
 
 pemrmit[{"policyId": "minimalSpendingLimit"}] := reason if {
-	criteria.checkSpendingLimit({
+	checkSpendingLimit({
 		"limit": "1",
 		"operator": "lte",
 	})

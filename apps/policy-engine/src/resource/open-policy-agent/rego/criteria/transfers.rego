@@ -1,4 +1,4 @@
-package armory.lib
+package criteria
 
 import rego.v1
 
@@ -19,7 +19,7 @@ transformIntentToTransferObject(intent) := result if {
 		"to": intent.to,
 		"token": contract,
 		"rates": {},
-		"timestamp": nowSeconds * 1000,
+		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
 	}
@@ -40,7 +40,7 @@ transformIntentToTransferObject(intent) := result if {
 		"to": intent.to,
 		"token": token,
 		"rates": {},
-		"timestamp": nowSeconds * 1000,
+		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
 	}
@@ -61,7 +61,7 @@ transformIntentToTransferObject(intent) := result if {
 		"to": intent.to,
 		"token": token,
 		"rates": priceFeed[lower(token)],
-		"timestamp": nowSeconds * 1000,
+		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
 	}
@@ -81,7 +81,7 @@ transformIntentToTransferObject(intent) := result if {
 		"to": intent.to,
 		"token": token,
 		"rates": priceFeed[lower(token)],
-		"timestamp": nowSeconds * 1000,
+		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
 	}
@@ -133,6 +133,7 @@ checkTransferByUserGroups(userId, values) if {
 	values != wildcard
 	groups = entities.getUser(userId).groups
 	some group in groups
+
 	res := lib.caseInsensitiveFindInSet(group, values)
 }
 
@@ -169,7 +170,7 @@ checkTransferFromStartDate(timestamp, timeWindow) if {
 checkTransferFromStartDate(timestamp, timeWindow) if {
 	timeWindow.startDate != wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
-	timestampNs >= secondsToNanoSeconds(timeWindow.startDate)
+	timestampNs >= lib.secondsToNanoSeconds(timeWindow.startDate)
 }
 
 # Check By End Date
@@ -181,7 +182,7 @@ checkTransferToEndDate(timestamp, timeWindow) if {
 checkTransferToEndDate(timestamp, timeWindow) if {
 	timeWindow.endDate != wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
-	timestampNs <= secondsToNanoSeconds(timeWindow.endDate)
+	timestampNs <= lib.secondsToNanoSeconds(timeWindow.endDate)
 }
 
 # Check By Time Window Type
@@ -194,7 +195,7 @@ checkTransferTimeWindow(timestamp, timeWindow) if {
 	timeWindow.type == "rolling"
 	timeWindow.value != wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
-	timestampNs >= time.now_ns() - secondsToNanoSeconds(timeWindow.value)
+	timestampNs >= time.now_ns() - lib.secondsToNanoSeconds(timeWindow.value)
 }
 
 checkTransferTimeWindow(timestamp, timeWindow) if {

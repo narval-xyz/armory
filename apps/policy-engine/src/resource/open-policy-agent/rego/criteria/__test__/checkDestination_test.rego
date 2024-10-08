@@ -1,17 +1,17 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
 test_checkDestinationId if {
-	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as requestWithEip1559Transaction with data.entities as entities
+	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as requestWithEip1559Transaction with data.entities as testEntities
 }
 
 test_checkDestinationAddress if {
-	checkDestinationAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as requestWithEip1559Transaction with data.entities as entities
+	checkDestinationAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as requestWithEip1559Transaction with data.entities as testEntities
 }
 
 test_checkDestinationClassification if {
-	checkDestinationClassification({"internal"}) with input as requestWithEip1559Transaction with data.entities as entities
+	checkDestinationClassification({"internal"}) with input as requestWithEip1559Transaction with data.entities as testEntities
 }
 
 test_checkDestinationClassification_on_managed_Account if {
@@ -56,5 +56,5 @@ test_checkDestinationClassification_on_no_addressbook_or_account if {
 		"resource": {"uid": "eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127"},
 	}
 
-	not checkDestinationClassification({"managed"}) with input as req with data.entities as entities
+	not checkDestinationClassification({"managed"}) with input as req with data.entities as testEntities
 }

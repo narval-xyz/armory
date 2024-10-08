@@ -1,9 +1,9 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
 test_checkNonceExists if {
-	checkNonceExists with input as requestWithEip1559Transaction with data.entities as entities
+	checkNonceExists with input as requestWithEip1559Transaction with data.entities as testEntities
 }
 
 test_checkNonceNotExists if {
@@ -19,5 +19,5 @@ test_checkNonceNotExists if {
 		"type": "2",
 	}}
 
-	checkNonceNotExists with input as requestWithoutNonce with data.entities as entities
+	checkNonceNotExists with input as requestWithoutNonce with data.entities as testEntities
 }

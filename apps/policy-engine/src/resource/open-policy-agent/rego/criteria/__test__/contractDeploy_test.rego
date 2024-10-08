@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
@@ -12,8 +12,8 @@ test_contractDeploy if {
 			"chainId": "137",
 		},
 	})
-	checkIntentType({"deployContract", "deployErc4337Account", "deploySafeAccount"}) with input as contractDeployRequest with data.entities as entities
-	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as contractDeployRequest with data.entities as entities
-	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as contractDeployRequest with data.entities as entities
-	checkIntentChainId({"137"}) with input as contractDeployRequest with data.entities as entities
+	checkIntentType({"deployContract", "deployErc4337Account", "deploySafeAccount"}) with input as contractDeployRequest with data.entities as testEntities
+	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as contractDeployRequest with data.entities as testEntities
+	checkSourceId({"eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as contractDeployRequest with data.entities as testEntities
+	checkIntentChainId({"137"}) with input as contractDeployRequest with data.entities as testEntities
 }

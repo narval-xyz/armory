@@ -1,4 +1,4 @@
-package armory.policies
+package criteria
 
 import rego.v1
 
@@ -8,7 +8,7 @@ spendingLimitReq := object.union(requestWithEip1559Transaction, {
 })
 
 test_spendingLimitByRole if {
-	res = forbid[{"policyId": "spendingLimitByRole"}] with input as spendingLimitReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByRole"}] with input as spendingLimitReq with data.entities as testEntities
 
 	res == {
 		"type": "forbid",
@@ -19,7 +19,7 @@ test_spendingLimitByRole if {
 }
 
 test_spendingLimitByUser if {
-	res = forbid[{"policyId": "spendingLimitByUser"}] with input as spendingLimitReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByUser"}] with input as spendingLimitReq with data.entities as testEntities
 
 	res == {
 		"type": "forbid",
@@ -30,7 +30,7 @@ test_spendingLimitByUser if {
 }
 
 test_spendingLimitByAccountResource if {
-	res = forbid[{"policyId": "spendingLimitByAccountResource"}] with input as spendingLimitReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByAccountResource"}] with input as spendingLimitReq with data.entities as testEntities
 
 	res == {
 		"type": "forbid",
@@ -93,7 +93,7 @@ test_spendingLimitByUserGroup if {
 		],
 	})
 
-	res = forbid[{"policyId": "spendingLimitByUserGroup"}] with input as spendingLimitByUserGroupReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByUserGroup"}] with input as spendingLimitByUserGroupReq with data.entities as testEntities
 
 	res == {
 		"type": "forbid",
@@ -156,7 +156,7 @@ test_spendingLimitByAccountGroup if {
 		],
 	})
 
-	res = forbid[{"policyId": "spendingLimitByAccountGroup"}] with input as spendingLimitByAccountGroupReq with data.entities as entities
+	res = forbid[{"policyId": "spendingLimitByAccountGroup"}] with input as spendingLimitByAccountGroupReq with data.entities as testEntities
 
 	res == {
 		"type": "forbid",
@@ -167,7 +167,7 @@ test_spendingLimitByAccountGroup if {
 }
 
 test_permitRuleSpendingLimit if {
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [{
@@ -191,7 +191,7 @@ test_permitRuleSpendingLimit if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [],
@@ -271,7 +271,7 @@ test_spendingLimitWithFixedPeriod if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as entities
+	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [],
@@ -314,7 +314,7 @@ test_spendingLimitWithEmptyHistoricalDataFeed if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testEntities
 }
 
 # If we do not even have a historical-transfer-feed, then spending limits will not match at all; otherwise we'd acccidentally treat every tx as the "first" one, being overly permissive.
@@ -343,7 +343,7 @@ test_spendingLimitWithoutHistoricalDataFeed if {
 		}],
 	})
 
-	not permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as entities
+	not permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testEntities
 }
 
 test_spendingLimitWithRange if {
@@ -392,7 +392,7 @@ test_spendingLimitWithRange if {
 		],
 	}
 
-	res = permit[{"policyId": "spendingLimitWithRange"}] with input as spendingLimitWithRangeReq with data.entities as entities
+	res = permit[{"policyId": "spendingLimitWithRange"}] with input as spendingLimitWithRangeReq with data.entities as testEntities
 
 	res == {
 		"approvalsMissing": [],

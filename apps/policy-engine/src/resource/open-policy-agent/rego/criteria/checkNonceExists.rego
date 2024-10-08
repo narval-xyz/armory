@@ -1,4 +1,4 @@
-package criteria.transactionRequest
+package criteria
 
 import rego.v1
 

@@ -1,4 +1,4 @@
-package criteria.intent
+package criteria
 
 import rego.v1
 

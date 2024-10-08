@@ -1,5 +1,6 @@
-package armory
+package criteria
 
+import data.armory.lib
 import rego.v1
 
 halfMatic := "500000000000000000"
@@ -14,13 +15,13 @@ oneMaticValue := "990000000000000000"
 
 tenMaticValue := "9900000000000000000"
 
-twentyHoursAgo := (nowSeconds - ((20 * 60) * 60)) * 1000 # in ms
+twentyHoursAgo := (lib.nowSeconds - ((20 * 60) * 60)) * 1000 # in ms
 
-elevenHoursAgo := (nowSeconds - ((11 * 60) * 60)) * 1000 # in ms
+elevenHoursAgo := (lib.nowSeconds - ((11 * 60) * 60)) * 1000 # in ms
 
-tenHoursAgo := (nowSeconds - ((10 * 60) * 60)) * 1000 # in ms
+tenHoursAgo := (lib.nowSeconds - ((10 * 60) * 60)) * 1000 # in ms
 
-nineHoursAgo := (nowSeconds - ((9 * 60) * 60)) * 1000 # in ms
+nineHoursAgo := (lib.nowSeconds - ((9 * 60) * 60)) * 1000 # in ms
 
 principalReq := {"userId": "test-bob-Uid"}
 

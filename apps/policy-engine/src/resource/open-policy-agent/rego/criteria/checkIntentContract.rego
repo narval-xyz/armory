@@ -1,4 +1,4 @@
-package criteria.intent
+package criteria
 
 import data.armory.lib
 import rego.v1

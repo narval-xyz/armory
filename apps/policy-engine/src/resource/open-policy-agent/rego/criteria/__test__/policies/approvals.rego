@@ -1,6 +1,5 @@
-package armory.policies
+package criteria
 
-import data.criteria
 import rego.v1
 
 permit[{"policyId": "approvalByUsers"}] := reason if {
@@ -15,13 +14,13 @@ permit[{"policyId": "approvalByUsers"}] := reason if {
 		"entityIds": ["test-bob-uid", "test-bar-uid"],
 	}]
 
-	criteria.checkAccountAssigned
-	criteria.checkNonceExists
-	criteria.checkAction({"signTransaction"})
-	criteria.checkAccountId(resources)
-	criteria.checkIntentType(transferTypes)
-	criteria.checkIntentToken(tokens)
-	criteria.checkIntentAmount(transferValueCondition)
+	checkAccountAssigned
+	checkNonceExists
+	checkAction({"signTransaction"})
+	checkAccountId(resources)
+	checkIntentType(transferTypes)
+	checkIntentToken(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
 
@@ -45,13 +44,13 @@ permit[{"policyId": "approvalByUserGroups"}] := reason if {
 		"entityIds": ["test-user-group-one-uid"],
 	}]
 
-	criteria.checkAccountAssigned
-	criteria.checkNonceExists
-	criteria.checkAction({"signTransaction"})
-	criteria.checkAccountId(resources)
-	criteria.checkIntentType(transferTypes)
-	criteria.checkIntentToken(tokens)
-	criteria.checkIntentAmount(transferValueCondition)
+	checkAccountAssigned
+	checkNonceExists
+	checkAction({"signTransaction"})
+	checkAccountId(resources)
+	checkIntentType(transferTypes)
+	checkIntentToken(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
 	reason = {
@@ -74,13 +73,13 @@ permit[{"policyId": "approvalByUserRoles"}] := reason if {
 		"entityIds": ["root", "admin"],
 	}]
 
-	criteria.checkAccountAssigned
-	criteria.checkNonceExists
-	criteria.checkAction({"signTransaction"})
-	criteria.checkAccountId(resources)
-	criteria.checkIntentType(transferTypes)
-	criteria.checkIntentToken(tokens)
-	criteria.checkIntentAmount(transferValueCondition)
+	checkAccountAssigned
+	checkNonceExists
+	checkAction({"signTransaction"})
+	checkAccountId(resources)
+	checkIntentType(transferTypes)
+	checkIntentToken(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	approvals = checkApprovals(approvalsRequired)
 
@@ -98,13 +97,13 @@ permit[{"policyId": "withoutApprovals"}] := reason if {
 	tokens = {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"}
 	transferValueCondition = {"operator": "lte", "value": "1000000000000000000"}
 
-	criteria.checkAccountAssigned
-	criteria.checkNonceExists
-	criteria.checkAction({"signTransaction"})
-	criteria.checkAccountId(resources)
-	criteria.checkIntentType(transferTypes)
-	criteria.checkIntentToken(tokens)
-	criteria.checkIntentAmount(transferValueCondition)
+	checkAccountAssigned
+	checkNonceExists
+	checkAction({"signTransaction"})
+	checkAccountId(resources)
+	checkIntentType(transferTypes)
+	checkIntentToken(tokens)
+	checkIntentAmount(transferValueCondition)
 
 	reason = {
 		"type": "permit",

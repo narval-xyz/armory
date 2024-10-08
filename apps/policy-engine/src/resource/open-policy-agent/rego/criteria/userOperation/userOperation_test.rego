@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
@@ -72,5 +72,5 @@ test_checkUserOperationIntents if {
 		},
 	]
 
-	checkUserOperationIntents(conditions) with input as userOperationRequest with data.entities as entities
+	checkUserOperationIntents(conditions) with input as userOperationRequest with data.entities as testEntities
 }

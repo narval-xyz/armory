@@ -1,4 +1,4 @@
-package armory.criteria
+package criteria
 
 import rego.v1
 
@@ -71,12 +71,12 @@ typedDataInput := {
 test_checkIntentTypedDataMessageCondition if {
 	filters := [[{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}]]
 
-	checkIntentTypedDataMessage(filters) with input as typedDataInput with data.entities as entities
+	checkIntentTypedDataMessage(filters) with input as typedDataInput with data.entities as testEntities
 }
 
 test_checkIntentTypedDataMessageCondition_one_wrong_value_one_correct_value_in_condition_should_not_match if {
 	conditions := [[{"key": "walletAddress", "value": "0xwrongaddress"}, {"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}]]
-	not checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as entities
+	not checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as testEntities
 }
 
 test_checkIntentTypedDataMessageCondition_one_wrong_condition_one_correct_condition_should_match if {
@@ -84,5 +84,5 @@ test_checkIntentTypedDataMessageCondition_one_wrong_condition_one_correct_condit
 		[{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}],
 		[{"key": "wrongKey", "value": "0x299697552cd035afd7e08600c4001fff48498263"}],
 	]
-	checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as entities
+	checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as testEntities
 }
