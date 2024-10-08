@@ -1,6 +1,5 @@
 package main
 
-import data.armory.criteria
 import rego.v1
 
 import data.armory.constants

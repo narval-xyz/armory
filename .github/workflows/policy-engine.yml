@@ -122,7 +122,10 @@ jobs:
 
       - name: Setup Regal
         uses: StyraInc/setup-regal@v1.0.0
-            
+
+      - name: Format
+        run: make policy-engine/rego/format/check
+
       - name: Lint
         run: make policy-engine/rego/lint/check
 

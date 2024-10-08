@@ -22,7 +22,7 @@ rules:
       level: warning
       message: Names should use camelCase
   idiomatic:
-  # TODO: reactivate just for test files
+    # TODO: reactivate just for test files
     directory-package-mismatch:
       level: ignore
   testing:

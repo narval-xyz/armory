@@ -2,6 +2,11 @@ package main
 
 import rego.v1
 
+# METADATA
+# description: returns a decision based on the evaluation of the rules
+#   a root user will always be permitted
+#   if no rule is matched, the default policy will be to forbid
+# entrypoint: true
 default evaluate := {
 	"permit": false,
 	"reasons": set(),

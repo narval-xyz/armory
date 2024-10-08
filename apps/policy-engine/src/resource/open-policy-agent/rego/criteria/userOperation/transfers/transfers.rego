@@ -3,6 +3,7 @@ package main
 import rego.v1
 
 import data.armory.constants
+import data.armory.lib
 
 getIntentTransfers(intent) := intent.transfers
 
@@ -13,8 +14,8 @@ checkUserOperationTokensTransfers(intent, condition) if {
 checkUserOperationTokensTransfers(intent, condition) if {
 	condition != constants.wildcard
 	intentTransfers = getIntentTransfers(intent)
-	transfer = intentTransfers[_]
-	transfer.token in condition
+	some transfer in intentTransfers
+	lib.caseInsensitiveFindInSet(transfer.token, condition)
 }
 
 checkUserOperationAmountsTransfers(intent, conditions) if {
