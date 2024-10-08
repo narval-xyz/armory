@@ -1,6 +1,11 @@
-package armory.lib
+package armory.entities
 
 import rego.v1
+
+test_extractAddressFromAccountId if {
+	address = extractAddressFromAccountId("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
+	address == "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
+}
 
 test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_Account_found if {
 	entry = buildIntentDestinationChainAccount({

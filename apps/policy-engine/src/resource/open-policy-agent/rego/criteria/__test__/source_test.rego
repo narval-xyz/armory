@@ -2,6 +2,7 @@ package criteria
 
 import rego.v1
 
+import data.armory.entities
 import data.armory.lib
 
 test_source if {

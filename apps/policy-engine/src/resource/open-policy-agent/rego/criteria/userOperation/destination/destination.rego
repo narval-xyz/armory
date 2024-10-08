@@ -2,6 +2,7 @@ package criteria
 
 import rego.v1
 
+import data.armory.entities
 import data.armory.lib
 
 checkUserOperationDestination(key, intent, condition) if {

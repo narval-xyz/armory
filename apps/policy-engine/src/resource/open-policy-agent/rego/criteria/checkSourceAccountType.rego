@@ -2,7 +2,7 @@ package criteria
 
 import rego.v1
 
-import data.armory.lib
+import data.armory.entities
 
 checkSourceAccountType(values) if {
 	source = entities.buildIntentSourceChainAccount(input.intent)

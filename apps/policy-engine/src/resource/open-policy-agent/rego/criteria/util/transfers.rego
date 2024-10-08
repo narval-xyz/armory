@@ -146,7 +146,7 @@ checkTransferByAccountGroups(accountId, values) if {
 checkTransferByAccountGroups(accountId, values) if {
 	values != wildcard
 
-	address := lib.parseChainAccount(accountId).address
+	address := entities.parseChainAccount(accountId).address
 	groups := entities.getAccount(address).groups
 
 	some group in groups

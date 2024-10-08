@@ -21,6 +21,10 @@ rules:
       regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
       level: warning
       message: Names should use camelCase
+  idiomatic:
+  # TODO: reactivate just for test files
+    directory-package-mismatch:
+      level: ignore
   testing:
     test-outside-test-package:
       level: ignore
