@@ -1,6 +1,8 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 test_userOperationWithTransfers if {
 	userOperationWithTransfersRequest = object.union(requestWithEip1559Transaction, {"intent": {

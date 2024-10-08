@@ -1,7 +1,9 @@
-package criteria
+package main
 
 import data.armory.lib
 import rego.v1
+
+import data.armory.constants
 
 spendingsFixedPeriodRequest := object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
@@ -102,7 +104,7 @@ test_calculateCurrentSpendingsByRollingPeriod if {
 	res == 396000000000000000 # convert amount to fiat
 }
 
-test_calculateCurrentSpendingsByRollingPeriod if {
+test_calculateCurrentSpendingsByRollingPerioWithBob if {
 	conditions = {
 		"timeWindow": {
 			"type": "rolling",
@@ -177,7 +179,7 @@ test_calculateCurrentSpendingsByPrincipal if {
 	res == 1000000000000000000
 }
 
-test_calculateCurrentSpendingsByPrincipal if {
+test_calculateCurrentSpendingsByPrincipalWithAlice if {
 	perPrincipalReq = object.union(requestWithEip1559Transaction, {"principal": {"userId": "test-alice-uid"}})
 
 	conditions = {"filters": {

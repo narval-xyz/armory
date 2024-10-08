@@ -1,23 +1,25 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
+
 checkUserOperationMessage(intent, condition) if {
-	condition.operator == wildcard
+	condition.operator == constants.wildcard
 }
 
 checkUserOperationMessage(intent, condition) if {
-	condition.value == wildcard
+	condition.value == constants.wildcard
 }
 
 checkUserOperationMessage(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.equal
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.equal
 	condition.value == intent.message
 }
 
 checkUserOperationMessage(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.contaiins
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.contaiins
 	contains(intent.message, condition.value)
 }

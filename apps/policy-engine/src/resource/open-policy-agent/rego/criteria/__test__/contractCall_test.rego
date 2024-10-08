@@ -1,7 +1,9 @@
-package criteria
+package main
 
 import data.armory.criteria
 import rego.v1
+
+import data.armory.constants
 
 test_contractCall if {
 	contractCallRequest = object.union(requestWithEip1559Transaction, {

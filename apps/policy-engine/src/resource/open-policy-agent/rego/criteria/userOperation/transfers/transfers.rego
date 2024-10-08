@@ -1,26 +1,28 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 getIntentTransfers(intent) := intent.transfers
 
 checkUserOperationTokensTransfers(intent, condition) if {
-	condition == wildcard
+	condition == constants.wildcard
 }
 
 checkUserOperationTokensTransfers(intent, condition) if {
-	condition != wildcard
+	condition != constants.wildcard
 	intentTransfers = getIntentTransfers(intent)
 	transfer = intentTransfers[_]
 	transfer.token in condition
 }
 
 checkUserOperationAmountsTransfers(intent, conditions) if {
-	conditions == wildcard
+	conditions == constants.wildcard
 }
 
 checkUserOperationAmountsTransfers(intent, conditions) if {
-	conditions != wildcard
+	conditions != constants.wildcard
 
 	intentTransfers = getIntentTransfers(intent)
 

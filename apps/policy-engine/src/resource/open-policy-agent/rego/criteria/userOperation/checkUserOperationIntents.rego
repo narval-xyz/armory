@@ -1,58 +1,60 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
+
 userOperationWildcardConditions := {
-	"type": wildcard,
-	"contract": wildcard,
-	"token": wildcard,
-	"spender": wildcard,
-	"chainId": wildcard,
-	"hexSignature": wildcard,
-	"algorithm": wildcard,
+	"type": constants.wildcard,
+	"contract": constants.wildcard,
+	"token": constants.wildcard,
+	"spender": constants.wildcard,
+	"chainId": constants.wildcard,
+	"hexSignature": constants.wildcard,
+	"algorithm": constants.wildcard,
 	"source": {
-		"id": wildcard,
-		"address": wildcard,
-		"accountType": wildcard,
-		"classification": wildcard,
+		"id": constants.wildcard,
+		"address": constants.wildcard,
+		"accountType": constants.wildcard,
+		"classification": constants.wildcard,
 	},
 	"destination": {
-		"id": wildcard,
-		"address": wildcard,
-		"accountType": wildcard,
-		"classification": wildcard,
+		"id": constants.wildcard,
+		"address": constants.wildcard,
+		"accountType": constants.wildcard,
+		"classification": constants.wildcard,
 	},
 	"amount": {
-		"currency": wildcard,
-		"operator": wildcard,
-		"value": wildcard,
+		"currency": constants.wildcard,
+		"operator": constants.wildcard,
+		"value": constants.wildcard,
 	},
 	"transfers": {
-		"tokens": wildcard,
-		"amounts": wildcard,
+		"tokens": constants.wildcard,
+		"amounts": constants.wildcard,
 	},
 	"message": {
-		"operator": wildcard,
-		"value": wildcard,
+		"operator": constants.wildcard,
+		"value": constants.wildcard,
 	},
 	"payload": {
-		"operator": wildcard,
-		"value": wildcard,
+		"operator": constants.wildcard,
+		"value": constants.wildcard,
 	},
 	"domain": {
-		"version": wildcard,
-		"chainId": wildcard,
-		"name": wildcard,
-		"verifyingContract": wildcard,
+		"version": constants.wildcard,
+		"chainId": constants.wildcard,
+		"name": constants.wildcard,
+		"verifyingContract": constants.wildcard,
 	},
 	"deadline": {
-		"operator": wildcard,
-		"value": wildcard,
+		"operator": constants.wildcard,
+		"value": constants.wildcard,
 	},
 }
 
 checkUserOperationCondition(key, intent, condition) if {
-	condition[key] == wildcard
+	condition[key] == constants.wildcard
 }
 
 checkUserOperationCondition(key, intent, condition) if {

@@ -2,6 +2,8 @@ package armory.entities
 
 import rego.v1
 
+import data.armory.constants
+
 import data.armory.lib
 
 # EOA accounts are multichain by design.

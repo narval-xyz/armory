@@ -1,4 +1,7 @@
-package criteria
+package main
+
+import data.armory.constants
+import data.armory.feeds
 
 import rego.v1
 
@@ -16,67 +19,67 @@ gasFeeAmount := result if {
 
 getGasFeeAmountCondition(filters) := object.union(
 	{
-		"currency": wildcard,
-		"operator": wildcard,
-		"value": wildcard,
+		"currency": constants.wildcard,
+		"operator": constants.wildcard,
+		"value": constants.wildcard,
 	},
 	filters,
 )
 
 getGasFeeAmount(currency) := result if {
-	currency == wildcard
+	currency == constants.wildcard
 	result = gasFeeAmount
 }
 
 getGasFeeAmount(currency) := result if {
-	currency != wildcard
-	token = chainAssetId[chainId]
-	price = to_number(priceFeed[token][currency])
+	currency != constants.wildcard
+	token := constants.chainAssetId[chainId]
+	price = to_number(feeds.priceFeed[token][currency])
 	result = gasFeeAmount * price
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == wildcard
+	condition.operator == constants.wildcard
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.value == wildcard
+	condition.value == constants.wildcard
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.equal
+	condition.operator == constants.operators.equal
 	to_number(condition.value) == getGasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.notEqual
+	condition.operator == constants.operators.notEqual
 	to_number(condition.value) != getGasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.greaterThan
+	condition.operator == constants.operators.greaterThan
 	to_number(condition.value) < getGasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.lessThan
+	condition.operator == constants.operators.lessThan
 	to_number(condition.value) > getGasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.greaterThanOrEqual
+	condition.operator == constants.operators.greaterThanOrEqual
 	to_number(condition.value) <= getGasFeeAmount(condition.currency)
 }
 
 checkGasFeeAmount(filters) if {
 	condition = getGasFeeAmountCondition(filters)
-	condition.operator == operators.lessThanOrEqual
+	condition.operator == constants.operators.lessThanOrEqual
 	to_number(condition.value) >= getGasFeeAmount(condition.currency)
 }

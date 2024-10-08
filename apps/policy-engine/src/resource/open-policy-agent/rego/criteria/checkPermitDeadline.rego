@@ -1,49 +1,51 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 permitDeadlineMs := to_number(input.intent.deadline)
 
 checkPermitDeadline(condition) if {
-	condition.operator == wildcard
+	condition.operator == constants.wildcard
 }
 
 checkPermitDeadline(condition) if {
-	condition.value == wildcard
+	condition.value == constants.wildcard
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.equal
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.equal
 	permitDeadlineMs == to_number(condition.value)
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.notEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.notEqual
 	permitDeadlineMs != to_number(condition.value)
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThanOrEqual
 	permitDeadlineMs <= to_number(condition.value)
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThanOrEqual
 	permitDeadlineMs >= to_number(condition.value)
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThan
 	permitDeadlineMs < to_number(condition.value)
 }
 
 checkPermitDeadline(condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThan
 	permitDeadlineMs > to_number(condition.value)
 }

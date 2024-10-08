@@ -1,13 +1,15 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
 import data.armory.entities
+import data.armory.feeds
 import data.armory.lib
 
 transformIntentToTransferObject(intent) := result if {
 	contract = intent.contract
-	not priceFeed[contract]
+	not feeds.priceFeed[contract]
 
 	resource := entities.getAccount(input.resource.uid)
 	principal := entities.getUser(input.principal.userId)
@@ -25,10 +27,10 @@ transformIntentToTransferObject(intent) := result if {
 	}
 }
 
-# Case 1: When token is not in priceFeed
+# Case 1: When token is not in feeds.priceFeed
 transformIntentToTransferObject(intent) := result if {
 	token := intent.token
-	not priceFeed[lower(token)]
+	not feeds.priceFeed[lower(token)]
 
 	resource := entities.getAccount(input.resource.uid)
 	principal := entities.getUser(input.principal.userId)
@@ -46,10 +48,10 @@ transformIntentToTransferObject(intent) := result if {
 	}
 }
 
-# Case 2: When token is in priceFeed
+# Case 2: When token is in feeds.priceFeed
 transformIntentToTransferObject(intent) := result if {
 	token := intent.token
-	priceFeed[lower(token)]
+	feeds.priceFeed[lower(token)]
 
 	resource := entities.getAccount(input.resource.uid)
 	principal := entities.getUser(input.principal.userId)
@@ -60,7 +62,7 @@ transformIntentToTransferObject(intent) := result if {
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
-		"rates": priceFeed[lower(token)],
+		"rates": feeds.priceFeed[lower(token)],
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
@@ -80,7 +82,7 @@ transformIntentToTransferObject(intent) := result if {
 		"from": intent.from,
 		"to": intent.to,
 		"token": token,
-		"rates": priceFeed[lower(token)],
+		"rates": feeds.priceFeed[lower(token)],
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
 		"initiatedBy": input.principal.userId,
@@ -95,7 +97,7 @@ intentTransferObjects := result if {
 intentTransferObjects := result if {
 	input.intent.type == "userOperation"
 	result = [transferObject |
-		userOperationIntent = input.intent.operationIntents[_]
+		some userOperationIntent in input.intent.operationIntents
 		transferObject = transformIntentToTransferObject(userOperationIntent)
 	]
 }
@@ -103,11 +105,11 @@ intentTransferObjects := result if {
 # Check By Condition
 
 checkTransferCondition(value, set) if {
-	set == wildcard
+	set == constants.wildcard
 }
 
 checkTransferCondition(value, set) if {
-	set != wildcard
+	set != constants.wildcard
 	lib.caseInsensitiveFindInSet(value, set)
 }
 
@@ -126,11 +128,11 @@ checkTransferByPrincipal(initiator, perPrincipal) if {
 # Check By User Groups
 
 checkTransferByUserGroups(userId, values) if {
-	values == wildcard
+	values == constants.wildcard
 }
 
 checkTransferByUserGroups(userId, values) if {
-	values != wildcard
+	values != constants.wildcard
 	groups = entities.getUser(userId).groups
 	some group in groups
 
@@ -139,12 +141,12 @@ checkTransferByUserGroups(userId, values) if {
 
 # Check By Account Groups
 checkTransferByAccountGroups(accountId, values) if {
-	values == wildcard
+	values == constants.wildcard
 }
 
 ## if accountId is not an eoa id
 checkTransferByAccountGroups(accountId, values) if {
-	values != wildcard
+	values != constants.wildcard
 
 	address := entities.parseChainAccount(accountId).address
 	groups := entities.getAccount(address).groups
@@ -154,7 +156,7 @@ checkTransferByAccountGroups(accountId, values) if {
 }
 
 checkTransferByAccountGroups(accountId, values) if {
-	values != wildcard
+	values != constants.wildcard
 	groups = entities.getAccount(accountId).groups
 
 	some group in groups
@@ -164,11 +166,11 @@ checkTransferByAccountGroups(accountId, values) if {
 # Check By Start Date
 
 checkTransferFromStartDate(timestamp, timeWindow) if {
-	timeWindow.startDate == wildcard
+	timeWindow.startDate == constants.wildcard
 }
 
 checkTransferFromStartDate(timestamp, timeWindow) if {
-	timeWindow.startDate != wildcard
+	timeWindow.startDate != constants.wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
 	timestampNs >= lib.secondsToNanoSeconds(timeWindow.startDate)
 }
@@ -176,11 +178,11 @@ checkTransferFromStartDate(timestamp, timeWindow) if {
 # Check By End Date
 
 checkTransferToEndDate(timestamp, timeWindow) if {
-	timeWindow.endDate == wildcard
+	timeWindow.endDate == constants.wildcard
 }
 
 checkTransferToEndDate(timestamp, timeWindow) if {
-	timeWindow.endDate != wildcard
+	timeWindow.endDate != constants.wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
 	timestampNs <= lib.secondsToNanoSeconds(timeWindow.endDate)
 }
@@ -188,19 +190,19 @@ checkTransferToEndDate(timestamp, timeWindow) if {
 # Check By Time Window Type
 
 checkTransferTimeWindow(timestamp, timeWindow) if {
-	timeWindow.type == wildcard
+	timeWindow.type == constants.wildcard
 }
 
 checkTransferTimeWindow(timestamp, timeWindow) if {
 	timeWindow.type == "rolling"
-	timeWindow.value != wildcard
+	timeWindow.value != constants.wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
 	timestampNs >= time.now_ns() - lib.secondsToNanoSeconds(timeWindow.value)
 }
 
 checkTransferTimeWindow(timestamp, timeWindow) if {
 	timeWindow.type == "fixed"
-	timeWindow.period != wildcard
+	timeWindow.period != constants.wildcard
 	timestampNs = timestamp * 1000000 # convert ms to ns
 	timestampNs >= lib.getStartDateInNanoSeconds(timeWindow.period)
 }
@@ -208,45 +210,45 @@ checkTransferTimeWindow(timestamp, timeWindow) if {
 # Check By Transfer Amount
 
 checkTransferAmount(amount, condition) if {
-	condition.operator == wildcard
+	condition.operator == constants.wildcard
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value == wildcard
+	condition.value == constants.wildcard
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.equal
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.equal
 	to_number(condition.value) == to_number(amount)
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.notEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.notEqual
 	to_number(condition.value) != to_number(amount)
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThan
 	to_number(condition.value) < to_number(amount)
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThan
 	to_number(condition.value) > to_number(amount)
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThanOrEqual
 	to_number(condition.value) <= to_number(amount)
 }
 
 checkTransferAmount(amount, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThanOrEqual
 	to_number(condition.value) >= to_number(amount)
 }

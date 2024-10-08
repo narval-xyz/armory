@@ -1,13 +1,14 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 import data.armory.entities.getEntryPoint
 import data.armory.lib
 
 checkEntryPointId(values) if {
 	entrypoint = getEntryPoint(input.intent)
-	print("entrypoint.id: ", entrypoint.id)
 	lib.caseInsensitiveFindInSet(entrypoint.id, values)
 }
 

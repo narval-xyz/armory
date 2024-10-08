@@ -1,49 +1,51 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 getPermitDeadlineMs(intent) := to_number(intent.deadline)
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.operator == wildcard
+	condition.operator == constants.wildcard
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value == wildcard
+	condition.value == constants.wildcard
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.equal
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.equal
 	getPermitDeadlineMs(intent) == to_number(condition.value)
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.notEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.notEqual
 	getPermitDeadlineMs(intent) != to_number(condition.value)
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThanOrEqual
 	getPermitDeadlineMs(intent) <= to_number(condition.value)
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThanOrEqual
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThanOrEqual
 	getPermitDeadlineMs(intent) >= to_number(condition.value)
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.lessThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.lessThan
 	getPermitDeadlineMs(intent) < to_number(condition.value)
 }
 
 checkUserOperationPermitDeadline(intent, condition) if {
-	condition.value != wildcard
-	condition.operator == operators.greaterThan
+	condition.value != constants.wildcard
+	condition.operator == constants.operators.greaterThan
 	getPermitDeadlineMs(intent) > to_number(condition.value)
 }

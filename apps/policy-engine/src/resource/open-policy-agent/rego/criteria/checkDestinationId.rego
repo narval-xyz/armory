@@ -1,9 +1,11 @@
-package criteria
+package main
 
 import rego.v1
 
-import data.armory.lib
+import data.armory.constants
+
 import data.armory.entities
+import data.armory.lib
 
 checkDestinationId(values) if {
 	destination = entities.buildIntentDestinationChainAccount(input.intent)

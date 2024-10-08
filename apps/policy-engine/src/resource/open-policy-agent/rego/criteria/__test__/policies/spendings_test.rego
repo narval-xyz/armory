@@ -1,6 +1,8 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 spendingLimitReq := object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},

@@ -1,9 +1,11 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
+
 checkUserOperationDomain(key, intent, condition) if {
-	condition[key] == wildcard
+	condition[key] == constants.wildcard
 }
 
 checkUserOperationDomain(key, intent, condition) if {

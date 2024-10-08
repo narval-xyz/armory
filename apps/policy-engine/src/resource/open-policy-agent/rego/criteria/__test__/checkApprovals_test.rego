@@ -1,6 +1,8 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 test_checkApprovalByUserIdOneApproval if {
 	requiredApproval = {

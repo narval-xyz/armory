@@ -1,14 +1,16 @@
-package criteria
+package main
 
 import data.armory.lib
 import rego.v1
+
+import data.armory.constants
 
 checkErc1155Transfers(conditions) if {
 	intentTransfers := input.intent.transfers
 	matches = [e |
 		some transfer in intentTransfers
 		some condition in conditions
-		lib.caseInsensitiveEqual(transfer.erc1155TokenId, condition.erc1155TokenId)
+		lib.caseInsensitiveEqual(transfer.token, condition.token)
 
 		e = [transfer, condition]
 	]

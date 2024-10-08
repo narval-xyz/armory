@@ -1,27 +1,30 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
+
+import data.armory.feeds
 import data.armory.lib
 
 rateLimitWildcardConditions := {
-	"limit": wildcard,
+	"limit": constants.wildcard,
 	"timeWindow": {
-		"type": wildcard, # rolling, fixed
-		"period": wildcard, # 1d, 1m, 1y
-		"value": wildcard, # in seconds
-		"startDate": wildcard, # in seconds
-		"endDate": wildcard, # in seconds
+		"type": constants.wildcard, # rolling, fixed
+		"period": constants.wildcard, # 1d, 1m, 1y
+		"value": constants.wildcard, # in seconds
+		"startDate": constants.wildcard, # in seconds
+		"endDate": constants.wildcard, # in seconds
 	},
 	"filters": {
 		"perPrincipal": false,
-		"tokens": wildcard,
-		"users": wildcard,
-		"resources": wildcard,
-		"destinations": wildcard,
-		"chains": wildcard,
-		"userGroups": wildcard,
-		"accountGroups": wildcard,
+		"tokens": constants.wildcard,
+		"users": constants.wildcard,
+		"resources": constants.wildcard,
+		"destinations": constants.wildcard,
+		"chains": constants.wildcard,
+		"userGroups": constants.wildcard,
+		"accountGroups": constants.wildcard,
 	},
 }
 
@@ -32,10 +35,10 @@ calculateCurrentRate(params) := result if {
 	rateLimit = conditions.limit
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
-	transfers = array.concat(transferFeed, intentTransferObjects)
+	transfers = array.concat(feeds.transferFeed, intentTransferObjects)
 
 	result = count([transfer |
-		transfer = transfers[_]
+		some transfer in transfers
 
 		# filter by principal
 		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)

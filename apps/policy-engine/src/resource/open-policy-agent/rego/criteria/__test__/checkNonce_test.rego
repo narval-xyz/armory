@@ -1,6 +1,8 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 test_checkNonceExists if {
 	checkNonceExists with input as requestWithEip1559Transaction with data.entities as testEntities

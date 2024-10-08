@@ -1,15 +1,17 @@
-package criteria
+package main
 
 import data.armory.lib
 import rego.v1
 
+import data.armory.constants
+
 test_checkERC1155TokenAmount if {
-	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.notEqual, "value": "2"})
-	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.equal, "value": "1"})
-	checkTransferAmount("5", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.greaterThanOrEqual, "value": "4"})
-	checkTransferAmount("3", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.lessThanOrEqual, "value": "5"})
-	checkTransferAmount("5", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.greaterThan, "value": "3"})
-	checkTransferAmount("3", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": operators.lessThan, "value": "5"})
+	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.notEqual, "value": "2"})
+	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.equal, "value": "1"})
+	checkTransferAmount("5", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.greaterThanOrEqual, "value": "4"})
+	checkTransferAmount("3", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.lessThanOrEqual, "value": "5"})
+	checkTransferAmount("5", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.greaterThan, "value": "3"})
+	checkTransferAmount("3", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.lessThan, "value": "5"})
 }
 
 test_transformIntentToTransferObject if {

@@ -1,7 +1,9 @@
-package criteria
+package main
 
 import data.armory.entities
 import rego.v1
+
+import data.armory.constants
 
 test_resource if {
 	account = entities.getAccount(input.resource.uid) with input as requestWithEip1559Transaction with data.entities as testEntities

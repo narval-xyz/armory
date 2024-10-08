@@ -1,63 +1,66 @@
-package criteria
+package main
 
 import rego.v1
 
+import data.armory.constants
+
+import data.armory.feeds
 import data.armory.lib
 
 spendingWildcardConditions := {
-	"currency": wildcard,
-	"limit": wildcard,
-	"operator": wildcard,
+	"currency": constants.wildcard,
+	"limit": constants.wildcard,
+	"operator": constants.wildcard,
 	"timeWindow": {
-		"type": wildcard, # rolling, fixed
-		"period": wildcard, # 1d, 1m, 1y
-		"value": wildcard, # in seconds
-		"startDate": wildcard, # in seconds
-		"endDate": wildcard, # in seconds
+		"type": constants.wildcard, # rolling, fixed
+		"period": constants.wildcard, # 1d, 1m, 1y
+		"value": constants.wildcard, # in seconds
+		"startDate": constants.wildcard, # in seconds
+		"endDate": constants.wildcard, # in seconds
 	},
 	"filters": {
 		"perPrincipal": false,
-		"tokens": wildcard,
-		"users": wildcard,
-		"resources": wildcard,
-		"destinations": wildcard,
-		"chains": wildcard,
-		"userGroups": wildcard,
-		"accountGroups": wildcard,
+		"tokens": constants.wildcard,
+		"users": constants.wildcard,
+		"resources": constants.wildcard,
+		"destinations": constants.wildcard,
+		"chains": constants.wildcard,
+		"userGroups": constants.wildcard,
+		"accountGroups": constants.wildcard,
 	},
 }
 
 # Calculate Spending
 
 calculateTransferSpending(transfer, currency) := result if {
-	currency == wildcard
+	currency == constants.wildcard
 	result = to_number(transfer.amount)
 }
 
 calculateTransferSpending(transfer, currency) := result if {
-	currency != wildcard
+	currency != constants.wildcard
 	result = to_number(transfer.amount) * to_number(transfer.rates[lower(currency)])
 }
 
 # Check Spendings
 
 checkSpendingOperator(spendings, operator, limit) if {
-	operator == operators.lessThan
+	operator == constants.operators.lessThan
 	spendings < limit
 }
 
 checkSpendingOperator(spendings, operator, limit) if {
-	operator == operators.lessThanOrEqual
+	operator == constants.operators.lessThanOrEqual
 	spendings <= limit
 }
 
 checkSpendingOperator(spendings, operator, limit) if {
-	operator == operators.greaterThan
+	operator == constants.operators.greaterThan
 	spendings > limit
 }
 
 checkSpendingOperator(spendings, operator, limit) if {
-	operator == operators.greaterThanOrEqual
+	operator == constants.operators.greaterThanOrEqual
 	spendings >= limit
 }
 
@@ -67,10 +70,10 @@ calculateCurrentSpendings(params) := result if {
 	conditions = object.union(spendingWildcardConditions, params)
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
-	transfers = array.concat(transferFeed, intentTransferObjects)
+	transfers = array.concat(feeds.transferFeed, intentTransferObjects)
 
 	result = sum([spending |
-		transfer = transfers[_]
+		some transfer in transfers
 
 		# filter by principal
 		checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)

@@ -1,21 +1,23 @@
-package criteria
+package main
 
-import data.armory.lib
 import rego.v1
 
+import data.armory.constants
+import data.armory.lib
+
 wildcardIntentDomain := {
-	"version": wildcard,
-	"chainId": wildcard,
-	"name": wildcard,
-	"verifyingContract": wildcard,
+	"version": constants.wildcard,
+	"chainId": constants.wildcard,
+	"name": constants.wildcard,
+	"verifyingContract": constants.wildcard,
 }
 
 checkDomainCondition(value, set) if {
-	set == wildcard
+	set == constants.wildcard
 }
 
 checkDomainCondition(value, set) if {
-	set != wildcard
+	set != constants.wildcard
 	value in set
 }
 

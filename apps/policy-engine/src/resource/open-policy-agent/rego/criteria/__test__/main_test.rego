@@ -1,7 +1,9 @@
-package criteria
+package main
 
 import data.armory.lib
 import rego.v1
+
+import data.armory.constants
 
 halfMatic := "500000000000000000"
 

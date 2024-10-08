@@ -1,7 +1,9 @@
-package criteria
+package main
 
 import data.armory.lib
 import rego.v1
+
+import data.armory.constants
 
 rateFixedPeriodRequest := object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
@@ -199,6 +201,7 @@ test_calculateCurrentRateForUserOperationIntent if {
 	}
 
 	res = calculateCurrentRate(conditions) with input as userOperationRequest with data.entities as testEntities
+
 	res == 2
 }
 
@@ -269,7 +272,7 @@ test_checkRateLimitPerPrincipal if {
 						"rates": {},
 						"initiatedBy": "test-bob-user-uid",
 						"createdAt": "2024-08-22T10:24:15.729Z",
-						"timestamp": time.now_ns(),
+						"timestamp": lib.nowSeconds * 1000,
 					},
 					{
 						"id": "111118953-2d66-4f42-ae98-8bfd7f26ed98",
@@ -283,7 +286,7 @@ test_checkRateLimitPerPrincipal if {
 						"rates": {},
 						"initiatedBy": "test-bob-user-uid",
 						"createdAt": "2024-08-22T10:24:15.729Z",
-						"timestamp": time.now_ns(),
+						"timestamp": lib.nowSeconds * 1000,
 					},
 				],
 			},
@@ -339,7 +342,7 @@ test_checkRateLimitPerPrincipal if {
 			"period": "1d",
 		},
 		"filters": {"perPrincipal": true},
-	}) with input as inputReq with data.entities as testEntities
+	}) with input as inputReq with data.entities as entitiesReq
 
 	res = checkRateLimit({
 		"limit": 3,
@@ -348,5 +351,5 @@ test_checkRateLimitPerPrincipal if {
 			"period": "1d",
 		},
 		"filters": {"perPrincipal": true},
-	}) with input as inputReq with data.entities as testEntities
+	}) with input as inputReq with data.entities as entitiesReq
 }

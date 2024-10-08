@@ -1,6 +1,8 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 typedDataMessageKeyValueCheck(conditions) if {
 	count(conditions) > 0

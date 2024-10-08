@@ -1,12 +1,14 @@
-package criteria
+package main
 
 import rego.v1
+
+import data.armory.constants
 
 import data.armory.entities
 import data.armory.lib
 
 checkUserOperationDestination(key, intent, condition) if {
-	condition[key] == wildcard
+	condition[key] == constants.wildcard
 }
 
 checkUserOperationDestination(key, intent, condition) if {
