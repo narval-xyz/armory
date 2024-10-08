@@ -160,13 +160,13 @@ policy-engine/rego/format/check:
 
 policy-engine/rego/lint/fix:
 	regal fix \
-		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/armory \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
 		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 
 policy-engine/rego/lint/check:
 	regal lint \
 		--format github \
-		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/armory \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
 		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 
 policy-engine/rego/test/watch:

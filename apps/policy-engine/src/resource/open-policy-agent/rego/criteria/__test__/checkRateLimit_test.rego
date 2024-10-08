@@ -88,7 +88,7 @@ test_calculateCurrentRateByRollingPeriod if {
 	res == 2
 }
 
-test_calculateCurrentRateByRollingPeriod if {
+test_calculateCurrentRateByRollingPeriodAlice if {
 	conditions = {
 		"limit": 10,
 		"timeWindow": {
@@ -105,7 +105,7 @@ test_calculateCurrentRateByRollingPeriod if {
 	res == 3
 }
 
-test_calculateCurrentRateByRollingPeriod if {
+test_calculateCurrentRateByRollingPeriodBob if {
 	conditions = {
 		"limit": 10,
 		"timeWindow": {
@@ -122,7 +122,7 @@ test_calculateCurrentRateByRollingPeriod if {
 	res == 1
 }
 
-test_calculateCurrentRateByFixedPeriod if {
+test_calculateCurrentRateByFixedPeriodAlice if {
 	conditions = {
 		"limit": 10,
 		"timeWindow": {
@@ -140,7 +140,7 @@ test_calculateCurrentRateByFixedPeriod if {
 	res == 2
 }
 
-test_calculateCurrentRateByFixedPeriod if {
+test_calculateCurrentRateByFixedPeriodBob if {
 	conditions = {
 		"limit": 10,
 		"timeWindow": {

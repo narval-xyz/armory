@@ -71,7 +71,7 @@ spendingsFixedPeriodRequest := object.union(requestWithEip1559Transaction, {
 	],
 })
 
-test_calculateCurrentSpendingsByRollingPeriod if {
+test_calculateCurrentSpendingsByRollingPeriodPerToken if {
 	conditions = {
 		"timeWindow": {
 			"type": "rolling",
@@ -87,7 +87,7 @@ test_calculateCurrentSpendingsByRollingPeriod if {
 	res == 400000000000000000
 }
 
-test_calculateCurrentSpendingsByRollingPeriod if {
+test_calculateCurrentSpendingsByRollingPeriodPerUsd if {
 	conditions = {
 		"currency": "fiat:usd",
 		"timeWindow": {
@@ -136,7 +136,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 	res == 400000000000000000
 }
 
-test_calculateCurrentSpendingsByFixedPeriod if {
+test_calculateCurrentSpendingsByFixedPeriodPerUsd if {
 	conditions = {
 		"currency": "fiat:usd",
 		"timeWindow": {
@@ -153,7 +153,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 	res == 396000000000000000 # convert amount to fiat
 }
 
-test_calculateCurrentSpendingsByFixedPeriod if {
+test_calculateCurrentSpendingsByFixedPeriodPerToken if {
 	conditions = {
 		"timeWindow": {
 			"type": "fixed",

@@ -168,7 +168,7 @@ test_spendingLimitByAccountGroup if {
 	}
 }
 
-test_permitRuleSpendingLimit if {
+test_permitRuleSpendingLimitUnsatisfied if {
 	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as testEntities
 
 	res == {
@@ -184,7 +184,7 @@ test_permitRuleSpendingLimit if {
 	}
 }
 
-test_permitRuleSpendingLimit if {
+test_permitRuleSpendingLimitSatisfied if {
 	spendingLimitWithApprovalsReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [

@@ -115,13 +115,10 @@ checkTransferCondition(value, set) if {
 
 # Check By Principal
 
-checkTransferByPrincipal(initiator, perPrincipal) if {
-	perPrincipal == false
-}
+checkTransferByPrincipal(initiator, false)
 
-checkTransferByPrincipal(initiator, perPrincipal) if {
+checkTransferByPrincipal(initiator, true) if {
 	principal := entities.getUser(input.principal.userId)
-	perPrincipal == true
 	lib.caseInsensitiveEqual(initiator, principal.id)
 }
 

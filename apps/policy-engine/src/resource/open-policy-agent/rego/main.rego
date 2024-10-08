@@ -5,16 +5,13 @@ import rego.v1
 default evaluate := {
 	"permit": false,
 	"reasons": set(),
-	# The default flag indicates whether the rule was evaluated as expected or if
-	# it fell back to the default value. It also helps identify cases of what we
-	# call "implicit deny" in the legacy policy engine.
 	"default": true,
 }
 
 permit[{"policyId": "allow-root-user", "policyName": "Allow root user"}] := reason if {
 	checkPrincipalRole({"root"})
 
-	reason = {
+	reason := {
 		"type": "permit",
 		"policyId": "allow-root-user",
 		"policyName": "Allow root user",
@@ -24,9 +21,9 @@ permit[{"policyId": "allow-root-user", "policyName": "Allow root user"}] := reas
 }
 
 forbid[{"policyId": "default-forbid-policy", "policyName": "Default Forbid Policy"}] := reason if {
-	false
+	count(permit) == 0
 
-	reason = {
+	reason := {
 		"type": "forbid",
 		"policyId": "default-forbid-policy",
 		"policyName": "Default Forbid Policy",
@@ -41,33 +38,34 @@ forbid[{"policyId": "default-forbid-policy", "policyName": "Default Forbid Polic
 #   if no rule is matched, the default policy will be to forbid
 # entrypoint: true
 evaluate := decision if {
-	permitSet = {p | p = permit[_]}
-	forbidSet = {f | f = forbid[_]}
+	some p in permit
+	permitSet := {p}
+	some f in forbid
+	forbidSet := {f}
 
 	count(forbidSet) == 0
 	count(permitSet) > 0
 
-	# If ALL Approval in permitSet has count(approval.approvalsMissing) == 0, set "permit": true.
-	# We "Stack" approvals, so multiple polices that match & each have different requirements, ALL must succeed.
-	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive, but that's done at the policy-builder time, not here.
+	filteredPermitSet := {p |
+		some p in permitSet
+		count(p.approvalsMissing) == 0
+	}
 
-	# Filter permitSet to only include objects where approvalsMissing is empty
-	filteredPermitSet = {p | p = permitSet[_]; count(p.approvalsMissing) == 0}
-
-	decision = {
+	decision := {
 		"permit": count(filteredPermitSet) == count(permitSet),
 		"reasons": permitSet,
 	}
 }
 
 evaluate := decision if {
-	permitSet = {p | p = permit[_]}
-	forbidSet = {f | f = forbid[_]}
+	some p in permit
+	permitSet := {p}
+	some f in forbid
+	forbidSet := {f}
 
-	# If the forbid set is not empty, set "permit": false.
 	count(forbidSet) > 0
 
-	decision = {
+	decision := {
 		"permit": false,
 		"reasons": forbidSet,
 	}

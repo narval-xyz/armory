@@ -33,10 +33,9 @@ getGasFeeAmount(currency) := result if {
 
 getGasFeeAmount(currency) := result if {
 	currency != constants.wildcard
-	some chainId
-	token := constants.chainAssetId[chainId]
-	price = to_number(feeds.priceFeed[token][currency])
-	result = gasFeeAmount * price
+	some chainId, token in constants.chainAssetId
+	price := to_number(feeds.priceFeed[token][currency])
+	result := gasFeeAmount * price
 }
 
 checkGasFeeAmount(filters) if {

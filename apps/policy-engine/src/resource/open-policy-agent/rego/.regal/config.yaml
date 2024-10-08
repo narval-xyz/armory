@@ -1,6 +1,7 @@
 rules:
   style:
     # TODO: reactivate that rule
+
     rule-length:
       level: ignore
     # TODO: reactivate that rule
@@ -19,12 +20,14 @@ rules:
     # custom rule configuration
     prefer-camel-case:
       regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
-      level: warning
+      level: error
       message: Names should use camelCase
   idiomatic:
-    # TODO: reactivate just for test files
+    # TODO: reactivate without test file
+    # figure out 'main' package vs 'criteria'
     directory-package-mismatch:
-      level: ignore
+      level: warning
+
     no-defined-entrypoint:
       # TODO: make that thing pass
       level: warning
