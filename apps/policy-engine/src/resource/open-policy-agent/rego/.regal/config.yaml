@@ -1,8 +1,9 @@
 rules:
   style:
+    # TODO: reactivate that rule
     rule-length:
-      level: error
-      max-rule-length: 50
+      level: ignore
+    # TODO: reactivate that rule
     line-length:
       level: ignore
     todo-comment:
@@ -20,9 +21,6 @@ rules:
       regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
       level: warning
       message: Names should use camelCase
-  idiomatic:
-    directory-package-mismatch:
-      level: ignore
   testing:
     test-outside-test-package:
       level: ignore

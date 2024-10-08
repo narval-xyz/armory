@@ -9,6 +9,6 @@ checkUserOperationSource(key, intent, condition) if {
 }
 
 checkUserOperationSource(key, intent, condition) if {
-	source = lib.buildIntentSourceChainAccount(intent)
+	source = entities.buildIntentSourceChainAccount(intent)
 	source[key] in condition[key]
 }

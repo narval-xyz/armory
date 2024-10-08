@@ -1,4 +1,5 @@
 package criteria
+
 import rego.v1
 
 # Members can't transfer >$5k usd value of USDC in 12 hours on a rolling basis

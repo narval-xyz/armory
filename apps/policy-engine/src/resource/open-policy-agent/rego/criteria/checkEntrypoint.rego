@@ -2,8 +2,8 @@ package criteria
 
 import rego.v1
 
+import data.armory.entities.getEntryPoint
 import data.armory.lib
-import data.armory.lib.getEntryPoint
 
 checkEntryPointId(values) if {
 	entrypoint = getEntryPoint(input.intent)

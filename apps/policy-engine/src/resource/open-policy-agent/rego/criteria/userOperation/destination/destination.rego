@@ -9,6 +9,6 @@ checkUserOperationDestination(key, intent, condition) if {
 }
 
 checkUserOperationDestination(key, intent, condition) if {
-destination = lib.buildIntentDestinationChainAccount(intent)
+	destination = entities.buildIntentDestinationChainAccount(intent)
 	destination[key] in condition[key]
 }

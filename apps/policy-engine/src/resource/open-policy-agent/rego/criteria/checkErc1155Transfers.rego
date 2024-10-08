@@ -17,7 +17,7 @@ checkErc1155Transfers(conditions) if {
 		some m in matches
 		transfer = m[0]
 		condition = m[1]
-  checkTransferAmount(transfer.amount, condition)
+		checkTransferAmount(transfer.amount, condition)
 	]
 
 	count(intentTransfers) == count(validTransfers)

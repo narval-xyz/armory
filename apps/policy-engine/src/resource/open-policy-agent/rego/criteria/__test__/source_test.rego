@@ -5,7 +5,7 @@ import rego.v1
 import data.armory.lib
 
 test_source if {
-	res = lib.buildIntentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as testEntities
+	res = entities.buildIntentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as testEntities
 
 	expected := {
 		"id": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
