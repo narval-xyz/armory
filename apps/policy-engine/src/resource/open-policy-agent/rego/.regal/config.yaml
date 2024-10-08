@@ -26,7 +26,7 @@ rules:
     directory-package-mismatch:
       level: ignore
     no-defined-entrypoint:
-    # TODO: make that thing pass
+      # TODO: make that thing pass
       level: warning
   testing:
     test-outside-test-package:
