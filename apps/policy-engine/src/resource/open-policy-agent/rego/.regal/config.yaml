@@ -16,6 +16,8 @@ rules:
     external-reference:
       # TODO: set back to error and authorize external references only in entity/input querying packages
       level: ignore
+    messy-incremental-rule:
+      level: warning
   custom:
     # custom rule configuration
     prefer-camel-case:
