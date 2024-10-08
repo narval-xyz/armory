@@ -123,6 +123,11 @@ jobs:
       - name: Setup Regal
         uses: StyraInc/setup-regal@v1.0.0
 
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+
       - name: Format
         run: make policy-engine/rego/format/check
 
