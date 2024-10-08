@@ -2,11 +2,6 @@ package main
 
 import rego.v1
 
-# METADATA
-# description: returns a decision based on the evaluation of the rules
-#   a root user will always be permitted
-#   if no rule is matched, the default policy will be to forbid
-# entrypoint: true
 default evaluate := {
 	"permit": false,
 	"reasons": set(),
@@ -40,6 +35,11 @@ forbid[{"policyId": "default-forbid-policy", "policyName": "Default Forbid Polic
 	}
 }
 
+# METADATA
+# description: returns a decision based on the evaluation of the rules
+#   a root user will always be permitted
+#   if no rule is matched, the default policy will be to forbid
+# entrypoint: true
 evaluate := decision if {
 	permitSet = {p | p = permit[_]}
 	forbidSet = {f | f = forbid[_]}
