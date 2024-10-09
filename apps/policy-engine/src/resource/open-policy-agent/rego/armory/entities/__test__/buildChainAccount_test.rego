@@ -1,5 +1,6 @@
 package armory.entities
 
+import data.armory.test_data
 import rego.v1
 
 test_extractAddressFromAccountId if {

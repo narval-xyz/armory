@@ -73,8 +73,8 @@ describe('copyRegoCore', () => {
         destination: path
       })
 
-      expect(existsSync(`${path}/criteria`)).toEqual(true)
-      expect(existsSync(`${path}/main.rego`)).toEqual(true)
+      expect(existsSync(`${path}/armory`)).toEqual(true)
+      expect(existsSync(`${path}/main/evaluate.rego`)).toEqual(true)
     })
   })
 
@@ -128,7 +128,7 @@ describe('unzip', () => {
       // gzip file. That's why the `path` exists within the dist directory as
       // well.
       // See https://www.openpolicyagent.org/docs/latest/management-bundles/#bundle-file-format
-      expect(existsSync(`${distDirectory}/${path}/rego/main.rego`)).toEqual(true)
+      expect(existsSync(`${distDirectory}/${path}/rego/main/evaluate.rego`)).toEqual(true)
     })
   })
 })

@@ -1,3 +1,7 @@
+ignore:
+  # Ignore userOperation files as functionality is not certain yet.
+  files:
+    - '*userOperation*'
 rules:
   style:
     # This rule is disabled in tests to let us paste in big JSON payloads without having to worry about line length.
@@ -40,14 +44,16 @@ rules:
             - rule
             - function
           description: 'Use camelCase for rules and functions'
+  # Future improvement: remove ignore for test files.
+  # It would be better to strictly split test and production code in different packages to make sure test code is never hit by production one
   idiomatic:
-    # Having this rule is certainly wishable as it improves clarity when navigating the codebase, and also pushes for good dependency management practices and reusability of written code - as your directory needs to be separated packages.
-    # However, we can't move away too much from our god 'main' package without rewriting some logic in how we inject policies into the engine.
     directory-package-mismatch:
-      level: ignore
+      level: error
+      ignore:
+        files:
+          - '*_test.rego'
   # Disabling this rule allows to call tested function from the test file without importing functionality package.
-  # Rationale of the rule is to clearly separate the tested code from the test code.
-  # We are doing this by moving test files to a separate directory, also suffixing files with _test.
+  # Related to comment above, this ignore can be removed if we split test and production code in different packages.
   testing:
     test-outside-test-package:
       level: ignore

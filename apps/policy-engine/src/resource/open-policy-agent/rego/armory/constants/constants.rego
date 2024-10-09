@@ -19,8 +19,8 @@ operators := {
 	"greaterThanOrEqual": "gte",
 	"lessThan": "lt",
 	"lessThanOrEqual": "lte",
-	# TODO: Fix typo, avoid restricted word
-	"contaiins": "contains",
+	# we can't use "contains" as a key in a map
+	"cont": "contains",
 }
 
 chainAssetId := {
