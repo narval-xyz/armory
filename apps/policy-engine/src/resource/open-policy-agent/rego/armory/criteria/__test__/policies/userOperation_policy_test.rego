@@ -1,6 +1,5 @@
 package armory.criteria
 
-import data.armory.test_data
 import rego.v1
 
 permit[{"policyId": "userOperationWithTransfers"}] := reason if {

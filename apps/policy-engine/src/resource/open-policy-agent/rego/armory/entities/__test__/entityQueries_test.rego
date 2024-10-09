@@ -1,7 +1,5 @@
 package armory.entities
 
-import data.armory.lib
-
 import data.armory.test_data
 import rego.v1
 
