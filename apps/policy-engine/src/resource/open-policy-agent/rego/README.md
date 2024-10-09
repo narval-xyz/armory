@@ -9,7 +9,7 @@ Transpiled policies then use Armory/criteria functions to evaluate input
 
 ### Constants
 
-These package contains all constants that are used by production code
+This package contains all constants that are used by production code
 
 ### Criteria
 
