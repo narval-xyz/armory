@@ -36,3 +36,9 @@ Utils that are not domain specific, like case insensitive comparison or time.
 
 Values that are specifically used by tests.
 **this shouldn't be imported in production code**
+
+# Tests
+
+Currently tests are not separated in different package. Future improvement should be to strictly separate test and production code
+By moving tests in separate packages.
+We can enforce it by re-enabling `test-outside-test-package` rule in `.regal/config.yaml`
