@@ -36,10 +36,8 @@ rules:
           - '*_policies.rego'
           - '*_test.rego'
       conventions:
-        # allow only "private" rules and functions, i.e. those starting with
-        # underscore, or rules named "deny" or "allow"
+        # We use camelCase to comply with our monorepo naming conventions
         - pattern: '^[a-z]+([A-Z][a-z0-9]+)*$'
-          # one of "package", "rule", "function", "variable"
           targets:
             - rule
             - function
