@@ -131,8 +131,11 @@ jobs:
       - name: Format
         run: make policy-engine/rego/format/check
 
+      - name: Syntax
+        run: make policy-engine/rego/syntax/check
+
       - name: Lint
-        run: make policy-engine/rego/lint/check
+        run: make policy-engine/rego/lint/check REGAL_FORMAT=github
 
       - name: Test
         run: make policy-engine/rego/test

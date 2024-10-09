@@ -2,6 +2,7 @@ POLICY_ENGINE_PROJECT_NAME := policy-engine
 POLICY_ENGINE_PROJECT_DIR := ./apps/policy-engine
 POLICY_ENGINE_DATABASE_SCHEMA := ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
 POLICY_ENGINE_REGO_DIST = ./dist/rego
+REGAL_FORMAT ?= pretty
 
 # === Start ===
 
@@ -170,7 +171,7 @@ policy-engine/rego/lint/fix:
 
 policy-engine/rego/lint/check:
 	regal lint \
-		--format pretty \
+		--format ${REGAL_FORMAT} \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
 		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 
