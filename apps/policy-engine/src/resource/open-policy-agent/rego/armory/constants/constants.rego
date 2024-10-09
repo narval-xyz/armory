@@ -19,8 +19,8 @@ operators := {
 	"greaterThanOrEqual": "gte",
 	"lessThan": "lt",
 	"lessThanOrEqual": "lte",
-	# we can't use "contains" as a key in a map
-	"cont": "contains",
+	# 'contains' is a restricted keyword in Rego - it's the native 'contains' function
+	"has": "contains",
 }
 
 chainAssetId := {

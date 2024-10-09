@@ -20,6 +20,6 @@ checkUserOperationPayload(intent, condition) if {
 
 checkUserOperationPayload(intent, condition) if {
 	condition.value != constants.wildcard
-	condition.operator == constants.operators.cont
+	condition.operator == constants.operators.has
 	contains(intent.payload, condition.value)
 }

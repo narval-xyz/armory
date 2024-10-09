@@ -20,6 +20,6 @@ checkIntentPayload(condition) if {
 
 checkIntentPayload(condition) if {
 	condition.value != constants.wildcard
-	condition.operator == constants.operators.cont
+	condition.operator == constants.operators.has
 	contains(input.intent.payload, condition.value)
 }

@@ -20,6 +20,6 @@ checkIntentMessage(condition) if {
 
 checkIntentMessage(condition) if {
 	condition.value != constants.wildcard
-	condition.operator == constants.operators.cont
+	condition.operator == constants.operators.has
 	contains(input.intent.message, condition.value)
 }

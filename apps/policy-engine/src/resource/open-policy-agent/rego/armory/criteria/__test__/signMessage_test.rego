@@ -18,7 +18,7 @@ test_checkSignMessage if {
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signMessageRequest with data.entities as test_data.entities
 	checkIntentType({"signMessage", "signRawMessage"}) with input as signMessageRequest with data.entities as test_data.entities
 	checkIntentMessage({"operator": constants.operators.equal, "value": "Hello world!"}) with input as signMessageRequest with data.entities as test_data.entities
-	checkIntentMessage({"operator": constants.operators.cont, "value": "Hello"}) with input as signMessageRequest with data.entities as test_data.entities
+	checkIntentMessage({"operator": constants.operators.has, "value": "Hello"}) with input as signMessageRequest with data.entities as test_data.entities
 }
 
 test_checkSignRawPayload if {
@@ -35,7 +35,7 @@ test_checkSignRawPayload if {
 	checkAccountId({"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}) with input as signRawPayloadRequest with data.entities as test_data.entities
 	checkIntentType({"signRawPayload"}) with input as signRawPayloadRequest with data.entities as test_data.entities
 	checkIntentPayload({"operator": constants.operators.equal, "value": "Hello world!"}) with input as signRawPayloadRequest with data.entities as test_data.entities
-	checkIntentPayload({"operator": constants.operators.cont, "value": "Hello"}) with input as signRawPayloadRequest with data.entities as test_data.entities
+	checkIntentPayload({"operator": constants.operators.has, "value": "Hello"}) with input as signRawPayloadRequest with data.entities as test_data.entities
 	checkIntentAlgorithm({"ES256K"}) with input as signRawPayloadRequest with data.entities as test_data.entities
 }
 

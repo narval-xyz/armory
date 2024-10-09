@@ -20,6 +20,6 @@ checkUserOperationMessage(intent, condition) if {
 
 checkUserOperationMessage(intent, condition) if {
 	condition.value != constants.wildcard
-	condition.operator == constants.operators.cont
+	condition.operator == constants.operators.has
 	contains(intent.message, condition.value)
 }
