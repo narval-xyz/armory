@@ -3,7 +3,6 @@ package main
 import rego.v1
 
 import data.armory.constants
-
 import data.armory.feeds
 import data.armory.lib
 

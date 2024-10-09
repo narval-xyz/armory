@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 test_checkUserOperationIntents if {
 	userOperationRequest = object.union(requestWithEip1559Transaction, {"intent": {
 		"type": "userOperation",

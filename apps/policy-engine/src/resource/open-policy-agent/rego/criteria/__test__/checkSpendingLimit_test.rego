@@ -3,8 +3,6 @@ package main
 import data.armory.lib
 import rego.v1
 
-import data.armory.constants
-
 spendingsFixedPeriodRequest := object.union(requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {

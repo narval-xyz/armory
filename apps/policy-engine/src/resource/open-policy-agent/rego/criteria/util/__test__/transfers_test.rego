@@ -21,7 +21,7 @@ test_transformIntentToTransferObject if {
 		"amount": "1000000000000000000",
 		"chainId": 137,
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
-		"initiatedBy": "test-bob-Uid",
+		"initiatedBy": "test-BOB-uid",
 		"rates": {"fiat:eur": "1.10", "fiat:usd": "0.99"},
 		"resourceId": "eip155:eoa:0xDDcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"timestamp": lib.nowSeconds * 1000,

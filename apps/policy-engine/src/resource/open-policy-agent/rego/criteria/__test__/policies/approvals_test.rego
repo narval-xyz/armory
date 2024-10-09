@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 test_approvalByUsers if {
 	approvalByUsersReq = object.union(requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},

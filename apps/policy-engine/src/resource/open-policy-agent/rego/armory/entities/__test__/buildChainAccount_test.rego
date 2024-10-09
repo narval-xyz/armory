@@ -2,8 +2,6 @@ package armory.entities
 
 import rego.v1
 
-import data.armory.constants
-
 test_extractAddressFromAccountId if {
 	address = extractAddressFromAccountId("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
 	address == "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"

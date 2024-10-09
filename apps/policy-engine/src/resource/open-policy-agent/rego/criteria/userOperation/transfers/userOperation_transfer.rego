@@ -7,7 +7,7 @@ import data.armory.lib
 
 getIntentTransfers(intent) := intent.transfers
 
-checkUserOperationTokensTransfers(intent, condition) if {
+checkUserOperationTokensTransfers(_, condition) if {
 	condition == constants.wildcard
 }
 
@@ -18,7 +18,7 @@ checkUserOperationTokensTransfers(intent, condition) if {
 	lib.caseInsensitiveFindInSet(transfer.token, condition)
 }
 
-checkUserOperationAmountsTransfers(intent, conditions) if {
+checkUserOperationAmountsTransfers(_, conditions) if {
 	conditions == constants.wildcard
 }
 

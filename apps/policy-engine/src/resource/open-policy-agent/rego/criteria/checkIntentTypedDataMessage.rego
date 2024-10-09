@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 typedDataMessageKeyValueCheck(conditions) if {
 	count(conditions) > 0
 	inputMessage = input.intent.typedData.message

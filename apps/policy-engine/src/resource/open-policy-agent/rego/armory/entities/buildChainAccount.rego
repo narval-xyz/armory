@@ -2,22 +2,6 @@ package armory.entities
 
 import rego.v1
 
-import data.armory.constants
-
-import data.armory.lib
-
-# EOA accounts are multichain by design.
-_getChainId(account, chainAccount) := chainId if {
-	account.accountType == "eoa"
-	chainId := chainAccount.chainId
-}
-
-# Smart accounts are chain specific.
-_getChainId(account, chainAccount) := chainId if {
-	account.accountType == "4337"
-	chainId := account.chainId
-}
-
 extractAddressFromAccountId(accountId) := result if {
 	arr = split(accountId, ":")
 	result := arr[count(arr) - 1]

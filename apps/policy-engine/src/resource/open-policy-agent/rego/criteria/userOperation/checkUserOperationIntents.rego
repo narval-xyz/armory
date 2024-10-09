@@ -53,7 +53,7 @@ userOperationWildcardConditions := {
 	},
 }
 
-checkUserOperationCondition(key, intent, condition) if {
+checkUserOperationCondition(key, _, condition) if {
 	condition[key] == constants.wildcard
 }
 

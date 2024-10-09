@@ -158,6 +158,11 @@ policy-engine/rego/format/check:
 	opa fmt \
 		--fail ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
 
+policy-engine/rego/syntax/check:
+	opa check \
+		--strict \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
 policy-engine/rego/lint/fix:
 	regal fix \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
@@ -165,7 +170,7 @@ policy-engine/rego/lint/fix:
 
 policy-engine/rego/lint/check:
 	regal lint \
-		--format github \
+		--format pretty \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
 		-c ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego/.regal/config.yaml
 

@@ -4,11 +4,11 @@ import rego.v1
 
 import data.armory.constants
 
-checkUserOperationMessage(intent, condition) if {
+checkUserOperationMessage(_, condition) if {
 	condition.operator == constants.wildcard
 }
 
-checkUserOperationMessage(intent, condition) if {
+checkUserOperationMessage(_, condition) if {
 	condition.value == constants.wildcard
 }
 

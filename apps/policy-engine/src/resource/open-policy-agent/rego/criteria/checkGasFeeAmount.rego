@@ -8,7 +8,10 @@ import rego.v1
 gasFeeAmount := result if {
 	input.transactionRequest.maxFeePerGas
 	input.transactionRequest.maxPriorityFeePerGas
-	result = (to_number(input.transactionRequest.maxFeePerGas) + to_number(input.transactionRequest.maxPriorityFeePerGas)) * to_number(input.transactionRequest.gas)
+	maxFee := to_number(input.transactionRequest.maxFeePerGas)
+	maxPriorityFee := to_number(input.transactionRequest.maxPriorityFeePerGas)
+	gas := to_number(input.transactionRequest.gas)
+	result = (maxFee + maxPriorityFee) * gas
 }
 
 gasFeeAmount := result if {

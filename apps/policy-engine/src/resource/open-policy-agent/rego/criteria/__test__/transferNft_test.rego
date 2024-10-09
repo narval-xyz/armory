@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 test_transferERC721 if {
 	erc721Request = object.union(requestWithEip1559Transaction, {
 		"action": "signTransaction",

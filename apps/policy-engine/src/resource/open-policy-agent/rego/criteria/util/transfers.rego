@@ -23,7 +23,7 @@ transformIntentToTransferObject(intent) := result if {
 		"rates": {},
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId,
+		"initiatedBy": principal.id,
 	}
 }
 
@@ -44,7 +44,7 @@ transformIntentToTransferObject(intent) := result if {
 		"rates": {},
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId,
+		"initiatedBy": principal.id,
 	}
 }
 
@@ -65,7 +65,7 @@ transformIntentToTransferObject(intent) := result if {
 		"rates": feeds.priceFeed[lower(token)],
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId,
+		"initiatedBy": principal.id,
 	}
 }
 
@@ -85,7 +85,7 @@ transformIntentToTransferObject(intent) := result if {
 		"rates": feeds.priceFeed[lower(token)],
 		"timestamp": lib.nowSeconds * 1000,
 		"chainId": input.transactionRequest.chainId,
-		"initiatedBy": input.principal.userId,
+		"initiatedBy": principal.id,
 	}
 }
 
@@ -104,7 +104,7 @@ intentTransferObjects := result if {
 
 # Check By Condition
 
-checkTransferCondition(value, set) if {
+checkTransferCondition(_, set) if {
 	set == constants.wildcard
 }
 
@@ -115,7 +115,7 @@ checkTransferCondition(value, set) if {
 
 # Check By Principal
 
-checkTransferByPrincipal(initiator, false)
+checkTransferByPrincipal(_, false)
 
 checkTransferByPrincipal(initiator, true) if {
 	principal := entities.getUser(input.principal.userId)
@@ -124,7 +124,7 @@ checkTransferByPrincipal(initiator, true) if {
 
 # Check By User Groups
 
-checkTransferByUserGroups(userId, values) if {
+checkTransferByUserGroups(_, values) if {
 	values == constants.wildcard
 }
 
@@ -132,12 +132,11 @@ checkTransferByUserGroups(userId, values) if {
 	values != constants.wildcard
 	groups = entities.getUser(userId).groups
 	some group in groups
-
-	res := lib.caseInsensitiveFindInSet(group, values)
+	lib.caseInsensitiveFindInSet(group, values)
 }
 
 # Check By Account Groups
-checkTransferByAccountGroups(accountId, values) if {
+checkTransferByAccountGroups(_, values) if {
 	values == constants.wildcard
 }
 
@@ -162,7 +161,7 @@ checkTransferByAccountGroups(accountId, values) if {
 
 # Check By Start Date
 
-checkTransferFromStartDate(timestamp, timeWindow) if {
+checkTransferFromStartDate(_, timeWindow) if {
 	timeWindow.startDate == constants.wildcard
 }
 
@@ -174,7 +173,7 @@ checkTransferFromStartDate(timestamp, timeWindow) if {
 
 # Check By End Date
 
-checkTransferToEndDate(timestamp, timeWindow) if {
+checkTransferToEndDate(_, timeWindow) if {
 	timeWindow.endDate == constants.wildcard
 }
 
@@ -186,7 +185,7 @@ checkTransferToEndDate(timestamp, timeWindow) if {
 
 # Check By Time Window Type
 
-checkTransferTimeWindow(timestamp, timeWindow) if {
+checkTransferTimeWindow(_, timeWindow) if {
 	timeWindow.type == constants.wildcard
 }
 
@@ -206,11 +205,11 @@ checkTransferTimeWindow(timestamp, timeWindow) if {
 
 # Check By Transfer Amount
 
-checkTransferAmount(amount, condition) if {
+checkTransferAmount(_, condition) if {
 	condition.operator == constants.wildcard
 }
 
-checkTransferAmount(amount, condition) if {
+checkTransferAmount(_, condition) if {
 	condition.value == constants.wildcard
 }
 

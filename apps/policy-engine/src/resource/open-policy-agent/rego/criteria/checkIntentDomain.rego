@@ -12,7 +12,7 @@ wildcardIntentDomain := {
 	"verifyingContract": constants.wildcard,
 }
 
-checkDomainCondition(value, set) if {
+checkDomainCondition(_, set) if {
 	set == constants.wildcard
 }
 

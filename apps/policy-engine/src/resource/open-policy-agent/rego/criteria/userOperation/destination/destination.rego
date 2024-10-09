@@ -5,9 +5,8 @@ import rego.v1
 import data.armory.constants
 
 import data.armory.entities
-import data.armory.lib
 
-checkUserOperationDestination(key, intent, condition) if {
+checkUserOperationDestination(key, _, condition) if {
 	condition[key] == constants.wildcard
 }
 

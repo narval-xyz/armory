@@ -2,8 +2,6 @@ package armory.lib
 
 import rego.v1
 
-import data.armory.constants
-
 ## Case insensitive string comparison
 ##
 ## Example:

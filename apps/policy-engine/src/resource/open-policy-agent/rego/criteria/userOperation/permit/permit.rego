@@ -6,11 +6,11 @@ import data.armory.constants
 
 getPermitDeadlineMs(intent) := to_number(intent.deadline)
 
-checkUserOperationPermitDeadline(intent, condition) if {
+checkUserOperationPermitDeadline(_, condition) if {
 	condition.operator == constants.wildcard
 }
 
-checkUserOperationPermitDeadline(intent, condition) if {
+checkUserOperationPermitDeadline(_, condition) if {
 	condition.value == constants.wildcard
 }
 

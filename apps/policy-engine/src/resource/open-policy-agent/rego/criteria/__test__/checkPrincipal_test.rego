@@ -2,7 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
 import data.armory.entities
 
 test_principal if {

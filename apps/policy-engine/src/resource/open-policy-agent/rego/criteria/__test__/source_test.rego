@@ -2,10 +2,7 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 import data.armory.entities
-import data.armory.lib
 
 test_source if {
 	res = entities.buildIntentSourceChainAccount(input.intent) with input as requestWithEip1559Transaction with data.entities as testEntities

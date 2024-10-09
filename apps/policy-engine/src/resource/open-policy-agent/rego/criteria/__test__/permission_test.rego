@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 test_permission if {
 	grantPermissionRequest = {
 		"action": "grantPermission",

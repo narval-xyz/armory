@@ -2,7 +2,6 @@ package armory.entities
 
 import rego.v1
 
-import data.armory.constants
 import data.armory.lib
 
 # Helper function to find an account by its lowercased ID

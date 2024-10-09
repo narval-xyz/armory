@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 permit[{"policyId": "approvalByUsers"}] := reason if {
 	resources = {"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}
 	transferTypes = {"transferERC20"}

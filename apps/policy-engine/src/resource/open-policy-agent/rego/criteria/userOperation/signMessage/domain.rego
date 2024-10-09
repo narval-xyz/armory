@@ -4,7 +4,7 @@ import rego.v1
 
 import data.armory.constants
 
-checkUserOperationDomain(key, intent, condition) if {
+checkUserOperationDomain(key, _, condition) if {
 	condition[key] == constants.wildcard
 }
 

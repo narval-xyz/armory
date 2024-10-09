@@ -3,8 +3,6 @@ package main
 import data.armory.lib
 import rego.v1
 
-import data.armory.constants
-
 checkErc1155Transfers(conditions) if {
 	intentTransfers := input.intent.transfers
 	matches = [e |

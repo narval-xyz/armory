@@ -4,8 +4,6 @@ import data.armory.lib
 
 import rego.v1
 
-import data.armory.constants
-
 halfMatic := "500000000000000000"
 
 oneMatic := "1000000000000000000"
@@ -327,6 +325,8 @@ test_token if {
 		"chainId": 137,
 		"decimals": 6,
 	}
+
+	token == expected
 
 	# Test case insensitivity
 	token_upper := getToken("EIP155:137/ERC20:0x2791BCA1f2de4661ed88a30c99a7a9449aa84174") with data.entities as testEntities

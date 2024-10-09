@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 permit[{"policyId": "userOperationWithTransfers"}] := reason if {
 	checkAccountAssigned
 	checkAction({"signTransaction"})

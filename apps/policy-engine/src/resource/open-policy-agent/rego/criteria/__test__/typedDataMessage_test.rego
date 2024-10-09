@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 typedDataInput := {
 	"action": "signTypedData",
 	"principal": {

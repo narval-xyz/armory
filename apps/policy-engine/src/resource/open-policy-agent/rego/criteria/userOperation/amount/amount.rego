@@ -24,11 +24,11 @@ calculateIntentAmountForUserOperation(intent, currency) := result if {
 	result = amount * price
 }
 
-checkUserOperationAmount(intent, condition) if {
+checkUserOperationAmount(_, condition) if {
 	condition.operator == constants.wildcard
 }
 
-checkUserOperationAmount(intent, condition) if {
+checkUserOperationAmount(_, condition) if {
 	condition.value == constants.wildcard
 }
 

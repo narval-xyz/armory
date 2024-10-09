@@ -2,8 +2,6 @@ package armory.lib
 
 import rego.v1
 
-import data.armory.constants
-
 numberToString(n) := format_int(to_number(n), 10)
 
 parseUnits(value, decimals) := result if {

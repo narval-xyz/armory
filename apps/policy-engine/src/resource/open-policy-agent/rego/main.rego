@@ -2,70 +2,54 @@ package main
 
 import rego.v1
 
+# METADATA
+# description: returns a decision based on the evaluation of the rules
+#   a root user will always be permitted
+#   if no rule is matched, the default policy will be to forbid
+# entrypoint: true
 default evaluate := {
 	"permit": false,
 	"reasons": set(),
 	"default": true,
 }
 
-permit[{"policyId": "allow-root-user", "policyName": "Allow root user"}] := reason if {
-	checkPrincipalRole({"root"})
-
-	reason := {
-		"type": "permit",
-		"policyId": "allow-root-user",
-		"policyName": "Allow root user",
-		"approvalsSatisfied": [],
-		"approvalsMissing": [],
-	}
-}
-
-forbid[{"policyId": "default-forbid-policy", "policyName": "Default Forbid Policy"}] := reason if {
-	count(permit) == 0
-
-	reason := {
-		"type": "forbid",
-		"policyId": "default-forbid-policy",
-		"policyName": "Default Forbid Policy",
-		"approvalsSatisfied": [],
-		"approvalsMissing": [],
-	}
-}
-
-# METADATA
-# description: returns a decision based on the evaluation of the rules
-#   a root user will always be permitted
-#   if no rule is matched, the default policy will be to forbid
-# entrypoint: true
 evaluate := decision if {
-	some p in permit
-	permitSet := {p}
-	some f in forbid
-	forbidSet := {f}
+	permitSet := {matchedPermit | some matchedPermit in permit}
+	forbidSet := {matchedForbid |
+		some matchedForbid in forbid
+		matchedForbid.policyId != "default-forbid-policy"
+	}
 
 	count(forbidSet) == 0
 	count(permitSet) > 0
 
+	# If ALL Approval in permitSet has count(approval.approvalsMissing) == 0, set "permit": true.
+	# We "Stack" approvals, so multiple polices that match & each have different requirements, ALL must succeed.
+	# If you want to avoid this, the rules should get upper bounded so they're mutually exlusive.
+	# That's done at the policy-builder time, not here.
+
+	# Filter permitSet to only include objects where approvalsMissing is empty
 	filteredPermitSet := {p |
 		some p in permitSet
-		count(p.approvalsMissing) == 0
+		count(object.get(p, "approvalsMissing", [])) == 0
 	}
 
-	decision := {
+	decision = {
 		"permit": count(filteredPermitSet) == count(permitSet),
 		"reasons": permitSet,
 	}
 }
 
 evaluate := decision if {
-	some p in permit
-	permitSet := {p}
-	some f in forbid
-	forbidSet := {f}
+	forbidSet := {matchedForbid |
+		some matchedForbid in forbid
+		matchedForbid.policyId != "default-forbid-policy"
+	}
 
+	# If the forbid set is not empty, set "permit": false.
 	count(forbidSet) > 0
 
-	decision := {
+	decision = {
 		"permit": false,
 		"reasons": forbidSet,
 	}

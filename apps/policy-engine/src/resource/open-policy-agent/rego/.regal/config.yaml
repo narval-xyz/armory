@@ -1,38 +1,50 @@
 rules:
   style:
-    # TODO: reactivate that rule
-
+  # This rule is disabled in tests to let us paste in big JSON payloads without having to worry about line length.
     rule-length:
-      level: ignore
-    # TODO: reactivate that rule
+      level: error
+      ignore:
+        files:
+          - "*_test.rego"
     line-length:
-      level: ignore
+      level: error
+      ignore:
+        files:
+          - "*_test.rego"
+  # Signal TODO comments to the PR reviewer
     todo-comment:
-      # don't error on TODO comments
       level: warning
+  # We use camel case to comply with our naming conventions
     prefer-snake-case:
-      # At Narval, we use camel case to comply with our naming conventions
       level: ignore
     external-reference:
-      # TODO: set back to error and authorize external references only in entity/input querying packages
       level: ignore
-    messy-rule:
-      level: warning
   custom:
-    # custom rule configuration
-    prefer-camel-case:
-      regex: '^[a-z]+([A-Z][a-z0-9]+)*$'
+    naming-convention:
       level: error
-      message: Names should use camelCase
+      ignore:
+      # Ignore the naming convention for test files - OPA test runner looks at 'test_' prefixed rules to run.
+      # Ignore the naming convention for 'policy' files - Our policy definition can't be camelCased: permit[{...}].
+        files:
+          - "*_policies.rego"
+          - "*_test.rego"
+      conventions:
+          # allow only "private" rules and functions, i.e. those starting with
+          # underscore, or rules named "deny" or "allow"
+        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*$'
+          # one of "package", "rule", "function", "variable"
+          targets:
+            - rule
+            - function
+          description: "Use camelCase for rules and functions"
   idiomatic:
-    # TODO: reactivate without test file
-    # figure out 'main' package vs 'criteria'
+  # Having this rule is certainly wishable as it improves clarity when navigating the codebase, and also pushes for good dependency management practices and reusability of written code - as your directory needs to be separated packages.
+  # However, we can't move away too much from our god 'main' package without rewriting some logic in how we inject policies into the engine.
     directory-package-mismatch:
-      level: warning
-
-    no-defined-entrypoint:
-      # TODO: make that thing pass
-      level: warning
+      level: ignore
+  # Disabling this rule allows to call tested function from the test file without importing functionality package.
+  # Rationale of the rule is to clearly separate the tested code from the test code.
+  # We are doing this by moving test files to a separate directory, also suffixing files with _test.
   testing:
     test-outside-test-package:
       level: ignore

@@ -2,8 +2,6 @@ package armory.lib
 
 import rego.v1
 
-import data.armory.constants
-
 # DON'T CHANGE 01 AND 02
 # 01 always displays current month
 # 02 always displays current day

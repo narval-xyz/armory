@@ -4,11 +4,11 @@ import rego.v1
 
 import data.armory.constants
 
-checkUserOperationPayload(intent, condition) if {
+checkUserOperationPayload(_, condition) if {
 	condition.operator == constants.wildcard
 }
 
-checkUserOperationPayload(intent, condition) if {
+checkUserOperationPayload(_, condition) if {
 	condition.value == constants.wildcard
 }
 

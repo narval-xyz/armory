@@ -2,8 +2,6 @@ package main
 
 import rego.v1
 
-import data.armory.constants
-
 import data.armory.entities
 import data.armory.lib
 
@@ -77,7 +75,6 @@ checkApproval(approval) := result if {
 checkApproval(approval) := result if {
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserRole"
-	principal := entities.getUser(input.principal.userId)
 
 	possibleApprovers := {user |
 		some role in approval.entityIds
@@ -103,8 +100,6 @@ checkApproval(approval) := result if {
 }
 
 checkApprovals(approvals) := result if {
-	principal := entities.getUser(input.principal.userId)
-
 	approvalsMissing = [approval |
 		some approval in approvals
 		approvalCount = checkApproval(approval)
