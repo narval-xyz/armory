@@ -6,11 +6,11 @@ import {
   FIXTURE,
   policySchema,
   Request
-} from '@narval/policy-engine-shared'
+} from '@narval-xyz/armory-sdk'
 import { v4 } from 'uuid'
-import defiEntities from '../../resource/entity/defi-interaction.json'
-import defiInteractionPolicy from '../../resource/policy/set/defi-interaction.json'
-import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
+import defiEntities from '../../../resource/entity/defi-interaction.json'
+import defiInteractionPolicy from '../../../resource/policy/set/defi-interaction.json'
+import { buildAuthClient, createClient, saveDataStore } from '../../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
 

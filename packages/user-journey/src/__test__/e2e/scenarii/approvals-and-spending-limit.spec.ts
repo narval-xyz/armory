@@ -1,5 +1,5 @@
 /* eslint-disable jest/consistent-test-it */
-import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval/policy-engine-shared'
+import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval-xyz/armory-sdk'
 import { v4 } from 'uuid'
 import defaultEntities from '../../resource/entity/test.default.json'
 import approvalsAndSpendingLimit from '../../resource/policy/set/approvals-and-spending-limit.json'
@@ -9,7 +9,7 @@ const TEST_TIMEOUT_MS = 30_000
 
 jest.setTimeout(TEST_TIMEOUT_MS)
 
-export const advanceTime = (hours: number): void => {
+export const peradvanceTime = (hours: number): void => {
   jest.useFakeTimers()
   jest.setSystemTime(Date.now() + hours * 60 * 60 * 1000)
 }
@@ -25,7 +25,7 @@ const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })
 
 describe('approvals and spending limits', () => {
-  describe('members can spend up to 1 eth per day, above an approval is required', () => {
+  describe('members can spend up to 1 eth  day, above an approval is required', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
       nonce: 'test-nonce-4',

@@ -20,7 +20,8 @@
       "@narval/nestjs-shared": ["packages/nestjs-shared/src/index.ts"],
       "@narval/policy-engine-shared": ["packages/policy-engine-shared/src/index.ts"],
       "@narval/signature": ["packages/signature/src/index.ts"],
-      "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"]
+      "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"],
+      "@narval/user-journey": ["packages/user-journey/src/index.ts"]
     },
     "removeComments": true,
     "rootDir": ".",
