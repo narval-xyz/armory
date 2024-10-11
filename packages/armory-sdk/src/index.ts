@@ -7,10 +7,10 @@ export * from './lib/shared/promise'
 export * from './lib/types'
 export * from './lib/vault'
 
-export { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from './lib/http/client/auth'
-export { ClientDto, WalletDto } from './lib/http/client/vault'
-export { Signer } from './lib/shared/type'
-export { resourceId } from './lib/utils'
+export type { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from './lib/http/client/auth'
+export type { ClientDto, WalletDto } from './lib/http/client/vault'
+export type { Signer } from './lib/shared/type'
+export type { resourceId } from './lib/utils'
 
 export type { Jwk, PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
 
