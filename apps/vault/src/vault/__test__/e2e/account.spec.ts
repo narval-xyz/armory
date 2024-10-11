@@ -23,7 +23,7 @@ import { Config, load } from '../../../main.config'
 import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { Client } from '../../../shared/type/domain.type'
+import { Client, Origin } from '../../../shared/type/domain.type'
 import { AppService } from '../../core/service/app.service'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
@@ -210,7 +210,8 @@ describe('Accounts', () => {
             keyId,
             derivationPath: "m/44'/60'/0'/0/1",
             address: expect.any(String),
-            publicKey: expect.any(String)
+            publicKey: expect.any(String),
+            origin: Origin.GENERATED
           }
         ]
       })
@@ -258,21 +259,24 @@ describe('Accounts', () => {
           keyId,
           derivationPath: "m/44'/60'/0'/0/1",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         },
         {
           id: expect.any(String),
           keyId,
           derivationPath: "m/44'/60'/0'/0/2",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         },
         {
           id: expect.any(String),
           keyId,
           derivationPath: "m/44'/60'/0'/0/3",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         }
       ])
     })
@@ -305,14 +309,16 @@ describe('Accounts', () => {
           keyId,
           derivationPath: "m/44'/60'/0'/0/4",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         },
         {
           id: expect.any(String),
           keyId,
           derivationPath: "m/44'/60'/0'/0/5",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         }
       ])
     })
@@ -346,14 +352,16 @@ describe('Accounts', () => {
           keyId,
           derivationPath: "m/44'/60'/0'/0/4",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         },
         {
           id: expect.any(String),
           keyId,
           derivationPath: "m/44'/60'/0'/0/5",
           address: expect.any(String),
-          publicKey: expect.any(String)
+          publicKey: expect.any(String),
+          origin: Origin.GENERATED
         }
       ])
     })
@@ -374,7 +382,8 @@ describe('Accounts', () => {
       expect(body).toEqual({
         id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        publicKey: expect.any(String)
+        publicKey: expect.any(String),
+        origin: Origin.IMPORTED
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -402,7 +411,8 @@ describe('Accounts', () => {
       expect(body).toEqual({
         id: 'eip155:eoa:0x2c4895215973cbbd778c32c456c074b99daf8bf1',
         address: '0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
-        publicKey: expect.any(String)
+        publicKey: expect.any(String),
+        origin: Origin.IMPORTED
       })
       expect(status).toEqual(HttpStatus.CREATED)
     })
