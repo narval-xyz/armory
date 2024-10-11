@@ -10,7 +10,7 @@ export * from './lib/vault'
 export type { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from './lib/http/client/auth'
 export type { ClientDto, WalletDto } from './lib/http/client/vault'
 export type { Signer } from './lib/shared/type'
-export type { resourceId } from './lib/utils'
+export { resourceId } from './lib/utils'
 
 export type { Jwk, PrivateKey, PublicKey, RsaPublicKey } from '@narval/signature'
 
