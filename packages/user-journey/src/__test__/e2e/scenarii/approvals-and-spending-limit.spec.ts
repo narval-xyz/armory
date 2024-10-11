@@ -1,9 +1,9 @@
 /* eslint-disable jest/consistent-test-it */
-import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval-xyz/armory-sdk'
+import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../resource/entity/test.default.json'
-import approvalsAndSpendingLimit from '../../resource/policy/set/approvals-and-spending-limit.json'
-import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
+import defaultEntities from '../../../resource/entity/test.default.json'
+import approvalsAndSpendingLimit from '../../../resource/policy/set/approvals-and-spending-limit.json'
+import { buildAuthClient, createClient, saveDataStore } from '../../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
 

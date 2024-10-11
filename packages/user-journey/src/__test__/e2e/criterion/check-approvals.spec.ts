@@ -1,9 +1,9 @@
 import { Action, Decision, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../resource/entity/test.default.json'
-import twoAdminApproval from '../../resource/policy/checkApprovals/2-admin-approval-required.json'
-import adminApproval from '../../resource/policy/checkApprovals/admin-approval-required.json'
-import adminPermitAll from '../../resource/policy/checkPrincipalRole/admin-permit-all.json'
+import defaultEntities from '../../../resource/entity/test.default.json'
+import twoAdminApproval from '../../../resource/policy/checkApprovals/2-admin-approval-required.json'
+import adminApproval from '../../../resource/policy/checkApprovals/admin-approval-required.json'
+import adminPermitAll from '../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
 import {
   buildAuthClient,
   buildPolicy,
@@ -12,7 +12,7 @@ import {
   getAuthAdminApiKey,
   getAuthHost,
   saveDataStore
-} from '../../util/setup'
+} from '../../../util/setup'
 
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric

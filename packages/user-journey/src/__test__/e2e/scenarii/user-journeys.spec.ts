@@ -1,5 +1,24 @@
 /* eslint-disable jest/consistent-test-it */
 import {
+  AuthAdminClient,
+  AuthClient,
+  AuthorizationResponseDtoStatusEnum,
+  ClientDto,
+  CreateClientResponseDto,
+  DataStoreConfig,
+  EntityStoreClient,
+  Permission,
+  PolicyStoreClient,
+  SignOptions,
+  Signer,
+  VaultAdminClient,
+  VaultClient,
+  WalletDto,
+  createHttpDataStore,
+  credential,
+  resourceId
+} from '@narval/armory-sdk'
+import {
   AccessToken,
   AccountEntity,
   AccountType,
@@ -26,16 +45,6 @@ import {
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 import { english, generateMnemonic, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { AuthAdminClient, AuthClient } from '../../../auth/client'
-import { EntityStoreClient, PolicyStoreClient } from '../../../data-store/client'
-import { DataStoreConfig } from '../../../data-store/type'
-import { createHttpDataStore, credential } from '../../../data-store/util'
-import { Permission } from '../../../domain'
-import { AuthorizationResponseDtoStatusEnum, CreateClientResponseDto } from '../../../http/client/auth'
-import { ClientDto, WalletDto } from '../../../http/client/vault'
-import { SignOptions, Signer } from '../../../shared/type'
-import { resourceId } from '../../../utils'
-import { VaultAdminClient, VaultClient } from '../../../vault/client'
 
 const TEST_TIMEOUT_MS = 30_000
 
