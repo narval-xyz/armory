@@ -1,4 +1,4 @@
-import { PublicAccount } from 'apps/vault/src/shared/type/domain.type'
 import { createZodDto } from 'nestjs-zod'
+import { PublicAccount } from '../../../../shared/type/domain.type'
 
 export class AccountDto extends createZodDto(PublicAccount) {}
