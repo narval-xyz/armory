@@ -37,16 +37,22 @@ export interface AccountDto {
     'id': string;
     /**
      * 
-     * @type {string}
+     * @type {any}
      * @memberof AccountDto
      */
-    'address': string;
+    'publicKey': any;
     /**
      * 
      * @type {any}
      * @memberof AccountDto
      */
-    'publicKey': any;
+    'address': any;
+    /**
+     * 
+     * @type {WalletsDtoWalletsInnerOrigin}
+     * @memberof AccountDto
+     */
+    'origin': WalletsDtoWalletsInnerOrigin;
     /**
      * 
      * @type {string}
@@ -1272,16 +1278,22 @@ export interface WalletDtoAccount {
     'id': string;
     /**
      * 
-     * @type {string}
+     * @type {any}
      * @memberof WalletDtoAccount
      */
-    'address': string;
+    'publicKey': any;
     /**
      * 
      * @type {any}
      * @memberof WalletDtoAccount
      */
-    'publicKey': any;
+    'address': any;
+    /**
+     * 
+     * @type {WalletsDtoWalletsInnerOrigin}
+     * @memberof WalletDtoAccount
+     */
+    'origin': WalletsDtoWalletsInnerOrigin;
     /**
      * 
      * @type {string}

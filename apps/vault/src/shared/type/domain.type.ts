@@ -63,13 +63,7 @@ export const PrivateAccount = z.object({
 })
 export type PrivateAccount = z.infer<typeof PrivateAccount>
 
-export const PublicAccount = z.object({
-  id: z.string().min(1),
-  address: z.string().min(1),
-  publicKey: hexSchema.refine((val) => val.length === 132, 'Invalid hex publicKey'),
-  keyId: z.string().min(1).optional(),
-  derivationPath: z.string().min(1).optional()
-})
+export const PublicAccount = PrivateAccount.omit({ privateKey: true })
 export type PublicAccount = z.infer<typeof PublicAccount>
 
 export const LocalRootKey = z.object({

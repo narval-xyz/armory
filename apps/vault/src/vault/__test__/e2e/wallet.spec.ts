@@ -196,7 +196,8 @@ describe('Generate', () => {
         derivationPath: "m/44'/60'/0'/0/0",
         address: expect.any(String),
         publicKey: expect.any(String),
-        id: expect.any(String)
+        id: expect.any(String),
+        origin: Origin.GENERATED
       })
     })
 
@@ -277,7 +278,8 @@ describe('Generate', () => {
           publicKey: expect.any(String),
           keyId: 'my-imported-rootKey',
           derivationPath: `m/44'/60'/0'/0/0`,
-          id: resourceId(body.account.address)
+          id: resourceId(body.account.address),
+          origin: Origin.GENERATED
         },
         keyId: 'my-imported-rootKey'
       })
