@@ -1,8 +1,8 @@
 import { Action, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../resource/entity/test.default.json'
-import adminPermitAll from '../../resource/policy/checkPrincipalRole/admin-permit-all.json'
-import memberTwoTransferPerDay from '../../resource/policy/checkRateLimit/members-2-transfer-per-day.json'
+import defaultEntities from '../../../resource/entity/test.default.json'
+import adminPermitAll from '../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
+import memberTwoTransferPerDay from '../../../resource/policy/checkRateLimit/members-2-transfer-per-day.json'
 import {
   buildAuthClient,
   buildPolicy,
@@ -11,7 +11,7 @@ import {
   getAuthAdminApiKey,
   getAuthHost,
   saveDataStore
-} from '../../util/setup'
+} from '../../../util/setup'
 
 const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
