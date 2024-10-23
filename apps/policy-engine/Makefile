@@ -167,13 +167,13 @@ policy-engine/rego/syntax/check:
 policy-engine/rego/lint/fix:
 	regal fix \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
-		--config .regal/config.yaml
+		--config-file .regal/config.yaml
 
 policy-engine/rego/lint/check:
 	regal lint \
 		--format ${REGAL_FORMAT} \
 		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
-		--config .regal/config.yaml
+		--config-file .regal/config.yaml
 
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
