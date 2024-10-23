@@ -24,7 +24,6 @@ import {
   ContractRegistry,
   ContractRegistryInput,
   Intents,
-  MessageInput,
   Misc,
   NULL_METHOD_ID,
   NativeTransferInput,
@@ -183,16 +182,6 @@ export const decodeTypedData = (typedData: Eip712TypedData): SignTypedData => ({
     }
   })
 })
-
-export const decodeMessage = (message: MessageInput): SignMessage => {
-  if (!message.payload.startsWith(presignMessagePrefix)) {
-    throw new DecoderError({ message: 'Invalid message prefix', status: 400 })
-  }
-  return {
-    type: Intents.SIGN_MESSAGE,
-    message: message.payload.slice(presignMessagePrefix.length + 2)
-  }
-}
 
 export const decodePermit = (typedData: Eip712TypedData): Permit | null => {
   const { chainId, verifyingContract } = typedData.domain

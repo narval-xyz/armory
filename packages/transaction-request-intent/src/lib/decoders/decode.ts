@@ -18,7 +18,6 @@ import { Intent, TypedDataIntent } from '../intent.types'
 import { MethodsMapping, SUPPORTED_METHODS } from '../supported-methods'
 import { isSupportedMethodId } from '../typeguards'
 import {
-  decodeMessage,
   decodePermit,
   decodePermit2,
   decodeTypedData,
@@ -143,8 +142,6 @@ const decode = ({ input, config = defaultConfig }: { input: DecodeInput; config?
     }
     case InputType.TYPED_DATA:
       return decodeTypedDataInput(input)
-    case InputType.MESSAGE:
-      return decodeMessage(input)
     case InputType.RAW:
       return {
         type: Intents.SIGN_RAW,

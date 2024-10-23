@@ -15,11 +15,6 @@ export type Raw = {
   algorithm: Alg
 }
 
-export type MessageInput = {
-  type: InputType.MESSAGE
-  payload: string
-}
-
 export type RawInput = {
   type: InputType.RAW
   raw: Raw
@@ -83,7 +78,7 @@ export type Config = {
   transactionRegistry?: TransactionRegistry
   supportedMethods?: MethodsMapping
 }
-export type DecodeInput = TransactionInput | MessageInput | RawInput | TypedDataInput
+export type DecodeInput = TransactionInput | RawInput | TypedDataInput
 
 type DecodeSuccess = {
   success: true
@@ -103,7 +98,6 @@ export type SafeDecodeOutput = DecodeSuccess | DecodeError
 
 export enum InputType {
   TRANSACTION_REQUEST = 'transactionRequest',
-  MESSAGE = 'message',
   TYPED_DATA = 'typedData',
   RAW = 'raw'
 }
