@@ -1,0 +1,25 @@
+{
+  "name": "armory-e2e-testing",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/armory-e2e-testing/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/armory-e2e-testing/**/*.ts"]
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/armory-e2e-testing/jest.e2e.ts",
+        "verbose": true,
+        "runInBand": true
+      }
+    }
+  }
+}

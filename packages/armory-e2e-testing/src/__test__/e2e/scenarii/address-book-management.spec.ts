@@ -11,9 +11,9 @@ import { AddressBookAddresses } from 'packages/policy-engine-shared/src/lib/dev.
 import { v4 } from 'uuid'
 import { Hex } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import defaultEntities from '../../resource/entity/test.default.json'
-import addressBookAndRoles from '../../resource/policy/set/address-book-and-roles.json'
-import { buildAuthClient, createClient, saveDataStore } from '../../util/setup'
+import defaultEntities from '../../../resource/entity/test.default.json'
+import addressBookAndRoles from '../../../resource/policy/set/address-book-and-roles.json'
+import { buildAuthClient, createClient, saveDataStore } from '../../../util/setup'
 
 const TEST_TIMEOUT_MS = 30_000
 

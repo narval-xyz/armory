@@ -1,10 +1,18 @@
+import {
+  AuthAdminClient,
+  AuthClient,
+  AuthConfig,
+  createHttpDataStore,
+  DataStoreConfig,
+  EntityStoreClient,
+  PolicyStoreClient,
+  VaultAdminClient,
+  VaultConfig
+} from '@narval/armory-sdk'
 import { Entities, Hex, Policy, policySchema, Request } from '@narval/policy-engine-shared'
 import { buildSignerForAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { format } from 'date-fns'
 import { v4 } from 'uuid'
-import { AuthAdminClient, AuthClient, AuthConfig } from '../../auth'
-import { createHttpDataStore, DataStoreConfig, EntityStoreClient, PolicyStoreClient } from '../../data-store'
-import { VaultAdminClient, VaultConfig } from '../../vault'
 
 export const getAuthHost = () => 'http://localhost:3005'
 export const getAuthAdminApiKey = () => 'armory-admin-api-key'
