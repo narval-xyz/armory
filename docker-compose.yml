@@ -141,7 +141,7 @@ services:
     container_name: devtool
     command: ['/bin/bash', '-c', 'make devtool/start/dev']
     ports:
-      - '4200:4200'
+      - '3025:3025'
     networks:
       - armory_stack
     volumes:
