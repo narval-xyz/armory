@@ -5,7 +5,6 @@ import {
   ContractRegistry,
   InputType,
   Intents,
-  MessageInput,
   PERMIT2_ADDRESS,
   TransactionStatus,
   WalletType
