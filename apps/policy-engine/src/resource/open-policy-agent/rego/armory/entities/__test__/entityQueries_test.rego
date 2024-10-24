@@ -1,6 +1,6 @@
 package armory.entities
 
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 test_account if {
@@ -16,11 +16,11 @@ test_account if {
 	account == expected
 
 	# Test case insensitivity
-	account_upper := getAccount("eip155:eoa:0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as test_data.entities
-	account == account_upper
+	accountUpper := getAccount("eip155:eoa:0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as test_data.entities
+	account == accountUpper
 }
 
-test_account_from_address if {
+test_accountFromAddress if {
 	account := getAccount("0xddcf208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as test_data.entities
 	expected := {
 		"accountType": "eoa",
@@ -32,14 +32,14 @@ test_account_from_address if {
 	account == expected
 
 	# Test case insensitivity
-	account_upper := getAccount("0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as test_data.entities
-	account == account_upper
+	accountUpper := getAccount("0xDDCF208F219a6e6af072f2cfdc615b2c1805f98e") with data.entities as test_data.entities
+	account == accountUpper
 }
 
 test_accountGroups if {
 	# Test finding a group by ID
 	group := getAccountGroup("test-account-group-ONE-uid") with data.entities as test_data.entities
-	expected_group := {
+	expectedGroup := {
 		"id": "test-account-group-ONE-uid",
 		"accounts": [
 			"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -47,34 +47,34 @@ test_accountGroups if {
 		],
 		"name": "dev",
 	}
-	group == expected_group
+	group == expectedGroup
 
 	# Test case insensitivity
-	groups_upper := getAccountGroup("test-account-group-one-uid") with data.entities as test_data.entities
-	group == groups_upper
+	groupsUpper := getAccountGroup("test-account-group-one-uid") with data.entities as test_data.entities
+	group == groupsUpper
 
 	# Test non-existent input
-	non_existent := getAccountGroup("unknown") with data.entities as test_data.entities
-	non_existent == null
+	nonExistent := getAccountGroup("unknown") with data.entities as test_data.entities
+	nonExistent == null
 }
 
 test_userGroups if {
 	# Test finding a group by ID
 	group := getUserGroup("test-USER-group-one-uid") with data.entities as test_data.entities
-	expected_group := {
+	expectedGroup := {
 		"id": "test-USER-group-one-uid",
 		"name": "dev",
 		"users": ["test-Bob-uid", "test-Bar-uid"],
 	}
-	group == expected_group
+	group == expectedGroup
 
 	# Test case insensitivity
-	groups_upper := getUserGroup("test-user-group-one-UID") with data.entities as test_data.entities
-	group == groups_upper
+	groupsUpper := getUserGroup("test-user-group-one-UID") with data.entities as test_data.entities
+	group == groupsUpper
 
 	# Test non-existent input
-	non_existent := getUserGroup("unknown") with data.entities as test_data.entities
-	non_existent == null
+	nonExistent := getUserGroup("unknown") with data.entities as test_data.entities
+	nonExistent == null
 }
 
 test_addressBookEntry if {
@@ -88,8 +88,8 @@ test_addressBookEntry if {
 	entry == expected
 
 	# Test case insensitivity
-	entry_upper := getAddressBookEntry("EIP155:137:0xA45E21E9370ba031c5e1f47dedca74a7ce2ed7a3") with data.entities as test_data.entities
-	entry == entry_upper
+	entryUpper := getAddressBookEntry("EIP155:137:0xA45E21E9370ba031c5e1f47dedca74a7ce2ed7a3") with data.entities as test_data.entities
+	entry == entryUpper
 }
 
 test_token if {
@@ -105,8 +105,8 @@ test_token if {
 	token == expected
 
 	# Test case insensitivity
-	token_upper := getToken("EIP155:137/ERC20:0x2791BCA1f2de4661ed88a30c99a7a9449aa84174") with data.entities as test_data.entities
-	token == token_upper
+	tokenUpper := getToken("EIP155:137/ERC20:0x2791BCA1f2de4661ed88a30c99a7a9449aa84174") with data.entities as test_data.entities
+	token == tokenUpper
 }
 
 test_user if {
@@ -119,8 +119,8 @@ test_user if {
 	}
 
 	# Test case insensitivity
-	user_upper := getUser("test-BOB-uid") with data.entities as test_data.entities
-	user == user_upper
+	userUpper := getUser("test-BOB-uid") with data.entities as test_data.entities
+	user == userUpper
 }
 
 test_usersByRole if {

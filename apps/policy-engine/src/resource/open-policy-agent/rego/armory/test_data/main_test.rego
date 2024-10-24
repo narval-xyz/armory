@@ -1,4 +1,4 @@
-package armory.test_data
+package armory.testData
 
 import data.armory.lib
 import rego.v1
@@ -27,7 +27,7 @@ principalReq := {"userId": "test-bob-Uid"}
 
 resourceReq := {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98E"}
 
-transactionRequestEIP1559 := {
+transactionRequestEip1559 := {
 	"from": "0xddcf208f219a6e6af072f2cfdc615b2c1805f98E",
 	"to": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7A3",
 	"chainId": 137,

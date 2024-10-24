@@ -11,7 +11,7 @@ todayFormatted := time.format([time.now_ns(), "UTC", dateFormat])
 
 nowSeconds := nanoSecondsToSeconds(time.now_ns())
 
-secondsToNanoSeconds(epochS) := epochS * 1000000000
+secondsToNanoSeconds(epochSec) := epochSec * 1000000000
 
 nanoSecondsToSeconds(epochNs) := epochNs / 1000000000
 

@@ -1,9 +1,9 @@
 package armory.criteria
 
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
-test_transferERC721 if {
+test_transferErc721 if {
 	erc721Request = object.union(test_data.requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
@@ -23,7 +23,7 @@ test_transferERC721 if {
 	checkIntentToken({"eip155:137/erc721:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173"}) with input as erc721Request with data.entities as test_data.entities
 }
 
-test_transferERC1155 if {
+test_transferErc1155 if {
 	erc1155Request = object.union(test_data.requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},

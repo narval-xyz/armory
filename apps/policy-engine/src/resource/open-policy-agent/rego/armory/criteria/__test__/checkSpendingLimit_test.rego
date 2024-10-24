@@ -1,7 +1,7 @@
 package armory.criteria
 
 import data.armory.lib
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 spendingsFixedPeriodRequest := object.union(test_data.requestWithEip1559Transaction, {

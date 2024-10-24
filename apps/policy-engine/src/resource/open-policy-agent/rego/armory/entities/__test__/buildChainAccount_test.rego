@@ -7,7 +7,7 @@ test_extractAddressFromAccountId if {
 	address == "0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"
 }
 
-test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_Account_found if {
+test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForEoaAccountFound if {
 	entry = buildIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -35,7 +35,7 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_EOA_
 	}
 }
 
-test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smart_Account_found if {
+test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForSmartAccountFound if {
 	entry = buildIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -64,7 +64,7 @@ test_intentDestinationChainAccount_returns_implicit_managed_AddressBook_for_smar
 	}
 }
 
-test_intentDestinationChainAccount_looks_up_AddressBook_by_intent_to_property if {
+test_intentDestinationChainAccountLooksUpAddressBookByIntentToProperty if {
 	buildIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -82,7 +82,7 @@ test_intentDestinationChainAccount_looks_up_AddressBook_by_intent_to_property if
 	}
 }
 
-test_intentDestinationChainAccount_returns_AddressBook_over_Account if {
+test_intentDestinationChainAccountReturnsAddressBookOverAccount if {
 	entry = buildIntentDestinationChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
@@ -108,7 +108,7 @@ test_intentDestinationChainAccount_returns_AddressBook_over_Account if {
 	entry.classification == "internal"
 }
 
-test_intentDestinationChainAccount_ignores_case_on_look_up if {
+test_intentDestinationChainAccountIgnoresCaseOnLookup if {
 	entry = buildIntentDestinationChainAccount({
 		"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
 		"from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",

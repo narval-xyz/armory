@@ -1,6 +1,6 @@
 package armory.criteria
 
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 test_checkDestinationId if {
@@ -15,7 +15,7 @@ test_checkDestinationClassification if {
 	checkDestinationClassification({"internal"}) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
 }
 
-test_checkDestinationClassification_on_managed_Account if {
+test_checkDestinationClassificationOnManagedAccount if {
 	# NOTE: The Account address is the same from the Intent.to derived from
 	# test_data.requestWithEip1559Transaction.
 	checkDestinationClassification({"managed"}) with input as test_data.requestWithEip1559Transaction with data.entities as {"accounts": {"eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
@@ -26,7 +26,7 @@ test_checkDestinationClassification_on_managed_Account if {
 	}}}
 }
 
-test_checkDestinationClassification_on_no_addressbook_or_account if {
+test_checkDestinationClassificationOnNoAddressbookOrAccount if {
 	req = {
 		"action": "signTransaction",
 		"principal": {

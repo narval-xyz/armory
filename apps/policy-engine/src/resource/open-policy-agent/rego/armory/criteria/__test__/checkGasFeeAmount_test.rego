@@ -1,7 +1,7 @@
 package armory.criteria
 
 import data.armory.constants
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 test_checkEip1559GasFeeAmount if {

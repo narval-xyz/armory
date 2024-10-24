@@ -3,7 +3,7 @@ package armory.criteria
 import rego.v1
 
 import data.armory.constants
-import data.armory.test_data
+import data.armory.testData
 
 test_calculateIntentAmount if {
 	resOne = calculateIntentAmount(constants.wildcard) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities

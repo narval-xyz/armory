@@ -1,6 +1,6 @@
 package armory.criteria
 
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 import data.armory.constants
@@ -25,7 +25,7 @@ test_transferNative if {
 	checkIntentAmount({"operator": constants.operators.lessThanOrEqual, "value": "1000000000000000000"}) with input as nativeRequest with data.entities as test_data.entities
 }
 
-test_transferERC20 if {
+test_transferErc20 if {
 	erc20Request = object.union(test_data.requestWithEip1559Transaction, {
 		"action": "signTransaction",
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},

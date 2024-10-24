@@ -2,10 +2,10 @@ package armory.criteria.util
 
 import data.armory.constants
 import data.armory.lib
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
-test_checkERC1155TokenAmount if {
+test_checkErc1155TokenAmount if {
 	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.notEqual, "value": "2"})
 	checkTransferAmount("1", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.equal, "value": "1"})
 	checkTransferAmount("5", {"token": "eip155:137/erc1155:0x08a08d0504d4f3363a5b7fda1f5fff1c7bca8ad4/41173", "operator": constants.operators.greaterThanOrEqual, "value": "4"})

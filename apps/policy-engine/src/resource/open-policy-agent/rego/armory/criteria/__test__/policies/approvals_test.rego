@@ -1,6 +1,6 @@
 package armory.criteria
 
-import data.armory.test_data
+import data.armory.testData
 import rego.v1
 
 test_approvalByUsers if {
@@ -76,7 +76,7 @@ test_approvalByUserRoles if {
 	}
 }
 
-test_withoutApprovalsEIP1559 if {
+test_withoutApprovalsEip1559 if {
 	withoutApprovalsReq = {
 		"action": "signTransaction",
 		"transactionRequest": test_data.transactionRequestEIP1559,

@@ -21,7 +21,7 @@ rules:
     # We use camel case to comply with our naming conventions
     prefer-snake-case:
       level: ignore
-    # In the future, it can be beneficial to re-activate this rule to ensure once source of truth for data and input shape.
+    # In the future, it can be beneficial to re-activate this rule to ensure one source of truth for data and input shape.
     # It is already done for "data" part, through 'armory.entities' package. "input" is still accessed on the fly when needed.
     # If we do so, then we can ignore this rule only in querying packages.
     external-reference:
@@ -30,18 +30,30 @@ rules:
     naming-convention:
       level: error
       ignore:
-        # Ignore the naming convention for test files - OPA test runner looks at 'test_' prefixed rules to run.
         # Ignore the naming convention for 'policy' files - Our policy definition can't be camelCased: permit[{...}].
         files:
-          - '*_policies.rego'
-          - '*_test.rego'
+          - '*_policies*.rego'
       conventions:
         # We use camelCase to comply with our monorepo naming conventions
-        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*$'
+        # OPA test runner requires test rules to start with test_
+        # We can't have sets of files with different naming conventions
+        # So we tolerate both standards in the same rule
+        - pattern: '^(test_)?[a-z]+([A-Z][a-z0-9]+)*$'
           targets:
             - rule
+          description: 'Use camelCase or test_camelCase for rules'
+        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*$'
+          targets:
             - function
-          description: 'Use camelCase for rules and functions'
+          description: 'Use camelCase for all functions'
+        - pattern: ^([a-z][a-z0-9]*([A-Z][a-z0-9]+)*|\$\d+)$
+          targets:
+            - variable
+          description: 'Use camelCase for variables or "$number" for unused variables'
+        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*(\.[a-z]+([A-Z][a-z0-9]+)*)*$'
+          targets:
+            - package
+          description: 'Use camelCase.camelCase... for packages'
   # Future improvement: remove ignore for test files.
   # It would be better to strictly split test and production code in different packages to make sure test code is never hit by production one
   idiomatic:
