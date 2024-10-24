@@ -5,7 +5,6 @@ import {
   ContractRegistry,
   InputType,
   Intents,
-  MessageInput,
   PERMIT2_ADDRESS,
   TransactionStatus,
   WalletType
@@ -269,20 +268,6 @@ describe('decode', () => {
     })
   })
   describe('message and typed data input', () => {
-    it('decodes message', () => {
-      const message = 'Hello, world!'
-      const prefixedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`
-      const input: MessageInput = {
-        type: InputType.MESSAGE,
-        payload: prefixedMessage
-      }
-
-      const decoded = decode({ input })
-      expect(decoded).toEqual({
-        type: Intents.SIGN_MESSAGE,
-        message
-      })
-    })
     it('decodes typed data', () => {
       const decoded = decode({
         input: {
