@@ -82,7 +82,7 @@ export class EntityDataStoreService extends SignatureService {
       thunk: () => this.clusterService.sync(clientId)
     })
 
-    const entity = this.withExecutionTimeLog({
+    const entity = await this.withExecutionTimeLog({
       clientId,
       id: 'EntityStore.parse',
       thunk: () => EntityStore.parse(data)
