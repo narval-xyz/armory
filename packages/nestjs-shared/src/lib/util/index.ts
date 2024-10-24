@@ -1,4 +1,5 @@
 export * as coerce from './coerce.util'
+export * as log from './log.util'
 export * as secret from './secret.util'
 
 export * from './with-api-version.util'
