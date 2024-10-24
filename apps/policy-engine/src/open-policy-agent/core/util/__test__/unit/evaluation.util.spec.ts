@@ -346,24 +346,15 @@ describe('toData', () => {
       })
     })
 
-    it('indexes user groups with members by lower case id', () => {
+    it('indexes groups with members by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
-      const group = FIXTURE.USER_GROUP.Engineering
+      const group = FIXTURE.GROUP.Engineering
 
-      expect(entities.userGroups[group.id.toLowerCase()]).toEqual({
+      expect(entities.groups[group.id.toLowerCase()]).toEqual({
         id: group.id.toLowerCase(),
         users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) =>
           userId.toLowerCase()
-        )
-      })
-    })
-
-    it('indexes account groups with members by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const group = FIXTURE.ACCOUNT_GROUP.Treasury
-
-      expect(entities.accountGroups[group.id.toLowerCase()]).toEqual({
-        id: group.id.toLowerCase(),
+        ),
         accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
           accountId.toLowerCase()
         )

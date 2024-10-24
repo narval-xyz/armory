@@ -15,10 +15,12 @@ export type ValidationOption = {
   validators?: Validator[]
 }
 
-const validateUserGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+const validateGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
   const users = indexBy('id', entities.users)
-  const userGroups = indexBy('id', entities.userGroups)
+  const accounts = indexBy('id', entities.accounts)
+  const groups = indexBy('id', entities.groups)
 
+  // Validate user group members
   const userIssues: ValidationIssue[] = entities.userGroupMembers
     .filter(({ userId }) => !users[userId])
     .map(({ userId, groupId }) => ({
@@ -26,35 +28,29 @@ const validateUserGroupMemberIntegrity: Validator = (entities: Entities): Valida
       message: `couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`
     }))
 
-  const groupIssues: ValidationIssue[] = entities.userGroupMembers
-    .filter(({ groupId }) => !userGroups[groupId])
+  const userGroupIssues: ValidationIssue[] = entities.userGroupMembers
+    .filter(({ groupId }) => !groups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
       message: `couldn't create the user group member because the group ${groupId} is undefined`
     }))
 
-  return [...userIssues, ...groupIssues]
-}
-
-const validateAccountGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
-  const accounts = indexBy('id', entities.accounts)
-  const accountGroups = indexBy('id', entities.accountGroups)
-
+  // Validate account group members
   const accountIssues: ValidationIssue[] = entities.accountGroupMembers
-    .filter(({ accountId: accountId }) => !accounts[accountId])
-    .map(({ accountId: accountId, groupId }) => ({
+    .filter(({ accountId }) => !accounts[accountId])
+    .map(({ accountId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
       message: `couldn't create the account group member for group ${groupId} because the account ${accountId} is undefined`
     }))
 
-  const groupIssues: ValidationIssue[] = entities.accountGroupMembers
-    .filter(({ groupId }) => !accountGroups[groupId])
+  const accountGroupIssues: ValidationIssue[] = entities.accountGroupMembers
+    .filter(({ groupId }) => !groups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
       message: `couldn't create the account group member because the group ${groupId} is undefined`
     }))
 
-  return [...accountIssues, ...groupIssues]
+  return [...userIssues, ...userGroupIssues, ...accountIssues, ...accountGroupIssues]
 }
 
 const validateUserAccountIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
@@ -95,16 +91,14 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
     findIssues(entities.addressBook, (id) => `the address book account ${id} is duplicated`),
     findIssues(entities.credentials, (id) => `the credential ${id} is duplicated`),
     findIssues(entities.tokens, (id) => `the token ${id} is duplicated`),
-    findIssues(entities.userGroups, (id) => `the user group ${id} is duplicated`),
+    findIssues(entities.groups, (id) => `the group ${id} is duplicated`),
     findIssues(entities.users, (id) => `the user ${id} is duplicated`),
-    findIssues(entities.accountGroups, (id) => `the account group ${id} is duplicated`),
     findIssues(entities.accounts, (id) => `the account ${id} is duplicated`)
   ])
 }
 
 export const DEFAULT_VALIDATORS: Validator[] = [
-  validateUserGroupMemberIntegrity,
-  validateAccountGroupMemberIntegrity,
+  validateGroupMemberIntegrity,
   validateUserAccountIntegrity,
   validateUniqueIdDuplication
   // TODO (@wcalderipe, 21/02/25): Missing domain invariants to be validate
@@ -152,11 +146,10 @@ export const empty = (): Entities => ({
   credentials: [],
   tokens: [],
   userGroupMembers: [],
-  userGroups: [],
   userAccounts: [],
   users: [],
+  groups: [],
   accountGroupMembers: [],
-  accountGroups: [],
   accounts: []
 })
 

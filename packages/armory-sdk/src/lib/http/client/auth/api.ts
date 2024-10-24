@@ -1674,12 +1674,6 @@ export interface EntityDataStoreDtoEntityData {
     'userGroupMembers': Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserGroupsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'userGroups': Array<EntityDataStoreDtoEntityDataUserGroupsInner>;
-    /**
-     * 
      * @type {Array<EntityDataStoreDtoEntityDataUserAccountsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
@@ -1698,10 +1692,10 @@ export interface EntityDataStoreDtoEntityData {
     'accountGroupMembers': Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserGroupsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'accountGroups': Array<EntityDataStoreDtoEntityDataUserGroupsInner>;
+    'groups': Array<EntityDataStoreDtoEntityDataGroupsInner>;
     /**
      * 
      * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
@@ -1836,6 +1830,19 @@ export interface EntityDataStoreDtoEntityDataCredentialsInner {
 /**
  * 
  * @export
+ * @interface EntityDataStoreDtoEntityDataGroupsInner
+ */
+export interface EntityDataStoreDtoEntityDataGroupsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupsInner
+     */
+    'id': string;
+}
+/**
+ * 
+ * @export
  * @interface EntityDataStoreDtoEntityDataTokensInner
  */
 export interface EntityDataStoreDtoEntityDataTokensInner {
@@ -1907,19 +1914,6 @@ export interface EntityDataStoreDtoEntityDataUserGroupMembersInner {
      * @memberof EntityDataStoreDtoEntityDataUserGroupMembersInner
      */
     'groupId': string;
-}
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataUserGroupsInner
- */
-export interface EntityDataStoreDtoEntityDataUserGroupsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserGroupsInner
-     */
-    'id': string;
 }
 /**
  * 
@@ -3749,56 +3743,93 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsFilters {
     'accountGroups'?: Array<string>;
 }
 /**
+ * @type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+ * @export
+ */
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow = PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1;
+
+/**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow {
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf {
     /**
      * 
      * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
-    'type'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum;
+    'type': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum;
     /**
      * 
      * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
-    'period'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum;
+    'period': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum;
     /**
      * 
      * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
-     */
-    'value'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
     'startDate'?: number;
     /**
      * 
      * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
     'endDate'?: number;
 }
 
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum = {
-    Rolling: 'rolling',
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum = {
     Fixed: 'fixed'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum];
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum = {
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum];
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum = {
     _1d: '1d',
     _1m: '1m',
     _1y: '1y'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum];
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum];
+
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'type': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'value': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'startDate'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'endDate'?: number;
+}
+
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum = {
+    Rolling: 'rolling'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum];
 
 /**
  * 

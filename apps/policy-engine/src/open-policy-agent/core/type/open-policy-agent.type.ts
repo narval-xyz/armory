@@ -5,11 +5,10 @@ import {
   SerializedTransactionRequest,
   SerializedUserOperationV6,
   accountEntitySchema,
-  accountGroupEntitySchema,
   addressBookAccountEntitySchema,
+  groupEntitySchema,
   tokenEntitySchema,
-  userEntitySchema,
-  userGroupEntitySchema
+  userEntitySchema
 } from '@narval/policy-engine-shared'
 import { Intent } from '@narval/transaction-request-intent'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -39,31 +38,25 @@ export type Input = {
 // many Rego rules performing a look up on the dataset.
 const Id = z.string().toLowerCase()
 
-export const UserGroup = userGroupEntitySchema.extend({
-  id: Id,
-  users: z.array(Id)
-})
-export type UserGroup = z.infer<typeof UserGroup>
-
 export const Account = accountEntitySchema.extend({
   id: Id,
   assignees: z.array(Id)
 })
 export type Account = z.infer<typeof Account>
 
-export const AccountGroup = accountGroupEntitySchema.extend({
+export const Group = groupEntitySchema.extend({
   id: Id,
+  users: z.array(Id),
   accounts: z.array(Id)
 })
-export type AccountGroup = z.infer<typeof AccountGroup>
+export type Group = z.infer<typeof Group>
 
 export const Data = z.object({
   entities: z.object({
     addressBook: z.record(Id, addressBookAccountEntitySchema.extend({ id: Id })),
     tokens: z.record(Id, tokenEntitySchema.extend({ id: Id })),
     users: z.record(Id, userEntitySchema.extend({ id: Id })),
-    accountGroups: z.record(Id, AccountGroup),
-    userGroups: z.record(Id, UserGroup),
+    groups: z.record(Id, Group),
     accounts: z.record(Id, Account)
   })
 })
