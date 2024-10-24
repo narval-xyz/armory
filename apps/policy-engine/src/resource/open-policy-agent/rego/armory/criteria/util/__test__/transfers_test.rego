@@ -15,7 +15,7 @@ test_checkErc1155TokenAmount if {
 }
 
 test_transformIntentToTransferObject if {
-	res = transformIntentToTransferObject(input.intent) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = transformIntentToTransferObject(input.intent) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 
 	expected := {
 		"amount": "1000000000000000000",

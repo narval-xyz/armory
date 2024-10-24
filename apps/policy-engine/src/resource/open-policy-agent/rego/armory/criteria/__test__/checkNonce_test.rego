@@ -4,7 +4,7 @@ import data.armory.testData
 import rego.v1
 
 test_checkNonceExists if {
-	checkNonceExists with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	checkNonceExists with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 }
 
 test_checkNonceNotExists if {
@@ -20,5 +20,5 @@ test_checkNonceNotExists if {
 		"type": "2",
 	}}
 
-	checkNonceNotExists with input as requestWithoutNonce with data.entities as test_data.entities
+	checkNonceNotExists with input as requestWithoutNonce with data.entities as testData.entities
 }

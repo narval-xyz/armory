@@ -125,7 +125,7 @@ feedsReq := [
 
 requestWithEip1559Transaction := {
 	"action": "signTransaction",
-	"transactionRequest": transactionRequestEIP1559,
+	"transactionRequest": transactionRequestEip1559,
 	"principal": principalReq,
 	"resource": resourceReq,
 	"intent": intentReq,

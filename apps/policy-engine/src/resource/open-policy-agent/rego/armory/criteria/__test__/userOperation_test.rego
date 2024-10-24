@@ -4,7 +4,7 @@ import data.armory.testData
 import rego.v1
 
 test_checkUserOperationIntents if {
-	userOperationRequest = object.union(test_data.requestWithEip1559Transaction, {"intent": {
+	userOperationRequest = object.union(testData.requestWithEip1559Transaction, {"intent": {
 		"type": "userOperation",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"entrypoint": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -73,5 +73,5 @@ test_checkUserOperationIntents if {
 		},
 	]
 
-	checkUserOperationIntents(conditions) with input as userOperationRequest with data.entities as test_data.entities
+	checkUserOperationIntents(conditions) with input as userOperationRequest with data.entities as testData.entities
 }

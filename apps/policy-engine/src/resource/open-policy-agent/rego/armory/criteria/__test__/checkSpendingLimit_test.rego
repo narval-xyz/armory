@@ -4,7 +4,7 @@ import data.armory.lib
 import data.armory.testData
 import rego.v1
 
-spendingsFixedPeriodRequest := object.union(test_data.requestWithEip1559Transaction, {
+spendingsFixedPeriodRequest := object.union(testData.requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -82,7 +82,7 @@ test_calculateCurrentSpendingsByRollingPeriodPerToken if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 400000000000000000
 }
 
@@ -99,7 +99,7 @@ test_calculateCurrentSpendingsByRollingPeriodPerUsd if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -115,7 +115,7 @@ test_calculateCurrentSpendingsByRollingPerioWithBob if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 1000000000000000000
 }
 
@@ -131,7 +131,7 @@ test_calculateCurrentSpendingsByFixedPeriod if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testData.entities
 	res == 400000000000000000
 }
 
@@ -148,7 +148,7 @@ test_calculateCurrentSpendingsByFixedPeriodPerUsd if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testData.entities
 	res == 396000000000000000 # convert amount to fiat
 }
 
@@ -164,7 +164,7 @@ test_calculateCurrentSpendingsByFixedPeriodPerToken if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as spendingsFixedPeriodRequest with data.entities as testData.entities
 	res == 0
 }
 
@@ -174,24 +174,24 @@ test_calculateCurrentSpendingsByPrincipal if {
 		"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
 	}}
 
-	res = calculateCurrentSpendings(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 1000000000000000000
 }
 
 test_calculateCurrentSpendingsByPrincipalWithAlice if {
-	prePrincipalReq = object.union(test_data.requestWithEip1559Transaction, {"principal": {"userId": "test-alice-uid"}})
+	prePrincipalReq = object.union(testData.requestWithEip1559Transaction, {"principal": {"userId": "test-alice-uid"}})
 
 	conditions = {"filters": {
 		"perPrincipal": true,
 		"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
 	}}
 
-	res = calculateCurrentSpendings(conditions) with input as prePrincipalReq with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as prePrincipalReq with data.entities as testData.entities
 	res == 1600000000000000000
 }
 
 test_calculateCurrentSpendingsForUserOperationIntent if {
-	userOperationRequest = object.union(test_data.requestWithEip1559Transaction, {
+	userOperationRequest = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"intent": {
 			"type": "userOperation",
@@ -235,7 +235,7 @@ test_calculateCurrentSpendingsForUserOperationIntent if {
 		},
 	}
 
-	res = calculateCurrentSpendings(conditions) with input as userOperationRequest with data.entities as test_data.entities
+	res = calculateCurrentSpendings(conditions) with input as userOperationRequest with data.entities as testData.entities
 
 	res == 2400000000000000000
 }

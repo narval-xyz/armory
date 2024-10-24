@@ -72,12 +72,12 @@ typedDataInput := {
 test_checkIntentTypedDataMessageCondition if {
 	filters := [[{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}]]
 
-	checkIntentTypedDataMessage(filters) with input as typedDataInput with data.entities as test_data.entities
+	checkIntentTypedDataMessage(filters) with input as typedDataInput with data.entities as testData.entities
 }
 
 test_checkIntentTypedDataMessageConditionOneWrongValueOneCorrectValueInConditionShouldNotMatch if {
 	conditions := [[{"key": "walletAddress", "value": "0xwrongaddress"}, {"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}]]
-	not checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as test_data.entities
+	not checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as testData.entities
 }
 
 test_checkIntentTypedDataMessageConditionOneWrongConditionOneCorrectConditionShouldMatch if {
@@ -85,5 +85,5 @@ test_checkIntentTypedDataMessageConditionOneWrongConditionOneCorrectConditionSho
 		[{"key": "condition", "value": "I agree to link this wallet to my Immutable Passport account."}],
 		[{"key": "wrongKey", "value": "0x299697552cd035afd7e08600c4001fff48498263"}],
 	]
-	checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as test_data.entities
+	checkIntentTypedDataMessage(conditions) with input as typedDataInput with data.entities as testData.entities
 }

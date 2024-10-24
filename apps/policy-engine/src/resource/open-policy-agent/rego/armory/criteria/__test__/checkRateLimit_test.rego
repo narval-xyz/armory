@@ -4,7 +4,7 @@ import data.armory.lib
 import data.armory.testData
 import rego.v1
 
-rateFixedPeriodRequest := object.union(test_data.requestWithEip1559Transaction, {
+rateFixedPeriodRequest := object.union(testData.requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"intent": {
 		"type": "transferERC20",
@@ -83,7 +83,7 @@ test_calculateCurrentRateByRollingPeriod if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 2
 }
 
@@ -100,7 +100,7 @@ test_calculateCurrentRateByRollingPeriodAlice if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 3
 }
 
@@ -117,7 +117,7 @@ test_calculateCurrentRateByRollingPeriodBob if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 	res == 1
 }
 
@@ -134,7 +134,7 @@ test_calculateCurrentRateByFixedPeriodAlice if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as testData.entities
 
 	res == 2
 }
@@ -152,7 +152,7 @@ test_calculateCurrentRateByFixedPeriodBob if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as rateFixedPeriodRequest with data.entities as testData.entities
 	res == 0
 }
 
@@ -199,7 +199,7 @@ test_calculateCurrentRateForUserOperationIntent if {
 		},
 	}
 
-	res = calculateCurrentRate(conditions) with input as userOperationRequest with data.entities as test_data.entities
+	res = calculateCurrentRate(conditions) with input as userOperationRequest with data.entities as testData.entities
 
 	res == 2
 }

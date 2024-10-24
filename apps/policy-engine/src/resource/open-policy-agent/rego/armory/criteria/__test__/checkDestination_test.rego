@@ -4,21 +4,21 @@ import data.armory.testData
 import rego.v1
 
 test_checkDestinationId if {
-	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	checkDestinationId({"eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 }
 
 test_checkDestinationAddress if {
-	checkDestinationAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	checkDestinationAddress({"0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3"}) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 }
 
 test_checkDestinationClassification if {
-	checkDestinationClassification({"internal"}) with input as test_data.requestWithEip1559Transaction with data.entities as test_data.entities
+	checkDestinationClassification({"internal"}) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
 }
 
 test_checkDestinationClassificationOnManagedAccount if {
 	# NOTE: The Account address is the same from the Intent.to derived from
-	# test_data.requestWithEip1559Transaction.
-	checkDestinationClassification({"managed"}) with input as test_data.requestWithEip1559Transaction with data.entities as {"accounts": {"eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
+	# testData.requestWithEip1559Transaction.
+	checkDestinationClassification({"managed"}) with input as testData.requestWithEip1559Transaction with data.entities as {"accounts": {"eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3": {
 		"id": "eip155:eoa:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"address": "0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
 		"accountType": "eoa",
@@ -57,5 +57,5 @@ test_checkDestinationClassificationOnNoAddressbookOrAccount if {
 		"resource": {"uid": "eip155:eoa:0x0301e2724a40e934cce3345928b88956901aa127"},
 	}
 
-	not checkDestinationClassification({"managed"}) with input as req with data.entities as test_data.entities
+	not checkDestinationClassification({"managed"}) with input as req with data.entities as testData.entities
 }

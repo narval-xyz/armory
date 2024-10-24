@@ -3,13 +3,13 @@ package armory.criteria
 import data.armory.testData
 import rego.v1
 
-spendingLimitReq := object.union(test_data.requestWithEip1559Transaction, {
+spendingLimitReq := object.union(testData.requestWithEip1559Transaction, {
 	"principal": {"userId": "test-alice-uid"},
 	"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"},
 })
 
 test_spendingLimitByRole if {
-	res = forbid[{"policyId": "spendingLimitByRole"}] with input as spendingLimitReq with data.entities as test_data.entities
+	res = forbid[{"policyId": "spendingLimitByRole"}] with input as spendingLimitReq with data.entities as testData.entities
 
 	res == {
 		"type": "forbid",
@@ -20,7 +20,7 @@ test_spendingLimitByRole if {
 }
 
 test_spendingLimitByUser if {
-	res = forbid[{"policyId": "spendingLimitByUser"}] with input as spendingLimitReq with data.entities as test_data.entities
+	res = forbid[{"policyId": "spendingLimitByUser"}] with input as spendingLimitReq with data.entities as testData.entities
 
 	res == {
 		"type": "forbid",
@@ -31,7 +31,7 @@ test_spendingLimitByUser if {
 }
 
 test_spendingLimitByAccountResource if {
-	res = forbid[{"policyId": "spendingLimitByAccountResource"}] with input as spendingLimitReq with data.entities as test_data.entities
+	res = forbid[{"policyId": "spendingLimitByAccountResource"}] with input as spendingLimitReq with data.entities as testData.entities
 
 	res == {
 		"type": "forbid",
@@ -67,7 +67,7 @@ test_spendingLimitByUserGroup if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.elevenHoursAgo,
+						"timestamp": testData.elevenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -76,7 +76,7 @@ test_spendingLimitByUserGroup if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.tenHoursAgo,
+						"timestamp": testData.tenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-bar-uid",
 					},
@@ -85,7 +85,7 @@ test_spendingLimitByUserGroup if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.twentyHoursAgo,
+						"timestamp": testData.twentyHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -94,7 +94,7 @@ test_spendingLimitByUserGroup if {
 		],
 	})
 
-	res = forbid[{"policyId": "spendingLimitByUserGroup"}] with input as spendingLimitByUserGroupReq with data.entities as test_data.entities
+	res = forbid[{"policyId": "spendingLimitByUserGroup"}] with input as spendingLimitByUserGroupReq with data.entities as testData.entities
 
 	res == {
 		"type": "forbid",
@@ -130,7 +130,7 @@ test_spendingLimitByAccountGroup if {
 						"from": "eip155:137:0xbbbb208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.elevenHoursAgo,
+						"timestamp": testData.elevenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -139,7 +139,7 @@ test_spendingLimitByAccountGroup if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.tenHoursAgo,
+						"timestamp": testData.tenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-bar-uid",
 					},
@@ -148,7 +148,7 @@ test_spendingLimitByAccountGroup if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99"},
-						"timestamp": test_data.twentyHoursAgo,
+						"timestamp": testData.twentyHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -157,7 +157,7 @@ test_spendingLimitByAccountGroup if {
 		],
 	})
 
-	res = forbid[{"policyId": "spendingLimitByAccountGroup"}] with input as spendingLimitByAccountGroupReq with data.entities as test_data.entities
+	res = forbid[{"policyId": "spendingLimitByAccountGroup"}] with input as spendingLimitByAccountGroupReq with data.entities as testData.entities
 
 	res == {
 		"type": "forbid",
@@ -168,7 +168,7 @@ test_spendingLimitByAccountGroup if {
 }
 
 test_permitRuleSpendingLimitUnsatisfied if {
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as test_data.entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [{
@@ -184,7 +184,7 @@ test_permitRuleSpendingLimitUnsatisfied if {
 }
 
 test_permitRuleSpendingLimitSatisfied if {
-	spendingLimitWithApprovalsReq = object.union(test_data.requestWithEip1559Transaction, {
+	spendingLimitWithApprovalsReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},
@@ -192,7 +192,7 @@ test_permitRuleSpendingLimitSatisfied if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as test_data.entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [],
@@ -208,7 +208,7 @@ test_permitRuleSpendingLimitSatisfied if {
 }
 
 test_spendingLimitWithFixedPeriod if {
-	spendingLimitWithFixedPeriodReq = object.union(test_data.requestWithEip1559Transaction, {
+	spendingLimitWithFixedPeriodReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},
@@ -245,7 +245,7 @@ test_spendingLimitWithFixedPeriod if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-						"timestamp": test_data.elevenHoursAgo,
+						"timestamp": testData.elevenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -254,7 +254,7 @@ test_spendingLimitWithFixedPeriod if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-						"timestamp": test_data.tenHoursAgo,
+						"timestamp": testData.tenHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -263,7 +263,7 @@ test_spendingLimitWithFixedPeriod if {
 						"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 						"token": "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
 						"rates": {"fiat:usd": "0.99", "fiat:eur": "1.10"},
-						"timestamp": test_data.twentyHoursAgo,
+						"timestamp": testData.twentyHoursAgo,
 						"chainId": 137,
 						"initiatedBy": "test-alice-uid",
 					},
@@ -272,7 +272,7 @@ test_spendingLimitWithFixedPeriod if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as test_data.entities
+	res = permit[{"policyId": "spendingLimitWithFixedPeriod"}] with input as spendingLimitWithFixedPeriodReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [],
@@ -284,8 +284,8 @@ test_spendingLimitWithFixedPeriod if {
 
 # If we have an empty historical-transfer-feed, then that's okay; it's the first one
 test_spendingLimitWithEmptyHistoricalDataFeed if {
-	transactionRequest = object.union(test_data.requestWithEip1559Transaction.transactionRequest, {"value": "0x10F0CF064DD5920000000"})
-	spendingLimitWithApprovalsReq = object.union(test_data.requestWithEip1559Transaction, {
+	transactionRequest = object.union(testData.requestWithEip1559Transaction.transactionRequest, {"value": "0x10F0CF064DD5920000000"})
+	spendingLimitWithApprovalsReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},
@@ -315,13 +315,13 @@ test_spendingLimitWithEmptyHistoricalDataFeed if {
 		],
 	})
 
-	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as test_data.entities
+	res = permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testData.entities
 }
 
 # If we do not even have a historical-transfer-feed, then spending limits will not match at all; otherwise we'd acccidentally treat every tx as the "first" one, being overly permissive.
 test_spendingLimitWithoutHistoricalDataFeed if {
-	transactionRequest = object.union(test_data.requestWithEip1559Transaction.transactionRequest, {"value": "0x10F0CF064DD5920000000"})
-	spendingLimitWithApprovalsReq = object.union(test_data.requestWithEip1559Transaction, {
+	transactionRequest = object.union(testData.requestWithEip1559Transaction.transactionRequest, {"value": "0x10F0CF064DD5920000000"})
+	spendingLimitWithApprovalsReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"resource": {"uid": "eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"}, "approvals": [
 			{"userId": "test-bob-uid"},
@@ -344,7 +344,7 @@ test_spendingLimitWithoutHistoricalDataFeed if {
 		}],
 	})
 
-	not permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as test_data.entities
+	not permit[{"policyId": "spendingLimitWithApprovals"}] with input as spendingLimitWithApprovalsReq with data.entities as testData.entities
 }
 
 test_spendingLimitWithRange if {
@@ -393,7 +393,7 @@ test_spendingLimitWithRange if {
 		],
 	}
 
-	res = permit[{"policyId": "spendingLimitWithRange"}] with input as spendingLimitWithRangeReq with data.entities as test_data.entities
+	res = permit[{"policyId": "spendingLimitWithRange"}] with input as spendingLimitWithRangeReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [],

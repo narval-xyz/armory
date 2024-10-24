@@ -10,8 +10,8 @@ test_permission if {
 		"resource": {"uid": "vault"},
 		"permissions": ["wallet:read", "wallet:create", "wallet:import"],
 	}
-	checkAction({"grantPermission"}) with input as grantPermissionRequest with data.entities as test_data.entities
-	checkPrincipalRole({"admin"}) with input as grantPermissionRequest with data.entities as test_data.entities
-	checkResource({"vault"}) with input as grantPermissionRequest with data.entities as test_data.entities
-	checkPermission({"wallet:read", "wallet:create", "wallet:import"}) with input as grantPermissionRequest with data.entities as test_data.entities
+	checkAction({"grantPermission"}) with input as grantPermissionRequest with data.entities as testData.entities
+	checkPrincipalRole({"admin"}) with input as grantPermissionRequest with data.entities as testData.entities
+	checkResource({"vault"}) with input as grantPermissionRequest with data.entities as testData.entities
+	checkPermission({"wallet:read", "wallet:create", "wallet:import"}) with input as grantPermissionRequest with data.entities as testData.entities
 }

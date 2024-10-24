@@ -4,7 +4,7 @@ import data.armory.testData
 import rego.v1
 
 test_approvalByUsers if {
-	approvalByUsersReq = object.union(test_data.requestWithEip1559Transaction, {
+	approvalByUsersReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bob-uid"},
@@ -12,7 +12,7 @@ test_approvalByUsers if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUsers"}] with input as approvalByUsersReq with data.entities as test_data.entities
+	res = permit[{"policyId": "approvalByUsers"}] with input as approvalByUsersReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [],
@@ -28,7 +28,7 @@ test_approvalByUsers if {
 }
 
 test_approvalByUserGroups if {
-	approvalByUserGroupsReq = object.union(test_data.requestWithEip1559Transaction, {
+	approvalByUserGroupsReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bob-uid"},
@@ -36,7 +36,7 @@ test_approvalByUserGroups if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as test_data.entities
+	res = permit[{"policyId": "approvalByUserGroups"}] with input as approvalByUserGroupsReq with data.entities as testData.entities
 
 	expected := {
 		"approvalsMissing": [],
@@ -53,7 +53,7 @@ test_approvalByUserGroups if {
 }
 
 test_approvalByUserRoles if {
-	approvalByUserRolesReq = object.union(test_data.requestWithEip1559Transaction, {
+	approvalByUserRolesReq = object.union(testData.requestWithEip1559Transaction, {
 		"principal": {"userId": "test-alice-uid"},
 		"approvals": [
 			{"userId": "test-bar-uid"},
@@ -61,7 +61,7 @@ test_approvalByUserRoles if {
 		],
 	})
 
-	res = permit[{"policyId": "approvalByUserRoles"}] with input as approvalByUserRolesReq with data.entities as test_data.entities
+	res = permit[{"policyId": "approvalByUserRoles"}] with input as approvalByUserRolesReq with data.entities as testData.entities
 
 	res == {
 		"approvalsMissing": [],
@@ -79,13 +79,13 @@ test_approvalByUserRoles if {
 test_withoutApprovalsEip1559 if {
 	withoutApprovalsReq = {
 		"action": "signTransaction",
-		"transactionRequest": test_data.transactionRequestEIP1559,
-		"principal": test_data.principalReq,
-		"resource": test_data.resourceReq,
-		"intent": test_data.intentReq,
+		"transactionRequest": testData.transactionRequestEip1559,
+		"principal": testData.principalReq,
+		"resource": testData.resourceReq,
+		"intent": testData.intentReq,
 	}
 
-	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as test_data.entities
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as testData.entities
 
 	res == {
 		"type": "permit",
@@ -98,13 +98,13 @@ test_withoutApprovalsEip1559 if {
 test_withoutApprovalsLegacy if {
 	withoutApprovalsReq = {
 		"action": "signTransaction",
-		"transactionRequest": test_data.transactionRequestLegacy,
-		"principal": test_data.principalReq,
-		"resource": test_data.resourceReq,
-		"intent": test_data.intentReq,
+		"transactionRequest": testData.transactionRequestLegacy,
+		"principal": testData.principalReq,
+		"resource": testData.resourceReq,
+		"intent": testData.intentReq,
 	}
 
-	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as test_data.entities
+	res := permit[{"policyId": "withoutApprovals"}] with input as withoutApprovalsReq with data.entities as testData.entities
 
 	res == {
 		"type": "permit",
