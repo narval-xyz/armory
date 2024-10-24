@@ -8,7 +8,7 @@ test_extractAddressFromAccountId if {
 }
 
 test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForEoaAccountFound if {
-	entry = buildIntentDestinationChainAccount({
+	entry = intentDestinationToChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -36,7 +36,7 @@ test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForEoaAccount
 }
 
 test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForSmartAccountFound if {
-	entry = buildIntentDestinationChainAccount({
+	entry = intentDestinationToChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -65,7 +65,7 @@ test_intentDestinationChainAccountReturnsImplicitManagedAddressBookForSmartAccou
 }
 
 test_intentDestinationChainAccountLooksUpAddressBookByIntentToProperty if {
-	buildIntentDestinationChainAccount({
+	intentDestinationToChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -83,7 +83,7 @@ test_intentDestinationChainAccountLooksUpAddressBookByIntentToProperty if {
 }
 
 test_intentDestinationChainAccountReturnsAddressBookOverAccount if {
-	entry = buildIntentDestinationChainAccount({
+	entry = intentDestinationToChainAccount({
 		"type": "transferERC20",
 		"from": "eip155:137:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 		"to": "eip155:137:0xa45e21e9370ba031c5e1f47dedca74a7ce2ed7a3",
@@ -109,7 +109,7 @@ test_intentDestinationChainAccountReturnsAddressBookOverAccount if {
 }
 
 test_intentDestinationChainAccountIgnoresCaseOnLookup if {
-	entry = buildIntentDestinationChainAccount({
+	entry = intentDestinationToChainAccount({
 		"to": "eip155:1:0x76d1b7f9b3f69c435eef76a98a415332084a856f",
 		"from": "eip155:1:0x0301e2724a40e934cce3345928b88956901aa127",
 		"type": "transferNative",

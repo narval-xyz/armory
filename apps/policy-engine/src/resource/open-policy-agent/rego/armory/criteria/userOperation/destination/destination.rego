@@ -11,6 +11,6 @@ checkUserOperationDestination(key, _, condition) if {
 }
 
 checkUserOperationDestination(key, intent, condition) if {
-	destination = entities.buildIntentDestinationChainAccount(intent)
+	destination = entities.intentDestinationToChainAccount(intent)
 	destination[key] in condition[key]
 }

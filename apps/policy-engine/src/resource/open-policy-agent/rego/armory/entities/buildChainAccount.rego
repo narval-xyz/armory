@@ -97,7 +97,7 @@ buildIntentSourceChainAccount(intent) := source if {
 }
 
 # Get destination information when there is neither account or address book entry, but an intent.to
-buildIntentDestinationChainAccount(intent) := destination if {
+intentDestinationToChainAccount(intent) := destination if {
 	intent.to
 	chainAccount = parseChainAccount(intent.to)
 	getAccount(chainAccount.address) == null
@@ -110,7 +110,7 @@ buildIntentDestinationChainAccount(intent) := destination if {
 }
 
 # Get destination information when there is only an account entry
-buildIntentDestinationChainAccount(intent) := destination if {
+intentDestinationToChainAccount(intent) := destination if {
 	chainAccount = parseChainAccount(intent.to)
 	getAddressBookEntry(intent.to) == null
 	accountData = getAccount(chainAccount.address)
@@ -127,7 +127,7 @@ buildIntentDestinationChainAccount(intent) := destination if {
 }
 
 # Get destination information when there is only an address book entry
-buildIntentDestinationChainAccount(intent) := destination if {
+intentDestinationToChainAccount(intent) := destination if {
 	chainAccount = parseChainAccount(intent.to)
 	getAccount(chainAccount.address) == null
 	addressBookData = getAddressBookEntry(intent.to)
@@ -141,7 +141,7 @@ buildIntentDestinationChainAccount(intent) := destination if {
 }
 
 # Get destination information when there is both an account and address book entry
-buildIntentDestinationChainAccount(intent) := destination if {
+intentDestinationToChainAccount(intent) := destination if {
 	addressBookData = getAddressBookEntry(intent.to)
 	chainAccount = parseChainAccount(intent.to)
 	accountData = getAccount(chainAccount.address)
