@@ -1,8 +1,8 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { EntityStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
-import { SetEntityStoreResponse } from '../../http/rest/dto/set-entity-store.dto'
 import { EntityDataStoreRepository } from '../../persistence/repository/entity-data-store.repository'
 import { SignatureService } from './signature.service'
 
@@ -11,19 +11,36 @@ export class EntityDataStoreService extends SignatureService {
   constructor(
     private entityDataStoreRepository: EntityDataStoreRepository,
     private clientService: ClientService,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    loggerService: LoggerService
   ) {
-    super()
+    super(loggerService)
   }
 
   async getEntities(clientId: string): Promise<EntityStore | null> {
-    const entityStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
+    const entityStore = await this.withExecutionTimeLog({
+      clientId,
+      id: 'entityDataStoreRepository.getLatestDataStore',
+      thunk: () => this.entityDataStoreRepository.getLatestDataStore(clientId)
+    })
 
-    return entityStore ? EntityStore.parse(entityStore.data) : null
+    if (entityStore) {
+      return this.withExecutionTimeLog({
+        clientId,
+        id: 'EntityStore.parse',
+        thunk: () => EntityStore.parse(entityStore.data)
+      })
+    }
+
+    return null
   }
 
   async setEntities(clientId: string, payload: EntityStore) {
-    const client = await this.clientService.findById(clientId)
+    const client = await this.withExecutionTimeLog({
+      clientId,
+      id: 'clientService.findById',
+      thunk: () => this.clientService.findById(clientId)
+    })
 
     if (!client) {
       throw new NotFoundException({
@@ -32,25 +49,49 @@ export class EntityDataStoreService extends SignatureService {
       })
     }
 
-    const latestDataStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
-
-    await this.verifySignature({
-      payload,
-      keys: client.dataStore.entityPublicKeys,
-      date: latestDataStore?.createdAt
+    const latestDataStore = await this.withExecutionTimeLog({
+      clientId,
+      id: 'entityDataStoreRepository.getLatestDataStore',
+      thunk: () => this.entityDataStoreRepository.getLatestDataStore(clientId)
     })
 
-    const { data, version } = await this.entityDataStoreRepository.setDataStore(clientId, {
-      version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
-      data: EntityStore.parse(payload)
+    await this.withExecutionTimeLog({
+      clientId,
+      id: 'verifySignature(entity)',
+      thunk: () =>
+        this.verifySignature({
+          payload,
+          keys: client.dataStore.entityPublicKeys,
+          date: latestDataStore?.createdAt
+        })
     })
 
-    const success = await this.clusterService.sync(clientId)
+    const { data, version } = await this.withExecutionTimeLog({
+      clientId,
+      id: 'entityDataStoreRepository.setDataStore',
+      thunk: () =>
+        this.entityDataStoreRepository.setDataStore(clientId, {
+          version: latestDataStore?.version ? latestDataStore.version + 1 : 1,
+          data: EntityStore.parse(payload)
+        })
+    })
 
-    return SetEntityStoreResponse.parse({
+    const success = await this.withExecutionTimeLog({
+      clientId,
+      id: 'clusterService.sync(entity)',
+      thunk: () => this.clusterService.sync(clientId)
+    })
+
+    const entity = this.withExecutionTimeLog({
+      clientId,
+      id: 'EntityStore.parse',
+      thunk: () => EntityStore.parse(data)
+    })
+
+    return {
       latestSync: { success },
-      entity: EntityStore.parse(data),
+      entity,
       version
-    })
+    }
   }
 }

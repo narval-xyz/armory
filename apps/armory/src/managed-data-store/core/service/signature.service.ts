@@ -1,9 +1,15 @@
+import { LoggerService, log } from '@narval/nestjs-shared'
 import { Jwk, Jwt, decodeJwt, hash, verifyJwt } from '@narval/signature'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus } from '@nestjs/common'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
-@Injectable()
-export class SignatureService {
+export abstract class SignatureService {
+  protected loggerService: LoggerService
+
+  constructor(loggerService: LoggerService) {
+    this.loggerService = loggerService
+  }
+
   async verifySignature(params: {
     keys: Jwk[]
     payload: { signature: string; data: unknown }
@@ -61,5 +67,22 @@ export class SignatureService {
     }
 
     return true
+  }
+
+  protected withExecutionTimeLog<T>({
+    id,
+    thunk,
+    clientId
+  }: {
+    id: string
+    thunk: () => T | Promise<T>
+    clientId: string
+  }): T | Promise<T> {
+    return log.withExecutionTime({
+      thunk,
+      startContext: { clientId },
+      logger: this.loggerService,
+      id: `${this.constructor.name}.${id}`
+    })
   }
 }
