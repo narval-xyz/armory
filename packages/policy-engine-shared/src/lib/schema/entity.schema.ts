@@ -38,10 +38,6 @@ export const userEntitySchema = z.object({
   role: userRoleSchema
 })
 
-export const userGroupEntitySchema = z.object({
-  id: z.string()
-})
-
 export const userAccountEntitySchema = z.object({
   userId: z.string(),
   accountId: z.string()
@@ -57,10 +53,6 @@ export const accountEntitySchema = z.object({
   address: addressSchema,
   accountType: accountTypeSchema,
   chainId: z.number().optional()
-})
-
-export const accountGroupEntitySchema = z.object({
-  id: z.string()
 })
 
 export const accountGroupMemberEntitySchema = z.object({
@@ -89,15 +81,18 @@ export const tokenEntitySchema = z.object({
   decimals: z.number()
 })
 
+export const groupEntitySchema = z.object({
+  id: z.string()
+})
+
 export const entitiesSchema = z.object({
   addressBook: z.array(addressBookAccountEntitySchema),
   credentials: z.array(credentialEntitySchema),
   tokens: z.array(tokenEntitySchema),
   userGroupMembers: z.array(userGroupMemberEntitySchema),
-  userGroups: z.array(userGroupEntitySchema),
   userAccounts: z.array(userAccountEntitySchema),
   users: z.array(userEntitySchema),
   accountGroupMembers: z.array(accountGroupMemberEntitySchema),
-  accountGroups: z.array(accountGroupEntitySchema),
+  groups: z.array(groupEntitySchema),
   accounts: z.array(accountEntitySchema)
 })

@@ -15,28 +15,27 @@ import { EntityType, ValueOperators } from './type/domain.type'
 import {
   AccountClassification,
   AccountEntity,
-  AccountGroupEntity,
   AccountGroupMemberEntity,
   AccountType,
   AddressBookAccountEntity,
   ClientEntity,
   CredentialEntity,
   Entities,
+  GroupEntity,
   TokenEntity,
   UserAccountEntity,
   UserEntity,
-  UserGroupEntity,
   UserGroupMemberEntity,
   UserRole
 } from './type/entity.type'
 import { Criterion, Policy, Then } from './type/policy.type'
 
 const PERSONAS = ['Root', 'Alice', 'Bob', 'Carol', 'Dave', 'Eric', 'SystemManager'] as const
-const GROUPS = ['Engineering', 'Treasury'] as const
+const GROUPS_NAME = ['Engineering', 'Treasury'] as const
 const ACCOUNTS_NAME = ['Engineering', 'Testing', 'Treasury', 'Operation'] as const
 
 type Personas = (typeof PERSONAS)[number]
-type Groups = (typeof GROUPS)[number]
+type Groups = (typeof GROUPS_NAME)[number]
 type Accounts = (typeof ACCOUNTS_NAME)[number]
 
 export const CLIENT: ClientEntity = {
@@ -235,7 +234,7 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
   }
 }
 
-export const USER_GROUP: Record<Groups, UserGroupEntity> = {
+export const GROUP: Record<Groups, GroupEntity> = {
   Engineering: {
     id: 'test-engineering-user-group-uid'
   },
@@ -246,23 +245,23 @@ export const USER_GROUP: Record<Groups, UserGroupEntity> = {
 
 export const USER_GROUP_MEMBER: UserGroupMemberEntity[] = [
   {
-    groupId: USER_GROUP.Engineering.id,
+    groupId: GROUP.Engineering.id,
     userId: USER.Alice.id
   },
   {
-    groupId: USER_GROUP.Engineering.id,
+    groupId: GROUP.Engineering.id,
     userId: USER.Carol.id
   },
   {
-    groupId: USER_GROUP.Treasury.id,
+    groupId: GROUP.Treasury.id,
     userId: USER.Bob.id
   },
   {
-    groupId: USER_GROUP.Treasury.id,
+    groupId: GROUP.Treasury.id,
     userId: USER.Eric.id
   },
   {
-    groupId: USER_GROUP.Treasury.id,
+    groupId: GROUP.Treasury.id,
     userId: USER.Dave.id
   }
 ]
@@ -328,30 +327,21 @@ export const ACCOUNT: Record<Accounts, AccountEntity> = {
 }
 */
 
-export const ACCOUNT_GROUP: Record<Groups, AccountGroupEntity> = {
-  Engineering: {
-    id: 'test-engineering-account-group-uid'
-  },
-  Treasury: {
-    id: 'test-treasury-account-group-uid'
-  }
-}
-
 export const ACCOUNT_GROUP_MEMBER: AccountGroupMemberEntity[] = [
   {
-    groupId: ACCOUNT_GROUP.Engineering.id,
+    groupId: GROUP.Engineering.id,
     accountId: ACCOUNT.Engineering.id
   },
   {
-    groupId: ACCOUNT_GROUP.Engineering.id,
+    groupId: GROUP.Engineering.id,
     accountId: ACCOUNT.Testing.id
   },
   {
-    groupId: ACCOUNT_GROUP.Treasury.id,
+    groupId: GROUP.Treasury.id,
     accountId: ACCOUNT.Treasury.id
   },
   {
-    groupId: ACCOUNT_GROUP.Treasury.id,
+    groupId: GROUP.Treasury.id,
     accountId: ACCOUNT.Operation.id
   }
 ]
@@ -444,11 +434,10 @@ export const ENTITIES: Entities = {
   credentials: [...Object.values(CREDENTIAL), ...Object.values(EOA_CREDENTIAL)],
   tokens: Object.values(TOKEN),
   userGroupMembers: USER_GROUP_MEMBER,
-  userGroups: Object.values(USER_GROUP),
+  groups: Object.values(GROUP),
   userAccounts: USER_ACCOUNT,
   users: Object.values(USER),
   accountGroupMembers: ACCOUNT_GROUP_MEMBER,
-  accountGroups: Object.values(ACCOUNT_GROUP),
   accounts: Object.values(ACCOUNT)
 }
 
