@@ -5,6 +5,7 @@ Setup
 `npm i` (run from this directory)
 
 Copy the `.env.default` file into `.env`, and add your values
+
 - `AUTH_HOST`, `VAULT_HOST`, `CLIENT_ID` & `CLIENT_SECRET` provided when you activated your Armory stack
 - `DATA_STORE_SIGNER_ADDRESS` and `DATA_STORE_PRIVATE_KEY` were what YOU set when activating your Armory stack
 - Player 1, 2, and 3 info can be used with the defaults (DO NOT TRANSFER REAL FUNDS TO THESE!) or enter your own private keys.
@@ -34,7 +35,6 @@ If you want to keep going:
 
    `tsx 4-p2-withdrawal.ts $ESCROW_ADDRESS`
 
-6. As P1, approve the previous transfer  (copy/paste the displayed output from previous to get the $REQUEST_ID)
+6. As P1, approve the previous transfer (copy/paste the displayed output from previous to get the $REQUEST_ID)
 
    `tsx 5-p1-transfer.ts`
-

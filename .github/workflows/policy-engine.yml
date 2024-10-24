@@ -120,13 +120,22 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Setup Regal
+        uses: StyraInc/setup-regal@v1.0.0
+
       - name: Setup OPA
         uses: open-policy-agent/setup-opa@v2
         with:
           version: latest
 
-      - name: Code format
+      - name: Format
         run: make policy-engine/rego/format/check
+
+      - name: Syntax
+        run: make policy-engine/rego/syntax/check
+
+      - name: Lint
+        run: make policy-engine/rego/lint/check REGAL_FORMAT=github
 
       - name: Test
         run: make policy-engine/rego/test

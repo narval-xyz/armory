@@ -2,6 +2,7 @@ POLICY_ENGINE_PROJECT_NAME := policy-engine
 POLICY_ENGINE_PROJECT_DIR := ./apps/policy-engine
 POLICY_ENGINE_DATABASE_SCHEMA := ${POLICY_ENGINE_PROJECT_DIR}/src/shared/module/persistence/schema/schema.prisma
 POLICY_ENGINE_REGO_DIST = ./dist/rego
+REGAL_FORMAT ?= pretty
 
 # === Start ===
 
@@ -157,6 +158,22 @@ policy-engine/rego/format:
 policy-engine/rego/format/check:
 	opa fmt \
 		--fail ${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
+policy-engine/rego/syntax/check:
+	opa check \
+		--strict \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego
+
+policy-engine/rego/lint/fix:
+	regal fix \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
+		--config-file .regal/config.yaml
+
+policy-engine/rego/lint/check:
+	regal lint \
+		--format ${REGAL_FORMAT} \
+		${POLICY_ENGINE_PROJECT_DIR}/src/resource/open-policy-agent/rego \
+		--config-file .regal/config.yaml
 
 policy-engine/rego/test/watch:
 	make policy-engine/rego/test ARGS=--watch
