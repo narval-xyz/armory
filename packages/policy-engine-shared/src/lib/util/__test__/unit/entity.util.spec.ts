@@ -1,4 +1,4 @@
-import { ACCOUNT, ACCOUNT_GROUP, ADDRESS_BOOK, CREDENTIAL, TOKEN, USER, USER_GROUP } from '../../../dev.fixture'
+import { ACCOUNT, ADDRESS_BOOK, CREDENTIAL, GROUP, TOKEN, USER } from '../../../dev.fixture'
 import { Entities, UserEntity, UserRole } from '../../../type/entity.type'
 import { empty, updateUserAccounts, validate } from '../../entity.util'
 
@@ -8,11 +8,10 @@ describe('validate', () => {
     credentials: [],
     tokens: [],
     userGroupMembers: [],
-    userGroups: [],
     userAccounts: [],
     users: [],
     accountGroupMembers: [],
-    accountGroups: [],
+    groups: [],
     accounts: []
   }
 
@@ -22,7 +21,7 @@ describe('validate', () => {
         ...emptyEntities,
         userGroupMembers: [
           {
-            groupId: USER_GROUP.Engineering.id,
+            groupId: GROUP.Engineering.id,
             userId: USER.Alice.id
           }
         ],
@@ -44,10 +43,10 @@ describe('validate', () => {
     it('fails when user from user group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        userGroups: [USER_GROUP.Engineering],
+        groups: [GROUP.Engineering],
         userGroupMembers: [
           {
-            groupId: USER_GROUP.Engineering.id,
+            groupId: GROUP.Engineering.id,
             userId: USER.Alice.id
           }
         ]
@@ -72,7 +71,7 @@ describe('validate', () => {
         accountGroupMembers: [
           {
             accountId: ACCOUNT.Engineering.id,
-            groupId: ACCOUNT_GROUP.Engineering.id
+            groupId: GROUP.Engineering.id
           }
         ]
       })
@@ -92,11 +91,11 @@ describe('validate', () => {
     it('fails when account from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        accountGroups: [ACCOUNT_GROUP.Engineering],
+        groups: [GROUP.Engineering],
         accountGroupMembers: [
           {
             accountId: ACCOUNT.Engineering.id,
-            groupId: ACCOUNT_GROUP.Engineering.id
+            groupId: GROUP.Engineering.id
           }
         ]
       })
@@ -215,7 +214,7 @@ describe('validate', () => {
     it('fails when user group uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        userGroups: [USER_GROUP.Engineering, USER_GROUP.Engineering, USER_GROUP.Treasury]
+        groups: [GROUP.Engineering, GROUP.Engineering, GROUP.Treasury]
       })
 
       expect(result).toEqual({
@@ -223,7 +222,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the user group ${USER_GROUP.Engineering.id} is duplicated`
+            message: `the user group ${GROUP.Engineering.id} is duplicated`
           }
         ]
       })
@@ -249,7 +248,7 @@ describe('validate', () => {
     it('fails when account group uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
-        accountGroups: [ACCOUNT_GROUP.Engineering, ACCOUNT_GROUP.Engineering, ACCOUNT_GROUP.Treasury]
+        groups: [GROUP.Engineering, GROUP.Engineering, GROUP.Treasury]
       })
 
       expect(result).toEqual({
@@ -257,7 +256,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the account group ${ACCOUNT_GROUP.Engineering.id} is duplicated`
+            message: `the account group ${GROUP.Engineering.id} is duplicated`
           }
         ]
       })
