@@ -1,5 +1,5 @@
-import { ConfigModule } from '@narval/config-module'
-import { HttpLoggerMiddleware, LoggerModule } from '@narval/nestjs-shared'
+import { ConfigModule, ConfigService } from '@narval/config-module'
+import { HttpLoggerMiddleware, LoggerModule, LoggerService, OpenTelemetryModule } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AppModule } from './app/app.module'
@@ -9,6 +9,7 @@ import { ArmoryController } from './armory.controller'
 import { ClientModule } from './client/client.module'
 import { ManagedDataStoreModule } from './managed-data-store/managed-data-store.module'
 import { OrchestrationModule } from './orchestration/orchestration.module'
+import { OpenTelemetryModuleOptionFactory } from './shared/factory/open-telemetry-module-option.factory'
 import { QueueModule } from './shared/module/queue/queue.module'
 import { TransferTrackingModule } from './transfer-tracking/transfer-tracking.module'
 
@@ -18,7 +19,11 @@ const INFRASTRUCTURE_MODULES = [
     load: [load],
     isGlobal: true
   }),
-  QueueModule.forRoot()
+  QueueModule.forRoot(),
+  OpenTelemetryModule.registerAsync({
+    inject: [LoggerService, ConfigService],
+    useClass: OpenTelemetryModuleOptionFactory
+  })
 ]
 
 const DOMAIN_MODULES = [AppModule, OrchestrationModule, TransferTrackingModule, ManagedDataStoreModule, ClientModule]

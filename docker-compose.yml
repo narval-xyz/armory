@@ -30,6 +30,27 @@ services:
     volumes:
       - ./.data/redis:/data
 
+  jaeger:
+    image: 'jaegertracing/all-in-one'
+    ports:
+      - '16686:16686' # Web UI
+      - '14250:14250' # gRPC
+    networks:
+      - armory_stack
+
+  otel_collector:
+    image: 'otel/opentelemetry-collector-contrib'
+    command: ['--config=/etc/otel-collector-config.yaml']
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - '4318:4318' # HTTP
+      - '4317:4317' # gRPC
+    networks:
+      - armory_stack
+    depends_on:
+      - jaeger
+
   armory:
     image: armory/local:latest
     build:

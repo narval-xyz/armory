@@ -1,3 +1,4 @@
+import { MetricService, TraceService } from '@narval/nestjs-shared'
 import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-shared'
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
@@ -22,7 +23,9 @@ export class DataStoreController {
   constructor(
     private entityDataStoreService: EntityDataStoreService,
     private policyDataStoreService: PolicyDataStoreService,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    private traceService: TraceService,
+    private metricService: MetricService
   ) {}
 
   @Get('/entities')
@@ -35,18 +38,24 @@ export class DataStoreController {
     type: EntityDataStoreDto
   })
   async getEntities(@Query('clientId') clientId: string): Promise<EntityDataStoreDto> {
-    const entity = await this.entityDataStoreService.getEntities(clientId)
+    this.metricService.createCounter('data_store_entity_get_count').add(1, { clientId })
 
-    if (entity) {
-      return { entity }
-    }
+    return this.traceService.startActiveSpan('dataStore.entity.get', async (span) => {
+      span.setAttributes({ clientId })
 
-    return {
-      entity: {
-        data: EntityUtil.empty(),
-        signature: ''
+      const entity = await this.entityDataStoreService.getEntities(clientId)
+
+      if (entity) {
+        return { entity }
       }
-    }
+
+      return {
+        entity: {
+          data: EntityUtil.empty(),
+          signature: ''
+        }
+      }
+    })
   }
 
   @Get('/policies')
@@ -59,30 +68,36 @@ export class DataStoreController {
     type: PolicyDataStoreDto
   })
   async getPolicies(@Query('clientId') clientId: string): Promise<PolicyDataStoreDto> {
-    const policy = await this.policyDataStoreService.getPolicies(clientId)
+    this.metricService.createCounter('data_store_policy_get_count').add(1, { clientId })
 
-    if (policy) {
-      return { policy }
-    }
+    return this.traceService.startActiveSpan('dataStore.policy.get', async (span) => {
+      span.setAttributes({ clientId })
 
-    return {
-      policy: {
-        data: [
-          {
-            id: 'admins-full-access',
-            description: 'Admins get full access',
-            when: [
-              {
-                criterion: Criterion.CHECK_PRINCIPAL_ROLE,
-                args: [UserRole.ADMIN]
-              }
-            ],
-            then: Then.PERMIT
-          }
-        ],
-        signature: ''
+      const policy = await this.policyDataStoreService.getPolicies(clientId)
+
+      if (policy) {
+        return { policy }
       }
-    }
+
+      return {
+        policy: {
+          data: [
+            {
+              id: 'admins-full-access',
+              description: 'Admins get full access',
+              when: [
+                {
+                  criterion: Criterion.CHECK_PRINCIPAL_ROLE,
+                  args: [UserRole.ADMIN]
+                }
+              ],
+              then: Then.PERMIT
+            }
+          ],
+          signature: ''
+        }
+      }
+    })
   }
 
   @Post('/entities')
@@ -94,7 +109,13 @@ export class DataStoreController {
     type: SetEntityStoreResponseDto
   })
   setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
-    return this.entityDataStoreService.setEntities(clientId, body)
+    this.metricService.createCounter('data_store_entity_set_count').add(1, { clientId })
+
+    return this.traceService.startActiveSpan('dataStore.entity.set', (span) => {
+      span.setAttributes({ clientId })
+
+      return this.entityDataStoreService.setEntities(clientId, body)
+    })
   }
 
   @Post('/policies')
@@ -109,7 +130,13 @@ export class DataStoreController {
     @Query('clientId') clientId: string,
     @Body() body: SetPolicyStoreDto
   ): Promise<SetPolicyStoreResponseDto> {
-    return this.policyDataStoreService.setPolicies(clientId, body)
+    this.metricService.createCounter('data_store_policy_set_count').add(1, { clientId })
+
+    return this.traceService.startActiveSpan('dataStore.policy.set', (span) => {
+      span.setAttributes({ clientId })
+
+      return this.policyDataStoreService.setPolicies(clientId, body)
+    })
   }
 
   @Post('/sync')
@@ -123,20 +150,26 @@ export class DataStoreController {
     type: SyncDto
   })
   async sync(@ClientId('clientId') clientId: string): Promise<SyncDto> {
-    try {
-      const success = await this.clusterService.sync(clientId)
+    this.metricService.createCounter('data_store_cluster_sync_count').add(1, { clientId })
 
-      return {
-        latestSync: {
-          success
+    return this.traceService.startActiveSpan('dataStore.cluster.sync', async (span) => {
+      span.setAttributes({ clientId })
+
+      try {
+        const success = await this.clusterService.sync(clientId)
+
+        return {
+          latestSync: {
+            success
+          }
         }
+      } catch (error) {
+        return SyncDto.create({
+          latestSync: {
+            success: false
+          }
+        })
       }
-    } catch (error) {
-      return SyncDto.create({
-        latestSync: {
-          success: false
-        }
-      })
-    }
+    })
   }
 }

@@ -1,4 +1,4 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, TraceService } from '@narval/nestjs-shared'
 import {
   CreateClient,
   EvaluationRequest,
@@ -17,7 +17,8 @@ export class PolicyEngineClientException extends ApplicationException {}
 export class PolicyEngineClient {
   constructor(
     private httpService: HttpService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private traceService: TraceService
   ) {}
 
   async evaluate(option: {
@@ -135,9 +136,15 @@ export class PolicyEngineClient {
   }
 
   private getHeaders(option: { clientId?: string; clientSecret?: string }) {
+    const activeSpan = this.traceService.getActiveSpan()
+
     return {
       'x-client-id': option.clientId,
-      'x-client-secret': option.clientSecret
+      'x-client-secret': option.clientSecret,
+      // Trace context headers.
+      // See https://www.w3.org/TR/trace-context/
+      traceparent: activeSpan?.spanContext().traceId,
+      tracestate: activeSpan?.spanContext().spanId
     }
   }
 }
