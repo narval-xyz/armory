@@ -5,7 +5,7 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
-import { Config } from '../../armory.config'
+import { Config } from '../../policy-engine.config'
 
 @Injectable()
 export class OpenTelemetryModuleOptionFactory {
@@ -33,7 +33,7 @@ export class OpenTelemetryModuleOptionFactory {
     }
 
     return {
-      serviceName: 'auth',
+      serviceName: 'policy-engine',
       isEnabled,
       traceExporter: new OTLPTraceExporter({
         url: traceExporterUrl

@@ -45,10 +45,14 @@ const configSchema = z.object({
     historicalTransferFeedPrivateKey: hexSchema
   }),
   managedDataStoreBaseUrl: z.string().url(),
-  openTelemetry: z.object({
-    metricExporterUrl: z.string().url().optional(),
-    traceExporterUrl: z.string().url().optional()
-  })
+  openTelemetry: z
+    .object({
+      metricExporterUrl: z.string().url().optional(),
+      traceExporterUrl: z.string().url().optional()
+    })
+    .describe(
+      "Configure OTEL metric and tracer exporter. If metricExporterUrl and traceExporterUrl the module won't collect and export telemetry data."
+    )
 })
 
 export type Config = z.infer<typeof configSchema>

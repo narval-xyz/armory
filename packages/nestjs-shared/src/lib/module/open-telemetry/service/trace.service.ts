@@ -20,8 +20,6 @@ import { OpenTelemetryModuleOption } from '../open-telemetry.type'
  * Examples:
  * - http.server.request
  * - db.query.execute
- * - rpc.client.call
- * - messaging.kafka.publish
  * - process.payment.validate
  * - auth.user.login
  * - file.document.upload

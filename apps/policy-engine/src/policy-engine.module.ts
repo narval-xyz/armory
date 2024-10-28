@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpLoggerMiddleware, LoggerModule, LoggerService } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule, LoggerService, OpenTelemetryModule } from '@narval/nestjs-shared'
 import {
   MiddlewareConsumer,
   Module,
@@ -17,6 +17,7 @@ import { ProvisionService } from './engine/core/service/provision.service'
 import { EngineModule } from './engine/engine.module'
 import { load } from './policy-engine.config'
 import { EncryptionModuleOptionFactory } from './shared/factory/encryption-module-option.factory'
+import { OpenTelemetryModuleOptionFactory } from './shared/factory/open-telemetry-module-option.factory'
 
 const INFRASTRUCTURE_MODULES = [
   LoggerModule,
@@ -28,6 +29,10 @@ const INFRASTRUCTURE_MODULES = [
     imports: [EngineModule, LoggerModule],
     inject: [ConfigService, EngineService, LoggerService],
     useClass: EncryptionModuleOptionFactory
+  }),
+  OpenTelemetryModule.registerAsync({
+    inject: [LoggerService, ConfigService],
+    useClass: OpenTelemetryModuleOptionFactory
   })
 ]
 

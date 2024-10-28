@@ -37,7 +37,15 @@ const configSchema = z.object({
       playerCount: z.coerce.number().default(3)
     })
     .optional()
-    .describe('Only required when signingProtocol is mpc. The TSM SDK node config.')
+    .describe('Only required when signingProtocol is mpc. The TSM SDK node config.'),
+  openTelemetry: z
+    .object({
+      metricExporterUrl: z.string().url().optional(),
+      traceExporterUrl: z.string().url().optional()
+    })
+    .describe(
+      "Configure OTEL metric and tracer exporter. If metricExporterUrl and traceExporterUrl the module won't collect and export telemetry data."
+    )
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -69,7 +77,11 @@ export const load = (): Config => {
             apiKey: process.env.TSM_API_KEY,
             playerCount: process.env.TSM_PLAYER_COUNT
           }
-        : undefined
+        : undefined,
+    openTelemetry: {
+      metricExporterUrl: process.env.OTEL_METRIC_EXPORTER_URL,
+      traceExporterUrl: process.env.OTEL_TRACE_EXPORTER_URL
+    }
   })
 
   if (result.success) {

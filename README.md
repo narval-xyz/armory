@@ -159,7 +159,6 @@ OTEL_TRACE_EXPORTER_URL=http://localhost:4318/v1/traces
 > [!IMPORTANT]
 > OTEL module automatically disables if either URL is not set.
 
-
 2. Start local dependencies:
 
 ```bash

@@ -28,7 +28,15 @@ const configSchema = z.object({
       type: z.literal('awskms'),
       masterAwsKmsArn: z.string()
     })
-  ])
+  ]),
+  openTelemetry: z
+    .object({
+      metricExporterUrl: z.string().url().optional(),
+      traceExporterUrl: z.string().url().optional()
+    })
+    .describe(
+      "Configure OTEL metric and tracer exporter. If metricExporterUrl and traceExporterUrl the module won't collect and export telemetry data."
+    )
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -52,6 +60,10 @@ export const load = (): Config => {
       type: process.env.KEYRING_TYPE,
       masterAwsKmsArn: process.env.MASTER_AWS_KMS_ARN,
       masterPassword: process.env.MASTER_PASSWORD
+    },
+    openTelemetry: {
+      metricExporterUrl: process.env.OTEL_METRIC_EXPORTER_URL,
+      traceExporterUrl: process.env.OTEL_TRACE_EXPORTER_URL
     }
   })
 
