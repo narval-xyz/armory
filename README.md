@@ -60,7 +60,7 @@ Alternatively, you can run the entire development stack in Docker containers.
 make docker/stack/build
 
 make docker/stack/up
-make docker/stack/stop
+make docker/stop
 ```
 
 ## Testing
@@ -141,6 +141,42 @@ packages to NPM.
 
 You can find the publishable packages listed in the `release.projects` value in
 the `nx.json`.
+
+## OpenTelemetry
+
+The Armory Stack uses [OpenTelemetry](https://opentelemetry.io/docs/) (OTEL)
+for observability through traces and metrics.
+
+### Setup
+
+1. Set environment variables:
+
+```bash
+OTEL_METRIC_EXPORTER_URL=http://localhost:4318/v1/metrics
+OTEL_TRACE_EXPORTER_URL=http://localhost:4318/v1/traces
+```
+
+> [!IMPORTANT]
+> OTEL module automatically disables if either URL is not set.
+
+
+2. Start local dependencies:
+
+```bash
+make docker/otel/up
+```
+
+3. Access Jaeger UI: http://localhost:16686
+
+### Naming Conventions
+
+- Traces: `operation.entity.action` (e.g., `policyStore.policies.update`)
+- Metrics: `system_entity_unit_state` (e.g., `policy_store_updates_total`) 
+
+See [Metric Naming](./packages/nestjs-shared/src/lib/module/open-telemetry/service/metric.service.ts)
+and [Trace/Span
+Name](./packages/nestjs-shared/src/lib/module/open-telemetry/service/trace.service.ts)
+adopted conventions.
 
 ## Troubleshooting
 

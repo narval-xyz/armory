@@ -100,8 +100,8 @@ docker/stop:
 docker/stack/up:
 	docker-compose up --detach
 
-docker/stack/stop:
-	docker-compose stop
+docker/otel/up:
+	docker-compose up postgres redis jaeger otel_collector --detach
 
 docker/stack/build:
 	docker buildx build \
