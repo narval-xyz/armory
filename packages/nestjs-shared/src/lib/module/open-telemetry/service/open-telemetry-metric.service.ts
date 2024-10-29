@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import {
   Attributes,
   BatchObservableCallback,
@@ -14,16 +14,12 @@ import {
   UpDownCounter,
   metrics
 } from '@opentelemetry/api'
-import { OPEN_TELEMETRY_MODULE_OPTION } from '../open-telemetry.constant'
-import { OpenTelemetryModuleOption } from '../open-telemetry.type'
 import { MetricService } from './metric.service'
 
 @Injectable()
 export class OpenTelemetryMetricService implements MetricService {
-  constructor(@Inject(OPEN_TELEMETRY_MODULE_OPTION) private readonly config: OpenTelemetryModuleOption) {}
-
   public getMeter(): Meter {
-    return metrics.getMeter(this.config.serviceName)
+    return metrics.getMeter('default')
   }
 
   public createCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Counter<T> {

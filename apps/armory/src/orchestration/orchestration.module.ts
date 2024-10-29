@@ -1,11 +1,10 @@
 import { BullAdapter } from '@bull-board/api/bullAdapter'
 import { BullBoardModule } from '@bull-board/nestjs'
-import { ConfigModule } from '@narval/config-module'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
 import { ConditionalModule } from '@nestjs/config'
-import { Env, isEnv, load } from '../armory.config'
+import { Env, isEnv } from '../armory.config'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE, DEFAULT_HTTP_MODULE_PROVIDERS } from '../armory.constant'
 import { ClientModule } from '../client/client.module'
 import { DataFeedModule } from '../data-feed/data-feed.module'
@@ -23,7 +22,6 @@ import { AuthorizationRequestProcessingConsumer } from './queue/consumer/authori
 import { AuthorizationRequestProcessingProducer } from './queue/producer/authorization-request-processing.producer'
 
 const INFRASTRUCTURE_MODULES = [
-  ConfigModule.forRoot({ load: [load] }),
   HttpModule,
   PersistenceModule,
   // TODO (@wcalderipe, 11/01/24): Figure out why can't I have a wrapper to

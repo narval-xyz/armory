@@ -44,15 +44,7 @@ const configSchema = z.object({
     priceFeedPrivateKey: hexSchema,
     historicalTransferFeedPrivateKey: hexSchema
   }),
-  managedDataStoreBaseUrl: z.string().url(),
-  openTelemetry: z
-    .object({
-      metricExporterUrl: z.string().url().optional(),
-      traceExporterUrl: z.string().url().optional()
-    })
-    .describe(
-      "Configure OTEL metric and tracer exporter. If metricExporterUrl and traceExporterUrl the module won't collect and export telemetry data."
-    )
+  managedDataStoreBaseUrl: z.string().url()
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -89,11 +81,7 @@ export const load = (): Config => {
       priceFeedPrivateKey: process.env.PRICE_FEED_PRIVATE_KEY,
       historicalTransferFeedPrivateKey: process.env.HISTORICAL_TRANSFER_FEED_PRIVATE_KEY
     },
-    managedDataStoreBaseUrl: process.env.MANAGED_DATASTORE_BASE_URL,
-    openTelemetry: {
-      metricExporterUrl: process.env.OTEL_METRIC_EXPORTER_URL,
-      traceExporterUrl: process.env.OTEL_TRACE_EXPORTER_URL
-    }
+    managedDataStoreBaseUrl: process.env.MANAGED_DATASTORE_BASE_URL
   })
 
   if (result.success) {

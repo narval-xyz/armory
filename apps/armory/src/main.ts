@@ -1,5 +1,12 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  buildOpenTelemetrySdk,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { json } from 'express'
@@ -61,6 +68,11 @@ const withGlobalFilters =
  * successfully bootstrapped.
  */
 async function bootstrap(): Promise<void> {
+  // IMPORTANT: For the @opentelemetry/auto-instrumentations-node package work
+  // correctly, OpenTelemetry MUST register before the NestFactory.create.
+  const openTelemetrySdk = buildOpenTelemetrySdk({ serviceName: 'auth' })
+  openTelemetrySdk.start()
+
   const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const logger = application.get<LoggerService>(LoggerService)

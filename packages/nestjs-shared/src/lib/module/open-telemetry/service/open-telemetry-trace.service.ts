@@ -1,16 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Context, Span, SpanOptions, context, trace } from '@opentelemetry/api'
-import { OPEN_TELEMETRY_MODULE_OPTION } from '../open-telemetry.constant'
 import { OpenTelemetryException } from '../open-telemetry.exception'
-import { OpenTelemetryModuleOption } from '../open-telemetry.type'
 import { TraceService } from './trace.service'
 
 @Injectable()
 export class OpenTelemetryTraceService implements TraceService {
-  constructor(@Inject(OPEN_TELEMETRY_MODULE_OPTION) private readonly config: OpenTelemetryModuleOption) {}
-
   public getTracer() {
-    return trace.getTracer(this.config.serviceName)
+    return trace.getTracer('default')
   }
 
   public getSpan(context: Context): Span | undefined {

@@ -1,7 +1,7 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, TraceService } from '@narval/nestjs-shared'
 import { HttpSource } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import axiosRetry from 'axios-retry'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { DataStoreException } from '../../core/exception/data-store.exception'
@@ -13,14 +13,18 @@ const MAX_RETRIES = 3
 export class HttpDataStoreRepository implements DataStoreRepository {
   constructor(
     private httpService: HttpService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    @Inject(TraceService) private traceService: TraceService
   ) {}
 
   fetch<Data>(source: HttpSource): Promise<Data> {
     return lastValueFrom(
       this.httpService
         .get<Data>(source.url, {
-          headers: source.headers,
+          headers: {
+            ...this.getTraceContextHeaders(),
+            ...source.headers
+          },
           'axios-retry': {
             retries: MAX_RETRIES,
             retryDelay: axiosRetry.exponentialDelay,
@@ -45,5 +49,16 @@ export class HttpDataStoreRepository implements DataStoreRepository {
           })
         )
     )
+  }
+
+  private getTraceContextHeaders() {
+    const activeSpan = this.traceService.getActiveSpan()
+
+    return {
+      // Trace context headers.
+      // See https://www.w3.org/TR/trace-context/
+      traceparent: activeSpan?.spanContext().traceId,
+      tracestate: activeSpan?.spanContext().spanId
+    }
   }
 }

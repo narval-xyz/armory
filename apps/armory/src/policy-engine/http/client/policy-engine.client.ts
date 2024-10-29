@@ -7,7 +7,7 @@ import {
   SerializedEvaluationRequest
 } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
@@ -18,7 +18,7 @@ export class PolicyEngineClient {
   constructor(
     private httpService: HttpService,
     private logger: LoggerService,
-    private traceService: TraceService
+    @Inject(TraceService) private traceService: TraceService
   ) {}
 
   async evaluate(option: {

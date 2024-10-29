@@ -1,6 +1,6 @@
 import { MetricService, TraceService } from '@narval/nestjs-shared'
 import { Criterion, EntityUtil, Then, UserRole } from '@narval/policy-engine-shared'
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClusterService } from '../../../../policy-engine/core/service/cluster.service'
 import { ApiClientSecretGuard } from '../../../../shared/decorator/api-client-secret-guard.decorator'
@@ -24,8 +24,8 @@ export class DataStoreController {
     private entityDataStoreService: EntityDataStoreService,
     private policyDataStoreService: PolicyDataStoreService,
     private clusterService: ClusterService,
-    private traceService: TraceService,
-    private metricService: MetricService
+    @Inject(TraceService) private traceService: TraceService,
+    @Inject(MetricService) private metricService: MetricService
   ) {}
 
   @Get('/entities')

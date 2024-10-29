@@ -1,5 +1,12 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  buildOpenTelemetrySdk,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { json } from 'express'
@@ -47,6 +54,11 @@ const provision = async () => {
 }
 
 async function bootstrap() {
+  // IMPORTANT: For the @opentelemetry/auto-instrumentations-node package work
+  // correctly, OpenTelemetry MUST register before the NestFactory.create.
+  const openTelemetrySdk = buildOpenTelemetrySdk({ serviceName: 'policy-engine' })
+  openTelemetrySdk.start()
+
   // NOTE: Refer to the comment in the ProvisionModule to understand why we use
   // a temporary application for the provision step.
   await provision()
