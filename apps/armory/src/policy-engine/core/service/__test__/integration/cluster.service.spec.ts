@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import {
   DataStoreConfiguration,
   Decision,
@@ -43,7 +43,8 @@ describe(ClusterService.name, () => {
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
-        })
+        }),
+        OpenTelemetryModule.registerTest()
       ],
       providers: [ClusterService, PolicyEngineClient, PolicyEngineNodeRepository]
     }).compile()

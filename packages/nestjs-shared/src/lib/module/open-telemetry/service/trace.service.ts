@@ -1,10 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { Context, Span, SpanOptions, context, trace } from '@opentelemetry/api'
-import { OPEN_TELEMETRY_MODULE_OPTION } from '../open-telemetry.constant'
-import { OpenTelemetryException } from '../open-telemetry.exception'
-import { OpenTelemetryModuleOption } from '../open-telemetry.type'
+import { Context, Span, SpanOptions, Tracer } from '@opentelemetry/api'
 
-@Injectable()
+export const TraceService = Symbol('TraceService')
+
 /**
  * OpenTelemetry Trace/Span Name Conventions
  *
@@ -34,64 +31,21 @@ import { OpenTelemetryModuleOption } from '../open-telemetry.type'
  *
  * @see https://opentelemetry.io/docs/specs/semconv/general/trace
  */
-export class TraceService {
-  constructor(@Inject(OPEN_TELEMETRY_MODULE_OPTION) private readonly config: OpenTelemetryModuleOption) {}
+export interface TraceService {
+  getTracer(): Tracer
 
-  public getTracer() {
-    return trace.getTracer(this.config.serviceName)
-  }
+  getSpan(context: Context): Span | undefined
 
-  public getSpan(context: Context): Span | undefined {
-    return trace.getSpan(context)
-  }
+  getActiveSpan(): Span | undefined
 
-  public getActiveSpan(): Span | undefined {
-    return this.getSpan(context.active())
-  }
+  startSpan(name: string, options?: SpanOptions, context?: Context): Span
 
-  public startSpan(name: string): Span {
-    const tracer = this.getTracer()
-
-    return tracer.startSpan(name)
-  }
-
-  public startActiveSpan<F extends (span: Span) => ReturnType<F>>(name: string, fn: F): ReturnType<F>
-  public startActiveSpan<F extends (span: Span) => ReturnType<F>>(
-    name: string,
-    options: SpanOptions,
-    fn: F
-  ): ReturnType<F>
-  public startActiveSpan<F extends (span: Span) => ReturnType<F>>(
+  startActiveSpan<F extends (span: Span) => ReturnType<F>>(name: string, fn: F): ReturnType<F>
+  startActiveSpan<F extends (span: Span) => ReturnType<F>>(name: string, options: SpanOptions, fn: F): ReturnType<F>
+  startActiveSpan<F extends (span: Span) => ReturnType<F>>(
     name: string,
     options: SpanOptions,
     context: Context,
     fn: F
   ): ReturnType<F>
-  public startActiveSpan<F extends (span: Span) => ReturnType<F>>(
-    name: string,
-    optionsOrFnOrContext?: SpanOptions | F | Context,
-    fnOrContextOrNothing?: F | Context | undefined,
-    fnOrNothing?: F | undefined
-  ): ReturnType<F> {
-    const tracer = this.getTracer()
-
-    if (typeof optionsOrFnOrContext === 'function') {
-      return tracer.startActiveSpan(name, optionsOrFnOrContext)
-    }
-
-    if (typeof fnOrContextOrNothing === 'function') {
-      return tracer.startActiveSpan(name, optionsOrFnOrContext as SpanOptions, fnOrContextOrNothing)
-    }
-
-    if (fnOrNothing) {
-      return tracer.startActiveSpan(
-        name,
-        optionsOrFnOrContext as SpanOptions,
-        fnOrContextOrNothing as Context,
-        fnOrNothing
-      )
-    }
-
-    throw new OpenTelemetryException('Invalid arguments provided to startActiveSpan')
-  }
 }

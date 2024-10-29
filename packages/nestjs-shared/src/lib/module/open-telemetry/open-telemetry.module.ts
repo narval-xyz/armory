@@ -7,10 +7,23 @@ import { OpenTelemetryException } from './open-telemetry.exception'
 import { ASYNC_OPTIONS_TYPE, ConfigurableModuleClass, OPTIONS_TYPE } from './open-telemetry.module-definition'
 import { OpenTelemetryModuleOption } from './open-telemetry.type'
 import { MetricService } from './service/metric.service'
+import { OpenTelemetryMetricService } from './service/open-telemetry-metric.service'
+import { OpenTelemetryTraceService } from './service/open-telemetry-trace.service'
+import { StatefulMetricService } from './service/stateful-metric.service'
+import { StatefulTraceService } from './service/stateful-trace.service'
 import { TraceService } from './service/trace.service'
 
 @Module({
-  providers: [TraceService, MetricService],
+  providers: [
+    {
+      provide: TraceService,
+      useClass: OpenTelemetryTraceService
+    },
+    {
+      provide: MetricService,
+      useClass: OpenTelemetryMetricService
+    }
+  ],
   exports: [TraceService, MetricService]
 })
 export class OpenTelemetryModule extends ConfigurableModuleClass {
@@ -20,7 +33,7 @@ export class OpenTelemetryModule extends ConfigurableModuleClass {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async beforeApplicationShutdown(_signal?: string | undefined) {
-    // Gracefuly shutdown the SDK to flush data to the collector.
+    // Gracefully shutdown the SDK to flush data to the collector.
     await this.sdk.shutdown()
   }
 
@@ -44,6 +57,7 @@ export class OpenTelemetryModule extends ConfigurableModuleClass {
 
     return {
       ...module,
+      global: true,
       providers: [
         ...(module.providers || []),
         {
@@ -83,6 +97,7 @@ export class OpenTelemetryModule extends ConfigurableModuleClass {
 
     return {
       ...module,
+      global: true,
       providers: [
         ...(module.providers || []),
         {
@@ -97,6 +112,28 @@ export class OpenTelemetryModule extends ConfigurableModuleClass {
 
             return sdk
           }
+        }
+      ]
+    }
+  }
+
+  static registerTest(): DynamicModule {
+    const module = this.register({
+      serviceName: 'test-service',
+      isEnabled: false
+    })
+
+    return {
+      ...module,
+      providers: [
+        ...(module.providers || []),
+        {
+          provide: TraceService,
+          useClass: StatefulTraceService
+        },
+        {
+          provide: MetricService,
+          useClass: StatefulMetricService
         }
       ]
     }

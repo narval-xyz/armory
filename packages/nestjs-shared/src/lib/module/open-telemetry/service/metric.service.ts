@@ -1,4 +1,3 @@
-import { Inject, Injectable } from '@nestjs/common'
 import {
   Attributes,
   BatchObservableCallback,
@@ -11,13 +10,11 @@ import {
   ObservableCounter,
   ObservableGauge,
   ObservableUpDownCounter,
-  UpDownCounter,
-  metrics
+  UpDownCounter
 } from '@opentelemetry/api'
-import { OPEN_TELEMETRY_MODULE_OPTION } from '../open-telemetry.constant'
-import { OpenTelemetryModuleOption } from '../open-telemetry.type'
 
-@Injectable()
+export const MetricService = Symbol('MetricService')
+
 /**
  * OpenTelemetry Metric Naming Conventions
  *
@@ -49,64 +46,36 @@ import { OpenTelemetryModuleOption } from '../open-telemetry.type'
  *
  * @see https://opentelemetry.io/docs/specs/otel/metrics/semantic_conventions
  */
-export class MetricService {
-  constructor(@Inject(OPEN_TELEMETRY_MODULE_OPTION) private readonly config: OpenTelemetryModuleOption) {}
+export interface MetricService {
+  getMeter(): Meter
 
-  public getMeter(): Meter {
-    return metrics.getMeter(this.config.serviceName)
-  }
+  createCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Counter<T>
 
-  public createCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Counter<T> {
-    return this.getMeter().createCounter(name, options)
-  }
+  createHistogram<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Histogram<T>
 
-  public createHistogram<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Histogram<T> {
-    return this.getMeter().createHistogram(name, options)
-  }
+  createGauge<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Gauge<T>
 
-  public createGauge<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Gauge<T> {
-    return this.getMeter().createGauge(name, options)
-  }
+  createUpDownCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): UpDownCounter<T>
 
-  public createUpDownCounter<T extends Attributes = Attributes>(
+  createObservableGauge<T extends Attributes = Attributes>(name: string, options?: MetricOptions): ObservableGauge<T>
+
+  createObservableCounter<T extends Attributes = Attributes>(
     name: string,
     options?: MetricOptions
-  ): UpDownCounter<T> {
-    return this.getMeter().createUpDownCounter(name, options)
-  }
+  ): ObservableCounter<T>
 
-  public createObservableGauge<T extends Attributes = Attributes>(
+  createObservableUpDownCounter<T extends Attributes = Attributes>(
     name: string,
     options?: MetricOptions
-  ): ObservableGauge<T> {
-    return this.getMeter().createObservableGauge(name, options)
-  }
+  ): ObservableUpDownCounter<T>
 
-  public createObservableCounter<T extends Attributes = Attributes>(
-    name: string,
-    options?: MetricOptions
-  ): ObservableCounter<T> {
-    return this.getMeter().createObservableCounter(name, options)
-  }
-
-  public createObservableUpDownCounter<T extends Attributes = Attributes>(
-    name: string,
-    options?: MetricOptions
-  ): ObservableUpDownCounter<T> {
-    return this.getMeter().createObservableUpDownCounter(name, options)
-  }
-
-  public addBatchObservableCallback<T extends Attributes = Attributes>(
+  addBatchObservableCallback<T extends Attributes = Attributes>(
     callback: BatchObservableCallback<T>,
     observables: Observable<T>[]
-  ): void {
-    this.getMeter().addBatchObservableCallback(callback, observables)
-  }
+  ): void
 
-  public removeBatchObservableCallback<T extends Attributes = Attributes>(
+  removeBatchObservableCallback<T extends Attributes = Attributes>(
     callback: BatchObservableCallback<T>,
     observables: Observable<T>[]
-  ): void {
-    this.getMeter().removeBatchObservableCallback(callback, observables)
-  }
+  ): void
 }
