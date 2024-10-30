@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common'
 import {
   Attributes,
   BatchObservableCallback,
+  Context,
   Counter,
   Gauge,
   Histogram,
@@ -18,30 +19,29 @@ import {
 } from '@opentelemetry/api'
 import { MetricService } from './metric.service'
 
+type MetricEvent = {
+  name: string
+  value: number
+  options?: MetricOptions
+  attributes?: Record<string, unknown>
+  context?: Context
+}
+
 @Injectable()
 export class StatefulMetricService implements MetricService {
-  public counters: Counter[] = []
+  public counters: MetricEvent[] = []
 
-  public histograms: Histogram[] = []
+  public histograms: MetricEvent[] = []
 
-  public gauges: Gauge[] = []
+  public gauges: MetricEvent[] = []
 
-  public upDownCounters: UpDownCounter[] = []
-
-  public observableGauges: ObservableGauge[] = []
-
-  public observableCounters: ObservableCounter[] = []
-
-  public observableUpDownCounters: ObservableUpDownCounter[] = []
+  public upDownCounters: MetricEvent[] = []
 
   reset(): void {
     this.counters = []
     this.histograms = []
     this.gauges = []
     this.upDownCounters = []
-    this.observableGauges = []
-    this.observableCounters = []
-    this.observableUpDownCounters = []
   }
 
   getMeter(): Meter {
@@ -49,51 +49,117 @@ export class StatefulMetricService implements MetricService {
   }
 
   createCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Counter<T> {
-    const counter = this.getMeter().createCounter(name, options)
-    this.counters.push(counter)
-    return counter
+    const metric = this.getMeter().createCounter(name, options)
+
+    return {
+      add: (value: number, attributes?: T, context?: Context): void => {
+        this.counters.push({
+          name,
+          value,
+          options,
+          attributes,
+          context
+        })
+
+        return metric.add(value, attributes, context)
+      }
+    }
   }
 
   createHistogram<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Histogram<T> {
-    const histogram = this.getMeter().createHistogram(name, options)
-    this.histograms.push(histogram)
-    return histogram
+    const metric = this.getMeter().createHistogram(name, options)
+
+    return {
+      record: (value: number, attributes?: T, context?: Context): void => {
+        this.histograms.push({
+          name,
+          value,
+          options,
+          attributes,
+          context
+        })
+
+        return metric.record(value, attributes, context)
+      }
+    }
   }
 
   createGauge<T extends Attributes = Attributes>(name: string, options?: MetricOptions): Gauge<T> {
-    const gauge = this.getMeter().createGauge(name, options)
-    this.gauges.push(gauge)
-    return gauge
+    const metric = this.getMeter().createGauge(name, options)
+
+    return {
+      record: (value: number, attributes?: T, context?: Context): void => {
+        this.gauges.push({
+          name,
+          options,
+          value,
+          attributes,
+          context
+        })
+
+        return metric.record(value, attributes, context)
+      }
+    }
   }
 
   createUpDownCounter<T extends Attributes = Attributes>(name: string, options?: MetricOptions): UpDownCounter<T> {
-    const upDownCounter = this.getMeter().createUpDownCounter(name, options)
-    this.upDownCounters.push(upDownCounter)
-    return upDownCounter
+    const metric = this.getMeter().createUpDownCounter(name, options)
+
+    return {
+      add: (value: number, attributes?: T, context?: Context): void => {
+        this.upDownCounters.push({
+          name,
+          options,
+          value,
+          attributes,
+          context
+        })
+
+        return metric.add(value, attributes, context)
+      }
+    }
   }
 
   createObservableGauge<T extends Attributes = Attributes>(name: string, options?: MetricOptions): ObservableGauge<T> {
-    const observableGauge = this.getMeter().createObservableGauge(name, options)
-    this.observableGauges.push(observableGauge)
-    return observableGauge
+    const metric = this.getMeter().createObservableGauge(name, options)
+
+    // TODO: (@wcalderipe 30/10/24) Record observable gauge addCallback and
+    // removeCallback into memory.
+    //
+    // CONGRATS! if you're here, it means you have been thinking about
+    // observability AND how to test custom intrumentation.
+
+    return metric
   }
 
   createObservableCounter<T extends Attributes = Attributes>(
     name: string,
     options?: MetricOptions
   ): ObservableCounter<T> {
-    const observableCounter = this.getMeter().createObservableCounter(name, options)
-    this.observableCounters.push(observableCounter)
-    return observableCounter
+    const metric = this.getMeter().createObservableCounter(name, options)
+
+    // TODO: (@wcalderipe 30/10/24) Record observable counter addCallback and
+    // removeCallback into memory.
+    //
+    // CONGRATS! if you're here, it means you have been thinking about
+    // observability AND how to test custom intrumentation.
+
+    return metric
   }
 
   createObservableUpDownCounter<T extends Attributes = Attributes>(
     name: string,
     options?: MetricOptions
   ): ObservableUpDownCounter<T> {
-    const observableUpDownCounter = this.getMeter().createObservableUpDownCounter(name, options)
-    this.observableUpDownCounters.push(observableUpDownCounter)
-    return observableUpDownCounter
+    const metric = this.getMeter().createObservableUpDownCounter(name, options)
+
+    // TODO: (@wcalderipe 30/10/24) Record observable up/down counter
+    // addCallback and removeCallback into memory.
+    //
+    // CONGRATS! if you're here, it means you have been thinking about
+    // observability AND how to test custom intrumentation.
+
+    return metric
   }
 
   addBatchObservableCallback<T extends Attributes = Attributes>(

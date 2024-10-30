@@ -58,7 +58,7 @@ describe(AuthorizationRequestProcessingProducer.name, () => {
         }),
         PersistenceModule,
         QueueModule.forRoot(),
-        OpenTelemetryModule.registerTest(),
+        OpenTelemetryModule.forRoot(),
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         }),

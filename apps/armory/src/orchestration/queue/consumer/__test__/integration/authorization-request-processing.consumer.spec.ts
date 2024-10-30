@@ -99,7 +99,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         }),
-        OpenTelemetryModule.registerTest(),
+        OpenTelemetryModule.forRoot(),
         HttpModule,
         PolicyEngineModule
       ],

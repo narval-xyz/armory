@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { Context, Span, SpanOptions, context, trace } from '@opentelemetry/api'
+import { Context, Span, SpanOptions, Tracer, context, trace } from '@opentelemetry/api'
 import { OpenTelemetryException } from '../open-telemetry.exception'
 import { TraceService } from './trace.service'
 
 @Injectable()
 export class OpenTelemetryTraceService implements TraceService {
-  public getTracer() {
+  public getTracer(): Tracer {
     return trace.getTracer('default')
   }
 

@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import {
   Criterion,
   Entities,
@@ -134,6 +134,7 @@ describe('Data Store', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forRoot(),
         ManagedDataStoreModule
       ]
     })
