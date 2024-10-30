@@ -6,8 +6,5 @@ export * from './service/trace.service'
 
 export * from './service/open-telemetry-metric.service'
 export * from './service/open-telemetry-trace.service'
-
 export * from './service/stateful-metric.service'
 export * from './service/stateful-trace.service'
-
-export * from './open-telemetry.tracing'
