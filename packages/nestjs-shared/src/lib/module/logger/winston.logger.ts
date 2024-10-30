@@ -1,5 +1,4 @@
 import { stringify } from '@narval/policy-engine-shared'
-import { context, trace } from '@opentelemetry/api'
 import winston from 'winston'
 import { redact } from './logger.util'
 
@@ -26,24 +25,11 @@ const pretty = (info: winston.Logform.TransformableInfo) => {
   return `${info.timestamp} ${getLevelColor(level)}[${level.toUpperCase()}]\x1b[0m: ${message}\n${stringify(context, 2)}`
 }
 
-const tracing = winston.format((info) => {
-  const span = trace.getSpan(context.active())
-
-  if (span) {
-    const spanContext = span.spanContext()
-
-    info.spanId = spanContext.spanId
-    info.traceId = spanContext.traceId
-  }
-
-  return info
-})
-
 const redacting = winston.format((info) => {
   return redact(info)
 })
 
-const BASE_FORMAT = [winston.format.timestamp(), winston.format.json(), tracing(), redacting()]
+const BASE_FORMAT = [winston.format.timestamp(), winston.format.json(), redacting()]
 
 const production = winston.format.combine(...BASE_FORMAT, winston.format.printf(stringify))
 
