@@ -1,7 +1,10 @@
 ignore:
   # Ignore userOperation files as functionality is not certain yet.
+  # Ignore dist and rego-build directories as they don't need linting.
   files:
     - '*userOperation*'
+    - 'dist/**'
+    - 'rego-build/**'
 rules:
   style:
     # This rule is disabled in tests to let us paste in big JSON payloads without having to worry about line length.
