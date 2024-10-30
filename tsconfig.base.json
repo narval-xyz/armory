@@ -18,6 +18,7 @@
       "@narval/config-module": ["packages/config-module/src/index.ts"],
       "@narval/encryption-module": ["packages/encryption-module/src/index.ts"],
       "@narval/nestjs-shared": ["packages/nestjs-shared/src/index.ts"],
+      "@narval/open-telemetry": ["packages/open-telemetry/src/index.ts"],
       "@narval/policy-engine-shared": ["packages/policy-engine-shared/src/index.ts"],
       "@narval/signature": ["packages/signature/src/index.ts"],
       "@narval/transaction-request-intent": ["packages/transaction-request-intent/src/index.ts"]

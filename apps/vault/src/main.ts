@@ -1,12 +1,13 @@
+import { instrumentOpenTelemetry } from '@narval/open-telemetry'
+
+// IMPORTANT: OpenTelemetry SDK must be registered before any other imports to
+// ensure proper instrumentation. The instrumentation packages patches Node.js
+// runtime - if NestFactory or other dependencies load first, they'll use the
+// unpatched runtime and won't be instrumented correctly.
+instrumentOpenTelemetry({ serviceName: 'vault' })
+
 import { ConfigService } from '@narval/config-module'
-import {
-  LoggerService,
-  buildOpenTelemetrySdk,
-  withApiVersion,
-  withCors,
-  withLogger,
-  withSwagger
-} from '@narval/nestjs-shared'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
@@ -33,11 +34,6 @@ const provision = async () => {
 }
 
 async function bootstrap() {
-  // IMPORTANT: For the @opentelemetry/auto-instrumentations-node package work
-  // correctly, OpenTelemetry MUST register before the NestFactory.create.
-  const openTelemetrySdk = buildOpenTelemetrySdk({ serviceName: 'vault' })
-  openTelemetrySdk.start()
-
   // NOTE: Refer to the comment in the ProvisionModule to understand why we use
   // a temporary application for the provision step.
   await provision()

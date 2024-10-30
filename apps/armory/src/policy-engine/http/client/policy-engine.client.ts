@@ -1,4 +1,4 @@
-import { LoggerService, TraceService } from '@narval/nestjs-shared'
+import { LoggerService } from '@narval/nestjs-shared'
 import {
   CreateClient,
   EvaluationRequest,
@@ -7,7 +7,7 @@ import {
   SerializedEvaluationRequest
 } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
@@ -17,8 +17,7 @@ export class PolicyEngineClientException extends ApplicationException {}
 export class PolicyEngineClient {
   constructor(
     private httpService: HttpService,
-    private logger: LoggerService,
-    @Inject(TraceService) private traceService: TraceService
+    private logger: LoggerService
   ) {}
 
   async evaluate(option: {
@@ -136,15 +135,9 @@ export class PolicyEngineClient {
   }
 
   private getHeaders(option: { clientId?: string; clientSecret?: string }) {
-    const activeSpan = this.traceService.getActiveSpan()
-
     return {
       'x-client-id': option.clientId,
-      'x-client-secret': option.clientSecret,
-      // Trace context headers.
-      // See https://www.w3.org/TR/trace-context/
-      traceparent: activeSpan?.spanContext().traceId,
-      tracestate: activeSpan?.spanContext().spanId
+      'x-client-secret': option.clientSecret
     }
   }
 }

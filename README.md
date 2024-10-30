@@ -116,7 +116,7 @@ below to generate a project of your choice.
 
 ```bash
 # Generate an standard JavaScript library.
-npx nx g @nrwl/workspace:lib
+npx nx g @nrwl/js:lib 
 # Generate an NestJS library.
 npx nx g @nx/nest:library
 # Generate an NestJS application.
@@ -147,25 +147,30 @@ the `nx.json`.
 The Armory Stack uses [OpenTelemetry](https://opentelemetry.io/docs/) (OTEL)
 for observability through traces and metrics.
 
+For details on how OTEL is instrumented, head over
+[@narval/open-telemetry](./packages/open-telemetry/).
+
 ### Setup
 
-1. Set environment variables:
-
-```bash
-OTEL_METRIC_EXPORTER_URL=http://localhost:4318/v1/metrics
-OTEL_TRACE_EXPORTER_URL=http://localhost:4318/v1/traces
-```
-
-> [!IMPORTANT]
-> OTEL module automatically disables if either URL is not set.
-
-2. Start local dependencies:
+1. Start local dependencies:
 
 ```bash
 make docker/otel/up
 ```
 
-3. Access Jaeger UI: http://localhost:16686
+2. Set environment variables:
+
+```bash
+OTEL_SDK_DISABLED=false
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+```
+
+> [!NOTE]
+> OTEL is disabled by default in development. 
+
+3. Restart the application.
+
+4. Access Jaeger UI: http://localhost:16686
 
 ### Naming Conventions
 

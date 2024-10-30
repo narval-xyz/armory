@@ -1,12 +1,14 @@
+import { instrumentOpenTelemetry } from '@narval/open-telemetry'
+import { DiagLogLevel } from '@opentelemetry/api'
+
+// IMPORTANT: OpenTelemetry SDK must be registered before any other imports to
+// ensure proper instrumentation. The instrumentation packages patches Node.js
+// runtime - if NestFactory or other dependencies load first, they'll use the
+// unpatched runtime and won't be instrumented correctly.
+instrumentOpenTelemetry({ serviceName: 'auth', diagLogLevel: DiagLogLevel.DEBUG })
+
 import { ConfigService } from '@narval/config-module'
-import {
-  LoggerService,
-  buildOpenTelemetrySdk,
-  withApiVersion,
-  withCors,
-  withLogger,
-  withSwagger
-} from '@narval/nestjs-shared'
+import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { json } from 'express'
@@ -68,11 +70,6 @@ const withGlobalFilters =
  * successfully bootstrapped.
  */
 async function bootstrap(): Promise<void> {
-  // IMPORTANT: For the @opentelemetry/auto-instrumentations-node package work
-  // correctly, OpenTelemetry MUST register before the NestFactory.create.
-  const openTelemetrySdk = buildOpenTelemetrySdk({ serviceName: 'auth' })
-  openTelemetrySdk.start()
-
   const application = await NestFactory.create(ArmoryModule, { bufferLogs: true })
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const logger = application.get<LoggerService>(LoggerService)
