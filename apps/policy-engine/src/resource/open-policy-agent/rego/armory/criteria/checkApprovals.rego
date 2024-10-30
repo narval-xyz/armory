@@ -48,7 +48,7 @@ checkApproval(approval) := result if {
 	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {user |
 		some entity in approval.entityIds
-		users = entities.getUserGroup(entity).users
+		users = entities.getGroup(entity).users
 		some user in users
 	} | {principal.id}
 
@@ -62,7 +62,7 @@ checkApproval(approval) := result if {
 	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {user |
 		some entity in approval.entityIds
-		users = entities.getUserGroup(entity).users
+		users = entities.getGroup(entity).users
 		some user in users
 		not lib.caseInsensitiveEqual(user, principal.id)
 	}

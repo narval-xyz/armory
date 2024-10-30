@@ -44,7 +44,7 @@ test_approvalByUserGroups if {
 			"approvalCount": 2,
 			"approvalEntityType": "Narval::UserGroup",
 			"countPrincipal": false,
-			"entityIds": ["test-user-group-one-uid"],
+			"entityIds": ["test-group-one-uid"],
 		}],
 		"policyId": "approvalByUserGroups",
 		"type": "permit",

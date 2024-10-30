@@ -15,7 +15,7 @@ test_source if {
 		"classification": "managed",
 		"accountType": "eoa",
 		"assignees": ["test-bOb-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid"],
-		"groups": {"test-account-group-ONE-uid"},
+		"groups": {"test-GROUP-one-uid"},
 	}
 
 	expected == res

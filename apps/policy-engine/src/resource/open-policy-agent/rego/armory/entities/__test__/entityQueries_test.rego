@@ -10,7 +10,7 @@ test_account if {
 		"accountType": "eoa",
 		"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
 		"assignees": ["test-bOb-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid"],
-		"groups": {"test-account-group-ONE-uid"},
+		"groups": {"test-GROUP-one-uid"},
 		"id": "eip155:eoa:0xDDcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	}
 	account == expected
@@ -26,7 +26,7 @@ test_accountFromAddress if {
 		"accountType": "eoa",
 		"address": "0xddcf208F219a6e6af072f2cfdc615b2c1805f98e",
 		"assignees": ["test-bOb-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid"],
-		"groups": {"test-account-group-ONE-uid"},
+		"groups": {"test-GROUP-one-uid"},
 		"id": "eip155:eoa:0xDDcf208f219a6e6af072f2cfdc615b2c1805f98e",
 	}
 	account == expected
@@ -38,42 +38,49 @@ test_accountFromAddress if {
 
 test_accountGroups if {
 	# Test finding a group by ID
-	group := getAccountGroup("test-account-group-ONE-uid") with data.entities as testData.entities
+	group := getGroup("test-GROUP-one-uid") with data.entities as testData.entities
+
+	{"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e"], "id": "test-GROUP-one-uid", "name": "dev", "users": ["test-Bob-uid", "test-Bar-uid"]}
 	expectedGroup := {
-		"id": "test-account-group-ONE-uid",
+		"id": "test-GROUP-one-uid",
 		"accounts": [
 			"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
 			"eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e",
 		],
-		"name": "dev",
-	}
-	group == expectedGroup
-
-	# Test case insensitivity
-	groupsUpper := getAccountGroup("test-account-group-one-uid") with data.entities as testData.entities
-	group == groupsUpper
-
-	# Test non-existent input
-	nonExistent := getAccountGroup("unknown") with data.entities as testData.entities
-	nonExistent == null
-}
-
-test_userGroups if {
-	# Test finding a group by ID
-	group := getUserGroup("test-USER-group-one-uid") with data.entities as testData.entities
-	expectedGroup := {
-		"id": "test-USER-group-one-uid",
 		"name": "dev",
 		"users": ["test-Bob-uid", "test-Bar-uid"],
 	}
 	group == expectedGroup
 
 	# Test case insensitivity
-	groupsUpper := getUserGroup("test-user-group-one-UID") with data.entities as testData.entities
+	groupsUpper := getGroup("test-group-one-uid") with data.entities as testData.entities
 	group == groupsUpper
 
 	# Test non-existent input
-	nonExistent := getUserGroup("unknown") with data.entities as testData.entities
+	nonExistent := getGroup("unknown") with data.entities as testData.entities
+	nonExistent == null
+}
+
+test_userGroups if {
+	# Test finding a group by ID
+	group := getGroup("test-GROUP-one-uid") with data.entities as testData.entities
+	expectedGroup := {
+		"id": "test-GROUP-one-uid",
+		"accounts": [
+			"eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e",
+			"eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e",
+		],
+		"name": "dev",
+		"users": ["test-Bob-uid", "test-Bar-uid"],
+	}
+	group == expectedGroup
+
+	# Test case insensitivity
+	groupsUpper := getGroup("test-group-one-UID") with data.entities as testData.entities
+	group == groupsUpper
+
+	# Test non-existent input
+	nonExistent := getGroup("unknown") with data.entities as testData.entities
 	nonExistent == null
 }
 
@@ -115,7 +122,7 @@ test_user if {
 	user == {
 		"id": "test-BOB-uid",
 		"role": "root",
-		"groups": {"test-USER-group-one-uid", "test-USER-group-two-uid"},
+		"groups": {"test-GROUP-one-uid", "test-grouP-two-uid"},
 	}
 
 	# Test case insensitivity
