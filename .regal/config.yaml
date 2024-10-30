@@ -38,9 +38,9 @@ rules:
           - '*_policies*.rego'
       conventions:
         # We use camelCase to comply with our monorepo naming conventions
-        # OPA test runner requires test rules to start with test_
-        # We can't have sets of files with different naming conventions
-        # So we tolerate both standards in the same rule
+        # OPA test runner requires test rules to start with "test_", which is not camelCase.
+        # Regal naming conventions applies to all files, we can't subset them by file groups
+        # So we tolerate both standards in the same naming convetion, only for 'rules'.
         - pattern: '^(test_)?[a-z]+([A-Z][a-z0-9]+)*$'
           targets:
             - rule
