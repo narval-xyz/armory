@@ -2,6 +2,7 @@ import { ConfigService } from '@narval/config-module'
 import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import compression from 'compression'
 import { json } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
@@ -65,6 +66,12 @@ async function bootstrap(): Promise<void> {
   const configService = application.get<ConfigService<Config>>(ConfigService)
   const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
+
+  application.use(
+    compression({
+      filter: (req) => req.path.startsWith('/v1/data')
+    })
+  )
 
   // Increase the POST JSON payload size to support bigger data stores.
   application.use(json({ limit: '50mb' }))
