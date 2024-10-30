@@ -15,22 +15,20 @@ export const transpileCriterion = (item: PolicyCriterion) => {
   if (!isEmpty(args)) {
     if (Array.isArray(args)) {
       if (typeof args[0] === 'string') {
-        return `${criterion}({${args.map((el) => `"${el}"`).join(', ')}})`
+        return `criteria.${criterion}({${args.map((el) => `"${el}"`).join(', ')}})`
       }
 
       if (criterion === Criterion.CHECK_APPROVALS) {
         // TODO: (@wcalderipe, 18/03/24): Explore with team a threat model on
         // string interpolation injection.
-        return `approvals = ${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
+        return `approvals = criteria.${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
       }
-
-      return `${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
+      return `criteria.${criterion}([${args.map((el) => JSON.stringify(el)).join(', ')}])`
     }
-
-    return `${criterion}(${JSON.stringify(args)})`
+    return `criteria.${criterion}(${JSON.stringify(args)})`
   }
 
-  return `${criterion}`
+  return `criteria.${criterion}`
 }
 
 export const transpileReason = (item: Policy & { id: string }) => {

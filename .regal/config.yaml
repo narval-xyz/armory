@@ -1,0 +1,72 @@
+ignore:
+  # Ignore userOperation files as functionality is not certain yet.
+  # Ignore dist and rego-build directories as they don't need linting.
+  files:
+    - '*userOperation*'
+    - 'dist/**'
+    - 'rego-build/**'
+rules:
+  style:
+    # This rule is disabled in tests to let us paste in big JSON payloads without having to worry about line length.
+    rule-length:
+      level: error
+      ignore:
+        files:
+          - '*_test.rego'
+    line-length:
+      level: error
+      ignore:
+        files:
+          - '*_test.rego'
+    # Signal TODO comments to the PR reviewer
+    todo-comment:
+      level: warning
+    # We use camel case to comply with our naming conventions
+    prefer-snake-case:
+      level: ignore
+    # In the future, it can be beneficial to re-activate this rule to ensure one source of truth for data and input shape.
+    # It is already done for "data" part, through 'armory.entities' package. "input" is still accessed on the fly when needed.
+    # If we do so, then we can ignore this rule only in querying packages.
+    external-reference:
+      level: ignore
+  custom:
+    naming-convention:
+      level: error
+      ignore:
+        # Ignore the naming convention for 'policy' files - Our policy definition can't be camelCased: permit[{...}].
+        files:
+          - '*_policies*.rego'
+      conventions:
+        # We use camelCase to comply with our monorepo naming conventions
+        # OPA test runner requires test rules to start with "test_", which is not camelCase.
+        # Regal naming conventions applies to all files, we can't subset them by file groups
+        # So we tolerate both standards in the same naming convetion, only for 'rules'.
+        - pattern: '^(test_)?[a-z]+([A-Z][a-z0-9]+)*$'
+          targets:
+            - rule
+          description: 'Use camelCase or test_camelCase for rules'
+        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*$'
+          targets:
+            - function
+          description: 'Use camelCase for all functions'
+        - pattern: ^([a-z][a-z0-9]*([A-Z][a-z0-9]+)*|\$\d+)$
+          targets:
+            - variable
+          description: 'Use camelCase for variables or "$number" for unused variables'
+        - pattern: '^[a-z]+([A-Z][a-z0-9]+)*(\.[a-z]+([A-Z][a-z0-9]+)*)*$'
+          targets:
+            - package
+          description: 'Use camelCase.camelCase... for packages'
+  # Future improvement: remove ignore for test files.
+  # It would be better to strictly split test and production code in different packages to make sure test code is never hit by production one
+  idiomatic:
+    directory-package-mismatch:
+      level: error
+      ignore:
+        files:
+          - '*_test.rego'
+  # Disabling this rule allows to call tested function from the test file without importing functionality package.
+  # Related to comment above, this ignore can be removed if we split test and production code in different packages.
+  testing:
+    test-outside-test-package:
+      level: ignore

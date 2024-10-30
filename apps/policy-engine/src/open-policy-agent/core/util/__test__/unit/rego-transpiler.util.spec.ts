@@ -42,7 +42,7 @@ describe('transpileCriterion', () => {
       criterion: Criterion.CHECK_NONCE_EXISTS,
       args: null
     }
-    expect(transpileCriterion(item)).toEqual(Criterion.CHECK_NONCE_EXISTS)
+    expect(transpileCriterion(item)).toEqual(`criteria.${Criterion.CHECK_NONCE_EXISTS}`)
   })
 
   it('returns criterion if args is an array of strings', () => {
@@ -51,7 +51,7 @@ describe('transpileCriterion', () => {
       args: ['0x123', '0x456']
     }
 
-    expect(transpileCriterion(item)).toEqual(`${Criterion.CHECK_ACCOUNT_ADDRESS}({"0x123", "0x456"})`)
+    expect(transpileCriterion(item)).toEqual(`criteria.${Criterion.CHECK_ACCOUNT_ADDRESS}({"0x123", "0x456"})`)
   })
 
   it('returns criterion if args is an array of objects', () => {
@@ -61,7 +61,7 @@ describe('transpileCriterion', () => {
     }
 
     expect(transpileCriterion(item)).toEqual(
-      `${Criterion.CHECK_ERC1155_TRANSFERS}([${item.args.map((el) => JSON.stringify(el)).join(', ')}])`
+      `criteria.${Criterion.CHECK_ERC1155_TRANSFERS}([${item.args.map((el) => JSON.stringify(el)).join(', ')}])`
     )
   })
 
@@ -74,7 +74,7 @@ describe('transpileCriterion', () => {
       }
     }
 
-    expect(transpileCriterion(item)).toEqual(`${Criterion.CHECK_INTENT_AMOUNT}(${JSON.stringify(item.args)})`)
+    expect(transpileCriterion(item)).toEqual(`criteria.${Criterion.CHECK_INTENT_AMOUNT}(${JSON.stringify(item.args)})`)
   })
 
   it('returns approvals criterion', () => {
@@ -91,7 +91,7 @@ describe('transpileCriterion', () => {
     }
 
     expect(transpileCriterion(item)).toEqual(
-      `approvals = ${Criterion.CHECK_APPROVALS}([${item.args.map((el) => JSON.stringify(el)).join(', ')}])`
+      `approvals = criteria.${Criterion.CHECK_APPROVALS}([${item.args.map((el) => JSON.stringify(el)).join(', ')}])`
     )
   })
 })
