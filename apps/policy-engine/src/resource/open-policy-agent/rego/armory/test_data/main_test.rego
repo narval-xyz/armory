@@ -193,16 +193,18 @@ entities := {
 			"role": "admin",
 		},
 	},
-	"userGroups": {
-		"test-user-group-one-uid": {
-			"id": "test-USER-group-one-uid",
+	"groups": {
+		"test-group-one-uid": {
+			"id": "test-GROUP-one-uid",
 			"name": "dev",
 			"users": ["test-Bob-uid", "test-Bar-uid"],
+			"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e"],
 		},
-		"test-user-group-two-uid": {
-			"id": "test-USER-group-two-uid",
+		"test-group-two-uid": {
+			"id": "test-grouP-two-uid",
 			"name": "finance",
 			"users": ["tesT-Bob-uid", "test-bar-uid"],
+			"accounts": [],
 		},
 	},
 	"accounts": {
@@ -219,9 +221,4 @@ entities := {
 			"assignees": ["test-Bob-uid", "test-alicE-uid", "test-foo-uid", "test-bar-uid", "0xAAA8ee1cbaa1856f4550c6fc24abb16c5c9b2a43"],
 		},
 	},
-	"accountGroups": {"test-account-group-one-uid": {
-		"id": "test-account-group-ONE-uid",
-		"name": "dev",
-		"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e"],
-	}},
 }

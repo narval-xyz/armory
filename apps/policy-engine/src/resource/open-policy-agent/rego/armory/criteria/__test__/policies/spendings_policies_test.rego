@@ -91,7 +91,7 @@ forbid[{"policyId": "spendingLimitByUserGroup"}] := reason if {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"userGroups": {"test-user-group-one-uid"}},
+		"filters": {"userGroups": {"test-group-one-uid"}},
 	})
 	reason = {
 		"type": "forbid",
@@ -114,7 +114,7 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] := reason if {
 			"type": "rolling",
 			"value": (12 * 60) * 60,
 		},
-		"filters": {"accountGroups": {"test-account-group-one-uid"}},
+		"filters": {"accountGroups": {"test-group-one-uid"}},
 	})
 
 	reason = {
