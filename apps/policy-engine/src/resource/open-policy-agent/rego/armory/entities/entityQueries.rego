@@ -89,13 +89,13 @@ getAccountByAddress(address) := account if {
 getAccount(string) := accountData if {
 	# First, try to find the account by ID
 	account := getAccountById(string)
-	accountGroups := getGroupsByAccount(account.id)
-	accountData := object.union(account, {"groups": accountGroups})
+	groups := getGroupsByAccount(account.id)
+	accountData := object.union(account, {"groups": groups})
 } else := accountData if {
 	# If not found by ID, try to find by address
 	account := getAccountByAddress(string)
-	accountGroups := getGroupsByAccount(account.id)
-	accountData := object.union(account, {"groups": accountGroups})
+	groups := getGroupsByAccount(account.id)
+	accountData := object.union(account, {"groups": groups})
 } else := null
 
 # If not found by ID or address, return null
@@ -103,15 +103,15 @@ getAccount(string) := accountData if {
 ## Account Groups
 ##
 ## Input: string
-## Output: accountGroup object | null
+## Output: group object | null
 ##
 ## This function first tries to find an account group by its ID.
 ##
 ## Example entity data:
 ## {
 ##   "entities": {
-##     "accountGroups": {
-##       "test-account-group-ONE-uid": {
+##     "groups": {
+##       "test-group-ONE-uid": {
 ##         "id": "test-account-group-ONE-uid",
 ##         "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
 ##         "name": "dev",
@@ -131,7 +131,7 @@ getAccount(string) := accountData if {
 ## entities.getAccountGroup("unknown")
 ## RETURNS null
 getAccountGroup(string) := group if {
-	group := data.entities.accountGroups[lower(string)]
+	group := data.entities.groups[lower(string)]
 } else := null
 
 ## Groups by Account
@@ -148,7 +148,7 @@ getAccountGroup(string) := group if {
 ## RETURNS {}
 getGroupsByAccount(accountId) := groups if {
 	groups := {group.id |
-		some group in data.entities.accountGroups
+		some group in data.entities.groups
 		lib.caseInsensitiveFindInSet(accountId, group.accounts)
 	}
 } else := null
@@ -156,14 +156,14 @@ getGroupsByAccount(accountId) := groups if {
 ## User Groups
 ##
 ## Input: string
-## Output: userGroup object | null
+## Output: group object | null
 ##
 ## This function first tries to find a user group by its ID.
 ##
 ## Example entity data:
 ## {
 ##   "entities": {
-##     "userGroups": {
+##     "groups": {
 ##       "test-user-group-one-uid": {
 ##         "id": "test-USER-group-one-uid",
 ##         "name": "dev",
@@ -184,7 +184,7 @@ getGroupsByAccount(accountId) := groups if {
 ## entities.getUserGroup("unknown")
 ## RETURNS null
 getUserGroup(string) := group if {
-	group := data.entities.userGroups[lower(string)]
+	group := data.entities.groups[lower(string)]
 } else := null
 
 ## Groups by User
@@ -201,7 +201,7 @@ getUserGroup(string) := group if {
 ## RETURNS {}
 getGroupsByUser(userId) := groups if {
 	groups := {group.id |
-		some group in data.entities.userGroups
+		some group in data.entities.groups
 		lib.caseInsensitiveFindInSet(userId, group.users)
 	}
 } else := null
@@ -294,7 +294,7 @@ getToken(id) := tokenData if {
 ## 				"role": "root",
 ## 			},
 ## 		},
-##    "userGroups": {
+##    "groups": {
 ## 		  "test-user-group-one-uid": {
 ## 			  "id": "test-USER-group-one-uid",
 ## 			  "name": "dev",

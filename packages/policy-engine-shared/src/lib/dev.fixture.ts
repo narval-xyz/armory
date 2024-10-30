@@ -236,10 +236,10 @@ export const EOA_CREDENTIAL: Record<Personas, CredentialEntity> = {
 
 export const GROUP: Record<Groups, GroupEntity> = {
   Engineering: {
-    id: 'test-engineering-user-group-uid'
+    id: 'test-engineering-group-uid'
   },
   Treasury: {
-    id: 'test-treasury-user-group-uid'
+    id: 'test-treasury-group-uid'
   }
 }
 
