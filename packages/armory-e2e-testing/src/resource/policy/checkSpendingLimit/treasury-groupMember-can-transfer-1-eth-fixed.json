@@ -12,7 +12,7 @@
           "period": "1d"
         },
         "filters": {
-          "userGroups": ["test-treasury-user-group-uid"],
+          "userGroups": ["test-treasury-group-uid"],
           "tokens": ["eip155:1/slip44:60"]
         }
       }

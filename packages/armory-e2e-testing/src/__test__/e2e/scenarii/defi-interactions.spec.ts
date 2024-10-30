@@ -20,9 +20,6 @@ const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
-const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
-const bobPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Bob
-const carolPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Carol
 const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })

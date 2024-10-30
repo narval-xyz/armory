@@ -178,7 +178,7 @@ describe(DataStoreService.name, () => {
     })
 
     it('throws DataStoreException when entity domain is invalid', async () => {
-      const duplicateUserGroups = [
+      const duplicateGroups = [
         {
           id: '1'
         },
@@ -187,7 +187,7 @@ describe(DataStoreService.name, () => {
         }
       ]
       const entities = {
-        userGroups: duplicateUserGroups,
+        groups: duplicateGroups,
         addressBook: [],
         credentials: [],
         tokens: [],
@@ -195,7 +195,6 @@ describe(DataStoreService.name, () => {
         userAccounts: [],
         users: [],
         accountGroupMembers: [],
-        accountGroups: [],
         accounts: []
       }
 

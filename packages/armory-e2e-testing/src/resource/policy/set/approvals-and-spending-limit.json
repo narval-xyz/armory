@@ -24,7 +24,7 @@
       },
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["test-treasury-user-group-uid"]
+        "args": ["test-treasury-group-uid"]
       }
     ],
     "then": "permit"
@@ -47,7 +47,7 @@
       },
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["test-treasury-user-group-uid"]
+        "args": ["test-treasury-group-uid"]
       },
       {
         "criterion": "checkSpendingLimit",
@@ -59,7 +59,7 @@
             "value": 86400
           },
           "filters": {
-            "userGroups": ["test-treasury-user-group-uid"],
+            "userGroups": ["test-treasury-group-uid"],
             "tokens": ["eip155:1/slip44:60"]
           }
         }
@@ -85,7 +85,7 @@
       },
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["test-treasury-user-group-uid"]
+        "args": ["test-treasury-group-uid"]
       },
       {
         "criterion": "checkSpendingLimit",
@@ -97,7 +97,7 @@
             "value": 86400
           },
           "filters": {
-            "userGroups": ["test-treasury-user-group-uid"],
+            "userGroups": ["test-treasury-group-uid"],
             "tokens": ["eip155:1/slip44:60"]
           }
         }

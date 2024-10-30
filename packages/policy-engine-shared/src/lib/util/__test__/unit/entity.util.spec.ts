@@ -33,8 +33,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message:
-              "couldn't create the user group member because the group test-engineering-user-group-uid is undefined"
+            message: "couldn't create the user group member because the group test-engineering-group-uid is undefined"
           }
         ]
       })
@@ -58,7 +57,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the user group member for group test-engineering-user-group-uid because the user test-alice-user-uid is undefined"
+              "couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined"
           }
         ]
       })
@@ -82,7 +81,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the account group member because the group test-engineering-account-group-uid is undefined"
+              "couldn't create the account group member because the group test-engineering-group-uid is undefined"
           }
         ]
       })
@@ -106,7 +105,7 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the account group member for group test-engineering-account-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
+              "couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
           }
         ]
       })
@@ -222,7 +221,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the user group ${GROUP.Engineering.id} is duplicated`
+            message: `the group ${GROUP.Engineering.id} is duplicated`
           }
         ]
       })
@@ -245,7 +244,7 @@ describe('validate', () => {
       })
     })
 
-    it('fails when account group uids are not unique', () => {
+    it('fails when group uids are not unique', () => {
       const result = validate({
         ...emptyEntities,
         groups: [GROUP.Engineering, GROUP.Engineering, GROUP.Treasury]
@@ -256,7 +255,7 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the account group ${GROUP.Engineering.id} is duplicated`
+            message: `the group ${GROUP.Engineering.id} is duplicated`
           }
         ]
       })
