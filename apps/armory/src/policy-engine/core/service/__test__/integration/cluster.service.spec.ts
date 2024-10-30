@@ -357,8 +357,7 @@ describe(ClusterService.name, () => {
         {
           name: 'cluster_sync_count',
           value: 1,
-          attributes: { clientId: 'test-client-id' },
-          context: undefined
+          attributes: { clientId: 'test-client-id' }
         }
       ])
     })

@@ -56,7 +56,7 @@ describe('Authorization Request', () => {
         }),
         QueueModule.forRoot(),
         PersistenceModule,
-        OpenTelemetryModule.forRoot(),
+        OpenTelemetryModule.forTest(),
         OrchestrationModule
       ]
     })

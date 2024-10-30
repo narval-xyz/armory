@@ -134,7 +134,7 @@ describe('Data Store', () => {
           load: [load],
           isGlobal: true
         }),
-        OpenTelemetryModule.forRoot(),
+        OpenTelemetryModule.forTest(),
         ManagedDataStoreModule
       ]
     })

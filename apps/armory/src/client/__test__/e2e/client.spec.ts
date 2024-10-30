@@ -77,7 +77,7 @@ describe('Client', () => {
           load: [load],
           isGlobal: true
         }),
-        OpenTelemetryModule.forRoot(),
+        OpenTelemetryModule.forTest(),
         ClientModule
       ]
     }).compile()
