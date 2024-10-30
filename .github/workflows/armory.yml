@@ -163,16 +163,30 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - id: update-helm-version
-        name: 'Update Helm Version'
-        uses: ./.github/actions/update-helm-version
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
         with:
-          appId: ${{ vars.NARVAL_HELM_APP_ID }}
-          privateKey: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
-          valueFile: 'apps/charts/armory/values.yaml'
-          propertyPath: 'image.tag'
-          value: ${{ env.sha7 }}
-          message: 'Update Armory Image Version to ${{ env.sha7 }}'
+          app-id: ${{ vars.NARVAL_HELM_APP_ID }}
+          private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
+          repositories: 'armory-platform'
+
+      - name: Notify Platform
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          repository: narval-xyz/armory-platform
+          event-type: dev-build
+          client-payload: |
+            {
+              "app": "armory",
+              "commit_sha": "${{ github.sha }}",
+              "commit_sha7": "${{ env.sha7 }}",
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "built_by": "${{ github.actor }}",
+              "image_uri": "${{ steps.login-ecr.outputs.registry }}/armory/armory:${{ env.sha7 }}",
+              "build_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'

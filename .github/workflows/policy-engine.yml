@@ -193,42 +193,24 @@ jobs:
         with:
           app-id: ${{ vars.NARVAL_HELM_APP_ID }}
           private-key: ${{ secrets.NARVAL_HELM_PRIVATE_KEY }}
-          repositories: 'armory,armory-platform'
+          repositories: 'armory-platform'
 
-      - name: Checkout Target Repository
-        uses: actions/checkout@v4
+      - name: Notify Platform
+        uses: peter-evans/repository-dispatch@v3
         with:
-          repository: narval-xyz/armory-platform
-          ref: main
-          path: platform
           token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
-
-      - name: Update Image Version in the worker HelmChart values.yaml
-        uses: fjogeleit/yaml-update-action@main
-        with:
-          valueFile: 'apps/charts/policy-engine/values.yaml'
-          # propertyPath: 'image.tag'
-          # value: ${{ env.sha7 }}
-          message: 'Update policy-engine Image Version to ${{ env.sha7 }}'
           repository: narval-xyz/armory-platform
-          branch: main
-          token: ${{ steps.app-token.outputs.token }}
-          workDir: platform
-          changes: |
+          event-type: dev-build
+          client-payload: |
             {
-              "apps/charts/policy-engine/values.yaml": {
-                "image.tag": "${{ env.sha7 }}"
-              },
-              "apps/charts/policy-engine/values-node-0.yaml": {
-                "image.tag": "${{ env.sha7 }}"
-              },
-              "apps/charts/policy-engine/values-node-1.yaml": {
-                "image.tag": "${{ env.sha7 }}"
-              },
-              "apps/charts/policy-engine/values-node-2.yaml": {
-                "image.tag": "${{ env.sha7 }}"
-              }
+              "app": "policy-engine",
+              "commit_sha": "${{ github.sha }}",
+              "commit_sha7": "${{ env.sha7 }}",
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "built_by": "${{ github.actor }}",
+              "image_uri": "${{ steps.login-ecr.outputs.registry }}/armory/policy-engine:${{ env.sha7 }}",
+              "build_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
 
       - name: Send Slack notification on failure
