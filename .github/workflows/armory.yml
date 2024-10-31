@@ -187,6 +187,7 @@ jobs:
               "built_by": "${{ github.actor }}",
               "image_uri": "${{ steps.login-ecr.outputs.registry }}/armory/armory:${{ env.sha7 }}",
               "build_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
 
       - name: Send Slack notification on failure
         if: failure() && github.ref == 'refs/heads/main'
