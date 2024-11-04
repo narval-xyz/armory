@@ -92,6 +92,7 @@ const useDataStoreApi = () => {
     if (!entityStoreClient || processingStatus.isFetchingEntity) return
 
     try {
+      console.log('Fetching entity store')
       setProcessingStatus((prev) => ({ ...prev, isFetchingEntity: true }))
       const entity = await backOff(() => entityStoreClient.fetch(), { maxRetries: 3 })
       setEntityStore(entity)
