@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
 import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -77,6 +77,7 @@ describe('Client', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         ClientModule
       ]
     }).compile()

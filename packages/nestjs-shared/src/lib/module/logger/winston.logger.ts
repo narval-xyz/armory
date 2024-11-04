@@ -25,13 +25,11 @@ const pretty = (info: winston.Logform.TransformableInfo) => {
   return `${info.timestamp} ${getLevelColor(level)}[${level.toUpperCase()}]\x1b[0m: ${message}\n${stringify(context, 2)}`
 }
 
-const BASE_FORMAT = [
-  winston.format.timestamp(),
-  winston.format.json(),
-  winston.format((info) => {
-    return redact(info)
-  })()
-]
+const redacting = winston.format((info) => {
+  return redact(info)
+})
+
+const BASE_FORMAT = [winston.format.timestamp(), winston.format.json(), redacting()]
 
 const production = winston.format.combine(...BASE_FORMAT, winston.format.printf(stringify))
 

@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -99,6 +99,7 @@ describe(AuthorizationRequestProcessingConsumer.name, () => {
         BullModule.registerQueue({
           name: AUTHORIZATION_REQUEST_PROCESSING_QUEUE
         }),
+        OpenTelemetryModule.forTest(),
         HttpModule,
         PolicyEngineModule
       ],

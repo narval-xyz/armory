@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import { Action, AuthorizationRequest, Eip712TypedData, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { getQueueToken } from '@nestjs/bull'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -56,6 +56,7 @@ describe('Authorization Request', () => {
         }),
         QueueModule.forRoot(),
         PersistenceModule,
+        OpenTelemetryModule.forTest(),
         OrchestrationModule
       ]
     })

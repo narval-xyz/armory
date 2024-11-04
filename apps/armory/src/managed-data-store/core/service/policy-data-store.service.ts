@@ -1,5 +1,7 @@
+import { MetricService, TraceService } from '@narval/nestjs-shared'
 import { PolicyStore } from '@narval/policy-engine-shared'
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { PolicyDataStoreRepository } from '../../persistence/repository/policy-data-store.repository'
@@ -7,21 +9,45 @@ import { SignatureService } from './signature.service'
 
 @Injectable()
 export class PolicyDataStoreService extends SignatureService {
+  private getCounter: Counter
+  private setCounter: Counter
+
   constructor(
     private policyDataStoreRepository: PolicyDataStoreRepository,
     private clientService: ClientService,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    @Inject(TraceService) private traceService: TraceService,
+    @Inject(MetricService) private metricService: MetricService
   ) {
     super()
+
+    this.getCounter = this.metricService.createCounter('policy_data_store_get_count')
+    this.setCounter = this.metricService.createCounter('policy_data_store_set_count')
   }
 
   async getPolicies(clientId: string): Promise<PolicyStore | null> {
+    this.getCounter.add(1, { clientId })
+
+    const span = this.traceService.startSpan(`${PolicyDataStoreService.name}.getPolicies`, {
+      attributes: { clientId }
+    })
+
     const policyStore = await this.policyDataStoreRepository.getLatestDataStore(clientId)
 
-    return policyStore ? PolicyStore.parse(policyStore.data) : null
+    const response = policyStore ? PolicyStore.parse(policyStore.data) : null
+
+    span.end()
+
+    return response
   }
 
   async setPolicies(clientId: string, payload: PolicyStore) {
+    this.setCounter.add(1, { clientId })
+
+    const span = this.traceService.startSpan(`${PolicyDataStoreService.name}.setPolicies`, {
+      attributes: { clientId }
+    })
+
     const client = await this.clientService.findById(clientId)
 
     if (!client) {
@@ -46,10 +72,14 @@ export class PolicyDataStoreService extends SignatureService {
 
     const success = await this.clusterService.sync(clientId)
 
-    return {
+    const response = {
       latestSync: { success },
       policy: PolicyStore.parse(data),
       version
     }
+
+    span.end()
+
+    return response
   }
 }

@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpLoggerMiddleware, LoggerModule } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import { MiddlewareConsumer, Module, NestModule, OnModuleInit, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -21,7 +21,8 @@ const INFRASTRUCTURE_MODULES = [
     imports: [forwardRef(() => VaultModule)],
     inject: [ConfigService, AppService],
     useClass: EncryptionModuleOptionFactory
-  })
+  }),
+  OpenTelemetryModule.forRoot()
 ]
 
 @Module({

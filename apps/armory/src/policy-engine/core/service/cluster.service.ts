@@ -1,8 +1,9 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, MetricService, TraceService } from '@narval/nestjs-shared'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { isEmpty } from 'lodash'
 import { zip } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
@@ -29,12 +30,18 @@ export class ClusterService {
   // See https://docs.nestjs.com/fundamentals/lazy-loading-modules
   private finalizeEcdsaJwtSignature?: FinalizeEcdsaJwtSignature
 
+  private syncCounter: Counter
+
   constructor(
     private policyEngineClient: PolicyEngineClient,
     private policyEngineNodeRepository: PolicyEngineNodeRepository,
     private configService: ConfigService<Config>,
-    private logger: LoggerService
-  ) {}
+    private logger: LoggerService,
+    @Inject(TraceService) private traceService: TraceService,
+    @Inject(MetricService) private metricService: MetricService
+  ) {
+    this.syncCounter = this.metricService.createCounter('cluster_sync_count')
+  }
 
   async create(input: CreatePolicyEngineCluster): Promise<PolicyEngineNode[]> {
     const data = {
@@ -216,6 +223,12 @@ export class ClusterService {
   }
 
   async sync(clientId: string) {
+    this.syncCounter.add(1, { clientId })
+
+    const span = this.traceService.startSpan(`${ClusterService.name}.sync`, {
+      attributes: { clientId }
+    })
+
     const nodes = await this.findNodesByClientId(clientId)
 
     if (isEmpty(nodes)) {
@@ -231,6 +244,8 @@ export class ClusterService {
         })
       )
     )
+
+    span.end()
 
     if (responses.length && responses.every((response) => response.success)) {
       return true

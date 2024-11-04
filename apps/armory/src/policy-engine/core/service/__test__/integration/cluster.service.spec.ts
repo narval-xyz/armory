@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, MetricService, OpenTelemetryModule, StatefulMetricService, secret } from '@narval/nestjs-shared'
 import {
   DataStoreConfiguration,
   Decision,
@@ -33,6 +33,7 @@ describe(ClusterService.name, () => {
   let policyEngineNodeRepository: PolicyEngineNodeRepository
   let testPrismaService: TestPrismaService
   let configService: ConfigService<Config>
+  let statefulMetricService: StatefulMetricService
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -43,15 +44,17 @@ describe(ClusterService.name, () => {
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
-        })
+        }),
+        OpenTelemetryModule.forTest()
       ],
       providers: [ClusterService, PolicyEngineClient, PolicyEngineNodeRepository]
     }).compile()
 
-    clusterService = module.get<ClusterService>(ClusterService)
-    policyEngineNodeRepository = module.get<PolicyEngineNodeRepository>(PolicyEngineNodeRepository)
-    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    configService = module.get<ConfigService<Config>>(ConfigService)
+    clusterService = module.get(ClusterService)
+    policyEngineNodeRepository = module.get(PolicyEngineNodeRepository)
+    testPrismaService = module.get(TestPrismaService)
+    configService = module.get(ConfigService)
+    statefulMetricService = module.get(MetricService)
   })
 
   afterEach(async () => {
@@ -332,6 +335,31 @@ describe(ClusterService.name, () => {
 
     it('throws when client nodes are not found', async () => {
       await expect(clusterService.sync('not-found')).rejects.toThrow(ClusterNotFoundException)
+    })
+
+    it('increments sync counter metric', async () => {
+      await mockPolicyEngineClientSync({
+        url: nodeOneUrl,
+        clientId,
+        clientSecret,
+        success: true
+      })
+      await mockPolicyEngineClientSync({
+        url: nodeTwoUrl,
+        clientId,
+        clientSecret,
+        success: true
+      })
+
+      await clusterService.sync(clientId)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'cluster_sync_count',
+          value: 1,
+          attributes: { clientId: 'test-client-id' }
+        }
+      ])
     })
   })
 })

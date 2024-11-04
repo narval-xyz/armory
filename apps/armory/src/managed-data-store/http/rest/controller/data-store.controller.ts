@@ -93,8 +93,8 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetEntityStoreResponseDto
   })
-  setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
-    return this.entityDataStoreService.setEntities(clientId, body)
+  async setEntities(@Query('clientId') clientId: string, @Body() body: SetEntityStoreDto) {
+    return await this.entityDataStoreService.setEntities(clientId, body)
   }
 
   @Post('/policies')
@@ -105,11 +105,11 @@ export class DataStoreController {
     status: HttpStatus.CREATED,
     type: SetPolicyStoreResponseDto
   })
-  setPolicies(
+  async setPolicies(
     @Query('clientId') clientId: string,
     @Body() body: SetPolicyStoreDto
   ): Promise<SetPolicyStoreResponseDto> {
-    return this.policyDataStoreService.setPolicies(clientId, body)
+    return await this.policyDataStoreService.setPolicies(clientId, body)
   }
 
   @Post('/sync')

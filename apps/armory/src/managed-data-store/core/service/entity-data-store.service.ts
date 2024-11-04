@@ -1,5 +1,7 @@
+import { MetricService, TraceService } from '@narval/nestjs-shared'
 import { EntityStore } from '@narval/policy-engine-shared'
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { SetEntityStoreResponse } from '../../http/rest/dto/set-entity-store.dto'
@@ -8,21 +10,45 @@ import { SignatureService } from './signature.service'
 
 @Injectable()
 export class EntityDataStoreService extends SignatureService {
+  private getCounter: Counter
+  private setCounter: Counter
+
   constructor(
     private entityDataStoreRepository: EntityDataStoreRepository,
     private clientService: ClientService,
-    private clusterService: ClusterService
+    private clusterService: ClusterService,
+    @Inject(TraceService) private traceService: TraceService,
+    @Inject(MetricService) private metricService: MetricService
   ) {
     super()
+
+    this.getCounter = this.metricService.createCounter('entity_data_store_get_count')
+    this.setCounter = this.metricService.createCounter('entity_data_store_set_count')
   }
 
   async getEntities(clientId: string): Promise<EntityStore | null> {
+    this.getCounter.add(1, { clientId })
+
+    const span = this.traceService.startSpan(`${EntityDataStoreService.name}.getEntities`, {
+      attributes: { clientId }
+    })
+
     const entityStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
 
-    return entityStore ? EntityStore.parse(entityStore.data) : null
+    const response = entityStore ? EntityStore.parse(entityStore.data) : null
+
+    span.end()
+
+    return response
   }
 
   async setEntities(clientId: string, payload: EntityStore) {
+    this.setCounter.add(1, { clientId })
+
+    const span = this.traceService.startSpan(`${EntityDataStoreService.name}.setEntities`, {
+      attributes: { clientId }
+    })
+
     const client = await this.clientService.findById(clientId)
 
     if (!client) {
@@ -47,10 +73,14 @@ export class EntityDataStoreService extends SignatureService {
 
     const success = await this.clusterService.sync(clientId)
 
-    return SetEntityStoreResponse.parse({
+    const response = SetEntityStoreResponse.parse({
       latestSync: { success },
       entity: EntityStore.parse(data),
       version
     })
+
+    span.end()
+
+    return response
   }
 }
