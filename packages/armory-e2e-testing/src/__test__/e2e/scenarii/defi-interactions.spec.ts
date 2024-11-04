@@ -2,10 +2,10 @@ import {
   Action,
   Eip712Domain,
   Eip712TypedData,
-  entitiesSchema,
   FIXTURE,
-  policySchema,
-  Request
+  Request,
+  entitiesSchema,
+  policySchema
 } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
 import defiEntities from '../../../resource/entity/defi-interaction.json'
@@ -20,6 +20,7 @@ const systemManagerHexPk = FIXTURE.UNSAFE_PRIVATE_KEY.Root
 
 const getAuthHost = () => 'http://localhost:3005'
 const getAuthAdminApiKey = () => 'armory-admin-api-key'
+
 const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 
 const genNonce = (request: Request) => ({ ...request, nonce: `${request.nonce}-${v4()}` })

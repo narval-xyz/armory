@@ -26,7 +26,7 @@ import {
   CreateAuthorizationRequest,
   Criterion,
   Decision,
-  Entities,
+  EntitiesV,
   EntityUtil,
   Policy,
   Then,
@@ -45,7 +45,6 @@ import {
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 import { english, generateMnemonic, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Origin } from '../../../../../../apps/vault/src/shared/type/domain.type'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -111,7 +110,8 @@ describe('User Journeys', () => {
     role: UserRole.ADMIN
   }
 
-  const entities: Partial<Entities> = {
+  const entities: Partial<EntitiesV<'2'>> = {
+    version: '2',
     users: [user],
     credentials: [credential(user, userPublicKey)],
     accounts: [account]
@@ -260,7 +260,7 @@ describe('User Journeys', () => {
       let dataStoreConfig: DataStoreConfig
       let entityStoreClient: EntityStoreClient
 
-      const fullEntities: Entities = { ...EntityUtil.empty(), ...entities }
+      const fullEntities = EntityUtil.populate(entities)
 
       beforeEach(async () => {
         dataStoreConfig = {
@@ -318,7 +318,7 @@ describe('User Journeys', () => {
         expect(store).toEqual({
           entity: {
             data: {
-              ...EntityUtil.empty(),
+              ...EntityUtil.populate(entities),
               ...entities
             },
             signature
@@ -339,7 +339,7 @@ describe('User Journeys', () => {
         expect(store).toEqual({
           entity: {
             data: {
-              ...EntityUtil.empty(),
+              ...EntityUtil.populate(entities),
               ...entities
             },
             signature
@@ -576,7 +576,7 @@ describe('User Journeys', () => {
           id: account.id,
           address: account.address,
           publicKey: viemAccount.publicKey,
-          origin: Origin.IMPORTED
+          origin: 'IMPORTED'
         })
       })
 

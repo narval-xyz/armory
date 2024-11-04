@@ -43,7 +43,7 @@ export class DataStoreController {
 
     return {
       entity: {
-        data: EntityUtil.empty(),
+        data: EntityUtil.populate({}),
         signature: ''
       }
     }

@@ -94,7 +94,7 @@ export default function EntityManager() {
   } = useDataStoreApi()
 
   const [view, setView] = useState(View.ENTITY)
-  const [entities, setEntities] = useState<Entities>(EntityUtil.empty())
+  const [entities, setEntities] = useState<Entities>(EntityUtil.populate({}))
   const [errors, setErrors] = useState<string[]>([])
 
   const [entityStoreHash, setEntityStoreHash] = useState('')

@@ -1,5 +1,6 @@
 import { HttpModule, LoggerModule } from '@narval/nestjs-shared'
 import {
+  Entities,
   EntityData,
   EntitySignature,
   EntityStore,
@@ -186,7 +187,8 @@ describe(DataStoreService.name, () => {
           id: '1'
         }
       ]
-      const entities = {
+      const entities: Entities = {
+        version: '2',
         groups: duplicateGroups,
         addressBook: [],
         credentials: [],
@@ -231,7 +233,7 @@ describe(DataStoreService.name, () => {
 
     it('throws DataStoreException when entity signature is invalid', async () => {
       const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
-      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), privateKey)
+      const entityStoreTwo = await getEntityStore(EntityUtil.emptyV2(), privateKey)
 
       await testThrowDataStoreException({
         stores: {
@@ -290,7 +292,7 @@ describe(DataStoreService.name, () => {
 
     it('returns error when signature mismatch', async () => {
       const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
-      const entityStoreTwo = await getEntityStore(EntityUtil.empty(), privateKey)
+      const entityStoreTwo = await getEntityStore(EntityUtil.emptyV2(), privateKey)
 
       const verification = await service.verifySignature({
         data: entityStoreOne.data,

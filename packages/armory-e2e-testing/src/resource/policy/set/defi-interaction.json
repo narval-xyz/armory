@@ -5,11 +5,11 @@
     "when": [
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-traders"]
       },
       {
         "criterion": "checkAccountGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-trading-accounts"]
       },
       {
         "criterion": "checkAction",
@@ -24,11 +24,11 @@
     "when": [
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-traders"]
       },
       {
         "criterion": "checkAccountGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-trading-accounts"]
       },
       {
         "criterion": "checkIntentType",
@@ -43,11 +43,11 @@
     "when": [
       {
         "criterion": "checkPrincipalGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-traders"]
       },
       {
         "criterion": "checkAccountGroup",
-        "args": ["uniswap-trading"]
+        "args": ["uniswap-trading-accounts"]
       },
       {
         "criterion": "checkIntentType",
