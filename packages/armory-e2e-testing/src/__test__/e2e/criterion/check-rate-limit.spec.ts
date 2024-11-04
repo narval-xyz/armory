@@ -1,6 +1,6 @@
 import { Action, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../../resource/entity/test.default.json'
+import defaultEntities from '../../../resource/entity/test.v2.default.json'
 import adminPermitAll from '../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
 import memberTwoTransferPerDay from '../../../resource/policy/checkRateLimit/members-2-transfer-per-day.json'
 import {

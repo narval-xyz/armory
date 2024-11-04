@@ -54,10 +54,7 @@ export class EntityStoreClient {
   }
 
   private populate(entities: Partial<Entities>): Entities {
-    return {
-      ...EntityUtil.empty(),
-      ...entities
-    }
+    return EntityUtil.populate(entities)
   }
 
   /**

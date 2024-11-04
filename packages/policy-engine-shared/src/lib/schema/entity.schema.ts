@@ -85,7 +85,8 @@ export const groupEntitySchema = z.object({
   id: z.string()
 })
 
-export const entitiesSchema = z.object({
+export const entitiesV2Schema = z.object({
+  version: z.literal('2'),
   addressBook: z.array(addressBookAccountEntitySchema),
   credentials: z.array(credentialEntitySchema),
   tokens: z.array(tokenEntitySchema),
@@ -96,3 +97,28 @@ export const entitiesSchema = z.object({
   groups: z.array(groupEntitySchema),
   accounts: z.array(accountEntitySchema)
 })
+
+export const entitiesV1Schema = z.object({
+  version: z.literal('1').optional(),
+  addressBook: z.array(addressBookAccountEntitySchema),
+  credentials: z.array(credentialEntitySchema),
+  tokens: z.array(tokenEntitySchema),
+  userGroupMembers: z.array(userGroupMemberEntitySchema),
+  userGroups: z.array(groupEntitySchema),
+  userAccounts: z.array(userAccountEntitySchema),
+  users: z.array(userEntitySchema),
+  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
+  accountGroups: z.array(groupEntitySchema),
+  accounts: z.array(accountEntitySchema)
+})
+
+export const entitiesSchema = z.discriminatedUnion('version', [entitiesV1Schema, entitiesV2Schema])
+
+export const schemaMap = {
+  '1': entitiesV1Schema,
+  '2': entitiesV2Schema
+} as const
+
+export type EntityVersion = keyof typeof schemaMap
+
+export const getEntitySchema = (version?: EntityVersion) => (version ? schemaMap[version] : entitiesV1Schema)

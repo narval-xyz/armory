@@ -1643,306 +1643,405 @@ export interface EntityDataStoreDtoEntity {
     'signature': string;
 }
 /**
- * 
+ * @type EntityDataStoreDtoEntityData
  * @export
- * @interface EntityDataStoreDtoEntityData
  */
-export interface EntityDataStoreDtoEntityData {
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataAddressBookInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'addressBook': Array<EntityDataStoreDtoEntityDataAddressBookInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataCredentialsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'credentials': Array<EntityDataStoreDtoEntityDataCredentialsInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataTokensInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'tokens': Array<EntityDataStoreDtoEntityDataTokensInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'userGroupMembers': Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserAccountsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'userAccounts': Array<EntityDataStoreDtoEntityDataUserAccountsInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataUsersInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'users': Array<EntityDataStoreDtoEntityDataUsersInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'accountGroupMembers': Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'groups': Array<EntityDataStoreDtoEntityDataGroupsInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'accounts': Array<EntityDataStoreDtoEntityDataAccountsInner>;
-}
+export type EntityDataStoreDtoEntityData = EntityDataStoreDtoEntityDataOneOf | EntityDataStoreDtoEntityDataOneOf1;
+
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataAccountGroupMembersInner
+ * @interface EntityDataStoreDtoEntityDataOneOf
  */
-export interface EntityDataStoreDtoEntityDataAccountGroupMembersInner {
+export interface EntityDataStoreDtoEntityDataOneOf {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'version'?: EntityDataStoreDtoEntityDataOneOfVersionEnum;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAddressBookInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'addressBook': Array<EntityDataStoreDtoEntityDataOneOfAddressBookInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfCredentialsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'credentials': Array<EntityDataStoreDtoEntityDataOneOfCredentialsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfTokensInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'tokens': Array<EntityDataStoreDtoEntityDataOneOfTokensInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'userGroupMembers': Array<EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'userGroups': Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserAccountsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'userAccounts': Array<EntityDataStoreDtoEntityDataOneOfUserAccountsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUsersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'users': Array<EntityDataStoreDtoEntityDataOneOfUsersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'accountGroupMembers': Array<EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'accountGroups': Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAccountsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf
+     */
+    'accounts': Array<EntityDataStoreDtoEntityDataOneOfAccountsInner>;
+}
+
+export const EntityDataStoreDtoEntityDataOneOfVersionEnum = {
+    _1: '1'
+} as const;
+
+export type EntityDataStoreDtoEntityDataOneOfVersionEnum = typeof EntityDataStoreDtoEntityDataOneOfVersionEnum[keyof typeof EntityDataStoreDtoEntityDataOneOfVersionEnum];
+
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataOneOf1
+ */
+export interface EntityDataStoreDtoEntityDataOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'version': EntityDataStoreDtoEntityDataOneOf1VersionEnum;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAddressBookInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'addressBook': Array<EntityDataStoreDtoEntityDataOneOfAddressBookInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfCredentialsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'credentials': Array<EntityDataStoreDtoEntityDataOneOfCredentialsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfTokensInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'tokens': Array<EntityDataStoreDtoEntityDataOneOfTokensInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'userGroupMembers': Array<EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserAccountsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'userAccounts': Array<EntityDataStoreDtoEntityDataOneOfUserAccountsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUsersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'users': Array<EntityDataStoreDtoEntityDataOneOfUsersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'accountGroupMembers': Array<EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'groups': Array<EntityDataStoreDtoEntityDataOneOfUserGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataOneOfAccountsInner>}
+     * @memberof EntityDataStoreDtoEntityDataOneOf1
+     */
+    'accounts': Array<EntityDataStoreDtoEntityDataOneOfAccountsInner>;
+}
+
+export const EntityDataStoreDtoEntityDataOneOf1VersionEnum = {
+    _2: '2'
+} as const;
+
+export type EntityDataStoreDtoEntityDataOneOf1VersionEnum = typeof EntityDataStoreDtoEntityDataOneOf1VersionEnum[keyof typeof EntityDataStoreDtoEntityDataOneOf1VersionEnum];
+
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner
+ */
+export interface EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner
      */
     'accountId': string;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountGroupMembersInner
      */
     'groupId': string;
 }
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataAccountsInner
+ * @interface EntityDataStoreDtoEntityDataOneOfAccountsInner
  */
-export interface EntityDataStoreDtoEntityDataAccountsInner {
+export interface EntityDataStoreDtoEntityDataOneOfAccountsInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountsInner
      */
     'id': string;
     /**
      * 
      * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountsInner
      */
     'address': any;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountsInner
      */
-    'accountType': EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum;
+    'accountType': EntityDataStoreDtoEntityDataOneOfAccountsInnerAccountTypeEnum;
     /**
      * 
      * @type {number}
-     * @memberof EntityDataStoreDtoEntityDataAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAccountsInner
      */
     'chainId'?: number;
 }
 
-export const EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum = {
+export const EntityDataStoreDtoEntityDataOneOfAccountsInnerAccountTypeEnum = {
     Eoa: 'eoa',
     _4337: '4337'
 } as const;
 
-export type EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum = typeof EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum[keyof typeof EntityDataStoreDtoEntityDataAccountsInnerAccountTypeEnum];
+export type EntityDataStoreDtoEntityDataOneOfAccountsInnerAccountTypeEnum = typeof EntityDataStoreDtoEntityDataOneOfAccountsInnerAccountTypeEnum[keyof typeof EntityDataStoreDtoEntityDataOneOfAccountsInnerAccountTypeEnum];
 
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataAddressBookInner
+ * @interface EntityDataStoreDtoEntityDataOneOfAddressBookInner
  */
-export interface EntityDataStoreDtoEntityDataAddressBookInner {
+export interface EntityDataStoreDtoEntityDataOneOfAddressBookInner {
     /**
      * 
      * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataAddressBookInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAddressBookInner
      */
     'id': any;
     /**
      * 
      * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataAddressBookInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAddressBookInner
      */
     'address': any;
     /**
      * 
      * @type {number}
-     * @memberof EntityDataStoreDtoEntityDataAddressBookInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAddressBookInner
      */
     'chainId': number;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAddressBookInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfAddressBookInner
      */
-    'classification': EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum;
+    'classification': EntityDataStoreDtoEntityDataOneOfAddressBookInnerClassificationEnum;
 }
 
-export const EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum = {
+export const EntityDataStoreDtoEntityDataOneOfAddressBookInnerClassificationEnum = {
     External: 'external',
     Counterparty: 'counterparty',
     Internal: 'internal',
     Managed: 'managed'
 } as const;
 
-export type EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum = typeof EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum[keyof typeof EntityDataStoreDtoEntityDataAddressBookInnerClassificationEnum];
+export type EntityDataStoreDtoEntityDataOneOfAddressBookInnerClassificationEnum = typeof EntityDataStoreDtoEntityDataOneOfAddressBookInnerClassificationEnum[keyof typeof EntityDataStoreDtoEntityDataOneOfAddressBookInnerClassificationEnum];
 
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataCredentialsInner
+ * @interface EntityDataStoreDtoEntityDataOneOfCredentialsInner
  */
-export interface EntityDataStoreDtoEntityDataCredentialsInner {
+export interface EntityDataStoreDtoEntityDataOneOfCredentialsInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfCredentialsInner
      */
     'id': string;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfCredentialsInner
      */
     'userId': string;
     /**
      * 
      * @type {CreateClientResponseDtoPolicyEngineNodesInnerPublicKey}
-     * @memberof EntityDataStoreDtoEntityDataCredentialsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfCredentialsInner
      */
     'key': CreateClientResponseDtoPolicyEngineNodesInnerPublicKey;
 }
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataGroupsInner
+ * @interface EntityDataStoreDtoEntityDataOneOfTokensInner
  */
-export interface EntityDataStoreDtoEntityDataGroupsInner {
+export interface EntityDataStoreDtoEntityDataOneOfTokensInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataGroupsInner
-     */
-    'id': string;
-}
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataTokensInner
- */
-export interface EntityDataStoreDtoEntityDataTokensInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataTokensInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfTokensInner
      */
     'id': string;
     /**
      * 
      * @type {any}
-     * @memberof EntityDataStoreDtoEntityDataTokensInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfTokensInner
      */
     'address': any;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataTokensInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfTokensInner
      */
     'symbol': string | null;
     /**
      * 
      * @type {number}
-     * @memberof EntityDataStoreDtoEntityDataTokensInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfTokensInner
      */
     'chainId': number;
     /**
      * 
      * @type {number}
-     * @memberof EntityDataStoreDtoEntityDataTokensInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfTokensInner
      */
     'decimals': number;
 }
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataUserAccountsInner
+ * @interface EntityDataStoreDtoEntityDataOneOfUserAccountsInner
  */
-export interface EntityDataStoreDtoEntityDataUserAccountsInner {
+export interface EntityDataStoreDtoEntityDataOneOfUserAccountsInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUserAccountsInner
      */
     'userId': string;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserAccountsInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUserAccountsInner
      */
     'accountId': string;
 }
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataUserGroupMembersInner
+ * @interface EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner
  */
-export interface EntityDataStoreDtoEntityDataUserGroupMembersInner {
+export interface EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserGroupMembersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner
      */
     'userId': string;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUserGroupMembersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUserGroupMembersInner
      */
     'groupId': string;
 }
 /**
  * 
  * @export
- * @interface EntityDataStoreDtoEntityDataUsersInner
+ * @interface EntityDataStoreDtoEntityDataOneOfUserGroupsInner
  */
-export interface EntityDataStoreDtoEntityDataUsersInner {
+export interface EntityDataStoreDtoEntityDataOneOfUserGroupsInner {
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUsersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUserGroupsInner
+     */
+    'id': string;
+}
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataOneOfUsersInner
+ */
+export interface EntityDataStoreDtoEntityDataOneOfUsersInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataOneOfUsersInner
      */
     'id': string;
     /**
      * 
      * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataUsersInner
+     * @memberof EntityDataStoreDtoEntityDataOneOfUsersInner
      */
-    'role': EntityDataStoreDtoEntityDataUsersInnerRoleEnum;
+    'role': EntityDataStoreDtoEntityDataOneOfUsersInnerRoleEnum;
 }
 
-export const EntityDataStoreDtoEntityDataUsersInnerRoleEnum = {
+export const EntityDataStoreDtoEntityDataOneOfUsersInnerRoleEnum = {
     Root: 'root',
     Admin: 'admin',
     Member: 'member',
     Manager: 'manager'
 } as const;
 
-export type EntityDataStoreDtoEntityDataUsersInnerRoleEnum = typeof EntityDataStoreDtoEntityDataUsersInnerRoleEnum[keyof typeof EntityDataStoreDtoEntityDataUsersInnerRoleEnum];
+export type EntityDataStoreDtoEntityDataOneOfUsersInnerRoleEnum = typeof EntityDataStoreDtoEntityDataOneOfUsersInnerRoleEnum[keyof typeof EntityDataStoreDtoEntityDataOneOfUsersInnerRoleEnum];
 
 /**
  * 

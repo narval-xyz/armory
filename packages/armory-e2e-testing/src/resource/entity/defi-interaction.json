@@ -230,20 +230,28 @@
   ],
   "userGroupMembers": [
     {
-      "groupId": "uniswap-trading",
+      "groupId": "uniswap-traders",
       "userId": "test-eric-user-uid"
     },
     {
-      "groupId": "uniswap-trading",
+      "groupId": "uniswap-traders",
       "userId": "test-bob-user-uid"
     },
     {
-      "groupId": "test-treasury-group-uid",
+      "groupId": "treasury-managers",
       "userId": "test-dave-user-uid"
     },
     {
-      "groupId": "test-treasury-group-uid",
+      "groupId": "treasury-managers",
       "userId": "test-carol-user-uid"
+    }
+  ],
+  "userGroups": [
+    {
+      "id": "uniswap-traders"
+    },
+    {
+      "id": "treasury-managers"
     }
   ],
   "userAccounts": [
@@ -292,28 +300,28 @@
   ],
   "accountGroupMembers": [
     {
-      "groupId": "uniswap-trading",
+      "groupId": "uniswap-trading-accounts",
       "accountId": "eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5"
     },
     {
-      "groupId": "uniswap-trading",
+      "groupId": "uniswap-trading-accounts",
       "accountId": "eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495"
     },
     {
-      "groupId": "test-treasury-group-uid",
+      "groupId": "test-treasury-account-group-uid",
       "accountId": "eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127"
     },
     {
-      "groupId": "test-treasury-group-uid",
+      "groupId": "test-treasury-account-group-uid",
       "accountId": "eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F"
     }
   ],
-  "groups": [
+  "accountGroups": [
     {
-      "id": "uniswap-trading"
+      "id": "uniswap-trading-accounts"
     },
     {
-      "id": "test-treasury-group-uid"
+      "id": "test-treasury-account-group-uid"
     }
   ],
   "accounts": [

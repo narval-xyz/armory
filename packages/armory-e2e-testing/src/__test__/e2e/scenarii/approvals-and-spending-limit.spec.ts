@@ -1,7 +1,7 @@
 /* eslint-disable jest/consistent-test-it */
 import { Action, Decision, entitiesSchema, FIXTURE, policySchema, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../../resource/entity/test.default.json'
+import defaultEntities from '../../../resource/entity/test.v2.default.json'
 import approvalsAndSpendingLimit from '../../../resource/policy/set/approvals-and-spending-limit.json'
 import { buildAuthClient, createClient, saveDataStore } from '../../../util/setup'
 

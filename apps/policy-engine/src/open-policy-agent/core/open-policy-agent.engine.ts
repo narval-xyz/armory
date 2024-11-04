@@ -42,7 +42,7 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   static empty(params: { resourcePath: string }): OpenPolicyAgentEngine {
     return new OpenPolicyAgentEngine({
-      entities: EntityUtil.empty(),
+      entities: EntityUtil.populate({}),
       policies: [],
       resourcePath: params.resourcePath
     })
