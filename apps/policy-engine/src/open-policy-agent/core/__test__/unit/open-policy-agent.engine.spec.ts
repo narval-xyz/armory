@@ -69,7 +69,6 @@ describe('OpenPolicyAgentEngine', () => {
 
       expect(e.getPolicies()).toEqual([])
       expect(e.getEntities()).toEqual({
-        version: '2',
         addressBook: [],
         credentials: [],
         tokens: [],
@@ -410,7 +409,6 @@ describe('OpenPolicyAgentEngine', () => {
       // copy-pasteable as the actual JSON, so it can be e2e tested outside
       // this unit test.
       const entities: Entities = {
-        version: '2',
         addressBook: [
           {
             id: 'eip155:1:0x9f38879167acCf7401351027EE3f9247A71cd0c5',

@@ -40,6 +40,7 @@
       ],
       "tokens": [],
       "userGroupMembers": [],
+      "userGroups": [],
       "userAccounts": [
         {
           "userId": "61e775a9-5f68-41ab-a775-5806845e6e72",
@@ -61,7 +62,7 @@
         }
       ],
       "accountGroupMembers": [],
-      "groups": [],
+      "accountGroups": [],
       "accounts": [
         {
           "id": "eip155:eoa:0x494042504a8148a6d00ab10ed26043f5579ce00f",

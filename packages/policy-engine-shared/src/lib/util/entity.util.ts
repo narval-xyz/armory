@@ -1,53 +1,122 @@
-import { EntityVersion, entitiesV1Schema, entitiesV2Schema, getEntitySchema } from '../schema/entity.schema'
-import {
-  AccountEntity,
-  CredentialEntity,
-  Entities,
-  EntitiesV,
-  UserAccountEntity,
-  UserEntity
-} from '../type/entity.type'
-import { Validation, Validator, isV1 } from './validation.types'
-import { V1_VALIDATORS } from './validators.v1'
-import { V2_VALIDATORS } from './validators.v2'
+import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
+import { entitiesSchema } from '../schema/entity.schema'
+import { AccountEntity, CredentialEntity, Entities, UserAccountEntity, UserEntity } from '../type/entity.type'
+
+export type ValidationIssue = {
+  code: string
+  message: string
+}
+
+export type Validation = { success: true } | { success: false; issues: ValidationIssue[] }
+
+export type Validator = (entities: Entities) => ValidationIssue[]
+
+export type ValidationOption = {
+  validators?: Validator[]
+}
+
+const validateGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+  const users = indexBy('id', entities.users)
+  const accounts = indexBy('id', entities.accounts)
+  const groups = indexBy('id', entities.groups)
+
+  // Validate user group members
+  const userIssues: ValidationIssue[] = entities.userGroupMembers
+    .filter(({ userId }) => !users[userId])
+    .map(({ userId, groupId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`
+    }))
+
+  const userGroupIssues: ValidationIssue[] = entities.userGroupMembers
+    .filter(({ groupId }) => !groups[groupId])
+    .map(({ groupId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't create the user group member because the group ${groupId} is undefined`
+    }))
+
+  // Validate account group members
+  const accountIssues: ValidationIssue[] = entities.accountGroupMembers
+    .filter(({ accountId }) => !accounts[accountId])
+    .map(({ accountId, groupId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't create the account group member for group ${groupId} because the account ${accountId} is undefined`
+    }))
+
+  const accountGroupIssues: ValidationIssue[] = entities.accountGroupMembers
+    .filter(({ groupId }) => !groups[groupId])
+    .map(({ groupId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't create the account group member because the group ${groupId} is undefined`
+    }))
+
+  return [...userIssues, ...userGroupIssues, ...accountIssues, ...accountGroupIssues]
+}
+
+const validateUserAccountIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+  const accounts = indexBy('id', entities.accounts)
+  const users = indexBy('id', entities.users)
+
+  const userIssues: ValidationIssue[] = entities.userAccounts
+    .filter(({ userId }) => !users[userId])
+    .map(({ userId, accountId: accountId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't assign the account ${accountId} because the user ${userId} is undefined`
+    }))
+
+  const accountIssues: ValidationIssue[] = entities.userAccounts
+    .filter(({ accountId: accountId }) => !accounts[accountId])
+    .map(({ accountId: accountId }) => ({
+      code: 'ENTITY_NOT_FOUND',
+      message: `couldn't assign the account ${accountId} because it's undefined`
+    }))
+
+  return [...userIssues, ...accountIssues]
+}
+
+const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationIssue[] => {
+  const code = 'UNIQUE_IDENTIFIER_DUPLICATION'
+
+  const findIssues = <T extends { id: string }[]>(values: T, message: (uid: string) => string): ValidationIssue[] => {
+    return map(
+      (uid) => ({
+        code,
+        message: message(uid)
+      }),
+      keys(pickBy((count: number) => count > 1, countBy('id', values)))
+    )
+  }
+
+  return flatten([
+    findIssues(entities.addressBook, (id) => `the address book account ${id} is duplicated`),
+    findIssues(entities.credentials, (id) => `the credential ${id} is duplicated`),
+    findIssues(entities.tokens, (id) => `the token ${id} is duplicated`),
+    findIssues(entities.groups, (id) => `the group ${id} is duplicated`),
+    findIssues(entities.users, (id) => `the user ${id} is duplicated`),
+    findIssues(entities.accounts, (id) => `the account ${id} is duplicated`)
+  ])
+}
+
+export const DEFAULT_VALIDATORS: Validator[] = [
+  validateGroupMemberIntegrity,
+  validateUserAccountIntegrity,
+  validateUniqueIdDuplication
+  // TODO (@wcalderipe, 21/02/25): Missing domain invariants to be validate
+  // - fails when root user does not have a credential
+  // - fails when credential does not have a user
+]
 
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined
 }
 
-export const isVersion =
-  <Version extends EntityVersion>(version: Version) =>
-  (entities: Entities): entities is EntitiesV<Version> =>
-    getEntitySchema(version).safeParse(entities).success
+export const validate = (entities: Entities, options?: ValidationOption): Validation => {
+  const validators = options?.validators || DEFAULT_VALIDATORS
 
-export const VALIDATORS: {
-  [V in EntityVersion]: Validator<V>[]
-} = {
-  '1': V1_VALIDATORS,
-  '2': V2_VALIDATORS
-}
-
-export const determineEntityVersion = (entities: Entities): { version: EntityVersion } => {
-  switch (entities.version) {
-    case '1':
-      return { version: '1' }
-    case '2':
-      return { version: '2' }
-    case undefined:
-      return { version: '1' }
-  }
-}
-
-export const validate = (entities: Entities): Validation => {
-  const { version } = determineEntityVersion(entities)
-
-  const schema = getEntitySchema(version)
-
-  const result = schema.safeParse(entities)
+  const result = entitiesSchema.safeParse(entities)
 
   if (result.success) {
-    const validators = VALIDATORS[version] as Validator<typeof version>[]
-    const issues = validators.flatMap((validation) => validation(result.data))
+    const issues = validators.flatMap((validation) => validation(entities))
 
     if (issues.length) {
       return {
@@ -72,8 +141,7 @@ export const validate = (entities: Entities): Validation => {
   }
 }
 
-export const emptyV2 = (): EntitiesV<'2'> => ({
-  version: '2',
+export const empty = (): Entities => ({
   addressBook: [],
   credentials: [],
   tokens: [],
@@ -84,34 +152,6 @@ export const emptyV2 = (): EntitiesV<'2'> => ({
   accountGroupMembers: [],
   accounts: []
 })
-
-export const emptyV1 = (): EntitiesV<'1'> => ({
-  version: '1',
-  addressBook: [],
-  credentials: [],
-  tokens: [],
-  userGroupMembers: [],
-  userAccounts: [],
-  users: [],
-  accountGroups: [],
-  userGroups: [],
-  accountGroupMembers: [],
-  accounts: []
-})
-
-export const populate = (entities: Partial<Entities>): Entities => {
-  if (isV1(entities)) {
-    return entitiesV1Schema.parse({
-      ...emptyV1(),
-      ...entities
-    })
-  }
-
-  return entitiesV2Schema.parse({
-    ...emptyV2(),
-    ...entities
-  })
-}
 
 export const removeUserById = (entities: Entities, userId: string): Entities => {
   return {

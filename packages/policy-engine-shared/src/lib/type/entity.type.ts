@@ -8,9 +8,7 @@ import {
   clientEntitySchema,
   credentialEntitySchema,
   entitiesSchema,
-  EntityVersion,
   groupEntitySchema,
-  schemaMap,
   tokenEntitySchema,
   userAccountEntitySchema,
   userEntitySchema,
@@ -49,7 +47,5 @@ export type AccountGroupMemberEntity = z.infer<typeof accountGroupMemberEntitySc
 export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 
 export type TokenEntity = z.infer<typeof tokenEntitySchema>
-
-export type EntitiesV<Version extends EntityVersion> = z.infer<(typeof schemaMap)[Version]>
 
 export type Entities = z.infer<typeof entitiesSchema>

@@ -20,7 +20,7 @@ import {
   AddressBookAccountEntity,
   ClientEntity,
   CredentialEntity,
-  EntitiesV,
+  Entities,
   GroupEntity,
   TokenEntity,
   UserAccountEntity,
@@ -429,8 +429,7 @@ export const TOKEN: Record<`${string}1` | `${string}137`, TokenEntity> = {
   }
 }
 
-export const ENTITIES: EntitiesV<'2'> = {
-  version: '2',
+export const ENTITIES: Entities = {
   addressBook: ADDRESS_BOOK,
   credentials: [...Object.values(CREDENTIAL), ...Object.values(EOA_CREDENTIAL)],
   tokens: Object.values(TOKEN),

@@ -81,7 +81,7 @@ describe('Data Store', () => {
 
   const buildEntityStore = async (clientId: string, privateKey: Jwk): Promise<EntityStore> => {
     const entities: Entities = {
-      ...EntityUtil.emptyV2(),
+      ...EntityUtil.empty(),
       users: [
         {
           id: 'test-user-id',
@@ -264,7 +264,7 @@ describe('Data Store', () => {
 
       expect(body).toEqual({
         entity: {
-          data: EntityUtil.emptyV2(),
+          data: EntityUtil.empty(),
           signature: ''
         }
       })

@@ -1,10 +1,9 @@
 import { ACCOUNT, ADDRESS_BOOK, CREDENTIAL, GROUP, TOKEN, USER } from '../../../dev.fixture'
 import { Entities, UserEntity, UserRole } from '../../../type/entity.type'
-import { populate, updateUserAccounts, validate } from '../../entity.util'
+import { empty, updateUserAccounts, validate } from '../../entity.util'
 
 describe('validate', () => {
   const emptyEntities: Entities = {
-    version: '2',
     addressBook: [],
     credentials: [],
     tokens: [],
@@ -305,7 +304,7 @@ describe('updateUserAccounts', () => {
   it('adds user accounts', () => {
     const entities = updateUserAccounts(
       {
-        ...populate({}),
+        ...empty(),
         users: [user],
         userAccounts: [anotherUserAccount]
       },
@@ -319,7 +318,7 @@ describe('updateUserAccounts', () => {
   it('removes user accounts not present in the given array', () => {
     const entities = updateUserAccounts(
       {
-        ...populate({}),
+        ...empty(),
         users: [user],
         userAccounts: [userAccountOne, userAccountTwo, anotherUserAccount]
       },
@@ -333,7 +332,7 @@ describe('updateUserAccounts', () => {
   it('removes user accounts when given an empty array', () => {
     const entities = updateUserAccounts(
       {
-        ...populate({}),
+        ...empty(),
         users: [user],
         userAccounts: [userAccountOne, userAccountTwo, anotherUserAccount]
       },

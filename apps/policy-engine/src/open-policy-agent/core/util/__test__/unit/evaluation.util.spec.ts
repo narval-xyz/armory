@@ -1,6 +1,5 @@
 import {
   Action,
-  EntitiesV,
   EvaluationRequest,
   FIXTURE,
   GrantPermissionAction,
@@ -359,59 +358,6 @@ describe('toData', () => {
         accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
           accountId.toLowerCase()
         )
-      })
-    })
-
-    it('indexes groups with members from deprecated schema by lower case id', () => {
-      const { groups: _groups, version: _version, ...otherEntities } = FIXTURE.ENTITIES
-      const deprecatedEntities: EntitiesV<'1'> = {
-        ...otherEntities,
-        accountGroups: [{ id: 'test-engineering-account-group-uid' }, { id: 'test-treasury-account-group-uid' }],
-        userGroups: [{ id: 'test-engineering-user-group-uid' }, { id: 'test-treasury-user-group-uid' }],
-        accountGroupMembers: [
-          {
-            accountId: FIXTURE.ACCOUNT.Engineering.id,
-            groupId: 'test-engineering-account-group-uid'
-          },
-          {
-            accountId: FIXTURE.ACCOUNT.Treasury.id,
-            groupId: 'test-treasury-account-group-uid'
-          }
-        ],
-        userGroupMembers: [
-          {
-            userId: FIXTURE.USER.Alice.id,
-            groupId: 'test-engineering-user-group-uid'
-          },
-          {
-            userId: FIXTURE.USER.Bob.id,
-            groupId: 'test-treasury-user-group-uid'
-          }
-        ]
-      }
-
-      const { entities } = toData(deprecatedEntities)
-      expect(entities.groups).toEqual({
-        'test-engineering-user-group-uid': {
-          id: 'test-engineering-user-group-uid',
-          users: [FIXTURE.USER.Alice.id],
-          accounts: []
-        },
-        'test-treasury-user-group-uid': {
-          id: 'test-treasury-user-group-uid',
-          users: [FIXTURE.USER.Bob.id],
-          accounts: []
-        },
-        'test-engineering-account-group-uid': {
-          id: 'test-engineering-account-group-uid',
-          users: [],
-          accounts: [FIXTURE.ACCOUNT.Engineering.id.toLowerCase()]
-        },
-        'test-treasury-account-group-uid': {
-          id: 'test-treasury-account-group-uid',
-          users: [],
-          accounts: [FIXTURE.ACCOUNT.Treasury.id.toLowerCase()]
-        }
       })
     })
   })
