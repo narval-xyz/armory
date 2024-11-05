@@ -1,65 +1,32 @@
-import {
-  Action,
-  CredentialEntity,
-  Feed,
-  SerializedTransactionRequest,
-  SerializedUserOperationV6,
-  accountEntitySchema,
-  addressBookAccountEntitySchema,
-  groupEntitySchema,
-  tokenEntitySchema,
-  userEntitySchema
-} from '@narval/policy-engine-shared'
-import { Intent } from '@narval/transaction-request-intent'
-import { loadPolicy } from '@open-policy-agent/opa-wasm'
-import { z } from 'zod'
-import { resultSchema } from '../schema/open-policy-agent.schema'
+import { EntitiesV, EntityVersion } from 'packages/policy-engine-shared/src/lib/schema/entity.schema.shared';
+import { DataV1 } from './open-policy-agent.type.v1';
+import { DataV2 } from './open-policy-agent.type.v2';
+import { z } from 'zod';
 
-type PromiseType<T extends Promise<unknown>> = T extends Promise<infer U> ? U : never
-
-export type OpenPolicyAgentInstance = PromiseType<ReturnType<typeof loadPolicy>>
-
-export type Input = {
-  action: Action
-  principal: CredentialEntity
-  resource?: { uid: string }
-  intent?: Intent
-  transactionRequest?: SerializedTransactionRequest
-  userOperation?: SerializedUserOperationV6
-  permissions?: string[]
-  approvals?: CredentialEntity[]
-  feeds?: Feed<unknown>[]
+type DataVersionMap = {
+  '1': DataV1;
+  '2': DataV2;
+}
+type DataMapType = {
+  [V in EntityVersion]: z.ZodType<DataVersionMap[V]>
 }
 
-// TODO: (@wcalderipe, 18/03/24) Check with @samteb how can we replace these
-// types by entities defined at @narval/policy-engine-shared.
+export const dataMap: DataMapType = {
+  '1': DataV1,
+  '2': DataV2
+} as const;
 
-// IMPORTANT: Index entities by lower case ID is an important invariant for
-// many Rego rules performing a look up on the dataset.
-const Id = z.string().toLowerCase()
 
-export const Account = accountEntitySchema.extend({
-  id: Id,
-  assignees: z.array(Id)
-})
-export type Account = z.infer<typeof Account>
+export const getDataSchema = <Version extends EntityVersion>(version: Version): z.ZodType<DataVersionMap[Version]> => 
+  dataMap[version];
 
-export const Group = groupEntitySchema.extend({
-  id: Id,
-  users: z.array(Id),
-  accounts: z.array(Id)
-})
-export type Group = z.infer<typeof Group>
+export const Data = z.union([DataV1, DataV2]);
+export type Data = DataV1 | DataV2;
 
-export const Data = z.object({
-  entities: z.object({
-    addressBook: z.record(Id, addressBookAccountEntitySchema.extend({ id: Id })),
-    tokens: z.record(Id, tokenEntitySchema.extend({ id: Id })),
-    users: z.record(Id, userEntitySchema.extend({ id: Id })),
-    groups: z.record(Id, Group),
-    accounts: z.record(Id, Account)
-  })
-})
-export type Data = z.infer<typeof Data>
+type DataV<Version extends EntityVersion> = DataVersionMap[Version];
 
-export type Result = z.infer<typeof resultSchema>
+export type DataTransformer<Version extends EntityVersion> = (entities: EntitiesV<Version>) => DataV<Version>;
+
+export type RequiredDataTransformer = Required<{
+  [V in EntityVersion]: DataTransformer<V>
+}>;

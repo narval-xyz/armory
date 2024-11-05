@@ -1,7 +1,6 @@
 import {
   Action,
   CredentialEntity,
-  Entities,
   EvaluationRequest,
   Feed,
   GrantPermissionAction,
@@ -16,9 +15,13 @@ import {
 } from '@narval/policy-engine-shared'
 import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
-import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { Account, Data, Group, Input } from '../type/open-policy-agent.type'
+import { Input } from '../type/open-policy-agent.type.v1'
+import { Entities, EntityVersion } from 'packages/policy-engine-shared/src/lib/schema/entity.schema.shared'
+import { Data, RequiredDataTransformer } from '../type/open-policy-agent.type'
+import { findEntityVersion } from 'packages/policy-engine-shared/src/lib/util/entity.util'
+import { toDataV1 } from './data-preparation.v1'
+import { toDataV2 } from './data-preparation.v2'
 
 type Mapping<R extends Request> = (
   request: R,
@@ -191,61 +194,17 @@ export const toInput = (params: {
   })
 }
 
+export const DATA_TRANSFORMER: RequiredDataTransformer = {
+  '1': toDataV1,
+  '2': toDataV2
+}
+
 export const toData = (entities: Entities): Data => {
-  const groups = new Map<string, Group>()
-
-  // Process user group members
-  entities.userGroupMembers.forEach(({ userId, groupId }) => {
-    const id = groupId.toLowerCase()
-    const group = groups.get(id) || {
-      id: groupId,
-      users: [],
-      accounts: []
-    }
-
-    group.users.push(userId)
-    groups.set(id, group)
-  })
-
-  // Process account group members
-  entities.accountGroupMembers.forEach(({ accountId, groupId }) => {
-    const id = groupId.toLowerCase()
-    const group = groups.get(id) || {
-      id: groupId,
-      users: [],
-      accounts: []
-    }
-
-    group.accounts.push(accountId)
-    groups.set(id, group)
-  })
-
-  const accountAssignees = entities.userAccounts.reduce((assignees, { userId, accountId }) => {
-    const account = assignees.get(accountId)
-
-    if (account) {
-      return assignees.set(accountId, account.concat(userId))
-    } else {
-      return assignees.set(accountId, [userId])
-    }
-  }, new Map<string, string[]>())
-
-  const accounts: Account[] = entities.accounts.map((account) => ({
-    ...account,
-    assignees: accountAssignees.get(account.id) || []
-  }))
-
-  const data: Data = {
-    entities: {
-      addressBook: indexBy('id', entities.addressBook),
-      tokens: indexBy('id', entities.tokens),
-      users: indexBy('id', entities.users),
-      groups: Object.fromEntries(groups),
-      accounts: indexBy('id', accounts)
-    }
+  if (entities.version === '1') {
+    return DATA_TRANSFORMER['1'](entities)
+  } else if (entities.version === '2') {
+    return DATA_TRANSFORMER['2'](entities)
+  } else {
+    return DATA_TRANSFORMER['1'](entities)
   }
-
-  // IMPORTANT: The Data schema converts IDs to lower case because we don't
-  // want to be doing defensive programming in Rego.
-  return Data.parse(data)
 }

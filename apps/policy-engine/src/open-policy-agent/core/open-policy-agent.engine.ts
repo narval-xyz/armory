@@ -3,7 +3,6 @@ import {
   CredentialEntity,
   Decision,
   Engine,
-  Entities,
   EntityUtil,
   EvaluationRequest,
   EvaluationResponse,
@@ -20,10 +19,11 @@ import { z } from 'zod'
 import { POLICY_ENTRYPOINT } from '../open-policy-agent.constant'
 import { OpenPolicyAgentException } from './exception/open-policy-agent.exception'
 import { resultSchema } from './schema/open-policy-agent.schema'
-import { OpenPolicyAgentInstance, Result } from './type/open-policy-agent.type'
-import { toData, toInput } from './util/evaluation.util'
+import { toInput } from './util/evaluation.util'
 import { getRegoRuleTemplatePath } from './util/rego-transpiler.util'
 import { build, getRegoCorePath } from './util/wasm-build.util'
+import { Entities } from 'packages/policy-engine-shared/src/lib/schema/entity.schema.shared'
+import { OpenPolicyAgentInstance } from './type/open-policy-agent.type.v1'
 
 export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
   private policies: Policy[]

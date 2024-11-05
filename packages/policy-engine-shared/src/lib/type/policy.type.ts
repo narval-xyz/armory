@@ -62,7 +62,7 @@ import {
   userOperationIntentsConditionSchema,
   userOperationIntentsCriterionSchema,
   userOperationTransfersConditionSchema
-} from '../schema/policy.schema'
+} from '../schema/policy.schema.v1'
 
 export const Then = thenSchema.enum
 export type Then = z.infer<typeof thenSchema>

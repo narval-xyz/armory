@@ -1,5 +1,5 @@
 import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
-import { EntitiesV } from '../type/entity.type'
+import { EntitiesV } from '../schema/entity.schema.shared'
 import { ValidationIssue, Validator } from './validation.types'
 
 const validateUserGroupMemberIntegrity: Validator<'1'> = (entities: EntitiesV<'1'>): ValidationIssue[] => {

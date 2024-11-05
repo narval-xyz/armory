@@ -7,7 +7,7 @@ import {
   DataStoreConfiguration,
   Decision,
   EvaluationResponse,
-  FIXTURE,
+  FIXTURE_V2,
   HttpSource,
   SerializedEvaluationRequest,
   SourceType,
@@ -122,7 +122,7 @@ describe('Evaluation', () => {
     )
 
     await clientService.savePolicyStore(client.clientId, await getPolicyStore([], privateKey))
-    await clientService.saveEntityStore(client.clientId, await getEntityStore(FIXTURE.ENTITIES, privateKey))
+    await clientService.saveEntityStore(client.clientId, await getEntityStore(FIXTURE_V2.ENTITIES, privateKey))
 
     await app.init()
   })
@@ -231,11 +231,11 @@ describe('Evaluation', () => {
                   message: {
                     from: {
                       name: 'Alice',
-                      account: FIXTURE.VIEM_ACCOUNT.Alice.address
+                      account: FIXTURE_V2.VIEM_ACCOUNT.Alice.address
                     },
                     to: {
                       name: 'Bob',
-                      account: FIXTURE.VIEM_ACCOUNT.Bob.address
+                      account: FIXTURE_V2.VIEM_ACCOUNT.Bob.address
                     },
                     contents: "Dear Bob, today we're going to the moon"
                   }
@@ -247,12 +247,12 @@ describe('Evaluation', () => {
               transactionRequestIntent: {
                 type: 'userOperation',
                 entrypoint: `eip155:${sepolia.id}:${ENTRYPOINT_ADDRESS_V06.toLowerCase()}`,
-                from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
+                from: `eip155:${sepolia.id}:${FIXTURE_V2.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
                 operationIntents: [
                   {
                     amount: '1',
-                    from: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
-                    to: `eip155:${sepolia.id}:${FIXTURE.VIEM_ACCOUNT.Bob.address.toLowerCase()}`,
+                    from: `eip155:${sepolia.id}:${FIXTURE_V2.VIEM_ACCOUNT.Alice.address.toLowerCase()}`,
+                    to: `eip155:${sepolia.id}:${FIXTURE_V2.VIEM_ACCOUNT.Bob.address.toLowerCase()}`,
                     token: `eip155:${sepolia.id}/slip44:60`,
                     type: 'transferNative'
                   }

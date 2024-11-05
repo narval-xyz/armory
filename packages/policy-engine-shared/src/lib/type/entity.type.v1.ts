@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { accountGroupEntitySchema, userGroupEntitySchema } from '../schema/entity.schema.v1';
 import {
   accountClassificationSchema,
   accountEntitySchema,
@@ -6,17 +7,13 @@ import {
   accountTypeSchema,
   addressBookAccountEntitySchema,
   clientEntitySchema,
-  credentialEntitySchema,
-  entitiesSchema,
-  EntityVersion,
-  groupEntitySchema,
-  schemaMap,
   tokenEntitySchema,
   userAccountEntitySchema,
   userEntitySchema,
   userGroupMemberEntitySchema,
   userRoleSchema
-} from '../schema/entity.schema'
+} from '../schema/entity.schema.v1'
+import { credentialEntitySchema } from '../schema/credential.schema';
 
 export const UserRole = userRoleSchema.enum
 
@@ -36,7 +33,9 @@ export type ClientEntity = z.infer<typeof clientEntitySchema>
 
 export type UserEntity = z.infer<typeof userEntitySchema>
 
-export type GroupEntity = z.infer<typeof groupEntitySchema>
+export type AccountGroupEntity = z.infer<typeof accountGroupEntitySchema>
+
+export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
 
 export type UserAccountEntity = z.infer<typeof userAccountEntitySchema>
 
@@ -49,7 +48,3 @@ export type AccountGroupMemberEntity = z.infer<typeof accountGroupMemberEntitySc
 export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 
 export type TokenEntity = z.infer<typeof tokenEntitySchema>
-
-export type EntitiesV<Version extends EntityVersion> = z.infer<(typeof schemaMap)[Version]>
-
-export type Entities = z.infer<typeof entitiesSchema>

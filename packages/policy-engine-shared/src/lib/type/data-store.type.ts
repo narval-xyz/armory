@@ -1,7 +1,7 @@
 import { jwkSchema } from '@narval/signature'
 import { z } from 'zod'
-import { entitiesSchema } from '../schema/entity.schema'
-import { policySchema } from '../schema/policy.schema'
+import { entitiesSchema } from '../schema/entity.schema.shared'
+import { policySchema } from '../schema/policy.schema.v1'
 
 export const SourceType = {
   HTTP: 'HTTP',

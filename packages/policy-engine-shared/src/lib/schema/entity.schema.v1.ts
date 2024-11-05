@@ -2,6 +2,7 @@ import { publicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 import { ChainAccountId } from '../util/caip.util'
 import { addressSchema } from './address.schema'
+import { credentialEntitySchema } from './credential.schema'
 
 export const userRoleSchema = z.nativeEnum({
   ROOT: 'root',
@@ -22,13 +23,6 @@ export const accountClassificationSchema = z.nativeEnum({
   MANAGED: 'managed'
 } as const)
 
-export const credentialEntitySchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  key: publicKeySchema
-  // TODO @ptroger: Should we be allowing a private key to be passed in entity data ?
-})
-
 export const clientEntitySchema = z.object({
   id: z.string()
 })
@@ -36,6 +30,10 @@ export const clientEntitySchema = z.object({
 export const userEntitySchema = z.object({
   id: z.string(),
   role: userRoleSchema
+})
+
+export const userGroupEntitySchema = z.object({
+  id: z.string()
 })
 
 export const userAccountEntitySchema = z.object({
@@ -53,6 +51,10 @@ export const accountEntitySchema = z.object({
   address: addressSchema,
   accountType: accountTypeSchema,
   chainId: z.number().optional()
+})
+
+export const accountGroupEntitySchema = z.object({
+  id: z.string()
 })
 
 export const accountGroupMemberEntitySchema = z.object({
@@ -81,44 +83,16 @@ export const tokenEntitySchema = z.object({
   decimals: z.number()
 })
 
-export const groupEntitySchema = z.object({
-  id: z.string()
-})
-
-export const entitiesV2Schema = z.object({
-  version: z.literal('2'),
-  addressBook: z.array(addressBookAccountEntitySchema),
-  credentials: z.array(credentialEntitySchema),
-  tokens: z.array(tokenEntitySchema),
-  userGroupMembers: z.array(userGroupMemberEntitySchema),
-  userAccounts: z.array(userAccountEntitySchema),
-  users: z.array(userEntitySchema),
-  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
-  groups: z.array(groupEntitySchema),
-  accounts: z.array(accountEntitySchema)
-})
-
 export const entitiesV1Schema = z.object({
   version: z.literal('1').optional(),
   addressBook: z.array(addressBookAccountEntitySchema),
   credentials: z.array(credentialEntitySchema),
   tokens: z.array(tokenEntitySchema),
   userGroupMembers: z.array(userGroupMemberEntitySchema),
-  userGroups: z.array(groupEntitySchema),
+  userGroups: z.array(userGroupEntitySchema),
   userAccounts: z.array(userAccountEntitySchema),
   users: z.array(userEntitySchema),
   accountGroupMembers: z.array(accountGroupMemberEntitySchema),
-  accountGroups: z.array(groupEntitySchema),
+  accountGroups: z.array(accountGroupEntitySchema),
   accounts: z.array(accountEntitySchema)
 })
-
-export const entitiesSchema = z.discriminatedUnion('version', [entitiesV1Schema, entitiesV2Schema])
-
-export const schemaMap = {
-  '1': entitiesV1Schema,
-  '2': entitiesV2Schema
-} as const
-
-export type EntityVersion = keyof typeof schemaMap
-
-export const getEntitySchema = (version?: EntityVersion) => (version ? schemaMap[version] : entitiesV1Schema)

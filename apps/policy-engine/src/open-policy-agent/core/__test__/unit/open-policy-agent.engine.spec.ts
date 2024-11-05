@@ -7,7 +7,7 @@ import {
   Entities,
   EntityType,
   EvaluationRequest,
-  FIXTURE,
+  FIXTURE_V2,
   Hex,
   JwtString,
   Policy,
@@ -23,7 +23,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Config, load } from '../../../../policy-engine.config'
 import { OpenPolicyAgentException } from '../../exception/open-policy-agent.exception'
 import { OpenPolicyAgentEngine } from '../../open-policy-agent.engine'
-import { Result } from '../../type/open-policy-agent.type'
+import { Result } from '../../type/open-policy-agent.type.v2'
 
 const ONE_ETH = toHex(BigInt('1000000000000000000'))
 
@@ -85,19 +85,19 @@ describe('OpenPolicyAgentEngine', () => {
 
   describe('setPolicies', () => {
     it('sets policies', () => {
-      expect(engine.setPolicies(FIXTURE.POLICIES).getPolicies()).toEqual(FIXTURE.POLICIES)
+      expect(engine.setPolicies(FIXTURE_V2.POLICIES).getPolicies()).toEqual(FIXTURE_V2.POLICIES)
     })
   })
 
   describe('setEntities', () => {
     it('sets entities', () => {
-      expect(engine.setEntities(FIXTURE.ENTITIES).getEntities()).toEqual(FIXTURE.ENTITIES)
+      expect(engine.setEntities(FIXTURE_V2.ENTITIES).getEntities()).toEqual(FIXTURE_V2.ENTITIES)
     })
   })
 
   describe('load', () => {
     it('sets opa engine', async () => {
-      const e = await engine.setPolicies(FIXTURE.POLICIES).load()
+      const e = await engine.setPolicies(FIXTURE_V2.POLICIES).load()
 
       expect(e.getOpenPolicyAgentInstance()).toBeDefined()
     })
@@ -114,8 +114,8 @@ describe('OpenPolicyAgentEngine', () => {
       const evaluation = {
         request,
         authentication: await getJwt({
-          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
-          sub: FIXTURE.USER.Alice.id,
+          privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE_V2.USER.Alice.id,
           request: request as SignMessageAction
         })
       }
@@ -140,7 +140,7 @@ describe('OpenPolicyAgentEngine', () => {
 
       const e = await new OpenPolicyAgentEngine({
         policies,
-        entities: FIXTURE.ENTITIES,
+        entities: FIXTURE_V2.ENTITIES,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -148,19 +148,19 @@ describe('OpenPolicyAgentEngine', () => {
         action: Action.SIGN_TRANSACTION,
         nonce: 'test-nonce',
         transactionRequest: {
-          from: FIXTURE.ACCOUNT.Engineering.address,
-          to: FIXTURE.ACCOUNT.Testing.address,
+          from: FIXTURE_V2.ACCOUNT.Engineering.address,
+          to: FIXTURE_V2.ACCOUNT.Testing.address,
           value: ONE_ETH,
           chainId: 1
         },
-        resourceId: FIXTURE.ACCOUNT.Engineering.id
+        resourceId: FIXTURE_V2.ACCOUNT.Engineering.id
       }
 
       const evaluation: EvaluationRequest = {
         request,
         authentication: await getJwt({
-          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
-          sub: FIXTURE.USER.Alice.id,
+          privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE_V2.USER.Alice.id,
           request
         })
       }
@@ -197,7 +197,7 @@ describe('OpenPolicyAgentEngine', () => {
 
       const e = await new OpenPolicyAgentEngine({
         policies,
-        entities: FIXTURE.ENTITIES,
+        entities: FIXTURE_V2.ENTITIES,
         resourcePath: await getConfig('resourcePath')
       }).load()
 
@@ -205,18 +205,18 @@ describe('OpenPolicyAgentEngine', () => {
         action: Action.SIGN_TRANSACTION,
         nonce: 'test-nonce',
         transactionRequest: {
-          from: FIXTURE.ACCOUNT.Engineering.address,
-          to: FIXTURE.ACCOUNT.Testing.address,
+          from: FIXTURE_V2.ACCOUNT.Engineering.address,
+          to: FIXTURE_V2.ACCOUNT.Testing.address,
           value: ONE_ETH,
           chainId: 1
         },
-        resourceId: FIXTURE.ACCOUNT.Engineering.id
+        resourceId: FIXTURE_V2.ACCOUNT.Engineering.id
       }
 
       const evaluation: EvaluationRequest = {
         authentication: await getJwt({
-          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
-          sub: FIXTURE.USER.Alice.id,
+          privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE_V2.USER.Alice.id,
           request
         }),
         request
@@ -225,7 +225,7 @@ describe('OpenPolicyAgentEngine', () => {
       const response = await e.evaluate(evaluation)
 
       expect(response.decision).toEqual(Decision.PERMIT)
-      expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
+      expect(response.principal).toEqual(FIXTURE_V2.CREDENTIAL.Alice)
     })
   })
 
@@ -485,8 +485,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
-            sub: FIXTURE.USER.Alice.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE_V2.USER.Alice.id,
             request
           }),
           request
@@ -518,8 +518,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
-            sub: FIXTURE.USER.Alice.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE_V2.USER.Alice.id,
             request
           }),
           request
@@ -551,8 +551,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
-            sub: FIXTURE.USER.Alice.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice, // My Credential in Entities above is Alice;
+            sub: FIXTURE_V2.USER.Alice.id,
             request
           }),
           request
@@ -629,7 +629,7 @@ describe('OpenPolicyAgentEngine', () => {
           }
         ]
 
-        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE.ENTITIES).load()
+        const e = await engine.setPolicies(immutablePolicy).setEntities(FIXTURE_V2.ENTITIES).load()
 
         const request = {
           action: Action.SIGN_TYPED_DATA,
@@ -640,8 +640,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
-            sub: FIXTURE.USER.Alice.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice,
+            sub: FIXTURE_V2.USER.Alice.id,
             request
           }),
           request
@@ -649,7 +649,7 @@ describe('OpenPolicyAgentEngine', () => {
 
         const response = await e.evaluate(evaluation)
         expect(response.decision).toEqual(Decision.PERMIT)
-        expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
+        expect(response.principal).toEqual(FIXTURE_V2.CREDENTIAL.Alice)
       })
     })
 
@@ -671,7 +671,7 @@ describe('OpenPolicyAgentEngine', () => {
         }
       ]
 
-      const entities = FIXTURE.ENTITIES
+      const entities = FIXTURE_V2.ENTITIES
 
       it('permits a transfer of 1 wei', async () => {
         const e = await new OpenPolicyAgentEngine({
@@ -694,8 +694,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -727,8 +727,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -760,8 +760,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -793,8 +793,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -826,8 +826,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -858,8 +858,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -890,8 +890,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request
@@ -924,8 +924,8 @@ describe('OpenPolicyAgentEngine', () => {
 
         const evaluation: EvaluationRequest = {
           authentication: await getJwt({
-            privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Bob,
-            sub: FIXTURE.USER.Bob.id,
+            privateKey: FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob,
+            sub: FIXTURE_V2.USER.Bob.id,
             request
           }),
           request

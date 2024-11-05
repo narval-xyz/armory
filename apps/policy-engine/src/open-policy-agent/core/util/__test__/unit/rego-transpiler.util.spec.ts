@@ -5,7 +5,7 @@ import {
   Criterion,
   ERC1155TransfersCriterion,
   EntityType,
-  FIXTURE,
+  FIXTURE_V2,
   IntentAmountCriterion,
   NonceRequiredCriterion,
   Then,
@@ -30,7 +30,7 @@ const getTemplatePath = async () => getRegoRuleTemplatePath(await getConfig('res
 
 describe('transpile', () => {
   it('transpiles rego rules based on the given policies', async () => {
-    const rules = await transpile(FIXTURE.POLICIES, await getTemplatePath())
+    const rules = await transpile(FIXTURE_V2.POLICIES, await getTemplatePath())
 
     expect(rules).toContain('permit')
   })

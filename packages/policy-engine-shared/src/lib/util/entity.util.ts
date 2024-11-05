@@ -1,13 +1,13 @@
-import { entitiesV1Schema, entitiesV2Schema, EntityVersion, getEntitySchema } from '../schema/entity.schema'
+import { Entities, EntitiesV, EntityVersion, getEntitySchema } from '../schema/entity.schema.shared';
+import { entitiesV1Schema } from '../schema/entity.schema.v1'
+import { entitiesV2Schema } from '../schema/entity.schema.v2'
 import {
   AccountEntity,
   CredentialEntity,
-  Entities,
-  EntitiesV,
   UserAccountEntity,
   UserEntity
-} from '../type/entity.type'
-import { isV1, Validation, Validator } from './validation.types'
+} from '../type/entity.type.v1'
+import { isV1, RequiredValidators, Validation, ValidationOption, Validator } from './validation.types'
 import { V1_VALIDATORS } from './validators.v1'
 import { V2_VALIDATORS } from './validators.v2'
 
@@ -20,15 +20,23 @@ export const isVersion =
   (entities: Entities): entities is EntitiesV<Version> =>
     getEntitySchema(version).safeParse(entities).success
 
-export const VALIDATORS: {
-  [V in EntityVersion]: Validator<V>[]
-} = {
+export const VALIDATORS: RequiredValidators = {
   '1': V1_VALIDATORS,
   '2': V2_VALIDATORS
 }
 
 export const findEntityVersion = (entities: Entities): { version: EntityVersion } =>
   !entities.version ? { version: '1' } : { version: entities.version }
+
+
+const getValidators = <Version extends EntityVersion>(version: EntityVersion): Validator<Version>[] => {
+  switch (version) {
+    case '1':
+      return VALIDATORS['1'] as Validator<Version>[]
+    case '2':
+      return VALIDATORS['2'] as Validator<Version>[]
+  }
+}
 
 export const validate = (entities: Entities): Validation => {
   const { version } = findEntityVersion(entities)
@@ -38,7 +46,6 @@ export const validate = (entities: Entities): Validation => {
   const result = schema.safeParse(entities)
 
   if (result.success) {
-    const validators = VALIDATORS[version] as Validator<typeof version>[]
     const issues = validators.flatMap((validation) => validation(result.data))
 
     if (issues.length) {
@@ -63,6 +70,7 @@ export const validate = (entities: Entities): Validation => {
     issues: schemaIssues || []
   }
 }
+  
 
 export const emptyV2 = (): EntitiesV<'2'> => ({
   version: '2',

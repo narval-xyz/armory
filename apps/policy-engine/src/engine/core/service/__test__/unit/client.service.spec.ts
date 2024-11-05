@@ -1,6 +1,6 @@
 import { EncryptionModule } from '@narval/encryption-module'
 import { LoggerModule, secret } from '@narval/nestjs-shared'
-import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
+import { DataStoreConfiguration, FIXTURE_V2, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
@@ -49,11 +49,11 @@ describe(ClientService.name, () => {
 
   const stores = {
     entity: {
-      data: FIXTURE.ENTITIES,
+      data: FIXTURE_V2.ENTITIES,
       signature: 'test-signature'
     },
     policy: {
-      data: FIXTURE.POLICIES,
+      data: FIXTURE_V2.POLICIES,
       signature: 'test-signature'
     }
   }

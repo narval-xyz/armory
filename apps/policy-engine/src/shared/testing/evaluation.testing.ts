@@ -1,5 +1,5 @@
 import { Permission, Resource, resourceId } from '@narval/armory-sdk'
-import { Action, EvaluationRequest, FIXTURE, Request, TransactionRequest } from '@narval/policy-engine-shared'
+import { Action, EvaluationRequest, FIXTURE_V2, Request, TransactionRequest } from '@narval/policy-engine-shared'
 import { Alg, Payload, hash, privateKeyToJwk, signJwt } from '@narval/signature'
 import { randomBytes } from 'crypto'
 import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless'
@@ -15,17 +15,17 @@ const sign = async (request: Request) => {
     requestHash: message
   }
 
-  const aliceSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K))
-  const bobSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K))
-  const carolSignature = await signJwt(payload, privateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K))
+  const aliceSignature = await signJwt(payload, privateKeyToJwk(FIXTURE_V2.UNSAFE_PRIVATE_KEY.Alice, Alg.ES256K))
+  const bobSignature = await signJwt(payload, privateKeyToJwk(FIXTURE_V2.UNSAFE_PRIVATE_KEY.Bob, Alg.ES256K))
+  const carolSignature = await signJwt(payload, privateKeyToJwk(FIXTURE_V2.UNSAFE_PRIVATE_KEY.Carol, Alg.ES256K))
 
   return { aliceSignature, bobSignature, carolSignature }
 }
 
 export const generateSignTransactionRequestWithGas = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.ACCOUNT.Engineering.address,
-    to: FIXTURE.ACCOUNT.Treasury.address,
+    from: FIXTURE_V2.ACCOUNT.Engineering.address,
+    to: FIXTURE_V2.ACCOUNT.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -38,7 +38,7 @@ export const generateSignTransactionRequestWithGas = async (): Promise<Evaluatio
     action: Action.SIGN_TRANSACTION,
     nonce: uuid(),
     transactionRequest: txRequest,
-    resourceId: FIXTURE.ACCOUNT.Engineering.id
+    resourceId: FIXTURE_V2.ACCOUNT.Engineering.id
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)
@@ -52,8 +52,8 @@ export const generateSignTransactionRequestWithGas = async (): Promise<Evaluatio
 
 export const generateSignTransactionRequest = async (): Promise<EvaluationRequest> => {
   const txRequest: TransactionRequest = {
-    from: FIXTURE.ACCOUNT.Engineering.address,
-    to: FIXTURE.ACCOUNT.Treasury.address,
+    from: FIXTURE_V2.ACCOUNT.Engineering.address,
+    to: FIXTURE_V2.ACCOUNT.Treasury.address,
     chainId: 137,
     value: toHex(ONE_ETH),
     data: '0x00000000',
@@ -65,7 +65,7 @@ export const generateSignTransactionRequest = async (): Promise<EvaluationReques
     action: Action.SIGN_TRANSACTION,
     nonce: uuid(),
     transactionRequest: txRequest,
-    resourceId: FIXTURE.ACCOUNT.Engineering.id
+    resourceId: FIXTURE_V2.ACCOUNT.Engineering.id
   }
 
   const { aliceSignature, bobSignature, carolSignature } = await sign(request)
@@ -81,7 +81,7 @@ export const generateSignMessageRequest = async (): Promise<EvaluationRequest> =
   const request: Request = {
     action: Action.SIGN_MESSAGE,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE_V2.ACCOUNT.Engineering.id,
     message: 'generated sign message request'
   }
 
@@ -98,7 +98,7 @@ export const generateSignRawRequest = async (): Promise<EvaluationRequest> => {
   const request: Request = {
     action: Action.SIGN_RAW,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE_V2.ACCOUNT.Engineering.id,
     rawMessage: toHex(randomBytes(42))
   }
 
@@ -115,7 +115,7 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
   const request: Request = {
     action: Action.SIGN_TYPED_DATA,
     nonce: uuid(),
-    resourceId: FIXTURE.ACCOUNT.Engineering.id,
+    resourceId: FIXTURE_V2.ACCOUNT.Engineering.id,
     typedData: {
       domain: {
         name: 'Ether Mail',
@@ -138,11 +138,11 @@ export const generateSignTypedDataRequest = async (): Promise<EvaluationRequest>
       message: {
         from: {
           name: 'Alice',
-          account: FIXTURE.VIEM_ACCOUNT.Alice.address
+          account: FIXTURE_V2.VIEM_ACCOUNT.Alice.address
         },
         to: {
           name: 'Bob',
-          account: FIXTURE.VIEM_ACCOUNT.Bob.address
+          account: FIXTURE_V2.VIEM_ACCOUNT.Bob.address
         },
         contents: "Dear Bob, today we're going to the moon"
       }
@@ -179,13 +179,13 @@ export const generateSignUserOperationRequest = async (): Promise<EvaluationRequ
   const request: Request = {
     action: 'signUserOperation',
     nonce: 'e1c8a972-3828-4046-abaf-eda251bf56bd',
-    resourceId: resourceId(FIXTURE.VIEM_ACCOUNT.Alice.address),
+    resourceId: resourceId(FIXTURE_V2.VIEM_ACCOUNT.Alice.address),
     userOperation: {
-      sender: FIXTURE.VIEM_ACCOUNT.Alice.address,
+      sender: FIXTURE_V2.VIEM_ACCOUNT.Alice.address,
       nonce: 0n,
       initCode:
         '0x9406Cc6185a346906296840746125a0E449764545fbfb9cf000000000000000000000000d9d431ad45d96dd9eeb05dd0a7d66876d1d74c4b0000000000000000000000000000000000000000000000000000000000000000',
-      callData: `0xb61d27f6000000000000000000000000${FIXTURE.VIEM_ACCOUNT.Bob.address.slice(2)}000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000`,
+      callData: `0xb61d27f6000000000000000000000000${FIXTURE_V2.VIEM_ACCOUNT.Bob.address.slice(2)}000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000`,
       callGasLimit: 82511n,
       verificationGasLimit: 526140n,
       preVerificationGas: 65912n,

@@ -1,5 +1,5 @@
-import { EntityVersion, entitiesV1Schema } from '../schema/entity.schema'
-import { Entities, EntitiesV } from '../type/entity.type'
+import { EntityVersion, Entities, EntitiesV } from '../schema/entity.schema.shared'
+import { entitiesV1Schema } from '../schema/entity.schema.v1'
 
 export type ValidationIssue = {
   code: string
@@ -10,8 +10,12 @@ export type Validation = { success: true } | { success: false; issues: Validatio
 
 export type Validator<Version extends EntityVersion> = (entities: EntitiesV<Version>) => ValidationIssue[]
 
+export type RequiredValidators = Required<{
+  [V in EntityVersion]: Validator<V>[]
+}>
+
 export type ValidationOption<Version extends EntityVersion> = {
-  version?: Validator<Version>[]
+  validators?: Validator<Version>[]
 }
 
 export const isV1 = (entities: Partial<Entities>): entities is Partial<EntitiesV<'1'>> =>

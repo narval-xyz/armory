@@ -1,8 +1,7 @@
 import {
   Action,
-  EntitiesV,
   EvaluationRequest,
-  FIXTURE,
+  FIXTURE_V2,
   GrantPermissionAction,
   SerializedUserOperationV6,
   SignMessageAction,
@@ -21,11 +20,11 @@ import {
   generateSignUserOperationRequest
 } from '../../../../../shared/testing/evaluation.testing'
 import { OpenPolicyAgentException } from '../../../exception/open-policy-agent.exception'
-import { toData, toInput } from '../../evaluation.util'
+import { toInput } from '../../evaluation.util'
 
 describe('toInput', () => {
-  const principal = FIXTURE.CREDENTIAL.Alice
-  const approvals = [FIXTURE.CREDENTIAL.Alice, FIXTURE.CREDENTIAL.Bob, FIXTURE.CREDENTIAL.Carol]
+  const principal = FIXTURE_V2.CREDENTIAL.Alice
+  const approvals = [FIXTURE_V2.CREDENTIAL.Alice, FIXTURE_V2.CREDENTIAL.Bob, FIXTURE_V2.CREDENTIAL.Carol]
 
   it('throws OpenPolicyAgentException when action is unsupported', async () => {
     const evaluation = await generateSignTransactionRequest()
@@ -92,7 +91,7 @@ describe('toInput', () => {
       const principal = {
         id: 'NoTLowerCasedId',
         userId: 'NotLOWECasedId',
-        key: FIXTURE.CREDENTIAL.Alice.key
+        key: FIXTURE_V2.CREDENTIAL.Alice.key
       }
       const input = toInput({ evaluation, principal, approvals })
 
@@ -312,107 +311,3 @@ describe('toInput', () => {
   })
 })
 
-describe('toData', () => {
-  describe('entities', () => {
-    const lowerCaseId = <T extends { id: string }>(value: T) => ({ ...value, id: value.id.toLowerCase() })
-
-    it('indexes address book accounts by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const firstAccount = FIXTURE.ADDRESS_BOOK[0]
-
-      expect(entities.addressBook[firstAccount.id.toLowerCase()]).toEqual(lowerCaseId(firstAccount))
-    })
-
-    it('indexes tokens by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const usdc = FIXTURE.TOKEN.usdc1
-
-      expect(entities.tokens[usdc.id.toLowerCase()]).toEqual(usdc)
-    })
-
-    it('indexes users by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const alice = FIXTURE.USER.Alice
-
-      expect(entities.users[alice.id.toLowerCase()]).toEqual(alice)
-    })
-
-    it('indexes accounts by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const account = FIXTURE.ACCOUNT.Testing
-
-      expect(entities.accounts[account.id.toLowerCase()]).toEqual({
-        ...lowerCaseId(account),
-        assignees: ['test-alice-user-uid']
-      })
-    })
-
-    it('indexes groups with members by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const group = FIXTURE.GROUP.Engineering
-
-      expect(entities.groups[group.id.toLowerCase()]).toEqual({
-        id: group.id.toLowerCase(),
-        users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) =>
-          userId.toLowerCase()
-        ),
-        accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
-          accountId.toLowerCase()
-        )
-      })
-    })
-
-    it('indexes groups with members from deprecated schema by lower case id', () => {
-      const { groups: _groups, version: _version, ...otherEntities } = FIXTURE.ENTITIES
-      const deprecatedEntities: EntitiesV<'1'> = {
-        ...otherEntities,
-        accountGroups: [{ id: 'test-engineering-account-group-uid' }, { id: 'test-treasury-account-group-uid' }],
-        userGroups: [{ id: 'test-engineering-user-group-uid' }, { id: 'test-treasury-user-group-uid' }],
-        accountGroupMembers: [
-          {
-            accountId: FIXTURE.ACCOUNT.Engineering.id,
-            groupId: 'test-engineering-account-group-uid'
-          },
-          {
-            accountId: FIXTURE.ACCOUNT.Treasury.id,
-            groupId: 'test-treasury-account-group-uid'
-          }
-        ],
-        userGroupMembers: [
-          {
-            userId: FIXTURE.USER.Alice.id,
-            groupId: 'test-engineering-user-group-uid'
-          },
-          {
-            userId: FIXTURE.USER.Bob.id,
-            groupId: 'test-treasury-user-group-uid'
-          }
-        ]
-      }
-
-      const { entities } = toData(deprecatedEntities)
-      expect(entities.groups).toEqual({
-        'test-engineering-user-group-uid': {
-          id: 'test-engineering-user-group-uid',
-          users: [FIXTURE.USER.Alice.id],
-          accounts: []
-        },
-        'test-treasury-user-group-uid': {
-          id: 'test-treasury-user-group-uid',
-          users: [FIXTURE.USER.Bob.id],
-          accounts: []
-        },
-        'test-engineering-account-group-uid': {
-          id: 'test-engineering-account-group-uid',
-          users: [],
-          accounts: [FIXTURE.ACCOUNT.Engineering.id.toLowerCase()]
-        },
-        'test-treasury-account-group-uid': {
-          id: 'test-treasury-account-group-uid',
-          users: [],
-          accounts: [FIXTURE.ACCOUNT.Treasury.id.toLowerCase()]
-        }
-      })
-    })
-  })
-})

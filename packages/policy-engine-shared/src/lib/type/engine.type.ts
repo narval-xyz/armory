@@ -1,6 +1,6 @@
 import { EvaluationRequest, EvaluationResponse } from './domain.type'
-import { Entities } from './entity.type'
 import { Policy } from './policy.type'
+import { Entities } from '../schema/entity.schema.shared'
 
 export interface Engine<Implementation> {
   evaluate(request: EvaluationRequest): Promise<EvaluationResponse>

@@ -1,5 +1,4 @@
 import { ZodTypeAny, z } from 'zod'
-import { credentialEntitySchema } from '../schema/entity.schema'
 import { ChainAccountId } from '../util/caip.util'
 import {
   GrantPermissionAction,
@@ -11,6 +10,7 @@ import {
   SignTypedDataAction,
   SignUserOperationAction
 } from './action.type'
+import { credentialEntitySchema } from '../schema/credential.schema'
 
 export enum Decision {
   PERMIT = 'Permit',

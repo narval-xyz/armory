@@ -5,7 +5,7 @@ import {
   EntitySignature,
   EntityStore,
   EntityUtil,
-  FIXTURE,
+  FIXTURE_V2,
   PolicyData,
   PolicySignature,
   PolicyStore,
@@ -50,8 +50,8 @@ describe(DataStoreService.name, () => {
 
     publicKey = getPublicKey(privateKey)
 
-    entityStore = await getEntityStore(FIXTURE.ENTITIES, privateKey)
-    policyStore = await getPolicyStore(FIXTURE.POLICIES, privateKey)
+    entityStore = await getEntityStore(FIXTURE_V2.ENTITIES, privateKey)
+    policyStore = await getPolicyStore(FIXTURE_V2.POLICIES, privateKey)
 
     entityData = {
       entity: {
@@ -232,7 +232,7 @@ describe(DataStoreService.name, () => {
     })
 
     it('throws DataStoreException when entity signature is invalid', async () => {
-      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
+      const entityStoreOne = await getEntityStore(FIXTURE_V2.ENTITIES, privateKey)
       const entityStoreTwo = await getEntityStore(EntityUtil.emptyV2(), privateKey)
 
       await testThrowDataStoreException({
@@ -251,7 +251,7 @@ describe(DataStoreService.name, () => {
     })
 
     it('throws DataStoreException when policy signature is invalid', async () => {
-      const policyStoreOne = await getPolicyStore(FIXTURE.POLICIES, privateKey)
+      const policyStoreOne = await getPolicyStore(FIXTURE_V2.POLICIES, privateKey)
       const policyStoreTwo = await getPolicyStore([], privateKey)
 
       await testThrowDataStoreException({
@@ -291,7 +291,7 @@ describe(DataStoreService.name, () => {
     })
 
     it('returns error when signature mismatch', async () => {
-      const entityStoreOne = await getEntityStore(FIXTURE.ENTITIES, privateKey)
+      const entityStoreOne = await getEntityStore(FIXTURE_V2.ENTITIES, privateKey)
       const entityStoreTwo = await getEntityStore(EntityUtil.emptyV2(), privateKey)
 
       const verification = await service.verifySignature({

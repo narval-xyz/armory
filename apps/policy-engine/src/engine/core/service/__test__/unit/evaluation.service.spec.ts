@@ -1,7 +1,7 @@
 import {
   Decision,
   EvaluationResponse,
-  FIXTURE,
+  FIXTURE_V2,
   GrantPermissionAction,
   Request,
   SignTransactionAction
@@ -23,7 +23,7 @@ const cnf = {
 
 const baseResponse: EvaluationResponse = {
   decision: Decision.PERMIT,
-  principal: FIXTURE.CREDENTIAL.Alice,
+  principal: FIXTURE_V2.CREDENTIAL.Alice,
   request: {} as Request
 }
 

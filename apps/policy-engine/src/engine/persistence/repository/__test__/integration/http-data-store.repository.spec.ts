@@ -1,5 +1,5 @@
 import { HttpModule, LoggerModule } from '@narval/nestjs-shared'
-import { EntityData, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
+import { EntityData, FIXTURE_V2, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import nock from 'nock'
@@ -18,7 +18,7 @@ describe(HttpDataStoreRepository.name, () => {
 
   const entityData: EntityData = {
     entity: {
-      data: FIXTURE.ENTITIES
+      data: FIXTURE_V2.ENTITIES
     }
   }
 

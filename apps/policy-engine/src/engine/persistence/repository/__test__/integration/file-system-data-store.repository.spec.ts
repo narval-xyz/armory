@@ -1,4 +1,4 @@
-import { EntityData, FIXTURE, FileSource, SourceType } from '@narval/policy-engine-shared'
+import { EntityData, FIXTURE_V2, FileSource, SourceType } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
 import { withTempJsonFile } from '../../../../../shared/testing/with-temp-json-file.testing'
 import { DataStoreException } from '../../../../core/exception/data-store.exception'
@@ -9,7 +9,7 @@ describe(FileSystemDataStoreRepository.name, () => {
 
   const entityData: EntityData = {
     entity: {
-      data: FIXTURE.ENTITIES
+      data: FIXTURE_V2.ENTITIES
     }
   }
 

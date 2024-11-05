@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { FIXTURE } from '@narval/policy-engine-shared'
+import { FIXTURE_V2 } from '@narval/policy-engine-shared'
 import { Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
@@ -48,7 +48,7 @@ describe('writeRegoPolicies', () => {
   it('writes a file with transpiled rego policies', async () => {
     await withTempDirectory(async (path) => {
       const { file } = await writeRegoPolicies({
-        policies: FIXTURE.POLICIES,
+        policies: FIXTURE_V2.POLICIES,
         filename: 'policies.rego',
         path,
         regoRuleTemplatePath: await getTemplatePath()
@@ -140,7 +140,7 @@ describe('build', () => {
         path,
         regoCorePath: await getCorePath(),
         regoRuleTemplatePath: await getTemplatePath(),
-        policies: FIXTURE.POLICIES,
+        policies: FIXTURE_V2.POLICIES,
         cleanAfter: false
       })
 

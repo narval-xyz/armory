@@ -4,7 +4,7 @@ import {
   Criterion,
   DataStoreConfiguration,
   EntityStore,
-  FIXTURE,
+  FIXTURE_V2,
   HttpSource,
   PolicyStore,
   SourceType,
@@ -97,7 +97,7 @@ describe(ClientRepository.name, () => {
 
   describe('saveEntityStore', () => {
     const store: EntityStore = {
-      data: FIXTURE.ENTITIES,
+      data: FIXTURE_V2.ENTITIES,
       signature: 'test-fake-signature'
     }
 
