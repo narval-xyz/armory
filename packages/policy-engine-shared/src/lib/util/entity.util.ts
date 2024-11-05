@@ -1,4 +1,4 @@
-import { entitiesV1Schema, entitiesV2Schema, EntityVersion, getEntitySchema } from '../schema/entity.schema'
+import { EntityVersion, entitiesV1Schema, entitiesV2Schema, getEntitySchema } from '../schema/entity.schema'
 import {
   AccountEntity,
   CredentialEntity,
@@ -7,7 +7,7 @@ import {
   UserAccountEntity,
   UserEntity
 } from '../type/entity.type'
-import { isV1, Validation, Validator } from './validation.types'
+import { Validation, Validator, isV1 } from './validation.types'
 import { V1_VALIDATORS } from './validators.v1'
 import { V2_VALIDATORS } from './validators.v2'
 
@@ -27,11 +27,19 @@ export const VALIDATORS: {
   '2': V2_VALIDATORS
 }
 
-export const findEntityVersion = (entities: Entities): { version: EntityVersion } =>
-  !entities.version ? { version: '1' } : { version: entities.version }
+export const determineEntityVersion = (entities: Entities): { version: EntityVersion } => {
+  switch (entities.version) {
+    case '1':
+      return { version: '1' }
+    case '2':
+      return { version: '2' }
+    case undefined:
+      return { version: '1' }
+  }
+}
 
 export const validate = (entities: Entities): Validation => {
-  const { version } = findEntityVersion(entities)
+  const { version } = determineEntityVersion(entities)
 
   const schema = getEntitySchema(version)
 
