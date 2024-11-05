@@ -21,6 +21,7 @@ getAccountByAddress(address) := account if {
 ## !! IMPORTANT !!
 ## This query finds an account by its ID or address. This works because currently we only support EOA accounts.
 ## If we support Smart Accounts in the future, this query will likely need to be splitted in two.
+## A smartAccount address can exist on multiple chains, so find by address will need to return multiple accounts.
 ##
 ## Input: string
 ## Output: account object with its groups | null
