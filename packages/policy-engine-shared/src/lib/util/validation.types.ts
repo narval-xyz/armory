@@ -1,4 +1,4 @@
-import { EntityVersion, entitiesV1Schema, entitiesV2Schema } from '../schema/entity.schema'
+import { EntityVersion, entitiesV1Schema } from '../schema/entity.schema'
 import { Entities, EntitiesV } from '../type/entity.type'
 
 export type ValidationIssue = {
@@ -16,5 +16,3 @@ export type ValidationOption<Version extends EntityVersion> = {
 
 export const isV1 = (entities: Partial<Entities>): entities is Partial<EntitiesV<'1'>> =>
   entitiesV1Schema.safeParse(entities).success || 'accountGroups' in entities || 'userGroups' in entities
-export const isV2 = (entities: Partial<Entities>): entities is Partial<EntitiesV<'2'>> =>
-  entitiesV2Schema.safeParse(entities).success || 'groups' in entities
