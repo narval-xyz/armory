@@ -1,3 +1,4 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import {
   DataStore,
   DataStoreConfiguration,
@@ -20,7 +21,10 @@ import { DataStoreRepositoryFactory } from '../factory/data-store-repository.fac
 
 @Injectable()
 export class DataStoreService {
-  constructor(private dataStoreRepositoryFactory: DataStoreRepositoryFactory) {}
+  constructor(
+    private dataStoreRepositoryFactory: DataStoreRepositoryFactory,
+    private logger: LoggerService
+  ) {}
 
   async fetch(store: DataStore): Promise<{
     entity: EntityStore
@@ -53,6 +57,13 @@ export class DataStoreService {
         })
       }
 
+      if (validation.issues) {
+        this.logger.warn('Entity data validation warnings', {
+          urlConfig: store.data,
+          errors: validation.issues
+        })
+      }
+
       const signatureVerification = await this.verifySignature({
         data: entityData.entity.data,
         signature: entitySignature.entity.signature,
@@ -68,7 +79,6 @@ export class DataStoreService {
 
       throw signatureVerification.error
     }
-
     throw new DataStoreException({
       message: 'Invalid entity domain invariant',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

@@ -16,7 +16,7 @@ import {
   toChainAccountId
 } from '@narval/policy-engine-shared'
 import { SetOptional } from 'type-fest'
-import { Address, fromHex, presignMessagePrefix } from 'viem'
+import { Address, fromHex } from 'viem'
 import {
   AssetTypeAndUnknown,
   ContractCallInput,
@@ -37,7 +37,7 @@ import {
   WalletType
 } from './domain'
 import { DecoderError } from './error'
-import { Permit, Permit2, SignMessage, SignTypedData } from './intent.types'
+import { Permit, Permit2, SignTypedData } from './intent.types'
 import { MethodsMapping, SUPPORTED_METHODS, SupportedMethodId } from './supported-methods'
 import { isAssetType, isPermit, isPermit2, isSupportedMethodId } from './typeguards'
 

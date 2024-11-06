@@ -1,14 +1,7 @@
 import { Alg } from '@narval/signature'
 import { Hex } from 'viem'
 import { decode } from '../../decoders/decode'
-import {
-  ContractRegistry,
-  InputType,
-  Intents,
-  PERMIT2_ADDRESS,
-  TransactionStatus,
-  WalletType
-} from '../../domain'
+import { ContractRegistry, InputType, Intents, PERMIT2_ADDRESS, TransactionStatus, WalletType } from '../../domain'
 import { buildContractRegistry, buildTransactionKey, buildTransactionRegistry } from '../../utils'
 import {
   mockCancelTransaction,

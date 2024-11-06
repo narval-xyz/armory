@@ -360,5 +360,39 @@ describe('toData', () => {
         )
       })
     })
+
+    it('indexes legacy groups with members by lower case id', () => {
+      const { entities } = toData({
+        ...FIXTURE.ENTITIES,
+        userGroupMembers: [
+          ...FIXTURE.ENTITIES.userGroupMembers!,
+          { userId: 'test-legacy-alice', groupId: 'test-legacy-user-group' }
+        ],
+        accountGroupMembers: [
+          ...FIXTURE.ENTITIES.accountGroupMembers!,
+          { accountId: 'test-legacy-account', groupId: 'test-legacy-account-group' }
+        ]
+      })
+
+      expect(entities.userGroups['test-legacy-user-group']).toEqual({
+        id: 'test-legacy-user-group',
+        users: ['test-legacy-alice']
+      })
+      expect(entities.accountGroups['test-legacy-account-group']).toEqual({
+        id: 'test-legacy-account-group',
+        accounts: ['test-legacy-account']
+      })
+      const group = FIXTURE.GROUP.Engineering
+
+      expect(entities.groups[group.id.toLowerCase()]).toEqual({
+        id: group.id.toLowerCase(),
+        users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) =>
+          userId.toLowerCase()
+        ),
+        accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
+          accountId.toLowerCase()
+        )
+      })
+    })
   })
 })

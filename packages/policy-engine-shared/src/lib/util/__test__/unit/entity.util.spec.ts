@@ -33,7 +33,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: "couldn't create the user group member because the group test-engineering-group-uid is undefined"
+            message: "couldn't create the user group member because the group test-engineering-group-uid is undefined",
+            severity: 'error'
           }
         ]
       })
@@ -57,7 +58,8 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined"
+              "couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined",
+            severity: 'error'
           }
         ]
       })
@@ -81,7 +83,8 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the account group member because the group test-engineering-group-uid is undefined"
+              "couldn't create the account group member because the group test-engineering-group-uid is undefined",
+            severity: 'error'
           }
         ]
       })
@@ -105,7 +108,8 @@ describe('validate', () => {
           {
             code: 'ENTITY_NOT_FOUND',
             message:
-              "couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined"
+              "couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined",
+            severity: 'error'
           }
         ]
       })
@@ -128,7 +132,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because the user ${USER.Alice.id} is undefined`
+            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because the user ${USER.Alice.id} is undefined`,
+            severity: 'error'
           }
         ]
       })
@@ -151,7 +156,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'ENTITY_NOT_FOUND',
-            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because it's undefined`
+            message: `couldn't assign the account ${ACCOUNT.Engineering.id} because it's undefined`,
+            severity: 'error'
           }
         ]
       })
@@ -170,7 +176,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the address book account ${ADDRESS_BOOK[0].id} is duplicated`
+            message: `the address book account ${ADDRESS_BOOK[0].id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -187,7 +194,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the credential ${CREDENTIAL.Alice.id} is duplicated`
+            message: `the credential ${CREDENTIAL.Alice.id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -204,7 +212,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the token ${TOKEN.usdc1.id} is duplicated`
+            message: `the token ${TOKEN.usdc1.id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -221,7 +230,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the group ${GROUP.Engineering.id} is duplicated`
+            message: `the group ${GROUP.Engineering.id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -238,7 +248,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the user ${USER.Alice.id} is duplicated`
+            message: `the user ${USER.Alice.id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -255,7 +266,8 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the group ${GROUP.Engineering.id} is duplicated`
+            message: `the group ${GROUP.Engineering.id} is duplicated`,
+            severity: 'error'
           }
         ]
       })
@@ -272,7 +284,32 @@ describe('validate', () => {
         issues: [
           {
             code: 'UNIQUE_IDENTIFIER_DUPLICATION',
-            message: `the account ${ACCOUNT.Engineering.id} is duplicated`
+            message: `the account ${ACCOUNT.Engineering.id} is duplicated`,
+            severity: 'error'
+          }
+        ]
+      })
+    })
+
+    it('warns when using deprecated groups', () => {
+      const result = validate({
+        ...emptyEntities,
+        accountGroups: [{ id: 'old-data' }],
+        userGroups: [{ id: 'deprecated-data' }]
+      })
+
+      expect(result).toEqual({
+        success: true,
+        issues: [
+          {
+            code: 'DEPRECATED_ENTITY',
+            message: `user group is deprecated. Please move user group 'deprecated-data' to group entity`,
+            severity: 'warning'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message: `account group is deprecated. Please move account group 'old-data' to group entity`,
+            severity: 'warning'
           }
         ]
       })

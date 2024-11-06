@@ -45,7 +45,6 @@ import {
 import { format } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 import { english, generateMnemonic, generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Origin } from '../../../../../../apps/vault/src/shared/type/domain.type'
 
 const TEST_TIMEOUT_MS = 30_000
 
@@ -576,7 +575,7 @@ describe('User Journeys', () => {
           id: account.id,
           address: account.address,
           publicKey: viemAccount.publicKey,
-          origin: Origin.IMPORTED
+          origin: 'IMPORTED'
         })
       })
 
