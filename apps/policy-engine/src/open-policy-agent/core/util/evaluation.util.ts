@@ -18,7 +18,7 @@ import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { Account, AccountGroup, Data, Group, Input, UserGroup } from '../type/open-policy-agent.type'
+import { Account, AccountGroup, Data, Group, Input } from '../type/open-policy-agent.type'
 
 type Mapping<R extends Request> = (
   request: R,
@@ -254,7 +254,7 @@ export const toData = (entities: Entities): Data => {
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
       groups: indexBy('id', Object.fromEntries(groups)),
-      accounts: indexBy('id', accounts),
+      accounts: indexBy('id', accounts)
     }
   }
 
