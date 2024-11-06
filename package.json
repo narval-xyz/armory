@@ -104,7 +104,6 @@
     "@opentelemetry/semantic-conventions": "1.27.0",
     "@opentelemetry/winston-transport": "0.7.0",
     "@prisma/client": "5.22.0",
-    "@prisma/instrumentation": "5.22.0",
     "@radix-ui/react-checkbox": "1.1.1",
     "@radix-ui/react-collapsible": "1.0.3",
     "@radix-ui/react-dialog": "1.0.5",
