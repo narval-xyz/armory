@@ -21,7 +21,6 @@ getAccountByAddress(address) := account if {
 ## !! IMPORTANT !!
 ## This query finds an account by its ID or address. This works because currently we only support EOA accounts.
 ## If we support Smart Accounts in the future, this query will likely need to be splitted in two.
-## A smartAccount address can exist on multiple chains, so find by address will need to return multiple accounts.
 ##
 ## Input: string
 ## Output: account object with its groups | null
@@ -45,14 +44,13 @@ getAccountByAddress(address) := account if {
 ## 				"address": "abc",
 ## 				"assignees": ["bob", "alice"]
 ## 				"groups": {"dev"},
-##        "accountGroups": {"test-account-group-ONE-uid"},
 ## 				"id": "eip155:eoa:abc",
 ## 			},
 ## 			"eip155:137:def": {
 ## 				"accountType": "4337",
 ## 				"address": "0xdef",
 ## 				"assignees": ["bob", "alice"]
-## 				"groups": {"dev", "test-account-group-ONE-uid"},
+## 				"groups": {"dev"},
 ## 				"id": "eip155:137:0xdef",
 ## 			},
 ## 		},
@@ -92,18 +90,12 @@ getAccount(string) := accountData if {
 	# First, try to find the account by ID
 	account := getAccountById(string)
 	groups := getGroupsByAccount(account.id)
-	accountGroups := getAccountGroupsByAccount(account.id)
-	legacyAndUpdatedGroups := groups | accountGroups
-	withNewGroups := object.union(account, {"groups": legacyAndUpdatedGroups})
-	accountData := object.remove(withNewGroups, ["accountGroups"])
+	accountData := object.union(account, {"groups": groups})
 } else := accountData if {
 	# If not found by ID, try to find by address
 	account := getAccountByAddress(string)
 	groups := getGroupsByAccount(account.id)
-	accountGroups := getAccountGroupsByAccount(account.id)
-	legacyAndUpdatedGroups := groups | accountGroups
-	withNewGroups := object.union(account, {"groups": legacyAndUpdatedGroups})
-	accountData := object.remove(withNewGroups, ["accountGroups"])
+	accountData := object.union(account, {"groups": groups})
 } else := null
 
 # If not found by ID or address, return null
@@ -142,74 +134,6 @@ getGroup(string) := group if {
 	group := data.entities.groups[lower(string)]
 } else := null
 
-## Account Groups
-##
-## Input: string
-## Output: accountGroup object | null
-##
-## This function first tries to find an account group by its ID.
-##
-## Example entity data:
-## {
-##   "entities": {
-##     "accountGroups": {
-##       "test-account-group-ONE-uid": {
-##         "id": "test-account-group-ONE-uid",
-##         "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
-##         "name": "dev",
-##       },
-##     },
-##   },
-## }
-##
-## entities.getAccountGroup("test-account-group-ONE-uid")
-## RETURNS {
-##   "id": "test-account-group-ONE-uid",
-##   "accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e"],
-##   "name": "dev",
-## }
-##
-##
-## entities.getAccountGroup("unknown")
-## RETURNS null
-getAccountGroup(string) := group if {
-	group := data.entities.accountGroups[lower(string)]
-} else := null
-
-## User Groups
-##
-## Input: string
-## Output: userGroup object | null
-##
-## This function first tries to find a user group by its ID.
-##
-## Example entity data:
-## {
-##   "entities": {
-##     "userGroups": {
-##       "test-user-group-one-uid": {
-##         "id": "test-USER-group-one-uid",
-##         "name": "dev",
-##         "users": ["test-Bob-uid", "test-Bar-uid"],
-##       },
-##     },
-##   },
-## }
-##
-## entities.getUserGroup("test-USER-group-one-uid")
-## RETURNS {
-##   "id": "test-USER-group-one-uid",
-##   "name": "dev",
-##   "users": ["test-Bob-uid", "test-Bar-uid"],
-## }
-##
-##
-## entities.getUserGroup("unknown")
-## RETURNS null
-getUserGroup(string) := group if {
-	group := data.entities.userGroups[lower(string)]
-} else := null
-
 ## Groups by Account
 ##
 ## Input: string
@@ -229,25 +153,6 @@ getGroupsByAccount(accountId) := groups if {
 	}
 } else := null
 
-## Account Groups by Account
-##
-## Input: string
-## Output: set of account group IDs | null
-##
-## This function returns a set of account group IDs that the account is a member of.
-##
-## entities.getAccountGroupsByAccount("eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e")
-## RETURNS {"test-account-group-ONE-uid"}
-##
-## entities.getAccountGroupsByAccount("unknown")
-## RETURNS {}
-getAccountGroupsByAccount(accountId) := groups if {
-	groups := {group.id |
-		some group in data.entities.accountGroups
-		lib.caseInsensitiveFindInSet(accountId, group.accounts)
-	}
-} else := null
-
 ## Groups by User
 ##
 ## Input: string
@@ -263,25 +168,6 @@ getAccountGroupsByAccount(accountId) := groups if {
 getGroupsByUser(userId) := groups if {
 	groups := {group.id |
 		some group in data.entities.groups
-		lib.caseInsensitiveFindInSet(userId, group.users)
-	}
-} else := null
-
-## User Groups by User
-##
-## Input: string
-## Output: set of user group IDs | null
-##
-## This function returns a set of user group IDs that the user is a member of.
-##
-## entities.getUserGroupsByUser("test
-## RETURNS {"test-USER-group-one-uid"}
-##
-## entities.getUserGroupsByUser("unknown")
-## RETURNS {}
-getUserGroupsByUser(userId) := groups if {
-	groups := {group.id |
-		some group in data.entities.userGroups
 		lib.caseInsensitiveFindInSet(userId, group.users)
 	}
 } else := null
@@ -394,10 +280,7 @@ getToken(id) := tokenData if {
 getUser(id) := userData if {
 	user := data.entities.users[lower(id)]
 	groups := getGroupsByUser(user.id)
-	legacyGroups := getUserGroupsByUser(user.id)
-	legacyAndUpdatedGroups := groups | legacyGroups
-	withGroups := object.union(user, {"groups": legacyAndUpdatedGroups})
-	userData := object.remove(withGroups, ["userGroups"])
+	userData := object.union(user, {"groups": groups})
 } else := null
 
 ## User by role

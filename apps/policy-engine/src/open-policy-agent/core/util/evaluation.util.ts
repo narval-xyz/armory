@@ -192,19 +192,33 @@ export const toInput = (params: {
 }
 
 export const toData = (entities: Entities): Data => {
-  const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
-    const id = groupId.toLowerCase()
-    const group = groups.get(id)
+  const groups = new Map<string, Group>()
 
-    if (group) {
-      return groups.set(id, {
-        id: groupId,
-        users: group.users.concat(userId)
-      })
-    } else {
-      return groups.set(groupId, { id: groupId, users: [userId] })
+  // Process user group members
+  entities.userGroupMembers.forEach(({ userId, groupId }) => {
+    const id = groupId.toLowerCase()
+    const group = groups.get(id) || {
+      id: groupId,
+      users: [],
+      accounts: []
     }
-  }, new Map<string, UserGroup>())
+
+    group.users.push(userId)
+    groups.set(id, group)
+  })
+
+  // Process account group members
+  entities.accountGroupMembers.forEach(({ accountId, groupId }) => {
+    const id = groupId.toLowerCase()
+    const group = groups.get(id) || {
+      id: groupId,
+      users: [],
+      accounts: []
+    }
+
+    group.accounts.push(accountId)
+    groups.set(id, group)
+  })
 
   const accountAssignees = entities.userAccounts.reduce((assignees, { userId, accountId }) => {
     const account = assignees.get(accountId)
@@ -234,23 +248,13 @@ export const toData = (entities: Entities): Data => {
     }
   }, new Map<string, AccountGroup>())
 
-  const groups = (entities.groups || []).reduce((groups, { id }) => {
-    const users = userGroups.get(id)?.users || []
-    const accounts = accountGroups.get(id)?.accounts || []
-    groups.set(id, { id, users, accounts })
-
-    return groups
-  }, new Map<string, Group>())
-
   const data: Data = {
     entities: {
       addressBook: indexBy('id', entities.addressBook),
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
       groups: indexBy('id', Object.fromEntries(groups)),
-      userGroups: Object.fromEntries(userGroups),
       accounts: indexBy('id', accounts),
-      accountGroups: Object.fromEntries(accountGroups)
     }
   }
 

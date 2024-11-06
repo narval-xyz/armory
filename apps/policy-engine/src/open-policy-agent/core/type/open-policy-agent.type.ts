@@ -70,8 +70,6 @@ export const Data = z.object({
     addressBook: z.record(Id, addressBookAccountEntitySchema.extend({ id: Id })),
     tokens: z.record(Id, tokenEntitySchema.extend({ id: Id })),
     users: z.record(Id, userEntitySchema.extend({ id: Id })),
-    accountGroups: z.record(Id, AccountGroup),
-    userGroups: z.record(Id, UserGroup),
     groups: z.record(Id, Group),
     accounts: z.record(Id, Account)
   })
