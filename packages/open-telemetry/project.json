@@ -5,16 +5,6 @@
   "projectType": "library",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/open-telemetry",
-        "main": "packages/open-telemetry/src/index.ts",
-        "tsConfig": "packages/open-telemetry/tsconfig.lib.json",
-        "assets": ["packages/open-telemetry/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },
