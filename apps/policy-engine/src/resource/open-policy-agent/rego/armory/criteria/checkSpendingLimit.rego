@@ -65,51 +65,32 @@ checkSpendingOperator(spendings, operator, limit) if {
 }
 
 # Check Spending Limit
-
 calculateCurrentSpendings(params) := result if {
 	conditions = object.union(spendingWildcardConditions, params)
 	timeWindow = conditions.timeWindow
 	filters = conditions.filters
 	transfers = array.concat(feeds.transferFeed, util.intentTransferObjects)
 
-	result = sum([spending |
+	validTransfers := [transfer |
 		some transfer in transfers
-
-		# filter by principal
 		util.checkTransferByPrincipal(transfer.initiatedBy, filters.perPrincipal)
-
-		# filter by tokens
 		util.checkTransferCondition(transfer.token, filters.tokens)
-
-		# filter by users
 		util.checkTransferCondition(transfer.initiatedBy, filters.users)
-
-		# filter by resource accounts
 		util.checkTransferCondition(transfer.resourceId, filters.resources)
-
-		# filter by destination accounts
 		util.checkTransferCondition(transfer.to, filters.destinations)
-
-		# filter by chains
 		util.checkTransferCondition(lib.numberToString(transfer.chainId), filters.chains)
-
-		# filter by user groups
 		util.checkTransferByUserGroups(transfer.initiatedBy, filters.userGroups)
-
-		# filter by account groups
 		util.checkTransferByAccountGroups(transfer.from, filters.accountGroups)
-
-		# filter by start date
 		util.checkTransferFromStartDate(transfer.timestamp, timeWindow)
-
-		# filter by end date
 		util.checkTransferToEndDate(transfer.timestamp, timeWindow)
-
-		# filter by time window type
 		util.checkTransferTimeWindow(transfer.timestamp, timeWindow)
+	]
 
-		spending = calculateTransferSpending(transfer, conditions.currency)
-	])
+	# Rule will fail if no valid transfers found
+	count(validTransfers) > 0
+
+	# Calculate sum only for valid transfers
+	result := sum([calculateTransferSpending(transfer, conditions.currency) | some transfer in validTransfers])
 }
 
 checkSpendingLimit(params) if {

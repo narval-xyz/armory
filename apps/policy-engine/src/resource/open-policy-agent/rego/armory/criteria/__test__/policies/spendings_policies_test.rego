@@ -125,6 +125,27 @@ forbid[{"policyId": "spendingLimitByAccountGroup"}] := reason if {
 	}
 }
 
+permit[{"policyId": "spendingLimitByUserGroupNonExistentGroup"}] := reason if {
+	checkPrincipalRole("member")
+	checkSpendingLimit({
+		"limit": "5000000000",
+		"operator": "gt",
+		"currency": "fiat:usd",
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
+		"filters": {"userGroups": {"non-existent-group"}},
+	})
+
+	reason = {
+		"type": "permit",
+		"policyId": "spendingLimitByUserGroupNonExistentGroup",
+		"approvalsSatisfied": [],
+		"approvalsMissing": [],
+	}
+}
+
 # If Alice transfers >$5k usd value of USDC in a 12 hour rolling window, then require approvals
 permit[{"policyId": "spendingLimitWithApprovals"}] := reason if {
 	checkAccountAssigned

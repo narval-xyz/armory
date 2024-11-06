@@ -41,6 +41,10 @@ test_spendingLimitByAccountResource if {
 	}
 }
 
+test_spendingLimitByUserGroupDoesntAuthorizeEveryone if {
+	res = permit[{"policyId": "spendingLimitByUserGroupNonExistentGroup"}] with input as spendingLimitReq with data.entities as testData.entities
+}
+
 test_spendingLimitByUserGroup if {
 	spendingLimitByUserGroupReq = object.union(spendingLimitReq, {
 		"principal": {"userId": "test-bar-uid"},

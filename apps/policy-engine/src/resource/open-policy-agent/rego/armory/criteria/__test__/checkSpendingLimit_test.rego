@@ -239,3 +239,34 @@ test_calculateCurrentSpendingsForUserOperationIntent if {
 
 	res == 2400000000000000000
 }
+
+test_calculateCurrentSpendingsDoesntAuthorizeUserNotInGroup if {
+	conditions = {
+		"timeWindow": {
+			"type": "rolling",
+			"value": (12 * 60) * 60,
+		},
+		"filters": {
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"userGroup": {"I should not match at all"},
+		},
+	}
+
+	not calculateCurrentSpendings(conditions) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
+}
+
+test_spendingLimitByUserGroupDoesntAuthorizeEveryoneFromFunction if {
+	res := checkSpendingLimit({
+		"limit": "1000000000000000000",
+		"operator": "lte",
+		"timeWindow": {
+			"type": "rolling",
+			"value": 86400,
+		},
+		"filters": {
+			"perPrincipal": true,
+			"tokens": {"eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174"},
+			"userGroups": {"I should not match at all"},
+		},
+	}) with input as testData.requestWithEip1559Transaction with data.entities as testData.entities
+}
