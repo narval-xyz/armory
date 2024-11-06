@@ -5,10 +5,6 @@ generator client {
   //
   // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
   output   = "../../../../../../../node_modules/@prisma/client/armory"
-  // Enable tracing to integrate with OTEL.
-  //
-  // Reference: https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/opentelemetry-tracing
-  previewFeatures = ["tracing", "interactiveTransactions"]
 }
 
 datasource db {

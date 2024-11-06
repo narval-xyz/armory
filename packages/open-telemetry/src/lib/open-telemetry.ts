@@ -20,7 +20,6 @@ import { Resource } from '@opentelemetry/resources'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
-import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 type OpenTelemetryOption = {
   serviceName: string
@@ -48,7 +47,7 @@ export const buildOpenTelemetrySdk = ({ serviceName, diagLogLevel }: OpenTelemet
     metricReader: new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter()
     }),
-    instrumentations: [...getNodeAutoInstrumentations(), new PrismaInstrumentation()]
+    instrumentations: [getNodeAutoInstrumentations()]
   })
 }
 
