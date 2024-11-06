@@ -34,7 +34,6 @@ RUN chmod +x ./db-migrator.sh
 COPY --from=build /usr/src/app/dist ./dist
 RUN npm ci --prefix ./dist/apps/vault --only=production
 COPY --from=build /usr/src/app/node_modules/@prisma/client/vault ./dist/apps/vault/node_modules/@prisma/client/vault
-COPY --from=build /usr/src/app/node_modules/.prisma/client/vault ./dist/apps/vault/node_modules/.prisma/client/vault
 
 ENV NODE_ENV=production
 ENV PORT=3011
