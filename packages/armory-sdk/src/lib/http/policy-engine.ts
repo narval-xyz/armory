@@ -59,7 +59,7 @@ export const sendEvaluationRequest = async (
     const body = await signRequestPayload({ clientId, jwk, alg, signer }, request)
 
     const { data } = await axios.post<SendEvaluationResponse>(
-      `${engineHost}/v1/evaluations`,
+      `${engineHost}/evaluations`,
       SerializedEvaluationRequest.parse(body),
       { headers: { [HEADER_CLIENT_ID]: clientId } }
     )
