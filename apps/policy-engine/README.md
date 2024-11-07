@@ -4,8 +4,8 @@ Policy decision point for fine-grained authorization in web3.0.
 
 ## Requirements
 
-- [Open Policy Agent (OPA)
-  binary](https://www.openpolicyagent.org/docs/latest/#1-download-opa) installed
+- [Open Policy Agent (OPA) binary version >=
+  0.69](https://www.openpolicyagent.org/docs/latest/#1-download-opa) installed
   and accessible in your `$PATH`.
 
 ## Getting started
