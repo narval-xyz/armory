@@ -21,8 +21,7 @@
       "defaultConfiguration": "production",
       "options": {
         "buildTarget": "devtool:build",
-        "dev": true,
-        "port": 3025
+        "dev": true
       },
       "configurations": {
         "development": {
