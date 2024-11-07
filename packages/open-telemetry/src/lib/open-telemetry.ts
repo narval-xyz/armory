@@ -98,16 +98,27 @@ export const buildOpenTelemetrySdk = ({ serviceName, diagLogLevel, instrumentati
   })
 }
 
+const registerGracefulShutdownHandler = ({ sdk, event }: { sdk: NodeSDK; event: 'SIGTERM' | 'SIGINT' }): void => {
+  process.on(event, async () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      JSON.stringify({
+        level: 'info',
+        timestamp: new Date().toISOString(),
+        message: `Shutdown OpenTelemetry on ${event}`
+      })
+    )
+
+    // Flush traces and metrics to the API before shutdown.
+    await sdk.shutdown()
+  })
+}
+
 export const instrumentOpenTelemetry = (options: OpenTelemetryOption): void => {
   const sdk = buildOpenTelemetrySdk(options)
 
   sdk.start()
 
-  const handleShutdown = async () => {
-    // Flush traces and metrics to the API before shutdown.
-    await sdk.shutdown()
-  }
-
-  process.on('SIGTERM', handleShutdown)
-  process.on('SIGINT', handleShutdown)
+  registerGracefulShutdownHandler({ sdk, event: 'SIGTERM' })
+  registerGracefulShutdownHandler({ sdk, event: 'SIGINT' })
 }
