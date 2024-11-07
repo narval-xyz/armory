@@ -18,7 +18,7 @@ import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { Account, AccountGroup, Data, Group, Input } from '../type/open-policy-agent.type'
+import { Account, AccountGroup, Data, Group, Input, UserGroup } from '../type/open-policy-agent.type'
 
 type Mapping<R extends Request> = (
   request: R,
@@ -193,31 +193,41 @@ export const toInput = (params: {
 
 export const toData = (entities: Entities): Data => {
   const groups = new Map<string, Group>()
+  const userGroups = new Map<string, UserGroup>()
+  const accountGroups = new Map<string, AccountGroup>()
+
+  const {
+    userGroups: legacyUserGroupsEntities = [],
+    accountGroups: legacyAccountGroupsEntities = [],
+    groups: newGroups = []
+  } = entities
 
   // Process user group members
   entities.userGroupMembers.forEach(({ userId, groupId }) => {
     const id = groupId.toLowerCase()
-    const group = groups.get(id) || {
-      id: groupId,
-      users: [],
-      accounts: []
-    }
+    const isInNewGroups = newGroups.some((group) => group.id === id)
+    const isInLegacyGroups = legacyUserGroupsEntities.some((group) => group.id === id)
 
-    group.users.push(userId)
-    groups.set(id, group)
+    if (isInNewGroups) {
+      groups.get(id)?.users.push(userId) || groups.set(id, { id, users: [userId], accounts: [] })
+    }
+    if (isInLegacyGroups) {
+      userGroups.get(id)?.users.push(userId) || userGroups.set(id, { id, users: [userId] })
+    }
   })
 
   // Process account group members
   entities.accountGroupMembers.forEach(({ accountId, groupId }) => {
     const id = groupId.toLowerCase()
-    const group = groups.get(id) || {
-      id: groupId,
-      users: [],
-      accounts: []
-    }
+    const isInNewGroups = newGroups.some((group) => group.id === id)
+    const isInLegacyGroups = legacyAccountGroupsEntities.some((group) => group.id === id)
 
-    group.accounts.push(accountId)
-    groups.set(id, group)
+    if (isInNewGroups) {
+      groups.get(id)?.accounts.push(accountId) || groups.set(id, { id, users: [], accounts: [accountId] })
+    }
+    if (isInLegacyGroups) {
+      accountGroups.get(id)?.accounts.push(accountId) || accountGroups.set(id, { id, accounts: [accountId] })
+    }
   })
 
   const accountAssignees = entities.userAccounts.reduce((assignees, { userId, accountId }) => {
@@ -235,25 +245,14 @@ export const toData = (entities: Entities): Data => {
     assignees: accountAssignees.get(account.id) || []
   }))
 
-  const accountGroups = entities.accountGroupMembers.reduce((groups, { accountId, groupId }) => {
-    const group = groups.get(groupId)
-
-    if (group) {
-      return groups.set(groupId, {
-        id: groupId,
-        accounts: group.accounts.concat(accountId)
-      })
-    } else {
-      return groups.set(groupId, { id: groupId, accounts: [accountId] })
-    }
-  }, new Map<string, AccountGroup>())
-
   const data: Data = {
     entities: {
       addressBook: indexBy('id', entities.addressBook),
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
       groups: indexBy('id', Object.fromEntries(groups)),
+      accountGroups: Object.fromEntries(accountGroups),
+      userGroups: Object.fromEntries(userGroups),
       accounts: indexBy('id', accounts)
     }
   }

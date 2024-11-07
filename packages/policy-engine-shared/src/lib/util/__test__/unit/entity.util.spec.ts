@@ -12,6 +12,8 @@ describe('validate', () => {
     users: [],
     accountGroupMembers: [],
     groups: [],
+    userGroups: [],
+    accountGroups: [],
     accounts: []
   }
 

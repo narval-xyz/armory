@@ -1,6 +1,6 @@
-import { Action, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
+import { Action, Entities, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import legacyGroupEntities from '../../../resource/entity/legacy-group.json'
+import overlappingGroupIdLegacyEntities from '../../../resource/entity/legacy-group-overlappping.json'
 import adminPermitAll from '../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
 import legacyTreasuryMemberCanTransferOneEthFixed from '../../../resource/policy/checkSpendingLimit/treasury-legacyGroupMember-can-transfer-1-eth-fixed.json'
 import legacyTreasuryMemberCanTransferOneEthRolling from '../../../resource/policy/checkSpendingLimit/treasury-legacyGroupMember-can-transfer-1-eth-rolling.json'
@@ -19,7 +19,7 @@ const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 
-describe('checkSpendingLimit with legacy group entities', () => {
+describe('checkSpendingLimit with overlapping legacy group entities', () => {
   describe('by groupId', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
@@ -37,7 +37,7 @@ describe('checkSpendingLimit with legacy group entities', () => {
     const clientId = v4()
 
     beforeAll(async () => {
-      const entities = entitiesSchema.parse(legacyGroupEntities)
+      const entities = overlappingGroupIdLegacyEntities as Entities
 
       const policies = buildPolicy([adminPermitAll, legacyTreasuryMemberCanTransferOneEthFixed])
 
@@ -140,7 +140,7 @@ describe('checkSpendingLimit with legacy group entities', () => {
     const clientId = v4()
 
     beforeAll(async () => {
-      const entities = entitiesSchema.parse(legacyGroupEntities)
+      const entities = overlappingGroupIdLegacyEntities as Entities
       const policies = buildPolicy([adminPermitAll, legacyTreasuryMemberCanTransferOneEthRolling])
 
       await createClient(systemManagerHexPk, {

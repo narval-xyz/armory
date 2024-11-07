@@ -73,7 +73,8 @@ describe('OpenPolicyAgentEngine', () => {
         credentials: [],
         tokens: [],
         userGroupMembers: [],
-        groups: [],
+        accountGroups: [],
+        userGroups: [],
         userAccounts: [],
         users: [],
         accountGroupMembers: [],
@@ -437,9 +438,10 @@ describe('OpenPolicyAgentEngine', () => {
             }
           }
         ],
+        userGroups: [],
+        accountGroups: [],
         tokens: [],
         userGroupMembers: [],
-        groups: [],
         userAccounts: [],
         users: [
           {

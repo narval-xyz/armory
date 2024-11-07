@@ -438,7 +438,9 @@ export const ENTITIES: Entities = {
   userAccounts: USER_ACCOUNT,
   users: Object.values(USER),
   accountGroupMembers: ACCOUNT_GROUP_MEMBER,
-  accounts: Object.values(ACCOUNT)
+  accounts: Object.values(ACCOUNT),
+  accountGroups: [],
+  userGroups: []
 }
 
 export const POLICIES: Policy[] = [

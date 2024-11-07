@@ -94,15 +94,15 @@ export const groupEntitySchema = z.object({
 })
 
 export const entitiesSchema = z.object({
-  addressBook: z.array(addressBookAccountEntitySchema).optional().default([]),
-  credentials: z.array(credentialEntitySchema).optional().default([]),
-  tokens: z.array(tokenEntitySchema).optional().default([]),
-  userGroupMembers: z.array(userGroupMemberEntitySchema).optional().default([]),
-  userAccounts: z.array(userAccountEntitySchema).optional().default([]),
-  users: z.array(userEntitySchema).optional().default([]),
-  accountGroupMembers: z.array(accountGroupMemberEntitySchema).optional().default([]),
-  groups: z.array(groupEntitySchema).optional().default([]),
-  accountGroups: z.array(accountGroupEntitySchema).optional().default([]),
-  userGroups: z.array(userGroupEntitySchema).optional().default([]),
-  accounts: z.array(accountEntitySchema).optional().default([])
+  addressBook: z.array(addressBookAccountEntitySchema),
+  credentials: z.array(credentialEntitySchema),
+  tokens: z.array(tokenEntitySchema),
+  userGroupMembers: z.array(userGroupMemberEntitySchema),
+  userAccounts: z.array(userAccountEntitySchema),
+  users: z.array(userEntitySchema),
+  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
+  accountGroups: z.array(accountGroupEntitySchema).optional(),
+  groups: z.array(groupEntitySchema).optional(),
+  userGroups: z.array(userGroupEntitySchema).optional(),
+  accounts: z.array(accountEntitySchema)
 })
