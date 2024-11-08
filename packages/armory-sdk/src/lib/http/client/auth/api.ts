@@ -1692,10 +1692,22 @@ export interface EntityDataStoreDtoEntityData {
     'accountGroupMembers': Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'groups': Array<EntityDataStoreDtoEntityDataGroupsInner>;
+    'accountGroups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'groups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'userGroups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
     /**
      * 
      * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
@@ -1721,6 +1733,19 @@ export interface EntityDataStoreDtoEntityDataAccountGroupMembersInner {
      * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
      */
     'groupId': string;
+}
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataAccountGroupsInner
+ */
+export interface EntityDataStoreDtoEntityDataAccountGroupsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataAccountGroupsInner
+     */
+    'id': string;
 }
 /**
  * 
@@ -1826,19 +1851,6 @@ export interface EntityDataStoreDtoEntityDataCredentialsInner {
      * @memberof EntityDataStoreDtoEntityDataCredentialsInner
      */
     'key': CreateClientResponseDtoPolicyEngineNodesInnerPublicKey;
-}
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataGroupsInner
- */
-export interface EntityDataStoreDtoEntityDataGroupsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataGroupsInner
-     */
-    'id': string;
 }
 /**
  * 

@@ -19,6 +19,12 @@ const ericPrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Eric
 const alicePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Alice
 const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 
+// !! This criteria is not meant to be used alone in a policy.
+// !! This criteria matches ALL incoming requests.
+// !! Filters of the criteria are used to filter historical data, not incoming request
+// !! If you have one policy that permits based on a group spendings
+// !! It will allow anyone even if they are not in the group to spend until the aggregated limit is reached
+// !! Spendings of people not in the group will not be counted against the group limit
 describe('checkSpendingLimit', () => {
   describe('by groupId', () => {
     const request: Request = {

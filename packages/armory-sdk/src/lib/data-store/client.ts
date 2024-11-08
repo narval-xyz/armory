@@ -68,7 +68,7 @@ export class EntityStoreClient {
    */
   async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponse> {
     const { data } = await this.dataStoreHttp.setEntities(this.config.clientId, {
-      data: this.populate(store.data) as any,
+      data: this.populate(store.data),
       signature: store.signature
     })
 

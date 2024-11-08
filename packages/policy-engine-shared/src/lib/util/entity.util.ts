@@ -194,8 +194,7 @@ export const empty = (): Entities => ({
   users: [],
   accountGroupMembers: [],
   accounts: [],
-  userGroups: [],
-  accountGroups: []
+  groups: []
 })
 
 export const removeUserById = (entities: Entities, userId: string): Entities => {

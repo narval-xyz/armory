@@ -101,8 +101,14 @@ export const entitiesSchema = z.object({
   userAccounts: z.array(userAccountEntitySchema),
   users: z.array(userEntitySchema),
   accountGroupMembers: z.array(accountGroupMemberEntitySchema),
+  /**
+   * @deprecated use groups instead
+   */
   accountGroups: z.array(accountGroupEntitySchema).optional(),
-  groups: z.array(groupEntitySchema).optional(),
+  /**
+   * @deprecated use groups instead
+   */
   userGroups: z.array(userGroupEntitySchema).optional(),
-  accounts: z.array(accountEntitySchema)
+  accounts: z.array(accountEntitySchema),
+  groups: z.array(groupEntitySchema).optional()
 })
