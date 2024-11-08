@@ -73,6 +73,8 @@ describe('OpenPolicyAgentEngine', () => {
         credentials: [],
         tokens: [],
         userGroupMembers: [],
+        accountGroups: [],
+        userGroups: [],
         groups: [],
         userAccounts: [],
         users: [],
