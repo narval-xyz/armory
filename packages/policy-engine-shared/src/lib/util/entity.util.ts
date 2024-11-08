@@ -194,6 +194,8 @@ export const empty = (): Entities => ({
   users: [],
   accountGroupMembers: [],
   accounts: [],
+  userGroups: [],
+  accountGroups: [],
   groups: []
 })
 
