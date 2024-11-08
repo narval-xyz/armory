@@ -20,6 +20,7 @@ import { Resource } from '@opentelemetry/resources'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
+import { IncomingMessage } from 'http'
 
 type OpenTelemetryOption = {
   serviceName: string
@@ -27,10 +28,22 @@ type OpenTelemetryOption = {
   instrumentations?: InstrumentationConfigMap
 }
 
+export const ignoreIncomingRequestHook = (req: IncomingMessage): boolean => {
+  const basePath = req.url?.split(/[?&]/)[0] || ''
+  // These URL paths are part of each NestJS application and used to determine
+  // if the server is running.
+  const ignorePaths = ['/', '/ping']
+
+  return ignorePaths.includes(basePath)
+}
+
 const getInstrumentations = (instrumentations?: InstrumentationConfigMap) => {
   return getNodeAutoInstrumentations({
     '@opentelemetry/instrumentation-nestjs-core': { enabled: true },
-    '@opentelemetry/instrumentation-http': { enabled: true },
+    '@opentelemetry/instrumentation-http': {
+      enabled: true,
+      ignoreIncomingRequestHook
+    },
     '@opentelemetry/instrumentation-winston': { enabled: true },
     '@opentelemetry/instrumentation-net': { enabled: true },
     '@opentelemetry/instrumentation-express': { enabled: true },
@@ -114,7 +127,7 @@ const registerGracefulShutdownHandler = ({ sdk, event }: { sdk: NodeSDK; event: 
   })
 }
 
-export const instrumentOpenTelemetry = (options: OpenTelemetryOption): void => {
+export const instrumentTelemetry = (options: OpenTelemetryOption): void => {
   const sdk = buildOpenTelemetrySdk(options)
 
   sdk.start()

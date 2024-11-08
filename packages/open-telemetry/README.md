@@ -1,4 +1,4 @@
-# Open Telemetry 
+# Open Telemetry
 
 Armory Stack shared Open Telemetry (OTEL) instrumentation configuration.
 
@@ -7,9 +7,8 @@ Armory Stack shared Open Telemetry (OTEL) instrumentation configuration.
 OTEL registration is kept in a separate package because:
 
 - OTEL modifies Node.js runtime behavior by patching core modules. If
-we import any dependencies before registering OTEL, those imports
-will use the unpatched runtime and won't be instrumented correctly.
+  we import any dependencies before registering OTEL, those imports
+  will use the unpatched runtime and won't be instrumented correctly.
 
 - Having it separate ensures OTELis registered first, before any
-other code runs, guaranteeing proper instrumentation of all dependencies.
-
+  other code runs, guaranteeing proper instrumentation of all dependencies.
