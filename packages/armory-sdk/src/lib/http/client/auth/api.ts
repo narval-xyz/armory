@@ -1662,22 +1662,34 @@ export interface EntityDataStoreDtoEntityData {
     'credentials': Array<EntityDataStoreDtoEntityDataCredentialsInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataTokensInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'tokens': Array<EntityDataStoreDtoEntityDataTokensInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'userGroupMembers': Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>;
-    /**
-     * 
      * @type {Array<EntityDataStoreDtoEntityDataUserAccountsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
     'userAccounts': Array<EntityDataStoreDtoEntityDataUserAccountsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'groupMembers'?: Array<EntityDataStoreDtoEntityDataGroupMembersInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'accounts': Array<EntityDataStoreDtoEntityDataAccountsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'groups'?: Array<EntityDataStoreDtoEntityDataGroupsInner>;
+    /**
+     * 
+     * @type {Array<EntityDataStoreDtoEntityDataTokensInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'tokens': Array<EntityDataStoreDtoEntityDataTokensInner>;
     /**
      * 
      * @type {Array<EntityDataStoreDtoEntityDataUsersInner>}
@@ -1686,34 +1698,28 @@ export interface EntityDataStoreDtoEntityData {
     'users': Array<EntityDataStoreDtoEntityDataUsersInner>;
     /**
      * 
+     * @type {Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>}
+     * @memberof EntityDataStoreDtoEntityData
+     */
+    'userGroupMembers'?: Array<EntityDataStoreDtoEntityDataUserGroupMembersInner>;
+    /**
+     * 
      * @type {Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'accountGroupMembers': Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
+    'accountGroupMembers'?: Array<EntityDataStoreDtoEntityDataAccountGroupMembersInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'accountGroups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
+    'accountGroups'?: Array<EntityDataStoreDtoEntityDataGroupsInner>;
     /**
      * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
+     * @type {Array<EntityDataStoreDtoEntityDataGroupsInner>}
      * @memberof EntityDataStoreDtoEntityData
      */
-    'groups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountGroupsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'userGroups'?: Array<EntityDataStoreDtoEntityDataAccountGroupsInner>;
-    /**
-     * 
-     * @type {Array<EntityDataStoreDtoEntityDataAccountsInner>}
-     * @memberof EntityDataStoreDtoEntityData
-     */
-    'accounts': Array<EntityDataStoreDtoEntityDataAccountsInner>;
+    'userGroups'?: Array<EntityDataStoreDtoEntityDataGroupsInner>;
 }
 /**
  * 
@@ -1733,19 +1739,6 @@ export interface EntityDataStoreDtoEntityDataAccountGroupMembersInner {
      * @memberof EntityDataStoreDtoEntityDataAccountGroupMembersInner
      */
     'groupId': string;
-}
-/**
- * 
- * @export
- * @interface EntityDataStoreDtoEntityDataAccountGroupsInner
- */
-export interface EntityDataStoreDtoEntityDataAccountGroupsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityDataStoreDtoEntityDataAccountGroupsInner
-     */
-    'id': string;
 }
 /**
  * 
@@ -1851,6 +1844,89 @@ export interface EntityDataStoreDtoEntityDataCredentialsInner {
      * @memberof EntityDataStoreDtoEntityDataCredentialsInner
      */
     'key': CreateClientResponseDtoPolicyEngineNodesInnerPublicKey;
+}
+/**
+ * @type EntityDataStoreDtoEntityDataGroupMembersInner
+ * @export
+ */
+export type EntityDataStoreDtoEntityDataGroupMembersInner = EntityDataStoreDtoEntityDataGroupMembersInnerOneOf | EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1;
+
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataGroupMembersInnerOneOf
+ */
+export interface EntityDataStoreDtoEntityDataGroupMembersInnerOneOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf
+     */
+    'userId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf
+     */
+    'groupId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf
+     */
+    'type': EntityDataStoreDtoEntityDataGroupMembersInnerOneOfTypeEnum;
+}
+
+export const EntityDataStoreDtoEntityDataGroupMembersInnerOneOfTypeEnum = {
+    User: 'user'
+} as const;
+
+export type EntityDataStoreDtoEntityDataGroupMembersInnerOneOfTypeEnum = typeof EntityDataStoreDtoEntityDataGroupMembersInnerOneOfTypeEnum[keyof typeof EntityDataStoreDtoEntityDataGroupMembersInnerOneOfTypeEnum];
+
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1
+ */
+export interface EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1
+     */
+    'accountId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1
+     */
+    'groupId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1
+     */
+    'type': EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1TypeEnum;
+}
+
+export const EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1TypeEnum = {
+    Account: 'account'
+} as const;
+
+export type EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1TypeEnum = typeof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1TypeEnum[keyof typeof EntityDataStoreDtoEntityDataGroupMembersInnerOneOf1TypeEnum];
+
+/**
+ * 
+ * @export
+ * @interface EntityDataStoreDtoEntityDataGroupsInner
+ */
+export interface EntityDataStoreDtoEntityDataGroupsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityDataStoreDtoEntityDataGroupsInner
+     */
+    'id': string;
 }
 /**
  * 

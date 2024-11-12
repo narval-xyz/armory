@@ -81,6 +81,11 @@ export const tokenEntitySchema = z.object({
   decimals: z.number()
 })
 
+export const groupMemberEntitySchema = z.discriminatedUnion('type', [
+  userGroupMemberEntitySchema.extend({ type: z.literal('user') }),
+  accountGroupMemberEntitySchema.extend({ type: z.literal('account') })
+])
+
 export const accountGroupEntitySchema = z.object({
   id: z.string()
 })
@@ -96,11 +101,20 @@ export const groupEntitySchema = z.object({
 export const entitiesSchema = z.object({
   addressBook: z.array(addressBookAccountEntitySchema),
   credentials: z.array(credentialEntitySchema),
-  tokens: z.array(tokenEntitySchema),
-  userGroupMembers: z.array(userGroupMemberEntitySchema),
   userAccounts: z.array(userAccountEntitySchema),
+  groupMembers: z.array(groupMemberEntitySchema).optional(),
+  accounts: z.array(accountEntitySchema),
+  groups: z.array(groupEntitySchema).optional(),
+  tokens: z.array(tokenEntitySchema),
   users: z.array(userEntitySchema),
-  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
+  /**
+   * @deprecated use groupMembers instead
+   */
+  userGroupMembers: z.array(userGroupMemberEntitySchema).optional(),
+  /**
+   * @deprecated use groupMembers instead
+   */
+  accountGroupMembers: z.array(accountGroupMemberEntitySchema).optional(),
   /**
    * @deprecated use groups instead
    */
@@ -108,7 +122,5 @@ export const entitiesSchema = z.object({
   /**
    * @deprecated use groups instead
    */
-  userGroups: z.array(userGroupEntitySchema).optional(),
-  accounts: z.array(accountEntitySchema),
-  groups: z.array(groupEntitySchema).optional()
+  userGroups: z.array(userGroupEntitySchema).optional()
 })

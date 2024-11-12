@@ -76,6 +76,7 @@ describe('OpenPolicyAgentEngine', () => {
         accountGroups: [],
         userGroups: [],
         groups: [],
+        groupMembers: [],
         userAccounts: [],
         users: [],
         accountGroupMembers: [],

@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   accountClassificationSchema,
   accountEntitySchema,
+  accountGroupEntitySchema,
   accountGroupMemberEntitySchema,
   accountTypeSchema,
   addressBookAccountEntitySchema,
@@ -9,9 +10,11 @@ import {
   credentialEntitySchema,
   entitiesSchema,
   groupEntitySchema,
+  groupMemberEntitySchema,
   tokenEntitySchema,
   userAccountEntitySchema,
   userEntitySchema,
+  userGroupEntitySchema,
   userGroupMemberEntitySchema,
   userRoleSchema
 } from '../schema/entity.schema'
@@ -38,11 +41,17 @@ export type GroupEntity = z.infer<typeof groupEntitySchema>
 
 export type UserAccountEntity = z.infer<typeof userAccountEntitySchema>
 
+export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
+
+export type AccountGroupEntity = z.infer<typeof accountGroupEntitySchema>
+
 export type UserGroupMemberEntity = z.infer<typeof userGroupMemberEntitySchema>
 
 export type AccountEntity = z.infer<typeof accountEntitySchema>
 
 export type AccountGroupMemberEntity = z.infer<typeof accountGroupMemberEntitySchema>
+
+export type GroupMemberEntity = z.infer<typeof groupMemberEntitySchema>
 
 export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 

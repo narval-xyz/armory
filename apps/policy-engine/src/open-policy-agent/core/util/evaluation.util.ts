@@ -192,43 +192,23 @@ export const toInput = (params: {
 }
 
 export const toData = (entities: Entities): Data => {
-  const groups = new Map<string, Group>()
-  const userGroups = new Map<string, UserGroup>()
-  const accountGroups = new Map<string, AccountGroup>()
+  const userGroupMembers = entities.userGroupMembers || []
+  const accountGroupMembers = entities.accountGroupMembers || []
+  const groupMembers = entities.groupMembers || []
 
-  const {
-    userGroups: legacyUserGroupsEntities = [],
-    accountGroups: legacyAccountGroupsEntities = [],
-    groups: newGroups = []
-  } = entities
-
-  // Process user group members
-  entities.userGroupMembers.forEach(({ userId, groupId }) => {
+  const userGroups = userGroupMembers.reduce((groups, { userId, groupId }) => {
     const id = groupId.toLowerCase()
-    const isInNewGroups = newGroups.some((group) => group.id === id)
-    const isInLegacyGroups = legacyUserGroupsEntities.some((group) => group.id === id)
+    const group = groups.get(id)
 
-    if (isInNewGroups) {
-      groups.get(id)?.users.push(userId) || groups.set(id, { id, users: [userId], accounts: [] })
+    if (group) {
+      return groups.set(id, {
+        id: groupId,
+        users: group.users.concat(userId)
+      })
+    } else {
+      return groups.set(groupId, { id: groupId, users: [userId] })
     }
-    if (isInLegacyGroups) {
-      userGroups.get(id)?.users.push(userId) || userGroups.set(id, { id, users: [userId] })
-    }
-  })
-
-  // Process account group members
-  entities.accountGroupMembers.forEach(({ accountId, groupId }) => {
-    const id = groupId.toLowerCase()
-    const isInNewGroups = newGroups.some((group) => group.id === id)
-    const isInLegacyGroups = legacyAccountGroupsEntities.some((group) => group.id === id)
-
-    if (isInNewGroups) {
-      groups.get(id)?.accounts.push(accountId) || groups.set(id, { id, users: [], accounts: [accountId] })
-    }
-    if (isInLegacyGroups) {
-      accountGroups.get(id)?.accounts.push(accountId) || accountGroups.set(id, { id, accounts: [accountId] })
-    }
-  })
+  }, new Map<string, UserGroup>())
 
   const accountAssignees = entities.userAccounts.reduce((assignees, { userId, accountId }) => {
     const account = assignees.get(accountId)
@@ -245,15 +225,44 @@ export const toData = (entities: Entities): Data => {
     assignees: accountAssignees.get(account.id) || []
   }))
 
+  const accountGroups = accountGroupMembers.reduce((groups, { accountId, groupId }) => {
+    const group = groups.get(groupId)
+
+    if (group) {
+      return groups.set(groupId, {
+        id: groupId,
+        accounts: group.accounts.concat(accountId)
+      })
+    } else {
+      return groups.set(groupId, { id: groupId, accounts: [accountId] })
+    }
+  }, new Map<string, AccountGroup>())
+
+  const mergedGroups = groupMembers.reduce((groups, member) => {
+    const group = groups.get(member.groupId) ?? {
+      id: member.groupId,
+      users: [],
+      accounts: []
+    }
+
+    const newGroup = {
+      ...group,
+      users: member.type === 'user' ? [...group.users, member.userId] : group.users,
+      accounts: member.type === 'account' ? [...group.accounts, member.accountId] : group.accounts
+    }
+
+    return groups.set(member.groupId, newGroup)
+  }, new Map<string, Group>())
+
   const data: Data = {
     entities: {
       addressBook: indexBy('id', entities.addressBook),
       tokens: indexBy('id', entities.tokens),
       users: indexBy('id', entities.users),
-      groups: indexBy('id', Object.fromEntries(groups)),
-      accountGroups: Object.fromEntries(accountGroups),
       userGroups: Object.fromEntries(userGroups),
-      accounts: indexBy('id', accounts)
+      accounts: indexBy('id', accounts),
+      accountGroups: Object.fromEntries(accountGroups),
+      groups: Object.fromEntries(mergedGroups)
     }
   }
 

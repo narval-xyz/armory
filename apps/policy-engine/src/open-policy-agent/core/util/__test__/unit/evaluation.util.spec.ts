@@ -360,18 +360,17 @@ describe('toData', () => {
         )
       })
     })
-
     it('indexes legacy groups with members by lower case id', () => {
       expect.assertions(3)
 
       const { entities } = toData({
         ...FIXTURE.ENTITIES,
         userGroupMembers: [
-          ...FIXTURE.ENTITIES.userGroupMembers,
+          ...(FIXTURE.ENTITIES?.userGroupMembers || []),
           { userId: 'test-legacy-alice', groupId: 'test-legacy-group' }
         ],
         accountGroupMembers: [
-          ...FIXTURE.ENTITIES.accountGroupMembers,
+          ...(FIXTURE.ENTITIES?.accountGroupMembers || []),
           { accountId: 'test-legacy-account', groupId: 'test-legacy-group' }
         ],
         accountGroups: [{ id: 'test-legacy-group' }],

@@ -26,11 +26,45 @@ const validateGroupMemberIntegrity: Validator = (entities: Entities): Validation
   const users = indexBy('id', entities.users)
   const accounts = indexBy('id', entities.accounts)
   const groups = indexBy('id', entities.groups)
+  const groupMembers = entities.groupMembers || []
+
+  const newGroupMemberIssues = groupMembers.flatMap((member) => {
+    const validations: ValidationIssue[] = []
+
+    if (!groups[member.groupId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the group member because the group ${member.groupId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    if (member.type === 'user' && !users[member.userId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the user group member for group ${member.groupId} because the user ${member.userId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    if (member.type === 'account' && !accounts[member.accountId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the account group member for group ${member.groupId} because the account ${member.accountId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    return validations
+  })
+
   const legacyUserGroups = indexBy('id', entities.userGroups)
   const legacyAccountGroups = indexBy('id', entities.accountGroups)
+  const legacyUserGroupMembers = entities.userGroupMembers || []
+  const legacyAccountGroupMembers = entities.accountGroupMembers || []
 
   // Validate user group members
-  const userIssues: ValidationIssue[] = entities.userGroupMembers
+  const userIssues: ValidationIssue[] = legacyUserGroupMembers
     .filter(({ userId }) => !users[userId])
     .map(({ userId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
@@ -38,8 +72,8 @@ const validateGroupMemberIntegrity: Validator = (entities: Entities): Validation
       severity: Severity.ERROR
     }))
 
-  const userGroupIssues: ValidationIssue[] = entities.userGroupMembers
-    .filter(({ groupId }) => !groups[groupId] && !legacyUserGroups[groupId])
+  const userGroupIssues: ValidationIssue[] = legacyUserGroupMembers
+    .filter(({ groupId }) => !legacyUserGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
       message: `couldn't create the user group member because the group ${groupId} is undefined`,
@@ -47,7 +81,7 @@ const validateGroupMemberIntegrity: Validator = (entities: Entities): Validation
     }))
 
   // Validate account group members
-  const accountIssues: ValidationIssue[] = entities.accountGroupMembers
+  const accountIssues: ValidationIssue[] = legacyAccountGroupMembers
     .filter(({ accountId }) => !accounts[accountId])
     .map(({ accountId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
@@ -55,15 +89,15 @@ const validateGroupMemberIntegrity: Validator = (entities: Entities): Validation
       severity: Severity.ERROR
     }))
 
-  const accountGroupIssues: ValidationIssue[] = entities.accountGroupMembers
-    .filter(({ groupId }) => !groups[groupId] && !legacyAccountGroups[groupId])
+  const accountGroupIssues: ValidationIssue[] = legacyAccountGroupMembers
+    .filter(({ groupId }) => !legacyAccountGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
       message: `couldn't create the account group member because the group ${groupId} is undefined`,
       severity: Severity.ERROR
     }))
 
-  return [...userIssues, ...userGroupIssues, ...accountIssues, ...accountGroupIssues]
+  return [...userIssues, ...userGroupIssues, ...accountIssues, ...accountGroupIssues, ...newGroupMemberIssues]
 }
 
 const validateUserAccountIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
@@ -190,6 +224,7 @@ export const empty = (): Entities => ({
   credentials: [],
   tokens: [],
   userGroupMembers: [],
+  groupMembers: [],
   userAccounts: [],
   users: [],
   accountGroupMembers: [],
@@ -205,7 +240,7 @@ export const removeUserById = (entities: Entities, userId: string): Entities => 
     addressBook: entities.addressBook.filter((entry) => entry.id !== userId),
     credentials: entities.credentials.filter((cred) => cred.userId !== userId),
     userAccounts: entities.userAccounts.filter((userAccount) => userAccount.userId !== userId),
-    userGroupMembers: entities.userGroupMembers.filter((userGroup) => userGroup.userId !== userId),
+    userGroupMembers: (entities.userGroupMembers || []).filter((userGroup) => userGroup.userId !== userId),
     users: entities.users.filter((user) => user.id !== userId)
   }
 }

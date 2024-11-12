@@ -3,6 +3,10 @@
   "description": "treasury group members can transfer 1 ETH",
   "when": [
     {
+      "criterion": "checkPrincipalGroup",
+      "args": ["test-treasury-group-uid"]
+    },
+    {
       "criterion": "checkSpendingLimit",
       "args": {
         "limit": "1000000000000000000",

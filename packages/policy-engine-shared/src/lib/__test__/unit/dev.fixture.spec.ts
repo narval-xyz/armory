@@ -3,6 +3,7 @@ import { validate } from '../../util/entity.util'
 
 describe('dev fixture', () => {
   it('defines valid entities', () => {
-    expect(validate(ENTITIES)).toEqual({ success: true })
+    const { success } = validate(ENTITIES)
+    expect(success).toEqual(true)
   })
 })
