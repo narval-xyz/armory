@@ -10,7 +10,7 @@
  * other code runs, guaranteeing proper instrumentation of all dependencies.
  */
 
-import { DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api'
+import { DiagLogLevel } from '@opentelemetry/api'
 import { InstrumentationConfigMap, getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto'
@@ -86,11 +86,7 @@ const getInstrumentations = (instrumentations?: InstrumentationConfigMap) => {
   })
 }
 
-export const buildOpenTelemetrySdk = ({ serviceName, diagLogLevel, instrumentations }: OpenTelemetryOption) => {
-  if (diagLogLevel) {
-    diag.setLogger(new DiagConsoleLogger(), diagLogLevel)
-  }
-
+export const buildOpenTelemetrySdk = ({ serviceName, instrumentations }: OpenTelemetryOption) => {
   return new NodeSDK({
     serviceName,
     resource: new Resource({
