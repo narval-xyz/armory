@@ -39,8 +39,6 @@ test_accountFromAddress if {
 test_accountGroups if {
 	# Test finding a group by ID
 	group := getGroup("test-GROUP-one-uid") with data.entities as testData.entities
-
-	{"accounts": ["eip155:eoa:0xddcf208f219a6e6af072f2cfdc615b2c1805f98e", "eip155:eoa:0xbbBB208f219a6e6af072f2cfdc615b2c1805f98e"], "id": "test-GROUP-one-uid", "name": "dev", "users": ["test-Bob-uid", "test-Bar-uid"]}
 	expectedGroup := {
 		"id": "test-GROUP-one-uid",
 		"accounts": [
