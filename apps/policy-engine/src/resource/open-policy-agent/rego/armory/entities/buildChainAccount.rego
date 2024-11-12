@@ -55,10 +55,10 @@ buildIntentSourceChainAccount(intent) := source if {
 
 # Get source information when there is only an account entry
 buildIntentSourceChainAccount(intent) := source if {
-	chainAccount = parseChainAccount(intent.from)
-
-	accountData := getAccount(chainAccount.address)
 	getAddressBookEntry(intent.from) == null
+
+	chainAccount = parseChainAccount(intent.from)
+	accountData := getAccount(chainAccount.address)
 
 	source := {
 		"id": chainAccount.id,
