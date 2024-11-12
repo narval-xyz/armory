@@ -41,7 +41,6 @@ export const compressRequestInterceptor = async (
 }
 
 export const addCompressionInterceptor = (axiosInstance: any) => {
-  axiosInstance.interceptors.request.eject(axiosInstance.interceptors.request.handlers[0])
   axiosInstance.interceptors.request.use(compressRequestInterceptor)
 }
 
@@ -127,7 +126,7 @@ export class EntityStoreClient {
       }
     })
 
-    return data.entity as EntityStore
+    return EntityStore.parse(data.entity)
   }
 
   /**
