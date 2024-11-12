@@ -16,10 +16,10 @@ getApprovalsCount(possibleApprovers) := result if {
 # User approvals
 
 checkApproval(approval) := result if {
-	principal := entities.getUser(input.principal.userId)
-
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::User"
+
+	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {
 	entity |
 		some entity in approval.entityIds
@@ -28,10 +28,10 @@ checkApproval(approval) := result if {
 }
 
 checkApproval(approval) := result if {
-	principal := entities.getUser(input.principal.userId)
-
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::User"
+
+	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {entity |
 		some entity in approval.entityIds
 		not lib.caseInsensitiveEqual(entity, principal.id)
@@ -42,10 +42,10 @@ checkApproval(approval) := result if {
 # User group approvals
 
 checkApproval(approval) := result if {
-	principal := entities.getUser(input.principal.userId)
-
 	approval.countPrincipal == true
 	approval.approvalEntityType == "Narval::UserGroup"
+
+	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {user |
 		some entity in approval.entityIds
 		users = entities.getUserGroup(entity).users
@@ -56,10 +56,10 @@ checkApproval(approval) := result if {
 }
 
 checkApproval(approval) := result if {
-	principal := entities.getUser(input.principal.userId)
-
 	approval.countPrincipal == false
 	approval.approvalEntityType == "Narval::UserGroup"
+
+	principal := entities.getUser(input.principal.userId)
 	possibleApprovers = {user |
 		some entity in approval.entityIds
 		users = entities.getUserGroup(entity).users
