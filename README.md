@@ -116,7 +116,7 @@ below to generate a project of your choice.
 
 ```bash
 # Generate an standard JavaScript library.
-npx nx g @nrwl/js:lib 
+npx nx g @nrwl/js:lib
 # Generate an NestJS library.
 npx nx g @nx/nest:library
 # Generate an NestJS application.
@@ -166,7 +166,7 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
 
 > [!NOTE]
-> OTEL is disabled by default in development. 
+> OTEL is disabled by default in development.
 
 3. Restart the application.
 
@@ -175,7 +175,7 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ### Naming Conventions
 
 - Traces: `operation.entity.action` (e.g., `policyStore.policies.update`)
-- Metrics: `system_entity_unit_state` (e.g., `policy_store_updates_total`) 
+- Metrics: `system_entity_unit_state` (e.g., `policy_store_updates_total`)
 
 See [Metric Naming](./packages/nestjs-shared/src/lib/module/open-telemetry/service/metric.service.ts)
 and [Trace/Span

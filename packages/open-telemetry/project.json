@@ -8,11 +8,18 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     },
-    "test": {
+    "test:type": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "make open-telemetry/test/type"
+      }
+    },
+    "test:unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/open-telemetry/jest.config.ts"
+        "jestConfig": "packages/open-telemetry/jest.unit.ts",
+        "verbose": true
       }
     }
   }

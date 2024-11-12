@@ -3,12 +3,13 @@ include ./apps/devtool/Makefile
 include ./apps/docs/Makefile
 include ./apps/policy-engine/Makefile
 include ./apps/vault/Makefile
-include ./packages/nestjs-shared/Makefile
-include ./packages/policy-engine-shared/Makefile
-include ./packages/transaction-request-intent/Makefile
-include ./packages/signature/Makefile
-include ./packages/armory-sdk/Makefile
 include ./packages/armory-e2e-testing/Makefile
+include ./packages/armory-sdk/Makefile
+include ./packages/nestjs-shared/Makefile
+include ./packages/open-telemetry/Makefile
+include ./packages/policy-engine-shared/Makefile
+include ./packages/signature/Makefile
+include ./packages/transaction-request-intent/Makefile
 
 # For more terminal color codes, head over to
 # https://opensource.com/article/19/9/linux-terminal-colors
