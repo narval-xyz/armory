@@ -37,6 +37,12 @@ describe('validate', () => {
             code: 'ENTITY_NOT_FOUND',
             message: "couldn't create the user group member because the group test-engineering-group-uid is undefined",
             severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "user group member is deprecated. Please move user group member 'test-alice-user-uid' to group member entity",
+            severity: 'warning'
           }
         ]
       })
@@ -45,7 +51,7 @@ describe('validate', () => {
     it('fails when user from user group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        groups: [GROUP.Engineering],
+        userGroups: [GROUP.Engineering],
         userGroupMembers: [
           {
             groupId: GROUP.Engineering.id,
@@ -62,6 +68,17 @@ describe('validate', () => {
             message:
               "couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined",
             severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message: "user group is deprecated. Please move user group 'test-engineering-group-uid' to group entity",
+            severity: 'warning'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "user group member is deprecated. Please move user group member 'test-alice-user-uid' to group member entity",
+            severity: 'warning'
           }
         ]
       })
@@ -87,6 +104,12 @@ describe('validate', () => {
             message:
               "couldn't create the account group member because the group test-engineering-group-uid is undefined",
             severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "account group member is deprecated. Please move account group member 'eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5' to group member entity",
+            severity: 'warning'
           }
         ]
       })
@@ -95,7 +118,7 @@ describe('validate', () => {
     it('fails when account from account group member does not exist', () => {
       const result = validate({
         ...emptyEntities,
-        groups: [GROUP.Engineering],
+        accountGroups: [GROUP.Engineering],
         accountGroupMembers: [
           {
             accountId: ACCOUNT.Engineering.id,
@@ -112,6 +135,141 @@ describe('validate', () => {
             message:
               "couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined",
             severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "account group is deprecated. Please move account group 'test-engineering-group-uid' to group entity",
+            severity: 'warning'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "account group member is deprecated. Please move account group member 'eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5' to group member entity",
+            severity: 'warning'
+          }
+        ]
+      })
+    })
+
+    it('fails when user from group does not exist', () => {
+      const result = validate({
+        ...emptyEntities,
+        groups: [GROUP.Engineering],
+        groupMembers: [
+          {
+            groupId: GROUP.Engineering.id,
+            userId: USER.Alice.id,
+            type: 'user'
+          }
+        ]
+      })
+
+      expect(result).toEqual({
+        success: false,
+        issues: [
+          {
+            code: 'ENTITY_NOT_FOUND',
+            message:
+              "couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined",
+            severity: 'error'
+          }
+        ]
+      })
+    })
+
+    it('fails when account from group does not exist', () => {
+      const result = validate({
+        ...emptyEntities,
+        groups: [GROUP.Engineering],
+        groupMembers: [
+          {
+            groupId: GROUP.Engineering.id,
+            accountId: ACCOUNT.Engineering.id,
+            type: 'account'
+          }
+        ]
+      })
+
+      expect(result).toEqual({
+        success: false,
+        issues: [
+          {
+            code: 'ENTITY_NOT_FOUND',
+            message:
+              "couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined",
+            severity: 'error'
+          }
+        ]
+      })
+    })
+
+    it('fails when group from user group membership does not exist', () => {
+      const result = validate({
+        ...emptyEntities,
+        userGroups: [GROUP.Engineering],
+        userGroupMembers: [
+          {
+            groupId: GROUP.Engineering.id,
+            userId: USER.Alice.id
+          }
+        ]
+      })
+
+      expect(result).toEqual({
+        success: false,
+        issues: [
+          {
+            code: 'ENTITY_NOT_FOUND',
+            message: `couldn't create the user group member for group test-engineering-group-uid because the user test-alice-user-uid is undefined`,
+            severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message: "user group is deprecated. Please move user group 'test-engineering-group-uid' to group entity",
+            severity: 'warning'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "user group member is deprecated. Please move user group member 'test-alice-user-uid' to group member entity",
+            severity: 'warning'
+          }
+        ]
+      })
+    })
+
+    it('fails when group from account group membership does not exist', () => {
+      const result = validate({
+        ...emptyEntities,
+        accountGroups: [GROUP.Engineering],
+        accountGroupMembers: [
+          {
+            groupId: GROUP.Engineering.id,
+            accountId: ACCOUNT.Engineering.id
+          }
+        ]
+      })
+
+      expect(result).toEqual({
+        success: false,
+        issues: [
+          {
+            code: 'ENTITY_NOT_FOUND',
+            message: `couldn't create the account group member for group test-engineering-group-uid because the account eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5 is undefined`,
+            severity: 'error'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "account group is deprecated. Please move account group 'test-engineering-group-uid' to group entity",
+            severity: 'warning'
+          },
+          {
+            code: 'DEPRECATED_ENTITY',
+            message:
+              "account group member is deprecated. Please move account group member 'eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5' to group member entity",
+            severity: 'warning'
           }
         ]
       })

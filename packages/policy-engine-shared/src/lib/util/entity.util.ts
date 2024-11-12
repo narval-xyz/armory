@@ -165,7 +165,21 @@ const validateEntityVersion: Validator = (entities: Entities): ValidationIssue[]
       severity: Severity.WARNING
     })) || []
 
-  return [...userGroupIssues, ...accountGroupIssues]
+  const userMemberIssues: ValidationIssue[] =
+    entities.userGroupMembers?.map((member) => ({
+      code,
+      message: `user group member is deprecated. Please move user group member '${member.userId}' to group member entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  const accountMemberIssues: ValidationIssue[] =
+    entities.accountGroupMembers?.map((member) => ({
+      code,
+      message: `account group member is deprecated. Please move account group member '${member.accountId}' to group member entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  return [...userGroupIssues, ...accountGroupIssues, ...userMemberIssues, ...accountMemberIssues]
 }
 
 export const DEFAULT_VALIDATORS: Validator[] = [
