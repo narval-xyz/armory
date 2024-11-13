@@ -6,7 +6,6 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { resolve } from 'path'
 import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
 import { Config } from '../../../policy-engine.config'
-import { OTEL_ATTR } from '../../../policy-engine.constant'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields.util'
 import { ClientService } from './client.service'
@@ -99,9 +98,7 @@ export class EvaluationService {
       })
     }
 
-    const fetchDataSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.fetchData`, {
-      attributes: { [OTEL_ATTR.CLIENT_ID]: clientId }
-    })
+    const fetchDataSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.fetchData`)
     const [entityStore, policyStore] = await Promise.all([
       this.clientService.findEntityStore(clientId),
       this.clientService.findPolicyStore(clientId)

@@ -1,8 +1,7 @@
-import { MetricService, TraceService } from '@narval/nestjs-shared'
+import { MetricService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import { EntityStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Counter } from '@opentelemetry/api'
-import { OTEL_ATTR } from '../../../armory.constant'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { SetEntityStoreResponse } from '../../http/rest/dto/set-entity-store.dto'
@@ -28,10 +27,10 @@ export class EntityDataStoreService extends SignatureService {
   }
 
   async getEntities(clientId: string): Promise<EntityStore | null> {
-    this.getCounter.add(1, { [OTEL_ATTR.CLIENT_ID]: clientId })
+    this.getCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const span = this.traceService.startSpan(`${EntityDataStoreService.name}.getEntities`, {
-      attributes: { [OTEL_ATTR.CLIENT_ID]: clientId }
+      attributes: { [OTEL_ATTR_CLIENT_ID]: clientId }
     })
 
     const entityStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
@@ -44,10 +43,10 @@ export class EntityDataStoreService extends SignatureService {
   }
 
   async setEntities(clientId: string, payload: EntityStore) {
-    this.setCounter.add(1, { [OTEL_ATTR.CLIENT_ID]: clientId })
+    this.setCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const span = this.traceService.startSpan(`${EntityDataStoreService.name}.setEntities`, {
-      attributes: { [OTEL_ATTR.CLIENT_ID]: clientId }
+      attributes: { [OTEL_ATTR_CLIENT_ID]: clientId }
     })
 
     const client = await this.clientService.findById(clientId)

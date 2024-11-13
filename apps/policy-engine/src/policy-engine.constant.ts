@@ -29,11 +29,3 @@ export const ENCRYPTION_WRAPPING_SUITE = RawAesWrappingSuiteIdentifier.AES256_GC
 export const ADMIN_SECURITY = adminApiKeySecurity(REQUEST_HEADER_API_KEY)
 export const CLIENT_ID_SECURITY = clientIdSecurity(REQUEST_HEADER_CLIENT_ID)
 export const CLIENT_SECRET_SECURITY = clientSecretSecurity(REQUEST_HEADER_CLIENT_SECRET)
-
-//
-// OpenTelemetry
-//
-
-export const OTEL_ATTR = {
-  CLIENT_ID: 'domain.client.id'
-} as const
