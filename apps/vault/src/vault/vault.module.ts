@@ -1,8 +1,8 @@
 import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, OpenTelemetryModule, TrackClientIdMiddleware } from '@narval/nestjs-shared'
 import { HttpModule } from '@nestjs/axios'
-import { Module, ValidationPipe, forwardRef } from '@nestjs/common'
+import { MiddlewareConsumer, Module, ValidationPipe, forwardRef } from '@nestjs/common'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
 import { ClientModule } from '../client/client.module'
 import { EncryptionModuleOptionFactory } from '../shared/factory/encryption-module-option.factory'
@@ -41,7 +41,8 @@ import { VaultService } from './vault.service'
       inject: [ConfigService, AppService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     }),
-    forwardRef(() => ClientModule)
+    forwardRef(() => ClientModule),
+    OpenTelemetryModule.forRoot()
   ],
   controllers: [
     VaultController,
@@ -81,4 +82,8 @@ import { VaultService } from './vault.service'
   ],
   exports: [AppService, ProvisionService]
 })
-export class VaultModule {}
+export class VaultModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(TrackClientIdMiddleware).forRoutes('*')
+  }
+}

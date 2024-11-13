@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { HttpLoggerMiddleware, LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
+import { HttpLoggerMiddleware, LoggerModule, OpenTelemetryModule, TrackClientIdMiddleware } from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AppModule } from './app/app.module'
@@ -42,6 +42,6 @@ export class ArmoryModule implements NestModule {
   }
 
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(HttpLoggerMiddleware).forRoutes('*')
+    consumer.apply(HttpLoggerMiddleware, TrackClientIdMiddleware).forRoutes('*')
   }
 }
