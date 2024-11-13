@@ -128,3 +128,11 @@ export const CHAINS = new Map<number, Chain>([
   [1, ETHEREUM],
   [137, POLYGON]
 ])
+
+//
+// OpenTelemetry
+//
+
+export const OTEL_ATTR = {
+  CLIENT_ID: 'domain.client.id'
+} as const
