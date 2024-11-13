@@ -1,5 +1,5 @@
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, MetricService, TraceService } from '@narval/nestjs-shared'
+import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { PublicKey, verifyJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
@@ -223,10 +223,10 @@ export class ClusterService {
   }
 
   async sync(clientId: string) {
-    this.syncCounter.add(1, { clientId })
+    this.syncCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const span = this.traceService.startSpan(`${ClusterService.name}.sync`, {
-      attributes: { clientId }
+      attributes: { [OTEL_ATTR_CLIENT_ID]: clientId }
     })
 
     const nodes = await this.findNodesByClientId(clientId)
