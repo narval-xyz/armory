@@ -102,6 +102,8 @@ export class ImportService {
     this.logger.log('Importing encrypted private key', {
       clientId
     })
+    // TODO: (@wcalderipe, 13/11/2024) Add unit test to ensure we're tracking
+    // the business metrics.
     this.accountImportCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
@@ -128,6 +130,8 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
+    // TODO: (@wcalderipe, 13/11/2024) Add unit test to ensure we're tracking
+    // the business metrics.
     this.walletImportCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const { keyId: optionalKeyId, encryptedSeed, curve } = body

@@ -1,5 +1,5 @@
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { REQUEST_HEADER_CLIENT_ID } from '../../policy-engine.constant'
 
 export const factory = (_value: unknown, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest()

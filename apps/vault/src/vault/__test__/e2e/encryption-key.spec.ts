@@ -1,7 +1,7 @@
 import { Permission } from '@narval/armory-sdk'
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
+import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Payload,
   SigningAlg,
@@ -17,7 +17,6 @@ import { v4 as uuid } from 'uuid'
 import { ClientModule } from '../../../client/client.module'
 import { ClientService } from '../../../client/core/service/client.service'
 import { Config, load } from '../../../main.config'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client } from '../../../shared/type/domain.type'

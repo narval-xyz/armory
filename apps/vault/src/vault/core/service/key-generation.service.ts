@@ -30,9 +30,7 @@ type GenerateArgs = {
 @Injectable()
 export class KeyGenerationService {
   private walletGenerateCounter: Counter
-
   private accountGenerateCounter: Counter
-
   private accountDeriveCounter: Counter
 
   constructor(
@@ -123,17 +121,23 @@ export class KeyGenerationService {
     clientId: string,
     { rootKey, path, keyId }: { rootKey: HDKey; path: string; keyId: string }
   ): Promise<PrivateAccount> {
+    this.accountDeriveCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const derivedKey = rootKey.derive(path)
     const account = await hdKeyToAccount({
       key: derivedKey,
       keyId,
       path
     })
+
     await this.accountRepository.save(clientId, account)
+
     return account
   }
 
   async generateAccount(clientId: string, args: GenerateArgs): Promise<PrivateAccount[]> {
+    this.accountGenerateCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const { keyId, count = 1, derivationPaths = [], rootKey } = args
 
     const dbIndexes = await this.getIndexes(clientId, keyId)

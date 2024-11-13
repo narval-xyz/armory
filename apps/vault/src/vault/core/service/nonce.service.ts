@@ -6,6 +6,7 @@ import { Collection } from '../../../shared/type/domain.type'
 @Injectable()
 export class NonceService {
   private readonly KEY_PREFIX = Collection.REQUEST_NONCE
+
   constructor(private keyValuService: KeyValueService) {}
 
   async save(clientId: string, nonce: string): Promise<boolean> {

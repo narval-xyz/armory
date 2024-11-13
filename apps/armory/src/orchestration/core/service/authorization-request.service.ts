@@ -1,4 +1,4 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -9,7 +9,8 @@ import {
   JwtString
 } from '@narval/policy-engine-shared'
 import { Intent, Intents } from '@narval/transaction-request-intent'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { v4 as uuid } from 'uuid'
 import { AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS, FIAT_ID_USD } from '../../../armory.constant'
 import { FeedService } from '../../../data-feed/core/service/feed.service'
@@ -40,6 +41,9 @@ const getStatus = (decision: string): AuthorizationRequestStatus => {
 
 @Injectable()
 export class AuthorizationRequestService {
+  private createCounter: Counter
+  private evaluationCounter: Counter
+
   constructor(
     private authzRequestRepository: AuthorizationRequestRepository,
     private authzRequestApprovalRepository: AuthorizationRequestApprovalRepository,
@@ -48,10 +52,16 @@ export class AuthorizationRequestService {
     private priceService: PriceService,
     private clusterService: ClusterService,
     private feedService: FeedService,
-    private logger: LoggerService
-  ) {}
+    private logger: LoggerService,
+    @Inject(MetricService) private metricService: MetricService
+  ) {
+    this.createCounter = this.metricService.createCounter('authorization_request_create_count')
+    this.evaluationCounter = this.metricService.createCounter('authorization_request_evaluation_count')
+  }
 
   async create(input: CreateAuthorizationRequest): Promise<AuthorizationRequest> {
+    this.createCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: input.clientId })
+
     const now = new Date()
 
     const authzRequest = await this.authzRequestRepository.create({
@@ -156,6 +166,12 @@ export class AuthorizationRequestService {
     })
 
     const status = getStatus(evaluation.decision)
+
+    this.evaluationCounter.add(1, {
+      [OTEL_ATTR_CLIENT_ID]: input.clientId,
+      'domain.authorization_request.status': status
+    })
+
     // NOTE: we will track the transfer before we update the status to PERMITTED so that we don't have a brief window where a second transfer can come in before the history is tracked.
     // TODO: (@wcalderipe, 01/02/24) Move to the TransferTrackingService.
     if (input.request.action === Action.SIGN_TRANSACTION && status === AuthorizationRequestStatus.PERMITTED) {
