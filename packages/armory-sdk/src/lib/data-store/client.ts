@@ -1,10 +1,14 @@
 import { Entities, EntityStore, EntityUtil, Policy, PolicyStore } from '@narval/policy-engine-shared'
 import { Payload, hash, signJwt } from '@narval/signature'
 import assert from 'assert'
-import axios from 'axios'
+import axios, { InternalAxiosRequestConfig } from 'axios'
+import { promisify } from 'util'
+import * as zlib from 'zlib'
 import { Configuration, ManagedDataStoreApiFactory } from '../http/client/auth'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../shared/constant'
 import { DataStoreConfig, DataStoreHttp, SetEntityStoreResponse, SetPolicyStoreResponse, SignOptions } from './type'
+
+const gzip = promisify(zlib.gzip)
 
 const buildJwtPayload = (config: DataStoreConfig, data: unknown, opts?: SignOptions): Payload => {
   assert(config.signer !== undefined, 'Missing signer')
@@ -25,6 +29,21 @@ const signJwtPayload = (config: DataStoreConfig, payload: Payload): Promise<stri
   return signJwt(payload, signer.jwk, { alg: signer.alg }, signer.sign)
 }
 
+export const compressRequestInterceptor = async (
+  config: InternalAxiosRequestConfig
+): Promise<InternalAxiosRequestConfig> => {
+  if (config.data && config.method === 'post') {
+    const compressed = await gzip(config.data)
+    config.data = compressed
+    config.headers['Content-Encoding'] = 'gzip'
+  }
+  return config
+}
+
+export const addCompressionInterceptor = (axiosInstance: any) => {
+  axiosInstance.interceptors.request.use(compressRequestInterceptor)
+}
+
 export class EntityStoreClient {
   private config: DataStoreConfig
 
@@ -38,6 +57,8 @@ export class EntityStoreClient {
     })
 
     const axiosInstance = axios.create()
+
+    addCompressionInterceptor(axiosInstance)
 
     this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
   }
@@ -140,6 +161,8 @@ export class PolicyStoreClient {
     })
 
     const axiosInstance = axios.create()
+
+    addCompressionInterceptor(axiosInstance)
 
     this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
   }
