@@ -1,5 +1,12 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, MetricService, OpenTelemetryModule, StatefulMetricService, secret } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  MetricService,
+  OTEL_ATTR_CLIENT_ID,
+  OpenTelemetryModule,
+  StatefulMetricService,
+  secret
+} from '@narval/nestjs-shared'
 import {
   DataStoreConfiguration,
   Decision,
@@ -357,7 +364,9 @@ describe(ClusterService.name, () => {
         {
           name: 'cluster_sync_count',
           value: 1,
-          attributes: { clientId: 'test-client-id' }
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: 'test-client-id'
+          }
         }
       ])
     })

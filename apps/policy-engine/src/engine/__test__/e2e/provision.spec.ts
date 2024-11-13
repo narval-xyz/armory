@@ -1,5 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -34,6 +34,7 @@ describe('Provision', () => {
           load: [testConfigLoad],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         EngineModule
       ]
     }).compile()

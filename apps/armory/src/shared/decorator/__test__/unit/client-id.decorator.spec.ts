@@ -1,5 +1,5 @@
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../../armory.constant'
 import { factory } from '../../../decorator/client-id.decorator'
 
 describe('clientId Decorator', () => {

@@ -1,5 +1,5 @@
 import { resourceId } from '@narval/armory-sdk'
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID } from '@narval/nestjs-shared'
 import { Hex } from '@narval/policy-engine-shared'
 import {
   Alg,
@@ -11,7 +11,8 @@ import {
   rsaDecrypt,
   rsaPrivateKeyToPublicKey
 } from '@narval/signature'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
@@ -25,12 +26,20 @@ import { KeyGenerationService } from './key-generation.service'
 
 @Injectable()
 export class ImportService {
+  private walletImportCounter: Counter
+
+  private accountImportCounter: Counter
+
   constructor(
     private accountRepository: AccountRepository,
     private importRepository: ImportRepository,
     private keyGenerationService: KeyGenerationService,
-    private logger: LoggerService
-  ) {}
+    private logger: LoggerService,
+    @Inject(MetricService) private metricService: MetricService
+  ) {
+    this.walletImportCounter = this.metricService.createCounter('wallet_import_count')
+    this.accountImportCounter = this.metricService.createCounter('account_import_count')
+  }
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {
     const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
@@ -46,6 +55,8 @@ export class ImportService {
     this.logger.log('Importing private key', {
       clientId
     })
+    this.accountImportCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const address = privateKeyToAddress(privateKey)
     const id = accountId || resourceId(address)
     const publicKey = await publicKeyToHex(privateKeyToJwk(privateKey))
@@ -91,6 +102,9 @@ export class ImportService {
     this.logger.log('Importing encrypted private key', {
       clientId
     })
+    // TODO: (@wcalderipe, 13/11/2024) Add unit test to ensure we're tracking
+    // the business metrics.
+    this.accountImportCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const privateKey = await this.#decrypt(clientId, encryptedPrivateKey)
 
@@ -116,6 +130,10 @@ export class ImportService {
     keyId: string
     backup?: string
   }> {
+    // TODO: (@wcalderipe, 13/11/2024) Add unit test to ensure we're tracking
+    // the business metrics.
+    this.walletImportCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const { keyId: optionalKeyId, encryptedSeed, curve } = body
 
     const mnemonic = await this.#decrypt(clientId, encryptedSeed)

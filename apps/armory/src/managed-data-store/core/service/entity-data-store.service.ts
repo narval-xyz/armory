@@ -1,4 +1,4 @@
-import { MetricService, TraceService } from '@narval/nestjs-shared'
+import { MetricService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import { EntityStore } from '@narval/policy-engine-shared'
 import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Counter } from '@opentelemetry/api'
@@ -27,10 +27,10 @@ export class EntityDataStoreService extends SignatureService {
   }
 
   async getEntities(clientId: string): Promise<EntityStore | null> {
-    this.getCounter.add(1, { clientId })
+    this.getCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const span = this.traceService.startSpan(`${EntityDataStoreService.name}.getEntities`, {
-      attributes: { clientId }
+      attributes: { [OTEL_ATTR_CLIENT_ID]: clientId }
     })
 
     const entityStore = await this.entityDataStoreRepository.getLatestDataStore(clientId)
@@ -43,10 +43,10 @@ export class EntityDataStoreService extends SignatureService {
   }
 
   async setEntities(clientId: string, payload: EntityStore) {
-    this.setCounter.add(1, { clientId })
+    this.setCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
 
     const span = this.traceService.startSpan(`${EntityDataStoreService.name}.setEntities`, {
-      attributes: { clientId }
+      attributes: { [OTEL_ATTR_CLIENT_ID]: clientId }
     })
 
     const client = await this.clientService.findById(clientId)

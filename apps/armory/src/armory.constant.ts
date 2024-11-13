@@ -1,4 +1,10 @@
-import { adminApiKeySecurity, clientIdSecurity, clientSecretSecurity } from '@narval/nestjs-shared'
+import {
+  REQUEST_HEADER_CLIENT_ID,
+  REQUEST_HEADER_CLIENT_SECRET,
+  adminApiKeySecurity,
+  clientIdSecurity,
+  clientSecretSecurity
+} from '@narval/nestjs-shared'
 import { AssetId } from '@narval/policy-engine-shared'
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
@@ -49,8 +55,6 @@ export const DEFAULT_HTTP_MODULE_PROVIDERS = [
 // Headers
 //
 
-export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
-export const REQUEST_HEADER_CLIENT_SECRET = 'x-client-secret'
 export const REQUEST_HEADER_API_KEY = 'x-api-key'
 
 //

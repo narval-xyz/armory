@@ -14,6 +14,7 @@ import { decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { Intent } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { loadPolicy } from '@open-policy-agent/opa-wasm'
+import { Tracer } from '@opentelemetry/api'
 import { compact } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
@@ -34,10 +35,13 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   private opa?: OpenPolicyAgentInstance
 
-  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string }) {
+  private tracer?: Tracer
+
+  constructor(params: { policies: Policy[]; entities: Entities; resourcePath: string; tracer?: Tracer }) {
     this.entities = params.entities
     this.policies = params.policies
     this.resourcePath = params.resourcePath
+    this.tracer = params.tracer
   }
 
   static empty(params: { resourcePath: string }): OpenPolicyAgentEngine {
@@ -74,13 +78,18 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
 
   async load(): Promise<OpenPolicyAgentEngine> {
     try {
+      const wasmBuildSpan = this.tracer?.startSpan(`${OpenPolicyAgentEngine.name}.load.wasmBuild`)
       const wasm = await build({
         policies: this.getPolicies(),
         path: `/tmp/armory-policy-bundle-${uuid()}`,
         regoCorePath: getRegoCorePath(this.resourcePath),
-        regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath)
+        regoRuleTemplatePath: getRegoRuleTemplatePath(this.resourcePath),
+        tracer: this.tracer
       })
 
+      wasmBuildSpan?.end()
+
+      const loadPolicySpan = this.tracer?.startSpan(`${OpenPolicyAgentEngine.name}.load.loadPolicy`)
       // Each page is 64kb and it defaults it to 5.
       // We arbitrarily initialise it to 1000 instead to give us more mb of memory.
       this.opa = await loadPolicy(wasm, this.megabytesToWasmPages(64), {
@@ -92,6 +101,8 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
           return startOfDay.getTime() * 1000000
         }
       })
+
+      loadPolicySpan?.end()
 
       this.opa.setData(toData(this.getEntities()))
 

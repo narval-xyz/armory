@@ -1,3 +1,4 @@
+import { MetricService, OTEL_ATTR_CLIENT_ID, OpenTelemetryModule, StatefulMetricService } from '@narval/nestjs-shared'
 import { Action, Eip712TypedData, Request } from '@narval/policy-engine-shared'
 import { Jwk, Secp256k1PublicKey, secp256k1PrivateKeyToJwk, verifySecp256k1 } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -22,6 +23,7 @@ import { SigningService } from '../../signing.service'
 describe('SigningService', () => {
   let signingService: SigningService
   let nonceServiceMock: MockProxy<NonceService>
+  let statefulMetricService: StatefulMetricService
 
   const account: PrivateAccount = {
     id: 'eip155:eoa:0x2c4895215973CbBd778C32c456C074b99daF8Bf1',
@@ -37,6 +39,7 @@ describe('SigningService', () => {
     nonceServiceMock = mock<NonceService>()
 
     const module = await Test.createTestingModule({
+      imports: [OpenTelemetryModule.forTest()],
       providers: [
         SigningService,
         {
@@ -52,7 +55,8 @@ describe('SigningService', () => {
       ]
     }).compile()
 
-    signingService = module.get<SigningService>(SigningService)
+    signingService = module.get(SigningService)
+    statefulMetricService = module.get(MetricService)
   })
 
   const clientId = 'test-client-id'
@@ -119,6 +123,20 @@ describe('SigningService', () => {
 
       expect(result).toEqual(expectedSignature)
     })
+
+    it('increments counter metric', async () => {
+      await signingService.signTransaction(clientId, request)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'sign_transaction_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
+    })
   })
 
   describe('signMessage', () => {
@@ -174,6 +192,20 @@ describe('SigningService', () => {
       await signingService.signMessage(clientId, eip191Request)
 
       expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
+    })
+
+    it('increments counter metric', async () => {
+      await signingService.signMessage(clientId, eip191Request)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'sign_message_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
     })
   })
 
@@ -250,6 +282,20 @@ describe('SigningService', () => {
 
       expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
     })
+
+    it('increments counter metric', async () => {
+      await signingService.signTypedData(clientId, typedDataRequest)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'sign_typed_data_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
+    })
   })
 
   describe('signUserOperation', () => {
@@ -286,9 +332,24 @@ describe('SigningService', () => {
         '0x687fda1fcebeed665d6f738a2d1a7e952e41434ae010c58aaa9623fe991a0a716d8d0d27d5192aaf7231965c44ae9abbe0c126068ef5e42f201de1138f82f8301b'
       expect(result).toEqual(expectedSignature)
     })
+
     it('saves the nonce on success', async () => {
       await signingService.signUserOperation(clientId, userOpRequest)
       expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
+    })
+
+    it('increments counter metric', async () => {
+      await signingService.signUserOperation(clientId, userOpRequest)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'sign_user_operation_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
     })
   })
 
@@ -315,6 +376,20 @@ describe('SigningService', () => {
       await signingService.signRaw(clientId, rawRequest)
 
       expect(nonceServiceMock.save).toHaveBeenCalledWith(clientId, nonce)
+    })
+
+    it('increments counter metric', async () => {
+      await signingService.signRaw(clientId, rawRequest)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'sign_raw_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
     })
   })
 

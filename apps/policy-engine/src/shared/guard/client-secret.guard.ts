@@ -1,7 +1,6 @@
-import { secret } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET, secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { ClientService } from '../../engine/core/service/client.service'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../policy-engine.constant'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()

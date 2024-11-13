@@ -1,4 +1,5 @@
 import { ConfigService } from '@narval/config-module'
+import { TraceService } from '@narval/nestjs-shared'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
@@ -74,6 +75,7 @@ export class EvaluationService {
   constructor(
     private configService: ConfigService<Config>,
     private clientService: ClientService,
+    @Inject(TraceService) private traceService: TraceService,
     @Inject('SigningService') private signingService: SigningService
   ) {}
 
@@ -96,10 +98,12 @@ export class EvaluationService {
       })
     }
 
+    const fetchDataSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.fetchData`)
     const [entityStore, policyStore] = await Promise.all([
       this.clientService.findEntityStore(clientId),
       this.clientService.findPolicyStore(clientId)
     ])
+    fetchDataSpan.end()
 
     if (!entityStore) {
       throw new ApplicationException({
@@ -117,17 +121,24 @@ export class EvaluationService {
       })
     }
 
+    const engineLoadSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.engineLoad`)
     // WARN: Loading a new engine is an IO bounded process due to the Rego
     // transpilation and WASM build.
     const engine = await new OpenPolicyAgentEngine({
       entities: entityStore.data,
       policies: policyStore.data,
-      resourcePath: resolve(this.configService.get('resourcePath'))
+      resourcePath: resolve(this.configService.get('resourcePath')),
+      tracer: this.traceService.getTracer()
     }).load()
+    engineLoadSpan.end()
 
+    const engineEvaluationSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.engineEvaluation`)
     const evaluationResponse = await engine.evaluate(evaluation)
+    engineEvaluationSpan.end()
 
     if (evaluationResponse.decision === Decision.PERMIT) {
+      const buildAccessTokenSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.buildAccessToken`)
+
       const jwtPayload = await buildPermitTokenPayload(clientId, evaluationResponse)
 
       const jwt = await signJwt(
@@ -136,9 +147,13 @@ export class EvaluationService {
         { alg: SigningAlg.EIP191 },
         this.signingService.buildSignerEip191(client.signer, evaluation.sessionId)
       )
+
+      buildAccessTokenSpan.end()
+
       // Add the access token into the response
       evaluationResponse.accessToken = { value: jwt }
     }
+
     return evaluationResponse
   }
 }

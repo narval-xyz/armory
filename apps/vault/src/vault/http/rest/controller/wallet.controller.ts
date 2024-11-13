@@ -1,7 +1,7 @@
 import { Permission } from '@narval/armory-sdk'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../../main.constant'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { AdminService } from '../../../core/service/admin.service'

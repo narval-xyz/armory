@@ -1,4 +1,10 @@
-import { LoggerModule } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  MetricService,
+  OTEL_ATTR_CLIENT_ID,
+  OpenTelemetryModule,
+  StatefulMetricService
+} from '@narval/nestjs-shared'
 import {
   RsaPrivateKey,
   generateJwk,
@@ -35,8 +41,8 @@ describe('GenerateService', () => {
   let accountRepositoryMock: MockProxy<AccountRepository>
   let rootKeyRepositoryMock: MockProxy<RootKeyRepository>
   let clientServiceMock: MockProxy<ClientService>
-
   let keyGenerationService: KeyGenerationService
+  let statefulMetricService: StatefulMetricService
 
   const mnemonic = 'legal winner thank year wave sausage worth useful legal winner thank yellow'
 
@@ -63,7 +69,7 @@ describe('GenerateService', () => {
     })
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [LoggerModule.forTest()],
+      imports: [LoggerModule.forTest(), OpenTelemetryModule.forTest()],
       providers: [
         KeyGenerationService,
         {
@@ -92,37 +98,71 @@ describe('GenerateService', () => {
     }).compile()
 
     keyGenerationService = module.get<KeyGenerationService>(KeyGenerationService)
+    statefulMetricService = module.get(MetricService)
+
     jest.spyOn(keyGenerationService, 'getIndexes').mockResolvedValue([])
   })
 
-  it('returns first derived account from a generated rootKey', async () => {
-    const { account } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
+  describe('generateWallet', () => {
+    it('returns first derived account from a generated rootKey', async () => {
+      const { account } = await keyGenerationService.generateWallet(clientId, { curve: 'secp256k1' })
 
-    expect(account.derivationPath).toEqual("m/44'/60'/0'/0/0")
-  })
-
-  it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
-    const rsaBackupKey = await generateJwk<RsaPrivateKey>('RS256')
-
-    clientServiceMock.findById.mockResolvedValue({
-      ...client,
-      backupPublicKey: rsaBackupKey
+      expect(account.derivationPath).toEqual("m/44'/60'/0'/0/0")
     })
 
-    const { backup } = await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
-    const decryptedMnemonic = await rsaDecrypt(backup as string, rsaBackupKey)
-    const spaceInMnemonic = decryptedMnemonic.split(' ')
-    expect(spaceInMnemonic.length).toBe(12)
-  })
+    it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
+      const rsaBackupKey = await generateJwk<RsaPrivateKey>('RS256')
 
-  it('saves rootKey to the database', async () => {
-    await keyGenerationService.generateWallet('clientId', { curve: 'secp256k1' })
-    expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith('clientId', {
-      mnemonic: expect.any(String),
-      keyId: expect.any(String),
-      origin: Origin.GENERATED,
-      curve: 'secp256k1',
-      keyType: 'local'
+      clientServiceMock.findById.mockResolvedValue({
+        ...client,
+        backupPublicKey: rsaBackupKey
+      })
+
+      const { backup } = await keyGenerationService.generateWallet(clientId, { curve: 'secp256k1' })
+      const decryptedMnemonic = await rsaDecrypt(backup as string, rsaBackupKey)
+      const spaceInMnemonic = decryptedMnemonic.split(' ')
+
+      expect(spaceInMnemonic.length).toBe(12)
+    })
+
+    it('saves rootKey to the database', async () => {
+      await keyGenerationService.generateWallet(clientId, { curve: 'secp256k1' })
+
+      expect(rootKeyRepositoryMock.save).toHaveBeenCalledWith(clientId, {
+        mnemonic: expect.any(String),
+        keyId: expect.any(String),
+        origin: Origin.GENERATED,
+        curve: 'secp256k1',
+        keyType: 'local'
+      })
+    })
+
+    it('increments counter metrics', async () => {
+      await keyGenerationService.generateWallet(clientId, { curve: 'secp256k1' })
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'wallet_generate_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        },
+        {
+          name: 'account_generate_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        },
+        {
+          name: 'account_derive_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: clientId
+          }
+        }
+      ])
     })
   })
 })

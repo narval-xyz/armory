@@ -1,4 +1,12 @@
-import { LoggerModule, LoggerService, NullLoggerService } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  LoggerService,
+  MetricService,
+  NullLoggerService,
+  OTEL_ATTR_CLIENT_ID,
+  OpenTelemetryModule,
+  StatefulMetricService
+} from '@narval/nestjs-shared'
 import {
   Action,
   AuthorizationRequest,
@@ -44,6 +52,7 @@ describe(AuthorizationRequestService.name, () => {
   let clusterServiceMock: MockProxy<ClusterService>
   let priceServiceMock: MockProxy<PriceService>
   let feedServiceMock: MockProxy<FeedService>
+  let statefulMetricService: StatefulMetricService
   let service: AuthorizationRequestService
 
   const authzRequest: AuthorizationRequest = generateAuthorizationRequest({
@@ -65,7 +74,7 @@ describe(AuthorizationRequestService.name, () => {
     feedServiceMock = mock<FeedService>()
 
     module = await Test.createTestingModule({
-      imports: [LoggerModule],
+      imports: [LoggerModule, OpenTelemetryModule.forTest()],
       providers: [
         AuthorizationRequestService,
         {
@@ -104,6 +113,23 @@ describe(AuthorizationRequestService.name, () => {
     }).compile()
 
     service = module.get<AuthorizationRequestService>(AuthorizationRequestService)
+    statefulMetricService = module.get(MetricService)
+  })
+
+  describe('create', () => {
+    it('increments create counter metric', async () => {
+      await service.create(authzRequest)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'authorization_request_create_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: authzRequest.clientId
+          }
+        }
+      ])
+    })
   })
 
   describe('approve', () => {
@@ -233,6 +259,21 @@ describe(AuthorizationRequestService.name, () => {
         },
         createdAt: expect.any(Date)
       })
+    })
+
+    it('increments evaluation counter metric', async () => {
+      await service.evaluate(authzRequest)
+
+      expect(statefulMetricService.counters).toEqual([
+        {
+          name: 'authorization_request_evaluation_count',
+          value: 1,
+          attributes: {
+            [OTEL_ATTR_CLIENT_ID]: authzRequest.clientId,
+            'domain.authorization_request.status': AuthorizationRequestStatus.PERMITTED
+          }
+        }
+      ])
     })
   })
 

@@ -1,6 +1,5 @@
-import { secret } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET, secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../armory.constant'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 

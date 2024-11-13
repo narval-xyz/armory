@@ -1,3 +1,4 @@
+import { MetricService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import {
   Action,
   Hex,
@@ -10,10 +11,11 @@ import {
   getTxType
 } from '@narval/policy-engine-shared'
 import { signSecp256k1 } from '@narval/signature'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { EntryPoint } from 'permissionless/types'
 import { getUserOperationHash } from 'permissionless/utils'
-import { createWalletClient, custom, extractChain, hexToBigInt, hexToBytes, signatureToHex } from 'viem'
+import { createWalletClient, custom, extractChain, hexToBytes, signatureToHex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import * as chains from 'viem/chains'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -23,10 +25,24 @@ import { NonceService } from './nonce.service'
 
 @Injectable()
 export class SigningService {
+  private signTransactionCounter: Counter
+  private signMessageCounter: Counter
+  private signTypedDataCounter: Counter
+  private signRawCounter: Counter
+  private signUserOperationCounter: Counter
+
   constructor(
     private accountRepository: AccountRepository,
-    private nonceService: NonceService
-  ) {}
+    private nonceService: NonceService,
+    @Inject(TraceService) private traceService: TraceService,
+    @Inject(MetricService) private metricService: MetricService
+  ) {
+    this.signTransactionCounter = this.metricService.createCounter('sign_transaction_count')
+    this.signMessageCounter = this.metricService.createCounter('sign_message_count')
+    this.signTypedDataCounter = this.metricService.createCounter('sign_typed_data_count')
+    this.signRawCounter = this.metricService.createCounter('sign_raw_count')
+    this.signUserOperationCounter = this.metricService.createCounter('sign_user_operation_count')
+  }
 
   async sign(clientId: string, request: Request): Promise<Hex> {
     if (request.action === Action.SIGN_TRANSACTION) {
@@ -49,9 +65,13 @@ export class SigningService {
   }
 
   async signUserOperation(clientId: string, action: SignUserOperationAction): Promise<Hex> {
+    this.signUserOperationCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+    const span = this.traceService.startSpan(`${SigningService.name}.signUserOperation`)
+
     const { userOperation, resourceId } = action
     const client = await this.buildClient(clientId, resourceId)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { chainId, entryPoint, factoryAddress: _factoryAddress, ...userOpToBeHashed } = userOperation
 
     const userOpHash = getUserOperationHash({
@@ -68,23 +88,23 @@ export class SigningService {
 
     await this.maybeSaveNonce(clientId, action)
 
+    span.end()
+
     return signature
   }
 
   async signTransaction(clientId: string, action: SignTransactionAction): Promise<Hex> {
+    this.signTransactionCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+    const span = this.traceService.startSpan(`${SigningService.name}.signTransaction`)
+
     const { transactionRequest, resourceId } = action
     const chain = extractChain<chains.Chain[], number>({
       chains: Object.values(chains),
       id: transactionRequest.chainId
     })
     const client = await this.buildClient(clientId, resourceId, chain)
-
-    const value =
-      transactionRequest.value === undefined || transactionRequest.value === '0x'
-        ? undefined
-        : hexToBigInt(transactionRequest.value)
-
     const type = getTxType(transactionRequest)
+
     if (type === undefined) {
       throw new ApplicationException({
         message: 'Invalid transaction type',
@@ -92,6 +112,7 @@ export class SigningService {
         context: { transactionRequest }
       })
     }
+
     const txRequest = buildSignableTransactionRequest(transactionRequest)
     const signature = await client.signTransaction({ ...txRequest, chain })
     // /*
@@ -110,25 +131,37 @@ export class SigningService {
 
     await this.maybeSaveNonce(clientId, action)
 
+    span.end()
+
     return signature
   }
 
   async signMessage(clientId: string, action: SignMessageAction): Promise<Hex> {
+    this.signMessageCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+    const span = this.traceService.startSpan(`${SigningService.name}.signMessage`)
+
     const { message, resourceId } = action
     const client = await this.buildClient(clientId, resourceId)
     const signature = await client.signMessage({ message })
 
     await this.maybeSaveNonce(clientId, action)
 
+    span.end()
+
     return signature
   }
 
   async signTypedData(clientId: string, action: SignTypedDataAction): Promise<Hex> {
+    this.signTypedDataCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+    const span = this.traceService.startSpan(`${SigningService.name}.signTypedData`)
+
     const { typedData, resourceId } = action
     const client = await this.buildClient(clientId, resourceId)
     const signature = await client.signTypedData(typedData)
 
     await this.maybeSaveNonce(clientId, action)
+
+    span.end()
 
     return signature
   }
@@ -136,6 +169,8 @@ export class SigningService {
   // Sign a raw message; nothing ETH or chain-specific, simply performs an
   // ecdsa signature on the byte representation of the hex-encoded raw message
   async signRaw(clientId: string, action: SignRawAction): Promise<Hex> {
+    this.signRawCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const { rawMessage, resourceId } = action
     const account = await this.findAccount(clientId, resourceId)
     const message = hexToBytes(rawMessage)

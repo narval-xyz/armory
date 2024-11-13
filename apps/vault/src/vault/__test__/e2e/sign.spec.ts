@@ -1,6 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
+import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import {
   SigningAlg,
@@ -22,7 +22,6 @@ import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
 import { ClientService } from '../../../client/core/service/client.service'
 import { load } from '../../../main.config'
-import { REQUEST_HEADER_CLIENT_ID } from '../../../main.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'

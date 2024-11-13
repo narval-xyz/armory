@@ -1,6 +1,11 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  OpenTelemetryModule,
+  REQUEST_HEADER_CLIENT_ID,
+  REQUEST_HEADER_CLIENT_SECRET
+} from '@narval/nestjs-shared'
 import {
   Action,
   Criterion,
@@ -24,7 +29,6 @@ import { generatePrivateKey } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 import { EngineService } from '../../../engine/core/service/engine.service'
 import { Config, load } from '../../../policy-engine.config'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../policy-engine.constant'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -68,6 +72,7 @@ describe('Evaluation', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         EngineModule
       ]
     })

@@ -1,4 +1,4 @@
-import { Context, Span, SpanOptions, Tracer } from '@opentelemetry/api'
+import { Attributes, Context, Span, SpanOptions, Tracer } from '@opentelemetry/api'
 
 export const TraceService = Symbol('TraceService')
 
@@ -48,4 +48,6 @@ export interface TraceService {
     context: Context,
     fn: F
   ): ReturnType<F>
+
+  setAttributesOnActiveSpan(attributes: Attributes): Span | undefined
 }

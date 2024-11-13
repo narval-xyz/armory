@@ -1,6 +1,12 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
-import { HttpLoggerMiddleware, LoggerModule, LoggerService, OpenTelemetryModule } from '@narval/nestjs-shared'
+import {
+  HttpLoggerMiddleware,
+  LoggerModule,
+  LoggerService,
+  OpenTelemetryModule,
+  TrackClientIdMiddleware
+} from '@narval/nestjs-shared'
 import {
   MiddlewareConsumer,
   Module,
@@ -50,7 +56,7 @@ export class PolicyEngineModule implements OnApplicationBootstrap, NestModule {
   constructor(private bootstrapService: BootstrapService) {}
 
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(HttpLoggerMiddleware).forRoutes('*')
+    consumer.apply(HttpLoggerMiddleware, TrackClientIdMiddleware).forRoutes('*')
   }
 
   async onApplicationBootstrap() {

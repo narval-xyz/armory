@@ -1,6 +1,12 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  OpenTelemetryModule,
+  REQUEST_HEADER_CLIENT_ID,
+  REQUEST_HEADER_CLIENT_SECRET,
+  secret
+} from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import {
   PrivateKey,
@@ -14,11 +20,7 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { Config, load } from '../../../policy-engine.config'
-import {
-  REQUEST_HEADER_API_KEY,
-  REQUEST_HEADER_CLIENT_ID,
-  REQUEST_HEADER_CLIENT_SECRET
-} from '../../../policy-engine.constant'
+import { REQUEST_HEADER_API_KEY } from '../../../policy-engine.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client } from '../../../shared/type/domain.type'
@@ -56,6 +58,7 @@ describe('Client', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         EngineModule
       ]
     })
