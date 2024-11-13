@@ -1,5 +1,11 @@
 import { ConfigModule } from '@narval/config-module'
-import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
+import {
+  LoggerModule,
+  OpenTelemetryModule,
+  REQUEST_HEADER_CLIENT_ID,
+  REQUEST_HEADER_CLIENT_SECRET,
+  secret
+} from '@narval/nestjs-shared'
 import {
   Criterion,
   Entities,
@@ -17,7 +23,6 @@ import { MockProxy, mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { generatePrivateKey } from 'viem/accounts'
 import { load } from '../../../armory.config'
-import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../../../armory.constant'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ClusterService } from '../../../policy-engine/core/service/cluster.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
