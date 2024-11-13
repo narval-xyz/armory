@@ -15,7 +15,7 @@
     "@nx/devkit": "19.5.1",
     "@nx/eslint": "19.3.2",
     "@nx/eslint-plugin": "19.3.2",
-    "@nx/jest": "19.2.0",
+    "@nx/jest": "20.0.8",
     "@nx/js": "19.2.0",
     "@nx/nest": "19.2.0",
     "@nx/next": "19.2.0",
