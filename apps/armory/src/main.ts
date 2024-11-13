@@ -67,6 +67,8 @@ async function bootstrap(): Promise<void> {
   const logger = application.get<LoggerService>(LoggerService)
   const port = configService.get('port')
 
+  // This middleware compresses the response body for requests that hits data endpoints.
+  // This is useful to reduce response time for large data sets.
   application.use(
     compression({
       filter: (req) => req.path.startsWith('/v1/data')

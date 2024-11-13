@@ -24,7 +24,7 @@ describe('SDK Compression Interceptors', () => {
       expect(JSON.parse(decompressed.toString())).toEqual({ test: 'data' })
     })
 
-    it('should handle empty request body', async () => {
+    it('handles empty request body', async () => {
       const config = {
         method: 'post',
         headers: {} as unknown as AxiosHeaders,
