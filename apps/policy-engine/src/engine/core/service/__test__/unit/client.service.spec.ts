@@ -1,5 +1,5 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, StatefulTraceService, TraceService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
@@ -84,6 +84,10 @@ describe(ClientService.name, () => {
         {
           provide: 'SigningService',
           useValue: SimpleSigningService
+        },
+        {
+          provide: TraceService,
+          useClass: StatefulTraceService
         }
       ]
     }).compile()
