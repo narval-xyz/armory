@@ -4,7 +4,7 @@ import { instrumentTelemetry } from '@narval/open-telemetry'
 // ensure proper instrumentation. The instrumentation packages patches Node.js
 // runtime - if NestFactory or other dependencies load first, they'll use the
 // unpatched runtime and won't be instrumented correctly.
-instrumentTelemetry({ serviceName: 'auth' })
+instrumentTelemetry({ serviceName: 'armory' })
 
 import { ConfigService } from '@narval/config-module'
 import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
