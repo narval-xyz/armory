@@ -182,6 +182,15 @@ and [Trace/Span
 Name](./packages/nestjs-shared/src/lib/module/open-telemetry/service/trace.service.ts)
 adopted conventions.
 
+### Debugging
+
+If you want to debug traces, the best way is to run `make docker/otel/up` and
+check the Jaeger UI at http://localhost:16686.
+
+In contrast, if you want to debug application instrumentation, open the `.env`
+file and set `OTEL_LOG_LEVEL=debug` to have a better view of what the SDK is
+doing.
+
 ## Troubleshooting
 
 ### DB URL in env variable fails when using `docker run`, but works when running outside docker
