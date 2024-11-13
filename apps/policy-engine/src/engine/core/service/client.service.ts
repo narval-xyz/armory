@@ -1,4 +1,4 @@
-import { LoggerService, TraceService, secret } from '@narval/nestjs-shared'
+import { LoggerService, OTEL_ATTR_CLIENT_ID, TraceService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, EntityStore, PolicyStore } from '@narval/policy-engine-shared'
 import { hash } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
@@ -21,7 +21,11 @@ export class ClientService {
   ) {}
 
   async findById(clientId: string): Promise<Client | null> {
-    const span = this.traceService.startSpan(`${ClientService.name}.findById`)
+    const span = this.traceService.startSpan(`${ClientService.name}.findById`, {
+      attributes: {
+        [OTEL_ATTR_CLIENT_ID]: clientId
+      }
+    })
     const client = this.clientRepository.findById(clientId)
     span.end()
 

@@ -127,7 +127,8 @@ export class EvaluationService {
     const engine = await new OpenPolicyAgentEngine({
       entities: entityStore.data,
       policies: policyStore.data,
-      resourcePath: resolve(this.configService.get('resourcePath'))
+      resourcePath: resolve(this.configService.get('resourcePath')),
+      tracer: this.traceService.getTracer()
     }).load()
     engineLoadSpan.end()
 

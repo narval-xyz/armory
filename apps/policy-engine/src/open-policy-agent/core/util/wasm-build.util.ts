@@ -1,4 +1,5 @@
 import { Policy } from '@narval/policy-engine-shared'
+import { Tracer } from '@opentelemetry/api'
 import { exec as execCommand } from 'child_process'
 import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { promisify } from 'util'
@@ -11,6 +12,7 @@ type BuildWebAssemblyOption = {
   regoRuleTemplatePath: string
   policies: Policy[]
   cleanAfter?: boolean
+  tracer?: Tracer
 }
 
 const exec = promisify(execCommand)
@@ -79,33 +81,50 @@ export const unzip = async (option: { source: string; destination: string }) => 
 
 export const build = async (option: BuildWebAssemblyOption): Promise<Buffer> => {
   const cleanAfter = option.cleanAfter ?? true
+  const tracer = option.tracer
 
   try {
+    const createDirectoriesSpan = tracer?.startSpan('wasm.build.createDirectories')
     const { regoSourceDirectory, generatedRegoDirectory, distDirectory } = await createDirectories(option.path)
+    createDirectoriesSpan?.end()
 
+    const copyRegoCoreSpan = tracer?.startSpan('wasm.build.copyRegoCore')
     await copyRegoCore({
       source: option.regoCorePath,
       destination: regoSourceDirectory
     })
+    copyRegoCoreSpan?.end()
 
+    const writeRegoPoliciesSpan = tracer?.startSpan('wasm.build.writeRegoPolicies')
     await writeRegoPolicies({
       policies: option.policies,
       path: generatedRegoDirectory,
       filename: 'policies.rego',
       regoRuleTemplatePath: option.regoRuleTemplatePath
     })
+    writeRegoPoliciesSpan?.end()
 
+    const buildBundleSpan = tracer?.startSpan('wasm.build.buildBundle')
     const { bundleFile } = await buildOpaBundle({ regoSourceDirectory, distDirectory })
+    buildBundleSpan?.end()
 
+    const unzipSpan = tracer?.startSpan('wasm.build.unzip')
     await unzip({
       source: bundleFile,
       destination: distDirectory
     })
+    unzipSpan?.end()
 
-    return readFile(`${distDirectory}/policy.wasm`)
+    const readWasmSpan = tracer?.startSpan('wasm.build.readWasm')
+    const wasm = await readFile(`${distDirectory}/policy.wasm`)
+    readWasmSpan?.end()
+
+    return wasm
   } finally {
     if (cleanAfter) {
+      const cleanAfterSpan = tracer?.startSpan('wasm.build.cleanAfter')
       await rm(option.path, { recursive: true, force: true })
+      cleanAfterSpan?.end()
     }
   }
 }
