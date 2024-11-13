@@ -120,8 +120,21 @@ docker/mpc/stop:
 	docker-compose -f docker-compose.mpc.yml stop
 
 # === Git ===
+
 git/tag/push:
 	git tag armory-$(TAG)
 	git tag policy-engine-$(TAG)
 	git tag vault-$(TAG)
 	git push origin armory-$(TAG) policy-engine-$(TAG) vault-$(TAG)
+
+# === Database ===
+
+db/setup:
+	make armory/db/setup
+	make policy-engine/db/setup
+	make vault/db/setup
+
+db/generate-types:
+	make armory/db/generate-types
+	make policy-engine/db/generate-types
+	make vault/db/generate-types
