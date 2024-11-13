@@ -7,6 +7,8 @@ Policy decision point for fine-grained authorization in web3.0.
 - [Open Policy Agent (OPA) binary version >=
   0.69](https://www.openpolicyagent.org/docs/latest/#1-download-opa) installed
   and accessible in your `$PATH`.
+- [Regal](https://github.com/StyraInc/regal?tab=readme-ov-file#getting-started)
+  for linting Rego code.
 
 ## Getting started
 
