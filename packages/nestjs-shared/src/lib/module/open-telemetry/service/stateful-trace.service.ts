@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Context, Span, SpanOptions, Tracer, context, trace } from '@opentelemetry/api'
+import { Attributes, Context, Span, SpanOptions, Tracer, context, trace } from '@opentelemetry/api'
 import { ReadableSpan } from '@opentelemetry/sdk-trace-node'
 import { OpenTelemetryException } from '../open-telemetry.exception'
 import { TraceService } from './trace.service'
@@ -67,5 +67,15 @@ export class StatefulTraceService implements TraceService {
     const span = this.startSpan(name, options, context)
 
     return fn(span)
+  }
+
+  public setAttributesOnActiveSpan(attributes: Attributes): Span | undefined {
+    const span = this.getActiveSpan()
+
+    if (span) {
+      span.setAttributes(attributes)
+    }
+
+    return span
   }
 }

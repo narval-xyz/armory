@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Context, Span, SpanOptions, Tracer, context, trace } from '@opentelemetry/api'
+import { Attributes, Context, Span, SpanOptions, Tracer, context, trace } from '@opentelemetry/api'
 import { OpenTelemetryException } from '../open-telemetry.exception'
 import { TraceService } from './trace.service'
 
@@ -61,5 +61,15 @@ export class OpenTelemetryTraceService implements TraceService {
     }
 
     throw new OpenTelemetryException('Invalid arguments provided to startActiveSpan')
+  }
+
+  public setAttributesOnActiveSpan(attributes: Attributes): Span | undefined {
+    const span = this.getActiveSpan()
+
+    if (span) {
+      span.setAttributes(attributes)
+    }
+
+    return span
   }
 }
