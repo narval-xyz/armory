@@ -1,7 +1,7 @@
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
 import { Request } from 'express'
 import { get } from 'lodash/fp'
-import { REQUEST_HEADER_CLIENT_ID } from '../../main.constant'
 import { NonceService } from '../../vault/core/service/nonce.service'
 import { ApplicationException } from '../exception/application.exception'
 

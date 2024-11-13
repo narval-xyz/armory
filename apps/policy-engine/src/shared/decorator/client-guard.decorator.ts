@@ -1,11 +1,7 @@
+import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '@narval/nestjs-shared'
 import { UseGuards, applyDecorators } from '@nestjs/common'
 import { ApiHeader, ApiSecurity } from '@nestjs/swagger'
-import {
-  CLIENT_ID_SECURITY,
-  CLIENT_SECRET_SECURITY,
-  REQUEST_HEADER_CLIENT_ID,
-  REQUEST_HEADER_CLIENT_SECRET
-} from '../../policy-engine.constant'
+import { CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from '../../policy-engine.constant'
 import { ClientSecretGuard } from '../guard/client-secret.guard'
 
 export function ClientGuard() {

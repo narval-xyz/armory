@@ -1,5 +1,5 @@
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_CLIENT_ID } from '../../armory.constant'
 import { ClientService } from '../../client/core/service/client.service'
 import { ApplicationException } from '../exception/application.exception'
 

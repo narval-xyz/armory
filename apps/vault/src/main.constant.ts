@@ -2,7 +2,6 @@ import { RawAesWrappingSuiteIdentifier } from '@aws-crypto/client-node'
 import { adminApiKeySecurity, gnapSecurity } from '@narval/nestjs-shared'
 
 export const REQUEST_HEADER_API_KEY = 'x-api-key'
-export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
 export const REQUEST_HEADER_AUTHORIZATION = 'Authorization'
 
 export const ENCRYPTION_KEY_NAMESPACE = 'armory.vault'
