@@ -1,6 +1,7 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID } from '@narval/nestjs-shared'
 import { Jwk, RsaKey, hash, rsaEncrypt } from '@narval/signature'
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { Counter } from '@opentelemetry/api'
 import { HDKey } from '@scure/bip32'
 import { english, generateMnemonic } from 'viem/accounts'
 import { ClientService } from '../../../client/core/service/client.service'
@@ -28,13 +29,24 @@ type GenerateArgs = {
 
 @Injectable()
 export class KeyGenerationService {
+  private walletGenerateCounter: Counter
+
+  private accountGenerateCounter: Counter
+
+  private accountDeriveCounter: Counter
+
   constructor(
     private accountRepository: AccountRepository,
     private rootKeyRepository: RootKeyRepository,
     private backupRepository: BackupRepository,
     private clientService: ClientService,
-    private logger: LoggerService
-  ) {}
+    private logger: LoggerService,
+    @Inject(MetricService) private metricService: MetricService
+  ) {
+    this.walletGenerateCounter = this.metricService.createCounter('wallet_generate_count')
+    this.accountGenerateCounter = this.metricService.createCounter('account_generate_count')
+    this.accountDeriveCounter = this.metricService.createCounter('account_derive_count')
+  }
 
   async #maybeEncryptAndSaveBackup(
     clientId: string,
@@ -141,6 +153,8 @@ export class KeyGenerationService {
     clientId: string,
     { derivationPaths, keyId, count }: DeriveAccountDto
   ): Promise<{ accounts: PrivateAccount[] }> {
+    this.accountDeriveCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const seed = await this.rootKeyRepository.findById(clientId, keyId)
     if (!seed) {
       throw new ApplicationException({
@@ -177,6 +191,8 @@ export class KeyGenerationService {
     backup?: string
   }> {
     this.logger.log('Generating rootKey', { clientId })
+    this.walletGenerateCounter.add(1, { [OTEL_ATTR_CLIENT_ID]: clientId })
+
     const mnemonic = generateMnemonic(english)
 
     const { rootKey, keyId } = getRootKey(mnemonic, opts)
