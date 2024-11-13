@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import {
   Action,
   Criterion,
@@ -68,6 +68,7 @@ describe('Evaluation', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         EngineModule
       ]
     })

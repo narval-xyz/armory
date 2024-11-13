@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, SourceType } from '@narval/policy-engine-shared'
 import {
   PrivateKey,
@@ -56,6 +56,7 @@ describe('Client', () => {
           load: [load],
           isGlobal: true
         }),
+        OpenTelemetryModule.forTest(),
         EngineModule
       ]
     })
