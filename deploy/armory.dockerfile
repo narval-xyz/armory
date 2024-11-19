@@ -1,4 +1,4 @@
-FROM node:21 as build
+FROM node:20 as build
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -19,7 +19,7 @@ RUN make armory/db/generate-types && \
     make armory/build && \
     rm -rf apps/ && rm -rf packages/
 
-FROM node:21 as final
+FROM node:20 as final
 
 WORKDIR /usr/src/app
 

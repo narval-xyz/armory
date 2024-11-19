@@ -81,3 +81,5 @@ export const ACTION_REQUEST = new Map<Action, ActionRequestConfig>([
     }
   ]
 ])
+
+export const OTEL_ATTR_JOB_ID = 'job.id'

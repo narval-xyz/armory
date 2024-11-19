@@ -5,7 +5,7 @@ export const TraceService = Symbol('TraceService')
 /**
  * OpenTelemetry Trace/Span Name Conventions
  *
- * Format: <operation_type>.<entity>.<action>
+ * Format: `<operation_type>.<entity>.<action>`
  *
  * Common Operation Types:
  * - http: Web operations
