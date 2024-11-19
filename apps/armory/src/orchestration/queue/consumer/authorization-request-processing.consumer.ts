@@ -1,6 +1,8 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, TraceService } from '@narval/nestjs-shared'
 import { AuthorizationRequestProcessingJob } from '@narval/policy-engine-shared'
 import { OnQueueActive, OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull'
+import { Inject } from '@nestjs/common'
+import { SpanStatusCode } from '@opentelemetry/api'
 import { Job } from 'bull'
 import { v4 as uuid } from 'uuid'
 import {
@@ -13,12 +15,19 @@ import { InvalidAttestationSignatureException } from '../../../policy-engine/cor
 import { UnreachableClusterException } from '../../../policy-engine/core/exception/unreachable-cluster.exception'
 import { AuthorizationRequestAlreadyProcessingException } from '../../core/exception/authorization-request-already-processing.exception'
 import { AuthorizationRequestService } from '../../core/service/authorization-request.service'
+import { OTEL_ATTR_JOB_ID } from '../../orchestration.constant'
+
+const OTEL_ATTR_JOB_ATTEMPS_MADE = 'job.attempts_made'
+const OTEL_ATTR_JOB_FAILED = 'job.failed'
+const OTEL_ATTR_JOB_MAX_RETRIES = 'job.max_retries'
+const OTEL_ATTR_JOB_RETRIED = 'job.retried'
 
 @Processor(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
 export class AuthorizationRequestProcessingConsumer {
   constructor(
     private authzService: AuthorizationRequestService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    @Inject(TraceService) private traceService: TraceService
   ) {}
 
   @Process()
@@ -28,9 +37,15 @@ export class AuthorizationRequestProcessingConsumer {
       data: job.data
     })
 
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingConsumer.name}.process`, {
+      attributes: { [OTEL_ATTR_JOB_ID]: job.id }
+    })
+
     try {
       await this.authzService.process(job.id.toString(), job.attemptsMade)
     } catch (error) {
+      span.recordException(error)
+
       // Short-circuits the retry mechanism on unrecoverable domain errors.
       //
       // IMPORTANT: To stop retrying a job in Bull, the process must return an
@@ -39,7 +54,15 @@ export class AuthorizationRequestProcessingConsumer {
         return error
       }
 
+      // If the error ins't recoverable, set the span status to error.
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: error.message
+      })
+
       throw error
+    } finally {
+      span.end()
     }
   }
 
@@ -66,8 +89,14 @@ export class AuthorizationRequestProcessingConsumer {
 
   @OnQueueCompleted()
   async onCompleted(job: Job<AuthorizationRequestProcessingJob>, result: unknown) {
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingConsumer.name}.onCompleted`, {
+      attributes: { [OTEL_ATTR_JOB_ID]: job.id }
+    })
+
     if (result instanceof Error) {
       this.logger.error('Stop processing authorization request due to unrecoverable error', result)
+
+      span.setAttribute(OTEL_ATTR_JOB_FAILED, true).end()
 
       await this.authzService.fail(job.id.toString(), {
         ...result,
@@ -82,6 +111,8 @@ export class AuthorizationRequestProcessingConsumer {
       data: job.data,
       result
     })
+
+    span.setAttribute(OTEL_ATTR_JOB_FAILED, false).end()
   }
 
   @OnQueueFailed()
@@ -93,8 +124,17 @@ export class AuthorizationRequestProcessingConsumer {
       error
     }
 
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingConsumer.name}.onCompleted`, {
+      attributes: {
+        [OTEL_ATTR_JOB_ID]: log.id,
+        [OTEL_ATTR_JOB_MAX_RETRIES]: log.maxAttempts,
+        [OTEL_ATTR_JOB_ATTEMPS_MADE]: log.attemptsMade
+      }
+    })
+
     if (job.attemptsMade >= AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS) {
       this.logger.error('Process authorization request failed', log)
+      span.setAttribute(OTEL_ATTR_JOB_RETRIED, false)
 
       await this.authzService.fail(job.id.toString(), {
         id: uuid(),
@@ -102,6 +142,9 @@ export class AuthorizationRequestProcessingConsumer {
       })
     } else {
       this.logger.log('Retrying to process authorization request', log)
+      span.setAttribute(OTEL_ATTR_JOB_RETRIED, true)
     }
+
+    span.end()
   }
 }

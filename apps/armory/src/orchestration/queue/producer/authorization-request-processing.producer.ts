@@ -1,17 +1,18 @@
-import { LoggerService } from '@narval/nestjs-shared'
+import { LoggerService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import {
   AuthorizationRequest,
   AuthorizationRequestProcessingJob,
   AuthorizationRequestStatus
 } from '@narval/policy-engine-shared'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { BackoffOptions, Job, Queue } from 'bull'
 import {
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_ATTEMPTS,
   AUTHORIZATION_REQUEST_PROCESSING_QUEUE_BACKOFF
 } from '../../../armory.constant'
+import { OTEL_ATTR_JOB_ID } from '../../orchestration.constant'
 import { AuthorizationRequestRepository } from '../../persistence/repository/authorization-request.repository'
 
 type JobOption = {
@@ -30,11 +31,16 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
     @InjectQueue(AUTHORIZATION_REQUEST_PROCESSING_QUEUE)
     private processingQueue: Queue<AuthorizationRequestProcessingJob>,
     private authzRequestRepository: AuthorizationRequestRepository,
-    private logger: LoggerService
+    private logger: LoggerService,
+    @Inject(TraceService) private traceService: TraceService
   ) {}
 
   async add(authzRequest: AuthorizationRequest): Promise<Job<AuthorizationRequestProcessingJob>> {
-    return this.processingQueue.add(
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingProducer.name}.add`, {
+      attributes: { [OTEL_ATTR_CLIENT_ID]: authzRequest.id }
+    })
+
+    const job = await this.processingQueue.add(
       {
         id: authzRequest.id
       },
@@ -43,9 +49,15 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
         ...DEFAULT_JOB_OPTIONS
       }
     )
+
+    span.setAttribute(OTEL_ATTR_JOB_ID, job.id).end()
+
+    return job
   }
 
   async bulkAdd(requests: AuthorizationRequest[]): Promise<Job<AuthorizationRequestProcessingJob>[]> {
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingProducer.name}.bulkAdd`)
+
     const jobs = requests.map(({ id }) => ({
       data: { id },
       opts: {
@@ -54,10 +66,16 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
       }
     }))
 
-    return this.processingQueue.addBulk(jobs)
+    const addedJobs = await this.processingQueue.addBulk(jobs)
+
+    span.end()
+
+    return addedJobs
   }
 
   async onApplicationBootstrap() {
+    const span = this.traceService.startSpan(`${AuthorizationRequestProcessingProducer.name}.onApplicationBootstrap`)
+
     const requests = await this.authzRequestRepository.findByStatus(AuthorizationRequestStatus.CREATED)
 
     if (requests.length) {
@@ -67,5 +85,7 @@ export class AuthorizationRequestProcessingProducer implements OnApplicationBoot
 
       await this.bulkAdd(requests)
     }
+
+    span.end()
   }
 }
