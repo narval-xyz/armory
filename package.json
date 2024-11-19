@@ -3,7 +3,7 @@
   "version": "v0.0.13",
   "license": "MPL-2.0",
   "engines": {
-    "node": ">=21.0.0"
+    "node": "^20.0.0"
   },
   "workspaces": [
     "packages/*"
