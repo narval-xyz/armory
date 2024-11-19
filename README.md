@@ -107,7 +107,7 @@ dependency `@narval-xyz/armory-mpc-module`.
 
 1. Create a `.npmrc` file in the root of this project.
 1. Get the values from someone who has them.
-1. Now `npm install` should work.
+1. Now `make install` should work.
 
 ## Generating a new project
 
@@ -133,7 +133,7 @@ packages to NPM.
 
 1. Run `make packages/release` and follow the prompts to bump the
    projects' versions.
-1. Run `npm install` to update `package-lock.json`.
+1. Run `make install` to update `package-lock.json`.
 1. Commit and push the changes to your branch.
 1. After your branch is merged, manually trigger the [packages pipeline to
    publish](https://github.com/narval-xyz/armory/actions/workflows/packages-publish.yml)
