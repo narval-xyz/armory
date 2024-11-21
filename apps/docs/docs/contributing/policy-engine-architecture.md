@@ -23,10 +23,10 @@ columns 1
 
 The policy engine is built on the shoulders of the Open Policy Agent (OPA), a
 battle-tested multi purpose engine trusted by many organizations. The OPA core
-bunlded with the policy engine's artifact and it's considered a trusted
+bundled with the policy engine's artifact and it's considered a trusted
 component.
 
-The policy engine layer, is responsible for encrypting and decrypting client
+The policy engine layer is responsible for encrypting and decrypting client
 data it stores. When the engine server starts, it writes data to its storage
 backend. Since the storage backend lives outside the engine, it's considered
 untrusted so the engine will encrypt the data before it sends them to the
