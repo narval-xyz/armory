@@ -124,7 +124,7 @@ sequenceDiagram
   Engine ->> DS: Fetch client data
   Engine ->> DB: Write CEK (AES-256) client's data
   Note over DB: Does not fail the onboarding if fetching the client data failed
-  Engine -->> Admin: client's UID, sgining public key and TAK
+  Engine -->> Admin: client's UID, signing public key and TAK
   deactivate Engine
 ```
 
