@@ -2,7 +2,7 @@
 
 ## Main
 
-The implementation of engine general logic. This package is the one were transpiled policy are written
+The implementation of engine general logic. This package is the one where transpiled policy are written
 Transpiled policies then use Armory/criteria functions to evaluate input
 
 ## Armory
@@ -26,7 +26,7 @@ Functions used to query loaded data. It serves as a source of truth to know if s
 
 - Enforce invariants like lowercasing hex addresses
 - Aggregate data from multiple places in entity in order to build useful relationships
-- build runtime types that depends on entity data result
+- build runtime types that depend on entity data result
 
 ### Lib
 
@@ -35,7 +35,7 @@ Utils that are not domain specific, like case insensitive comparison or time.
 ### Test_Data
 
 Values that are specifically used by tests.
-**this shouldn't be imported in production code**
+**These shouldn't be imported in production code**
 
 # Tests
 
