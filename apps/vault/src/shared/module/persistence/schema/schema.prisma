@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
   // Output into a separate subdirectory so multiple schemas can be used in a
   // monorepo.
   //
   // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
-  output   = "../../../../../../../node_modules/@prisma/client/vault"
+  output        = "../../../../../../../node_modules/@prisma/client/vault"
 }
 
 datasource db {
@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Vault {
-  id          String @id
+  id          String  @id
   masterKey   String? @map("master_key")
   adminApiKey String? @map("admin_api_key")
 
@@ -24,10 +24,145 @@ model Vault {
 // TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.
 // See https://www.postgresql.org/docs/9.1/hstore.html
 model KeyValue {
-  key         String @id
-  clientId    String? @map("client_id")
-  collection  String
-  value       String
+  key        String  @id
+  clientId   String? @map("client_id")
+  collection String
+  value      String
 
   @@map("key_value")
+}
+
+model ProviderWallet {
+  id         String   @id
+  label      String?
+  clientId   String   @map("client_id")
+  provider   String
+  externalId String   @map("external_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  accounts    ProviderAccount[]
+  connections ProviderWalletConnection[]
+  transfers   ProviderTransfer[]         @relation("SourceWallet")
+
+  @@map("provider_wallet")
+}
+
+model ProviderAccount {
+  id         String   @id
+  label      String?
+  clientId   String   @map("client_id")
+  provider   String
+  externalId String   @map("external_id")
+  walletId   String   @map("wallet_id")
+  networkId  String   @map("network_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  wallet    ProviderWallet     @relation(fields: [walletId], references: [id])
+  addresses ProviderAddress[]
+  transfers ProviderTransfer[] @relation("SourceAccount")
+
+  @@map("provider_account")
+}
+
+model ProviderAddress {
+  id         String   @id
+  clientId   String   @map("client_id")
+  provider   String
+  externalId String   @map("external_id")
+  accountId  String   @map("account_id")
+  address    String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  account   ProviderAccount    @relation(fields: [accountId], references: [id])
+  transfers ProviderTransfer[] @relation("SourceAddress")
+
+  @@map("provider_address")
+}
+
+model ProviderAddressBook {
+  id                     String   @id
+  clientId               String   @map("client_id")
+  connectionId           String   @map("connection_id")
+  provider               String
+  externalId             String   @map("external_id")
+  externalClassification String?  @map("external_classification")
+  address                String
+  assetId                String?  @map("asset_id")
+  networkId              String   @map("network_id")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+
+  @@map("provider_address_book")
+}
+
+model ProviderConnection {
+  id          String    @id
+  clientId    String    @map("client_id")
+  provider    String
+  url         String
+  label       String?
+  credentials Json
+  status      String
+  integrity   String    @map("_integrity")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  revokedAt   DateTime? @map("revoked_at")
+
+  counterparties ProviderAddressBook[]
+  connections    ProviderWalletConnection[]
+  syncs          ProviderSync[]
+
+  @@map("provider_connection")
+}
+
+model ProviderWalletConnection {
+  clientId     String   @map("client_id")
+  connectionId String   @map("connection_id")
+  walletId     String   @map("wallet_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  wallet     ProviderWallet     @relation(fields: [walletId], references: [id])
+
+  @@id([clientId, connectionId, walletId])
+  @@map("provider_wallet_connection")
+}
+
+model ProviderSync {
+  id           String    @id
+  clientId     String    @map("client_id")
+  connectionId String    @map("connection_id")
+  status       String
+  errorName    String?   @map("error_name")
+  errorMessage String?   @map("error_message")
+  errorTraceId String?   @map("error_trace_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  // Relations
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+
+  @@map("provider_sync")
+}
+
+model ProviderTransfer {
+  id              String   @id
+  clientId        String   @map("client_id")
+  sourceWalletId  String?  @map("source_wallet_id")
+  sourceAccountId String?  @map("source_account_id")
+  sourceAddressId String?  @map("source_address_id")
+  provider        String
+  externalId      String   @map("external_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  wallet  ProviderWallet?  @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  account ProviderAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id])
+  address ProviderAddress? @relation("SourceAddress", fields: [sourceAddressId], references: [id])
+
+  @@map("provider_transfer")
 }
