@@ -1155,20 +1155,23 @@ export interface CreateClientRequestDtoDataStoreEntityKeysInner {
 
 export const CreateClientRequestDtoDataStoreEntityKeysInnerKtyEnum = {
     Ec: 'EC',
-    Rsa: 'RSA'
+    Rsa: 'RSA',
+    Okp: 'OKP'
 } as const;
 
 export type CreateClientRequestDtoDataStoreEntityKeysInnerKtyEnum = typeof CreateClientRequestDtoDataStoreEntityKeysInnerKtyEnum[keyof typeof CreateClientRequestDtoDataStoreEntityKeysInnerKtyEnum];
 export const CreateClientRequestDtoDataStoreEntityKeysInnerCrvEnum = {
     Secp256k1: 'secp256k1',
-    P256: 'P-256'
+    P256: 'P-256',
+    Ed25519: 'Ed25519'
 } as const;
 
 export type CreateClientRequestDtoDataStoreEntityKeysInnerCrvEnum = typeof CreateClientRequestDtoDataStoreEntityKeysInnerCrvEnum[keyof typeof CreateClientRequestDtoDataStoreEntityKeysInnerCrvEnum];
 export const CreateClientRequestDtoDataStoreEntityKeysInnerAlgEnum = {
     Es256K: 'ES256K',
     Es256: 'ES256',
-    Rs256: 'RS256'
+    Rs256: 'RS256',
+    Eddsa: 'EDDSA'
 } as const;
 
 export type CreateClientRequestDtoDataStoreEntityKeysInnerAlgEnum = typeof CreateClientRequestDtoDataStoreEntityKeysInnerAlgEnum[keyof typeof CreateClientRequestDtoDataStoreEntityKeysInnerAlgEnum];
@@ -1319,7 +1322,7 @@ export interface CreateClientResponseDtoPolicyEngineNodesInner {
  * @type CreateClientResponseDtoPolicyEngineNodesInnerPublicKey
  * @export
  */
-export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKey = CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3;
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKey = CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf1 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf2 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3 | CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4;
 
 /**
  * 
@@ -1609,6 +1612,78 @@ export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum
 } as const;
 
 export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf3UseEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+ */
+export interface CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4 {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'kty': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4KtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'alg': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4AlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'use'?: CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4UseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'crv': CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4CrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4
+     */
+    'x': string;
+}
+
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4KtyEnum = {
+    Okp: 'OKP'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4KtyEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4KtyEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4KtyEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4AlgEnum = {
+    Eddsa: 'EDDSA'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4AlgEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4AlgEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4AlgEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4UseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4UseEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4UseEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4UseEnum];
+export const CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4CrvEnum = {
+    Ed25519: 'Ed25519'
+} as const;
+
+export type CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4CrvEnum = typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4CrvEnum[keyof typeof CreateClientResponseDtoPolicyEngineNodesInnerPublicKeyOneOf4CrvEnum];
 
 /**
  * 
@@ -2840,7 +2915,8 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28CriterionEnum = typ
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28ArgsEnum = {
     Es256K: 'ES256K',
     Es256: 'ES256',
-    Rs256: 'RS256'
+    Rs256: 'RS256',
+    Eddsa: 'EDDSA'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28ArgsEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28ArgsEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf28ArgsEnum];
@@ -3371,7 +3447,8 @@ export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38ArgsInnerTypeEnum =
 export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38ArgsInnerAlgorithmEnum = {
     Es256K: 'ES256K',
     Es256: 'ES256',
-    Rs256: 'RS256'
+    Rs256: 'RS256',
+    Eddsa: 'EDDSA'
 } as const;
 
 export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38ArgsInnerAlgorithmEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38ArgsInnerAlgorithmEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf38ArgsInnerAlgorithmEnum];
@@ -3749,56 +3826,93 @@ export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsFilters {
     'accountGroups'?: Array<string>;
 }
 /**
+ * @type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+ * @export
+ */
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow = PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf | PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1;
+
+/**
  * 
  * @export
- * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
  */
-export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow {
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf {
     /**
      * 
      * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
-    'type'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum;
+    'type': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum;
     /**
      * 
      * @type {string}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
-    'period'?: PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum;
+    'period': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum;
     /**
      * 
      * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
-     */
-    'value'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
     'startDate'?: number;
     /**
      * 
      * @type {number}
-     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindow
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf
      */
     'endDate'?: number;
 }
 
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum = {
-    Rolling: 'rolling',
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum = {
     Fixed: 'fixed'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowTypeEnum];
-export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum = {
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfTypeEnum];
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum = {
     _1d: '1d',
     _1m: '1m',
     _1y: '1y'
 } as const;
 
-export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowPeriodEnum];
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOfPeriodEnum];
+
+/**
+ * 
+ * @export
+ * @interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+ */
+export interface PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'type': PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'value': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'startDate'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1
+     */
+    'endDate'?: number;
+}
+
+export const PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum = {
+    Rolling: 'rolling'
+} as const;
+
+export type PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum = typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum[keyof typeof PolicyDataStoreDtoPolicyDataInnerWhenInnerOneOf43ArgsTimeWindowOneOf1TypeEnum];
 
 /**
  * 

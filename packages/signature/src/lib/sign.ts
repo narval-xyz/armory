@@ -9,14 +9,15 @@ import { hash } from './hash'
 import { canonicalize } from './json.util'
 import { jwkBaseSchema, privateKeySchema } from './schemas'
 import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
-import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
+import { ed25519polyfilled as ed25519, hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
 import { validateJwk } from './validate'
 
 const SigningAlgToKey = {
   [SigningAlg.EIP191]: Alg.ES256K,
   [SigningAlg.ES256K]: Alg.ES256K,
   [SigningAlg.ES256]: Alg.ES256,
-  [SigningAlg.RS256]: Alg.RS256
+  [SigningAlg.RS256]: Alg.RS256,
+  [SigningAlg.ED25519]: Alg.EDDSA
 }
 
 const buildHeader = (jwk: Jwk, alg?: SigningAlg): Header => {
@@ -114,7 +115,6 @@ export async function signJwt(
   const encodedHeader = stringToBase64Url(canonicalize(header))
   const encodedPayload = stringToBase64Url(canonicalize(payload))
   const messageToSign = `${encodedHeader}.${encodedPayload}`
-
   // Determine the signing logic based on the presence of a custom signer
   let signature: string
   if (actualSigner) {
@@ -140,6 +140,9 @@ export async function signJwt(
         break
       case SigningAlg.RS256:
         signature = await buildSignerRs256(jwk)(messageToSign)
+        break
+      case SigningAlg.ED25519:
+        signature = await buildSignerEdDSA(privateKeyHex)(messageToSign)
         break
       default: {
         throw new JwtError({
@@ -217,6 +220,20 @@ export const buildSignerEip191 =
     const signature = signSecp256k1(hash, privateKey, true)
     const hexSignature = signatureToHex(signature)
     return hexToBase64Url(hexSignature)
+  }
+
+export const signEd25519 = async (message: Uint8Array, privateKey: Hex | string): Promise<Uint8Array> => {
+  const pk = isHex(privateKey) ? privateKey.slice(2) : privateKey
+  const signature = await ed25519.sign(message, pk)
+
+  return signature
+}
+
+export const buildSignerEdDSA =
+  (privateKey: Hex | string) =>
+  async (messageToSign: string): Promise<string> => {
+    const signature = await signEd25519(toBytes(messageToSign), privateKey)
+    return hexToBase64Url(toHex(signature))
   }
 
 export const buildSignerEs256 =

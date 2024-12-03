@@ -1,6 +1,7 @@
 import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { toBytes } from '@noble/hashes/utils'
 import { subtle } from 'crypto'
 import { hexToBytes, isAddressEqual, recoverAddress } from 'viem'
 import { decodeJwsd, decodeJwt } from './decode'
@@ -22,7 +23,14 @@ import {
   SigningAlg,
   type Jwt
 } from './types'
-import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex, requestWithoutWildcardFields } from './utils'
+import {
+  base64UrlToHex,
+  ed25519polyfilled as ed25519,
+  hexToBase64Url,
+  nowSeconds,
+  publicKeyToHex,
+  requestWithoutWildcardFields
+} from './utils'
 import { buildJwkValidator } from './validate'
 
 export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
@@ -172,6 +180,19 @@ export const verifySecp256k1 = async (sig: Hex, hash: Uint8Array, jwk: PublicKey
   return isValid
 }
 
+export const verifyEd25519 = async (sig: Uint8Array, msg: Uint8Array, jwk: PublicKey): Promise<boolean> => {
+  if (jwk.alg !== Alg.EDDSA) {
+    throw new JwtError({ message: 'Invalid JWK: signature requires EdDSA', context: { jwk } })
+  }
+
+  const pubKey = await publicKeyToHex(jwk)
+
+  const pubKeyBytes = hexToBytes(pubKey)
+
+  const isValid = await ed25519.verify(sig, msg, pubKeyBytes)
+  return isValid
+}
+
 export const verifyP256 = async (sig: Hex, hash: Uint8Array, jwk: PublicKey): Promise<boolean> => {
   if (jwk.alg !== Alg.ES256) {
     throw new JwtError({ message: 'Invalid JWK: signature requires ES256', context: { jwk } })
@@ -186,7 +207,7 @@ export const verifyEip191 = async (sig: Hex, msg: string, jwk: PublicKey): Promi
   const msgHash = eip191Hash(msg)
 
   if (jwk.alg !== Alg.ES256K) {
-    throw new JwtError({ message: 'Invalid JWK: EIP191 signature requires ES256K', context: { jwk } })
+    throw new JwtError({ message: 'Invalid JWK: EIP191 signature requires ES256K or EDSA', context: { jwk } })
   }
 
   let isValid = false
@@ -240,6 +261,8 @@ async function verifySignature(jws: string, jwk: PublicKey, alg: SigningAlg): Pr
   } else if (alg === SigningAlg.RS256) {
     // in RS256, the verification does the hashing internally, so pass the data itself not the hash
     isValid = await verifyRs256(sig, verificationMsg, jwk)
+  } else if (alg === SigningAlg.ED25519) {
+    isValid = await verifyEd25519(hexToBytes(sig), toBytes(verificationMsg), jwk)
   }
 
   if (!isValid) {

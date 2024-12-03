@@ -217,7 +217,7 @@ export interface CreateClientDto {
  * @type CreateClientDtoEngineJwk
  * @export
  */
-export type CreateClientDtoEngineJwk = CreateClientDtoEngineJwkOneOf | CreateClientDtoEngineJwkOneOf1 | CreateClientDtoEngineJwkOneOf2 | EncryptionKeyDtoPublicKey;
+export type CreateClientDtoEngineJwk = CreateClientDtoEngineJwkOneOf | CreateClientDtoEngineJwkOneOf1 | CreateClientDtoEngineJwkOneOf2 | CreateClientDtoEngineJwkOneOf3 | EncryptionKeyDtoPublicKey;
 
 /**
  * 
@@ -440,6 +440,78 @@ export const CreateClientDtoEngineJwkOneOf2UseEnum = {
 } as const;
 
 export type CreateClientDtoEngineJwkOneOf2UseEnum = typeof CreateClientDtoEngineJwkOneOf2UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf2UseEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoEngineJwkOneOf3
+ */
+export interface CreateClientDtoEngineJwkOneOf3 {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'kty': CreateClientDtoEngineJwkOneOf3KtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'alg': CreateClientDtoEngineJwkOneOf3AlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'use'?: CreateClientDtoEngineJwkOneOf3UseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'crv': CreateClientDtoEngineJwkOneOf3CrvEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoEngineJwkOneOf3
+     */
+    'x': string;
+}
+
+export const CreateClientDtoEngineJwkOneOf3KtyEnum = {
+    Okp: 'OKP'
+} as const;
+
+export type CreateClientDtoEngineJwkOneOf3KtyEnum = typeof CreateClientDtoEngineJwkOneOf3KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf3KtyEnum];
+export const CreateClientDtoEngineJwkOneOf3AlgEnum = {
+    Eddsa: 'EDDSA'
+} as const;
+
+export type CreateClientDtoEngineJwkOneOf3AlgEnum = typeof CreateClientDtoEngineJwkOneOf3AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf3AlgEnum];
+export const CreateClientDtoEngineJwkOneOf3UseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type CreateClientDtoEngineJwkOneOf3UseEnum = typeof CreateClientDtoEngineJwkOneOf3UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf3UseEnum];
+export const CreateClientDtoEngineJwkOneOf3CrvEnum = {
+    Ed25519: 'Ed25519'
+} as const;
+
+export type CreateClientDtoEngineJwkOneOf3CrvEnum = typeof CreateClientDtoEngineJwkOneOf3CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf3CrvEnum];
 
 /**
  * 

@@ -19,7 +19,6 @@ describe('SDK Compression Interceptors', () => {
 
       expect(result.headers['Content-Encoding']).toBe('gzip')
 
-      console.log('data', result)
       const decompressed = await gunzip(result.data)
       expect(JSON.parse(decompressed.toString())).toEqual({ test: 'data' })
     })

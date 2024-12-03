@@ -1,5 +1,11 @@
+import { toHex } from 'viem'
 import { hash } from '../../hash'
-import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema } from '../../schemas'
+import {
+  ed25519PrivateKeySchema,
+  p256PrivateKeySchema,
+  rsaPrivateKeySchema,
+  secp256k1PrivateKeySchema
+} from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
 import {
   Alg,
@@ -12,6 +18,7 @@ import {
   secp256k1PublicKeySchema
 } from '../../types'
 import {
+  ed25519polyfilled,
   ellipticPrivateKeyToHex,
   generateJwk,
   privateKeyToHex,
@@ -58,6 +65,15 @@ const k1Jwk: Jwk = {
   d: 'ENTv9xjMG6RkHwamtOk3l0mlHOZN7herKFEmGPPKK04'
 }
 
+const eddsaKey: Jwk = {
+  kty: 'OKP',
+  crv: 'Ed25519',
+  alg: 'EDDSA',
+  kid: '0xaf8dcff8da6aae18c2170f59a0734c8c5c19ca726a1b75993857bd836db00a5f',
+  x: 'HrmLI5NH3cYp4-HluFGBOcYvARGti_oz0aZMXMzy8m4',
+  d: 'nq2eDJPp9NAqCdTT_dNerIJFJxegTKmFgDAsFkhbJIA'
+}
+
 const k1HexPublicKey =
   '0x048cf0cf42e721a1ab479fb27fb5a4674ae6bf5a00357144a8552bb66eff875be3b045bb4ce358c2788941d8bf403840d4e0e0089196b5f8015900972aeed54b84'
 
@@ -67,6 +83,11 @@ const p256HexPublicKey =
   '0x046efe944311e4955214040e3f0056eaa3d7db8443fce9764506ed556f8fa9c35408dfa6d8b07a68cc1b8668be732289e3da91956922ba9645f07eca9aa9531e2c'
 
 const p256HexPrivateKey = '0xd9cf695be325ab8d849fc60a5eb92bf45c8b0c81527d5e3926a951f0732c4157'
+
+const eddsaHexPublicKey = '0x1eb98b239347ddc629e3e1e5b8518139c62f0111ad8bfa33d1a64c5cccf2f26e'
+
+const eddsaHexPrivateKey = '0x9ead9e0c93e9f4d02a09d4d3fdd35eac82452717a04ca98580302c16485b2480'
+
 describe('isHeader', () => {
   it('returns true for a valid header object', () => {
     const validHeader = { alg: 'ES256', kid: 'test-kid', typ: 'JWT' }
@@ -113,6 +134,11 @@ describe('generateKeys', () => {
     expect(secp256k1PrivateKeySchema.safeParse(key).success).toBe(true)
   })
 
+  it('generates a valid ed25519 key pair and return it as a JWK', async () => {
+    const key = await generateJwk(Alg.EDDSA)
+    expect(ed25519PrivateKeySchema.safeParse(key).success).toBe(true)
+  })
+
   it('can sign and verify with a generated secp256k1 key pair', async () => {
     const key = await generateJwk(Alg.ES256K)
     const message = 'test message'
@@ -131,6 +157,18 @@ describe('generateKeys', () => {
     expect(isValid).not.toEqual(false)
   })
 
+  it('can sign and verify with a generated ed25519 key pair', async () => {
+    const key = await generateJwk(Alg.EDDSA)
+
+    const message = hash('test message')
+    const payload = {
+      requestHash: message
+    }
+
+    const signature = await signJwt(payload, key)
+    const isValid = await verifyJwt(signature, key)
+    expect(isValid).not.toEqual(false)
+  })
   describe('rsaPrivateKeyToPublicKey', () => {
     it('converts private to public', async () => {
       const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
@@ -170,6 +208,23 @@ describe('publicKeyToJwk', () => {
     const jwk2 = publicKeyToJwk(p256HexPublicKey, Alg.ES256, 'myKey2')
     expect(jwk2.kid).toBe('myKey2')
   })
+
+  it('converts a valid EDDSA hex public key to JWK', async () => {
+    const jwk = publicKeyToJwk(eddsaHexPublicKey, Alg.EDDSA)
+    const { d: _d, ...eddsaPublicKey } = eddsaKey
+    expect(jwk).toEqual(eddsaPublicKey)
+  })
+
+  it('ensures hex consistency across standard and polyfill implementations', async () => {
+    const key = ed25519polyfilled.utils.randomPrivateKey()
+    const publicKey = ed25519polyfilled.sync.getPublicKey(key)
+    const asyncPublicKey = await ed25519polyfilled.getPublicKey(key)
+
+    const publicHexKey = await publicKeyToHex(privateKeyToJwk(toHex(key), Alg.EDDSA))
+
+    expect(publicHexKey).toEqual(toHex(publicKey))
+    expect(publicHexKey).toEqual(toHex(asyncPublicKey))
+  })
 })
 
 describe('publicKeyToHex', () => {
@@ -189,6 +244,11 @@ describe('publicKeyToHex', () => {
       '0x30820122300d06092a864886f70d01010105000382010f003082010a0282010100c4d7538d62fd8466b86f3e2d2ca6e6159e328d0b10cd6df9f82312d249e8df8d378c4aa0e72d82b3ab0b5723c15f837685d2b91113f2b697f53eb4e11ea07e7843ba2ed116a44341805b8d21ff03447aefd2d9deedd2cdc5feecc756a870646b920224e16b3a22ce0eb77c219b7f968a19831a71e8a2013e10fc1592449cd8560f5d894dab886d0995c2f3f3142372ee5ebcb61a7e2d9dae47b1849e85885f2830fe9df49a8de5b174d52fff7c0e7920abf480a6f54765a3b8692141d08275f7373ea4bdf198bb078b1a88ffa2dfa81140887656d0aa6adf4ad01c96e81b339348ead63fffac03d33ff86418d3a2ea570819576d8b1d7bafd91bdc4f9984b2930203010001'
     )
   })
+
+  it('converts a valid eddsa JWK to hex string', async () => {
+    const hex = await publicKeyToHex(eddsaKey)
+    expect(hex).toBe(eddsaHexPublicKey)
+  })
 })
 
 describe('privateKeyToHex', () => {
@@ -200,6 +260,11 @@ describe('privateKeyToHex', () => {
   it('converts a valid p256 private JWK to hex string', async () => {
     const hex = await privateKeyToHex(p256Jwk)
     expect(hex).toBe(p256HexPrivateKey)
+  })
+
+  it('converts a valid eddsa private JWK to hex string', async () => {
+    const hex = await privateKeyToHex(eddsaKey)
+    expect(hex).toBe(eddsaHexPrivateKey)
   })
 
   it('throws an error for invalid private key', async () => {
