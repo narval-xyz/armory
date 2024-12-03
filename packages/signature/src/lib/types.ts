@@ -3,14 +3,16 @@ import { addressSchema } from './address.schema'
 
 export const KeyTypes = {
   EC: 'EC',
-  RSA: 'RSA'
+  RSA: 'RSA',
+  OKP: 'OKP', // Octet Key Pair for EdDSA
 } as const
 
 export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
 
 export const Curves = {
   SECP256K1: 'secp256k1',
-  P256: 'P-256'
+  P256: 'P-256',
+  ED25519: 'Ed25519'
 } as const
 
 export type Curves = (typeof Curves)[keyof typeof Curves]
@@ -18,7 +20,8 @@ export type Curves = (typeof Curves)[keyof typeof Curves]
 export const Alg = {
   ES256K: 'ES256K', // secp256k1, an Ethereum EOA
   ES256: 'ES256', // secp256r1, ecdsa but not ethereum
-  RS256: 'RS256'
+  RS256: 'RS256',
+  EDDSA: 'EDDSA'
 } as const
 
 export type Alg = (typeof Alg)[keyof typeof Alg]
@@ -27,7 +30,8 @@ export const SigningAlg = {
   ES256K: 'ES256K',
   EIP191: 'EIP191', // ecdsa on secp256k1 with keccak256 & data prefixed w/ \x19Ethereum Signed Message:\n + len(message)
   ES256: 'ES256',
-  RS256: 'RS256'
+  RS256: 'RS256',
+  ED25519: 'EDDSA'
 } as const
 
 export type SigningAlg = (typeof SigningAlg)[keyof typeof SigningAlg]
@@ -64,6 +68,23 @@ export const ecBaseSchema = jwkBaseSchema.extend({
   x: z.string(),
   y: z.string()
 })
+
+
+
+// EdDSA Base and PublicKey Schema
+export const ed25519PublicKeySchema = jwkBaseSchema.extend({
+  kty: z.literal(KeyTypes.OKP),
+  crv: z.literal(Curves.ED25519),
+  alg: z.literal(Alg.EDDSA),
+  x: z.string()  // Ed25519 public key, no y coordinate
+})
+
+// EdDSA Private Key Schema
+export const ed25519PrivateKeySchema = ed25519PublicKeySchema.extend({
+  d: z.string(),  // Ed25519 private key
+  x: z.string().optional()
+})
+
 
 // RSA Base Schema
 export const rsaBaseSchema = jwkBaseSchema.extend({
@@ -112,12 +133,15 @@ export const publicKeySchema = z.union([
   secp256k1PublicKeySchema,
   p256PublicKeySchema,
   rsaPublicKeySchema,
-  jwkEoaSchema
+  jwkEoaSchema,
+  ed25519PublicKeySchema
 ])
 
-export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateKeySchema, rsaPrivateKeySchema])
+export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateKeySchema, rsaPrivateKeySchema, ed25519PrivateKeySchema])
 
 export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1PrivateKeySchema])
+
+export const ed25519KeySchema = z.union([ed25519PublicKeySchema, ed25519PrivateKeySchema])
 
 export const p256KeySchema = z.union([p256PublicKeySchema, p256PrivateKeySchema])
 
@@ -149,7 +173,7 @@ export const jwkSchema = dynamicKeySchema.extend({
 export const Header = z.intersection(
   z.record(z.string(), z.unknown()),
   z.object({
-    alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+    alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191'), z.literal('EDDSA')]),
     kid: z.string().min(1).describe('The key ID to identify the signing key.'),
     typ: z
       .union([z.literal('JWT'), z.literal('gnap-binding-jwsd')])
@@ -318,6 +342,9 @@ export type JwsdVerifyOptions = {
 export type Secp256k1PrivateKey = z.infer<typeof secp256k1PrivateKeySchema>
 export type P256PrivateKey = z.infer<typeof p256PrivateKeySchema>
 export type P256PublicKey = z.infer<typeof p256PublicKeySchema>
+export type Ed25519PublicKey = z.infer<typeof ed25519PublicKeySchema>
+export type Ed25519PrivateKey = z.infer<typeof ed25519PrivateKeySchema>
+export type Ed25519Key = z.infer<typeof ed25519KeySchema>
 export type P256Key = z.infer<typeof p256KeySchema>
 export type RsaPrivateKey = z.infer<typeof rsaPrivateKeySchema>
 export type RsaPublicKey = z.infer<typeof rsaPublicKeySchema>

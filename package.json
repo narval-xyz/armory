@@ -92,6 +92,7 @@
     "@nestjs/platform-express": "10.3.9",
     "@nestjs/swagger": "7.4.0",
     "@noble/curves": "1.6.0",
+    "@noble/ed25519": "1.7.1",
     "@noble/hashes": "1.4.0",
     "@open-policy-agent/opa-wasm": "1.9.0",
     "@opentelemetry/api": "1.9.0",

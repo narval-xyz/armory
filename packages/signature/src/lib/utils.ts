@@ -1,5 +1,6 @@
 import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
+import * as ed25519 from '@noble/ed25519'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
@@ -7,10 +8,12 @@ import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
-import { ellipticKeySchema, privateKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
+import { ed25519KeySchema, ed25519PrivateKeySchema, ellipticKeySchema, privateKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
 import {
   Alg,
   Curves,
+  Ed25519Key,
+  Ed25519PrivateKey,
   EllipticKey,
   Hex,
   Jwk,
@@ -19,14 +22,19 @@ import {
   P256PublicKey,
   PrivateKey,
   PublicKey,
+  publicKeySchema,
   RsaPrivateKey,
   RsaPublicKey,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
   Use,
-  publicKeySchema
 } from './types'
 import { validateJwk } from './validate'
+import { Ed25519PublicKey } from './types';
+import { sha512 } from '@noble/hashes/sha512'
+
+ed25519.utils.sha512Sync = (...m) => sha512(ed25519.utils.concatBytes(...m));
+
 
 export const algToJwk = (
   alg: Alg
@@ -52,6 +60,12 @@ export const algToJwk = (
       return {
         kty: KeyTypes.RSA,
         alg: Alg.RS256
+      }
+    case Alg.EDDSA:
+      return {
+        kty: KeyTypes.OKP,
+        crv: Curves.ED25519,
+        alg: Alg.EDDSA
       }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
@@ -103,6 +117,38 @@ export const secp256k1PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Secp2
   }
 }
 
+export const ed25519PublicKeyToJwk = (publicKey: Hex, keyId?: string): Ed25519PublicKey => {
+  // Remove 0x prefix if present
+  const hexPubKey = publicKey.slice(2)
+  return {
+    kty: KeyTypes.OKP,
+    crv: Curves.ED25519,
+    alg: Alg.EDDSA,
+    kid: keyId || addressToKid(publicKey),
+    x: hexToBase64Url(`0x${hexPubKey}`)
+  }
+}
+
+export const ed25519PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Ed25519PrivateKey => {
+  console.log('Input private key:', privateKey)
+  
+  const publicKey = toHex(ed25519.sync.getPublicKey(privateKey.slice(2)))
+
+  
+  const publicJwk = ed25519PublicKeyToJwk(publicKey, keyId)
+  console.log('Public JWK:', publicJwk)
+  
+  return {
+    ...publicJwk,
+    d: hexToBase64Url(privateKey)
+  }
+}
+
+export const ed25519PrivateKeyToPublicJwk = (privateKey: Hex, keyId?: string): Ed25519PublicKey => {
+  const publicKey = toHex(ed25519.sync.getPublicKey(privateKey.slice(2)))
+  return ed25519PublicKeyToJwk(publicKey, keyId)
+}
+
 export const secp256k1PrivateKeyToPublicJwk = (privateKey: Hex, keyId?: string): Secp256k1PublicKey => {
   const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
   return secp256k1PublicKeyToJwk(publicKey, keyId)
@@ -149,6 +195,8 @@ export const publicKeyToJwk = (key: Hex, alg: Alg, keyId?: string): PublicKey =>
       return secp256k1PublicKeyToJwk(key, keyId)
     case Alg.ES256:
       return p256PublicKeyToJwk(key, keyId)
+    case Alg.EDDSA:
+      return ed25519PublicKeyToJwk(key, keyId)
     case Alg.RS256:
       throw new JwtError({
         message: 'Conversion from Hex to JWK not supported for RSA keys',
@@ -243,11 +291,57 @@ export const rsaPrivateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   return toHex(new Uint8Array(keyData))
 }
 
-export const publicKeyToHex = async (jwk: Jwk): Promise<Hex> => {
-  if (jwk.kty === KeyTypes.EC) {
-    return ellipticPublicKeyToHex(jwk)
+export const ed25519PrivateKeyToHex = (jwk: Jwk): Hex => {
+  const key = validateJwk<Ed25519PrivateKey>({
+    schema: ed25519PrivateKeySchema,
+    jwk,
+    errorMessage: 'Invalid Ed25519 Key'
+  })
+  
+  return base64UrlToHex(key.d)
+}
+
+export const ed25519PublicKeyToHex = (jwk: Jwk): Hex => {
+  const key = validateJwk<Ed25519Key>({
+    schema: ed25519KeySchema,
+    jwk,
+    errorMessage: 'Invalid Ed25519 Key'
+  })
+
+  // Case 1: We have the public key directly
+  if (key.x) {
+    const hex = base64UrlToHex(key.x)
+    return hex
   }
-  return rsaPubKeyToHex(jwk)
+
+  // Case 2: We have a private key, derive public key
+  if ('d' in key) {
+    const privateKeyHex = base64UrlToHex(key.d)
+    const publicKey = ed25519.sync.getPublicKey(privateKeyHex.slice(2))
+    const hex = toHex(publicKey)
+    return hex
+  }
+
+  throw new JwtError({
+    message: 'Invalid JWK: missing both x and d',
+    context: { jwk: key }
+  })
+}
+
+export const publicKeyToHex = async (jwk: Jwk): Promise<Hex> => {
+  const key = validateJwk<PublicKey>({
+    schema: publicKeySchema,
+    jwk,
+    errorMessage: 'Invalid Public Key'
+  })
+  switch (key.kty) {
+    case KeyTypes.EC:
+      return ellipticPublicKeyToHex(jwk)
+    case KeyTypes.RSA:
+      return rsaPubKeyToHex(jwk)
+    case KeyTypes.OKP:
+      return ed25519PublicKeyToHex(jwk)
+  }
 }
 
 export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
@@ -256,10 +350,14 @@ export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
     jwk,
     errorMessage: 'Invalid Private Key'
   })
-  if (key.kty === KeyTypes.EC) {
-    return ellipticPrivateKeyToHex(key)
+  switch (key.kty) {
+    case KeyTypes.EC:
+      return ellipticPrivateKeyToHex(jwk as P256PrivateKey | Secp256k1PrivateKey)
+    case KeyTypes.RSA:
+      return rsaPrivateKeyToHex(jwk)
+    case KeyTypes.OKP:
+      return ed25519PrivateKeyToHex(jwk)
   }
-  return rsaPrivateKeyToHex(jwk)
 }
 
 export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K, keyId?: string): PrivateKey => {
@@ -268,6 +366,8 @@ export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K, keyId?: string)
       return secp256k1PrivateKeyToJwk(key, keyId)
     case Alg.ES256:
       return p256PrivateKeyToJwk(key, keyId)
+    case Alg.EDDSA:
+      return ed25519PrivateKeyToJwk(key, keyId)
     case Alg.RS256:
       throw new JwtError({
         message: 'Conversion from Hex to JWK not supported for RSA keys'
@@ -337,6 +437,10 @@ export const generateJwk = async <T = Jwk>(
       const jwk = await generateRsaPrivateKey(opts)
       return jwk as T
     }
+    case Alg.EDDSA: {
+      const privateKeyEd25519 = toHex(ed25519.utils.randomPrivateKey())
+      return ed25519PrivateKeyToJwk(privateKeyEd25519, opts?.keyId) as T
+    }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
   }
@@ -354,3 +458,5 @@ export const requestWithoutWildcardFields = (
   const validPaths = wildcardPaths.filter((path) => allowedPaths.includes(path))
   return omit(cloneDeep(request), validPaths)
 }
+
+export const ed25519polyfilled = ed25519

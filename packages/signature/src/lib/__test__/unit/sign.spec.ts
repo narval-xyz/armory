@@ -2,9 +2,9 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { exportJWK, importPKCS8 } from 'jose'
 import { createPublicKey } from 'node:crypto'
-import { toHex, verifyMessage } from 'viem'
+import { hexToBytes, toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
-import { buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1, signatureToHex } from '../../sign'
+import { buildSignerEdDSA, buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1, signatureToHex } from '../../sign'
 import { Alg, Curves, Jwk, KeyTypes, Payload, PrivateKey, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,
@@ -15,13 +15,18 @@ import {
   hexToBase64Url,
   privateKeyToHex,
   secp256k1PrivateKeyToJwk,
-  secp256k1PublicKeyToJwk
+  secp256k1PublicKeyToJwk,
+  ed25519polyfilled as ed,
+  privateKeyToJwk,
+  publicKeyToHex,
 } from '../../utils'
 import { verifyJwt } from '../../verify'
 import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
+import { toBytes } from '@noble/hashes/utils'
 
 describe('sign', () => {
   const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+  const ED25519_PRIVATE_KEY = '0xe6ad32d225c16074bd4a3b62e28c99dd26136ef341e6368ca05227d1e13822d9'
 
   const payload: Payload = {
     requestHash: '608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
@@ -55,7 +60,6 @@ describe('sign', () => {
     const verified = await verifyJwt(jwt, maybeJwk)
     expect(verified.payload).toEqual(payload)
   })
-
   it('should build & sign a EIP191 JWT', async () => {
     const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
@@ -108,6 +112,23 @@ describe('sign', () => {
     const signature = await signer(message)
 
     expect(signature).toBe('afu_-8eYXRpHAt_nTVRksRmiwVZpq7iC2rBVhGQT5YcJlViKV9wD3OIlRYAxa7JkNd1Yqzf_x2ohLzqGjmlb2hs')
+  })
+
+  it('should sign ED25519 correctly', async () => {
+    const signer = buildSignerEdDSA(ED25519_PRIVATE_KEY)
+    const jwk = privateKeyToJwk(ED25519_PRIVATE_KEY, Alg.EDDSA)
+    const publicHexKey = await publicKeyToHex(jwk)
+
+    const message = [HEADER_PART, PAYLOAD_PART].join('.')
+
+    const messageBytes = toBytes(message)
+
+    const signature = await signer(message)
+
+    const signatureWithout0x = base64UrlToHex(signature)
+
+    const isVerified = await ed.verify(signatureWithout0x.slice(2), messageBytes, publicHexKey.slice(2))
+    expect(isVerified).toBe(true)
   })
 
   it('should sign EIP191 the same as viem', async () => {
