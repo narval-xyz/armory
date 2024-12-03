@@ -82,7 +82,7 @@ model ProviderAddress {
   @@map("provider_address")
 }
 
-model ProviderAddressBook {
+model ProviderKnownDestination {
   id                     String   @id
   clientId               String   @map("client_id")
   connectionId           String   @map("connection_id")
@@ -97,7 +97,7 @@ model ProviderAddressBook {
 
   connection ProviderConnection @relation(fields: [connectionId], references: [id])
 
-  @@map("provider_address_book")
+  @@map("provider_known_destination")
 }
 
 model ProviderConnection {
@@ -113,9 +113,9 @@ model ProviderConnection {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   revokedAt   DateTime? @map("revoked_at")
 
-  counterparties ProviderAddressBook[]
-  connections    ProviderWalletConnection[]
-  syncs          ProviderSync[]
+  knwonDestinations ProviderKnownDestination[]
+  connections       ProviderWalletConnection[]
+  syncs             ProviderSync[]
 
   @@map("provider_connection")
 }

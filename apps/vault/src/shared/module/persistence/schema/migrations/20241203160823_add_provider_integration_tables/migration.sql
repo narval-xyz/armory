@@ -41,7 +41,7 @@ CREATE TABLE "provider_address" (
 );
 
 -- CreateTable
-CREATE TABLE "provider_address_book" (
+CREATE TABLE "provider_known_destination" (
     "id" TEXT NOT NULL,
     "client_id" TEXT NOT NULL,
     "connection_id" TEXT NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE "provider_address_book" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "provider_address_book_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "provider_known_destination_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -120,7 +120,7 @@ ALTER TABLE "provider_account" ADD CONSTRAINT "provider_account_wallet_id_fkey" 
 ALTER TABLE "provider_address" ADD CONSTRAINT "provider_address_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "provider_account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "provider_address_book" ADD CONSTRAINT "provider_address_book_connection_id_fkey" FOREIGN KEY ("connection_id") REFERENCES "provider_connection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "provider_known_destination" ADD CONSTRAINT "provider_known_destination_connection_id_fkey" FOREIGN KEY ("connection_id") REFERENCES "provider_connection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "provider_wallet_connection" ADD CONSTRAINT "provider_wallet_connection_connection_id_fkey" FOREIGN KEY ("connection_id") REFERENCES "provider_connection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
