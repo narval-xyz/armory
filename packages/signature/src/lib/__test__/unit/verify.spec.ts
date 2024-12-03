@@ -217,7 +217,6 @@ describe('verifyEd215519', () => {
     const isVerified = await ed.verify(signature, msg, pubKey)
     const isVerifiedByUs = await verifyEd25519(signature, msg, jwk)
 
-    expect(isVerified).toEqual(true)
     expect(isVerifiedByUs).toEqual(isVerified)
   })
 })

@@ -50,7 +50,7 @@ describe('sign', () => {
     }
   }
 
-  it('should sign build & sign es256 JWT correctly with a PEM', async () => {
+  it('sign build & sign es256 JWT correctly with a PEM', async () => {
     const key = await importPKCS8(PRIVATE_KEY_PEM, Alg.ES256)
     const jwk = await exportJWK(key)
     const maybeJwk: Jwk = {
@@ -67,7 +67,7 @@ describe('sign', () => {
     const verified = await verifyJwt(jwt, maybeJwk)
     expect(verified.payload).toEqual(payload)
   })
-  it('should build & sign a EIP191 JWT', async () => {
+  it('build & sign a EIP191 JWT', async () => {
     const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
 
@@ -93,7 +93,7 @@ describe('sign', () => {
     expect(isVerified).toBeTruthy()
   })
 
-  it('should sign ES256k correctly', async () => {
+  it('sign ES256k correctly', async () => {
     const pubkey = secp256k1.getPublicKey(Buffer.from(UNSAFE_PRIVATE_KEY, 'hex'), false)
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
     const signer = buildSignerEs256k(UNSAFE_PRIVATE_KEY)
@@ -106,14 +106,14 @@ describe('sign', () => {
     expect(signature).toBe('FFI6M5oFpbQqq0-xhe5DgPVHj4CKoVF4F3K3cg1MRY1COqWatQNsSn2MrqJ10BbGLe7i76KRMDj4biqnZkxwsw')
   })
 
-  it('should sign RS256 correctly', async () => {
+  it('sign RS256 correctly', async () => {
     const key = await generateJwk(Alg.RS256)
     const jwt = await signJwt(payload, key)
     const verifiedJwt = await verifyJwt(jwt, key)
     expect(verifiedJwt.payload).toEqual(payload)
   })
 
-  it('should sign EIP191 correctly', async () => {
+  it('sign EIP191 correctly', async () => {
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
     const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
     const signature = await signer(message)
@@ -121,7 +121,7 @@ describe('sign', () => {
     expect(signature).toBe('afu_-8eYXRpHAt_nTVRksRmiwVZpq7iC2rBVhGQT5YcJlViKV9wD3OIlRYAxa7JkNd1Yqzf_x2ohLzqGjmlb2hs')
   })
 
-  it('should sign ED25519 correctly', async () => {
+  it('sign ED25519 correctly', async () => {
     const signer = buildSignerEdDSA(ED25519_PRIVATE_KEY)
     const jwk = privateKeyToJwk(ED25519_PRIVATE_KEY, Alg.EDDSA)
     const publicHexKey = await publicKeyToHex(jwk)
@@ -138,7 +138,7 @@ describe('sign', () => {
     expect(isVerified).toBe(true)
   })
 
-  it('should sign EIP191 the same as viem', async () => {
+  it('sign EIP191 the same as viem', async () => {
     // Just double-check that we're building a signature & base64url encoding the same thing we'd get from Viem.
     const message = [HEADER_PART, PAYLOAD_PART].join('.')
     const signer = buildSignerEip191(UNSAFE_PRIVATE_KEY)
@@ -154,7 +154,7 @@ describe('sign', () => {
     expect(sigHex).toBe(viemSig)
   })
 
-  it('should be able to verify an EIP191-signed JWT', async () => {
+  it('be able to verify an EIP191-signed JWT', async () => {
     const jwt =
       'eyJraWQiOiIweDJjNDg5NTIxNTk3M0NiQmQ3NzhDMzJjNDU2QzA3NGI5OWRhRjhCZjEiLCJhbGciOiJFUzI1NkstS0VDQ0FLIiwidHlwIjoiSldUIn0.eyJyZXF1ZXN0SGFzaCI6IjYwOGFiZTkwOGNmZmVhYjFmYzMzZWRkZTZiNDQ1ODZmOWRhY2JjOWM2ZmU2ZjBhMTNmYTMwNzIzNzI5MGNlNWEiLCJzdWIiOiJ0ZXN0LXJvb3QtdXNlci11aWQiLCJpYXQiOjE3MDk3NjAyMTEsImV4cCI6MTcwOTc2MDgxMSwiaXNzIjoiaHR0cHM6Ly9hcm1vcnkubmFydmFsLnh5eiIsImNuZiI6eyJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsImFsZyI6IkVTMjU2SyIsInVzZSI6InNpZyIsImtpZCI6IjB4MDAwYzBkMTkxMzA4QTMzNjM1NkJFZTM4MTNDQzE3RjY4Njg5NzJDNCIsIngiOiIwNGE5ZjNiY2Y2NTA1MDU5NTk3ZjZmMjdhZDhjMGYwM2EzYmQ3YTE3NjM1MjBiMGJmZWMyMDQ0ODhiOGU1ODQwIiwieSI6IjdlZTkyODQ1YWIxYzM1YTc4NGIwNWZkZmE1Njc3MTVjNTNiYjJmMjk5NDliMjc3MTRlM2MxNzYwZTM3MDkwMDlhNiJ9fQ.9toU-AkKVqbLvguKt85s28VsdXDpjmVVJhQPyzX_OdJaVo5LZkGG8gRNrEWSjgM54RgIid09mHXcGU4vu1-Wchs'
     const [headerStr, payloadStr, jwtSig] = jwt.split('.')
@@ -188,7 +188,7 @@ describe('sign', () => {
   })
 
   // This is testing that we can turn a private key into a JWK, and the way we know it's a "correct" JWK is by using the `createPublicKey` function from node's crypto module. If it throws an error, that means it's not a valid JWK
-  it('should make keyobject', async () => {
+  it('make keyobject', async () => {
     const publicKey = secp256k1.getPublicKey(UNSAFE_PRIVATE_KEY, false)
     const viemPubKey = privateKeyToAccount(`0x${UNSAFE_PRIVATE_KEY}`).publicKey
     expect(toHex(publicKey)).toBe(viemPubKey) // Confirm that our key is in fact the same as what viem would give.
@@ -203,20 +203,20 @@ describe('sign', () => {
     expect(k).toBeDefined()
   })
 
-  it('should convert to and from jwk', async () => {
+  it('converts to and from jwk', async () => {
     const jwk = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const pk = ellipticPrivateKeyToHex(jwk)
     expect(pk).toBe(`0x${UNSAFE_PRIVATE_KEY}`)
   })
 
-  it('should convert to and from public jwk', async () => {
+  it('converts to and from public jwk', async () => {
     const publicKey = secp256k1.getPublicKey(UNSAFE_PRIVATE_KEY, false)
     const jwk = secp256k1PublicKeyToJwk(toHex(publicKey))
     const pk = ellipticPublicKeyToHex(jwk)
     expect(pk).toBe(toHex(publicKey))
   })
 
-  it('should sign using a custom signer and a key without material', async () => {
+  it('signs using a custom signer and a key without material', async () => {
     const privateKey = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const mapOfKeys = new Map<string, PrivateKey>().set(privateKey.kid, privateKey)
 
@@ -238,21 +238,21 @@ describe('sign', () => {
 
     const signer = createSignerWithKid(privateKey.kid)
     // It would need to have kid context before being passed to signing
-    // TODO: maybe signer should take both the message and the key
+    // TODO: maybe signer take both the message and the key
 
     const jwt = await signJwt(payload, privateKey, { alg: SigningAlg.ES256K }, signer)
     const verified = await verifyJwt(jwt, privateKey)
     expect(verified.payload).toEqual(payload)
   })
 
-  it('should sign with default signer and specified algorithm', async () => {
+  it('signs with default signer and specified algorithm', async () => {
     const privateKey = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const jwt = await signJwt(payload, privateKey, { alg: SigningAlg.EIP191 })
     const verified = await verifyJwt(jwt, privateKey)
     expect(verified.payload).toEqual(payload)
   })
 
-  it('should sign with default signer and no options provided', async () => {
+  it('signs with default signer and no options provided', async () => {
     const privateKey = secp256k1PrivateKeyToJwk(`0x${UNSAFE_PRIVATE_KEY}`)
     const jwt = await signJwt(payload, privateKey)
     const verified = await verifyJwt(jwt, privateKey)

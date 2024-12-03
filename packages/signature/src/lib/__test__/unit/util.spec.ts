@@ -215,7 +215,7 @@ describe('publicKeyToJwk', () => {
     expect(jwk).toEqual(eddsaPublicKey)
   })
 
-  it('works', async () => {
+  it('ensures hex consistency across standard and polyfill implementations', async () => {
     const key = ed25519polyfilled.utils.randomPrivateKey()
     const publicKey = ed25519polyfilled.sync.getPublicKey(key)
     const asyncPublicKey = await ed25519polyfilled.getPublicKey(key)
