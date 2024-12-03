@@ -1,10 +1,11 @@
+import * as ed from '@noble/ed25519'
 import { signatureToHex, toBytes, toHex } from 'viem'
 import { JwtError } from '../../error'
 import { hash } from '../../hash'
 import { secp256k1PublicKeySchema } from '../../schemas'
 import { signJwt, signSecp256k1 } from '../../sign'
 import { Alg, Header, JwtVerifyOptions, Payload, Secp256k1PublicKey, SigningAlg } from '../../types'
-import { generateJwk, nowSeconds, privateKeyToHex, privateKeyToJwk, secp256k1PrivateKeyToJwk, base64UrlToBytes, publicKeyToHex, publicKeyToJwk } from '../../utils';
+import { generateJwk, nowSeconds, privateKeyToJwk, publicKeyToJwk, secp256k1PrivateKeyToJwk } from '../../utils'
 import { validateJwk } from '../../validate'
 import {
   checkAccess,
@@ -23,7 +24,6 @@ import {
   verifyJwtHeader,
   verifySecp256k1
 } from '../../verify'
-import * as ed from '@noble/ed25519'
 
 const ENGINE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -212,9 +212,6 @@ describe('verifyEd215519', () => {
     const pubKey = await ed.getPublicKey(key)
 
     const jwk = publicKeyToJwk(toHex(pubKey), Alg.EDDSA)
-    console.log({
-      jwk
-    })
     const signature = await ed.sign(msg, key)
 
     const isVerified = await ed.verify(signature, msg, pubKey)

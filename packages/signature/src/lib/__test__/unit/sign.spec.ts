@@ -1,28 +1,35 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { toBytes } from '@noble/hashes/utils'
 import { exportJWK, importPKCS8 } from 'jose'
 import { createPublicKey } from 'node:crypto'
-import { hexToBytes, toHex, verifyMessage } from 'viem'
+import { toHex, verifyMessage } from 'viem'
 import { privateKeyToAccount, signMessage } from 'viem/accounts'
-import { buildSignerEdDSA, buildSignerEip191, buildSignerEs256k, signJwt, signSecp256k1, signatureToHex } from '../../sign'
+import {
+  buildSignerEdDSA,
+  buildSignerEip191,
+  buildSignerEs256k,
+  signJwt,
+  signSecp256k1,
+  signatureToHex
+} from '../../sign'
 import { Alg, Curves, Jwk, KeyTypes, Payload, PrivateKey, SigningAlg } from '../../types'
 import {
   base64UrlToBytes,
   base64UrlToHex,
+  ed25519polyfilled as ed,
   ellipticPrivateKeyToHex,
   ellipticPublicKeyToHex,
   generateJwk,
   hexToBase64Url,
   privateKeyToHex,
-  secp256k1PrivateKeyToJwk,
-  secp256k1PublicKeyToJwk,
-  ed25519polyfilled as ed,
   privateKeyToJwk,
   publicKeyToHex,
+  secp256k1PrivateKeyToJwk,
+  secp256k1PublicKeyToJwk
 } from '../../utils'
 import { verifyJwt } from '../../verify'
 import { HEADER_PART, PAYLOAD_PART, PRIVATE_KEY_PEM } from './mock'
-import { toBytes } from '@noble/hashes/utils'
 
 describe('sign', () => {
   const UNSAFE_PRIVATE_KEY = '7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'

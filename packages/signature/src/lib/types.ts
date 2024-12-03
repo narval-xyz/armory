@@ -4,7 +4,7 @@ import { addressSchema } from './address.schema'
 export const KeyTypes = {
   EC: 'EC',
   RSA: 'RSA',
-  OKP: 'OKP', // Octet Key Pair for EdDSA
+  OKP: 'OKP' // Octet Key Pair for EdDSA
 } as const
 
 export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
@@ -69,22 +69,19 @@ export const ecBaseSchema = jwkBaseSchema.extend({
   y: z.string()
 })
 
-
-
 // EdDSA Base and PublicKey Schema
 export const ed25519PublicKeySchema = jwkBaseSchema.extend({
   kty: z.literal(KeyTypes.OKP),
   crv: z.literal(Curves.ED25519),
   alg: z.literal(Alg.EDDSA),
-  x: z.string()  // Ed25519 public key, no y coordinate
+  x: z.string() // Ed25519 public key, no y coordinate
 })
 
 // EdDSA Private Key Schema
 export const ed25519PrivateKeySchema = ed25519PublicKeySchema.extend({
-  d: z.string(),  // Ed25519 private key
+  d: z.string(), // Ed25519 private key
   x: z.string().optional()
 })
-
 
 // RSA Base Schema
 export const rsaBaseSchema = jwkBaseSchema.extend({
@@ -137,7 +134,12 @@ export const publicKeySchema = z.union([
   ed25519PublicKeySchema
 ])
 
-export const privateKeySchema = z.union([secp256k1PrivateKeySchema, p256PrivateKeySchema, rsaPrivateKeySchema, ed25519PrivateKeySchema])
+export const privateKeySchema = z.union([
+  secp256k1PrivateKeySchema,
+  p256PrivateKeySchema,
+  rsaPrivateKeySchema,
+  ed25519PrivateKeySchema
+])
 
 export const secp256k1KeySchema = z.union([secp256k1PublicKeySchema, secp256k1PrivateKeySchema])
 
@@ -173,7 +175,13 @@ export const jwkSchema = dynamicKeySchema.extend({
 export const Header = z.intersection(
   z.record(z.string(), z.unknown()),
   z.object({
-    alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191'), z.literal('EDDSA')]),
+    alg: z.union([
+      z.literal('ES256K'),
+      z.literal('ES256'),
+      z.literal('RS256'),
+      z.literal('EIP191'),
+      z.literal('EDDSA')
+    ]),
     kid: z.string().min(1).describe('The key ID to identify the signing key.'),
     typ: z
       .union([z.literal('JWT'), z.literal('gnap-binding-jwsd')])
@@ -200,7 +208,7 @@ export const Header = z.intersection(
 export type Header = z.infer<typeof Header>
 
 export const JwsdHeader = z.object({
-  alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+  alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191'), z.literal('EDDSA')]),
   kid: z.string().min(1).describe('The key ID to identify the signing key.'),
   typ: z
     .literal('gnap-binding-jwsd')

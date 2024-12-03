@@ -2,18 +2,27 @@ import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import * as ed25519 from '@noble/ed25519'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { sha512 } from '@noble/hashes/sha512'
 import { subtle } from 'crypto'
 import { exportJWK, generateKeyPair } from 'jose'
 import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
 import { JwtError } from './error'
-import { ed25519KeySchema, ed25519PrivateKeySchema, ellipticKeySchema, privateKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from './schemas'
+import {
+  ed25519KeySchema,
+  ed25519PrivateKeySchema,
+  ellipticKeySchema,
+  privateKeySchema,
+  rsaPrivateKeySchema,
+  rsaPublicKeySchema
+} from './schemas'
 import {
   Alg,
   Curves,
   Ed25519Key,
   Ed25519PrivateKey,
+  Ed25519PublicKey,
   EllipticKey,
   Hex,
   Jwk,
@@ -22,19 +31,16 @@ import {
   P256PublicKey,
   PrivateKey,
   PublicKey,
-  publicKeySchema,
   RsaPrivateKey,
   RsaPublicKey,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
   Use,
+  publicKeySchema
 } from './types'
 import { validateJwk } from './validate'
-import { Ed25519PublicKey } from './types';
-import { sha512 } from '@noble/hashes/sha512'
 
-ed25519.utils.sha512Sync = (...m) => sha512(ed25519.utils.concatBytes(...m));
-
+ed25519.utils.sha512Sync = (...m) => sha512(ed25519.utils.concatBytes(...m))
 
 export const algToJwk = (
   alg: Alg
@@ -130,14 +136,9 @@ export const ed25519PublicKeyToJwk = (publicKey: Hex, keyId?: string): Ed25519Pu
 }
 
 export const ed25519PrivateKeyToJwk = (privateKey: Hex, keyId?: string): Ed25519PrivateKey => {
-  console.log('Input private key:', privateKey)
-  
   const publicKey = toHex(ed25519.sync.getPublicKey(privateKey.slice(2)))
 
-  
   const publicJwk = ed25519PublicKeyToJwk(publicKey, keyId)
-  console.log('Public JWK:', publicJwk)
-  
   return {
     ...publicJwk,
     d: hexToBase64Url(privateKey)
@@ -297,7 +298,7 @@ export const ed25519PrivateKeyToHex = (jwk: Jwk): Hex => {
     jwk,
     errorMessage: 'Invalid Ed25519 Key'
   })
-  
+
   return base64UrlToHex(key.d)
 }
 

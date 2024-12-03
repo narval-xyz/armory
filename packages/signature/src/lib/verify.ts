@@ -1,11 +1,12 @@
 import { p256 } from '@noble/curves/p256'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+import { toBytes } from '@noble/hashes/utils'
 import { subtle } from 'crypto'
-import { hexToBytes, isAddressEqual, recoverAddress, toHex } from 'viem'
+import { hexToBytes, isAddressEqual, recoverAddress } from 'viem'
 import { decodeJwsd, decodeJwt } from './decode'
 import { JwtError } from './error'
-import { hash } from './hash';
+import { hash } from './hash'
 import { JwsdHeader, publicKeySchema } from './schemas'
 import { eip191Hash } from './sign'
 import { isSecp256k1PublicKeyJwk } from './typeguards'
@@ -22,10 +23,15 @@ import {
   SigningAlg,
   type Jwt
 } from './types'
-import { base64UrlToHex, hexToBase64Url, nowSeconds, publicKeyToHex, requestWithoutWildcardFields } from './utils'
+import {
+  base64UrlToHex,
+  ed25519polyfilled as ed25519,
+  hexToBase64Url,
+  nowSeconds,
+  publicKeyToHex,
+  requestWithoutWildcardFields
+} from './utils'
 import { buildJwkValidator } from './validate'
-import { ed25519polyfilled as ed25519 } from './utils'
-import { toBytes } from '@noble/hashes/utils'
 
 export const checkRequiredClaims = (payload: Payload, opts: JwtVerifyOptions): boolean => {
   const requiredClaims = [
@@ -183,21 +189,7 @@ export const verifyEd25519 = async (sig: Uint8Array, msg: Uint8Array, jwk: Publi
 
   const pubKeyBytes = hexToBytes(pubKey)
 
-  console.log({
-    sig,
-    sigL: sig.length,
-    msg: msg.length
-  })
-
-  console.log('publicKey ', pubKeyBytes)
-  console.log('msg', msg)
-  const isValid = await ed25519.verify(
-    sig, 
-    msg, 
-    pubKeyBytes
-  )
-
-  console.log('isValid', isValid)
+  const isValid = await ed25519.verify(sig, msg, pubKeyBytes)
   return isValid
 }
 

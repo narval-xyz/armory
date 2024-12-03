@@ -1,6 +1,11 @@
 import { toHex } from 'viem'
 import { hash } from '../../hash'
-import { p256PrivateKeySchema, rsaPrivateKeySchema, secp256k1PrivateKeySchema, ed25519PrivateKeySchema } from '../../schemas'
+import {
+  ed25519PrivateKeySchema,
+  p256PrivateKeySchema,
+  rsaPrivateKeySchema,
+  secp256k1PrivateKeySchema
+} from '../../schemas'
 import { buildSignerEip191, signJwt } from '../../sign'
 import {
   Alg,
@@ -13,6 +18,7 @@ import {
   secp256k1PublicKeySchema
 } from '../../types'
 import {
+  ed25519polyfilled,
   ellipticPrivateKeyToHex,
   generateJwk,
   privateKeyToHex,
@@ -20,8 +26,7 @@ import {
   publicKeyToHex,
   publicKeyToJwk,
   requestWithoutWildcardFields,
-  rsaPrivateKeyToPublicKey,
-  ed25519polyfilled
+  rsaPrivateKeyToPublicKey
 } from '../../utils'
 import { validateJwk } from '../../validate'
 import { verifyJwt } from '../../verify'
@@ -206,7 +211,7 @@ describe('publicKeyToJwk', () => {
 
   it('converts a valid EDDSA hex public key to JWK', async () => {
     const jwk = publicKeyToJwk(eddsaHexPublicKey, Alg.EDDSA)
-    const { d, ...eddsaPublicKey } = eddsaKey
+    const { d: _d, ...eddsaPublicKey } = eddsaKey
     expect(jwk).toEqual(eddsaPublicKey)
   })
 
@@ -215,7 +220,7 @@ describe('publicKeyToJwk', () => {
     const publicKey = ed25519polyfilled.sync.getPublicKey(key)
     const asyncPublicKey = await ed25519polyfilled.getPublicKey(key)
 
-    const publicHexKey = (await publicKeyToHex(privateKeyToJwk(toHex(key), Alg.EDDSA)))
+    const publicHexKey = await publicKeyToHex(privateKeyToJwk(toHex(key), Alg.EDDSA))
 
     expect(publicHexKey).toEqual(toHex(publicKey))
     expect(publicHexKey).toEqual(toHex(asyncPublicKey))

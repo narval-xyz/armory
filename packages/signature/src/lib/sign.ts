@@ -8,10 +8,9 @@ import { JwtError } from './error'
 import { hash } from './hash'
 import { canonicalize } from './json.util'
 import { jwkBaseSchema, privateKeySchema } from './schemas'
-import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, PublicKey, publicKeySchema, SigningAlg } from './types'
-import { hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
+import { Alg, EcdsaSignature, Header, Hex, Jwk, JwsdHeader, PartialJwk, Payload, PrivateKey, SigningAlg } from './types'
+import { ed25519polyfilled as ed25519, hexToBase64Url, privateKeyToHex, stringToBase64Url } from './utils'
 import { validateJwk } from './validate'
-import { ed25519polyfilled as ed25519 } from './utils'
 
 const SigningAlgToKey = {
   [SigningAlg.EIP191]: Alg.ES256K,
@@ -223,17 +222,16 @@ export const buildSignerEip191 =
     return hexToBase64Url(hexSignature)
   }
 
-  export const signEd25519 = async (message: Uint8Array, privateKey: Hex | string): Promise<Uint8Array> => {
-    const pk = isHex(privateKey) ? privateKey.slice(2) : privateKey
-    const signature = await ed25519.sign(message, pk)
+export const signEd25519 = async (message: Uint8Array, privateKey: Hex | string): Promise<Uint8Array> => {
+  const pk = isHex(privateKey) ? privateKey.slice(2) : privateKey
+  const signature = await ed25519.sign(message, pk)
 
-    return signature
+  return signature
 }
 
-  export const buildSignerEdDSA =
+export const buildSignerEdDSA =
   (privateKey: Hex | string) =>
   async (messageToSign: string): Promise<string> => {
-
     const signature = await signEd25519(toBytes(messageToSign), privateKey)
     return hexToBase64Url(toHex(signature))
   }
