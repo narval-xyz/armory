@@ -1,223 +1,261 @@
 /* eslint-disable */
 import { LoggerService } from '@narval/nestjs-shared'
-import { PrismaClient, Vault } from '@prisma/client/vault'
+import { PrismaClient } from '@prisma/client/vault'
 import { v4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
-const vault: Vault = {
-  id: '7d704a62-d15e-4382-a826-1eb41563043b',
-  adminApiKey: 'admin-api-key-xxx',
-  masterKey: 'master-key-xxx'
-}
+const clientId = 'client-1'
 
-const ANCHORAGE_SEED_DATA = {
-  // Basic client setup
-  client: {
-    id: v4(),
-    provider: 'anchorage' as const
-  },
-
-  // Connection details
-  connection: {
-    id: v4(),
-    url: 'https://api.anchorage-staging.com/v2',
-    label: 'Anchorage Staging',
-    credentials: {
-      apiKey: 'sample-api-key',
-      secretKey: 'sample-secret-key'
-    }
-  },
-
-  // Workspaces represent different organizations.
-  workspaces: [
-    {
-      wallet: {
-        id: 'wallet-1',
-        externalId: 'vault_1',
-        label: 'Wallet for org1'
+// Organize all data by connection
+const ANCHORAGE_CONNECTIONS = [
+  {
+    connection: {
+      id: 'connection-1',
+      clientId,
+      provider: 'anchorage',
+      integrity: 'sample-integrity-hash',
+      url: 'https://api.anchorage-staging.com/v2',
+      label: 'Anchorage Staging - SubCustomer 1',
+      credentials: {
+        apiKey: 'sample-api-key',
+        secretKey: 'sample-secret-key'
       },
-      accounts: [
-        {
-          // BTC Account
-          account: {
-            id: 'account-1',
-            externalId: 'wallet_1',
-            label: 'Bitcoin Mainnet',
-            networkId: '1'
-          },
-          // Multiple addresses for BTC (UTXO)
-          addresses: [
-            {
-              id: 'address-1',
-              externalId: 'btc_address_1',
-              address: 'b1742d35Cc6634C0532925a3b844Bc454e4438f44e'
-            },
-            {
-              id: 'address-2',
-              externalId: 'btc_address_2',
-              address: 'b1123d35Cc6634C0532925a3b844Bc454e4438f789'
-            }
-          ]
-        },
-        {
-          // ETH Account
-          account: {
-            id: 'account-2',
-            externalId: 'wallet_2',
-            label: 'Ethereum Mainnet',
-            networkId: '60'
-          },
-          // Single address for ETH (account-based)
-          addresses: [
-            {
-              id: 'address-3',
-              externalId: 'eth_addr',
-              address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-            }
-          ]
-        }
-      ]
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      revokedAt: null,
+      status: 'active'
     },
-    {
-      wallet: {
-        id: 'wallet-2',
-        externalId: 'vault_2',
-        label: 'walletForOrg2'
-      },
-      accounts: [
-        {
-          account: {
-            id: 'account-vault2-1',
-            externalId: 'wallet_3',
-            label: 'Trading BTC',
-            networkId: 'BTC'
+    wallets: [
+      {
+        id: 'wallet-1',
+        clientId,
+        provider: 'anchorage',
+        label: 'Wallet for SubCustomer 1',
+        externalId: 'vault_1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accounts: [
+          {
+            id: 'accountWallet1Btc',
+            clientId,
+            provider: 'anchorage',
+            label: 'Bitcoin Mainnet',
+            externalId: 'wallet_1',
+            networkId: '1',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            addresses: [
+              {
+                id: 'address-acc-wallet-1-btc-1',
+                clientId,
+                provider: 'anchorage',
+                externalId: 'btc_address_1',
+                address: 'b1742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+              {
+                id: 'address-acc-wallet-1-btc-2',
+                clientId,
+                provider: 'anchorage',
+                externalId: 'btc_address_2',
+                address: 'b1123d35Cc6634C0532925a3b844Bc454e4438f789',
+                createdAt: new Date(),
+                updatedAt: new Date()
+              }
+            ]
           },
-          addresses: [
-            {
-              id: 'address-vault2-1',
-              externalId: 'btc_trading_addr_1',
-              address: 'bt12NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE'
-            }
-          ]
-        }
-      ]
-    }
-  ],
-
-  // Address book entries
-  knownDestinations: [
-    {
-      id: v4(),
-      externalId: 'dest1',
-      address: 'bt12NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE',
-      networkId: 'BTC',
-      externalClassification: 'trusted'
-    }
-  ]
-}
+          {
+            id: 'accountWallet1Eth',
+            clientId,
+            provider: 'anchorage',
+            label: 'Trading BTC',
+            externalId: 'wallet_3',
+            networkId: '60',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            addresses: [
+              {
+                id: 'address-account-wallet-1-eth',
+                clientId,
+                provider: 'anchorage',
+                externalId: 'eth_addr',
+                address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                createdAt: new Date(),
+                updatedAt: new Date()
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    knownDestinations: [
+      {
+        id: 'dest1',
+        clientId,
+        provider: 'anchorage',
+        assetId: 'BTC',
+        externalId: 'dest1',
+        address: 'bt12NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE',
+        networkId: 'BTC',
+        externalClassification: 'trusted',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ]
+  },
+  {
+    connection: {
+      id: 'connection-2',
+      clientId,
+      provider: 'anchorage',
+      integrity: 'sample-integrity-hash-2',
+      url: 'https://api.anchorage-staging.com/v2',
+      label: 'Anchorage Staging - SubCustomer 2',
+      credentials: {
+        apiKey: 'sample-api-key-2',
+        secretKey: 'sample-secret-key-2'
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      revokedAt: null,
+      status: 'active'
+    },
+    wallets: [
+      {
+        id: 'wallet-2',
+        clientId,
+        provider: 'anchorage',
+        label: 'Wallet for SubCustomer 2',
+        externalId: 'vault_2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accounts: [
+          {
+            id: 'accountWallet2Eth',
+            clientId,
+            provider: 'anchorage',
+            label: 'Ethereum Mainnet',
+            externalId: 'wallet_2',
+            networkId: '60',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            addresses: [
+              {
+                id: 'address-account-wallet-2-eth',
+                clientId,
+                provider: 'anchorage',
+                externalId: 'btc_trading_addr_1',
+                address: 'bt12NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE',
+                createdAt: new Date(),
+                updatedAt: new Date()
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    knownDestinations: []
+  }
+]
 
 async function main() {
   const logger = new LoggerService()
   logger.log('Seeding Vault database with Anchorage provider data')
 
   await prisma.$transaction(async (txn) => {
-    // 1. Create the connection
-
-    const connection = await txn.providerConnection.create({
-      data: {
-        id: ANCHORAGE_SEED_DATA.connection.id,
-        clientId: ANCHORAGE_SEED_DATA.client.id,
-        provider: ANCHORAGE_SEED_DATA.client.provider,
-        url: ANCHORAGE_SEED_DATA.connection.url,
-        label: ANCHORAGE_SEED_DATA.connection.label,
-        credentials: ANCHORAGE_SEED_DATA.connection.credentials,
-        status: 'active',
-        integrity: 'sample-integrity-hash',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    })
-
-    // 2. Create each vault (provider wallet) and its contents
-    for (const workspace of ANCHORAGE_SEED_DATA.workspaces) {
-      // Create the provider wallet record
-      const providerWallet = await txn.providerWallet.create({
+    // Process each connection group
+    for (const group of ANCHORAGE_CONNECTIONS) {
+      // Create connection
+      const connection = await txn.providerConnection.create({
         data: {
-          id: workspace.wallet.id,
-          clientId: ANCHORAGE_SEED_DATA.client.id,
-          provider: ANCHORAGE_SEED_DATA.client.provider,
-          label: workspace.wallet.label,
-          externalId: workspace.wallet.externalId
+          ...group.connection,
+          credentials: group.connection.credentials as any
         }
       })
 
-      // Link wallet to connection
-      await txn.providerWalletConnection.create({
-        data: {
-          clientId: ANCHORAGE_SEED_DATA.client.id,
-          connectionId: connection.id,
-          walletId: providerWallet.id
-        }
-      })
-
-      // Create accounts and addresses
-      for (const accountData of workspace.accounts) {
-        const account = await txn.providerAccount.create({
+      // Process wallets and their hierarchies
+      for (const wallet of group.wallets) {
+        // Create wallet
+        const createdWallet = await txn.providerWallet.create({
           data: {
-            id: accountData.account.id,
-            clientId: ANCHORAGE_SEED_DATA.client.id,
-            provider: ANCHORAGE_SEED_DATA.client.provider,
-            label: accountData.account.label,
-            externalId: accountData.account.externalId,
-            walletId: providerWallet.id,
-            networkId: accountData.account.networkId
+            id: wallet.id,
+            clientId: wallet.clientId,
+            provider: wallet.provider,
+            label: wallet.label,
+            externalId: wallet.externalId,
+            createdAt: wallet.createdAt,
+            updatedAt: wallet.updatedAt
           }
         })
 
-        // Create addresses for this account
-        for (const addrData of accountData.addresses) {
-          await txn.providerAddress.create({
+        // Link wallet to connection
+        await txn.providerWalletConnection.create({
+          data: {
+            clientId: wallet.clientId,
+            connectionId: connection.id,
+            walletId: createdWallet.id
+          }
+        })
+
+        // Create accounts and addresses
+        for (const account of wallet.accounts) {
+          const createdAccount = await txn.providerAccount.create({
             data: {
-              id: addrData.id,
-              clientId: ANCHORAGE_SEED_DATA.client.id,
-              provider: ANCHORAGE_SEED_DATA.client.provider,
-              externalId: addrData.externalId,
-              accountId: account.id,
-              address: addrData.address
+              id: account.id,
+              clientId: account.clientId,
+              provider: account.provider,
+              label: account.label,
+              externalId: account.externalId,
+              walletId: createdWallet.id,
+              networkId: account.networkId,
+              createdAt: account.createdAt,
+              updatedAt: account.updatedAt
             }
           })
+
+          // Create addresses for this account
+          for (const address of account.addresses) {
+            await txn.providerAddress.create({
+              data: {
+                id: address.id,
+                clientId: address.clientId,
+                provider: address.provider,
+                externalId: address.externalId,
+                accountId: createdAccount.id,
+                address: address.address,
+                createdAt: address.createdAt,
+                updatedAt: address.updatedAt
+              }
+            })
+          }
         }
       }
-    }
 
-    for (const destData of ANCHORAGE_SEED_DATA.knownDestinations) {
-      await txn.providerKnownDestination.create({
+      // Create known destinations
+      for (const dest of group.knownDestinations) {
+        await txn.providerKnownDestination.create({
+          data: {
+            ...dest,
+            connectionId: connection.id
+          }
+        })
+      }
+
+      // Create sync record for this connection
+      await txn.providerSync.create({
         data: {
-          id: destData.id,
-          clientId: ANCHORAGE_SEED_DATA.client.id,
+          id: v4(),
+          clientId,
           connectionId: connection.id,
-          provider: ANCHORAGE_SEED_DATA.client.provider,
-          externalId: destData.externalId,
-          externalClassification: destData.externalClassification,
-          address: destData.address,
-          networkId: destData.networkId
+          status: 'success'
         }
       })
     }
-
-    // 4. Create initial sync record
-    await txn.providerSync.create({
-      data: {
-        id: v4(),
-        clientId: ANCHORAGE_SEED_DATA.client.id,
-        connectionId: connection.id,
-        status: 'success'
-      }
-    })
   })
 
-  logger.log('Vault database germinated with Anchorage provider data 🌱')
+  logger.log('Vault database germinated 🌱')
 }
 
 main()
