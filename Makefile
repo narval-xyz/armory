@@ -26,8 +26,25 @@ install/ci:
 
 # === Setup ===
 
+check-requirements:
+	@if ! command -v docker >/dev/null 2>&1; then \
+		echo "❌ Docker is not installed. Please install Docker from https://docs.docker.com/get-docker/"; \
+		exit 1; \
+	fi
+	@if ! docker info >/dev/null 2>&1; then \
+		echo "❌ Docker daemon is not running. Please start Docker and try again"; \
+		exit 1; \
+	fi
+	@if ! command -v opa >/dev/null 2>&1; then \
+		echo "❌ OPA is not installed. Please install OPA from https://www.openpolicyagent.org/docs/latest/#1-download-opa"; \
+		exit 1; \
+	fi
+	@echo "✅ All requirements are satisfied!"
+
+
 setup:
 	make install
+	make check-requirements
 	make docker/up
 	make armory/setup
 	make vault/setup
