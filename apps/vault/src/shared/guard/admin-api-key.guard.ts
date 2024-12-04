@@ -1,7 +1,7 @@
 import { secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { REQUEST_HEADER_API_KEY } from '../../main.constant'
 import { AppService } from '../../vault/core/service/app.service'
+import { REQUEST_HEADER_API_KEY } from '../constant'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()

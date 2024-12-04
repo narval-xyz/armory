@@ -10,8 +10,8 @@ import { LoggerService } from '@narval/nestjs-shared'
 import { toBytes } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
 import { Config } from '../../main.config'
-import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../main.constant'
 import { AppService } from '../../vault/core/service/app.service'
+import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../constant'
 
 @Injectable()
 export class EncryptionModuleOptionFactory {

@@ -1,8 +1,8 @@
 import { secret } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
-import { REQUEST_HEADER_API_KEY } from '../../../../main.constant'
 import { AppService } from '../../../../vault/core/service/app.service'
+import { REQUEST_HEADER_API_KEY } from '../../../constant'
 import { ApplicationException } from '../../../exception/application.exception'
 import { AdminApiKeyGuard } from '../../admin-api-key.guard'
 

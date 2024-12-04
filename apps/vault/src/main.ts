@@ -12,8 +12,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
-import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './main.constant'
 import { MainModule, ProvisionModule } from './main.module'
+import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './shared/constant'
 
 /**
  * Adds global pipes to the application.
