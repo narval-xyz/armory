@@ -63,6 +63,7 @@ checkApproval(approval) := result if {
 	possibleApprovers = {user |
 		some entity in approval.entityIds
 		users = entities.getUserGroup(entity).users
+
 		some user in users
 		not lib.caseInsensitiveEqual(user, principal.id)
 	}

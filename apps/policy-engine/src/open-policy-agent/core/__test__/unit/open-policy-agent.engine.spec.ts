@@ -73,11 +73,13 @@ describe('OpenPolicyAgentEngine', () => {
         credentials: [],
         tokens: [],
         userGroupMembers: [],
+        accountGroups: [],
         userGroups: [],
+        groups: [],
+        groupMembers: [],
         userAccounts: [],
         users: [],
         accountGroupMembers: [],
-        accountGroups: [],
         accounts: []
       })
     })
@@ -438,9 +440,10 @@ describe('OpenPolicyAgentEngine', () => {
             }
           }
         ],
+        userGroups: [],
+        accountGroups: [],
         tokens: [],
         userGroupMembers: [],
-        userGroups: [],
         userAccounts: [],
         users: [
           {
@@ -449,7 +452,6 @@ describe('OpenPolicyAgentEngine', () => {
           }
         ],
         accountGroupMembers: [],
-        accountGroups: [],
         accounts: [
           {
             id: 'eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127',

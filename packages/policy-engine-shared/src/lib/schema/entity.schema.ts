@@ -38,10 +38,6 @@ export const userEntitySchema = z.object({
   role: userRoleSchema
 })
 
-export const userGroupEntitySchema = z.object({
-  id: z.string()
-})
-
 export const userAccountEntitySchema = z.object({
   userId: z.string(),
   accountId: z.string()
@@ -57,10 +53,6 @@ export const accountEntitySchema = z.object({
   address: addressSchema,
   accountType: accountTypeSchema,
   chainId: z.number().optional()
-})
-
-export const accountGroupEntitySchema = z.object({
-  id: z.string()
 })
 
 export const accountGroupMemberEntitySchema = z.object({
@@ -89,15 +81,46 @@ export const tokenEntitySchema = z.object({
   decimals: z.number()
 })
 
+export const groupMemberEntitySchema = z.discriminatedUnion('type', [
+  userGroupMemberEntitySchema.extend({ type: z.literal('user') }),
+  accountGroupMemberEntitySchema.extend({ type: z.literal('account') })
+])
+
+export const accountGroupEntitySchema = z.object({
+  id: z.string()
+})
+
+export const userGroupEntitySchema = z.object({
+  id: z.string()
+})
+
+export const groupEntitySchema = z.object({
+  id: z.string()
+})
+
 export const entitiesSchema = z.object({
   addressBook: z.array(addressBookAccountEntitySchema),
   credentials: z.array(credentialEntitySchema),
-  tokens: z.array(tokenEntitySchema),
-  userGroupMembers: z.array(userGroupMemberEntitySchema),
-  userGroups: z.array(userGroupEntitySchema),
   userAccounts: z.array(userAccountEntitySchema),
+  groupMembers: z.array(groupMemberEntitySchema).optional(),
+  accounts: z.array(accountEntitySchema),
+  groups: z.array(groupEntitySchema).optional(),
+  tokens: z.array(tokenEntitySchema),
   users: z.array(userEntitySchema),
-  accountGroupMembers: z.array(accountGroupMemberEntitySchema),
-  accountGroups: z.array(accountGroupEntitySchema),
-  accounts: z.array(accountEntitySchema)
+  /**
+   * @deprecated use groupMembers instead
+   */
+  userGroupMembers: z.array(userGroupMemberEntitySchema).optional(),
+  /**
+   * @deprecated use groupMembers instead
+   */
+  accountGroupMembers: z.array(accountGroupMemberEntitySchema).optional(),
+  /**
+   * @deprecated use groups instead
+   */
+  accountGroups: z.array(accountGroupEntitySchema).optional(),
+  /**
+   * @deprecated use groups instead
+   */
+  userGroups: z.array(userGroupEntitySchema).optional()
 })

@@ -41,7 +41,7 @@ permit[{"policyId": "approvalByUserGroups"}] := reason if {
 		"approvalCount": 2,
 		"countPrincipal": false,
 		"approvalEntityType": "Narval::UserGroup",
-		"entityIds": ["test-user-group-one-uid"],
+		"entityIds": ["test-group-one-uid"],
 	}]
 
 	checkAccountAssigned

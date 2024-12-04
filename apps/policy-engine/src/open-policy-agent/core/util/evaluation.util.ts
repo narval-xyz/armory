@@ -18,7 +18,7 @@ import { InputType, safeDecode } from '@narval/transaction-request-intent'
 import { HttpStatus } from '@nestjs/common'
 import { indexBy } from 'lodash/fp'
 import { OpenPolicyAgentException } from '../exception/open-policy-agent.exception'
-import { Account, AccountGroup, Data, Input, UserGroup } from '../type/open-policy-agent.type'
+import { Account, AccountGroup, Data, Group, Input, UserGroup } from '../type/open-policy-agent.type'
 
 type Mapping<R extends Request> = (
   request: R,
@@ -192,7 +192,11 @@ export const toInput = (params: {
 }
 
 export const toData = (entities: Entities): Data => {
-  const userGroups = entities.userGroupMembers.reduce((groups, { userId, groupId }) => {
+  const userGroupMembers = entities.userGroupMembers || []
+  const accountGroupMembers = entities.accountGroupMembers || []
+  const groupMembers = entities.groupMembers || []
+
+  const userGroups = userGroupMembers.reduce((groups, { userId, groupId }) => {
     const id = groupId.toLowerCase()
     const group = groups.get(id)
 
@@ -221,7 +225,7 @@ export const toData = (entities: Entities): Data => {
     assignees: accountAssignees.get(account.id) || []
   }))
 
-  const accountGroups = entities.accountGroupMembers.reduce((groups, { accountId, groupId }) => {
+  const accountGroups = accountGroupMembers.reduce((groups, { accountId, groupId }) => {
     const group = groups.get(groupId)
 
     if (group) {
@@ -234,6 +238,22 @@ export const toData = (entities: Entities): Data => {
     }
   }, new Map<string, AccountGroup>())
 
+  const mergedGroups = groupMembers.reduce((groups, member) => {
+    const group = groups.get(member.groupId) ?? {
+      id: member.groupId,
+      users: [],
+      accounts: []
+    }
+
+    const newGroup = {
+      ...group,
+      users: member.type === 'user' ? [...group.users, member.userId] : group.users,
+      accounts: member.type === 'account' ? [...group.accounts, member.accountId] : group.accounts
+    }
+
+    return groups.set(member.groupId, newGroup)
+  }, new Map<string, Group>())
+
   const data: Data = {
     entities: {
       addressBook: indexBy('id', entities.addressBook),
@@ -241,7 +261,8 @@ export const toData = (entities: Entities): Data => {
       users: indexBy('id', entities.users),
       userGroups: Object.fromEntries(userGroups),
       accounts: indexBy('id', accounts),
-      accountGroups: Object.fromEntries(accountGroups)
+      accountGroups: Object.fromEntries(accountGroups),
+      groups: Object.fromEntries(mergedGroups)
     }
   }
 

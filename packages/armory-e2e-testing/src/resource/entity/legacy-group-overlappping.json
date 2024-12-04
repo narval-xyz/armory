@@ -198,6 +198,36 @@
       "decimals": 6
     }
   ],
+  "userGroupMembers": [
+    {
+      "groupId": "test-engineering-group-uid",
+      "userId": "test-alice-user-uid"
+    },
+    {
+      "groupId": "test-engineering-group-uid",
+      "userId": "test-carol-user-uid"
+    },
+    {
+      "groupId": "test-treasury-group-uid",
+      "userId": "test-bob-user-uid"
+    },
+    {
+      "groupId": "test-treasury-group-uid",
+      "userId": "test-eric-user-uid"
+    },
+    {
+      "groupId": "test-treasury-group-uid",
+      "userId": "test-dave-user-uid"
+    }
+  ],
+  "userGroups": [
+    {
+      "id": "test-engineering-group-uid"
+    },
+    {
+      "id": "test-treasury-group-uid"
+    }
+  ],
   "userAccounts": [
     {
       "accountId": "eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F",
@@ -242,54 +272,25 @@
       "role": "manager"
     }
   ],
-  "groupMembers": [
+  "accountGroupMembers": [
     {
-      "type": "account",
       "groupId": "test-engineering-group-uid",
       "accountId": "eip155:eoa:0x9f38879167acCf7401351027EE3f9247A71cd0c5"
     },
     {
-      "type": "account",
       "groupId": "test-engineering-group-uid",
       "accountId": "eip155:eoa:0x0f610AC9F0091f8F573c33f15155afE8aD747495"
     },
     {
-      "type": "account",
       "groupId": "test-treasury-group-uid",
       "accountId": "eip155:eoa:0x0301e2724a40E934Cce3345928b88956901aA127"
     },
     {
-      "type": "account",
       "groupId": "test-treasury-group-uid",
       "accountId": "eip155:eoa:0x76d1b7f9b3F69C435eeF76a98A415332084A856F"
-    },
-    {
-      "type": "user",
-      "groupId": "test-engineering-group-uid",
-      "userId": "test-alice-user-uid"
-    },
-    {
-      "type": "user",
-      "groupId": "test-engineering-group-uid",
-      "userId": "test-carol-user-uid"
-    },
-    {
-      "type": "user",
-      "groupId": "test-treasury-group-uid",
-      "userId": "test-bob-user-uid"
-    },
-    {
-      "type": "user",
-      "groupId": "test-treasury-group-uid",
-      "userId": "test-eric-user-uid"
-    },
-    {
-      "type": "user",
-      "groupId": "test-treasury-group-uid",
-      "userId": "test-dave-user-uid"
     }
   ],
-  "groups": [
+  "accountGroups": [
     {
       "id": "test-engineering-group-uid"
     },

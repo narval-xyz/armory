@@ -346,28 +346,47 @@ describe('toData', () => {
       })
     })
 
-    it('indexes user groups with members by lower case id', () => {
+    it('indexes groups with members by lower case id', () => {
       const { entities } = toData(FIXTURE.ENTITIES)
-      const group = FIXTURE.USER_GROUP.Engineering
+      const group = FIXTURE.GROUP.Engineering
 
-      expect(entities.userGroups[group.id.toLowerCase()]).toEqual({
+      expect(entities.groups[group.id.toLowerCase()]).toEqual({
         id: group.id.toLowerCase(),
         users: FIXTURE.USER_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ userId }) =>
           userId.toLowerCase()
-        )
-      })
-    })
-
-    it('indexes account groups with members by lower case id', () => {
-      const { entities } = toData(FIXTURE.ENTITIES)
-      const group = FIXTURE.ACCOUNT_GROUP.Treasury
-
-      expect(entities.accountGroups[group.id.toLowerCase()]).toEqual({
-        id: group.id.toLowerCase(),
+        ),
         accounts: FIXTURE.ACCOUNT_GROUP_MEMBER.filter(({ groupId }) => groupId === group.id).map(({ accountId }) =>
           accountId.toLowerCase()
         )
       })
+    })
+    it('indexes legacy groups with members by lower case id', () => {
+      expect.assertions(3)
+
+      const { entities } = toData({
+        ...FIXTURE.ENTITIES,
+        userGroupMembers: [
+          ...(FIXTURE.ENTITIES?.userGroupMembers || []),
+          { userId: 'test-legacy-alice', groupId: 'test-legacy-group' }
+        ],
+        accountGroupMembers: [
+          ...(FIXTURE.ENTITIES?.accountGroupMembers || []),
+          { accountId: 'test-legacy-account', groupId: 'test-legacy-group' }
+        ],
+        accountGroups: [{ id: 'test-legacy-group' }],
+        userGroups: [{ id: 'test-legacy-group' }]
+      })
+
+      expect(entities.userGroups['test-legacy-group']).toEqual({
+        id: 'test-legacy-group',
+        users: ['test-legacy-alice']
+      })
+      expect(entities.accountGroups['test-legacy-group']).toEqual({
+        id: 'test-legacy-group',
+        accounts: ['test-legacy-account']
+      })
+
+      expect(entities.groups['test-legacy-group']).toEqual(undefined)
     })
   })
 })

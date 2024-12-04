@@ -9,6 +9,8 @@ import {
   clientEntitySchema,
   credentialEntitySchema,
   entitiesSchema,
+  groupEntitySchema,
+  groupMemberEntitySchema,
   tokenEntitySchema,
   userAccountEntitySchema,
   userEntitySchema,
@@ -35,17 +37,21 @@ export type ClientEntity = z.infer<typeof clientEntitySchema>
 
 export type UserEntity = z.infer<typeof userEntitySchema>
 
-export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
+export type GroupEntity = z.infer<typeof groupEntitySchema>
 
 export type UserAccountEntity = z.infer<typeof userAccountEntitySchema>
+
+export type UserGroupEntity = z.infer<typeof userGroupEntitySchema>
+
+export type AccountGroupEntity = z.infer<typeof accountGroupEntitySchema>
 
 export type UserGroupMemberEntity = z.infer<typeof userGroupMemberEntitySchema>
 
 export type AccountEntity = z.infer<typeof accountEntitySchema>
 
-export type AccountGroupEntity = z.infer<typeof accountGroupEntitySchema>
-
 export type AccountGroupMemberEntity = z.infer<typeof accountGroupMemberEntitySchema>
+
+export type GroupMemberEntity = z.infer<typeof groupMemberEntitySchema>
 
 export type AddressBookAccountEntity = z.infer<typeof addressBookAccountEntitySchema>
 

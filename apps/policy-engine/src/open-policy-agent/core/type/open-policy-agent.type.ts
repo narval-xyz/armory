@@ -7,6 +7,7 @@ import {
   accountEntitySchema,
   accountGroupEntitySchema,
   addressBookAccountEntitySchema,
+  groupEntitySchema,
   tokenEntitySchema,
   userEntitySchema,
   userGroupEntitySchema
@@ -57,6 +58,13 @@ export const AccountGroup = accountGroupEntitySchema.extend({
 })
 export type AccountGroup = z.infer<typeof AccountGroup>
 
+export const Group = groupEntitySchema.extend({
+  id: Id,
+  users: z.array(Id),
+  accounts: z.array(Id)
+})
+export type Group = z.infer<typeof Group>
+
 export const Data = z.object({
   entities: z.object({
     addressBook: z.record(Id, addressBookAccountEntitySchema.extend({ id: Id })),
@@ -64,6 +72,7 @@ export const Data = z.object({
     users: z.record(Id, userEntitySchema.extend({ id: Id })),
     accountGroups: z.record(Id, AccountGroup),
     userGroups: z.record(Id, UserGroup),
+    groups: z.record(Id, Group),
     accounts: z.record(Id, Account)
   })
 })

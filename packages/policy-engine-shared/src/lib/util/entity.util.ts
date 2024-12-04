@@ -2,12 +2,19 @@ import { countBy, flatten, indexBy, keys, map, pickBy } from 'lodash/fp'
 import { entitiesSchema } from '../schema/entity.schema'
 import { AccountEntity, CredentialEntity, Entities, UserAccountEntity, UserEntity } from '../type/entity.type'
 
+const Severity = {
+  ERROR: 'error',
+  WARNING: 'warning'
+} as const
+type Severity = (typeof Severity)[keyof typeof Severity]
+
 export type ValidationIssue = {
   code: string
   message: string
+  severity: Severity
 }
 
-export type Validation = { success: true } | { success: false; issues: ValidationIssue[] }
+export type Validation = { success: true; issues?: ValidationIssue[] } | { success: false; issues: ValidationIssue[] }
 
 export type Validator = (entities: Entities) => ValidationIssue[]
 
@@ -15,46 +22,82 @@ export type ValidationOption = {
   validators?: Validator[]
 }
 
-const validateUserGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
+const validateGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
   const users = indexBy('id', entities.users)
-  const userGroups = indexBy('id', entities.userGroups)
+  const accounts = indexBy('id', entities.accounts)
+  const groups = indexBy('id', entities.groups)
+  const groupMembers = entities.groupMembers || []
 
-  const userIssues: ValidationIssue[] = entities.userGroupMembers
+  const newGroupMemberIssues = groupMembers.flatMap((member) => {
+    const validations: ValidationIssue[] = []
+
+    if (!groups[member.groupId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the group member because the group ${member.groupId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    if (member.type === 'user' && !users[member.userId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the user group member for group ${member.groupId} because the user ${member.userId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    if (member.type === 'account' && !accounts[member.accountId]) {
+      validations.push({
+        code: 'ENTITY_NOT_FOUND',
+        message: `couldn't create the account group member for group ${member.groupId} because the account ${member.accountId} is undefined`,
+        severity: Severity.ERROR
+      })
+    }
+
+    return validations
+  })
+
+  const legacyUserGroups = indexBy('id', entities.userGroups)
+  const legacyAccountGroups = indexBy('id', entities.accountGroups)
+  const legacyUserGroupMembers = entities.userGroupMembers || []
+  const legacyAccountGroupMembers = entities.accountGroupMembers || []
+
+  // Validate user group members
+  const userIssues: ValidationIssue[] = legacyUserGroupMembers
     .filter(({ userId }) => !users[userId])
     .map(({ userId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`
+      message: `couldn't create the user group member for group ${groupId} because the user ${userId} is undefined`,
+      severity: Severity.ERROR
     }))
 
-  const groupIssues: ValidationIssue[] = entities.userGroupMembers
-    .filter(({ groupId }) => !userGroups[groupId])
+  const userGroupIssues: ValidationIssue[] = legacyUserGroupMembers
+    .filter(({ groupId }) => !legacyUserGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the user group member because the group ${groupId} is undefined`
+      message: `couldn't create the user group member because the group ${groupId} is undefined`,
+      severity: Severity.ERROR
     }))
 
-  return [...userIssues, ...groupIssues]
-}
-
-const validateAccountGroupMemberIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
-  const accounts = indexBy('id', entities.accounts)
-  const accountGroups = indexBy('id', entities.accountGroups)
-
-  const accountIssues: ValidationIssue[] = entities.accountGroupMembers
-    .filter(({ accountId: accountId }) => !accounts[accountId])
-    .map(({ accountId: accountId, groupId }) => ({
+  // Validate account group members
+  const accountIssues: ValidationIssue[] = legacyAccountGroupMembers
+    .filter(({ accountId }) => !accounts[accountId])
+    .map(({ accountId, groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the account group member for group ${groupId} because the account ${accountId} is undefined`
+      message: `couldn't create the account group member for group ${groupId} because the account ${accountId} is undefined`,
+      severity: Severity.ERROR
     }))
 
-  const groupIssues: ValidationIssue[] = entities.accountGroupMembers
-    .filter(({ groupId }) => !accountGroups[groupId])
+  const accountGroupIssues: ValidationIssue[] = legacyAccountGroupMembers
+    .filter(({ groupId }) => !legacyAccountGroups[groupId])
     .map(({ groupId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't create the account group member because the group ${groupId} is undefined`
+      message: `couldn't create the account group member because the group ${groupId} is undefined`,
+      severity: Severity.ERROR
     }))
 
-  return [...accountIssues, ...groupIssues]
+  return [...userIssues, ...userGroupIssues, ...accountIssues, ...accountGroupIssues, ...newGroupMemberIssues]
 }
 
 const validateUserAccountIntegrity: Validator = (entities: Entities): ValidationIssue[] => {
@@ -65,14 +108,16 @@ const validateUserAccountIntegrity: Validator = (entities: Entities): Validation
     .filter(({ userId }) => !users[userId])
     .map(({ userId, accountId: accountId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't assign the account ${accountId} because the user ${userId} is undefined`
+      message: `couldn't assign the account ${accountId} because the user ${userId} is undefined`,
+      severity: Severity.ERROR
     }))
 
   const accountIssues: ValidationIssue[] = entities.userAccounts
     .filter(({ accountId: accountId }) => !accounts[accountId])
     .map(({ accountId: accountId }) => ({
       code: 'ENTITY_NOT_FOUND',
-      message: `couldn't assign the account ${accountId} because it's undefined`
+      message: `couldn't assign the account ${accountId} because it's undefined`,
+      severity: Severity.ERROR
     }))
 
   return [...userIssues, ...accountIssues]
@@ -85,7 +130,8 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
     return map(
       (uid) => ({
         code,
-        message: message(uid)
+        message: message(uid),
+        severity: Severity.ERROR
       }),
       keys(pickBy((count: number) => count > 1, countBy('id', values)))
     )
@@ -95,18 +141,52 @@ const validateUniqueIdDuplication: Validator = (entities: Entities): ValidationI
     findIssues(entities.addressBook, (id) => `the address book account ${id} is duplicated`),
     findIssues(entities.credentials, (id) => `the credential ${id} is duplicated`),
     findIssues(entities.tokens, (id) => `the token ${id} is duplicated`),
-    findIssues(entities.userGroups, (id) => `the user group ${id} is duplicated`),
+    findIssues(entities.groups || [], (id) => `the group ${id} is duplicated`),
+    findIssues(entities.accountGroups || [], (id) => `the legacy user group ${id} is duplicated`),
+    findIssues(entities.userGroups || [], (id) => `the legacy account group ${id} is duplicated`),
     findIssues(entities.users, (id) => `the user ${id} is duplicated`),
-    findIssues(entities.accountGroups, (id) => `the account group ${id} is duplicated`),
     findIssues(entities.accounts, (id) => `the account ${id} is duplicated`)
   ])
 }
 
+const validateEntityVersion: Validator = (entities: Entities): ValidationIssue[] => {
+  const code = 'DEPRECATED_ENTITY'
+  const userGroupIssues: ValidationIssue[] =
+    entities.userGroups?.map((group) => ({
+      code,
+      message: `user group is deprecated. Please move user group '${group.id}' to group entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  const accountGroupIssues: ValidationIssue[] =
+    entities.accountGroups?.map((group) => ({
+      code,
+      message: `account group is deprecated. Please move account group '${group.id}' to group entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  const userMemberIssues: ValidationIssue[] =
+    entities.userGroupMembers?.map((member) => ({
+      code,
+      message: `user group member is deprecated. Please move user group member '${member.userId}' to group member entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  const accountMemberIssues: ValidationIssue[] =
+    entities.accountGroupMembers?.map((member) => ({
+      code,
+      message: `account group member is deprecated. Please move account group member '${member.accountId}' to group member entity`,
+      severity: Severity.WARNING
+    })) || []
+
+  return [...userGroupIssues, ...accountGroupIssues, ...userMemberIssues, ...accountMemberIssues]
+}
+
 export const DEFAULT_VALIDATORS: Validator[] = [
-  validateUserGroupMemberIntegrity,
-  validateAccountGroupMemberIntegrity,
+  validateGroupMemberIntegrity,
   validateUserAccountIntegrity,
-  validateUniqueIdDuplication
+  validateUniqueIdDuplication,
+  validateEntityVersion
   // TODO (@wcalderipe, 21/02/25): Missing domain invariants to be validate
   // - fails when root user does not have a credential
   // - fails when credential does not have a user
@@ -124,9 +204,14 @@ export const validate = (entities: Entities, options?: ValidationOption): Valida
   if (result.success) {
     const issues = validators.flatMap((validation) => validation(entities))
 
-    if (issues.length) {
+    if (issues.length && issues.some(({ severity }) => severity === Severity.ERROR)) {
       return {
         success: false,
+        issues
+      }
+    } else if (issues.length && issues.every(({ severity }) => severity === Severity.WARNING)) {
+      return {
+        success: true,
         issues
       }
     }
@@ -138,7 +223,8 @@ export const validate = (entities: Entities, options?: ValidationOption): Valida
 
   const schemaIssues = result.error?.issues.filter(isDefined).map((issue) => ({
     code: issue.code,
-    message: issue.message
+    message: issue.message,
+    severity: Severity.ERROR
   }))
 
   return {
@@ -152,12 +238,14 @@ export const empty = (): Entities => ({
   credentials: [],
   tokens: [],
   userGroupMembers: [],
-  userGroups: [],
+  groupMembers: [],
   userAccounts: [],
   users: [],
   accountGroupMembers: [],
+  accounts: [],
+  userGroups: [],
   accountGroups: [],
-  accounts: []
+  groups: []
 })
 
 export const removeUserById = (entities: Entities, userId: string): Entities => {
@@ -166,7 +254,7 @@ export const removeUserById = (entities: Entities, userId: string): Entities => 
     addressBook: entities.addressBook.filter((entry) => entry.id !== userId),
     credentials: entities.credentials.filter((cred) => cred.userId !== userId),
     userAccounts: entities.userAccounts.filter((userAccount) => userAccount.userId !== userId),
-    userGroupMembers: entities.userGroupMembers.filter((userGroup) => userGroup.userId !== userId),
+    userGroupMembers: (entities.userGroupMembers || []).filter((userGroup) => userGroup.userId !== userId),
     users: entities.users.filter((user) => user.id !== userId)
   }
 }

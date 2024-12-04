@@ -574,7 +574,8 @@ describe('User Journeys', () => {
         expect(actualAccount).toEqual({
           id: account.id,
           address: account.address,
-          publicKey: viemAccount.publicKey
+          publicKey: viemAccount.publicKey,
+          origin: 'IMPORTED'
         })
       })
 

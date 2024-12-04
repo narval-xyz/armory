@@ -1,9 +1,9 @@
-import { Action, entitiesSchema, FIXTURE, Request } from '@narval/policy-engine-shared'
+import { Action, Entities, FIXTURE, Request } from '@narval/policy-engine-shared'
 import { v4 } from 'uuid'
-import defaultEntities from '../../../resource/entity/test.default.json'
+import overlappingGroupIdLegacyEntities from '../../../resource/entity/legacy-group-overlappping.json'
 import adminPermitAll from '../../../resource/policy/checkPrincipalRole/admin-permit-all.json'
-import treasuryMemberCanTransferOneEthFixed from '../../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-fixed.json'
-import treasuryMemberCanTransferOneEthRolling from '../../../resource/policy/checkSpendingLimit/treasury-groupMember-can-transfer-1-eth-rolling.json'
+import legacyTreasuryMemberCanTransferOneEthFixed from '../../../resource/policy/checkSpendingLimit/treasury-legacyGroupMember-can-transfer-1-eth-fixed.json'
+import legacyTreasuryMemberCanTransferOneEthRolling from '../../../resource/policy/checkSpendingLimit/treasury-legacyGroupMember-can-transfer-1-eth-rolling.json'
 import {
   buildAuthClient,
   buildPolicy,
@@ -25,7 +25,8 @@ const davePrivateKey = FIXTURE.UNSAFE_PRIVATE_KEY.Dave
 // !! If you have one policy that permits based on a group spendings
 // !! It will allow anyone even if they are not in the group to spend until the aggregated limit is reached
 // !! Spendings of people not in the group will not be counted against the group limit
-describe('checkSpendingLimit', () => {
+
+describe('checkSpendingLimit with overlapping legacy group entities', () => {
   describe('by groupId', () => {
     const request: Request = {
       action: Action.SIGN_TRANSACTION,
@@ -43,9 +44,9 @@ describe('checkSpendingLimit', () => {
     const clientId = v4()
 
     beforeAll(async () => {
-      const entities = entitiesSchema.parse(defaultEntities)
+      const entities = overlappingGroupIdLegacyEntities as Entities
 
-      const policies = buildPolicy([adminPermitAll, treasuryMemberCanTransferOneEthFixed])
+      const policies = buildPolicy([adminPermitAll, legacyTreasuryMemberCanTransferOneEthFixed])
 
       await createClient(systemManagerHexPk, {
         clientId,
@@ -146,8 +147,8 @@ describe('checkSpendingLimit', () => {
     const clientId = v4()
 
     beforeAll(async () => {
-      const entities = entitiesSchema.parse(defaultEntities)
-      const policies = buildPolicy([adminPermitAll, treasuryMemberCanTransferOneEthRolling])
+      const entities = overlappingGroupIdLegacyEntities as Entities
+      const policies = buildPolicy([adminPermitAll, legacyTreasuryMemberCanTransferOneEthRolling])
 
       await createClient(systemManagerHexPk, {
         clientId,
