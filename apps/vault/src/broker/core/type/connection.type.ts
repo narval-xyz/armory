@@ -22,7 +22,7 @@ const SharedConnection = z.object({
   integrity: z.string(),
   label: z.string().optional(),
   createdAt: z.date(),
-  updatedAt: z.date().optional(),
+  updatedAt: z.date(),
   revokedAt: z.date().optional()
 })
 

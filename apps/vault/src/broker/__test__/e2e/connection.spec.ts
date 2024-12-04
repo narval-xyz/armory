@@ -1,7 +1,7 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
-import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
+import { Alg, Ed25519PrivateKey, generateJwk, getPublicKey, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -9,11 +9,13 @@ import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { BrokerModule } from '../../broker.module'
-import { Provider } from '../../core/type/connection.type'
+import { ConnectionStatus, Provider } from '../../core/type/connection.type'
+import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 
 describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
+  let connectionRepository: ConnectionRepository
   let testPrismaService: TestPrismaService
 
   beforeAll(async () => {
@@ -35,7 +37,8 @@ describe('Connection', () => {
 
     app = module.createNestApplication()
 
-    testPrismaService = module.get<TestPrismaService>(TestPrismaService)
+    testPrismaService = module.get(TestPrismaService)
+    connectionRepository = module.get(ConnectionRepository)
 
     await testPrismaService.truncateAll()
 
@@ -69,11 +72,33 @@ describe('Connection', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .send(connection)
 
+      const createdConnection = await connectionRepository.findById(clientId, connection.connectionId)
+
       expect(body).toEqual({
         connectionId: connection.connectionId,
         clientId
       })
+      expect(body.credentials).toEqual(undefined)
+
       expect(status).toEqual(HttpStatus.CREATED)
+
+      expect(createdConnection).toMatchObject({
+        clientId,
+        credentials: {
+          apiKey: connection.credentials.apiKey,
+          privateKey,
+          publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
+        },
+        createdAt: expect.any(Date),
+        id: connection.connectionId,
+        integrity: expect.any(String),
+        label: connection.label,
+        provider: connection.provider,
+        revokedAt: undefined,
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(Date),
+        url: connection.url
+      })
     })
   })
 })

@@ -16,18 +16,19 @@ export class ConnectionService {
     if (privateKey.kty) {
       const connection = {
         clientId,
-        id: input.connectionId || uuid(),
-        provider: input.provider,
-        status: ConnectionStatus.ACTIVE,
-        url: input.url,
+        createdAt: now,
         credentials: {
           apiKey: input.credentials.apiKey,
           privateKey,
           publicKey: getPublicKey(privateKey)
         },
-        createdAt: now,
+        id: input.connectionId || uuid(),
+        label: input.label,
+        provider: input.provider,
+        revokedAt: undefined,
+        status: ConnectionStatus.ACTIVE,
         updatedAt: now,
-        revokedAt: undefined
+        url: input.url
       }
 
       return this.connectionRepository.save({
