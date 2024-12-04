@@ -10,7 +10,7 @@ import {
   PolicyStore,
   SourceType
 } from '@narval/policy-engine-shared'
-import { Jwk, PublicKey, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { PrivateKey, PublicKey, getPublicKey, privateKeyToJwk } from '@narval/signature'
 
 import { HttpStatus } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
@@ -27,7 +27,7 @@ const UNSAFE_PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b084
 
 describe(DataStoreService.name, () => {
   let service: DataStoreService
-  let privateKey: Jwk
+  let privateKey: PrivateKey
   let publicKey: PublicKey
   let entityStore: EntityStore
   let policyStore: PolicyStore

@@ -361,17 +361,32 @@ export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   }
 }
 
-export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K, keyId?: string): PrivateKey => {
+type AlgToPrivateKeyType = {
+  [Alg.ES256K]: Secp256k1PrivateKey
+  [Alg.ES256]: P256PrivateKey
+  [Alg.EDDSA]: Ed25519PrivateKey
+  [Alg.RS256]: never
+}
+
+export const privateKeyToJwk = <A extends Alg>(
+  key: Hex,
+  alg: A = Alg.ES256K as A,
+  keyId?: string
+): AlgToPrivateKeyType[A] => {
   switch (alg) {
     case Alg.ES256K:
-      return secp256k1PrivateKeyToJwk(key, keyId)
+      return secp256k1PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.ES256:
-      return p256PrivateKeyToJwk(key, keyId)
+      return p256PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.EDDSA:
-      return ed25519PrivateKeyToJwk(key, keyId)
+      return ed25519PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.RS256:
       throw new JwtError({
         message: 'Conversion from Hex to JWK not supported for RSA keys'
+      })
+    default:
+      throw new JwtError({
+        message: `Unsupported algorithm: ${alg}`
       })
   }
 }
@@ -379,6 +394,10 @@ export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K, keyId?: string)
 const generateRsaPrivateKey = async (
   opts: {
     keyId?: string
+    /**
+     * IMPORTANT: Increasing the length will significantly increase the
+     * generation time.
+     */
     modulusLength?: number
     use?: Use
   } = {
@@ -421,7 +440,16 @@ export const generateJwk = async <T = Jwk>(
   alg: Alg,
   opts?: {
     keyId?: string
+    /**
+     * Increase the length of the RSA key.
+     *
+     * IMPORTANT: Increasing the length will significantly increase the
+     * generation time.
+     */
     modulusLength?: number
+    /**
+     * RSA Only.
+     */
     use?: Use
   }
 ): Promise<T> => {
@@ -449,7 +477,16 @@ export const generateJwk = async <T = Jwk>(
 
 export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
 
-export const getPublicKey = (key: Jwk): PublicKey => publicKeySchema.parse(key)
+type AlgToPublicKeyType = {
+  ES256K: Secp256k1PublicKey
+  ES256: P256PublicKey
+  EDDSA: Ed25519PublicKey
+  RS256: RsaPublicKey
+}
+
+export const getPublicKey = <A extends NonNullable<Jwk['alg']>>(key: Jwk & { alg: A }): AlgToPublicKeyType[A] => {
+  return publicKeySchema.parse(key) as AlgToPublicKeyType[A]
+}
 
 export const requestWithoutWildcardFields = (
   request: object,
