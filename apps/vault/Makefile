@@ -30,12 +30,14 @@ vault/build:
 
 vault/format:
 	npx nx format:write --projects ${VAULT_PROJECT_NAME}
+	npx prisma format --schema ${VAULT_DATABASE_SCHEMA}
 
 vault/lint:
 	npx nx lint ${VAULT_PROJECT_NAME} -- --fix
 
 vault/format/check:
 	npx nx format:check --projects ${VAULT_PROJECT_NAME}
+	npx prisma format --schema ${VAULT_DATABASE_SCHEMA}
 
 vault/lint/check:
 	npx nx lint ${VAULT_PROJECT_NAME}
