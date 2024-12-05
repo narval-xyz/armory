@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { ConnectionParseException } from '../../core/exception/connection-parse.exception'
@@ -8,8 +8,38 @@ import { Connection } from '../../core/type/connection.type'
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async save(connection: SetRequired<Connection, 'updatedAt'>): Promise<Connection> {
-    await this.prismaService.providerConnection.create({
+  async create(connection: SetRequired<Connection, 'updatedAt'>): Promise<Connection> {
+    await this.prismaService.providerConnection.upsert({
+      where: { id: connection.id },
+      update: {
+        url: connection.url,
+        label: connection.label,
+        status: connection.status,
+        credentials: connection.credentials,
+        integrity: connection.integrity,
+        updatedAt: connection.updatedAt
+      },
+      create: {
+        id: connection.id,
+        clientId: connection.clientId,
+        provider: connection.provider,
+        url: connection.url,
+        label: connection.label,
+        status: connection.status,
+        credentials: connection.credentials,
+        integrity: connection.integrity,
+        createdAt: connection.createdAt,
+        updatedAt: connection.updatedAt,
+        revokedAt: connection.revokedAt
+      }
+    })
+
+    return connection
+  }
+
+  async update(connection: SetRequired<Partial<Connection>, 'id'>): Promise<SetRequired<Partial<Connection>, 'id'>> {
+    await this.prismaService.providerConnection.update({
+      where: { id: connection.id },
       data: {
         id: connection.id,
         clientId: connection.clientId,
@@ -17,7 +47,6 @@ export class ConnectionRepository {
         url: connection.url,
         label: connection.label,
         status: connection.status,
-        // TODO: ENCRYPTION
         credentials: connection.credentials,
         integrity: connection.integrity,
         createdAt: connection.createdAt,
@@ -40,7 +69,8 @@ export class ConnectionRepository {
       // value, rather than undefined. This is actually by design and aligns
       // with how NULL values work in databases.
       label: result?.label || undefined,
-      revokedAt: result?.revokedAt || undefined
+      revokedAt: result?.revokedAt || undefined,
+      url: result?.url || undefined
     })
 
     if (parse.success) {
@@ -48,11 +78,15 @@ export class ConnectionRepository {
     }
 
     throw new ConnectionParseException({
-      message: 'Fail to parse connection after read',
-      suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      context: {
-        errors: parse.error.errors
-      }
+      context: { errors: parse.error.errors }
     })
+  }
+
+  async exists(clientId: string, id: string): Promise<boolean> {
+    const count = await this.prismaService.providerConnection.count({
+      where: { id, clientId }
+    })
+
+    return count > 0
   }
 }

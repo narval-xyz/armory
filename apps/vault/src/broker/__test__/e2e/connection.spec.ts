@@ -1,10 +1,21 @@
 import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
-import { Alg, Ed25519PrivateKey, generateJwk, getPublicKey, privateKeyToHex } from '@narval/signature'
+import {
+  Alg,
+  Ed25519PrivateKey,
+  ed25519PublicKeySchema,
+  generateJwk,
+  getPublicKey,
+  privateKeyToHex,
+  rsaEncrypt,
+  rsaPublicKeySchema
+} from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
+import { v4 as uuid } from 'uuid'
+import { ZodSchema } from 'zod'
 import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
@@ -12,11 +23,33 @@ import { BrokerModule } from '../../broker.module'
 import { ConnectionStatus, Provider } from '../../core/type/connection.type'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 
+const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
+  const parse = schema.safeParse(received)
+
+  if (parse.success) {
+    return
+  }
+
+  const message = [
+    'Expected value to match schema:',
+    'Received:',
+    `${JSON.stringify(received, null, 2)}`,
+    'Validation errors:',
+    parse.error.errors.map((err) => `- ${err.message}`).join('\n')
+  ].join('\n')
+
+  throw new Error(message)
+}
+
 describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
   let connectionRepository: ConnectionRepository
   let testPrismaService: TestPrismaService
+
+  const url = 'http://provider.narval.xyz'
+
+  const clientId = uuid()
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -51,16 +84,47 @@ describe('Connection', () => {
     await app.close()
   })
 
-  describe('POST /connections', () => {
-    it('creates a new connection to anchorage', async () => {
-      const privateKey = await generateJwk(Alg.EDDSA)
-      const privateKeyHex = await privateKeyToHex(privateKey)
-      const clientId = 'test-client-id'
+  beforeEach(async () => {
+    await testPrismaService.truncateAll()
+  })
+
+  describe('POST /connections/initiate', () => {
+    it('initiates a new connection to anchorage', async () => {
       const connection = {
         provider: Provider.ANCHORAGE,
-        connectionId: 'test-connection-id',
+        url,
+        connectionId: uuid()
+      }
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/connections/initiate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send(connection)
+
+      expect(body).toMatchObject({
+        clientId,
+        connectionId: connection.connectionId,
+        provider: connection.provider,
+        status: ConnectionStatus.PENDING
+      })
+
+      toMatchZodSchema(body.publicKey, ed25519PublicKeySchema)
+      toMatchZodSchema(body.encryptionPublicKey, rsaPublicKeySchema)
+
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+  })
+
+  describe('POST /connections', () => {
+    it('creates a new connection to anchorage with plain credentials', async () => {
+      const privateKey = await generateJwk(Alg.EDDSA)
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      const connectionId = uuid()
+      const connection = {
+        provider: Provider.ANCHORAGE,
+        connectionId,
         label: 'Test Anchorage Connection',
-        url: 'http://provider.narval.xyz',
+        url,
         credentials: {
           apiKey: 'test-api-key',
           privateKey: privateKeyHex
@@ -75,10 +139,10 @@ describe('Connection', () => {
       const createdConnection = await connectionRepository.findById(clientId, connection.connectionId)
 
       expect(body).toEqual({
-        connectionId: connection.connectionId,
-        clientId
+        connectionId,
+        clientId,
+        status: ConnectionStatus.ACTIVE
       })
-      expect(body.credentials).toEqual(undefined)
 
       expect(status).toEqual(HttpStatus.CREATED)
 
@@ -90,7 +154,7 @@ describe('Connection', () => {
           publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
         },
         createdAt: expect.any(Date),
-        id: connection.connectionId,
+        id: connectionId,
         integrity: expect.any(String),
         label: connection.label,
         provider: connection.provider,
@@ -98,6 +162,112 @@ describe('Connection', () => {
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(Date),
         url: connection.url
+      })
+    })
+
+    it('activates a pending connection to anchorage with plain credentials', async () => {
+      const connectionId = uuid()
+      const provider = Provider.ANCHORAGE
+      const label = 'Test Anchorage Connection'
+      const credentials = {
+        apiKey: 'test-api-key'
+      }
+
+      const { body: pendingConnection } = await request(app.getHttpServer())
+        .post('/connections/initiate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send({ connectionId, provider })
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send({
+          provider,
+          connectionId,
+          label,
+          url,
+          credentials
+        })
+
+      expect(body).toEqual({
+        clientId,
+        connectionId,
+        status: ConnectionStatus.ACTIVE
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      const createdConnection = await connectionRepository.findById(clientId, connectionId)
+
+      expect(createdConnection).toMatchObject({
+        clientId,
+        createdAt: expect.any(Date),
+        id: connectionId,
+        integrity: expect.any(String),
+        label,
+        provider,
+        revokedAt: undefined,
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(Date),
+        url
+      })
+
+      expect(createdConnection.credentials).toMatchObject({
+        apiKey: credentials.apiKey,
+        publicKey: pendingConnection.publicKey
+      })
+    })
+
+    it('activates a pending connection to anchorage with encrypted credentials', async () => {
+      const connectionId = uuid()
+      const provider = Provider.ANCHORAGE
+      const label = 'Test Anchorage Connection'
+      const credentials = {
+        apiKey: 'test-api-key'
+      }
+
+      const { body: pendingConnection } = await request(app.getHttpServer())
+        .post('/connections/initiate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send({ connectionId, provider })
+
+      const encryptedCredentials = await rsaEncrypt(JSON.stringify(credentials), pendingConnection.encryptionPublicKey)
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send({
+          provider,
+          connectionId,
+          label,
+          url,
+          encryptedCredentials
+        })
+
+      expect(body).toEqual({
+        clientId,
+        connectionId,
+        status: ConnectionStatus.ACTIVE
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      const createdConnection = await connectionRepository.findById(clientId, connectionId)
+
+      expect(createdConnection).toMatchObject({
+        clientId,
+        createdAt: expect.any(Date),
+        id: connectionId,
+        integrity: expect.any(String),
+        label,
+        provider,
+        revokedAt: undefined,
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(Date),
+        url
+      })
+
+      expect(createdConnection.credentials).toMatchObject({
+        apiKey: credentials.apiKey,
+        publicKey: pendingConnection.publicKey
       })
     })
   })

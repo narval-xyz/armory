@@ -32,6 +32,17 @@ model KeyValue {
   @@map("key_value")
 }
 
+model EncryptionKey {
+  id         String @id @default(cuid())
+  clientId   String @map("client_id")
+  privateKey Json @map("private_key")
+  publicKey  Json @map("public_key")
+
+  createdAt DateTime @default(now())
+
+  @@map("encryption_key")
+}
+
 model ProviderWallet {
   id         String   @id
   label      String?
@@ -106,7 +117,7 @@ model ProviderConnection {
   id          String    @id
   clientId    String    @map("client_id")
   provider    String
-  url         String
+  url         String?
   label       String?
   credentials Json?
   status      String
