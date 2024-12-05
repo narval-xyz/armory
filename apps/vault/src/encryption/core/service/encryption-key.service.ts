@@ -1,8 +1,10 @@
 import { Alg, RsaPrivateKey, generateJwk, rsaDecrypt, rsaPrivateKeyToPublicKey } from '@narval/signature'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
-import { ApplicationException } from '../../../shared/exception/application.exception'
 import { EncryptionKeyRepository } from '../../persistence/encryption-key.repository'
+import { InvalidJweHeaderException } from '../exception/invalid-jwe-header.exception'
+import { NotFoundException } from '../exception/not-found.exception'
+import { UnauthorizedException } from '../exception/unauthorized.exception'
 import { EncryptionKey } from '../type/encryption-key.type'
 
 const DEFAULT_RSA_MODULUS_LENGTH = 4096
@@ -30,28 +32,19 @@ export class EncryptionKeyService {
     const kid = header.kid
 
     if (!kid) {
-      throw new ApplicationException({
-        message: 'Missing kid in JWE header',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
+      throw new InvalidJweHeaderException()
     }
 
     const encryptionKey = await this.encryptionKeyRepository.findByKid(kid)
 
     if (encryptionKey) {
       if (encryptionKey.clientId !== clientId) {
-        throw new ApplicationException({
-          message: "Encryption key doesn't belong to client",
-          suggestedHttpStatusCode: HttpStatus.UNAUTHORIZED
-        })
+        throw new UnauthorizedException({ context: { kid, clientId } })
       }
 
       return rsaDecrypt(data, encryptionKey.privateKey)
     }
 
-    throw new ApplicationException({
-      message: 'Encryption key not found',
-      suggestedHttpStatusCode: HttpStatus.NOT_FOUND
-    })
+    throw new NotFoundException({ context: { kid } })
   }
 }

@@ -1,5 +1,4 @@
 import { ConfigModule } from '@narval/config-module'
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Alg,
@@ -18,7 +17,6 @@ import { v4 as uuid } from 'uuid'
 import { ZodSchema } from 'zod'
 import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { BrokerModule } from '../../broker.module'
 import { ConnectionStatus, Provider } from '../../core/type/connection.type'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
@@ -61,12 +59,7 @@ describe('Connection', () => {
         }),
         BrokerModule
       ]
-    })
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 
@@ -165,7 +158,7 @@ describe('Connection', () => {
       })
     })
 
-    it('activates a pending connection to anchorage with plain credentials', async () => {
+    it('activates an anchorage pending connection with plain credentials', async () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
       const label = 'Test Anchorage Connection'
@@ -217,7 +210,7 @@ describe('Connection', () => {
       })
     })
 
-    it('activates a pending connection to anchorage with encrypted credentials', async () => {
+    it('activates an anchorage pending connection with encrypted credentials', async () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
       const label = 'Test Anchorage Connection'
