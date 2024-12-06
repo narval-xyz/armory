@@ -2,7 +2,7 @@ import { Alg, Ed25519PrivateKey, generateJwk, getPublicKey, privateKeyToJwk } fr
 import { Injectable, NotImplementedException } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
-import { EncryptionKeyService } from '../../../encryption/core/service/encryption-key.service'
+import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { InvalidConnectionPrivateKeyException } from '../exception/invalid-connection-private-key.exception'
 import { MissingConnectionCredentialsException } from '../exception/missing-connection-credentials.exception'

@@ -8,4 +8,4 @@ import { EncryptionKeyRepository } from './persistence/encryption-key.repository
   providers: [EncryptionKeyRepository, EncryptionKeyService],
   exports: [EncryptionKeyService]
 })
-export class EncryptionKeyModule {}
+export class TransitEncryptionModule {}
