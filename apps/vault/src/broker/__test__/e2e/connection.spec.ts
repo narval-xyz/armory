@@ -19,8 +19,7 @@ import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { BrokerModule } from '../../broker.module'
 import { ConnectionService } from '../../core/service/connection.service'
-import { ConnectionStatus, Provider } from '../../core/type/connection.type'
-import { ConnectionRepository } from '../../persistence/repository/connection.repository'
+import { ConnectionStatus, Provider, isActiveConnection, isRevokedConnection } from '../../core/type/connection.type'
 
 const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
   const parse = schema.safeParse(received)
@@ -43,7 +42,6 @@ const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
 describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
-  let connectionRepository: ConnectionRepository
   let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
 
@@ -66,7 +64,6 @@ describe('Connection', () => {
     app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
-    connectionRepository = module.get(ConnectionRepository)
     connectionService = module.get(ConnectionService)
 
     await testPrismaService.truncateAll()
@@ -104,7 +101,9 @@ describe('Connection', () => {
         status: ConnectionStatus.PENDING
       })
 
-      toMatchZodSchema(body.publicKey, ed25519PublicKeySchema)
+      expect(body.credentials.privateKey).toEqual(undefined)
+
+      toMatchZodSchema(body.credentials.publicKey, ed25519PublicKeySchema)
       toMatchZodSchema(body.encryptionPublicKey, rsaPublicKeySchema)
 
       expect(status).toEqual(HttpStatus.CREATED)
@@ -132,7 +131,7 @@ describe('Connection', () => {
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .send(connection)
 
-      const createdConnection = await connectionRepository.findById(clientId, connection.connectionId)
+      const createdConnection = await connectionService.findById(clientId, connection.connectionId)
 
       expect(body).toEqual({
         connectionId,
@@ -150,11 +149,10 @@ describe('Connection', () => {
           publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
         },
         createdAt: expect.any(Date),
-        id: connectionId,
+        connectionId,
         integrity: expect.any(String),
         label: connection.label,
         provider: connection.provider,
-        revokedAt: undefined,
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(Date),
         url: connection.url
@@ -165,9 +163,7 @@ describe('Connection', () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
       const label = 'Test Anchorage Connection'
-      const credentials = {
-        apiKey: 'test-api-key'
-      }
+      const credentials = { apiKey: 'test-api-key' }
 
       const { body: pendingConnection } = await request(app.getHttpServer())
         .post('/connections/initiate')
@@ -178,11 +174,11 @@ describe('Connection', () => {
         .post('/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .send({
-          provider,
           connectionId,
+          credentials,
           label,
-          url,
-          credentials
+          provider,
+          url
         })
 
       expect(body).toEqual({
@@ -192,25 +188,28 @@ describe('Connection', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const createdConnection = await connectionRepository.findById(clientId, connectionId)
+      const createdConnection = await connectionService.findById(clientId, connectionId)
 
       expect(createdConnection).toMatchObject({
         clientId,
-        createdAt: expect.any(Date),
-        id: connectionId,
-        integrity: expect.any(String),
+        connectionId,
         label,
         provider,
-        revokedAt: undefined,
+        url,
+        createdAt: expect.any(Date),
+        integrity: expect.any(String),
         status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(Date),
-        url
+        updatedAt: expect.any(Date)
       })
 
-      expect(createdConnection.credentials).toMatchObject({
-        apiKey: credentials.apiKey,
-        publicKey: pendingConnection.publicKey
-      })
+      if (isActiveConnection(createdConnection)) {
+        expect(createdConnection.credentials).toMatchObject({
+          apiKey: credentials.apiKey,
+          publicKey: pendingConnection.credentials.publicKey
+        })
+      } else {
+        fail('expected an active connection')
+      }
     })
 
     it('activates an anchorage pending connection with encrypted credentials', async () => {
@@ -246,30 +245,33 @@ describe('Connection', () => {
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const createdConnection = await connectionRepository.findById(clientId, connectionId)
+      const createdConnection = await connectionService.findById(clientId, connectionId)
 
       expect(createdConnection).toMatchObject({
         clientId,
-        createdAt: expect.any(Date),
-        id: connectionId,
-        integrity: expect.any(String),
+        connectionId,
         label,
         provider,
-        revokedAt: undefined,
+        url,
+        createdAt: expect.any(Date),
+        integrity: expect.any(String),
         status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(Date),
-        url
+        updatedAt: expect.any(Date)
       })
 
-      expect(createdConnection.credentials).toMatchObject({
-        apiKey: credentials.apiKey,
-        publicKey: pendingConnection.publicKey
-      })
+      if (isActiveConnection(createdConnection)) {
+        expect(createdConnection.credentials).toMatchObject({
+          apiKey: credentials.apiKey,
+          publicKey: pendingConnection.credentials.publicKey
+        })
+      } else {
+        fail('expected an active connection')
+      }
     })
   })
 
   describe('DELETE /connections/:id', () => {
-    it.only('revokes an existing connection', async () => {
+    it('revokes an existing connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
         label: 'test revoke connection',
@@ -282,16 +284,20 @@ describe('Connection', () => {
       })
 
       const { status } = await request(app.getHttpServer())
-        .delete(`/connections/${connection.id}`)
+        .delete(`/connections/${connection.connectionId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .send()
 
       expect(status).toEqual(HttpStatus.NO_CONTENT)
 
-      const revokedConnection = await connectionService.findById(clientId, connection.id)
+      const updatedConnection = await connectionService.findById(clientId, connection.connectionId)
 
-      expect(revokedConnection?.credentials).toEqual(undefined)
-      expect(revokedConnection?.revokedAt).toEqual(expect.any(Date))
+      if (isRevokedConnection(updatedConnection)) {
+        expect(updatedConnection.credentials).toEqual(null)
+        expect(updatedConnection.revokedAt).toEqual(expect.any(Date))
+      } else {
+        fail('expected a revoked connection')
+      }
     })
   })
 })

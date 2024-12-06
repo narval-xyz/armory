@@ -1,18 +1,11 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma, ProviderConnection } from '@prisma/client/vault'
-import { SetRequired } from 'type-fest'
+import { omit } from 'lodash'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
+import { BrokerException } from '../../core/exception/broker.exception'
 import { ConnectionParseException } from '../../core/exception/connection-parse.exception'
-import { Connection, Credentials } from '../../core/type/connection.type'
-
-type Update = SetRequired<
-  Partial<
-    Omit<Connection, 'credentials'> & {
-      credentials: Credentials | null
-    }
-  >,
-  'id'
->
+import { NotFoundException } from '../../core/exception/not-found.exception'
+import { Connection, ConnectionStatus } from '../../core/type/connection.type'
 
 @Injectable()
 export class ConnectionRepository {
@@ -21,6 +14,7 @@ export class ConnectionRepository {
   static map(model?: ProviderConnection | null): Connection {
     const parse = Connection.safeParse({
       ...model,
+      connectionId: model?.id,
       // Prisma always returns null for optional fields that don't have a
       // value, rather than undefined. This is actually by design and aligns
       // with how NULL values work in databases.
@@ -38,62 +32,72 @@ export class ConnectionRepository {
     })
   }
 
-  async create(connection: SetRequired<Connection, 'updatedAt'>): Promise<Connection> {
+  async create(connection: Connection): Promise<Connection> {
+    const data = {
+      clientId: connection.clientId,
+      createdAt: connection.createdAt,
+      credentials: connection.credentials !== null ? connection.credentials : Prisma.JsonNull,
+      id: connection.connectionId,
+      integrity: connection.integrity,
+      label: connection.label,
+      provider: connection.provider,
+      status: connection.status,
+      updatedAt: connection.updatedAt,
+      url: connection.url
+    }
+
     await this.prismaService.providerConnection.upsert({
-      where: { id: connection.id },
-      update: {
-        url: connection.url,
-        label: connection.label,
-        status: connection.status,
-        credentials: connection.credentials,
-        integrity: connection.integrity,
-        updatedAt: connection.updatedAt
-      },
-      create: {
-        id: connection.id,
-        clientId: connection.clientId,
-        provider: connection.provider,
-        url: connection.url,
-        label: connection.label,
-        status: connection.status,
-        credentials: connection.credentials,
-        integrity: connection.integrity,
-        createdAt: connection.createdAt,
-        updatedAt: connection.updatedAt,
-        revokedAt: connection.revokedAt
-      }
+      where: { id: connection.connectionId },
+      create: data,
+      update: omit(data, 'id')
     })
 
     return connection
   }
 
-  async update(connection: Update): Promise<Update> {
+  async update(connection: {
+    connectionId: string
+    credentials?: unknown | null
+    integrity?: string
+    label?: string
+    revokedAt?: Date
+    status?: ConnectionStatus
+    updatedAt?: Date
+    url?: string
+  }): Promise<boolean> {
+    if (!connection.connectionId) {
+      throw new BrokerException({
+        message: 'Missing connectionId',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    }
+
     await this.prismaService.providerConnection.update({
-      where: { id: connection.id },
+      where: { id: connection.connectionId },
       data: {
-        id: connection.id,
-        clientId: connection.clientId,
-        provider: connection.provider,
-        url: connection.url,
-        label: connection.label,
-        status: connection.status,
-        credentials: connection.credentials === null ? Prisma.JsonNull : connection.credentials,
+        credentials: connection.credentials !== null ? connection.credentials : Prisma.JsonNull,
         integrity: connection.integrity,
-        createdAt: connection.createdAt,
+        label: connection.label,
+        revokedAt: connection.revokedAt,
+        status: connection.status,
         updatedAt: connection.updatedAt,
-        revokedAt: connection.revokedAt
+        url: connection.url
       }
     })
 
-    return connection
+    return true
   }
 
-  async findById(clientId: string, id: string): Promise<Connection> {
+  async findById(clientId: string, connectionId: string): Promise<Connection> {
     const model = await this.prismaService.providerConnection.findUnique({
-      where: { clientId, id }
+      where: { clientId, id: connectionId }
     })
 
-    return ConnectionRepository.map(model)
+    if (model) {
+      return ConnectionRepository.map(model)
+    }
+
+    throw new NotFoundException({ context: { clientId, connectionId } })
   }
 
   async findAll(clientId: string): Promise<Connection[]> {
