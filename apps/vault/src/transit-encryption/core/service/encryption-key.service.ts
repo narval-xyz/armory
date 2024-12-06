@@ -27,8 +27,8 @@ export class EncryptionKeyService {
     return this.encryptionKeyRepository.create(encryptionKey)
   }
 
-  async decrypt(clientId: string, data: string): Promise<string> {
-    const header = decodeProtectedHeader(data)
+  async decrypt(clientId: string, encryptedData: string): Promise<string> {
+    const header = decodeProtectedHeader(encryptedData)
     const kid = header.kid
 
     if (!kid) {
@@ -42,7 +42,7 @@ export class EncryptionKeyService {
         throw new UnauthorizedException({ context: { kid, clientId } })
       }
 
-      return rsaDecrypt(data, encryptionKey.privateKey)
+      return rsaDecrypt(encryptedData, encryptionKey.privateKey)
     }
 
     throw new NotFoundException({ context: { kid } })
