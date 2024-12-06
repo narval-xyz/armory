@@ -18,15 +18,15 @@ type Update = SetRequired<
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
 
-  static map(result: ProviderConnection): Connection {
+  static map(model?: ProviderConnection | null): Connection {
     const parse = Connection.safeParse({
-      ...result,
+      ...model,
       // Prisma always returns null for optional fields that don't have a
       // value, rather than undefined. This is actually by design and aligns
       // with how NULL values work in databases.
-      label: result?.label || undefined,
-      revokedAt: result?.revokedAt || undefined,
-      url: result?.url || undefined
+      label: model?.label || undefined,
+      revokedAt: model?.revokedAt || undefined,
+      url: model?.url || undefined
     })
 
     if (parse.success) {
@@ -89,27 +89,19 @@ export class ConnectionRepository {
   }
 
   async findById(clientId: string, id: string): Promise<Connection> {
-    const result = await this.prismaService.providerConnection.findUnique({
+    const model = await this.prismaService.providerConnection.findUnique({
       where: { clientId, id }
     })
 
-    const parse = Connection.safeParse({
-      ...result,
-      // Prisma always returns null for optional fields that don't have a
-      // value, rather than undefined. This is actually by design and aligns
-      // with how NULL values work in databases.
-      label: result?.label || undefined,
-      revokedAt: result?.revokedAt || undefined,
-      url: result?.url || undefined
+    return ConnectionRepository.map(model)
+  }
+
+  async findAll(clientId: string): Promise<Connection[]> {
+    const models = await this.prismaService.providerConnection.findMany({
+      where: { clientId }
     })
 
-    if (parse.success) {
-      return parse.data
-    }
-
-    throw new ConnectionParseException({
-      context: { errors: parse.error.errors }
-    })
+    return models.map(ConnectionRepository.map)
   }
 
   async exists(clientId: string, id: string): Promise<boolean> {
