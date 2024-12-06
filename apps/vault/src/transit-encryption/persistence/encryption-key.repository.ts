@@ -8,7 +8,7 @@ export class EncryptionKeyRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(encryptionKey: EncryptionKey): Promise<EncryptionKey> {
-    await this.prismaService.encryptionKey.create({
+    await this.prismaService.transitEncryptionKey.create({
       data: {
         id: encryptionKey.privateKey.kid,
         clientId: encryptionKey.clientId,
@@ -22,7 +22,7 @@ export class EncryptionKeyRepository {
   }
 
   async findByKid(kid: string): Promise<EncryptionKey | null> {
-    const encryptionKey = await this.prismaService.encryptionKey.findUnique({
+    const encryptionKey = await this.prismaService.transitEncryptionKey.findUnique({
       where: { id: kid }
     })
 
