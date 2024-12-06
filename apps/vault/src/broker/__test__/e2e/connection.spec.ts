@@ -18,6 +18,7 @@ import { ZodSchema } from 'zod'
 import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { BrokerModule } from '../../broker.module'
+import { ConnectionService } from '../../core/service/connection.service'
 import { ConnectionStatus, Provider } from '../../core/type/connection.type'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 
@@ -43,6 +44,7 @@ describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
   let connectionRepository: ConnectionRepository
+  let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
 
   const url = 'http://provider.narval.xyz'
@@ -65,6 +67,7 @@ describe('Connection', () => {
 
     testPrismaService = module.get(TestPrismaService)
     connectionRepository = module.get(ConnectionRepository)
+    connectionService = module.get(ConnectionService)
 
     await testPrismaService.truncateAll()
 
@@ -262,6 +265,33 @@ describe('Connection', () => {
         apiKey: credentials.apiKey,
         publicKey: pendingConnection.publicKey
       })
+    })
+  })
+
+  describe('DELETE /connections/:id', () => {
+    it.only('revokes an existing connection', async () => {
+      const connection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        label: 'test revoke connection',
+        provider: Provider.ANCHORAGE,
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      const { status } = await request(app.getHttpServer())
+        .delete(`/connections/${connection.id}`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.NO_CONTENT)
+
+      const revokedConnection = await connectionService.findById(clientId, connection.id)
+
+      expect(revokedConnection?.credentials).toEqual(undefined)
+      expect(revokedConnection?.revokedAt).toEqual(expect.any(Date))
     })
   })
 })

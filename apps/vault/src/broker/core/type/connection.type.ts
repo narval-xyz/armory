@@ -13,7 +13,7 @@ export const ConnectionStatus = {
   REVOKED: 'revoked'
 } as const
 
-const SharedConnection = z.object({
+const BaseConnection = z.object({
   id: z.string(),
   clientId: z.string(),
   provider: z.nativeEnum(Provider),
@@ -33,7 +33,7 @@ export const AnchorageCredentials = z.object({
   privateKey: ed25519PrivateKeySchema
 })
 
-const AnchorageConnection = SharedConnection.extend({
+const AnchorageConnection = BaseConnection.extend({
   provider: z.literal(Provider.ANCHORAGE),
   credentials: AnchorageCredentials
 })
@@ -41,10 +41,14 @@ const AnchorageConnection = SharedConnection.extend({
 export const Connection = AnchorageConnection
 export type Connection = z.infer<typeof Connection>
 
+const RevokedConnection = Connection.omit({
+  credentials: true
+})
+
 export const Credentials = AnchorageCredentials
 export type Credentials = z.infer<typeof Credentials>
 
-const SharedPendingConnection = z.object({
+const BasePendingConnection = z.object({
   clientId: z.string(),
   connectionId: z.string(),
   provider: z.nativeEnum(Provider),
@@ -53,7 +57,7 @@ const SharedPendingConnection = z.object({
 })
 
 // TODO: (@wcalderipe, 05/12/24): Extend to other providers.
-export const PendingConnection = SharedPendingConnection.extend({
+export const PendingConnection = BasePendingConnection.extend({
   provider: z.literal(Provider.ANCHORAGE),
   publicKey: ed25519PublicKeySchema
 })
@@ -65,7 +69,7 @@ export const InitiateConnection = z.object({
 })
 export type InitiateConnection = z.infer<typeof InitiateConnection>
 
-const SharedCreateConnection = z.object({
+const BaseCreateConnection = z.object({
   connectionId: z.string().optional(),
   createdAt: z.date().optional(),
   encryptedCredentials: z.string().optional().describe('RSA encrypted JSON string of the credentials'),
@@ -83,7 +87,7 @@ export const CreateCredentials = AnchorageCreateCredentials
 export type CreateCredentials = z.infer<typeof CreateCredentials>
 
 // TODO: (@wcalderipe, 05/12/24): Extend to other providers.
-export const CreateConnection = SharedCreateConnection.extend({
+export const CreateConnection = BaseCreateConnection.extend({
   provider: z.literal(Provider.ANCHORAGE),
   credentials: CreateCredentials.optional()
 })

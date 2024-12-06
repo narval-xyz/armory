@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionService } from '../../../core/service/connection.service'
@@ -50,5 +50,19 @@ export class ConnectionController {
       clientId: connection.clientId,
       status: connection.status
     }
+  }
+
+  @Delete(':connectionId')
+  @ApiOperation({
+    summary: 'Securely stores a provider connection'
+  })
+  @ApiResponse({
+    description: 'The stored provider connection reference',
+    status: HttpStatus.CREATED,
+    type: ConnectionDto
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async revoke(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<void> {
+    await this.connectionService.revoke(clientId, connectionId)
   }
 }

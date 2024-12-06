@@ -6,6 +6,7 @@ import { EncryptionKeyService } from '../../../transit-encryption/core/service/e
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { InvalidConnectionPrivateKeyException } from '../exception/invalid-connection-private-key.exception'
 import { MissingConnectionCredentialsException } from '../exception/missing-connection-credentials.exception'
+import { NotFoundException } from '../exception/not-found.exception'
 import {
   Connection,
   ConnectionStatus,
@@ -192,5 +193,26 @@ export class ConnectionService {
     }
 
     throw new MissingConnectionCredentialsException()
+  }
+
+  async findById(clientId: string, connectionId: string): Promise<Connection | null> {
+    return this.connectionRepository.findById(clientId, connectionId)
+  }
+
+  async revoke(clientId: string, connectionId: string): Promise<boolean> {
+    const connection = await this.connectionRepository.findById(clientId, connectionId)
+
+    if (connection) {
+      await this.connectionRepository.update({
+        id: connectionId,
+        credentials: null,
+        status: ConnectionStatus.REVOKED,
+        revokedAt: new Date()
+      })
+
+      return true
+    }
+
+    throw new NotFoundException({ context: { clientId, connectionId } })
   }
 }

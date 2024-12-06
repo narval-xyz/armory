@@ -1,12 +1,42 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma, ProviderConnection } from '@prisma/client/vault'
 import { SetRequired } from 'type-fest'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { ConnectionParseException } from '../../core/exception/connection-parse.exception'
-import { Connection } from '../../core/type/connection.type'
+import { Connection, Credentials } from '../../core/type/connection.type'
+
+type Update = SetRequired<
+  Partial<
+    Omit<Connection, 'credentials'> & {
+      credentials: Credentials | null
+    }
+  >,
+  'id'
+>
 
 @Injectable()
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
+
+  static map(result: ProviderConnection): Connection {
+    const parse = Connection.safeParse({
+      ...result,
+      // Prisma always returns null for optional fields that don't have a
+      // value, rather than undefined. This is actually by design and aligns
+      // with how NULL values work in databases.
+      label: result?.label || undefined,
+      revokedAt: result?.revokedAt || undefined,
+      url: result?.url || undefined
+    })
+
+    if (parse.success) {
+      return parse.data
+    }
+
+    throw new ConnectionParseException({
+      context: { errors: parse.error.errors }
+    })
+  }
 
   async create(connection: SetRequired<Connection, 'updatedAt'>): Promise<Connection> {
     await this.prismaService.providerConnection.upsert({
@@ -37,7 +67,7 @@ export class ConnectionRepository {
     return connection
   }
 
-  async update(connection: SetRequired<Partial<Connection>, 'id'>): Promise<SetRequired<Partial<Connection>, 'id'>> {
+  async update(connection: Update): Promise<Update> {
     await this.prismaService.providerConnection.update({
       where: { id: connection.id },
       data: {
@@ -47,7 +77,7 @@ export class ConnectionRepository {
         url: connection.url,
         label: connection.label,
         status: connection.status,
-        credentials: connection.credentials,
+        credentials: connection.credentials === null ? Prisma.JsonNull : connection.credentials,
         integrity: connection.integrity,
         createdAt: connection.createdAt,
         updatedAt: connection.updatedAt,
