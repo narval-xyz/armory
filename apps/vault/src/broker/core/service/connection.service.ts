@@ -220,6 +220,10 @@ export class ConnectionService {
     return this.connectionRepository.findById(clientId, connectionId)
   }
 
+  async findAll(clientId: string): Promise<Connection[]> {
+    return this.connectionRepository.findAll(clientId)
+  }
+
   async revoke(clientId: string, connectionId: string): Promise<boolean> {
     const connection = await this.connectionRepository.findById(clientId, connectionId)
 

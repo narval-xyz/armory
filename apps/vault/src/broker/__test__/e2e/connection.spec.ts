@@ -12,6 +12,7 @@ import {
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { times } from 'lodash'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { ZodSchema } from 'zod'
@@ -298,6 +299,46 @@ describe('Connection', () => {
       } else {
         fail('expected a revoked connection')
       }
+    })
+  })
+
+  describe('GET /connections', () => {
+    it('responds with connections from the given client', async () => {
+      await Promise.all(
+        times(3, async () =>
+          connectionService.create(clientId, {
+            connectionId: uuid(),
+            label: 'test revoke connection',
+            provider: Provider.ANCHORAGE,
+            url,
+            credentials: {
+              apiKey: 'test-api-key',
+              privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+            }
+          })
+        )
+      )
+
+      const { status, body } = await request(app.getHttpServer())
+        .get('/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(body.connections.length).toEqual(3)
+
+      expect(body.connections[0]).toMatchObject({
+        connectionId: expect.any(String),
+        integrity: expect.any(String),
+        clientId,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        label: 'test revoke connection',
+        provider: Provider.ANCHORAGE,
+        url
+      })
+      expect(body.connections[0]).not.toHaveProperty('credentials')
+
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 })

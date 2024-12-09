@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { Connection } from '../../../core/type/connection.type'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
+import { ConnectionListDto } from '../dto/response/connection-list.dto'
 import { ConnectionDto } from '../dto/response/connection.dto'
 import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
 
@@ -71,5 +72,21 @@ export class ConnectionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async revoke(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<void> {
     await this.connectionService.revoke(clientId, connectionId)
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'List all connections',
+    description: 'This endpoint retrieves a list of all connections associated with the client.'
+  })
+  @ApiResponse({
+    description: 'Returns a list of connections associated with the client.',
+    type: ConnectionListDto,
+    status: HttpStatus.OK
+  })
+  async list(@ClientId() clientId: string): Promise<ConnectionListDto> {
+    const connections = await this.connectionService.findAll(clientId)
+
+    return ConnectionListDto.create({ connections })
   }
 }

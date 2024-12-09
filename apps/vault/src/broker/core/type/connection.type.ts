@@ -14,7 +14,7 @@ export const ConnectionStatus = {
 } as const
 export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof ConnectionStatus]
 
-const BaseConnection = z.object({
+export const BaseConnection = z.object({
   connectionId: z.string(),
   clientId: z.string(),
   provider: z.nativeEnum(Provider),
