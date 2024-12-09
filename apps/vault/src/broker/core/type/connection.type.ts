@@ -15,15 +15,16 @@ export const ConnectionStatus = {
 export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof ConnectionStatus]
 
 export const BaseConnection = z.object({
-  connectionId: z.string(),
   clientId: z.string(),
-  provider: z.nativeEnum(Provider),
-  url: z.string().url().optional(),
+  connectionId: z.string(),
+  createdAt: z.date(),
+  credentials: z.unknown().nullish(),
   integrity: z.string(),
   label: z.string().optional(),
-  credentials: z.unknown().nullish(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  provider: z.nativeEnum(Provider),
+  status: z.nativeEnum(ConnectionStatus).default(ConnectionStatus.ACTIVE),
+  updatedAt: z.date(),
+  url: z.string().url().optional()
 })
 
 export const AnchorageCredentials = z.object({

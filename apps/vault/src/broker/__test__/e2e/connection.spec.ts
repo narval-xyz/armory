@@ -135,9 +135,15 @@ describe('Connection', () => {
       const createdConnection = await connectionService.findById(clientId, connection.connectionId)
 
       expect(body).toEqual({
-        connectionId,
         clientId,
-        status: ConnectionStatus.ACTIVE
+        connectionId,
+        url,
+        createdAt: expect.any(String),
+        integrity: expect.any(String),
+        label: connection.label,
+        provider: connection.provider,
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(String)
       })
 
       expect(status).toEqual(HttpStatus.CREATED)
@@ -185,7 +191,13 @@ describe('Connection', () => {
       expect(body).toEqual({
         clientId,
         connectionId,
-        status: ConnectionStatus.ACTIVE
+        label,
+        provider,
+        url,
+        createdAt: expect.any(String),
+        integrity: 'TODO ACTIVATE CONNECTION',
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
@@ -242,7 +254,13 @@ describe('Connection', () => {
       expect(body).toEqual({
         clientId,
         connectionId,
-        status: ConnectionStatus.ACTIVE
+        label,
+        provider,
+        url,
+        createdAt: expect.any(String),
+        integrity: 'TODO ACTIVATE CONNECTION',
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
@@ -337,6 +355,40 @@ describe('Connection', () => {
         url
       })
       expect(body.connections[0]).not.toHaveProperty('credentials')
+
+      expect(status).toEqual(HttpStatus.OK)
+    })
+  })
+
+  describe('GET /connections/:connectionId', () => {
+    it('responds with the specific connection', async () => {
+      const connection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        label: 'test revoke connection',
+        provider: Provider.ANCHORAGE,
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      const { status, body } = await request(app.getHttpServer())
+        .get(`/connections/${connection.connectionId}`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(body).toMatchObject({
+        connectionId: expect.any(String),
+        integrity: expect.any(String),
+        clientId,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        label: 'test revoke connection',
+        provider: Provider.ANCHORAGE,
+        url
+      })
+      expect(body).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
     })

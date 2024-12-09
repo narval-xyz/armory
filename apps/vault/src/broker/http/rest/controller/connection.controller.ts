@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionService } from '../../../core/service/connection.service'
-import { Connection } from '../../../core/type/connection.type'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { ConnectionListDto } from '../dto/response/connection-list.dto'
@@ -48,15 +47,7 @@ export class ConnectionController {
   async create(@ClientId() clientId: string, @Body() body: CreateConnectionDto): Promise<ConnectionDto> {
     const connection = await this.connectionService.create(clientId, body)
 
-    return ConnectionDto.create(this.toResponse(connection))
-  }
-
-  private toResponse(connection: Connection) {
-    return {
-      connectionId: connection.connectionId,
-      clientId: connection.clientId,
-      status: connection.status
-    }
+    return ConnectionDto.create(connection)
   }
 
   @Delete(':connectionId')
@@ -88,5 +79,22 @@ export class ConnectionController {
     const connections = await this.connectionService.findAll(clientId)
 
     return ConnectionListDto.create({ connections })
+  }
+
+  @Get(':connectionId')
+  @ApiOperation({
+    summary: 'Retrieve a specific connection by ID',
+    description:
+      'This endpoint retrieves the details of a specific connection associated with the client, identified by the ID.'
+  })
+  @ApiResponse({
+    description: 'Returns the details of the specified connection.',
+    type: ConnectionDto,
+    status: HttpStatus.OK
+  })
+  async getById(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<ConnectionDto> {
+    const connection = await this.connectionService.findById(clientId, connectionId)
+
+    return ConnectionDto.create(connection)
   }
 }
