@@ -7,15 +7,14 @@ import {
   getPublicKey,
   privateKeyToJwk
 } from '@narval/signature'
-import { HttpStatus, Injectable, NotImplementedException } from '@nestjs/common'
+import { Injectable, NotImplementedException } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
-import { BrokerException } from '../exception/broker.exception'
-import { ConnectionAlreadyRevokedException } from '../exception/connection-already-revoked.exception'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
+import { ConnectionInvalidStatusException } from '../exception/connection-invalid-status.exception'
 import { NotFoundException } from '../exception/not-found.exception'
 import { UpdateException } from '../exception/update.exception'
 import {
@@ -177,9 +176,11 @@ export class ConnectionService {
       return { ...pendingConnection, ...connection }
     }
 
-    throw new BrokerException({
-      message: "Cannot activate connection because it's not pending",
-      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+    throw new ConnectionInvalidStatusException({
+      from: pendingConnection.status,
+      to: ConnectionStatus.ACTIVE,
+      clientId,
+      connectionId: input.connectionId
     })
   }
 
@@ -330,7 +331,12 @@ export class ConnectionService {
     const connection = await this.connectionRepository.findById(clientId, connectionId)
 
     if (isRevokedConnection(connection)) {
-      throw new ConnectionAlreadyRevokedException({ clientId, connectionId })
+      throw new ConnectionInvalidStatusException({
+        from: connection.status,
+        to: ConnectionStatus.REVOKED,
+        clientId,
+        connectionId
+      })
     }
 
     if (isActiveConnection(connection) || isPendingConnection(connection)) {
