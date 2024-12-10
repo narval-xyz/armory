@@ -18,9 +18,16 @@ import { v4 as uuid } from 'uuid'
 import { ZodSchema } from 'zod'
 import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
+import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { BrokerModule } from '../../broker.module'
 import { ConnectionService } from '../../core/service/connection.service'
-import { ConnectionStatus, Provider, isActiveConnection, isRevokedConnection } from '../../core/type/connection.type'
+import {
+  ActiveConnection,
+  ConnectionStatus,
+  Provider,
+  isActiveConnection,
+  isRevokedConnection
+} from '../../core/type/connection.type'
 
 const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
   const parse = schema.safeParse(received)
@@ -44,6 +51,7 @@ describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
   let connectionService: ConnectionService
+  let encryptionKeyService: EncryptionKeyService
   let testPrismaService: TestPrismaService
 
   const url = 'http://provider.narval.xyz'
@@ -66,6 +74,7 @@ describe('Connection', () => {
 
     testPrismaService = module.get(TestPrismaService)
     connectionService = module.get(ConnectionService)
+    encryptionKeyService = module.get(EncryptionKeyService)
 
     await testPrismaService.truncateAll()
 
@@ -293,7 +302,7 @@ describe('Connection', () => {
     it('revokes an existing connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
-        label: 'test revoke connection',
+        label: 'test connection',
         provider: Provider.ANCHORAGE,
         url,
         credentials: {
@@ -326,7 +335,7 @@ describe('Connection', () => {
         times(3, async () =>
           connectionService.create(clientId, {
             connectionId: uuid(),
-            label: 'test revoke connection',
+            label: 'test connection',
             provider: Provider.ANCHORAGE,
             url,
             credentials: {
@@ -345,14 +354,14 @@ describe('Connection', () => {
       expect(body.connections.length).toEqual(3)
 
       expect(body.connections[0]).toMatchObject({
-        connectionId: expect.any(String),
-        integrity: expect.any(String),
         clientId,
+        url,
+        connectionId: expect.any(String),
         createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        label: 'test revoke connection',
+        integrity: expect.any(String),
+        label: expect.any(String),
         provider: Provider.ANCHORAGE,
-        url
+        updatedAt: expect.any(String)
       })
       expect(body.connections[0]).not.toHaveProperty('credentials')
 
@@ -364,7 +373,7 @@ describe('Connection', () => {
     it('responds with the specific connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
-        label: 'test revoke connection',
+        label: 'test connection',
         provider: Provider.ANCHORAGE,
         url,
         credentials: {
@@ -384,13 +393,57 @@ describe('Connection', () => {
         clientId,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
-        label: 'test revoke connection',
+        label: 'test connection',
         provider: Provider.ANCHORAGE,
         url
       })
       expect(body).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
+    })
+  })
+
+  describe('PATCH /connections/:connectionId', () => {
+    it('updates the given connection', async () => {
+      const connection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        label: 'test connection',
+        provider: Provider.ANCHORAGE,
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+      const newPrivateKey = await generateJwk(Alg.EDDSA)
+      const newCredentials = {
+        apiKey: 'new-api-key',
+        privateKey: await privateKeyToHex(newPrivateKey)
+      }
+      const encryptionKey = await encryptionKeyService.generate(clientId, { modulusLenght: 2048 })
+      const encryptedCredentials = await rsaEncrypt(JSON.stringify(newCredentials), encryptionKey.publicKey)
+
+      const { status, body } = await request(app.getHttpServer())
+        .patch(`/connections/${connection.connectionId}`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send({
+          label: 'new label',
+          encryptedCredentials
+        })
+
+      expect(body).toMatchObject({ label: 'new label' })
+      expect(body).not.toHaveProperty('credentials')
+
+      expect(status).toEqual(HttpStatus.OK)
+
+      const updatedConnection = (await connectionService.findById(
+        clientId,
+        connection.connectionId
+      )) as ActiveConnection
+
+      expect(updatedConnection.credentials.apiKey).toEqual(newCredentials.apiKey)
+      expect(updatedConnection.credentials.privateKey).toEqual(newPrivateKey)
+      expect(updatedConnection.credentials.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
     })
   })
 })

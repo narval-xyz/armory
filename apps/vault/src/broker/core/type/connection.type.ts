@@ -5,7 +5,7 @@ import { z } from 'zod'
 export const Provider = {
   ANCHORAGE: 'anchorage'
 } as const
-export type Provider = keyof typeof Provider
+export type Provider = (typeof Provider)[keyof typeof Provider]
 
 export const ConnectionStatus = {
   PENDING: 'pending',
@@ -81,6 +81,19 @@ export const CreateConnection = z.object({
   credentials: CreateCredentials.optional()
 })
 export type CreateConnection = z.infer<typeof CreateConnection>
+
+export const UpdateConnection = z.object({
+  clientId: z.string(),
+  connectionId: z.string(),
+  credentials: CreateCredentials.nullish(),
+  encryptedCredentials: z.string().optional().describe('RSA encrypted JSON string of the credentials'),
+  integrity: z.string().optional(),
+  label: z.string().optional(),
+  status: z.nativeEnum(ConnectionStatus).optional(),
+  updatedAt: z.date().optional(),
+  url: z.string().url().optional()
+})
+export type UpdateConnection = z.infer<typeof UpdateConnection>
 
 export const isPendingConnection = (connection: Connection): connection is PendingConnection => {
   return connection.status === ConnectionStatus.PENDING

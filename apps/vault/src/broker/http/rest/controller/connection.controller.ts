@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
+import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
 import { ConnectionListDto } from '../dto/response/connection-list.dto'
 import { ConnectionDto } from '../dto/response/connection.dto'
 import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
@@ -18,7 +19,7 @@ export class ConnectionController {
 
   @Post('/initiate')
   @ApiOperation({
-    summary: 'Initiate a new connection',
+    summary: 'Initiate a new provider connection',
     description:
       'This endpoint initiates a new connection by generating a public key and an encryption key for secure communication.'
   })
@@ -94,6 +95,26 @@ export class ConnectionController {
   })
   async getById(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<ConnectionDto> {
     const connection = await this.connectionService.findById(clientId, connectionId)
+
+    return ConnectionDto.create(connection)
+  }
+
+  @Patch(':connectionId')
+  @ApiResponse({
+    description: 'Returns a reference to the updated provider connection.',
+    status: HttpStatus.OK,
+    type: ConnectionDto
+  })
+  async update(
+    @ClientId() clientId: string,
+    @Param('connectionId') connectionId: string,
+    @Body() body: UpdateConnectionDto
+  ): Promise<ConnectionDto> {
+    const connection = await this.connectionService.update({
+      ...body,
+      clientId,
+      connectionId
+    })
 
     return ConnectionDto.create(connection)
   }

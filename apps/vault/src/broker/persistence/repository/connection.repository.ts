@@ -7,6 +7,18 @@ import { ConnectionParseException } from '../../core/exception/connection-parse.
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Connection, ConnectionStatus } from '../../core/type/connection.type'
 
+type UpdateConnection = {
+  clientId: string
+  connectionId: string
+  credentials?: unknown | null
+  integrity?: string
+  label?: string
+  revokedAt?: Date
+  status?: ConnectionStatus
+  updatedAt?: Date
+  url?: string
+}
+
 @Injectable()
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
@@ -55,17 +67,8 @@ export class ConnectionRepository {
     return connection
   }
 
-  async update(connection: {
-    connectionId: string
-    credentials?: unknown | null
-    integrity?: string
-    label?: string
-    revokedAt?: Date
-    status?: ConnectionStatus
-    updatedAt?: Date
-    url?: string
-  }): Promise<boolean> {
-    if (!connection.connectionId) {
+  async update(updateConnection: UpdateConnection): Promise<boolean> {
+    if (!updateConnection.connectionId) {
       throw new BrokerException({
         message: 'Missing connectionId',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
@@ -73,15 +76,18 @@ export class ConnectionRepository {
     }
 
     await this.prismaService.providerConnection.update({
-      where: { id: connection.connectionId },
+      where: {
+        id: updateConnection.connectionId,
+        clientId: updateConnection.clientId
+      },
       data: {
-        credentials: connection.credentials !== null ? connection.credentials : Prisma.JsonNull,
-        integrity: connection.integrity,
-        label: connection.label,
-        revokedAt: connection.revokedAt,
-        status: connection.status,
-        updatedAt: connection.updatedAt,
-        url: connection.url
+        credentials: updateConnection.credentials !== null ? updateConnection.credentials : Prisma.JsonNull,
+        integrity: updateConnection.integrity,
+        label: updateConnection.label,
+        revokedAt: updateConnection.revokedAt,
+        status: updateConnection.status,
+        updatedAt: updateConnection.updatedAt,
+        url: updateConnection.url
       }
     })
 

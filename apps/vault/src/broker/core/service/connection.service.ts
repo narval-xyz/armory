@@ -1,15 +1,26 @@
-import { Alg, Ed25519PrivateKey, generateJwk, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import {
+  Alg,
+  Ed25519PrivateKey,
+  Ed25519PublicKey,
+  Hex,
+  generateJwk,
+  getPublicKey,
+  privateKeyToJwk
+} from '@narval/signature'
 import { HttpStatus, Injectable, NotImplementedException } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { BrokerException } from '../exception/broker.exception'
-import { InvalidConnectionPrivateKeyException } from '../exception/invalid-connection-private-key.exception'
-import { MissingConnectionCredentialsException } from '../exception/missing-connection-credentials.exception'
+import { ConnectionAlreadyRevokedException } from '../exception/connection-already-revoked.exception'
+import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
+import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
 import { NotFoundException } from '../exception/not-found.exception'
+import { UpdateException } from '../exception/update.exception'
 import {
   ActiveConnection,
+  AnchorageCredentials,
   Connection,
   ConnectionStatus,
   CreateConnection,
@@ -17,6 +28,7 @@ import {
   InitiateConnection,
   PendingConnection,
   Provider,
+  UpdateConnection,
   isActiveConnection,
   isPendingConnection,
   isRevokedConnection
@@ -69,30 +81,13 @@ export class ConnectionService {
   }
 
   // TODO: (@wcalderipe, 05/12/24): The return type is Anchorage specific.
-  private async getPrivateKey({ provider, credentials }: CreateConnection): Promise<Ed25519PrivateKey> {
-    if (!credentials) {
-      throw new MissingConnectionCredentialsException()
-    }
-
-    if (provider === Provider.ANCHORAGE) {
-      if (credentials.privateKey) {
-        return privateKeyToJwk(credentials.privateKey, Alg.EDDSA)
-      }
-
-      return await generateJwk(Alg.EDDSA)
-    }
-
-    throw new NotImplementedException(`Unsupported provider private key getter: ${provider}`)
-  }
-
-  // TODO: (@wcalderipe, 05/12/24): The return type is Anchorage specific.
   private async generatePrivateKey(): Promise<Ed25519PrivateKey> {
     return await generateJwk(Alg.EDDSA)
   }
 
   async create(clientId: string, input: CreateConnection): Promise<ActiveConnection> {
-    // If a connection ID is provided, check if the connection already
-    // exists. If it does, activate the connection.
+    // If a connection ID is provided, check if the connection already exists.
+    // If it does, activate the connection.
     if (input.connectionId) {
       if (await this.connectionRepository.exists(clientId, input.connectionId)) {
         return this.activate(clientId, {
@@ -107,23 +102,23 @@ export class ConnectionService {
     }
 
     if (input.encryptedCredentials) {
-      const credentials = await this.buildCreateCredentials(clientId, input)
+      const credentials = await this.getInputCredentials(clientId, input)
 
       return this.createActiveConnection(clientId, { ...input, credentials })
     }
 
-    throw new MissingConnectionCredentialsException()
+    throw new ConnectionInvalidCredentialsException()
   }
 
   private async createActiveConnection(clientId: string, input: CreateConnection): Promise<ActiveConnection> {
-    // By this point, the credentials should have already been decrypted
-    // and decoded.
+    // By this point, the credentials should have already been decrypted and
+    // decoded.
     if (!input.credentials) {
-      throw new MissingConnectionCredentialsException()
+      throw new ConnectionInvalidCredentialsException()
     }
 
     const now = new Date()
-    const privateKey = await this.getPrivateKey(input)
+    const { privateKey, publicKey } = await this.parseInputCredentials(clientId, input.provider, input)
 
     if (privateKey.kty) {
       const connection = {
@@ -132,7 +127,7 @@ export class ConnectionService {
         credentials: {
           apiKey: input.credentials.apiKey,
           privateKey,
-          publicKey: getPublicKey(privateKey)
+          publicKey
         },
         connectionId: input.connectionId || uuid(),
         label: input.label,
@@ -150,7 +145,7 @@ export class ConnectionService {
       return connection
     }
 
-    throw new InvalidConnectionPrivateKeyException()
+    throw new ConnectionInvalidPrivateKeyException()
   }
 
   async activate(clientId: string, input: SetRequired<CreateConnection, 'connectionId'>): Promise<ActiveConnection> {
@@ -160,9 +155,10 @@ export class ConnectionService {
       // TODO: Ensure the connection status is pending.
       const now = new Date()
 
-      const credentials = await this.buildCreateCredentials(clientId, input)
+      const credentials = await this.getInputCredentials(clientId, input)
 
       const connection = {
+        clientId,
         connectionId: input.connectionId,
         status: ConnectionStatus.ACTIVE,
         label: input.label,
@@ -187,15 +183,113 @@ export class ConnectionService {
     })
   }
 
-  async exists(clientId: string, connectionId?: string): Promise<boolean> {
-    if (connectionId) {
-      return this.connectionRepository.exists(clientId, connectionId)
+  // TODO: (@wcalderipe, 05/12/24): The return type is Anchorage specific.
+  private async parseInputCredentials(
+    clientId: string,
+    provider: Provider,
+    input: CreateConnection | UpdateConnection
+  ): Promise<AnchorageCredentials> {
+    // During the creation process, the input credentials can be one of the
+    // following:
+    // - A plain credential object containing an API key and a private key in
+    //   hex format.
+    // - Encrypted credentials, which are an RSA-encrypted JSON representation
+    //   of the plain credentials.
+    //
+    // Steps to handle the credentials:
+    // - Extract the credentials from the input data.
+    // - Ensure that either `credentials` or `encryptedCredentials` is
+    //   provided.
+    // - If the credentials are encrypted, decrypt and parse the JSON.
+    // - Validate the credentials against the expected schema.
+
+    if (provider === Provider.ANCHORAGE) {
+      if (input.encryptedCredentials) {
+        const raw = await this.encryptionKeyService.decrypt(clientId, input.encryptedCredentials)
+
+        const parse = CreateCredentials.safeParse(JSON.parse(raw))
+
+        if (parse.success) {
+          const { privateKey, publicKey } = this.privateKeyHexToKeyPair(Alg.EDDSA, parse.data.privateKey)
+
+          return {
+            apiKey: parse.data.apiKey,
+            privateKey: privateKey as Ed25519PrivateKey,
+            publicKey: publicKey as Ed25519PublicKey
+          }
+        }
+
+        throw new ConnectionInvalidPrivateKeyException({
+          message: 'Invalid input private key schema',
+          context: { errors: parse.error.errors }
+        })
+      }
+
+      if (input.credentials) {
+        const { privateKey, publicKey } = this.privateKeyHexToKeyPair(Alg.EDDSA, input.credentials.privateKey)
+
+        return {
+          apiKey: input.credentials.apiKey,
+          privateKey: privateKey as Ed25519PrivateKey,
+          publicKey: publicKey as Ed25519PublicKey
+        }
+      }
+
+      throw new ConnectionInvalidCredentialsException({
+        message: 'Missing input credentials or encryptedCredentials'
+      })
     }
 
-    return false
+    throw new NotImplementedException(`Unsupported provider private key getter: ${provider}`)
   }
 
-  private async buildCreateCredentials(clientId: string, input: CreateConnection): Promise<CreateCredentials> {
+  private privateKeyHexToKeyPair(alg: Alg, privateKeyHex?: Hex) {
+    if (privateKeyHex) {
+      const privateKey = privateKeyToJwk(privateKeyHex, alg)
+
+      return {
+        privateKey: privateKey,
+        publicKey: getPublicKey(privateKey)
+      }
+    }
+
+    throw new ConnectionInvalidPrivateKeyException({
+      message: 'Invalid private key hex'
+    })
+  }
+
+  async update(input: UpdateConnection): Promise<Connection> {
+    const connection = await this.connectionRepository.findById(input.clientId, input.connectionId)
+    const hasCredentials = input.credentials || input.encryptedCredentials
+    const update = {
+      ...input,
+      ...(hasCredentials
+        ? { credentials: await this.parseInputCredentials(input.clientId, connection.provider, input) }
+        : {})
+    }
+
+    const isUpdated = await this.connectionRepository.update(update)
+
+    if (isUpdated) {
+      return Connection.parse({
+        ...connection,
+        ...update
+      })
+    }
+
+    throw new UpdateException({
+      context: {
+        model: 'Connection',
+        connectionId: input.connectionId,
+        clientId: input.clientId
+      }
+    })
+  }
+
+  private async getInputCredentials(
+    clientId: string,
+    input: CreateConnection | UpdateConnection
+  ): Promise<CreateCredentials> {
     if (input.encryptedCredentials) {
       const raw = await this.encryptionKeyService.decrypt(clientId, input.encryptedCredentials)
       const parse = CreateCredentials.safeParse(JSON.parse(raw))
@@ -204,7 +298,7 @@ export class ConnectionService {
         return parse.data
       }
 
-      throw new InvalidConnectionPrivateKeyException({
+      throw new ConnectionInvalidPrivateKeyException({
         context: { errors: parse.error.errors }
       })
     }
@@ -213,7 +307,15 @@ export class ConnectionService {
       return input.credentials
     }
 
-    throw new MissingConnectionCredentialsException()
+    throw new ConnectionInvalidCredentialsException()
+  }
+
+  async exists(clientId: string, connectionId?: string): Promise<boolean> {
+    if (connectionId) {
+      return this.connectionRepository.exists(clientId, connectionId)
+    }
+
+    return false
   }
 
   async findById(clientId: string, connectionId: string): Promise<Connection> {
@@ -228,14 +330,12 @@ export class ConnectionService {
     const connection = await this.connectionRepository.findById(clientId, connectionId)
 
     if (isRevokedConnection(connection)) {
-      throw new BrokerException({
-        message: 'Connection already revoked',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
+      throw new ConnectionAlreadyRevokedException({ clientId, connectionId })
     }
 
     if (isActiveConnection(connection) || isPendingConnection(connection)) {
       await this.connectionRepository.update({
+        clientId,
         connectionId: connectionId,
         credentials: null,
         status: ConnectionStatus.REVOKED,
