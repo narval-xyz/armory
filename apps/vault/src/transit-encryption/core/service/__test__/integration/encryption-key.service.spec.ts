@@ -4,6 +4,7 @@ import {
   Alg,
   RsaPrivateKey,
   RsaPublicKey,
+  SMALLEST_RSA_MODULUS_LENGTH,
   Use,
   generateJwk,
   getPublicKey,
@@ -23,10 +24,6 @@ import { NotFoundException } from '../../../exception/not-found.exception'
 import { UnauthorizedException } from '../../../exception/unauthorized.exception'
 import { EncryptionKey } from '../../../type/encryption-key.type'
 import { EncryptionKeyService } from '../../encryption-key.service'
-
-// NOTE: Uses the smallest modulus lenght required by jose package for
-// test performance reasons.
-const SMALLEST_RSA_MODULUS_LENGTH = 2048
 
 const GENERATE_RSA_KEY_OPTIONS: { use: Use; modulusLength: number } = {
   use: 'enc',

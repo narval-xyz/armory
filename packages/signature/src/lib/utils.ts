@@ -391,6 +391,16 @@ export const privateKeyToJwk = <A extends Alg>(
   }
 }
 
+export const DEFAULT_RSA_MODULUS_LENGTH = 4096
+
+/**
+ * The smallest modulus lenght required by jose package. Useful to speed
+ * up tests.
+ *
+ * IMPORTANT: DO NOT use it in production.
+ */
+export const SMALLEST_RSA_MODULUS_LENGTH = 2048
+
 const generateRsaPrivateKey = async (
   opts: {
     keyId?: string
@@ -401,7 +411,7 @@ const generateRsaPrivateKey = async (
     modulusLength?: number
     use?: Use
   } = {
-    modulusLength: 2048
+    modulusLength: DEFAULT_RSA_MODULUS_LENGTH
   }
 ): Promise<RsaPrivateKey> => {
   const { privateKey } = await generateKeyPair(Alg.RS256, {

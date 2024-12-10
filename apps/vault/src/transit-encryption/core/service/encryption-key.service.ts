@@ -1,4 +1,11 @@
-import { Alg, RsaPrivateKey, generateJwk, rsaDecrypt, rsaPrivateKeyToPublicKey } from '@narval/signature'
+import {
+  Alg,
+  DEFAULT_RSA_MODULUS_LENGTH,
+  RsaPrivateKey,
+  generateJwk,
+  rsaDecrypt,
+  rsaPrivateKeyToPublicKey
+} from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { decodeProtectedHeader } from 'jose'
 import { EncryptionKeyRepository } from '../../persistence/encryption-key.repository'
@@ -6,8 +13,6 @@ import { InvalidJweHeaderException } from '../exception/invalid-jwe-header.excep
 import { NotFoundException } from '../exception/not-found.exception'
 import { UnauthorizedException } from '../exception/unauthorized.exception'
 import { EncryptionKey } from '../type/encryption-key.type'
-
-const DEFAULT_RSA_MODULUS_LENGTH = 4096
 
 @Injectable()
 export class EncryptionKeyService {
