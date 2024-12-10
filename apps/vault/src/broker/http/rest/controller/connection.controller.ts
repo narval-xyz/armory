@@ -100,8 +100,13 @@ export class ConnectionController {
   }
 
   @Patch(':connectionId')
+  @ApiOperation({
+    summary: 'Update a specific connection by ID',
+    description:
+      'This endpoint updates the details of a specific connection associated with the client, identified by the connection ID.'
+  })
   @ApiResponse({
-    description: 'Returns a reference to the updated provider connection.',
+    description: 'Returns the updated details of the provider connection.',
     status: HttpStatus.OK,
     type: ConnectionDto
   })
