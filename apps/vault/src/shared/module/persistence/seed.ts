@@ -175,82 +175,85 @@ async function main() {
         }
       })
 
-      // Process wallets and their hierarchies
-      for (const wallet of group.wallets) {
-        // Create wallet
-        const createdWallet = await txn.providerWallet.create({
-          data: {
-            id: wallet.id,
-            clientId: wallet.clientId,
-            provider: wallet.provider,
-            label: wallet.label,
-            externalId: wallet.externalId,
-            createdAt: wallet.createdAt,
-            updatedAt: wallet.updatedAt
-          }
-        })
+      const wallets = group.wallets.map((wallet) => ({
+        id: wallet.id,
+        clientId: wallet.clientId,
+        provider: wallet.provider,
+        label: wallet.label,
+        externalId: wallet.externalId,
+        createdAt: wallet.createdAt,
+        updatedAt: wallet.updatedAt
+      }))
 
-        // Link wallet to connection
-        await txn.providerWalletConnection.create({
-          data: {
-            clientId: wallet.clientId,
-            connectionId: connection.id,
-            walletId: createdWallet.id
-          }
-        })
+      const providerWalletConnection = wallets.map((wallet) => ({
+        clientId: wallet.clientId,
+        connectionId: connection.id,
+        walletId: wallet.id
+      }))
 
-        // Create accounts and addresses
-        for (const account of wallet.accounts) {
-          const createdAccount = await txn.providerAccount.create({
-            data: {
-              id: account.id,
-              clientId: account.clientId,
-              provider: account.provider,
-              label: account.label,
-              externalId: account.externalId,
-              walletId: createdWallet.id,
-              networkId: account.networkId,
-              createdAt: account.createdAt,
-              updatedAt: account.updatedAt
-            }
-          })
+      const accounts = group.wallets.flatMap((wallet) =>
+        wallet.accounts.map((account) => ({
+          id: account.id,
+          clientId: account.clientId,
+          provider: account.provider,
+          label: account.label,
+          externalId: account.externalId,
+          walletId: wallet.id,
+          networkId: account.networkId,
+          createdAt: account.createdAt,
+          updatedAt: account.updatedAt
+        }))
+      )
 
-          // Create addresses for this account
-          for (const address of account.addresses) {
-            await txn.providerAddress.create({
-              data: {
-                id: address.id,
-                clientId: address.clientId,
-                provider: address.provider,
-                externalId: address.externalId,
-                accountId: createdAccount.id,
-                address: address.address,
-                createdAt: address.createdAt,
-                updatedAt: address.updatedAt
-              }
-            })
-          }
-        }
+      const addresses = group.wallets.flatMap((wallet) =>
+        wallet.accounts.flatMap((acc) =>
+          acc.addresses.map((address) => ({
+            id: address.id,
+            clientId: address.clientId,
+            provider: address.provider,
+            externalId: address.externalId,
+            accountId: acc.id,
+            address: address.address,
+            createdAt: address.createdAt,
+            updatedAt: address.updatedAt
+          }))
+        )
+      )
+
+      const knownDestinations = group.knownDestinations.map((dest) => ({
+        ...dest,
+        connectionId: group.connection.id
+      }))
+
+      const sync = {
+        id: v4(),
+        clientId,
+        connectionId: group.connection.id,
+        status: 'success'
       }
 
-      // Create known destinations
-      for (const dest of group.knownDestinations) {
-        await txn.providerKnownDestination.create({
-          data: {
-            ...dest,
-            connectionId: connection.id
-          }
-        })
-      }
+      await txn.providerWallet.createMany({
+        data: wallets
+      })
 
-      // Create sync record for this connection
+      await txn.providerWalletConnection.createMany({
+        data: providerWalletConnection
+      })
+
+      await txn.providerAccount.createMany({
+        data: accounts
+      })
+
+      await txn.providerAddress.createMany({
+        data: addresses
+      })
+
+      await txn.providerKnownDestination.createMany({
+        data: knownDestinations
+      })
+
       await txn.providerSync.create({
-        data: {
-          id: v4(),
-          clientId,
-          connectionId: connection.id,
-          status: 'success'
-        }
+        data: sync
       })
     }
   })
