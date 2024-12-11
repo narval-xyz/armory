@@ -1,3 +1,4 @@
+import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -5,9 +6,11 @@ import { ConnectionService } from '../../../core/service/connection.service'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
+import { PaginatedAccountsDto } from '../dto/response/accounts.dto'
 import { ConnectionListDto } from '../dto/response/connection-list.dto'
 import { ConnectionDto } from '../dto/response/connection.dto'
 import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
+import { PaginatedWalletsDto } from '../dto/response/wallets.dto'
 
 @Controller({
   path: 'connections',
@@ -122,5 +125,43 @@ export class ConnectionController {
     })
 
     return ConnectionDto.create(connection)
+  }
+
+  @Get(':connectionId/wallets')
+  @ApiOperation({
+    summary: 'List wallets for a specific connection',
+    description: 'This endpoint retrieves a list of wallets associated with a specific connection.'
+  })
+  @Paginated({
+    type: PaginatedWalletsDto,
+    description: 'Returns a paginated list of wallets associated with the connection'
+  })
+  async getWallets(
+    @ClientId() clientId: string,
+    @Param('connectionId') connectionId: string,
+    @PaginationParam() options: PaginationOptions
+  ): Promise<PaginatedWalletsDto> {
+    const { data, page } = await this.connectionService.findWallets(clientId, connectionId, options)
+
+    return PaginatedWalletsDto.create({ wallets: data, page })
+  }
+
+  @Get(':connectionId/accounts')
+  @ApiOperation({
+    summary: 'List accounts for a specific connection',
+    description: 'This endpoint retrieves a list of accounts associated with a specific connection.'
+  })
+  @Paginated({
+    type: PaginatedWalletsDto,
+    description: 'Returns a paginated list of accounts associated with the connection'
+  })
+  async getAccounts(
+    @ClientId() clientId: string,
+    @Param('connectionId') connectionId: string,
+    @PaginationParam() options: PaginationOptions
+  ): Promise<PaginatedWalletsDto> {
+    const { data, page } = await this.connectionService.findAccounts(clientId, connectionId, options)
+
+    return PaginatedAccountsDto.create({ accounts: data, page })
   }
 }

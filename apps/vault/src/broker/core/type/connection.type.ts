@@ -106,3 +106,5 @@ export const isActiveConnection = (connection: Connection): connection is Active
 export const isRevokedConnection = (connection: Connection): connection is RevokedConnection => {
   return connection.status === ConnectionStatus.REVOKED
 }
+export const PublicConnection = BaseConnection.pick({ connectionId: true, status: true, label: true, provider: true })
+export type PublicConnection = z.infer<typeof PublicConnection>

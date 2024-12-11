@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client/vault'
+import {
+  TEST_ACCOUNTS,
+  TEST_ADDRESSES,
+  TEST_CONNECTIONS,
+  TEST_WALLET_CONNECTIONS,
+  TEST_WALLETS
+} from '../../../../broker/__test__/util/mock-data'
 import { PrismaService } from './prisma.service'
 
 @Injectable()
@@ -28,5 +35,28 @@ export class TestPrismaService {
         }
       }
     }
+  }
+
+  async seedBrokerTestData(): Promise<void> {
+    const client = this.getClient()
+    await client.providerWallet.createMany({
+      data: TEST_WALLETS
+    })
+
+    await client.providerConnection.createMany({
+      data: TEST_CONNECTIONS
+    })
+
+    await client.providerWalletConnection.createMany({
+      data: TEST_WALLET_CONNECTIONS
+    })
+
+    await client.providerAccount.createMany({
+      data: TEST_ACCOUNTS
+    })
+
+    await client.providerAddress.createMany({
+      data: TEST_ADDRESSES
+    })
   }
 }

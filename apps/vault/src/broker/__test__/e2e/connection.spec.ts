@@ -28,6 +28,14 @@ import {
   isActiveConnection,
   isRevokedConnection
 } from '../../core/type/connection.type'
+import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
+import {
+  TEST_ACCOUNTS,
+  TEST_CLIENT_ID,
+  TEST_CONNECTIONS,
+  TEST_WALLETS,
+  TEST_WALLET_CONNECTIONS
+} from '../util/mock-data'
 
 const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
   const parse = schema.safeParse(received)
@@ -56,7 +64,7 @@ describe('Connection', () => {
 
   const url = 'http://provider.narval.xyz'
 
-  const clientId = uuid()
+  const clientId = TEST_CLIENT_ID
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -444,6 +452,101 @@ describe('Connection', () => {
       expect(updatedConnection.credentials.apiKey).toEqual(newCredentials.apiKey)
       expect(updatedConnection.credentials.privateKey).toEqual(newPrivateKey)
       expect(updatedConnection.credentials.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
+    })
+  })
+
+  describe('GET /connections/:connectionId/wallets', () => {
+    it('responds with wallets for the specific connection', async () => {
+      await testPrismaService.seedBrokerTestData()
+
+      const { status, body } = await request(app.getHttpServer())
+        .get(`/connections/${TEST_CONNECTIONS[0].id}/wallets`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.OK)
+      expect(body).toMatchObject({
+        wallets: [getExpectedWallet(TEST_WALLETS[0])],
+        page: {}
+      })
+    })
+
+    it('returns empty array when connection has no wallets', async () => {
+      await testPrismaService.seedBrokerTestData()
+
+      const connection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        label: 'test connection',
+        provider: Provider.ANCHORAGE,
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      const { status, body } = await request(app.getHttpServer())
+        .get(`/connections/${connection.connectionId}/wallets`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.OK)
+      expect(body).toMatchObject({
+        wallets: [],
+        page: {}
+      })
+    })
+  })
+
+  describe('GET /connections/:connectionId/accounts', () => {
+    it('responds with accounts for the specific connection', async () => {
+      await testPrismaService.seedBrokerTestData()
+
+      // Assume connection[0] has some wallets which in turn have accounts.
+      const connectionId = TEST_CONNECTIONS[0].id
+      const walletsForConnection = TEST_WALLET_CONNECTIONS.filter((wc) => wc.connectionId === connectionId).map(
+        (wc) => wc.walletId
+      )
+
+      const accountsForConnection = TEST_ACCOUNTS.filter((account) => walletsForConnection.includes(account.walletId))
+
+      const { status, body } = await request(app.getHttpServer())
+        .get(`/connections/${connectionId}/accounts`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.OK)
+      expect(body).toMatchObject({
+        accounts: accountsForConnection.map(getExpectedAccount),
+        page: {}
+      })
+    })
+
+    it('returns empty array when connection has no accounts', async () => {
+      await testPrismaService.seedBrokerTestData()
+
+      // Create a new connection that doesn't have any associated wallets or accounts
+      const connection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        label: 'test connection',
+        provider: Provider.ANCHORAGE,
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      const { status, body } = await request(app.getHttpServer())
+        .get(`/connections/${connection.connectionId}/accounts`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.OK)
+      expect(body).toMatchObject({
+        accounts: [],
+        page: {}
+      })
     })
   })
 })

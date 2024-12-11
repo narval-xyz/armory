@@ -23,7 +23,11 @@ type UpdateConnection = {
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
 
-  static map(model?: ProviderConnection | null): Connection {
+  static getCursorOrderColumns(): Array<keyof ProviderConnection> {
+    return ['createdAt']
+  }
+
+  static parseModel(model?: ProviderConnection | null): Connection {
     const parse = Connection.safeParse({
       ...model,
       connectionId: model?.id,
@@ -100,7 +104,7 @@ export class ConnectionRepository {
     })
 
     if (model) {
-      return ConnectionRepository.map(model)
+      return ConnectionRepository.parseModel(model)
     }
 
     throw new NotFoundException({ context: { clientId, connectionId } })
@@ -111,7 +115,7 @@ export class ConnectionRepository {
       where: { clientId }
     })
 
-    return models.map(ConnectionRepository.map)
+    return models.map(ConnectionRepository.parseModel)
   }
 
   async exists(clientId: string, id: string): Promise<boolean> {

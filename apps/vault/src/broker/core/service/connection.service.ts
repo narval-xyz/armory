@@ -1,3 +1,4 @@
+import { PaginatedResult, PaginationOptions } from '@narval/nestjs-shared'
 import {
   Alg,
   Ed25519PrivateKey,
@@ -11,7 +12,9 @@ import { Injectable, NotImplementedException } from '@nestjs/common'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
+import { AccountRepository } from '../../persistence/repository/account.repository'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
+import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
 import { ConnectionInvalidStatusException } from '../exception/connection-invalid-status.exception'
@@ -32,12 +35,15 @@ import {
   isPendingConnection,
   isRevokedConnection
 } from '../type/connection.type'
+import { Wallet } from '../type/indexed-resources.type'
 
 @Injectable()
 export class ConnectionService {
   constructor(
     private readonly connectionRepository: ConnectionRepository,
-    private readonly encryptionKeyService: EncryptionKeyService
+    private readonly encryptionKeyService: EncryptionKeyService,
+    private readonly walletRepository: WalletRepository,
+    private readonly accountRepository: AccountRepository
   ) {}
 
   async initiate(clientId: string, input: InitiateConnection): Promise<PendingConnection> {
@@ -352,5 +358,33 @@ export class ConnectionService {
     }
 
     throw new NotFoundException({ context: { clientId, connectionId } })
+  }
+
+  async findWallets(
+    clientId: string,
+    connectionId: string,
+    options: PaginationOptions
+  ): Promise<PaginatedResult<Wallet>> {
+    return this.walletRepository.findAll(
+      clientId,
+      {
+        connectionId
+      },
+      options
+    )
+  }
+
+  async findAccounts(
+    clientId: string,
+    connectionId: string,
+    options: PaginationOptions
+  ): Promise<PaginatedResult<Wallet>> {
+    return this.accountRepository.findAll(
+      clientId,
+      {
+        connectionId
+      },
+      options
+    )
   }
 }
