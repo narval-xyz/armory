@@ -1,7 +1,14 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, secret } from '@narval/nestjs-shared'
-import { Alg, PrivateKey, generateJwk, rsaPublicKeySchema, secp256k1PublicKeySchema } from '@narval/signature'
+import {
+  Alg,
+  PrivateKey,
+  SMALLEST_RSA_MODULUS_LENGTH,
+  generateJwk,
+  rsaPublicKeySchema,
+  secp256k1PublicKeySchema
+} from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
@@ -147,7 +154,12 @@ describe('Client', () => {
     })
 
     it('creates a new client with RSA backup public key', async () => {
-      const rsaBackupKey = rsaPublicKeySchema.parse(await generateJwk(Alg.RS256, { keyId: 'rsaBackupKeyId' }))
+      const rsaBackupKey = rsaPublicKeySchema.parse(
+        await generateJwk(Alg.RS256, {
+          modulusLength: SMALLEST_RSA_MODULUS_LENGTH,
+          keyId: 'rsaBackupKeyId'
+        })
+      )
 
       const validClientPayload: CreateClientDto = {
         ...payload,
