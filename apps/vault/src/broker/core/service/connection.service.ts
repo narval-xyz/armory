@@ -13,7 +13,11 @@ import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { AccountRepository } from '../../persistence/repository/account.repository'
-import { ConnectionRepository } from '../../persistence/repository/connection.repository'
+import {
+  ConnectionRepository,
+  FilterOptions,
+  FindAllPaginatedOptions
+} from '../../persistence/repository/connection.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
@@ -329,8 +333,12 @@ export class ConnectionService {
     return this.connectionRepository.findById(clientId, connectionId)
   }
 
-  async findAll(clientId: string): Promise<Connection[]> {
-    return this.connectionRepository.findAll(clientId)
+  async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
+    return this.connectionRepository.findAll(clientId, options)
+  }
+
+  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
+    return this.connectionRepository.findAllPaginated(clientId, options)
   }
 
   async revoke(clientId: string, connectionId: string): Promise<boolean> {

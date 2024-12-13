@@ -7,7 +7,7 @@ import { Address } from '../type/indexed-resources.type'
 export class AddressService {
   constructor(private readonly AddressRepository: AddressRepository) {}
 
-  async getAddresses(clientId: string, options: PaginationOptions): Promise<PaginatedResult<Address>> {
+  async getAddresses(clientId: string, options?: PaginationOptions): Promise<PaginatedResult<Address>> {
     return this.AddressRepository.findByClientId(clientId, options)
   }
 

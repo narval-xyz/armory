@@ -59,7 +59,9 @@ describe('Address', () => {
 
       expect(response.body).toEqual({
         addresses: TEST_ADDRESSES.map(getExpectedAddress),
-        page: {}
+        page: {
+          next: null
+        }
       })
     })
   })

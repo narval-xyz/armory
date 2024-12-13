@@ -4,14 +4,14 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { WalletService } from '../../../core/service/wallet.service'
-import { PaginatedAccountsDto } from '../dto/response/accounts.dto'
+import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
+import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
 import { WalletDto } from '../dto/response/wallet.dto'
-import { PaginatedWalletsDto } from '../dto/response/wallets.dto'
 @Controller({
   path: 'wallets',
   version: '1'
 })
-@ApiTags('Wallet')
+@ApiTags('Provider Wallet')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
@@ -65,8 +65,8 @@ export class WalletController {
     description: 'The ID of the wallet to retrieve accounts for'
   })
   @Paginated({
-    type: PaginatedWalletsDto,
-    description: 'Returns a paginated list of wallets for the client'
+    type: PaginatedAccountsDto,
+    description: 'Returns a paginated list of accounts'
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,

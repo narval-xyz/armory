@@ -1,5 +1,5 @@
-import { applyDecorators, Type } from '@nestjs/common'
-import { ApiQuery, ApiResponse, getSchemaPath } from '@nestjs/swagger'
+import { applyDecorators, HttpStatus, Type } from '@nestjs/common'
+import { ApiQuery, ApiResponse } from '@nestjs/swagger'
 
 type PaginatedDecoratorOptions = {
   type: Type
@@ -34,27 +34,9 @@ export function Paginated(options: PaginatedDecoratorOptions) {
       description: 'Set to "true" or "1" for descending order'
     }),
     ApiResponse({
-      status: 200,
+      status: HttpStatus.OK,
       description: options.description || 'Successfully retrieved paginated list',
-      schema: {
-        type: 'object',
-        properties: {
-          data: {
-            type: 'array',
-            items: { $ref: getSchemaPath(options.type) }
-          },
-          page: {
-            type: 'object',
-            properties: {
-              next: {
-                type: 'string',
-                description: 'Cursor for the next page of results',
-                nullable: true
-              }
-            }
-          }
-        }
-      }
+      type: options.type
     })
   )
 }

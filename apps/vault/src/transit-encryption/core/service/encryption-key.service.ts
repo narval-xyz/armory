@@ -18,8 +18,8 @@ import { EncryptionKey } from '../type/encryption-key.type'
 export class EncryptionKeyService {
   constructor(private readonly encryptionKeyRepository: EncryptionKeyRepository) {}
 
-  async generate(clientId: string, opts?: { modulusLenght?: number }): Promise<EncryptionKey> {
-    const modulusLength = opts?.modulusLenght || DEFAULT_RSA_MODULUS_LENGTH
+  async generate(clientId: string, opts?: { modulusLength?: number }): Promise<EncryptionKey> {
+    const modulusLength = opts?.modulusLength || DEFAULT_RSA_MODULUS_LENGTH
     const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc', modulusLength })
     const publicKey = rsaPrivateKeyToPublicKey(privateKey)
     const encryptionKey = {

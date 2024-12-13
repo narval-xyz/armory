@@ -18,6 +18,7 @@ import {
   secp256k1PublicKeySchema
 } from '../../types'
 import {
+  SMALLEST_RSA_MODULUS_LENGTH,
   ed25519polyfilled,
   ellipticPrivateKeyToHex,
   generateJwk,
@@ -121,7 +122,7 @@ describe('isHeader', () => {
 describe('generateKeys', () => {
   it('generate a valid RSA key pair and return it as a JWK', async () => {
     // IMPORTANT: Uses a small length to increase the generation speed on tests.
-    const key = await generateJwk(Alg.RS256, { modulusLength: 1024 })
+    const key = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
     expect(rsaPrivateKeySchema.safeParse(key).success).toBe(true)
   })
 

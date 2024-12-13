@@ -338,7 +338,7 @@ describe('Connection', () => {
   })
 
   describe('GET /connections', () => {
-    it('responds with connections from the given client', async () => {
+    beforeEach(async () => {
       await Promise.all(
         times(3, async () =>
           connectionService.create(clientId, {
@@ -353,7 +353,9 @@ describe('Connection', () => {
           })
         )
       )
+    })
 
+    it('responds with connections from the given client', async () => {
       const { status, body } = await request(app.getHttpServer())
         .get('/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
@@ -374,6 +376,34 @@ describe('Connection', () => {
       expect(body.connections[0]).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
+    })
+
+    it('responds with limited number of syncs when limit is given', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get('/connections')
+        .query({ limit: 1 })
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+
+      expect(body.connections.length).toEqual(1)
+      expect(body.page).toHaveProperty('next')
+    })
+
+    it('responds the next page of results when cursos is given', async () => {
+      const { body: pageOne } = await request(app.getHttpServer())
+        .get('/connections')
+        .query({ limit: 1 })
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+
+      const { body: pageTwo } = await request(app.getHttpServer())
+        .get('/connections')
+        .query({
+          limit: 1,
+          cursor: pageOne.page.next
+        })
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+
+      expect(pageTwo.connections.length).toEqual(1)
+      expect(pageTwo.page).toHaveProperty('next')
     })
   })
 
@@ -428,7 +458,7 @@ describe('Connection', () => {
         apiKey: 'new-api-key',
         privateKey: await privateKeyToHex(newPrivateKey)
       }
-      const encryptionKey = await encryptionKeyService.generate(clientId, { modulusLenght: 2048 })
+      const encryptionKey = await encryptionKeyService.generate(clientId, { modulusLength: 2048 })
       const encryptedCredentials = await rsaEncrypt(JSON.stringify(newCredentials), encryptionKey.publicKey)
 
       const { status, body } = await request(app.getHttpServer())

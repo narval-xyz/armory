@@ -11,7 +11,7 @@ export function getPaginatedResult<T extends { id: string; createdAt: Date }>({
   if (!items || items.length === 0) {
     return {
       data: [],
-      page: { next: undefined }
+      page: { next: null }
     }
   }
 
@@ -29,7 +29,7 @@ export function getPaginatedResult<T extends { id: string; createdAt: Date }>({
     page: {
       // cursor is the id of the last item that is actually returned
       // we can safely access the last item because we know for sure there's at least one more item
-      next: hasNextPage ? items[items.length - 2]?.id : undefined
+      next: hasNextPage ? items[items.length - 2]?.id : null
     }
   }
 }

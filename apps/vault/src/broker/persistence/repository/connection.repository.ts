@@ -1,3 +1,4 @@
+import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Prisma, ProviderConnection } from '@prisma/client/vault'
 import { omit } from 'lodash'
@@ -7,7 +8,7 @@ import { ConnectionParseException } from '../../core/exception/connection-parse.
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Connection, ConnectionStatus } from '../../core/type/connection.type'
 
-type UpdateConnection = {
+export type UpdateConnection = {
   clientId: string
   connectionId: string
   credentials?: unknown | null
@@ -18,6 +19,14 @@ type UpdateConnection = {
   updatedAt?: Date
   url?: string
 }
+
+export type FilterOptions = {
+  filters?: {
+    status?: ConnectionStatus
+  }
+}
+
+export type FindAllPaginatedOptions = PaginationOptions & FilterOptions
 
 @Injectable()
 export class ConnectionRepository {
@@ -110,12 +119,37 @@ export class ConnectionRepository {
     throw new NotFoundException({ context: { clientId, connectionId } })
   }
 
-  async findAll(clientId: string): Promise<Connection[]> {
+  async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
     const models = await this.prismaService.providerConnection.findMany({
-      where: { clientId }
+      where: {
+        clientId,
+        status: options?.filters?.status
+      }
     })
 
     return models.map(ConnectionRepository.parseModel)
+  }
+
+  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
+    const pagination = getPaginationQuery({
+      options: PaginationOptions.parse(options),
+      cursorOrderColumns: ConnectionRepository.getCursorOrderColumns()
+    })
+
+    const models = await this.prismaService.providerConnection.findMany({
+      where: {
+        clientId,
+        status: options?.filters?.status
+      },
+      ...pagination
+    })
+
+    const { data, page } = getPaginatedResult({ items: models, options: pagination })
+
+    return {
+      data: data.map(ConnectionRepository.parseModel),
+      page
+    }
   }
 
   async exists(clientId: string, id: string): Promise<boolean> {

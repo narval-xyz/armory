@@ -5,14 +5,14 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AccountService } from '../../../core/service/account.service'
 import { AccountDto } from '../dto/response/account.dto'
-import { PaginatedAccountsDto } from '../dto/response/accounts.dto'
-import { PaginatedAddressesDto } from '../dto/response/addresses.dto'
+import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
+import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
 
 @Controller({
   path: 'accounts',
   version: '1'
 })
-@ApiTags('Account')
+@ApiTags('Provider Account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
@@ -71,14 +71,15 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Account not found'
+    description: 'Address not found'
   })
   async getAccountAddresses(
     @ClientId() clientId: string,
     @Param('accountId') accountId: string,
     @PaginationParam() options: PaginationOptions
-  ): Promise<PaginatedAccountsDto> {
+  ): Promise<PaginatedAddressesDto> {
     const { data, page } = await this.accountService.getAccountAddresses(clientId, accountId, options)
+
     return PaginatedAddressesDto.create({
       addresses: data,
       page

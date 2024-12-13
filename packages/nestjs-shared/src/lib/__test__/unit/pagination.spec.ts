@@ -27,7 +27,7 @@ describe('Pagination Utilities', () => {
       expect(result.page?.next).toBeDefined()
     })
 
-    it('returns undefined next cursor on last page', () => {
+    it('returns null next cursor on last page', () => {
       const result = getPaginatedResult({
         items: testData,
         options: getPaginationQuery({
@@ -36,7 +36,7 @@ describe('Pagination Utilities', () => {
         })
       })
       expect(result.data).toHaveLength(5)
-      expect(result.page?.next).toBeUndefined()
+      expect(result.page?.next).toEqual(null)
     })
 
     it('works with cursor-based pagination', () => {

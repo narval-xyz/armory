@@ -6,17 +6,18 @@ import { ConnectionService } from '../../../core/service/connection.service'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
-import { PaginatedAccountsDto } from '../dto/response/accounts.dto'
 import { ConnectionListDto } from '../dto/response/connection-list.dto'
 import { ConnectionDto } from '../dto/response/connection.dto'
+import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
+import { PaginatedConnectionsDto } from '../dto/response/paginated-connections.dto'
+import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
 import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
-import { PaginatedWalletsDto } from '../dto/response/wallets.dto'
 
 @Controller({
   path: 'connections',
   version: '1'
 })
-@ApiTags('Connection')
+@ApiTags('Provider Connection')
 export class ConnectionController {
   constructor(private readonly connectionService: ConnectionService) {}
 
@@ -79,10 +80,17 @@ export class ConnectionController {
     type: ConnectionListDto,
     status: HttpStatus.OK
   })
-  async list(@ClientId() clientId: string): Promise<ConnectionListDto> {
-    const connections = await this.connectionService.findAll(clientId)
+  @Paginated({
+    type: PaginatedConnectionsDto,
+    description: 'Returns a paginated list of wallets associated with the connection'
+  })
+  async list(
+    @ClientId() clientId: string,
+    @PaginationParam() options: PaginationOptions
+  ): Promise<PaginatedConnectionsDto> {
+    const { data, page } = await this.connectionService.findAllPaginated(clientId, options)
 
-    return ConnectionListDto.create({ connections })
+    return PaginatedConnectionsDto.create({ connections: data, page })
   }
 
   @Get(':connectionId')
@@ -152,14 +160,14 @@ export class ConnectionController {
     description: 'This endpoint retrieves a list of accounts associated with a specific connection.'
   })
   @Paginated({
-    type: PaginatedWalletsDto,
+    type: PaginatedAccountsDto,
     description: 'Returns a paginated list of accounts associated with the connection'
   })
   async getAccounts(
     @ClientId() clientId: string,
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
-  ): Promise<PaginatedWalletsDto> {
+  ): Promise<PaginatedAccountsDto> {
     const { data, page } = await this.connectionService.findAccounts(clientId, connectionId, options)
 
     return PaginatedAccountsDto.create({ accounts: data, page })

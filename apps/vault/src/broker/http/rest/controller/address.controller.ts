@@ -4,13 +4,13 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { AddressService } from '../../../core/service/address.service'
 import { AddressDto } from '../dto/response/address.dto'
-import { PaginatedAddressesDto } from '../dto/response/addresses.dto'
+import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
 
 @Controller({
   path: 'addresses',
   version: '1'
 })
-@ApiTags('Address')
+@ApiTags('Provider Address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
@@ -22,16 +22,16 @@ export class AddressController {
     type: PaginatedAddressesDto,
     description: 'Returns a paginated list of addresss for the client'
   })
-  async listByClientId(
+  async list(
     @ClientId() clientId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAddressesDto> {
     const { data, page } = await this.addressService.getAddresses(clientId, options)
-    const ret = PaginatedAddressesDto.create({
+
+    return PaginatedAddressesDto.create({
       addresses: data,
       page
     })
-    return ret
   }
 
   @Get(':addressId')
@@ -52,6 +52,7 @@ export class AddressController {
   })
   async getAddressById(@ClientId() clientId: string, @Param('addressId') addressId: string): Promise<AddressDto> {
     const address = await this.addressService.getAddress(clientId, addressId)
+
     return AddressDto.create({ address })
   }
 }

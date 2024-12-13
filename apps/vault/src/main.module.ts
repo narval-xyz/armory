@@ -2,7 +2,7 @@ import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { HttpLoggerMiddleware, LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import { MiddlewareConsumer, Module, NestModule, OnModuleInit, ValidationPipe, forwardRef } from '@nestjs/common'
-import { APP_PIPE } from '@nestjs/core'
+import { APP_PIPE, RouterModule } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { BrokerModule } from './broker/broker.module'
 import { ClientModule } from './client/client.module'
@@ -33,7 +33,13 @@ const INFRASTRUCTURE_MODULES = [
     // Domain
     VaultModule,
     ClientModule,
-    BrokerModule
+    BrokerModule,
+    RouterModule.register([
+      {
+        path: 'provider',
+        module: BrokerModule
+      }
+    ])
   ],
   providers: [
     {

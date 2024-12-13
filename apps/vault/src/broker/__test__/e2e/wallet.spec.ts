@@ -57,7 +57,9 @@ describe('Wallet', () => {
       expect(res.status).toBe(HttpStatus.OK)
       expect(res.body).toEqual({
         wallets: TEST_WALLETS.map(getExpectedWallet),
-        page: {}
+        page: {
+          next: null
+        }
       })
     })
 
@@ -77,7 +79,12 @@ describe('Wallet', () => {
     it('returns empty list for unknown client', async () => {
       const res = await request(app.getHttpServer()).get('/wallets').set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
 
-      expect(res.body).toEqual({ wallets: [], page: {} })
+      expect(res.body).toEqual({
+        wallets: [],
+        page: {
+          next: null
+        }
+      })
       expect(res.status).toBe(HttpStatus.OK)
     })
   })
@@ -182,7 +189,9 @@ describe('Wallet', () => {
       expect(res.status).toBe(HttpStatus.OK)
       expect(res.body).toEqual({
         accounts: accounts.map(getExpectedAccount),
-        page: {}
+        page: {
+          next: null
+        }
       })
     })
 
@@ -192,7 +201,12 @@ describe('Wallet', () => {
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
 
       expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body).toEqual({ accounts: [], page: {} })
+      expect(res.body).toEqual({
+        accounts: [],
+        page: {
+          next: null
+        }
+      })
     })
   })
 })

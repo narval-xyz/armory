@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const Page = z
   .object({
-    next: z.string().optional()
+    next: z.string().nullable()
   })
   .optional()
 
@@ -11,7 +11,7 @@ export type Page = z.infer<typeof Page>
 export const createPaginatedSchema = <T extends z.ZodType>(itemSchema: T) =>
   z.object({
     data: z.array(itemSchema),
-    page: Page.optional()
+    page: Page
   })
 
 export type PaginatedResult<T> = z.infer<ReturnType<typeof createPaginatedSchema<z.ZodType<T>>>>

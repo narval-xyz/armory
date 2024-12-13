@@ -57,7 +57,9 @@ describe('Account', () => {
 
       expect(response.body).toEqual({
         accounts: TEST_ACCOUNTS.map(getExpectedAccount),
-        page: {}
+        page: {
+          next: null
+        }
       })
     })
 
@@ -67,7 +69,10 @@ describe('Account', () => {
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
       expect(response.status).toEqual(HttpStatus.OK)
 
-      expect(response.body).toEqual({ accounts: [], page: {} })
+      expect(response.body).toEqual({
+        accounts: [],
+        page: { next: null }
+      })
     })
   })
 
@@ -156,7 +161,9 @@ describe('Account', () => {
 
       expect(response.body).toEqual({
         addresses: addresses.map(getExpectedAddress),
-        page: {}
+        page: {
+          next: null
+        }
       })
     })
 
@@ -174,7 +181,12 @@ describe('Account', () => {
         .get(`/accounts/${accountWithoutAddresses.id}/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       expect(response.status).toEqual(HttpStatus.OK)
-      expect(response.body).toEqual({ addresses: [], page: {} })
+      expect(response.body).toEqual({
+        addresses: [],
+        page: {
+          next: null
+        }
+      })
     })
   })
 })
