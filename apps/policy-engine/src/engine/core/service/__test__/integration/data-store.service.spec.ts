@@ -39,7 +39,7 @@ describe(DataStoreService.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [HttpModule.forRoot(), LoggerModule.forTest()],
+      imports: [HttpModule.register(), LoggerModule.forTest()],
       providers: [DataStoreService, DataStoreRepositoryFactory, HttpDataStoreRepository, FileSystemDataStoreRepository]
     }).compile()
 

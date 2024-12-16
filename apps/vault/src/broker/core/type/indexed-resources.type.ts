@@ -19,7 +19,7 @@ export const Account = z.object({
   label: z.string().nullable().optional(),
   addresses: z.array(Address).optional(),
   clientId: z.string(),
-  provider: z.string(),
+  provider: z.nativeEnum(Provider),
   externalId: z.string(),
   walletId: z.string(),
   networkId: z.string(),
@@ -31,10 +31,10 @@ export type Account = z.infer<typeof Account>
 export const Wallet = z.object({
   walletId: z.string(),
   accounts: z.array(Account).optional(),
-  connections: z.array(BaseConnection).optional(),
+  connections: z.array(BaseConnection),
   label: z.string().nullable().optional(),
   clientId: z.string(),
-  provider: z.string(),
+  provider: z.nativeEnum(Provider),
   externalId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date()

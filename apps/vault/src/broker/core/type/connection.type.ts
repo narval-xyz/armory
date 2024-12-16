@@ -22,6 +22,7 @@ export const BaseConnection = z.object({
   integrity: z.string(),
   label: z.string().optional(),
   provider: z.nativeEnum(Provider),
+  revokedAt: z.date().optional(),
   status: z.nativeEnum(ConnectionStatus).default(ConnectionStatus.ACTIVE),
   updatedAt: z.date(),
   url: z.string().url().optional()
@@ -34,10 +35,16 @@ export const AnchorageCredentials = z.object({
 })
 export type AnchorageCredentials = z.infer<typeof AnchorageCredentials>
 
-const ActiveConnection = BaseConnection.extend({
+export const ActiveAnchorageCredentials = AnchorageCredentials.extend({
+  apiKey: z.string()
+})
+export type ActiveAnchorageCredentials = z.infer<typeof ActiveAnchorageCredentials>
+
+export const ActiveConnection = BaseConnection.extend({
   status: z.literal(ConnectionStatus.ACTIVE),
   provider: z.literal(Provider.ANCHORAGE),
-  credentials: AnchorageCredentials
+  credentials: ActiveAnchorageCredentials,
+  url: z.string().url()
 })
 export type ActiveConnection = z.infer<typeof ActiveConnection>
 

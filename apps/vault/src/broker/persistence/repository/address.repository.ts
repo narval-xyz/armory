@@ -7,6 +7,12 @@ import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Provider } from '../../core/type/connection.type'
 import { Address } from '../../core/type/indexed-resources.type'
 
+export type FindAllFilters = {
+  filters?: {
+    externalIds?: string[]
+  }
+}
+
 @Injectable()
 export class AddressRepository {
   constructor(private prismaService: PrismaService) {}
@@ -15,11 +21,26 @@ export class AddressRepository {
     return ['createdAt']
   }
 
-  static map(address: ProviderAddress): Address {
+  static parseModel(model: ProviderAddress): Address {
+    const { id, ...rest } = model
+
     return {
-      ...address,
-      provider: z.nativeEnum(Provider).parse(address.provider),
-      addressId: address.id
+      ...rest,
+      addressId: id,
+      provider: z.nativeEnum(Provider).parse(model.provider)
+    }
+  }
+
+  static parseEntity(entity: Address): ProviderAddress {
+    return {
+      accountId: entity.accountId,
+      address: entity.address,
+      clientId: entity.clientId,
+      createdAt: entity.createdAt,
+      externalId: entity.externalId,
+      id: entity.addressId,
+      provider: entity.provider,
+      updatedAt: entity.updatedAt
     }
   }
 
@@ -33,7 +54,7 @@ export class AddressRepository {
 
     const { data, page } = getPaginatedResult({ items: result, options: pagination })
     return {
-      data: data.map(AddressRepository.map),
+      data: data.map(AddressRepository.parseModel),
       page
     }
   }
@@ -49,6 +70,31 @@ export class AddressRepository {
       })
     }
 
-    return AddressRepository.map(address)
+    return AddressRepository.parseModel(address)
+  }
+
+  async findAll(clientId: string, opts?: FindAllFilters): Promise<Address[]> {
+    const models = await this.prismaService.providerAddress.findMany({
+      where: {
+        clientId,
+        ...(opts?.filters?.externalIds
+          ? {
+              externalId: {
+                in: opts.filters.externalIds
+              }
+            }
+          : {})
+      }
+    })
+
+    return models.map(AddressRepository.parseModel)
+  }
+
+  async bulkCreate(addresses: Address[]): Promise<Address[]> {
+    await this.prismaService.providerAddress.createMany({
+      data: addresses.map(AddressRepository.parseEntity)
+    })
+
+    return addresses
   }
 }

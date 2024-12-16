@@ -10,10 +10,18 @@ type ProviderAccountAndRelations = ProviderAccount & {
   addresses: ProviderAddress[]
 }
 
-type AccountFilters = {
-  connectionId?: string
-  walletId?: string
+type FindAllFilters = {
+  filters?: {
+    connectionId?: string
+    walletId?: string
+    externalIds?: string[]
+  }
 }
+
+export type FindAllPaginatedOptions = PaginationOptions & FindAllFilters
+
+export type FindAllOptions = FindAllFilters
+
 @Injectable()
 export class AccountRepository {
   constructor(private prismaService: PrismaService) {}
@@ -22,11 +30,27 @@ export class AccountRepository {
     return ['createdAt']
   }
 
-  static parseModel(account: ProviderAccountAndRelations): Account {
+  static parseModel(model: ProviderAccountAndRelations): Account {
+    const { id, ...rest } = model
+
+    return Account.parse({
+      ...rest,
+      accountId: id,
+      addresses: model.addresses.map(AddressRepository.parseModel)
+    })
+  }
+
+  static parseEntity(account: Account): ProviderAccount {
     return {
-      ...account,
-      accountId: account.id,
-      addresses: account.addresses.map(AddressRepository.map)
+      clientId: account.clientId,
+      createdAt: account.createdAt,
+      externalId: account.externalId,
+      id: account.accountId,
+      label: account.label || null,
+      networkId: account.networkId,
+      provider: account.provider,
+      updatedAt: account.updatedAt,
+      walletId: account.walletId
     }
   }
 
@@ -86,25 +110,21 @@ export class AccountRepository {
     }
     const { data, page } = getPaginatedResult({ items: account.addresses, options: pagination })
     return {
-      data: data.map(AddressRepository.map),
+      data: data.map(AddressRepository.parseModel),
       page
     }
   }
 
-  async findAll(
-    clientId: string,
-    filters?: AccountFilters,
-    options?: PaginationOptions
-  ): Promise<PaginatedResult<Account>> {
+  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Account>> {
     const pagination = getPaginationQuery({ options, cursorOrderColumns: AccountRepository.getCursorOrderColumns() })
     const result = await this.prismaService.providerAccount.findMany({
       where: {
         clientId,
-        walletId: filters?.walletId,
+        walletId: options?.filters?.walletId,
         wallet: {
           connections: {
             some: {
-              connectionId: filters?.connectionId
+              connectionId: options?.filters?.connectionId
             }
           }
         }
@@ -120,5 +140,41 @@ export class AccountRepository {
       data: data.map(AccountRepository.parseModel),
       page
     }
+  }
+
+  async bulkCreate(accounts: Account[]): Promise<Account[]> {
+    await this.prismaService.providerAccount.createMany({
+      data: accounts.map(AccountRepository.parseEntity)
+    })
+
+    return accounts
+  }
+
+  async findAll(clientId: string, options?: FindAllOptions): Promise<Account[]> {
+    const models = await this.prismaService.providerAccount.findMany({
+      where: {
+        clientId,
+        walletId: options?.filters?.walletId,
+        wallet: {
+          connections: {
+            some: {
+              connectionId: options?.filters?.connectionId
+            }
+          }
+        },
+        ...(options?.filters?.externalIds
+          ? {
+              externalId: {
+                in: options.filters.externalIds
+              }
+            }
+          : {})
+      },
+      include: {
+        addresses: true
+      }
+    })
+
+    return models.map(AccountRepository.parseModel)
   }
 }

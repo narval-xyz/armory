@@ -3,14 +3,21 @@ import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { MockProxy, mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { load } from '../../../main.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { BrokerModule } from '../../broker.module'
+import {
+  ANCHORAGE_TEST_API_BASE_URL,
+  setupMockServer
+} from '../../core/service/__test__/integration/mocks/anchorage/server'
+import { AnchorageSyncService } from '../../core/service/anchorage-sync.service'
 import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
 import { ActiveConnection, PendingConnection, Provider } from '../../core/type/connection.type'
+import { SyncStatus } from '../../core/type/sync.type'
 
 describe('Sync', () => {
   let app: INestApplication
@@ -18,20 +25,30 @@ describe('Sync', () => {
   let syncService: SyncService
   let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
+  let anchorageSyncServiceMock: MockProxy<AnchorageSyncService>
 
-  let activeConnectionOne: ActiveConnection
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let activeConnectionTwo: ActiveConnection
+  let activeConnection: ActiveConnection
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let pendingConnection: PendingConnection
 
-  const url = 'http://provider.narval.xyz'
+  const url = ANCHORAGE_TEST_API_BASE_URL
 
   const apiKey = 'test-api-key'
 
   const clientId = uuid()
 
+  setupMockServer()
+
   beforeAll(async () => {
+    // We mock the provider's sync service here to prevent race conditions
+    // during testing. This is because the SyncService sends a promise to start
+    // the sync but does not wait for it to complete.
+    //
+    // NOTE: The sync logic is tested in the provider's sync service
+    // integration tests.
+    anchorageSyncServiceMock = mock<AnchorageSyncService>()
+    anchorageSyncServiceMock.sync.mockResolvedValue()
+
     module = await Test.createTestingModule({
       imports: [
         LoggerModule.forTest(),
@@ -41,7 +58,10 @@ describe('Sync', () => {
         }),
         BrokerModule
       ]
-    }).compile()
+    })
+      .overrideProvider(AnchorageSyncService)
+      .useValue(anchorageSyncServiceMock)
+      .compile()
 
     app = module.createNestApplication()
 
@@ -63,17 +83,7 @@ describe('Sync', () => {
   beforeEach(async () => {
     await testPrismaService.truncateAll()
 
-    activeConnectionOne = await connectionService.create(clientId, {
-      connectionId: uuid(),
-      provider: Provider.ANCHORAGE,
-      url,
-      credentials: {
-        apiKey,
-        privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
-      }
-    })
-
-    activeConnectionTwo = await connectionService.create(clientId, {
+    activeConnection = await connectionService.create(clientId, {
       connectionId: uuid(),
       provider: Provider.ANCHORAGE,
       url,
@@ -90,6 +100,17 @@ describe('Sync', () => {
   })
 
   describe('POST /syncs', () => {
+    // This test ensures that the sync process is correctly wired.
+    // Since the mock is created in the `beforeAll` block, it maintains a
+    // single state throughout the entire test lifecycle. Therefore, changing
+    // the order of this test will affect how many times the `sync` function is
+    // called.
+    it('dispatches the sync to the provider specific service', async () => {
+      await request(app.getHttpServer()).post('/syncs').set(REQUEST_HEADER_CLIENT_ID, clientId).send()
+
+      expect(anchorageSyncServiceMock.sync).toHaveBeenCalledTimes(1)
+    })
+
     it('starts a sync on every active connection', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/syncs')
@@ -97,51 +118,44 @@ describe('Sync', () => {
         .send()
 
       const syncs = await syncService.findAllPaginated(clientId)
-      const [syncOne, syncTwo] = syncs.data
+      const [sync] = syncs.data
 
       expect(body).toMatchObject({
         started: true,
         syncs: [
           {
-            clientId: syncOne.clientId,
-            connectionId: syncOne.connectionId,
-            createdAt: syncOne.createdAt.toISOString(),
-            syncId: syncOne.syncId,
-            status: syncOne.status
-          },
-          {
-            clientId: syncTwo.clientId,
-            connectionId: syncTwo.connectionId,
-            createdAt: syncTwo.createdAt.toISOString(),
-            syncId: syncTwo.syncId,
-            status: syncTwo.status
+            clientId: sync.clientId,
+            connectionId: sync.connectionId,
+            createdAt: sync.createdAt.toISOString(),
+            syncId: sync.syncId,
+            status: SyncStatus.PROCESSING
           }
         ]
       })
 
       expect(status).toEqual(HttpStatus.CREATED)
 
-      expect(syncs.data.length).toEqual(2)
+      expect(syncs.data.length).toEqual(1)
     })
 
     it('starts a sync on the given connection', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/syncs')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .send({ connectionId: activeConnectionOne.connectionId })
+        .send({ connectionId: activeConnection.connectionId })
 
       const syncs = await syncService.findAllPaginated(clientId)
-      const [syncOne] = syncs.data
+      const [sync] = syncs.data
 
       expect(body).toEqual({
         started: true,
         syncs: [
           {
-            clientId: syncOne.clientId,
-            connectionId: activeConnectionOne.connectionId,
-            createdAt: syncOne.createdAt.toISOString(),
-            syncId: syncOne.syncId,
-            status: syncOne.status
+            clientId: sync.clientId,
+            connectionId: activeConnection.connectionId,
+            createdAt: sync.createdAt.toISOString(),
+            syncId: sync.syncId,
+            status: SyncStatus.PROCESSING
           }
         ]
       })
@@ -156,7 +170,7 @@ describe('Sync', () => {
     it('responds with the specific sync', async () => {
       const { syncs } = await syncService.start({
         clientId,
-        connectionId: activeConnectionOne.connectionId
+        connectionId: activeConnection.connectionId
       })
       const [sync] = syncs
 
@@ -170,7 +184,9 @@ describe('Sync', () => {
         connectionId: sync.connectionId,
         createdAt: sync.createdAt.toISOString(),
         syncId: sync.syncId,
-        status: sync.status
+        // In between the calling `start` and sending the request, the sync
+        // status changed from `processing` to `success`.
+        status: SyncStatus.SUCCESS
       })
 
       expect(status).toEqual(HttpStatus.OK)
@@ -180,7 +196,7 @@ describe('Sync', () => {
   describe('GET /syncs', () => {
     it('responds with a list of syncs', async () => {
       const { syncs } = await syncService.start({ clientId })
-      const [syncOne, syncTwo] = syncs
+      const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
         .get('/syncs')
@@ -190,25 +206,20 @@ describe('Sync', () => {
       expect(body).toMatchObject({
         syncs: [
           {
-            clientId: syncOne.clientId,
-            connectionId: syncOne.connectionId,
-            createdAt: syncOne.createdAt.toISOString(),
-            syncId: syncOne.syncId,
-            status: syncOne.status
-          },
-          {
-            clientId: syncTwo.clientId,
-            connectionId: syncTwo.connectionId,
-            createdAt: syncTwo.createdAt.toISOString(),
-            syncId: syncTwo.syncId,
-            status: syncTwo.status
+            clientId: sync.clientId,
+            connectionId: sync.connectionId,
+            createdAt: sync.createdAt.toISOString(),
+            syncId: sync.syncId,
+            // In between the calling `start` and sending the request, the sync
+            // status changed from `processing` to `success`.
+            status: SyncStatus.SUCCESS
           }
         ]
       })
 
       expect(status).toEqual(HttpStatus.OK)
 
-      expect(body.syncs.length).toEqual(2)
+      expect(body.syncs.length).toEqual(1)
     })
 
     it('responds with the specific sync filter by connection', async () => {
@@ -228,7 +239,7 @@ describe('Sync', () => {
             connectionId: sync.connectionId,
             createdAt: sync.createdAt.toISOString(),
             syncId: sync.syncId,
-            status: sync.status
+            status: SyncStatus.SUCCESS
           }
         ]
       })

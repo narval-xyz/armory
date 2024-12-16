@@ -171,7 +171,8 @@ describe('Account', () => {
       // Create a new account without addresses
       const accountWithoutAddresses = {
         ...TEST_ACCOUNTS[0],
-        id: 'account-without-addresses'
+        externalId: 'test-external-id',
+        id: 'test-account-without-addresses'
       }
       await testPrismaService.getClient().providerAccount.create({
         data: accountWithoutAddresses

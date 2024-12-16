@@ -2,7 +2,9 @@ import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-sh
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { AccountService } from '../../../core/service/account.service'
 import { ConnectionService } from '../../../core/service/connection.service'
+import { WalletService } from '../../../core/service/wallet.service'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
@@ -19,7 +21,11 @@ import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
 })
 @ApiTags('Provider Connection')
 export class ConnectionController {
-  constructor(private readonly connectionService: ConnectionService) {}
+  constructor(
+    private readonly connectionService: ConnectionService,
+    private readonly walletService: WalletService,
+    private readonly accountService: AccountService
+  ) {}
 
   @Post('/initiate')
   @ApiOperation({
@@ -149,7 +155,10 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    const { data, page } = await this.connectionService.findWallets(clientId, connectionId, options)
+    const { data, page } = await this.walletService.findAllPaginated(clientId, {
+      ...options,
+      filters: { connectionId }
+    })
 
     return PaginatedWalletsDto.create({ wallets: data, page })
   }
@@ -168,7 +177,11 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.connectionService.findAccounts(clientId, connectionId, options)
+    // TODO: Move the method from the connection service to accounts.
+    const { data, page } = await this.accountService.findAllPaginated(clientId, {
+      ...options,
+      filters: { connectionId }
+    })
 
     return PaginatedAccountsDto.create({ accounts: data, page })
   }

@@ -26,7 +26,7 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
 
 @Module({
   imports: [
-    HttpModule.forRoot(),
+    HttpModule.register(),
     KeyValueModule,
     EncryptionModule.registerAsync({
       imports: [EngineModule],

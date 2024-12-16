@@ -57,6 +57,22 @@ export class ConnectionRepository {
     })
   }
 
+  static parseEntity(entity: Connection): ProviderConnection {
+    return {
+      clientId: entity.clientId,
+      createdAt: entity.createdAt,
+      credentials: entity.credentials ? entity.credentials : Prisma.JsonNull,
+      id: entity.connectionId,
+      integrity: entity.integrity,
+      label: entity.label || null,
+      provider: entity.provider,
+      revokedAt: entity.revokedAt || null,
+      status: entity.status,
+      updatedAt: entity.updatedAt,
+      url: entity.url || null
+    }
+  }
+
   async create(connection: Connection): Promise<Connection> {
     const data = {
       clientId: connection.clientId,

@@ -1,6 +1,12 @@
 import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import { ProviderAccount, ProviderAddress, ProviderConnection, ProviderWallet } from '@prisma/client/vault'
+import {
+  ProviderAccount,
+  ProviderAddress,
+  ProviderConnection,
+  ProviderWallet,
+  ProviderWalletConnection
+} from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Account, Wallet } from '../../core/type/indexed-resources.type'
@@ -16,9 +22,17 @@ type ProviderWalletsAndRelations = ProviderWallet & {
   >
 }
 
-type WalletFilters = {
-  connectionId: string
+type FindAllFilters = {
+  filters?: {
+    connectionId?: string
+    walletIds?: string[]
+    externalIds?: string[]
+  }
 }
+
+export type FindAllOptions = FindAllFilters
+
+export type FindAllPaginatedOptions = PaginationOptions & FindAllFilters
 
 @Injectable()
 export class WalletRepository {
@@ -39,11 +53,23 @@ export class WalletRepository {
       return AccountRepository.parseModel(account)
     })
 
-    return {
+    return Wallet.parse({
       ...walletData,
       walletId: id,
       accounts: mappedAccounts,
       connections: validConnections
+    })
+  }
+
+  static parseEntity(entity: Wallet): ProviderWallet {
+    return {
+      id: entity.walletId,
+      clientId: entity.clientId,
+      externalId: entity.externalId,
+      label: entity.label || null,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      provider: entity.provider
     }
   }
 
@@ -99,20 +125,27 @@ export class WalletRepository {
     return WalletRepository.parseModel(wallet)
   }
 
-  async findAll(
-    clientId: string,
-    filters: WalletFilters,
-    options: PaginationOptions
-  ): Promise<PaginatedResult<Wallet>> {
+  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Wallet>> {
     const pagination = getPaginationQuery({ options, cursorOrderColumns: WalletRepository.getCursorOrderColumns() })
     const result = await this.prismaService.providerWallet.findMany({
       where: {
         clientId,
-        connections: {
-          some: {
-            connectionId: filters.connectionId
-          }
-        }
+        ...(options?.filters?.walletIds
+          ? {
+              id: {
+                in: options.filters.walletIds
+              }
+            }
+          : {}),
+        ...(options?.filters?.connectionId
+          ? {
+              connections: {
+                some: {
+                  connectionId: options.filters.connectionId
+                }
+              }
+            }
+          : {})
       },
       include: {
         accounts: {
@@ -134,6 +167,51 @@ export class WalletRepository {
       data: data.map(WalletRepository.parseModel),
       page
     }
+  }
+
+  async findAll(clientId: string, options?: FindAllOptions): Promise<Wallet[]> {
+    const models = await this.prismaService.providerWallet.findMany({
+      where: {
+        clientId,
+        ...(options?.filters?.connectionId
+          ? {
+              connections: {
+                some: {
+                  connectionId: options.filters.connectionId
+                }
+              }
+            }
+          : {}),
+        ...(options?.filters?.walletIds
+          ? {
+              id: {
+                in: options.filters.walletIds
+              }
+            }
+          : {}),
+        ...(options?.filters?.externalIds
+          ? {
+              externalId: {
+                in: options.filters.externalIds
+              }
+            }
+          : {})
+      },
+      include: {
+        accounts: {
+          include: {
+            addresses: true
+          }
+        },
+        connections: {
+          include: {
+            connection: true
+          }
+        }
+      }
+    })
+
+    return models.map(WalletRepository.parseModel)
   }
 
   async findAccountsByWalletId(
@@ -167,5 +245,35 @@ export class WalletRepository {
       data: data.map(AccountRepository.parseModel),
       page
     }
+  }
+
+  async bulkCreate(wallets: Wallet[]): Promise<Wallet[]> {
+    const providerWallets: ProviderWallet[] = wallets.map(WalletRepository.parseEntity)
+    const providerWalletConnections: ProviderWalletConnection[] = wallets.flatMap(this.getWalletConnectionModel)
+
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.providerWallet.createMany({
+        data: providerWallets,
+        skipDuplicates: true
+      })
+
+      await tx.providerWalletConnection.createMany({
+        data: providerWalletConnections,
+        skipDuplicates: true
+      })
+    })
+
+    return wallets
+  }
+
+  private getWalletConnectionModel(wallet: Wallet): ProviderWalletConnection[] {
+    return wallet.connections.map((connection) => {
+      return {
+        clientId: wallet.clientId,
+        walletId: wallet.walletId,
+        connectionId: connection.connectionId,
+        createdAt: wallet.createdAt
+      }
+    })
   }
 }

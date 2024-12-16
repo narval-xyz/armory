@@ -1,19 +1,23 @@
 import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
-
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { AccountService } from '../../../core/service/account.service'
 import { WalletService } from '../../../core/service/wallet.service'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
 import { WalletDto } from '../dto/response/wallet.dto'
+
 @Controller({
   path: 'wallets',
   version: '1'
 })
 @ApiTags('Provider Wallet')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(
+    private readonly walletService: WalletService,
+    private readonly accountService: AccountService
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -77,7 +81,11 @@ export class WalletController {
     @Param('walletId') walletId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.walletService.getWalletAccounts(clientId, walletId, options)
+    const { data, page } = await this.accountService.findAllPaginated(clientId, {
+      ...options,
+      filters: { walletId }
+    })
+
     return PaginatedAccountsDto.create({
       accounts: data,
       page

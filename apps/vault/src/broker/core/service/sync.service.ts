@@ -1,16 +1,19 @@
-import { PaginatedResult } from '@narval/nestjs-shared'
-import { Injectable } from '@nestjs/common/decorators'
+import { PaginatedResult, TraceService } from '@narval/nestjs-shared'
+import { Inject, Injectable } from '@nestjs/common/decorators'
 import { v4 as uuid } from 'uuid'
 import { FindAllPaginatedOptions, SyncRepository } from '../../persistence/repository/sync.repository'
-import { ConnectionStatus } from '../type/connection.type'
+import { ConnectionStatus, isActiveConnection } from '../type/connection.type'
 import { StartSync, Sync, SyncStatus } from '../type/sync.type'
+import { AnchorageSyncService } from './anchorage-sync.service'
 import { ConnectionService } from './connection.service'
 
 @Injectable()
 export class SyncService {
   constructor(
     private readonly syncRepository: SyncRepository,
-    private readonly connectionService: ConnectionService
+    private readonly connectionService: ConnectionService,
+    private readonly anchorageSyncService: AnchorageSyncService,
+    @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
   async start(input: StartSync): Promise<{
@@ -21,18 +24,31 @@ export class SyncService {
 
     if (input.connectionId) {
       const syncId = uuid()
+      const connection = await this.connectionService.findById(input.clientId, input.connectionId)
+
       const sync = await this.syncRepository.create(
         this.toProcessingSync({
           ...input,
-          connectionId: input.connectionId,
+          connectionId: connection.connectionId,
           createdAt: now,
           syncId
         })
       )
 
-      // TODO: (@wcalderipe, 10/12/24): Sync connection
+      if (isActiveConnection(connection)) {
+        this.anchorageSyncService
+          .sync(connection)
+          .then(async () => {
+            await this.complete(sync)
+          })
+          .catch(async (error) => {
+            await this.fail(sync, error)
+          })
 
-      return { started: true, syncs: [sync] }
+        return { started: true, syncs: [sync] }
+      }
+
+      return { started: false, syncs: [] }
     }
 
     const connections = await this.connectionService.findAll(input.clientId, {
@@ -52,7 +68,17 @@ export class SyncService {
       )
     )
 
-    // TODO: (@wcalderipe, 10/12/24): Sync connections
+    await Promise.allSettled(
+      connections.filter(isActiveConnection).map((connection) => {
+        this.anchorageSyncService.sync(connection)
+      })
+    )
+      .then(async () => {
+        await Promise.all(syncs.map((sync) => this.complete(sync)))
+      })
+      .catch(async (error) => {
+        await Promise.all(syncs.map((sync) => this.fail(sync, error)))
+      })
 
     return { started: true, syncs }
   }
@@ -74,5 +100,34 @@ export class SyncService {
 
   async findById(clientId: string, syncId: string): Promise<Sync> {
     return this.syncRepository.findById(clientId, syncId)
+  }
+
+  async complete(sync: Sync): Promise<Sync> {
+    const completedSync = {
+      ...sync,
+      status: SyncStatus.SUCCESS,
+      completedAt: sync.completedAt || new Date()
+    }
+
+    await this.syncRepository.update(completedSync)
+
+    return completedSync
+  }
+
+  async fail(sync: Sync, error: Error): Promise<Sync> {
+    const failedSync = {
+      ...sync,
+      status: SyncStatus.FAILED,
+      error: {
+        name: error.name,
+        message: error.message,
+        traceId: this.traceService.getActiveSpan()?.spanContext().traceId
+      },
+      completedAt: sync.completedAt || new Date()
+    }
+
+    await this.syncRepository.update(failedSync)
+
+    return failedSync
   }
 }

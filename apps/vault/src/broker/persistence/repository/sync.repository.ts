@@ -2,6 +2,7 @@ import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQu
 import { Injectable } from '@nestjs/common/decorators'
 import { ProviderSync } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
+import { ModelInvalidException } from '../../core/exception/model-invalid.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Sync, SyncStatus } from '../../core/type/sync.type'
 
@@ -12,27 +13,47 @@ export type FindAllPaginatedOptions = PaginationOptions & {
   }
 }
 
+export type UpdateSync = {
+  clientId: string
+  syncId: string
+  completedAt?: Date
+  status?: SyncStatus
+  error?: Sync['error']
+}
+
+const parseErrorEntity = (error: Sync['error']): Pick<ProviderSync, 'errorName' | 'errorMessage' | 'errorTraceId'> => ({
+  errorName: error?.name || null,
+  errorMessage: error?.message || null,
+  errorTraceId: error?.traceId || null
+})
+
 @Injectable()
 export class SyncRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   static parseModel(model?: ProviderSync | null): Sync {
-    return Sync.parse({
-      ...model,
-      syncId: model?.id,
-      // Prisma always returns null for optional fields that don't have a
-      // value, rather than undefined. This is actually by design and aligns
-      // with how NULL values work in databases.
-      completedAt: model?.completedAt || undefined,
-      error:
-        model?.errorName || model?.errorMessage || model?.errorTraceId
-          ? {
-              name: model?.errorName || undefined,
-              message: model?.errorMessage || undefined,
-              traceId: model?.errorTraceId || undefined
-            }
-          : undefined
-    })
+    if (model) {
+      const { id, ...rest } = model
+
+      return Sync.parse({
+        ...rest,
+        syncId: id,
+        // Prisma always returns null for optional fields that don't have a
+        // value, rather than undefined. This is actually by design and aligns
+        // with how NULL values work in databases.
+        completedAt: model.completedAt || undefined,
+        error:
+          model.errorName || model.errorMessage || model.errorTraceId
+            ? {
+                name: model.errorName || undefined,
+                message: model.errorMessage || undefined,
+                traceId: model.errorTraceId || undefined
+              }
+            : undefined
+      })
+    }
+
+    throw new ModelInvalidException()
   }
 
   static parseEntity(entity: Sync): ProviderSync {
@@ -42,10 +63,8 @@ export class SyncRepository {
       completedAt: entity.completedAt || null,
       connectionId: entity.connectionId,
       createdAt: entity.createdAt,
-      errorName: entity.error?.name || null,
-      errorMessage: entity.error?.message || null,
-      errorTraceId: entity.error?.traceId || null,
-      status: entity.status
+      status: entity.status,
+      ...parseErrorEntity(entity.error)
     }
   }
 
@@ -67,6 +86,22 @@ export class SyncRepository {
     })
 
     return syncs
+  }
+
+  async update(updateSync: UpdateSync): Promise<boolean> {
+    await this.prismaService.providerSync.update({
+      where: {
+        id: updateSync.syncId,
+        clientId: updateSync.clientId
+      },
+      data: {
+        completedAt: updateSync.completedAt,
+        status: updateSync.status,
+        ...(updateSync.error ? parseErrorEntity(updateSync.error) : {})
+      }
+    })
+
+    return true
   }
 
   async findById(clientId: string, syncId: string): Promise<Sync> {

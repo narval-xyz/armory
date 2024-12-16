@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { ProviderAccount, ProviderAddress, ProviderConnection, ProviderWallet } from '@prisma/client/vault'
 import { PublicConnection } from '../../core/type/connection.type'
 import { TEST_ACCOUNTS, TEST_ADDRESSES, TEST_CONNECTIONS, TEST_WALLET_CONNECTIONS } from './mock-data'
