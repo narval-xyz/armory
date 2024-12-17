@@ -4,7 +4,7 @@ import * as ed25519 from '@noble/ed25519'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { sha512 } from '@noble/hashes/sha512'
 import { subtle } from 'crypto'
-import { exportJWK, generateKeyPair } from 'jose'
+import { exportJWK, exportSPKI, generateKeyPair, importJWK, importSPKI, KeyLike } from 'jose'
 import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
@@ -31,12 +31,13 @@ import {
   P256PublicKey,
   PrivateKey,
   PublicKey,
+  publicKeySchema,
+  RsaKey,
   RsaPrivateKey,
   RsaPublicKey,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
-  Use,
-  publicKeySchema
+  Use
 } from './types'
 import { validateJwk } from './validate'
 
@@ -235,6 +236,10 @@ export const base64UrlToBytes = (base64Url: string): Buffer => {
 
 export const stringToBase64Url = (str: string): string => {
   return base64ToBase64Url(Buffer.from(str).toString('base64'))
+}
+
+export const base64UrlToString = (base64Url: string): string => {
+  return Buffer.from(base64UrlToBase64(base64Url), 'base64').toString('utf-8')
 }
 
 export const rsaKeyToKid = (jwk: Jwk) => {
@@ -482,6 +487,60 @@ export const generateJwk = async <T = Jwk>(
     }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
+  }
+}
+
+export const publicJwkToPem = async (jwk: Jwk): Promise<string> => {
+  switch (jwk.kty) {
+    case KeyTypes.RSA:
+      return publicRsaJwkToPem(jwk as RsaKey)
+    default:
+      throw new Error('Unsupported key type')
+  }
+}
+
+export const publicHexToPem = async (publicKey: Hex, alg: Alg): Promise<string> => {
+  switch (alg) {
+    case Alg.RS256:
+      return publicRsaJwkToPem((await publicKeyToJwk(publicKey, alg)) as RsaKey)
+    default:
+      throw new Error('Unsupported algorithm')
+  }
+}
+
+export const publicKeyToPem = async (publicKey: Jwk | Hex, alg: Alg): Promise<string> => {
+  if (typeof publicKey === 'string') {
+    return publicHexToPem(publicKey, alg)
+  }
+
+  return publicJwkToPem(publicKey)
+}
+
+export const publicRsaJwkToPem = async (rsaJwk: RsaKey): Promise<string> => {
+  const jk = (await importJWK(rsaJwk, 'RS256')) as KeyLike
+  const k = await exportSPKI(jk)
+  return k
+}
+
+export const publicRsaPemToJwk = async (pem: string, opts?: { kid?: string }): Promise<RsaPublicKey> => {
+  const jk = await importSPKI(pem, 'RS256', {
+    extractable: true
+  })
+  const key = await exportJWK(jk)
+
+  return rsaPublicKeySchema.parse({
+    ...key,
+    alg: 'RS256',
+    kid: opts?.kid || rsaKeyToKid({ n: key.n, e: key.e })
+  })
+}
+
+export const publicPemToJwk = <T = Jwk>(pem: string, alg: Alg, kid?: string): T => {
+  switch (alg) {
+    case Alg.RS256:
+      return publicRsaPemToJwk(pem, { kid }) as T
+    default:
+      throw new Error('Unsupported algorithm')
   }
 }
 

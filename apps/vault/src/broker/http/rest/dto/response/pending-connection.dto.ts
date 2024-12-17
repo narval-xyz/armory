@@ -21,7 +21,8 @@ export class PendingConnectionDto extends createZodDto(
       .optional(),
     encryptionPublicKey: z.object({
       keyId: z.string().optional(),
-      jwk: publicKeySchema.optional()
+      jwk: publicKeySchema.optional().describe('JWK format of the public key'),
+      pem: z.string().optional().describe('Base64url encoded PEM public key')
     })
   })
 ) {}

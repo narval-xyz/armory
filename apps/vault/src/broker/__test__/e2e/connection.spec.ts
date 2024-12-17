@@ -176,6 +176,7 @@ describe('Connection', () => {
 
       expect(body.publicKey.keyId).toEqual(expect.any(String))
       expect(body.encryptionPublicKey.keyId).toEqual(expect.any(String))
+      expect(body.encryptionPublicKey.pem).toEqual(expect.any(String)) // ensure we also respond w/ the PEM format.
 
       expect(status).toEqual(HttpStatus.CREATED)
     })

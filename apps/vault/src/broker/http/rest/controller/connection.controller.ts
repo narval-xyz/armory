@@ -1,5 +1,5 @@
 import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
-import { publicKeyToHex } from '@narval/signature'
+import { publicKeyToHex, publicKeyToPem } from '@narval/signature'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -45,11 +45,16 @@ export class ConnectionController {
   async initiate(@ClientId() clientId: string, @Body() body: InitiateConnectionDto): Promise<PendingConnectionDto> {
     const pendingConnection = await this.connectionService.initiate(clientId, body)
 
+    const encryptionPem = pendingConnection.encryptionPublicKey
+      ? await publicKeyToPem(pendingConnection.encryptionPublicKey, pendingConnection.encryptionPublicKey.alg)
+      : undefined
+
     return PendingConnectionDto.create({
       ...pendingConnection,
       encryptionPublicKey: {
         keyId: pendingConnection.encryptionPublicKey?.kid,
-        jwk: pendingConnection.encryptionPublicKey
+        jwk: pendingConnection.encryptionPublicKey,
+        pem: encryptionPem ? Buffer.from(encryptionPem).toString('base64') : undefined
       },
       ...(pendingConnection.credentials
         ? {

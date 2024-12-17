@@ -423,3 +423,5 @@ export type EcdsaSignature = {
   s: Hex
   v: bigint
 }
+
+export type PemString = `-----BEGIN${string}`
