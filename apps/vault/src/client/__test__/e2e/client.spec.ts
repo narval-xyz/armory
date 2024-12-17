@@ -17,7 +17,6 @@ import { ProvisionService } from '../../../provision.service'
 import { REQUEST_HEADER_API_KEY } from '../../../shared/constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { CreateClientDto } from '../../http/rest/dto/create-client.dto'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 
 describe('Client', () => {
@@ -62,7 +61,7 @@ describe('Client', () => {
   describe('POST /clients', () => {
     const clientId = uuid()
 
-    const payload: CreateClientDto = {
+    const payload = {
       clientId,
       audience: 'https://vault.narval.xyz',
       issuer: 'https://auth.narval.xyz',
@@ -87,7 +86,7 @@ describe('Client', () => {
     })
 
     it('creates a new client with Engine JWK', async () => {
-      const newPayload: CreateClientDto = {
+      const newPayload = {
         clientId: 'client-2',
         engineJwk: {
           kty: 'EC',
@@ -147,7 +146,7 @@ describe('Client', () => {
         })
       )
 
-      const validClientPayload: CreateClientDto = {
+      const validClientPayload = {
         ...payload,
         clientId: uuid(),
         backupPublicKey: rsaBackupKey
@@ -178,6 +177,73 @@ describe('Client', () => {
         .send(invalidClientPayload)
 
       expect(wrongKeyStatus).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
+    })
+
+    it('creates a new client with token validation disabled & pinned user', async () => {
+      const newPayload = {
+        clientId: 'client-3',
+        name: 'Client 3',
+        auth: {
+          local: {
+            allowedUsers: [
+              {
+                userId: 'user-1',
+                publicKey: {
+                  kty: 'EC',
+                  crv: 'secp256k1',
+                  alg: 'ES256K',
+                  kid: '0x73d3ed0e92ac09a45d9538980214abb1a36c4943d64ffa53a407683ddf567fc9',
+                  x: 'sxT67JN5KJVnWYyy7xhFNUOk4buvPLrbElHBinuFwmY',
+                  y: 'CzC7IHlsDg9wz-Gqhtc78eC0IEX75upMgrvmS3U6Ad4'
+                }
+              }
+            ]
+          },
+          tokenValidation: {
+            disabled: true
+          }
+        }
+      }
+      const { status, body } = await request(app.getHttpServer())
+        .post('/clients')
+        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .send(newPayload)
+
+      expect(status).toEqual(HttpStatus.CREATED)
+      expect(body).toEqual({
+        clientId: newPayload.clientId,
+        name: newPayload.name,
+        baseUrl: null,
+        backupPublicKey: null,
+        configurationSource: 'dynamic',
+        auth: {
+          disabled: false,
+          local: {
+            jwsd: {
+              maxAge: 300,
+              requiredComponents: ['htm', 'uri', 'created', 'ath']
+            },
+            allowedUsersJwksUrl: null,
+            allowedUsers: newPayload.auth.local.allowedUsers
+          },
+          tokenValidation: {
+            disabled: true,
+            url: null,
+            jwksUrl: null,
+            pinnedPublicKey: null,
+            verification: {
+              audience: null,
+              issuer: null,
+              maxTokenAge: null,
+              requireBoundTokens: true,
+              allowBearerTokens: false,
+              allowWildcard: null
+            }
+          }
+        },
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String)
+      })
     })
   })
 })

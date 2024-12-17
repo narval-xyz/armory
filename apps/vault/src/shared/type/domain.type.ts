@@ -3,16 +3,68 @@ import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
 
+export const ClientLocalAuthAllowedUser = z.object({
+  userId: z.string(),
+  publicKey: publicKeySchema
+})
+export type ClientLocalAuthAllowedUser = z.infer<typeof ClientLocalAuthAllowedUser>
+
 export const CreateClientInput = z.object({
   clientId: z.string().optional(),
-  engineJwk: publicKeySchema.optional(),
-  audience: z.string().optional(),
-  issuer: z.string().optional(),
-  maxTokenAge: z.number().optional(),
+  name: z.string().optional(),
+  baseUrl: z.string().optional(),
   backupPublicKey: rsaPublicKeySchema.optional(),
-  allowKeyExport: z.boolean().optional(),
+
+  // New auth options
+  auth: z
+    .object({
+      local: z
+        .object({
+          jwsd: z
+            .object({
+              maxAge: z.number().default(300),
+              requiredComponents: z.array(z.string()).default(['htm', 'uri', 'created', 'ath'])
+            })
+            .nullish(),
+          allowedUsers: z
+            .array(ClientLocalAuthAllowedUser)
+            .nullish()
+            .describe('Pin specific users to be authorized; if set, ONLY these users are allowed')
+        })
+        .nullish(),
+      tokenValidation: z
+        .object({
+          disabled: z.boolean().default(false),
+          url: z.string().nullish(),
+          pinnedPublicKey: publicKeySchema.nullish(),
+          verification: z
+            .object({
+              audience: z.string().nullish(),
+              issuer: z.string().nullish(),
+              maxTokenAge: z.number().nullish(),
+              requireBoundTokens: z.boolean().default(true),
+              allowBearerTokens: z.boolean().default(false),
+              allowWildcard: z.array(z.string()).nullish()
+            })
+            .default({})
+        })
+        .default({})
+    })
+    .default({}),
+
+  /** @deprecated use auth.tokenValidation instead */
+  engineJwk: publicKeySchema.optional(),
+  /** @deprecated use auth.tokenValidation instead */
+  audience: z.string().optional(),
+  /** @deprecated use auth.tokenValidation instead */
+  issuer: z.string().optional(),
+  /** @deprecated use auth.tokenValidation instead */
+  maxTokenAge: z.number().optional(),
+  /** @deprecated use auth.tokenValidation instead */
   allowWildcard: z.array(z.string()).optional(),
-  baseUrl: z.string().optional()
+
+  /** @deprecated, this has not bee implemented */
+  allowKeyExport: z.boolean().optional()
 })
 export type CreateClientInput = z.infer<typeof CreateClientInput>
 
@@ -39,12 +91,6 @@ export const ClientV1 = z.object({
   updatedAt: z.coerce.date()
 })
 export type ClientV1 = z.infer<typeof ClientV1>
-
-export const ClientLocalAuthAllowedUser = z.object({
-  userId: z.string(),
-  publicKey: publicKeySchema
-})
-export type ClientLocalAuthAllowedUser = z.infer<typeof ClientLocalAuthAllowedUser>
 
 export const Client = z.object({
   clientId: z.string(),
