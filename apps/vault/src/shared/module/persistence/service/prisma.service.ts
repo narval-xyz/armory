@@ -102,7 +102,6 @@ const buildEncryptionExtension = (
     name: 'encryption',
     query: {
       async $allOperations({ model, operation, args, query }) {
-        logger.log('Extended ALL OPERATIONS method')
         if (!model || !(model in encryptedModelFields)) {
           return query(args)
         }

@@ -17,7 +17,8 @@ model Vault {
   id                        String   @id
   // Encryption options, possibly set from Config file
   encryptionKeyringType     String   @map("encryption_keyring_type") // raw | awskms
-  encryptionMasterKey       String?  @map("enncryption_master_key") /// @encrypted by masterPassword KEK
+  encryptionMasterKeySpelling       String?  @map("enncryption_master_key") /// @encrypted by masterPassword KEK @ignore
+  encryptionMasterKey       String?  @map("encryption_master_key") /// @encrypted by masterPassword KEK
   encryptionMasterAwsKmsArn String?  @map("encryption_master_aws_kms_arn") // only if type = awskms
   // Auth Options, set from Config file
   authDisabled              Boolean? @map("auth_disabled")
