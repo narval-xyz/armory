@@ -121,7 +121,7 @@ export class ConnectionController {
     @ClientId() clientId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedConnectionsDto> {
-    const { data, page } = await this.connectionService.findAllPaginated(clientId, options)
+    const { data, page } = await this.connectionService.findAll(clientId, { pagination: options })
 
     return PaginatedConnectionsDto.create({ connections: data, page })
   }
@@ -188,7 +188,7 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    const { data, page } = await this.walletService.findAllPaginated(clientId, {
+    const { data, page } = await this.walletService.findAll(clientId, {
       ...options,
       filters: { connectionId }
     })
@@ -211,7 +211,7 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.accountService.findAllPaginated(clientId, {
+    const { data, page } = await this.accountService.findAll(clientId, {
       ...options,
       filters: { connectionId }
     })

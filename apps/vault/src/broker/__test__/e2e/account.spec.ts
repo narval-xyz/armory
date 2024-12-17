@@ -81,7 +81,7 @@ describe('Account', () => {
       expect(response.status).toEqual(HttpStatus.OK)
 
       expect(response.body).toEqual({
-        accounts: TEST_ACCOUNTS.map(getExpectedAccount),
+        accounts: TEST_ACCOUNTS.map(getExpectedAccount).reverse(),
         page: {
           next: null
         }
@@ -164,15 +164,15 @@ describe('Account', () => {
       expect(secondResponse.body.accounts[0].accountId).not.toBe(firstResponse.body.accounts[0].accountId)
     })
 
-    it('handles descending orderBy createdAt parameter correctly', async () => {
+    it('handles ascending createdAt parameter correctly', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/provider/accounts?orderBy=createdAt&desc=true`)
+        .get(`/provider/accounts?sortOrder=asc`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
           'detached-jws',
           await getJwsd({
             userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/accounts?orderBy=createdAt&desc=true',
+            requestUrl: '/provider/accounts?sortOrder=asc',
             payload: {},
             htm: 'GET'
           })
@@ -181,8 +181,8 @@ describe('Account', () => {
 
       const returnedAccounts = response.body.accounts
       expect(returnedAccounts).toHaveLength(TEST_ACCOUNTS.length)
-      expect(new Date(returnedAccounts[0].createdAt).getTime()).toBeGreaterThanOrEqual(
-        new Date(returnedAccounts[1].createdAt).getTime()
+      expect(new Date(returnedAccounts[1].createdAt).getTime()).toBeGreaterThanOrEqual(
+        new Date(returnedAccounts[0].createdAt).getTime()
       )
     })
   })

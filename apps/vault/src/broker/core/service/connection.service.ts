@@ -13,11 +13,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
-import {
-  ConnectionRepository,
-  FilterOptions,
-  FindAllPaginatedOptions
-} from '../../persistence/repository/connection.repository'
+import { ConnectionRepository, FindAllOptions } from '../../persistence/repository/connection.repository'
 import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
@@ -369,14 +365,10 @@ export class ConnectionService {
 
   async findAll<T extends boolean = false>(
     clientId: string,
-    options?: FilterOptions,
+    options?: FindAllOptions,
     includeCredentials?: T
-  ): Promise<T extends true ? ConnectionWithCredentials[] : Connection[]> {
+  ): Promise<T extends true ? PaginatedResult<ConnectionWithCredentials> : PaginatedResult<Connection>> {
     return this.connectionRepository.findAll(clientId, options, includeCredentials)
-  }
-
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
-    return this.connectionRepository.findAllPaginated(clientId, options)
   }
 
   async revoke(clientId: string, connectionId: string): Promise<boolean> {

@@ -1,4 +1,4 @@
-import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { ProviderAccount, ProviderAddress } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -18,17 +18,11 @@ type FindAllFilters = {
   }
 }
 
-export type FindAllPaginatedOptions = PaginationOptions & FindAllFilters
-
-export type FindAllOptions = FindAllFilters
+export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
 @Injectable()
 export class AccountRepository {
   constructor(private prismaService: PrismaService) {}
-
-  static getCursorOrderColumns(): Array<keyof ProviderAccount> {
-    return ['createdAt']
-  }
 
   static parseModel(model: ProviderAccountAndRelations): Account {
     const { id, ...rest } = model
@@ -54,17 +48,18 @@ export class AccountRepository {
     }
   }
 
-  async findByClientId(clientId: string, options?: PaginationOptions): Promise<PaginatedResult<Account>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: AccountRepository.getCursorOrderColumns() })
+  async findByClientId(clientId: string, opts?: PaginationOptions): Promise<PaginatedResult<Account>> {
+    const pagination = applyPagination(opts)
 
-    const result = await this.prismaService.providerAccount.findMany({
+    const items = await this.prismaService.providerAccount.findMany({
       where: { clientId },
       include: {
         addresses: true
       },
       ...pagination
     })
-    const { data, page } = getPaginatedResult({ items: result, options: pagination })
+
+    const { data, page } = getPaginatedResult({ items, pagination })
     return {
       data: data.map(AccountRepository.parseModel),
       page
@@ -91,10 +86,8 @@ export class AccountRepository {
   async findAddressesByAccountId(
     clientId: string,
     accountId: string,
-    options: PaginationOptions
+    pagination: PaginationOptions
   ): Promise<PaginatedResult<Address>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: AccountRepository.getCursorOrderColumns() })
-
     const account = await this.prismaService.providerAccount.findUnique({
       where: { clientId, id: accountId },
       include: {
@@ -108,36 +101,9 @@ export class AccountRepository {
         context: { accountId }
       })
     }
-    const { data, page } = getPaginatedResult({ items: account.addresses, options: pagination })
+    const { data, page } = getPaginatedResult({ items: account.addresses, pagination })
     return {
       data: data.map(AddressRepository.parseModel),
-      page
-    }
-  }
-
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Account>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: AccountRepository.getCursorOrderColumns() })
-    const result = await this.prismaService.providerAccount.findMany({
-      where: {
-        clientId,
-        walletId: options?.filters?.walletId,
-        wallet: {
-          connections: {
-            some: {
-              connectionId: options?.filters?.connectionId
-            }
-          }
-        }
-      },
-      include: {
-        addresses: true
-      },
-      ...pagination
-    })
-    const { data, page } = getPaginatedResult({ items: result, options: pagination })
-
-    return {
-      data: data.map(AccountRepository.parseModel),
       page
     }
   }
@@ -150,7 +116,9 @@ export class AccountRepository {
     return accounts
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<Account[]> {
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Account>> {
+    const pagination = applyPagination(options?.pagination)
+
     const models = await this.prismaService.providerAccount.findMany({
       where: {
         clientId,
@@ -172,9 +140,15 @@ export class AccountRepository {
       },
       include: {
         addresses: true
-      }
+      },
+      ...pagination
     })
 
-    return models.map(AccountRepository.parseModel)
+    const { data, page } = getPaginatedResult({ items: models, pagination })
+
+    return {
+      data: data.map(AccountRepository.parseModel),
+      page
+    }
   }
 }

@@ -43,7 +43,7 @@ export class AnchorageSyncService {
       signKey: connection.credentials.privateKey
     })
 
-    const existingWallets = await this.walletService.findAll(connection.clientId, {
+    const { data: existingWallets } = await this.walletService.findAll(connection.clientId, {
       filters: {
         externalIds: anchorageVaults.map((vault) => vault.vaultId)
       }
@@ -101,13 +101,13 @@ export class AnchorageSyncService {
 
     const walletExternalIds = uniq(anchorageWallets.map(({ vaultId }) => vaultId))
 
-    const existingWallets = await this.walletService.findAll(connection.clientId, {
+    const { data: existingWallets } = await this.walletService.findAll(connection.clientId, {
       filters: {
         externalIds: walletExternalIds
       }
     })
 
-    const existingAccounts = await this.accountService.findAll(connection.clientId, {
+    const { data: existingAccounts } = await this.accountService.findAll(connection.clientId, {
       filters: {
         externalIds: uniq(anchorageWallets.map((wallet) => wallet.walletId))
       }
@@ -200,7 +200,7 @@ export class AnchorageSyncService {
     ).flat()
 
     // Query existing accounts to associate them with their children addresses.
-    const existingAccounts = await this.accountService.findAll(connection.clientId, {
+    const { data: existingAccounts } = await this.accountService.findAll(connection.clientId, {
       filters: {
         externalIds: anchorageAddresses.map((anchorageAddress) => anchorageAddress.walletId)
       }
@@ -208,7 +208,7 @@ export class AnchorageSyncService {
 
     const existingAccountsByExternalId = new Map(existingAccounts.map((account) => [account.externalId, account]))
 
-    const existingAddresses = await this.addressService.findAll(connection.clientId, {
+    const { data: existingAddresses } = await this.addressService.findAll(connection.clientId, {
       filters: {
         externalIds: anchorageAddresses.map((anchorageAddress) => anchorageAddress.addressId)
       }

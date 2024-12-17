@@ -1,4 +1,4 @@
-import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import {
   ProviderAccount,
@@ -30,17 +30,13 @@ type FindAllFilters = {
   }
 }
 
-export type FindAllOptions = FindAllFilters
+export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
 export type FindAllPaginatedOptions = PaginationOptions & FindAllFilters
 
 @Injectable()
 export class WalletRepository {
   constructor(private prismaService: PrismaService) {}
-
-  static getCursorOrderColumns(): Array<keyof ProviderWallet> {
-    return ['createdAt']
-  }
 
   static parseModel(wallet: ProviderWalletsAndRelations): Wallet {
     const { connections, accounts, id, ...walletData } = wallet
@@ -53,12 +49,14 @@ export class WalletRepository {
       return AccountRepository.parseModel(account)
     })
 
-    return Wallet.parse({
+    const parsedWallet = Wallet.parse({
       ...walletData,
       walletId: id,
       accounts: mappedAccounts,
       connections: validConnections
     })
+
+    return parsedWallet
   }
 
   static parseEntity(entity: Wallet): ProviderWallet {
@@ -74,7 +72,8 @@ export class WalletRepository {
   }
 
   async findByClientId(clientId: string, options?: PaginationOptions): Promise<PaginatedResult<Wallet>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: WalletRepository.getCursorOrderColumns() })
+    const pagination = applyPagination(options)
+
     const result = await this.prismaService.providerWallet.findMany({
       where: { clientId },
       include: {
@@ -93,7 +92,8 @@ export class WalletRepository {
       },
       ...pagination
     })
-    const { data, page } = getPaginatedResult({ items: result, options: pagination })
+
+    const { data, page } = getPaginatedResult({ items: result, pagination })
 
     return {
       data: data.map(WalletRepository.parseModel),
@@ -129,15 +129,15 @@ export class WalletRepository {
     return WalletRepository.parseModel(wallet)
   }
 
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Wallet>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: WalletRepository.getCursorOrderColumns() })
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Wallet>> {
+    const pagination = applyPagination(options?.pagination)
     const result = await this.prismaService.providerWallet.findMany({
       where: {
         clientId,
         ...(options?.filters?.walletIds
           ? {
               id: {
-                in: options.filters.walletIds
+                in: options?.filters.walletIds
               }
             }
           : {}),
@@ -145,7 +145,7 @@ export class WalletRepository {
           ? {
               connections: {
                 some: {
-                  connectionId: options.filters.connectionId
+                  connectionId: options?.filters.connectionId
                 }
               }
             }
@@ -167,7 +167,7 @@ export class WalletRepository {
       },
       ...pagination
     })
-    const { data, page } = getPaginatedResult({ items: result, options: pagination })
+    const { data, page } = getPaginatedResult({ items: result, pagination })
 
     return {
       data: data.map(WalletRepository.parseModel),
@@ -175,60 +175,11 @@ export class WalletRepository {
     }
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<Wallet[]> {
-    const models = await this.prismaService.providerWallet.findMany({
-      where: {
-        clientId,
-        ...(options?.filters?.connectionId
-          ? {
-              connections: {
-                some: {
-                  connectionId: options.filters.connectionId
-                }
-              }
-            }
-          : {}),
-        ...(options?.filters?.walletIds
-          ? {
-              id: {
-                in: options.filters.walletIds
-              }
-            }
-          : {}),
-        ...(options?.filters?.externalIds
-          ? {
-              externalId: {
-                in: options.filters.externalIds
-              }
-            }
-          : {})
-      },
-      include: {
-        accounts: {
-          include: {
-            addresses: true
-          }
-        },
-        connections: {
-          include: {
-            connection: {
-              select: connectionSelectWithoutCredentials
-            }
-          }
-        }
-      }
-    })
-
-    return models.map(WalletRepository.parseModel)
-  }
-
   async findAccountsByWalletId(
     clientId: string,
     walletId: string,
-    options: PaginationOptions
+    pagination: PaginationOptions
   ): Promise<PaginatedResult<Account>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: AccountRepository.getCursorOrderColumns() })
-
     const wallet = await this.prismaService.providerWallet.findUnique({
       where: { clientId, id: walletId },
       include: {
@@ -253,7 +204,7 @@ export class WalletRepository {
         context: { walletId }
       })
     }
-    const { data, page } = getPaginatedResult({ items: wallet.accounts, options: pagination })
+    const { data, page } = getPaginatedResult({ items: wallet.accounts, pagination })
 
     return {
       data: data.map(AccountRepository.parseModel),

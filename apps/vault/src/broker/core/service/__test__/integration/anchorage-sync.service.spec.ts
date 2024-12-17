@@ -102,9 +102,8 @@ describe(AnchorageSyncService.name, () => {
     it('fetches anchorage vaults and persist them as wallets', async () => {
       const syncedWallets = await anchorageSyncService.syncWallets(connection)
 
-      const wallets = await walletService.findAll(connection.clientId)
-
-      expect(syncedWallets).toEqual(wallets)
+      const { data: wallets } = await walletService.findAll(connection.clientId)
+      expect(syncedWallets).toEqual(expect.arrayContaining(wallets))
     })
 
     it('does not duplicate wallets', async () => {
@@ -126,7 +125,7 @@ describe(AnchorageSyncService.name, () => {
 
       const syncedAccounts = await anchorageSyncService.syncAccounts(connection)
 
-      const accounts = await accountService.findAll(connection.clientId)
+      const { data: accounts } = await accountService.findAll(connection.clientId)
 
       expect(syncedAccounts.sort(sortByExternalId)).toEqual(accounts.sort(sortByExternalId))
     })
@@ -153,7 +152,7 @@ describe(AnchorageSyncService.name, () => {
     it('fetches anchorage addresses and persist them as addresses', async () => {
       const syncedAddresses = await anchorageSyncService.syncAddresses(connection)
 
-      const addresses = await addressService.findAll(connection.clientId)
+      const { data: addresses } = await addressService.findAll(connection.clientId)
 
       expect(syncedAddresses).toEqual(
         addresses.map((address) => ({

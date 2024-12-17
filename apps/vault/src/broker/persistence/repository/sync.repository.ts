@@ -1,4 +1,4 @@
-import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common/decorators'
 import { ProviderSync } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -6,11 +6,12 @@ import { ModelInvalidException } from '../../core/exception/model-invalid.except
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Sync, SyncStatus } from '../../core/type/sync.type'
 
-export type FindAllPaginatedOptions = PaginationOptions & {
+export type FindAllOptions = PaginationOptions & {
   filters?: {
     connectionId?: string
     status?: SyncStatus
   }
+  pagination?: PaginationOptions
 }
 
 export type UpdateSync = {
@@ -68,10 +69,6 @@ export class SyncRepository {
     }
   }
 
-  static getCursorOrderColumns(): Array<keyof ProviderSync> {
-    return ['createdAt']
-  }
-
   async create(sync: Sync): Promise<Sync> {
     await this.prismaService.providerSync.create({
       data: SyncRepository.parseEntity(sync)
@@ -119,11 +116,8 @@ export class SyncRepository {
     throw new NotFoundException({ context: { clientId, syncId } })
   }
 
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Sync>> {
-    const pagination = getPaginationQuery({
-      options,
-      cursorOrderColumns: SyncRepository.getCursorOrderColumns()
-    })
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Sync>> {
+    const pagination = applyPagination(options?.pagination)
 
     const models = await this.prismaService.providerSync.findMany({
       where: {
@@ -134,7 +128,7 @@ export class SyncRepository {
       ...pagination
     })
 
-    const { data, page } = getPaginatedResult({ items: models, options: pagination })
+    const { data, page } = getPaginatedResult({ items: models, pagination })
 
     return {
       data: data.map(SyncRepository.parseModel),

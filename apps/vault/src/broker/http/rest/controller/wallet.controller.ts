@@ -86,7 +86,7 @@ export class WalletController {
     @Param('walletId') walletId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.accountService.findAllPaginated(clientId, {
+    const { data, page } = await this.accountService.findAll(clientId, {
       ...options,
       filters: { walletId }
     })

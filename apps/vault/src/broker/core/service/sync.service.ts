@@ -1,7 +1,7 @@
 import { LoggerService, PaginatedResult, TraceService } from '@narval/nestjs-shared'
 import { Inject, Injectable } from '@nestjs/common/decorators'
 import { v4 as uuid } from 'uuid'
-import { FindAllPaginatedOptions, SyncRepository } from '../../persistence/repository/sync.repository'
+import { FindAllOptions, SyncRepository } from '../../persistence/repository/sync.repository'
 import { ActiveConnectionWithCredentials } from '../type/connection.type'
 import { StartSync, Sync, SyncStarted, SyncStatus } from '../type/sync.type'
 import { AnchorageSyncService } from './anchorage-sync.service'
@@ -66,8 +66,8 @@ export class SyncService {
     }
   }
 
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Sync>> {
-    return this.syncRepository.findAllPaginated(clientId, options)
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Sync>> {
+    return this.syncRepository.findAll(clientId, options)
   }
 
   async findById(clientId: string, syncId: string): Promise<Sync> {

@@ -623,11 +623,7 @@ describe('Connection', () => {
         .send()
 
       const { body: pageTwo } = await request(app.getHttpServer())
-        .get('/provider/connections')
-        .query({
-          limit: 1,
-          cursor: pageOne.page.next
-        })
+        .get(`/provider/connections?limit=1&cursor=${pageOne.page.next}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set(
           'detached-jws',
@@ -839,7 +835,7 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
-        accounts: accountsForConnection.map(getExpectedAccount),
+        accounts: accountsForConnection.map(getExpectedAccount).reverse(),
         page: {}
       })
     })

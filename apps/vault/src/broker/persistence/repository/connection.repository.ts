@@ -1,4 +1,4 @@
-import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ProviderConnection } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -26,7 +26,7 @@ export type FilterOptions = {
   }
 }
 
-export type FindAllPaginatedOptions = PaginationOptions & FilterOptions
+export type FindAllOptions = FilterOptions & { pagination?: PaginationOptions }
 
 export const connectionSelectWithoutCredentials = {
   id: true,
@@ -46,9 +46,6 @@ export const connectionSelectWithoutCredentials = {
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
 
-  static getCursorOrderColumns(): Array<keyof ProviderConnection> {
-    return ['createdAt']
-  }
   static parseModel<T extends boolean = false>(
     model?: Partial<ProviderConnection> | null,
     includeCredentials?: T
@@ -147,9 +144,10 @@ export class ConnectionRepository {
 
   async findAll<T extends boolean = false>(
     clientId: string,
-    options?: FilterOptions,
+    options?: FindAllOptions,
     includeCredentials?: T
-  ): Promise<T extends true ? ConnectionWithCredentials[] : Connection[]> {
+  ): Promise<T extends true ? PaginatedResult<ConnectionWithCredentials> : PaginatedResult<Connection>> {
+    const pagination = applyPagination(options?.pagination)
     const models = await this.prismaService.providerConnection.findMany({
       where: {
         clientId,
@@ -159,35 +157,21 @@ export class ConnectionRepository {
         ? {}
         : {
             select: connectionSelectWithoutCredentials
-          })
-    })
-
-    return models.map((model) => ConnectionRepository.parseModel(model, includeCredentials)) as T extends true
-      ? ConnectionWithCredentials[]
-      : Connection[]
-  }
-
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
-    const pagination = getPaginationQuery({
-      options: PaginationOptions.parse(options),
-      cursorOrderColumns: ConnectionRepository.getCursorOrderColumns()
-    })
-
-    const models = await this.prismaService.providerConnection.findMany({
-      select: connectionSelectWithoutCredentials,
-      where: {
-        clientId,
-        status: options?.filters?.status
-      },
+          }),
       ...pagination
     })
+    const { data, page } = getPaginatedResult({ items: models, pagination })
 
-    const { data, page } = getPaginatedResult({ items: models, options: pagination })
+    const parsedData = data.map((model) => ConnectionRepository.parseModel(model, includeCredentials))
 
-    return {
-      data: data.map((model) => ConnectionRepository.parseModel(model, false)),
+    const result = {
+      data: parsedData,
       page
     }
+
+    return result as unknown as T extends true
+      ? PaginatedResult<ConnectionWithCredentials>
+      : PaginatedResult<Connection>
   }
 
   async exists(clientId: string, id: string): Promise<boolean> {

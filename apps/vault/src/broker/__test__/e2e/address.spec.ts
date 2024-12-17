@@ -74,7 +74,7 @@ describe('Address', () => {
       expect(response.status).toEqual(HttpStatus.OK)
 
       expect(response.body).toEqual({
-        addresses: TEST_ADDRESSES.map(getExpectedAddress),
+        addresses: TEST_ADDRESSES.map(getExpectedAddress).reverse(),
         page: {
           next: null
         }
@@ -140,15 +140,15 @@ describe('Address', () => {
       expect(secondResponse.body.addresses[0].addressId).not.toBe(firstResponse.body.addresses[0].addressId)
     })
 
-    it('handles descending orderBy createdAt parameter correctly', async () => {
+    it('handles ascending createdAt parameter correctly', async () => {
       const response = await request(app.getHttpServer())
-        .get('/provider/addresses?orderBy=createdAt&desc=true')
+        .get('/provider/addresses?sortOrder=asc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
           'detached-jws',
           await getJwsd({
             userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses?orderBy=createdAt&desc=true',
+            requestUrl: '/provider/addresses?sortOrder=asc',
             payload: {},
             htm: 'GET'
           })
@@ -157,8 +157,8 @@ describe('Address', () => {
 
       const returnedAddresses = response.body.addresses
       expect(returnedAddresses).toHaveLength(TEST_ADDRESSES.length)
-      expect(new Date(returnedAddresses[0].createdAt).getTime()).toBeGreaterThanOrEqual(
-        new Date(returnedAddresses[1].createdAt).getTime()
+      expect(new Date(returnedAddresses[1].createdAt).getTime()).toBeGreaterThanOrEqual(
+        new Date(returnedAddresses[0].createdAt).getTime()
       )
     })
   })

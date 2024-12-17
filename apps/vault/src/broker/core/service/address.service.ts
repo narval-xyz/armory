@@ -1,6 +1,6 @@
 import { PaginatedResult, PaginationOptions } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import { AddressRepository, FindAllFilters } from '../../persistence/repository/address.repository'
+import { AddressRepository, FindAllOptions } from '../../persistence/repository/address.repository'
 import { Address } from '../type/indexed-resources.type'
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AddressService {
     return this.addressRepository.bulkCreate(addresses)
   }
 
-  async findAll(clientId: string, opts?: FindAllFilters): Promise<Address[]> {
+  async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
     return this.addressRepository.findAll(clientId, opts)
   }
 }

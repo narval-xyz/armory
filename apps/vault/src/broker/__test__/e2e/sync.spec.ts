@@ -156,7 +156,7 @@ describe('Sync', () => {
         )
         .send()
 
-      const syncs = await syncService.findAllPaginated(clientId)
+      const syncs = await syncService.findAll(clientId)
       const [sync] = syncs.data
 
       expect(body).toMatchObject({
@@ -192,7 +192,7 @@ describe('Sync', () => {
         )
         .send({ connectionId: activeConnection.connectionId })
 
-      const syncs = await syncService.findAllPaginated(clientId)
+      const syncs = await syncService.findAll(clientId)
       const [sync] = syncs.data
 
       expect(body).toEqual({

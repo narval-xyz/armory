@@ -1,4 +1,4 @@
-import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { ProviderAddress } from '@prisma/client/vault'
 import { z } from 'zod'
@@ -7,19 +7,20 @@ import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Provider } from '../../core/type/connection.type'
 import { Address } from '../../core/type/indexed-resources.type'
 
-export type FindAllFilters = {
+type FindAllFilters = {
   filters?: {
+    connectionId?: string
+    accountIds?: string[]
+    walletIds?: string[]
     externalIds?: string[]
   }
 }
 
+export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
+
 @Injectable()
 export class AddressRepository {
   constructor(private prismaService: PrismaService) {}
-
-  static getCursorOrderColumns(): Array<keyof ProviderAddress> {
-    return ['createdAt']
-  }
 
   static parseModel(model: ProviderAddress): Address {
     const { id, ...rest } = model
@@ -44,15 +45,15 @@ export class AddressRepository {
     }
   }
 
-  async findByClientId(clientId: string, options?: PaginationOptions): Promise<PaginatedResult<Address>> {
-    const pagination = getPaginationQuery({ options, cursorOrderColumns: AddressRepository.getCursorOrderColumns() })
+  async findByClientId(clientId: string, opts?: PaginationOptions): Promise<PaginatedResult<Address>> {
+    const pagination = applyPagination(opts)
 
     const result = await this.prismaService.providerAddress.findMany({
       where: { clientId },
       ...pagination
     })
 
-    const { data, page } = getPaginatedResult({ items: result, options: pagination })
+    const { data, page } = getPaginatedResult({ items: result, pagination })
     return {
       data: data.map(AddressRepository.parseModel),
       page
@@ -73,7 +74,9 @@ export class AddressRepository {
     return AddressRepository.parseModel(address)
   }
 
-  async findAll(clientId: string, opts?: FindAllFilters): Promise<Address[]> {
+  async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
+    const pagination = applyPagination(opts?.pagination)
+
     const models = await this.prismaService.providerAddress.findMany({
       where: {
         clientId,
@@ -84,10 +87,16 @@ export class AddressRepository {
               }
             }
           : {})
-      }
+      },
+      ...pagination
     })
 
-    return models.map(AddressRepository.parseModel)
+    const { data, page } = getPaginatedResult({ items: models, pagination })
+
+    return {
+      data: data.map(AddressRepository.parseModel),
+      page
+    }
   }
 
   async bulkCreate(addresses: Address[]): Promise<Address[]> {

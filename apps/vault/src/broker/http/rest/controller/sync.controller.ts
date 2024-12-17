@@ -41,7 +41,7 @@ export class SyncController {
       return SyncStatusDto.create(await this.syncService.start([connection as ActiveConnectionWithCredentials]))
     }
 
-    const connections = await this.connectionService.findAll(
+    const { data: connections } = await this.connectionService.findAll(
       clientId,
       {
         filters: {
@@ -88,7 +88,7 @@ export class SyncController {
     @PaginationParam() options: PaginationOptions,
     @Query('connectionId') connectionId?: string
   ): Promise<PaginatedSyncsDto> {
-    const { data, page } = await this.syncService.findAllPaginated(clientId, {
+    const { data, page } = await this.syncService.findAll(clientId, {
       ...options,
       filters: { connectionId }
     })

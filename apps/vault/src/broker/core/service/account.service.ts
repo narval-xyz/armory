@@ -1,10 +1,6 @@
 import { PaginatedResult, PaginationOptions } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import {
-  AccountRepository,
-  FindAllOptions,
-  FindAllPaginatedOptions
-} from '../../persistence/repository/account.repository'
+import { AccountRepository, FindAllOptions } from '../../persistence/repository/account.repository'
 import { Account, Address } from '../type/indexed-resources.type'
 
 @Injectable()
@@ -27,15 +23,15 @@ export class AccountService {
     return this.accountRepository.findAddressesByAccountId(clientId, AccountId, options)
   }
 
-  async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Account>> {
-    return this.accountRepository.findAllPaginated(clientId, options)
+  async findAllPaginated(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Account>> {
+    return this.accountRepository.findAll(clientId, options)
   }
 
   async bulkCreate(accounts: Account[]): Promise<Account[]> {
     return this.accountRepository.bulkCreate(accounts)
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<Account[]> {
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Account>> {
     return this.accountRepository.findAll(clientId, options)
   }
 }

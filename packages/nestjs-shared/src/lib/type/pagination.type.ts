@@ -5,45 +5,60 @@ export const Page = z
     next: z.string().nullable()
   })
   .optional()
-
 export type Page = z.infer<typeof Page>
+
+export const PageCursorEncoder = z.object({
+ id: z.string(),
+ createdAt: z.date()
+}).transform((data) => {
+  const cursorData = `${data.createdAt.toISOString()}|${data.id}`
+  return Buffer.from(cursorData).toString('base64')
+})
+export type PageCursorEncoder = z.infer<typeof PageCursorEncoder> 
+
+export const PageCursorDecoder = z.string()
+  .transform((cursor) => Buffer.from(cursor, 'base64').toString())
+  .pipe(
+    z.string().regex(/^[^|]+\|[^|]+$/, 'Cursor must contain exactly one "|"')
+    .transform(str => {
+      const [timestamp, id] = str.split('|')
+      return { timestamp, id }
+    })
+    .pipe(
+      z.object({
+        timestamp: z.string().datetime(),
+        id: z.string().min(1)
+      }).transform(({ timestamp, id }) => ({
+        id,
+        createdAt: new Date(timestamp)
+      }))
+    )
+  )
+export type PageCursor = z.infer<typeof PageCursorDecoder>
 
 export const createPaginatedSchema = <T extends z.ZodType>(itemSchema: T) =>
   z.object({
     data: z.array(itemSchema),
-    page: Page
+    page: Page.optional()
   })
 
 export type PaginatedResult<T> = z.infer<ReturnType<typeof createPaginatedSchema<z.ZodType<T>>>>
 
-export const PaginationOptions = z
+export const PaginationQuery = z
   .object({
     cursor: z.string().optional(),
-    limit: z.coerce.number().min(1).max(100).default(25).optional(),
-    orderBy: z.string().optional(),
-    desc: z
-      .string()
-      .optional()
-      .transform((val) => val === 'true')
-    // TODO: @ptroger remamed 'desc' into 'sortOrder' that defaults to 'asc' and is optional
+    limit: z.coerce.number().min(1).max(100).optional().default(25),
+    sortOrder: z
+      .enum(['asc', 'desc'])
+      .optional(),
+    direction: z.enum(['prev', 'next']).optional().default('next')
   })
-  .transform((data) => ({
-    cursor: data.cursor,
-    limit: data.limit,
-    orderBy: data.orderBy
-      ? {
-          [data.orderBy]: data.desc ? ('desc' as const) : ('asc' as const)
-        }
-      : undefined
-  }))
+export type PaginationQuery = z.infer<typeof PaginationQuery>
 
-export type PaginationOptions = z.infer<typeof PaginationOptions>
-
-export type PrismaPagination = {
+export type PaginationOptions = {
   take?: number
-  cursor?: {
-    id: string
-  }
+  cursor?: PageCursor
   skip?: number
-  orderBy?: Record<string, 'asc' | 'desc'>
+  sortOrder?: 'asc' | 'desc'
+  orderBy?: {[key: string]: 'asc' | 'desc'}[]
 }

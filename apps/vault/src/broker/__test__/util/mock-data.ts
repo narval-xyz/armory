@@ -24,9 +24,11 @@ const privateKey = {
 const { d: _d, ...publicKey } = privateKey
 
 export const TEST_CLIENT_ID = 'test-client-id'
+export const TEST_DIFFERENT_CLIENT_ID = 'different-client-id'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
+const now = new Date()
 export const testUserPrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
 export const testUserPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
 export const testClient: Client = {
@@ -65,8 +67,48 @@ export const testClient: Client = {
   configurationSource: 'dynamic',
   backupPublicKey: null,
   baseUrl: null,
-  createdAt: new Date(),
-  updatedAt: new Date()
+  createdAt: now,
+  updatedAt: now
+}
+
+export const testDifferentClient: Client = {
+  clientId: TEST_DIFFERENT_CLIENT_ID,
+  auth: {
+    disabled: false,
+    local: {
+      jwsd: {
+        maxAge: 600,
+        requiredComponents: ['htm', 'uri', 'created', 'ath']
+      },
+      allowedUsersJwksUrl: null,
+      allowedUsers: [
+        {
+          userId: 'user-1',
+          publicKey: testUserPublicJWK
+        }
+      ]
+    },
+    tokenValidation: {
+      disabled: true,
+      url: null,
+      jwksUrl: null,
+      verification: {
+        audience: null,
+        issuer: 'https://armory.narval.xyz',
+        maxTokenAge: 300,
+        requireBoundTokens: false, // DO NOT REQUIRE BOUND TOKENS; we're testing both payload.cnf bound tokens and unbound here.
+        allowBearerTokens: false,
+        allowWildcard: []
+      },
+      pinnedPublicKey: null
+    }
+  },
+  name: 'test-client',
+  configurationSource: 'dynamic',
+  backupPublicKey: null,
+  baseUrl: null,
+  createdAt: now,
+  updatedAt: now
 }
 
 export const TEST_CONNECTIONS = [
@@ -82,8 +124,8 @@ export const TEST_CONNECTIONS = [
       publicKey
     },
     status: 'active',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     revokedAt: null
   },
   {
@@ -98,8 +140,8 @@ export const TEST_CONNECTIONS = [
       publicKey
     },
     status: 'active',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     revokedAt: null
   }
 ]
@@ -109,13 +151,43 @@ export const TEST_WALLET_CONNECTIONS = [
     clientId: TEST_CLIENT_ID,
     connectionId: 'connection-1',
     walletId: 'wallet-1',
-    createdAt: new Date()
+    createdAt: now
   },
   {
     clientId: TEST_CLIENT_ID,
     connectionId: 'connection-2',
     walletId: 'wallet-2',
-    createdAt: new Date()
+    createdAt: now
+  }
+]
+
+export const TEST_WALLETS_WITH_SAME_TIMESTAMP = [
+  {
+    id: 'wallet-6',
+    clientId: TEST_DIFFERENT_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 1',
+    externalId: 'ext-wallet-1',
+    createdAt: now,
+    updatedAt: now
+  },
+  {
+    id: 'wallet-7',
+    clientId: TEST_DIFFERENT_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 2',
+    externalId: 'ext-wallet-2',
+    createdAt: now,
+    updatedAt: now
+  },
+  {
+    id: 'wallet-8',
+    clientId: TEST_DIFFERENT_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 3',
+    externalId: 'ext-wallet-3',
+    createdAt: now,
+    updatedAt: now
   }
 ]
 
@@ -126,8 +198,8 @@ export const TEST_WALLETS = [
     provider: 'anchorage',
     label: 'Test Wallet 1',
     externalId: 'ext-wallet-1',
-    createdAt: new Date('2024-01-01T00:00:00.000Z'),
-    updatedAt: new Date('2024-01-01T00:00:00.000Z')
+    createdAt: now,
+    updatedAt: now
   },
   {
     id: 'wallet-2',
@@ -135,8 +207,35 @@ export const TEST_WALLETS = [
     provider: 'anchorage',
     label: 'Test Wallet 2',
     externalId: 'ext-wallet-2',
-    createdAt: new Date('2024-01-01T00:00:01.000Z'), // One second later
-    updatedAt: new Date('2024-01-01T00:00:01.000Z')
+    createdAt: new Date(now.getTime() + 1000),
+    updatedAt: new Date(now.getTime() + 1000)
+  },
+  {
+    id: 'wallet-3',
+    clientId: TEST_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 3',
+    externalId: 'ext-wallet-3',
+    createdAt: new Date(now.getTime() + 2000),
+    updatedAt: new Date(now.getTime() + 2000)
+  },
+  {
+    id: 'wallet-4',
+    clientId: TEST_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 4',
+    externalId: 'ext-wallet-4',
+    createdAt: new Date(now.getTime() + 3000),
+    updatedAt: new Date(now.getTime() + 3000)
+  },
+  {
+    id: 'wallet-5',
+    clientId: TEST_CLIENT_ID,
+    provider: 'anchorage',
+    label: 'Test Wallet 5',
+    externalId: 'ext-wallet-5',
+    createdAt: new Date(now.getTime() + 4000),
+    updatedAt: new Date(now.getTime() + 4000)
   }
 ]
 
@@ -149,8 +248,8 @@ export const TEST_ACCOUNTS = [
     externalId: 'ext-account-1',
     walletId: 'wallet-1', // Linking to wallet-1
     networkId: '1',
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: now,
+    updatedAt: now
   },
   {
     id: 'account-2',
@@ -160,8 +259,8 @@ export const TEST_ACCOUNTS = [
     externalId: 'ext-account-2',
     walletId: 'wallet-1', // Linking to wallet-1
     networkId: '60',
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: now,
+    updatedAt: now
   }
 ]
 
@@ -173,8 +272,8 @@ export const TEST_ADDRESSES = [
     externalId: 'ext-address-1',
     accountId: 'account-1', // Linking to account-1
     address: '0x1234567890123456789012345678901234567890', // Example ETH address
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: now,
+    updatedAt: now
   },
   {
     id: 'address-2',
@@ -183,8 +282,8 @@ export const TEST_ADDRESSES = [
     externalId: 'ext-address-2',
     accountId: 'account-1', // Another address for account-1
     address: '0x0987654321098765432109876543210987654321', // Example ETH address
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: now,
+    updatedAt: now
   },
   {
     id: 'address-3',
@@ -193,8 +292,8 @@ export const TEST_ADDRESSES = [
     externalId: 'ext-address-3',
     accountId: 'account-2', // Linking to account-2
     address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', // Example BTC address
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: now,
+    updatedAt: now
   }
 ]
 

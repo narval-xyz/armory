@@ -1,7 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { PaginationOptions } from '../type/pagination.type'
+import { PaginationOptions, PaginationQuery } from '../type'
+import { getPaginationQuery } from '../util'
 
 export const PaginationParam = createParamDecorator((_data: unknown, context: ExecutionContext): PaginationOptions => {
   const req = context.switchToHttp().getRequest()
-  return PaginationOptions.parse(req.query)
+
+  const options = PaginationQuery.parse(req.query)
+  return getPaginationQuery({ options })
 })
