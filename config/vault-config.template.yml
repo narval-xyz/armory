@@ -5,7 +5,7 @@
 #####
 
 # Config File Version
-version: "1"
+version: '1'
 
 # Core service configuration
 env: development # Enum: development, test, production
@@ -59,15 +59,15 @@ keyring:
 
   # HMAC secret for integrity verification of data in the database. Ensure you wrap the string in quotes otherwise it will be interpreted as a number.
   # If not set, will be generated during first boot.
-  hmacSecret: "4ce6d3404a13c971202693b669668e49e2d6d7e190428d0edd99d1cec1536efb"
+  hmacSecret: '4ce6d3404a13c971202693b669668e49e2d6d7e190428d0edd99d1cec1536efb'
 
 # Declarative clients (tenants)
 clients:
   # Each key is the client ID
   dev-client-1:
-    name: "Example Client"
+    name: 'Example Client'
     # Override default baseUrl for this client, used for verifying jwsd/httpsig
-    baseUrl: "http://localhost:3011" # [optional]
+    baseUrl: 'http://localhost:3011' # [optional]
 
     auth:
       # Disable all auth; only useful in dev
@@ -85,10 +85,10 @@ clients:
             jwsd:
               maxAge: 300
               requiredComponents:
-                - "htm" # HTTP method
-                - "uri" # Target URI
-                - "created" # Created timestamp
-                - "ath" # Authorization (accessToken)
+                - 'htm' # HTTP method
+                - 'uri' # Target URI
+                - 'created' # Created timestamp
+                - 'ath' # Authorization (accessToken)
 
           # [optional]: Restrict to specific user credentials
           # - If set, ONLY these keys will be accepted.
@@ -100,37 +100,37 @@ clients:
           allowedUsers:
             - userId: admin-user-id-1
               publicKey:
-                kid: "user-credential-id"
-                kty: "EC"
-                crv: "secp256k1"
-                alg: "ES256K"
-                x: "..."
-                y: "..."
+                kid: 'user-credential-id'
+                kty: 'EC'
+                crv: 'secp256k1'
+                alg: 'ES256K'
+                x: '...'
+                y: '...'
 
       # Authorization options, typically this will be used to pin the policy engine's public signing key.
       tokenValidation:
         # (optional) if you want to disable authorization for this client. DO NOT USE IN PRODUCTION.
         disabled: false
         # The GNAP Authorization Server that issues tokens
-        url: "http://armory"
+        url: 'http://armory'
         # [optional] JWKS endpoint for the auth server; used for jwt verification. Or you can pin the key below.
         # jwksUrl: https://policy-engine/.well-known/jwks.json
 
         # [optional] Pinned public key; used for jwt verification. Must have this OR jwksUrl.
         publicKey:
-          kid: "policy-engine-client-key-id"
-          kty: "EC"
-          crv: "secp256k1"
-          alg: "ES256K"
-          x: "..."
-          y: "..."
+          kid: 'policy-engine-client-key-id'
+          kty: 'EC'
+          crv: 'secp256k1'
+          alg: 'ES256K'
+          x: '...'
+          y: '...'
 
         verification:
           # JWT verification options
           # [optional] Expected audience in JWTs
           audience: null
           # [optional] Expected issuer in JWTs
-          issuer: "dev-client-1.armory.narval.xyz"
+          issuer: 'dev-client-1.armory.narval.xyz'
           # [optional] Maximum age of JWTs in seconds
           maxTokenAge: 600
           # Whether tokens must be bound to signing keys
@@ -139,11 +139,11 @@ clients:
           allowBearerTokens: false
           # [optional] Paths that can be omitted from request hashing, e.g. for authorizing txns with variable gas
           allowWildcard:
-            - "transactionRequest.maxPriorityFeePerGas"
-            - "transactionRequest.maxFeePerGas"
-            - "transactionRequest.gas"
-            - "transactionRequest.gasPrice"
-            - "transactionRequest.nonce"
+            - 'transactionRequest.maxPriorityFeePerGas'
+            - 'transactionRequest.maxFeePerGas'
+            - 'transactionRequest.gas'
+            - 'transactionRequest.gasPrice'
+            - 'transactionRequest.nonce'
       # Auth config for requests from this service
       outgoing: null
 

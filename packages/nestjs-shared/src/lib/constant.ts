@@ -11,7 +11,6 @@ export const REQUEST_HEADER_CLIENT_SECRET = 'x-client-secret'
 
 export const OTEL_ATTR_CLIENT_ID = 'domain.client.id'
 
-
 //
 // Pagination
 //
@@ -22,9 +21,9 @@ export const MAX_QUERY_PAGINATION_LIMIT = 100
 export const DEFAULT_SERVICE_PAGINATION_LIMIT = 100
 export const DEFAULT_ORDER_BY = [
   {
-      createdAt: 'desc' as const,
+    createdAt: 'desc' as const
   },
   {
-      id: 'desc' as const,
-  },
-] as {[key: string]: 'asc' | 'desc'}[]
+    id: 'desc' as const
+  }
+] as { [key: string]: 'asc' | 'desc' }[]
