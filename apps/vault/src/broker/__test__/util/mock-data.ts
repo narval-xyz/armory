@@ -1,3 +1,17 @@
+import {
+  buildSignerEip191,
+  hash,
+  hexToBase64Url,
+  JwsdHeader,
+  PrivateKey,
+  privateKeyToHex,
+  secp256k1PrivateKeyToJwk,
+  secp256k1PrivateKeyToPublicJwk,
+  SigningAlg,
+  signJwsd
+} from '@narval/signature'
+import { Client } from '../../../shared/type/domain.type'
+
 const privateKey = {
   kty: 'OKP',
   crv: 'Ed25519',
@@ -10,6 +24,50 @@ const privateKey = {
 const { d: _d, ...publicKey } = privateKey
 
 export const TEST_CLIENT_ID = 'test-client-id'
+
+const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
+
+export const testUserPrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
+export const testUserPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
+export const testClient: Client = {
+  clientId: TEST_CLIENT_ID,
+  auth: {
+    disabled: false,
+    local: {
+      jwsd: {
+        maxAge: 600,
+        requiredComponents: ['htm', 'uri', 'created', 'ath']
+      },
+      allowedUsersJwksUrl: null,
+      allowedUsers: [
+        {
+          userId: 'user-1',
+          publicKey: testUserPublicJWK
+        }
+      ]
+    },
+    tokenValidation: {
+      disabled: true,
+      url: null,
+      jwksUrl: null,
+      verification: {
+        audience: null,
+        issuer: 'https://armory.narval.xyz',
+        maxTokenAge: 300,
+        requireBoundTokens: false, // DO NOT REQUIRE BOUND TOKENS; we're testing both payload.cnf bound tokens and unbound here.
+        allowBearerTokens: false,
+        allowWildcard: []
+      },
+      pinnedPublicKey: null
+    }
+  },
+  name: 'test-client',
+  configurationSource: 'dynamic',
+  backupPublicKey: null,
+  baseUrl: null,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
 
 export const TEST_CONNECTIONS = [
   {
@@ -24,7 +82,6 @@ export const TEST_CONNECTIONS = [
       publicKey
     },
     status: 'active',
-    integrity: 'test-integrity-1',
     createdAt: new Date(),
     updatedAt: new Date(),
     revokedAt: null
@@ -41,7 +98,6 @@ export const TEST_CONNECTIONS = [
       publicKey
     },
     status: 'active',
-    integrity: 'test-integrity-2',
     createdAt: new Date(),
     updatedAt: new Date(),
     revokedAt: null
@@ -141,3 +197,41 @@ export const TEST_ADDRESSES = [
     updatedAt: new Date()
   }
 ]
+
+export const getJwsd = async ({
+  userPrivateJwk,
+  baseUrl,
+  requestUrl,
+  accessToken,
+  payload,
+  htm
+}: {
+  userPrivateJwk: PrivateKey
+  baseUrl?: string
+  requestUrl: string
+  accessToken?: string
+  payload: object | string
+  htm?: string
+}) => {
+  const now = Math.floor(Date.now() / 1000)
+
+  const jwsdSigner = buildSignerEip191(await privateKeyToHex(userPrivateJwk))
+  const jwsdHeader: JwsdHeader = {
+    alg: SigningAlg.EIP191,
+    kid: userPrivateJwk.kid,
+    typ: 'gnap-binding-jwsd',
+    htm: htm || 'POST',
+    uri: `${baseUrl || 'https://vault-test.narval.xyz'}${requestUrl}`, // matches the client baseUrl + request url
+    created: now,
+    ath: accessToken ? hexToBase64Url(hash(accessToken)) : undefined
+  }
+
+  const jwsd = await signJwsd(payload, jwsdHeader, jwsdSigner).then((jws) => {
+    // Strip out the middle part for size
+    const parts = jws.split('.')
+    parts[1] = ''
+    return parts.join('.')
+  })
+
+  return jwsd
+}

@@ -415,7 +415,7 @@ export async function verifyJwsd(jws: string, jwk: PublicKey, opts: JwsdVerifyOp
     htm: opts.htm,
     uri: opts.uri,
     maxTokenAge: opts.maxTokenAge,
-    ath: hexToBase64Url(hash(opts.accessToken))
+    ath: opts.accessToken ? hexToBase64Url(hash(opts.accessToken)) : undefined
   })
 
   await verifySignature(jwsToVerify, key, header.alg)

@@ -1,18 +1,19 @@
-import { ConfigModule } from '@narval/config-module'
-import { HttpModule, LoggerModule } from '@narval/nestjs-shared'
+import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
+import { LoggerModule } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
-import { Test } from '@nestjs/testing'
+import { INestApplication } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
 import { v4 as uuid } from 'uuid'
-import { load } from '../../../../../main.config'
-import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { ClientService } from '../../../../../client/core/service/client.service'
+import { MainModule } from '../../../../../main.module'
+import { ProvisionService } from '../../../../../provision.service'
+import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
-import { TransitEncryptionModule } from '../../../../../transit-encryption/transit-encryption.module'
-import { AnchorageClient } from '../../../../http/client/anchorage.client'
-import { AccountRepository } from '../../../../persistence/repository/account.repository'
-import { AddressRepository } from '../../../../persistence/repository/address.repository'
-import { ConnectionRepository } from '../../../../persistence/repository/connection.repository'
+import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
+import { testClient } from '../../../../__test__/util/mock-data'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { ActiveConnection, Provider } from '../../../type/connection.type'
+import { ActiveConnectionWithCredentials, Provider } from '../../../type/connection.type'
 import { Account } from '../../../type/indexed-resources.type'
 import { AccountService } from '../../account.service'
 import { AddressService } from '../../address.service'
@@ -22,43 +23,37 @@ import { WalletService } from '../../wallet.service'
 import { ANCHORAGE_TEST_API_BASE_URL, setupMockServer } from './mocks/anchorage/server'
 
 describe(AnchorageSyncService.name, () => {
+  let app: INestApplication
+  let module: TestingModule
   let testPrismaService: TestPrismaService
   let anchorageSyncService: AnchorageSyncService
   let connectionService: ConnectionService
-  let connection: ActiveConnection
+  let connection: ActiveConnectionWithCredentials
   let walletService: WalletRepository
   let accountService: AccountService
   let addressService: AddressService
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   setupMockServer()
 
   const clientId = uuid()
 
-  beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      imports: [
-        PersistenceModule,
-        TransitEncryptionModule,
-        HttpModule.register(),
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        })
-      ],
-      providers: [
-        AnchorageSyncService,
-        AnchorageClient,
-        ConnectionService,
-        ConnectionRepository,
-        WalletService,
-        WalletRepository,
-        AccountService,
-        AccountRepository,
-        AddressService,
-        AddressRepository
-      ]
-    }).compile()
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [MainModule]
+    })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
+      .compile()
+
+    app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
     anchorageSyncService = module.get(AnchorageSyncService)
@@ -66,8 +61,23 @@ describe(AnchorageSyncService.name, () => {
     walletService = module.get(WalletService)
     accountService = module.get(AccountService)
     addressService = module.get(AddressService)
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
 
     await testPrismaService.truncateAll()
+  })
+
+  afterAll(async () => {
+    await testPrismaService.truncateAll()
+    await module.close()
+    await app.close()
+  })
+
+  beforeEach(async () => {
+    await testPrismaService.truncateAll()
+
+    await provisionService.provision()
+    await clientService.save(testClient)
 
     connection = await connectionService.create(clientId, {
       connectionId: uuid(),
@@ -78,6 +88,8 @@ describe(AnchorageSyncService.name, () => {
         privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
       }
     })
+
+    await app.init()
   })
 
   describe('syncWallets', () => {

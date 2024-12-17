@@ -2,7 +2,7 @@ import { PaginatedResult, TraceService } from '@narval/nestjs-shared'
 import { Inject, Injectable } from '@nestjs/common/decorators'
 import { v4 as uuid } from 'uuid'
 import { FindAllPaginatedOptions, SyncRepository } from '../../persistence/repository/sync.repository'
-import { ConnectionStatus, isActiveConnection } from '../type/connection.type'
+import { ActiveConnectionWithCredentials, ConnectionStatus, isActiveConnection } from '../type/connection.type'
 import { StartSync, Sync, SyncStatus } from '../type/sync.type'
 import { AnchorageSyncService } from './anchorage-sync.service'
 import { ConnectionService } from './connection.service'
@@ -24,7 +24,7 @@ export class SyncService {
 
     if (input.connectionId) {
       const syncId = uuid()
-      const connection = await this.connectionService.findById(input.clientId, input.connectionId)
+      const connection = await this.connectionService.findById(input.clientId, input.connectionId, true)
 
       const sync = await this.syncRepository.create(
         this.toProcessingSync({
@@ -69,8 +69,13 @@ export class SyncService {
     )
 
     await Promise.allSettled(
-      connections.filter(isActiveConnection).map((connection) => {
-        this.anchorageSyncService.sync(connection)
+      connections.map(async (connection) => {
+        const connectionWithCredentials = await this.connectionService.findById(
+          input.clientId,
+          connection.connectionId,
+          true
+        )
+        this.anchorageSyncService.sync(connectionWithCredentials as ActiveConnectionWithCredentials)
       })
     )
       .then(async () => {

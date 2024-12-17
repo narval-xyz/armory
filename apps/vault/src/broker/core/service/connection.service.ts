@@ -23,14 +23,15 @@ import { ConnectionInvalidStatusException } from '../exception/connection-invali
 import { NotFoundException } from '../exception/not-found.exception'
 import { UpdateException } from '../exception/update.exception'
 import {
-  ActiveConnection,
+  ActiveConnectionWithCredentials,
   AnchorageCredentials,
   Connection,
   ConnectionStatus,
+  ConnectionWithCredentials,
   CreateConnection,
   CreateCredentials,
   InitiateConnection,
-  PendingConnection,
+  PendingConnectionWithCredentials,
   Provider,
   UpdateConnection,
   isActiveConnection,
@@ -45,7 +46,7 @@ export class ConnectionService {
     private readonly encryptionKeyService: EncryptionKeyService
   ) {}
 
-  async initiate(clientId: string, input: InitiateConnection): Promise<PendingConnection> {
+  async initiate(clientId: string, input: InitiateConnection): Promise<PendingConnectionWithCredentials> {
     const now = new Date()
     const privateKey = await this.generatePrivateKey()
     const encryptionKey = await this.encryptionKeyService.generate(clientId)
@@ -61,9 +62,7 @@ export class ConnectionService {
       encryptionPublicKey: encryptionKey.publicKey,
       status: ConnectionStatus.PENDING,
       revokedAt: undefined,
-      updatedAt: now,
-      // TODO: (@wcalderipe, 05/12/24): HMAC hash and signature.
-      integrity: 'TODO INITIATE CONNECTION'
+      updatedAt: now
     }
 
     await this.connectionRepository.create(connection)
@@ -71,7 +70,6 @@ export class ConnectionService {
     return {
       clientId: connection.clientId,
       connectionId: connection.connectionId,
-      integrity: connection.integrity,
       createdAt: connection.createdAt,
       updatedAt: connection.updatedAt,
       credentials: {
@@ -89,7 +87,7 @@ export class ConnectionService {
     return await generateJwk(Alg.EDDSA)
   }
 
-  async create(clientId: string, input: CreateConnection): Promise<ActiveConnection> {
+  async create(clientId: string, input: CreateConnection): Promise<ActiveConnectionWithCredentials> {
     // If a connection ID is provided, check if the connection already exists.
     // If it does, activate the connection.
     if (input.connectionId) {
@@ -114,7 +112,10 @@ export class ConnectionService {
     throw new ConnectionInvalidCredentialsException()
   }
 
-  private async createActiveConnection(clientId: string, input: CreateConnection): Promise<ActiveConnection> {
+  private async createActiveConnection(
+    clientId: string,
+    input: CreateConnection
+  ): Promise<ActiveConnectionWithCredentials> {
     // By this point, the credentials should have already been decrypted and
     // decoded.
     if (!input.credentials) {
@@ -139,9 +140,7 @@ export class ConnectionService {
         url: input.url,
         revokedAt: undefined,
         status: ConnectionStatus.ACTIVE,
-        updatedAt: now,
-        // TODO: (@wcalderipe, 05/12/24): HMAC hash and signature.
-        integrity: 'TODO CREATE CONNECTION'
+        updatedAt: now
       }
 
       await this.connectionRepository.create(connection)
@@ -152,33 +151,36 @@ export class ConnectionService {
     throw new ConnectionInvalidPrivateKeyException()
   }
 
-  async activate(clientId: string, input: SetRequired<CreateConnection, 'connectionId'>): Promise<ActiveConnection> {
-    const pendingConnection = await this.connectionRepository.findById(clientId, input.connectionId)
+  async activate(
+    clientId: string,
+    input: SetRequired<CreateConnection, 'connectionId'>
+  ): Promise<ActiveConnectionWithCredentials> {
+    const pendingConnection = await this.connectionRepository.findById(clientId, input.connectionId, true)
 
-    if (isPendingConnection(pendingConnection)) {
+    if (isPendingConnection(pendingConnection) && pendingConnection.credentials) {
       // TODO: Ensure the connection status is pending.
       const now = new Date()
 
       const credentials = await this.getInputCredentials(clientId, input)
 
-      const connection = {
+      const connection: ActiveConnectionWithCredentials = {
+        ...pendingConnection,
         clientId,
         connectionId: input.connectionId,
         status: ConnectionStatus.ACTIVE,
         label: input.label,
         url: input.url,
         updatedAt: now,
+        createdAt: pendingConnection.createdAt,
         credentials: {
           ...pendingConnection.credentials,
           apiKey: credentials.apiKey
-        },
-        // TODO: (@wcalderipe, 05/12/24): HMAC hash and signature.
-        integrity: 'TODO ACTIVATE CONNECTION'
+        }
       }
 
       await this.connectionRepository.update(connection)
 
-      return { ...pendingConnection, ...connection }
+      return connection
     }
 
     throw new ConnectionInvalidStatusException({
@@ -265,9 +267,11 @@ export class ConnectionService {
   }
 
   async update(input: UpdateConnection): Promise<Connection> {
-    const connection = await this.connectionRepository.findById(input.clientId, input.connectionId)
+    const connection = await this.connectionRepository.findById(input.clientId, input.connectionId, true)
     const hasCredentials = input.credentials || input.encryptedCredentials
     const update = {
+      ...connection,
+      createdAt: connection.createdAt, // must include the existing createdAt value for integrity verification
       ...input,
       ...(hasCredentials
         ? { credentials: await this.parseInputCredentials(input.clientId, connection.provider, input) }
@@ -324,8 +328,12 @@ export class ConnectionService {
     return false
   }
 
-  async findById(clientId: string, connectionId: string): Promise<Connection> {
-    return this.connectionRepository.findById(clientId, connectionId)
+  async findById<T extends boolean = false>(
+    clientId: string,
+    connectionId: string,
+    includeCredentials?: T
+  ): Promise<T extends true ? ConnectionWithCredentials : Connection> {
+    return this.connectionRepository.findById(clientId, connectionId, includeCredentials)
   }
 
   async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
@@ -350,6 +358,7 @@ export class ConnectionService {
 
     if (isActiveConnection(connection) || isPendingConnection(connection)) {
       await this.connectionRepository.update({
+        ...connection,
         clientId,
         connectionId: connectionId,
         credentials: null,

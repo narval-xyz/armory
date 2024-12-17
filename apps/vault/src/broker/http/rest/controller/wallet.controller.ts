@@ -2,6 +2,8 @@ import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-sh
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
 import { WalletService } from '../../../core/service/wallet.service'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
@@ -20,6 +22,7 @@ export class WalletController {
   ) {}
 
   @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List the client wallets'
   })
@@ -40,6 +43,7 @@ export class WalletController {
   }
 
   @Get(':walletId')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Get a specific wallet by ID'
   })
@@ -61,6 +65,7 @@ export class WalletController {
   }
 
   @Get(':walletId/accounts')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List accounts for a specific wallet'
   })

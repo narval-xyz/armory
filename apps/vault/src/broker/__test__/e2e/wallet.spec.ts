@@ -1,32 +1,33 @@
-import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { load } from '../../../main.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
+import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { BrokerModule } from '../../broker.module'
 import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
-import { TEST_ACCOUNTS, TEST_CLIENT_ID, TEST_WALLETS } from '../util/mock-data'
+import { TEST_ACCOUNTS, TEST_CLIENT_ID, TEST_WALLETS, getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('Wallet', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        BrokerModule
-      ]
+      imports: [MainModule]
     })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
       .overrideProvider(EncryptionModuleOptionProvider)
       .useValue({
         keyring: getTestRawAesKeyring()
@@ -35,13 +36,9 @@ describe('Wallet', () => {
 
     app = module.createNestApplication()
     testPrismaService = module.get(TestPrismaService)
-
-    await app.init()
-  })
-
-  beforeEach(async () => {
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
     await testPrismaService.truncateAll()
-    await testPrismaService.seedBrokerTestData()
   })
 
   afterAll(async () => {
@@ -50,9 +47,30 @@ describe('Wallet', () => {
     await app.close()
   })
 
+  beforeEach(async () => {
+    await testPrismaService.truncateAll()
+    await provisionService.provision()
+
+    await clientService.save(testClient)
+    await testPrismaService.seedBrokerTestData()
+
+    await app.init()
+  })
+
   describe('GET /wallets', () => {
     it('returns the list of wallets with accounts for the client', async () => {
-      const res = await request(app.getHttpServer()).get('/wallets').set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+      const res = await request(app.getHttpServer())
+        .get('/provider/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.OK)
       expect(res.body).toEqual({
@@ -64,7 +82,18 @@ describe('Wallet', () => {
     })
 
     it("doesn't return private connection information", async () => {
-      const res = await request(app.getHttpServer()).get('/wallets').set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+      const res = await request(app.getHttpServer())
+        .get('/provider/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.OK)
 
@@ -76,16 +105,26 @@ describe('Wallet', () => {
       }
     })
 
-    it('returns empty list for unknown client', async () => {
-      const res = await request(app.getHttpServer()).get('/wallets').set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
+    it('returns 404 auth error for unknown client', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/provider/wallets')
+        .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
+      expect(res.status).toBe(HttpStatus.NOT_FOUND)
       expect(res.body).toEqual({
-        wallets: [],
-        page: {
-          next: null
-        }
+        message: 'Client not found',
+        statusCode: HttpStatus.NOT_FOUND,
+        stack: expect.any(String)
       })
-      expect(res.status).toBe(HttpStatus.OK)
     })
   })
 
@@ -94,8 +133,17 @@ describe('Wallet', () => {
       // We have 2 wallets in TEST_WALLETS
       const limit = 1
       const res = await request(app.getHttpServer())
-        .get('/wallets?limit=1')
+        .get('/provider/wallets?limit=1')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.body.wallets).toHaveLength(limit)
       expect(res.body.page).toHaveProperty('next')
@@ -104,17 +152,35 @@ describe('Wallet', () => {
 
     it('returns next page of results using cursor', async () => {
       const firstResponse = await request(app.getHttpServer())
-        .get(`/wallets?limit=1`)
+        .get(`/provider/wallets?limit=1`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(firstResponse.status).toBe(HttpStatus.OK)
 
       const cursor = firstResponse.body.page?.next
       expect(cursor).toBeDefined()
 
       const secondResponse = await request(app.getHttpServer())
-        .get(`/wallets?cursor=${cursor}`)
+        .get(`/provider/wallets?cursor=${cursor}`)
 
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets?cursor=${cursor}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(secondResponse.status).toBe(HttpStatus.OK)
 
       expect(secondResponse.body.wallets).toHaveLength(1)
@@ -123,8 +189,17 @@ describe('Wallet', () => {
     })
     it('handles descending orderBy createdAt parameter correctly', async () => {
       const res = await request(app.getHttpServer())
-        .get('/wallets?orderBy=createdAt&desc=true')
+        .get('/provider/wallets?orderBy=createdAt&desc=true')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets?orderBy=createdAt&desc=true',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       // Check descending order by createdAt
       const returnedWallets = res.body.wallets
@@ -139,8 +214,17 @@ describe('Wallet', () => {
 
     it('throws invalidField orderBy is not a valid field', async () => {
       const res = await request(app.getHttpServer())
-        .get('/wallets?orderBy=invalid-field')
+        .get('/provider/wallets?orderBy=invalid-field')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/wallets?orderBy=invalid-field',
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.UNPROCESSABLE_ENTITY)
     })
@@ -150,8 +234,17 @@ describe('Wallet', () => {
     it('returns the wallet details with accounts and addresses', async () => {
       const wallet = TEST_WALLETS[0]
       const res = await request(app.getHttpServer())
-        .get(`/wallets/${wallet.id}`)
+        .get(`/provider/wallets/${wallet.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets/${wallet.id}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.OK)
 
@@ -162,8 +255,17 @@ describe('Wallet', () => {
 
     it('returns 404 with proper error message for non-existent wallet', async () => {
       const res = await request(app.getHttpServer())
-        .get(`/wallets/non-existent`)
+        .get(`/provider/wallets/non-existent`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets/non-existent`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.NOT_FOUND)
     })
@@ -171,8 +273,17 @@ describe('Wallet', () => {
     it('returns 404 when accessing wallet from wrong client', async () => {
       const wallet = TEST_WALLETS[0]
       const res = await request(app.getHttpServer())
-        .get(`/wallets/${wallet.id}`)
+        .get(`/provider/wallets/${wallet.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, 'wrong-client')
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets/${wallet.id}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.NOT_FOUND)
     })
@@ -183,8 +294,17 @@ describe('Wallet', () => {
       const wallet = TEST_WALLETS[0]
       const accounts = TEST_ACCOUNTS.filter((acc) => acc.walletId === wallet.id)
       const res = await request(app.getHttpServer())
-        .get(`/wallets/${wallet.id}/accounts`)
+        .get(`/provider/wallets/${wallet.id}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets/${wallet.id}/accounts`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.OK)
       expect(res.body).toEqual({
@@ -197,8 +317,17 @@ describe('Wallet', () => {
 
     it('returns empty accounts array for wallet with no accounts', async () => {
       const res = await request(app.getHttpServer())
-        .get(`/wallets/${TEST_WALLETS[1].id}/accounts`)
+        .get(`/provider/wallets/${TEST_WALLETS[1].id}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/wallets/${TEST_WALLETS[1].id}/accounts`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
 
       expect(res.status).toBe(HttpStatus.OK)
       expect(res.body).toEqual({

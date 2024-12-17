@@ -2,6 +2,8 @@ import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-sh
 import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { SyncService } from '../../../core/service/sync.service'
 import { StartSyncDto } from '../dto/request/start-sync.dto'
 import { PaginatedSyncsDto } from '../dto/response/paginated-syncs.dto'
@@ -17,6 +19,7 @@ export class SyncController {
   constructor(private readonly syncService: SyncService) {}
 
   @Post()
+  @PermissionGuard(VaultPermission.CONNECTION_READ) // Sync is a read operation even though it's a POST.
   @ApiOperation({
     summary: 'Start a synchronization process',
     description: 'This endpoint starts synchronization process for the client.'
@@ -31,6 +34,7 @@ export class SyncController {
   }
 
   @Get(':syncId')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Retrieve a specific synchronization process by ID',
     description:
@@ -48,6 +52,7 @@ export class SyncController {
   }
 
   @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Retrieve a list of synchronization processes',
     description:

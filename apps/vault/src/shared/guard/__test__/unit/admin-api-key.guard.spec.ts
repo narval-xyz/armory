@@ -1,7 +1,7 @@
 import { secret } from '@narval/nestjs-shared'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
-import { AppService } from '../../../../vault/core/service/app.service'
+import { AppService } from '../../../../app.service'
 import { REQUEST_HEADER_API_KEY } from '../../../constant'
 import { ApplicationException } from '../../../exception/application.exception'
 import { AdminApiKeyGuard } from '../../admin-api-key.guard'
@@ -22,10 +22,11 @@ describe(AdminApiKeyGuard.name, () => {
 
   const mockAppService = (adminApiKey = 'test-admin-api-key') => {
     const app = {
-      adminApiKey: secret.hash(adminApiKey),
+      adminApiKeyHash: secret.hash(adminApiKey),
       id: 'test-app-id',
-      masterKey: 'test-master-key',
-      activated: true
+      encryptionMasterKey: 'test-master-key',
+      encryptionKeyringType: 'raw' as const,
+      authDisabled: false
     }
 
     const serviceMock = mock<AppService>()

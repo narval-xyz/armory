@@ -31,14 +31,35 @@ export class ClientController {
 
     const client = await this.clientService.save({
       clientId,
-      engineJwk,
-      audience: body.audience,
-      issuer: body.issuer,
-      maxTokenAge: body.maxTokenAge,
-      allowKeyExport: body.allowKeyExport,
-      allowWildcard: body.allowWildcard,
-      backupPublicKey: body.backupPublicKey,
-      baseUrl: body.baseUrl,
+      name: clientId,
+      backupPublicKey: null,
+      baseUrl: body.baseUrl || null,
+      configurationSource: 'dynamic',
+      auth: {
+        disabled: false,
+        local: {
+          jwsd: {
+            maxAge: 300,
+            requiredComponents: ['htm', 'uri', 'created', 'ath']
+          },
+          allowedUsersJwksUrl: null,
+          allowedUsers: null
+        },
+        tokenValidation: {
+          disabled: false,
+          url: null,
+          jwksUrl: null,
+          pinnedPublicKey: engineJwk || null,
+          verification: {
+            audience: body.audience || null,
+            issuer: body.issuer || null,
+            maxTokenAge: body.maxTokenAge || null,
+            requireBoundTokens: true,
+            allowBearerTokens: false,
+            allowWildcard: body.allowWildcard || null
+          }
+        }
+      },
       createdAt: now,
       updatedAt: now
     })

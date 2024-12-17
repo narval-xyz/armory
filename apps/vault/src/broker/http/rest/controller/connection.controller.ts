@@ -2,6 +2,8 @@ import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-sh
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { WalletService } from '../../../core/service/wallet.service'
@@ -28,6 +30,7 @@ export class ConnectionController {
   ) {}
 
   @Post('/initiate')
+  @PermissionGuard(VaultPermission.CONNECTION_WRITE)
   @ApiOperation({
     summary: 'Initiate a new provider connection',
     description:
@@ -45,6 +48,7 @@ export class ConnectionController {
   }
 
   @Post()
+  @PermissionGuard(VaultPermission.CONNECTION_WRITE)
   @ApiOperation({
     summary: 'Store a provider connection securely',
     description:
@@ -62,6 +66,7 @@ export class ConnectionController {
   }
 
   @Delete(':connectionId')
+  @PermissionGuard(VaultPermission.CONNECTION_WRITE)
   @ApiOperation({
     summary: 'Revoke an existing connection',
     description:
@@ -77,6 +82,7 @@ export class ConnectionController {
   }
 
   @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List all connections',
     description: 'This endpoint retrieves a list of all connections associated with the client.'
@@ -100,6 +106,7 @@ export class ConnectionController {
   }
 
   @Get(':connectionId')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Retrieve a specific connection by ID',
     description:
@@ -117,6 +124,7 @@ export class ConnectionController {
   }
 
   @Patch(':connectionId')
+  @PermissionGuard(VaultPermission.CONNECTION_WRITE)
   @ApiOperation({
     summary: 'Update a specific connection by ID',
     description:
@@ -142,6 +150,7 @@ export class ConnectionController {
   }
 
   @Get(':connectionId/wallets')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List wallets for a specific connection',
     description: 'This endpoint retrieves a list of wallets associated with a specific connection.'
@@ -164,6 +173,7 @@ export class ConnectionController {
   }
 
   @Get(':connectionId/accounts')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List accounts for a specific connection',
     description: 'This endpoint retrieves a list of accounts associated with a specific connection.'

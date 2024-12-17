@@ -1,4 +1,4 @@
-import { ConfigModule } from '@narval/config-module'
+import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Alg,
@@ -16,25 +16,25 @@ import { times } from 'lodash'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { ZodSchema } from 'zod'
-import { load } from '../../../main.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
+import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
+import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
-import { BrokerModule } from '../../broker.module'
 import { ConnectionService } from '../../core/service/connection.service'
-import {
-  ActiveConnection,
-  ConnectionStatus,
-  Provider,
-  isActiveConnection,
-  isRevokedConnection
-} from '../../core/type/connection.type'
+import { ConnectionStatus, Provider, isActiveConnection, isRevokedConnection } from '../../core/type/connection.type'
 import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
 import {
   TEST_ACCOUNTS,
-  TEST_CLIENT_ID,
   TEST_CONNECTIONS,
   TEST_WALLETS,
-  TEST_WALLET_CONNECTIONS
+  TEST_WALLET_CONNECTIONS,
+  getJwsd,
+  testClient,
+  testUserPrivateJwk
 } from '../util/mock-data'
 
 const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
@@ -61,32 +61,38 @@ describe('Connection', () => {
   let connectionService: ConnectionService
   let encryptionKeyService: EncryptionKeyService
   let testPrismaService: TestPrismaService
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   const url = 'http://provider.narval.xyz'
 
-  const clientId = TEST_CLIENT_ID
+  const userPrivateJwk = testUserPrivateJwk
+  const client = testClient
+  const clientId = testClient.clientId
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        BrokerModule
-      ]
-    }).compile()
+      imports: [MainModule]
+    })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
+      .compile()
 
     app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
     connectionService = module.get(ConnectionService)
     encryptionKeyService = module.get(EncryptionKeyService)
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
 
     await testPrismaService.truncateAll()
-
-    await app.init()
   })
 
   afterAll(async () => {
@@ -97,6 +103,11 @@ describe('Connection', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+    await provisionService.provision()
+
+    await clientService.save(client)
+
+    await app.init()
   })
 
   describe('POST /connections/initiate', () => {
@@ -108,8 +119,16 @@ describe('Connection', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/connections/initiate')
+        .post('/provider/connections/initiate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections/initiate',
+            payload: connection
+          })
+        )
         .send(connection)
 
       expect(body).toMatchObject({
@@ -128,7 +147,7 @@ describe('Connection', () => {
     })
   })
 
-  describe('POST /connections', () => {
+  describe('POST /provider/connections', () => {
     it('creates a new connection to anchorage with plain credentials', async () => {
       const privateKey = await generateJwk(Alg.EDDSA)
       const privateKeyHex = await privateKeyToHex(privateKey)
@@ -145,18 +164,25 @@ describe('Connection', () => {
       }
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/connections')
+        .post('/provider/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: connection
+          })
+        )
         .send(connection)
 
-      const createdConnection = await connectionService.findById(clientId, connection.connectionId)
+      const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
 
       expect(body).toEqual({
         clientId,
         connectionId,
         url,
         createdAt: expect.any(String),
-        integrity: expect.any(String),
         label: connection.label,
         provider: connection.provider,
         status: ConnectionStatus.ACTIVE,
@@ -174,7 +200,6 @@ describe('Connection', () => {
         },
         createdAt: expect.any(Date),
         connectionId,
-        integrity: expect.any(String),
         label: connection.label,
         provider: connection.provider,
         status: ConnectionStatus.ACTIVE,
@@ -190,13 +215,35 @@ describe('Connection', () => {
       const credentials = { apiKey: 'test-api-key' }
 
       const { body: pendingConnection } = await request(app.getHttpServer())
-        .post('/connections/initiate')
+        .post('/provider/connections/initiate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections/initiate',
+            payload: { connectionId, provider }
+          })
+        )
         .send({ connectionId, provider })
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/connections')
+        .post('/provider/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: {
+              connectionId,
+              credentials,
+              label,
+              provider,
+              url
+            }
+          })
+        )
         .send({
           connectionId,
           credentials,
@@ -212,13 +259,12 @@ describe('Connection', () => {
         provider,
         url,
         createdAt: expect.any(String),
-        integrity: 'TODO ACTIVATE CONNECTION',
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const createdConnection = await connectionService.findById(clientId, connectionId)
+      const createdConnection = await connectionService.findById(clientId, connectionId, true)
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -227,7 +273,6 @@ describe('Connection', () => {
         provider,
         url,
         createdAt: expect.any(Date),
-        integrity: expect.any(String),
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(Date)
       })
@@ -251,15 +296,37 @@ describe('Connection', () => {
       }
 
       const { body: pendingConnection } = await request(app.getHttpServer())
-        .post('/connections/initiate')
+        .post('/provider/connections/initiate')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections/initiate',
+            payload: { connectionId, provider }
+          })
+        )
         .send({ connectionId, provider })
 
       const encryptedCredentials = await rsaEncrypt(JSON.stringify(credentials), pendingConnection.encryptionPublicKey)
 
       const { status, body } = await request(app.getHttpServer())
-        .post('/connections')
+        .post('/provider/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: {
+              provider,
+              connectionId,
+              label,
+              url,
+              encryptedCredentials
+            }
+          })
+        )
         .send({
           provider,
           connectionId,
@@ -275,13 +342,12 @@ describe('Connection', () => {
         provider,
         url,
         createdAt: expect.any(String),
-        integrity: 'TODO ACTIVATE CONNECTION',
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(String)
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const createdConnection = await connectionService.findById(clientId, connectionId)
+      const createdConnection = await connectionService.findById(clientId, connectionId, true)
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -290,7 +356,6 @@ describe('Connection', () => {
         provider,
         url,
         createdAt: expect.any(Date),
-        integrity: expect.any(String),
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(Date)
       })
@@ -306,7 +371,7 @@ describe('Connection', () => {
     })
   })
 
-  describe('DELETE /connections/:id', () => {
+  describe('DELETE /provider/connections/:id', () => {
     it('revokes an existing connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
@@ -320,13 +385,22 @@ describe('Connection', () => {
       })
 
       const { status } = await request(app.getHttpServer())
-        .delete(`/connections/${connection.connectionId}`)
+        .delete(`/provider/connections/${connection.connectionId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connection.connectionId}`,
+            payload: {},
+            htm: 'DELETE'
+          })
+        )
         .send()
 
       expect(status).toEqual(HttpStatus.NO_CONTENT)
 
-      const updatedConnection = await connectionService.findById(clientId, connection.connectionId)
+      const updatedConnection = await connectionService.findById(clientId, connection.connectionId, true)
 
       if (isRevokedConnection(updatedConnection)) {
         expect(updatedConnection.credentials).toEqual(null)
@@ -337,7 +411,7 @@ describe('Connection', () => {
     })
   })
 
-  describe('GET /connections', () => {
+  describe('GET /provider/connections', () => {
     beforeEach(async () => {
       await Promise.all(
         times(3, async () =>
@@ -357,8 +431,17 @@ describe('Connection', () => {
 
     it('responds with connections from the given client', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .get('/connections')
+        .get('/provider/connections')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(body.connections.length).toEqual(3)
@@ -368,7 +451,6 @@ describe('Connection', () => {
         url,
         connectionId: expect.any(String),
         createdAt: expect.any(String),
-        integrity: expect.any(String),
         label: expect.any(String),
         provider: Provider.ANCHORAGE,
         updatedAt: expect.any(String)
@@ -380,34 +462,73 @@ describe('Connection', () => {
 
     it('responds with limited number of syncs when limit is given', async () => {
       const { body } = await request(app.getHttpServer())
-        .get('/connections')
+        .get('/provider/connections')
         .query({ limit: 1 })
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
+        .send()
 
       expect(body.connections.length).toEqual(1)
       expect(body.page).toHaveProperty('next')
     })
 
-    it('responds the next page of results when cursos is given', async () => {
+    it('responds the next page of results when cursors is given', async () => {
       const { body: pageOne } = await request(app.getHttpServer())
-        .get('/connections')
+        .get('/provider/connections')
         .query({ limit: 1 })
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
+        .send()
 
       const { body: pageTwo } = await request(app.getHttpServer())
-        .get('/connections')
+        .get('/provider/connections')
         .query({
           limit: 1,
           cursor: pageOne.page.next
         })
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections?limit=1&cursor=${pageOne.page.next}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
+        .send()
 
       expect(pageTwo.connections.length).toEqual(1)
       expect(pageTwo.page).toHaveProperty('next')
     })
+
+    it('throws error if the request was not signed', async () => {
+      const { status } = await request(app.getHttpServer())
+        .get('/provider/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .send()
+
+      expect(status).toEqual(HttpStatus.UNAUTHORIZED)
+    })
   })
 
-  describe('GET /connections/:connectionId', () => {
+  describe('GET /provider/connections/:connectionId', () => {
     it('responds with the specific connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
@@ -421,13 +542,21 @@ describe('Connection', () => {
       })
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/connections/${connection.connectionId}`)
+        .get(`/provider/connections/${connection.connectionId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connection.connectionId}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(body).toMatchObject({
         connectionId: expect.any(String),
-        integrity: expect.any(String),
         clientId,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
@@ -441,7 +570,7 @@ describe('Connection', () => {
     })
   })
 
-  describe('PATCH /connections/:connectionId', () => {
+  describe('PATCH /provider/connections/:connectionId', () => {
     it('updates the given connection', async () => {
       const connection = await connectionService.create(clientId, {
         connectionId: uuid(),
@@ -462,8 +591,20 @@ describe('Connection', () => {
       const encryptedCredentials = await rsaEncrypt(JSON.stringify(newCredentials), encryptionKey.publicKey)
 
       const { status, body } = await request(app.getHttpServer())
-        .patch(`/connections/${connection.connectionId}`)
+        .patch(`/provider/connections/${connection.connectionId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connection.connectionId}`,
+            payload: {
+              label: 'new label',
+              encryptedCredentials
+            },
+            htm: 'PATCH'
+          })
+        )
         .send({
           label: 'new label',
           encryptedCredentials
@@ -474,24 +615,30 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
 
-      const updatedConnection = (await connectionService.findById(
-        clientId,
-        connection.connectionId
-      )) as ActiveConnection
+      const updatedConnection = await connectionService.findById(clientId, connection.connectionId, true)
 
-      expect(updatedConnection.credentials.apiKey).toEqual(newCredentials.apiKey)
-      expect(updatedConnection.credentials.privateKey).toEqual(newPrivateKey)
-      expect(updatedConnection.credentials.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
+      expect(updatedConnection.credentials?.apiKey).toEqual(newCredentials.apiKey)
+      expect(updatedConnection.credentials?.privateKey).toEqual(newPrivateKey)
+      expect(updatedConnection.credentials?.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
     })
   })
 
-  describe('GET /connections/:connectionId/wallets', () => {
+  describe('GET /provider/connections/:connectionId/wallets', () => {
     it('responds with wallets for the specific connection', async () => {
       await testPrismaService.seedBrokerTestData()
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/connections/${TEST_CONNECTIONS[0].id}/wallets`)
+        .get(`/provider/connections/${TEST_CONNECTIONS[0].id}/wallets`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${TEST_CONNECTIONS[0].id}/wallets`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(status).toEqual(HttpStatus.OK)
@@ -516,8 +663,17 @@ describe('Connection', () => {
       })
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/connections/${connection.connectionId}/wallets`)
+        .get(`/provider/connections/${connection.connectionId}/wallets`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connection.connectionId}/wallets`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(status).toEqual(HttpStatus.OK)
@@ -528,8 +684,9 @@ describe('Connection', () => {
     })
   })
 
-  describe('GET /connections/:connectionId/accounts', () => {
+  describe('GET /provider/connections/:connectionId/accounts', () => {
     it('responds with accounts for the specific connection', async () => {
+      expect.assertions(2)
       await testPrismaService.seedBrokerTestData()
 
       // Assume connection[0] has some wallets which in turn have accounts.
@@ -541,8 +698,17 @@ describe('Connection', () => {
       const accountsForConnection = TEST_ACCOUNTS.filter((account) => walletsForConnection.includes(account.walletId))
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/connections/${connectionId}/accounts`)
+        .get(`/provider/connections/${connectionId}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connectionId}/accounts`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(status).toEqual(HttpStatus.OK)
@@ -568,8 +734,17 @@ describe('Connection', () => {
       })
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/connections/${connection.connectionId}/accounts`)
+        .get(`/provider/connections/${connection.connectionId}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: `/provider/connections/${connection.connectionId}/accounts`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(status).toEqual(HttpStatus.OK)

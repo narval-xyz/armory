@@ -3,6 +3,8 @@ import { ApiHeader, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { ProxyRequestException } from '../../../core/exception/proxy-request.exception'
 import { HttpMethod } from '../../../core/lib/anchorage-request-builder'
 import { ProxyService } from '../../../core/service/proxy.service'
@@ -15,6 +17,7 @@ export class ProxyController {
   constructor(private readonly proxyService: ProxyService) {}
 
   @All(':endpoint(*)')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiHeader({
     name: 'x-connection-id',
     required: true,

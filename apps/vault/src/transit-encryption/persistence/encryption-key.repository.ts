@@ -12,8 +12,8 @@ export class EncryptionKeyRepository {
       data: {
         id: encryptionKey.privateKey.kid,
         clientId: encryptionKey.clientId,
-        privateKey: rsaPrivateKeySchema.parse(encryptionKey.privateKey),
-        publicKey: rsaPublicKeySchema.parse(encryptionKey.publicKey),
+        privateKey: JSON.stringify(rsaPrivateKeySchema.parse(encryptionKey.privateKey)),
+        publicKey: JSON.stringify(rsaPublicKeySchema.parse(encryptionKey.publicKey)),
         createdAt: encryptionKey.createdAt
       }
     })
@@ -27,7 +27,12 @@ export class EncryptionKeyRepository {
     })
 
     if (encryptionKey) {
-      return EncryptionKey.parse(encryptionKey)
+      // TODO: we have stringified json, so make sure to handle errors
+      return EncryptionKey.parse({
+        ...encryptionKey,
+        privateKey: JSON.parse(encryptionKey.privateKey),
+        publicKey: JSON.parse(encryptionKey.publicKey)
+      })
     }
 
     return null

@@ -361,7 +361,7 @@ export type JwtVerifyOptions = {
 
 export type JwsdVerifyOptions = {
   requestBody: object
-  accessToken: string
+  accessToken?: string
   uri: string
   htm: string
   maxTokenAge: number

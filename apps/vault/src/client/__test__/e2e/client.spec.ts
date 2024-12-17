@@ -1,6 +1,5 @@
-import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Alg,
   PrivateKey,
@@ -13,12 +12,11 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { Config, load } from '../../../main.config'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
 import { REQUEST_HEADER_API_KEY } from '../../../shared/constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { AppService } from '../../../vault/core/service/app.service'
-import { ClientModule } from '../../client.module'
 import { CreateClientDto } from '../../http/rest/dto/create-client.dto'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 
@@ -27,22 +25,16 @@ describe('Client', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
   let clientRepository: ClientRepository
-  let appService: AppService
-  let configService: ConfigService<Config>
+  let provisionService: ProvisionService
 
-  const adminApiKey = 'test-admin-api-key'
+  const adminApiKey = 'test-vault-admin-api-key'
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        ClientModule
-      ]
+      imports: [MainModule]
     })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
       .overrideProvider(EncryptionModuleOptionProvider)
       .useValue({
         keyring: getTestRawAesKeyring()
@@ -51,19 +43,13 @@ describe('Client', () => {
 
     app = module.createNestApplication()
 
-    appService = module.get<AppService>(AppService)
+    provisionService = module.get<ProvisionService>(ProvisionService)
     clientRepository = module.get<ClientRepository>(ClientRepository)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-    configService = module.get<ConfigService<Config>>(ConfigService)
 
     await testPrismaService.truncateAll()
 
-    await appService.save({
-      id: configService.get('app.id'),
-      masterKey: 'test-master-key',
-      adminApiKey: secret.hash(adminApiKey)
-    })
-
+    await provisionService.provision()
     await app.init()
   })
 

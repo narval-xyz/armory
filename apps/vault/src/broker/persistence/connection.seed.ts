@@ -4,7 +4,7 @@ import { privateKeyToJwk } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { ed25519PublicKeySchema } from 'packages/signature/src/lib/schemas'
 import { SeedService } from '../../shared/module/persistence/service/seed.service'
-import { Connection } from '../core/type/connection.type'
+import { ConnectionWithCredentials } from '../core/type/connection.type'
 import { ConnectionRepository } from './repository/connection.repository'
 
 const NARVAL_DEV_CLIENT = 'narval-dev-client'
@@ -18,7 +18,7 @@ export class ConnectionSeedService extends SeedService {
     super()
   }
 
-  async createConnection(connection: Connection) {
+  async createConnection(connection: ConnectionWithCredentials) {
     const createdConnection = await this.connectionRepository.create(connection)
     return createdConnection
   }
@@ -35,7 +35,6 @@ export class ConnectionSeedService extends SeedService {
           privateKey,
           publicKey
         },
-        integrity: 'sample-integrity-hash',
         label: 'Anchorage Staging - Narval Dev Client',
         provider: 'anchorage',
         url: 'https://api.anchorage-staging.com',

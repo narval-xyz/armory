@@ -52,7 +52,13 @@ export const getExpectedAccount = (account: ProviderAccount) => {
 export const getExpectedWallet = (wallet: ProviderWallet) => {
   const accounts = TEST_ACCOUNTS.filter((acc) => acc.walletId === wallet.id)
   const walletConnections = TEST_WALLET_CONNECTIONS.filter((conn) => conn.walletId === wallet.id)
-  const connections = TEST_CONNECTIONS.filter((conn) => walletConnections.some((wc) => wc.connectionId === conn.id))
+  const connections = TEST_CONNECTIONS.filter((conn) =>
+    walletConnections.some((wc) => wc.connectionId === conn.id)
+  ).map((c) => ({
+    ...c,
+    credentials: c.credentials ? JSON.stringify(c.credentials) : null,
+    integrity: null
+  }))
   const { id, ...walletWithoutId } = wallet
 
   return {

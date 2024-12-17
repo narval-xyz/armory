@@ -1,0 +1,155 @@
+# Vault config.yaml, v1
+
+#####
+# THIS FILE CONTAINS SECRETS; DO NOT COMMIT OUR CONFIG TO SOURCE CONTROL.
+#####
+
+# Config File Version
+version: "1"
+
+# Core service configuration
+env: development # Enum: development, test, production
+port: 3011
+cors: []
+# Base URL where the Vault is deployed. Used to verify jwsd request signatures.
+baseUrl: http://localhost:3011
+
+# Database configuration
+database:
+  url: postgresql://postgres:postgres@localhost:5432/vault?schema=public
+
+# Application identity and security
+app:
+  id: local-dev-vault-instance-1
+  # OPTIONAL: Sets the admin API key instead of generating a new one during the provision.
+
+  auth:
+    # Disable all auth; only useful in dev
+    disabled: false
+    # OIDC configuration to use an external auth provider
+    oidc: null
+    # Local authentication options, either signed requests or basic api key
+    local:
+      # [optional]: Sets the admin API key for client provisioning operations
+      #
+      # Key should be hashed, like this: `echo -n "my-api-key" | openssl dgst -sha256 | awk '{print $2}'`
+      # Plain text API key: vault-admin-api-key
+      adminApiKeyHash: d4a6b4c1cb71dbdb68a1dd429ad737369f74b9e264b9dfa639258753987caaad
+    # Auth config for requests from this service
+    outgoing: null
+
+# Encryption Key management configuration
+keyring:
+  # Either "raw" or "awskms"
+  type: raw
+  # If type=raw:
+  # A master password that uses PBKDF2 to derive the Key Encryption Key (KEK) used to encrypt the master key.
+  encryptionMasterPassword: unsafe-local-dev-master-password
+  # Encryption master key:
+  # - Required if type=raw
+  # - Must be an AES-256 key encoded as hex string
+  # - Must be encrypted by KEK derived from masterPassword
+  # - Must be quoted to prevent number interpretation
+  # - Will auto-generate on first-boot if not set
+  # encryptionMasterKey: "0x020578c93e6e65c27de1dddd752a83c6f50a235d90243e15be346c360d2c9d9f64ba17009800030003617070001861726d6f72792e656e6372797074696f6e2d6d6f64756c6500156177732d63727970746f2d7075626c69632d6b6579004441364a5577556f6f6f63476e752b6e6a465477414d56576a516f304b72447a34615a325761515861375236354330464d6567352f69556e4a31386f6a7169533877413d3d0007707572706f7365000f646174612d656e6372797074696f6e000100146e617276616c2e61726d6f72792e656e67696e65002561726d6f72792e656e67696e652e6b656b000000800000000c8ea6c76bba04c350fdd918b50030f5de1f7910661ae891dd5ce7d3b2692c0ae51916e08bfe4125842f259ed5bf6a2c9d5e3ec06411fcbc840805623da471020000100077f11eac1ff728005f6870ffe8864c1618aacbc5cc35879a0a59cfdafac822e4c852bb9e4c70ce8c18f8f02067a5641dffffffff00000001000000000000000000000001000000202ed04425860a9f6645bcac8616979af1ff484edf661a2501c85e20126c1530750784fc11ca5f2e660b11930c500c3d870068306602310098765ed9afdba77cccc53d493a99b8553873511e904175dcda86007eccccf0b660273e451fc2b900f3e7a60133d08c14023100f196c9312409263a59ee9ca227698e819887ef53798bf74b523cf9d8ecf909ae32c8d4c055907b3051a810a45a0f6ff7"
+
+  # If type=awskms:
+  # The ARN of the AWS KMS key used as the Master Key.
+  encryptionMasterAwsKmsArn: null
+
+  # HMAC secret for integrity verification of data in the database. Ensure you wrap the string in quotes otherwise it will be interpreted as a number.
+  # If not set, will be generated during first boot.
+  hmacSecret: "4ce6d3404a13c971202693b669668e49e2d6d7e190428d0edd99d1cec1536efb"
+
+# Declarative clients (tenants)
+clients:
+  # Each key is the client ID
+  dev-client-1:
+    name: "Example Client"
+    # Override default baseUrl for this client, used for verifying jwsd/httpsig
+    baseUrl: "http://localhost:3011" # [optional]
+
+    auth:
+      # Disable all auth; only useful in dev
+      disabled: false
+      # OIDC configuration to use an external auth provider - NOT IMPLEMENTED YET
+      oidc: null
+      # Local authentication options, either signed requests or basic api key
+      local:
+        # HTTP Signing configuration - this is for Service-level authentication.
+        httpSigning:
+          # Settings for when THIS service verifies incoming requests
+          # List of accepted proof methods, supporting httpsig & jwsd. Set null if verification is disabled.
+          methods:
+            # Detached JWS
+            jwsd:
+              maxAge: 300
+              requiredComponents:
+                - "htm" # HTTP method
+                - "uri" # Target URI
+                - "created" # Created timestamp
+                - "ath" # Authorization (accessToken)
+
+          # [optional]: Restrict to specific user credentials
+          # - If set, ONLY these keys will be accepted.
+          # - Otherwise, any key can authenticate if it matches the authorized credential in a bound token.
+          # - #
+          # [optional] URL of the JWKS endpoint that includes any keys that are valid "users"
+          allowedUsersJwksUrl: https://armory/.well-known/jwks.json
+          # [optional]: List of allowed users, pinning specific keys instead of jwskUrl
+          allowedUsers:
+            - userId: admin-user-id-1
+              publicKey:
+                kid: "user-credential-id"
+                kty: "EC"
+                crv: "secp256k1"
+                alg: "ES256K"
+                x: "..."
+                y: "..."
+
+      # Authorization options, typically this will be used to pin the policy engine's public signing key.
+      tokenValidation:
+        # (optional) if you want to disable authorization for this client. DO NOT USE IN PRODUCTION.
+        disabled: false
+        # The GNAP Authorization Server that issues tokens
+        url: "http://armory"
+        # [optional] JWKS endpoint for the auth server; used for jwt verification. Or you can pin the key below.
+        # jwksUrl: https://policy-engine/.well-known/jwks.json
+
+        # [optional] Pinned public key; used for jwt verification. Must have this OR jwksUrl.
+        publicKey:
+          kid: "policy-engine-client-key-id"
+          kty: "EC"
+          crv: "secp256k1"
+          alg: "ES256K"
+          x: "..."
+          y: "..."
+
+        verification:
+          # JWT verification options
+          # [optional] Expected audience in JWTs
+          audience: null
+          # [optional] Expected issuer in JWTs
+          issuer: "dev-client-1.armory.narval.xyz"
+          # [optional] Maximum age of JWTs in seconds
+          maxTokenAge: 600
+          # Whether tokens must be bound to signing keys
+          requireBoundTokens: true
+          # Whether to accept bearer tokens
+          allowBearerTokens: false
+          # [optional] Paths that can be omitted from request hashing, e.g. for authorizing txns with variable gas
+          allowWildcard:
+            - "transactionRequest.maxPriorityFeePerGas"
+            - "transactionRequest.maxFeePerGas"
+            - "transactionRequest.gas"
+            - "transactionRequest.gasPrice"
+            - "transactionRequest.nonce"
+      # Auth config for requests from this service
+      outgoing: null
+
+    # # Backup key export options
+    # backupPublicKey: # [optional] RSA public key for backups
+    #   kid: "backup-2024-1"
+    #   kty: "RSA"
+    #   n: "..."
+    #   e: "AQAB"

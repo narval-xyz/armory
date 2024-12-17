@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid'
 import { AnchorageClient } from '../../http/client/anchorage.client'
 import { BrokerException } from '../exception/broker.exception'
 import { ConnectionInvalidException } from '../exception/connection-invalid.exception'
-import { ActiveConnection, Provider } from '../type/connection.type'
+import { ActiveConnection, ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
 import { Account, Address, Wallet } from '../type/indexed-resources.type'
 import { AccountService } from './account.service'
 import { AddressService } from './address.service'
@@ -22,13 +22,13 @@ export class AnchorageSyncService {
     private readonly logger: LoggerService
   ) {}
 
-  async sync(connection: ActiveConnection): Promise<void> {
+  async sync(connection: ActiveConnectionWithCredentials): Promise<void> {
     await this.syncWallets(connection)
     await this.syncAccounts(connection)
     await this.syncAddresses(connection)
   }
 
-  async syncWallets(connection: ActiveConnection) {
+  async syncWallets(connection: ActiveConnectionWithCredentials) {
     this.logger.log('Sync Anchorage wallets', {
       connectionId: connection.credentials,
       clientId: connection.clientId,
@@ -60,7 +60,7 @@ export class AnchorageSyncService {
     const wallets: Wallet[] = missingAnchorageVaults.map((vault) => ({
       accounts: [],
       clientId: connection.clientId,
-      connections: [connection],
+      connections: [ActiveConnection.parse(connection)],
       createdAt: now,
       externalId: vault.vaultId,
       label: vault.name,
@@ -74,7 +74,7 @@ export class AnchorageSyncService {
     return wallets
   }
 
-  async syncAccounts(connection: ActiveConnection) {
+  async syncAccounts(connection: ActiveConnectionWithCredentials) {
     this.logger.log('Sync Anchorage accounts', {
       connectionId: connection.credentials,
       clientId: connection.clientId,
@@ -150,7 +150,7 @@ export class AnchorageSyncService {
     return accounts
   }
 
-  async syncAddresses(connection: ActiveConnection) {
+  async syncAddresses(connection: ActiveConnectionWithCredentials) {
     this.logger.log('Sync Anchorage addresses', {
       connectionId: connection.credentials,
       clientId: connection.clientId,
@@ -235,7 +235,9 @@ export class AnchorageSyncService {
     return addresses
   }
 
-  private validateConnection(connection: ActiveConnection): asserts connection is ActiveConnection & {
+  private validateConnection(
+    connection: ActiveConnectionWithCredentials
+  ): asserts connection is ActiveConnectionWithCredentials & {
     url: string
     credentials: {
       apiKey: string
@@ -264,7 +266,7 @@ export class AnchorageSyncService {
       })
     }
 
-    if (!connection.credentials.apiKey && !connection.credentials.privateKey) {
+    if (!connection.credentials?.apiKey && !connection.credentials?.privateKey) {
       throw new ConnectionInvalidException({
         message: 'Cannot sync without API key and/or signing key',
         context

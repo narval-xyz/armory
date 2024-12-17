@@ -2,8 +2,8 @@ import { ConfigService } from '@narval/config-module'
 import { EncryptionModule } from '@narval/encryption-module'
 import { LoggerService } from '@narval/nestjs-shared'
 import { Module, forwardRef } from '@nestjs/common'
-import { AppService } from '../../../vault/core/service/app.service'
-import { VaultModule } from '../../../vault/vault.module'
+import { AppService } from '../../../app.service'
+import { AppModule } from '../../../main.module'
 import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'
 import { PersistenceModule } from '../persistence/persistence.module'
 import { KeyValueRepository } from './core/repository/key-value.repository'
@@ -14,9 +14,11 @@ import { PrismaKeyValueRepository } from './persistence/repository/prisma-key-va
 
 @Module({
   imports: [
-    PersistenceModule,
+    PersistenceModule.register({
+      imports: [] // Specifically erase the imports, so we do NOT initialize the EncryptionModule since KV will handle it's own encryption
+    }),
     EncryptionModule.registerAsync({
-      imports: [forwardRef(() => VaultModule)],
+      imports: [forwardRef(() => AppModule)],
       inject: [ConfigService, AppService, LoggerService],
       useClass: EncryptionModuleOptionFactory
     })

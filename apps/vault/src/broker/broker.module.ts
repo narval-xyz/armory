@@ -1,5 +1,6 @@
 import { HttpModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import { Module } from '@nestjs/common'
+import { ClientModule } from '../client/client.module'
 import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../shared/constant'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
 import { EncryptionKeyService } from '../transit-encryption/core/service/encryption-key.service'
@@ -35,7 +36,8 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
       retry: {
         retries: 3
       }
-    })
+    }),
+    ClientModule
   ],
   controllers: [
     ConnectionController,

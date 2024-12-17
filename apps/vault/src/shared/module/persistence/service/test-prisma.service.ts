@@ -39,12 +39,16 @@ export class TestPrismaService {
 
   async seedBrokerTestData(): Promise<void> {
     const client = this.getClient()
-    await client.providerWallet.createMany({
-      data: TEST_WALLETS
-    })
 
     await client.providerConnection.createMany({
-      data: TEST_CONNECTIONS
+      data: TEST_CONNECTIONS.map((connection) => ({
+        ...connection,
+        credentials: JSON.stringify(connection.credentials)
+      }))
+    })
+
+    await client.providerWallet.createMany({
+      data: TEST_WALLETS
     })
 
     await client.providerWalletConnection.createMany({

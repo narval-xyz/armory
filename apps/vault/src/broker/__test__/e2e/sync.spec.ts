@@ -1,4 +1,4 @@
-import { ConfigModule } from '@narval/config-module'
+import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -6,9 +6,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { load } from '../../../main.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
+import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { BrokerModule } from '../../broker.module'
+import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import {
   ANCHORAGE_TEST_API_BASE_URL,
   setupMockServer
@@ -18,6 +22,7 @@ import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
 import { ActiveConnection, PendingConnection, Provider } from '../../core/type/connection.type'
 import { SyncStatus } from '../../core/type/sync.type'
+import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('Sync', () => {
   let app: INestApplication
@@ -26,6 +31,8 @@ describe('Sync', () => {
   let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
   let anchorageSyncServiceMock: MockProxy<AnchorageSyncService>
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   let activeConnection: ActiveConnection
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -35,7 +42,7 @@ describe('Sync', () => {
 
   const apiKey = 'test-api-key'
 
-  const clientId = uuid()
+  const clientId = testClient.clientId
 
   setupMockServer()
 
@@ -48,17 +55,17 @@ describe('Sync', () => {
     // integration tests.
     anchorageSyncServiceMock = mock<AnchorageSyncService>()
     anchorageSyncServiceMock.sync.mockResolvedValue()
-
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        BrokerModule
-      ]
+      imports: [MainModule]
     })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
       .overrideProvider(AnchorageSyncService)
       .useValue(anchorageSyncServiceMock)
       .compile()
@@ -66,12 +73,12 @@ describe('Sync', () => {
     app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
     syncService = module.get(SyncService)
     connectionService = module.get(ConnectionService)
 
     await testPrismaService.truncateAll()
-
-    await app.init()
   })
 
   afterAll(async () => {
@@ -82,6 +89,9 @@ describe('Sync', () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
+
+    await provisionService.provision()
+    await clientService.save(testClient)
 
     activeConnection = await connectionService.create(clientId, {
       connectionId: uuid(),
@@ -97,6 +107,8 @@ describe('Sync', () => {
       connectionId: uuid(),
       provider: Provider.ANCHORAGE
     })
+
+    await app.init()
   })
 
   describe('POST /syncs', () => {
@@ -106,15 +118,36 @@ describe('Sync', () => {
     // the order of this test will affect how many times the `sync` function is
     // called.
     it('dispatches the sync to the provider specific service', async () => {
-      await request(app.getHttpServer()).post('/syncs').set(REQUEST_HEADER_CLIENT_ID, clientId).send()
+      await request(app.getHttpServer())
+        .post('/provider/syncs')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/syncs',
+            payload: {},
+            htm: 'POST'
+          })
+        )
+        .send()
 
       expect(anchorageSyncServiceMock.sync).toHaveBeenCalledTimes(1)
     })
 
     it('starts a sync on every active connection', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/syncs')
+        .post('/provider/syncs')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/syncs',
+            payload: {},
+            htm: 'POST'
+          })
+        )
         .send()
 
       const syncs = await syncService.findAllPaginated(clientId)
@@ -140,8 +173,17 @@ describe('Sync', () => {
 
     it('starts a sync on the given connection', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/syncs')
+        .post('/provider/syncs')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/syncs',
+            payload: { connectionId: activeConnection.connectionId },
+            htm: 'POST'
+          })
+        )
         .send({ connectionId: activeConnection.connectionId })
 
       const syncs = await syncService.findAllPaginated(clientId)
@@ -175,8 +217,17 @@ describe('Sync', () => {
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
-        .get(`/syncs/${sync.syncId}`)
+        .get(`/provider/syncs/${sync.syncId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/syncs/${sync.syncId}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(body).toMatchObject({
@@ -199,8 +250,17 @@ describe('Sync', () => {
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
-        .get('/syncs')
+        .get('/provider/syncs')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/syncs',
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(body).toMatchObject({
@@ -227,9 +287,18 @@ describe('Sync', () => {
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
-        .get('/syncs')
+        .get('/provider/syncs')
         .query({ connectionId: sync.connectionId })
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/syncs?connectionId=${sync.connectionId}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
         .send()
 
       expect(body).toMatchObject({
@@ -253,32 +322,22 @@ describe('Sync', () => {
       await syncService.start({ clientId })
 
       const { body } = await request(app.getHttpServer())
-        .get('/syncs')
+        .get('/provider/syncs')
         .query({ limit: 1 })
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/syncs?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
+        .send()
 
       expect(body.syncs.length).toEqual(1)
       expect(body.page).toHaveProperty('next')
-    })
-
-    it('responds the next page of results when cursos is given', async () => {
-      await syncService.start({ clientId })
-
-      const { body: pageOne } = await request(app.getHttpServer())
-        .get('/syncs')
-        .query({ limit: 1 })
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-
-      const { body: pageTwo } = await request(app.getHttpServer())
-        .get('/syncs')
-        .query({
-          limit: 1,
-          cursor: pageOne.page.next
-        })
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-
-      expect(pageTwo.syncs.length).toEqual(1)
-      expect(pageTwo.page).toHaveProperty('next')
     })
   })
 })

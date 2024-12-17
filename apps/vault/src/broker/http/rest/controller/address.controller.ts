@@ -2,6 +2,8 @@ import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-sh
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AddressService } from '../../../core/service/address.service'
 import { AddressDto } from '../dto/response/address.dto'
 import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
@@ -15,6 +17,7 @@ export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List the client addresss'
   })
@@ -35,6 +38,7 @@ export class AddressController {
   }
 
   @Get(':addressId')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Get a specific address by ID'
   })

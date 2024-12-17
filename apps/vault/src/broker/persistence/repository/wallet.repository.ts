@@ -11,10 +11,10 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Account, Wallet } from '../../core/type/indexed-resources.type'
 import { AccountRepository } from './account.repository'
-import { ConnectionRepository } from './connection.repository'
+import { ConnectionRepository, connectionSelectWithoutCredentials } from './connection.repository'
 
 type ProviderWalletsAndRelations = ProviderWallet & {
-  connections: { connection: ProviderConnection }[]
+  connections: { connection: Partial<ProviderConnection> }[]
   accounts: Array<
     ProviderAccount & {
       addresses: ProviderAddress[]
@@ -85,7 +85,9 @@ export class WalletRepository {
         },
         connections: {
           include: {
-            connection: true
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
           }
         }
       },
@@ -110,7 +112,9 @@ export class WalletRepository {
         },
         connections: {
           include: {
-            connection: true
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
           }
         }
       }
@@ -155,7 +159,9 @@ export class WalletRepository {
         },
         connections: {
           include: {
-            connection: true
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
           }
         }
       },
@@ -205,7 +211,9 @@ export class WalletRepository {
         },
         connections: {
           include: {
-            connection: true
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
           }
         }
       }
@@ -230,7 +238,13 @@ export class WalletRepository {
           },
           ...pagination
         },
-        connections: true
+        connections: {
+          include: {
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
+          }
+        }
       }
     })
     if (!wallet) {

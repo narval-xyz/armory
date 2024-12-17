@@ -145,6 +145,7 @@
     "wagmi": "2.12.31",
     "winston": "3.14.2",
     "winston-transport": "4.7.0",
+    "yaml": "2.6.1",
     "zod": "3.23.8"
   },
   "optionalDependencies": {

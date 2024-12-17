@@ -1,22 +1,29 @@
-import { ConfigModule } from '@narval/config-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import nock from 'nock'
+import { EncryptionModuleOptionProvider } from 'packages/encryption-module/src/lib/encryption.module'
 import request from 'supertest'
-import { load } from '../../../main.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
 import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/decorator/connection-id.decorator'
+import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { BrokerModule } from '../../broker.module'
+import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { ConnectionService } from '../../core/service/connection.service'
 import { Provider } from '../../core/type/connection.type'
+import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('Proxy', () => {
   let app: INestApplication
   let module: TestingModule
   let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   const TEST_CLIENT_ID = 'test-client-id'
   const TEST_CONNECTION_ID = 'test-connection-id'
@@ -24,23 +31,24 @@ describe('Proxy', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        BrokerModule
-      ]
-    }).compile()
+      imports: [MainModule]
+    })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
+      .compile()
 
     app = module.createNestApplication()
-
     testPrismaService = module.get(TestPrismaService)
-    connectionService = module.get(ConnectionService)
-
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
     await testPrismaService.truncateAll()
-    await app.init()
+    connectionService = module.get(ConnectionService)
   })
 
   afterAll(async () => {
@@ -55,6 +63,9 @@ describe('Proxy', () => {
     // Clean any pending nock interceptors
     nock.cleanAll()
 
+    await provisionService.provision()
+    await clientService.save(testClient)
+
     // Create a test connection
     await connectionService.create(TEST_CLIENT_ID, {
       connectionId: TEST_CONNECTION_ID,
@@ -66,28 +77,47 @@ describe('Proxy', () => {
         privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
       }
     })
+
+    await app.init()
   })
 
   it('forwards GET request', async () => {
     nock(MOCK_API_URL).get('/v2/vaults').reply(200, { data: 'mock response' })
 
     const response = await request(app.getHttpServer())
-      .get('/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
-      .send()
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
 
-    expect(response.body).toEqual({ data: 'mock response' })
     expect(response.status).toBe(HttpStatus.OK)
+    expect(response.body).toEqual({ data: 'mock response' })
   })
 
   it('forwards POST request', async () => {
     nock(MOCK_API_URL).post('/v2/wallets').reply(201, { data: 'mock response' })
 
     const response = await request(app.getHttpServer())
-      .post('/proxy/v2/wallets')
+      .post('/provider/proxy/v2/wallets')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/wallets',
+          payload: { test: 'data' },
+          htm: 'POST'
+        })
+      )
       .send({ test: 'data' })
 
     expect(response.body).toEqual({ data: 'mock response' })
@@ -98,9 +128,18 @@ describe('Proxy', () => {
     nock(MOCK_API_URL).delete('/v2/vaults').reply(204)
 
     const response = await request(app.getHttpServer())
-      .delete('/proxy/v2/vaults')
+      .delete('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'DELETE'
+        })
+      )
       .send()
 
     expect(response.status).toBe(HttpStatus.NO_CONTENT)
@@ -110,9 +149,18 @@ describe('Proxy', () => {
     nock(MOCK_API_URL).put('/v2/vaults').reply(200, { data: 'mock response' })
 
     const response = await request(app.getHttpServer())
-      .put('/proxy/v2/vaults')
+      .put('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: { test: 'data' },
+          htm: 'PUT'
+        })
+      )
       .send({ test: 'data' })
 
     expect(response.body).toEqual({ data: 'mock response' })
@@ -123,9 +171,18 @@ describe('Proxy', () => {
     nock(MOCK_API_URL).patch('/v2/vaults').reply(200, { data: 'mock response' })
 
     const response = await request(app.getHttpServer())
-      .patch('/proxy/v2/vaults')
+      .patch('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: { test: 'data' },
+          htm: 'PATCH'
+        })
+      )
       .send({ test: 'data' })
 
     expect(response.body).toEqual({ data: 'mock response' })
@@ -143,9 +200,18 @@ describe('Proxy', () => {
       })
 
     await request(app.getHttpServer())
-      .get('/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
       .send()
 
     expect(capturedHeaders['api-access-key']).toBe('test-api-key')
@@ -162,9 +228,18 @@ describe('Proxy', () => {
       })
 
     await request(app.getHttpServer())
-      .get('/v1/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
       .send()
 
     expect(capturedHeaders[REQUEST_HEADER_CLIENT_ID.toLowerCase()]).toBeUndefined()
@@ -181,9 +256,18 @@ describe('Proxy', () => {
       })
 
     await request(app.getHttpServer())
-      .get('/v1/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
       .send()
 
     expect(capturedHeaders[REQUEST_HEADER_CONNECTION_ID.toLowerCase()]).toBeUndefined()
@@ -193,9 +277,18 @@ describe('Proxy', () => {
     nock(MOCK_API_URL).get('/v2/vaults').reply(512, { error: 'mock error' }, { 'x-custom-header': 'custom value' })
 
     const response = await request(app.getHttpServer())
-      .get('/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
       .send()
 
     expect(response.body).toEqual({ error: 'mock error' })
@@ -207,9 +300,18 @@ describe('Proxy', () => {
     await connectionService.revoke(TEST_CLIENT_ID, TEST_CONNECTION_ID)
 
     const response = await request(app.getHttpServer())
-      .get('/proxy/v2/vaults')
+      .get('/provider/proxy/v2/vaults')
       .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
       .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
       .send()
 
     expect(response.body).toEqual({

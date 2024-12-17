@@ -1,3 +1,4 @@
+import { Permission } from '@narval/armory-sdk'
 import { addressSchema, hexSchema } from '@narval/policy-engine-shared'
 import { Alg, Curves, publicKeySchema, rsaPrivateKeySchema, rsaPublicKeySchema } from '@narval/signature'
 import { z } from 'zod'
@@ -15,7 +16,7 @@ export const CreateClientInput = z.object({
 })
 export type CreateClientInput = z.infer<typeof CreateClientInput>
 
-export const Client = z.object({
+export const ClientV1 = z.object({
   clientId: z.string(),
   engineJwk: publicKeySchema.optional(),
 
@@ -37,12 +38,69 @@ export const Client = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date()
 })
+export type ClientV1 = z.infer<typeof ClientV1>
+
+export const ClientLocalAuthAllowedUser = z.object({
+  userId: z.string(),
+  publicKey: publicKeySchema
+})
+export type ClientLocalAuthAllowedUser = z.infer<typeof ClientLocalAuthAllowedUser>
+
+export const Client = z.object({
+  clientId: z.string(),
+  name: z.string(),
+  configurationSource: z.literal('declarative').or(z.literal('dynamic')), // Declarative = comes from config file, Dyanmic = created at runtime
+  backupPublicKey: rsaPublicKeySchema.nullable(),
+  // Override if you want to use a different baseUrl for a single client.
+  baseUrl: z.string().nullable(),
+
+  auth: z.object({
+    disabled: z.boolean(),
+    local: z
+      .object({
+        jwsd: z.object({
+          maxAge: z.number(),
+          requiredComponents: z.array(z.string())
+        }),
+        allowedUsersJwksUrl: z.string().nullable(),
+        allowedUsers: z.array(ClientLocalAuthAllowedUser).nullable()
+      })
+      .nullable(),
+    tokenValidation: z.object({
+      disabled: z.boolean(),
+      url: z.string().nullable(),
+      jwksUrl: z.string().nullable(),
+      pinnedPublicKey: publicKeySchema.nullable(),
+      verification: z.object({
+        audience: z.string().nullable(),
+        issuer: z.string().nullable(),
+        maxTokenAge: z.number().nullable(),
+        requireBoundTokens: z.boolean(),
+        allowBearerTokens: z.boolean(),
+        allowWildcard: z.array(z.string()).nullable()
+      })
+    })
+  }),
+
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+})
 export type Client = z.infer<typeof Client>
 
-export const App = z.object({
+export const AppV1 = z.object({
   id: z.string().min(1),
   adminApiKey: z.string().min(1).optional(),
   masterKey: z.string().min(1).optional()
+})
+export type AppV1 = z.infer<typeof AppV1>
+
+export const App = z.object({
+  id: z.string().min(1),
+  adminApiKeyHash: z.string().min(1).nullish(),
+  encryptionMasterKey: z.string().min(1).nullish(),
+  encryptionKeyringType: z.literal('raw').or(z.literal('awskms')),
+  encryptionMasterAwsKmsArn: z.string().nullish(),
+  authDisabled: z.boolean().optional()
 })
 export type App = z.infer<typeof App>
 
@@ -132,3 +190,10 @@ export type Algorithm = z.infer<typeof Algorithm>
 
 export const Curve = z.union([z.literal(Curves.P256), z.literal(Curves.SECP256K1)])
 export type Curve = z.infer<typeof Curve>
+
+export const VaultPermission = {
+  ...Permission,
+  CONNECTION_WRITE: 'connection:write',
+  CONNECTION_READ: 'connection:read'
+} as const
+export type VaultPermission = (typeof VaultPermission)[keyof typeof VaultPermission]

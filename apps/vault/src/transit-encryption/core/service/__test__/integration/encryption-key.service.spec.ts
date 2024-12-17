@@ -1,4 +1,5 @@
 import { ConfigModule } from '@narval/config-module'
+import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Alg,
@@ -17,7 +18,9 @@ import { Test } from '@nestjs/testing'
 import { omit } from 'lodash'
 import { v4 as uuid } from 'uuid'
 import { load } from '../../../../../main.config'
+import { AppModule } from '../../../../../main.module'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
+import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { EncryptionKeyRepository } from '../../../../persistence/encryption-key.repository'
 import { InvalidJweHeaderException } from '../../../exception/invalid-jwe-header.exception'
 import { NotFoundException } from '../../../exception/not-found.exception'
@@ -36,18 +39,24 @@ describe(EncryptionKeyService.name, () => {
 
   const clientId = uuid()
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [
-        PersistenceModule,
         LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
-        })
+        }),
+        AppModule,
+        PersistenceModule.forRoot()
       ],
       providers: [EncryptionKeyService, EncryptionKeyRepository]
-    }).compile()
+    })
+      .overrideProvider(EncryptionModuleOptionProvider)
+      .useValue({
+        keyring: getTestRawAesKeyring()
+      })
+      .compile()
 
     encryptionKeyService = module.get(EncryptionKeyService)
     encryptionKeyRepository = module.get(EncryptionKeyRepository)

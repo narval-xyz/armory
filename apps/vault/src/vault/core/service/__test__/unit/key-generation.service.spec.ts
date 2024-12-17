@@ -27,12 +27,30 @@ const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47
 
 const clientId = uuid()
 
-// Engine key used to sign the approval request
-const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
-
 const client: Client = {
   clientId,
-  engineJwk: clientPublicJWK,
+  auth: {
+    disabled: true,
+    local: null,
+    tokenValidation: {
+      disabled: true,
+      url: null,
+      jwksUrl: null,
+      verification: {
+        audience: null,
+        issuer: null,
+        maxTokenAge: null,
+        requireBoundTokens: false,
+        allowBearerTokens: false,
+        allowWildcard: null
+      },
+      pinnedPublicKey: null
+    }
+  },
+  name: 'test-client',
+  configurationSource: 'dynamic',
+  backupPublicKey: null,
+  baseUrl: null,
   createdAt: new Date(),
   updatedAt: new Date()
 }

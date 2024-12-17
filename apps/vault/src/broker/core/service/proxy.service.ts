@@ -22,7 +22,7 @@ export class ProxyService {
     clientId: string,
     { connectionId, body, endpoint, method }: RawRequestOptions
   ): Promise<{ data: any; code: HttpStatus; headers: Record<string, any> }> {
-    const connection = await this.connectionRepository.findById(clientId, connectionId)
+    const connection = await this.connectionRepository.findById(clientId, connectionId, true)
     if (connection.status !== ConnectionStatus.ACTIVE) {
       throw new ConnectionInvalidException({
         message: 'Connection is not active',

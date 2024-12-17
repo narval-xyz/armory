@@ -1,22 +1,22 @@
 import { PaginatedResult, PaginationOptions, getPaginatedResult, getPaginationQuery } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { Prisma, ProviderConnection } from '@prisma/client/vault'
-import { omit } from 'lodash'
+import { ProviderConnection } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { ConnectionParseException } from '../../core/exception/connection-parse.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
-import { Connection, ConnectionStatus } from '../../core/type/connection.type'
+import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
 
 export type UpdateConnection = {
   clientId: string
   connectionId: string
   credentials?: unknown | null
-  integrity?: string
   label?: string
+  provider?: string
   revokedAt?: Date
   status?: ConnectionStatus
   updatedAt?: Date
+  createdAt: Date
   url?: string
 }
 
@@ -28,6 +28,20 @@ export type FilterOptions = {
 
 export type FindAllPaginatedOptions = PaginationOptions & FilterOptions
 
+export const connectionSelectWithoutCredentials = {
+  id: true,
+  clientId: true,
+  provider: true,
+  url: true,
+  label: true,
+  credentials: false, // DO NOT INCLUDE CREDENTIALS
+  status: true,
+  integrity: true,
+  createdAt: true,
+  updatedAt: true,
+  revokedAt: true
+}
+
 @Injectable()
 export class ConnectionRepository {
   constructor(private prismaService: PrismaService) {}
@@ -35,10 +49,13 @@ export class ConnectionRepository {
   static getCursorOrderColumns(): Array<keyof ProviderConnection> {
     return ['createdAt']
   }
-
-  static parseModel(model?: ProviderConnection | null): Connection {
-    const parse = Connection.safeParse({
+  static parseModel<T extends boolean = false>(
+    model?: Partial<ProviderConnection> | null,
+    includeCredentials?: T
+  ): T extends true ? ConnectionWithCredentials : Connection {
+    const connectionData = {
       ...model,
+      credentials: model?.credentials ? JSON.parse(model.credentials) : null,
       connectionId: model?.id,
       // Prisma always returns null for optional fields that don't have a
       // value, rather than undefined. This is actually by design and aligns
@@ -46,10 +63,13 @@ export class ConnectionRepository {
       label: model?.label || undefined,
       revokedAt: model?.revokedAt || undefined,
       url: model?.url || undefined
-    })
+    }
+
+    const schema = includeCredentials ? ConnectionWithCredentials : Connection
+    const parse = schema.safeParse(connectionData)
 
     if (parse.success) {
-      return parse.data
+      return parse.data as T extends true ? ConnectionWithCredentials : Connection
     }
 
     throw new ConnectionParseException({
@@ -57,43 +77,26 @@ export class ConnectionRepository {
     })
   }
 
-  static parseEntity(entity: Connection): ProviderConnection {
-    return {
-      clientId: entity.clientId,
-      createdAt: entity.createdAt,
-      credentials: entity.credentials ? entity.credentials : Prisma.JsonNull,
-      id: entity.connectionId,
-      integrity: entity.integrity,
-      label: entity.label || null,
-      provider: entity.provider,
-      revokedAt: entity.revokedAt || null,
-      status: entity.status,
-      updatedAt: entity.updatedAt,
-      url: entity.url || null
-    }
-  }
-
-  async create(connection: Connection): Promise<Connection> {
+  async create(connection: ConnectionWithCredentials): Promise<Connection> {
     const data = {
-      clientId: connection.clientId,
-      createdAt: connection.createdAt,
-      credentials: connection.credentials !== null ? connection.credentials : Prisma.JsonNull,
       id: connection.connectionId,
-      integrity: connection.integrity,
-      label: connection.label,
+      clientId: connection.clientId,
+      credentials: connection.credentials !== null ? JSON.stringify(connection.credentials) : null,
+      label: connection.label || null,
       provider: connection.provider,
       status: connection.status,
-      updatedAt: connection.updatedAt,
-      url: connection.url
+      url: connection.url || null,
+      createdAt: connection.createdAt,
+      updatedAt: connection.updatedAt
     }
 
     await this.prismaService.providerConnection.upsert({
-      where: { id: connection.connectionId },
+      where: { id: data.id },
       create: data,
-      update: omit(data, 'id')
+      update: data
     })
 
-    return connection
+    return Connection.parse(connection)
   }
 
   async update(updateConnection: UpdateConnection): Promise<boolean> {
@@ -110,26 +113,33 @@ export class ConnectionRepository {
         clientId: updateConnection.clientId
       },
       data: {
-        credentials: updateConnection.credentials !== null ? updateConnection.credentials : Prisma.JsonNull,
-        integrity: updateConnection.integrity,
+        id: updateConnection.connectionId,
+        clientId: updateConnection.clientId,
+        provider: updateConnection.provider,
+        url: updateConnection.url,
         label: updateConnection.label,
-        revokedAt: updateConnection.revokedAt,
+        credentials: updateConnection.credentials !== null ? JSON.stringify(updateConnection.credentials) : null,
         status: updateConnection.status,
-        updatedAt: updateConnection.updatedAt,
-        url: updateConnection.url
+        createdAt: updateConnection.createdAt,
+        revokedAt: updateConnection.revokedAt,
+        updatedAt: updateConnection.updatedAt
       }
     })
 
     return true
   }
 
-  async findById(clientId: string, connectionId: string): Promise<Connection> {
+  async findById<T extends boolean = false>(
+    clientId: string,
+    connectionId: string,
+    includeCredentials?: T
+  ): Promise<T extends true ? ConnectionWithCredentials : Connection> {
     const model = await this.prismaService.providerConnection.findUnique({
       where: { clientId, id: connectionId }
     })
 
     if (model) {
-      return ConnectionRepository.parseModel(model)
+      return ConnectionRepository.parseModel<T>(model, includeCredentials)
     }
 
     throw new NotFoundException({ context: { clientId, connectionId } })
@@ -137,13 +147,14 @@ export class ConnectionRepository {
 
   async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
     const models = await this.prismaService.providerConnection.findMany({
+      select: connectionSelectWithoutCredentials,
       where: {
         clientId,
         status: options?.filters?.status
       }
     })
 
-    return models.map(ConnectionRepository.parseModel)
+    return models.map((model) => ConnectionRepository.parseModel(model, false))
   }
 
   async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
@@ -153,6 +164,7 @@ export class ConnectionRepository {
     })
 
     const models = await this.prismaService.providerConnection.findMany({
+      select: connectionSelectWithoutCredentials,
       where: {
         clientId,
         status: options?.filters?.status
@@ -163,7 +175,7 @@ export class ConnectionRepository {
     const { data, page } = getPaginatedResult({ items: models, options: pagination })
 
     return {
-      data: data.map(ConnectionRepository.parseModel),
+      data: data.map((model) => ConnectionRepository.parseModel(model, false)),
       page
     }
   }

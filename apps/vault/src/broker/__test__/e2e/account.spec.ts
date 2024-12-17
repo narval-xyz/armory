@@ -1,32 +1,40 @@
-import { ConfigModule } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { load } from '../../../main.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
+import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { BrokerModule } from '../../broker.module'
 import { getExpectedAccount, getExpectedAddress } from '../util/map-db-to-returned'
-import { TEST_ACCOUNTS, TEST_ADDRESSES, TEST_CLIENT_ID } from '../util/mock-data'
+import {
+  TEST_ACCOUNTS,
+  TEST_ADDRESSES,
+  TEST_CLIENT_ID,
+  getJwsd,
+  testClient,
+  testUserPrivateJwk
+} from '../util/mock-data'
 
 describe('Account', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
+  let provisionService: ProvisionService
+  let clientService: ClientService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        BrokerModule
-      ]
+      imports: [MainModule]
     })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideProvider(KeyValueRepository)
+      .useValue(new InMemoryKeyValueRepository())
       .overrideProvider(EncryptionModuleOptionProvider)
       .useValue({
         keyring: getTestRawAesKeyring()
@@ -35,13 +43,9 @@ describe('Account', () => {
 
     app = module.createNestApplication()
     testPrismaService = module.get(TestPrismaService)
-
-    await app.init()
-  })
-
-  beforeEach(async () => {
+    provisionService = module.get<ProvisionService>(ProvisionService)
+    clientService = module.get<ClientService>(ClientService)
     await testPrismaService.truncateAll()
-    await testPrismaService.seedBrokerTestData()
   })
 
   afterAll(async () => {
@@ -50,9 +54,30 @@ describe('Account', () => {
     await app.close()
   })
 
+  beforeEach(async () => {
+    await testPrismaService.truncateAll()
+    await provisionService.provision()
+
+    await clientService.save(testClient)
+    await testPrismaService.seedBrokerTestData()
+
+    await app.init()
+  })
+
   describe('GET /accounts', () => {
     it('returns the list of accounts with addresses for the client', async () => {
-      const response = await request(app.getHttpServer()).get('/accounts').set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+      const response = await request(app.getHttpServer())
+        .get('/provider/accounts')
+        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/accounts',
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
 
       expect(response.body).toEqual({
@@ -65,14 +90,18 @@ describe('Account', () => {
 
     it('returns empty list for unknown client', async () => {
       const response = await request(app.getHttpServer())
-        .get('/accounts')
+        .get('/provider/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
-      expect(response.status).toEqual(HttpStatus.OK)
-
-      expect(response.body).toEqual({
-        accounts: [],
-        page: { next: null }
-      })
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/accounts',
+            payload: {},
+            htm: 'GET'
+          })
+        )
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 
@@ -80,8 +109,17 @@ describe('Account', () => {
     it('returns limited number of accounts when limit parameter is provided', async () => {
       const limit = 1
       const response = await request(app.getHttpServer())
-        .get(`/accounts?limit=${limit}`)
+        .get(`/provider/accounts?limit=${limit}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts?limit=${limit}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
 
       expect(response.body.accounts).toHaveLength(limit)
@@ -91,8 +129,17 @@ describe('Account', () => {
     it('returns next page of results using cursor', async () => {
       // First request
       const firstResponse = await request(app.getHttpServer())
-        .get('/accounts?limit=1')
+        .get('/provider/accounts?limit=1')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/accounts?limit=1',
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(firstResponse.status).toEqual(HttpStatus.OK)
 
       const cursor = firstResponse.body.page?.next
@@ -100,8 +147,17 @@ describe('Account', () => {
 
       // Second request using the cursor
       const secondResponse = await request(app.getHttpServer())
-        .get(`/accounts?cursor=${cursor}&limit=1`)
+        .get(`/provider/accounts?cursor=${cursor}&limit=1`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts?cursor=${cursor}&limit=1`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(secondResponse.status).toEqual(HttpStatus.OK)
 
       expect(secondResponse.body.accounts).toHaveLength(1)
@@ -110,8 +166,17 @@ describe('Account', () => {
 
     it('handles descending orderBy createdAt parameter correctly', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/accounts?orderBy=createdAt&desc=true`)
+        .get(`/provider/accounts?orderBy=createdAt&desc=true`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: '/provider/accounts?orderBy=createdAt&desc=true',
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
 
       const returnedAccounts = response.body.accounts
@@ -126,8 +191,17 @@ describe('Account', () => {
     it('returns the account details with addresses', async () => {
       const account = TEST_ACCOUNTS[0]
       const response = await request(app.getHttpServer())
-        .get(`/accounts/${account.id}`)
+        .get(`/provider/accounts/${account.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts/${account.id}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
       expect(response.body).toEqual({
         account: getExpectedAccount(account)
@@ -136,15 +210,33 @@ describe('Account', () => {
 
     it('returns 404 with proper error message for non-existent account', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/accounts/non-existent`)
+        .get(`/provider/accounts/non-existent`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts/non-existent`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.NOT_FOUND)
     })
 
     it('returns 404 when accessing account from unknown client', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/accounts/${TEST_ACCOUNTS[0].id}`)
+        .get(`/provider/accounts/${TEST_ACCOUNTS[0].id}`)
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts/${TEST_ACCOUNTS[0].id}`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
@@ -155,8 +247,17 @@ describe('Account', () => {
       const addresses = TEST_ADDRESSES.filter((addr) => addr.accountId === account.id)
 
       const response = await request(app.getHttpServer())
-        .get(`/accounts/${account.id}/addresses`)
+        .get(`/provider/accounts/${account.id}/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts/${account.id}/addresses`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
 
       expect(response.body).toEqual({
@@ -179,8 +280,17 @@ describe('Account', () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/accounts/${accountWithoutAddresses.id}/addresses`)
+        .get(`/provider/accounts/${accountWithoutAddresses.id}/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/accounts/${accountWithoutAddresses.id}/addresses`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
       expect(response.status).toEqual(HttpStatus.OK)
       expect(response.body).toEqual({
         addresses: [],

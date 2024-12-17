@@ -3,6 +3,8 @@ import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
+import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
 import { AccountDto } from '../dto/response/account.dto'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
@@ -17,6 +19,7 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List the client accounts'
   })
@@ -37,6 +40,7 @@ export class AccountController {
   }
 
   @Get(':accountId')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Get a specific account by ID'
   })
@@ -58,6 +62,7 @@ export class AccountController {
   }
 
   @Get(':accountId/addresses')
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List addresses for a specific account'
   })
