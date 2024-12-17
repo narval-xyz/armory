@@ -8,7 +8,7 @@ import { AccountService } from '../../../core/service/account.service'
 import { WalletService } from '../../../core/service/wallet.service'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
-import { WalletDto } from '../dto/response/wallet.dto'
+import { ProviderWalletDto } from '../dto/response/wallet.dto'
 
 @Controller({
   path: 'wallets',
@@ -53,15 +53,15 @@ export class WalletController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: WalletDto
+    type: ProviderWalletDto
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Wallet not found'
   })
-  async getWalletById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<WalletDto> {
+  async getWalletById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<ProviderWalletDto> {
     const wallet = await this.walletService.getWallet(clientId, walletId)
-    return WalletDto.create({ wallet })
+    return ProviderWalletDto.create({ wallet })
   }
 
   @Get(':walletId/accounts')

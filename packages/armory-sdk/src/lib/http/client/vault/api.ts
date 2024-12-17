@@ -93,52 +93,34 @@ export interface ClientDto {
     'clientId': string;
     /**
      * 
-     * @type {CreateClientDtoEngineJwk}
+     * @type {string}
      * @memberof ClientDto
      */
-    'engineJwk'?: CreateClientDtoEngineJwk;
+    'name': string;
+    /**
+     * 
+     * @type {ClientDtoConfigurationSource}
+     * @memberof ClientDto
+     */
+    'configurationSource': ClientDtoConfigurationSource;
+    /**
+     * 
+     * @type {ClientDtoBackupPublicKey}
+     * @memberof ClientDto
+     */
+    'backupPublicKey': ClientDtoBackupPublicKey | null;
     /**
      * 
      * @type {string}
      * @memberof ClientDto
      */
-    'audience'?: string;
+    'baseUrl': string | null;
     /**
      * 
-     * @type {string}
+     * @type {ClientDtoAuth}
      * @memberof ClientDto
      */
-    'issuer'?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof ClientDto
-     */
-    'maxTokenAge'?: number;
-    /**
-     * 
-     * @type {EncryptionKeyDtoPublicKey}
-     * @memberof ClientDto
-     */
-    'backupPublicKey'?: EncryptionKeyDtoPublicKey;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ClientDto
-     */
-    'allowKeyExport'?: boolean;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof ClientDto
-     */
-    'allowWildcard'?: Array<string>;
-    /**
-     * 
-     * @type {string}
-     * @memberof ClientDto
-     */
-    'baseUrl'?: string;
+    'auth': ClientDtoAuth;
     /**
      * 
      * @type {any}
@@ -155,6 +137,316 @@ export interface ClientDto {
 /**
  * 
  * @export
+ * @interface ClientDtoAuth
+ */
+export interface ClientDtoAuth {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ClientDtoAuth
+     */
+    'disabled': boolean;
+    /**
+     * 
+     * @type {ClientDtoAuthLocal}
+     * @memberof ClientDtoAuth
+     */
+    'local': ClientDtoAuthLocal | null;
+    /**
+     * 
+     * @type {ClientDtoAuthTokenValidation}
+     * @memberof ClientDtoAuth
+     */
+    'tokenValidation': ClientDtoAuthTokenValidation;
+}
+/**
+ * 
+ * @export
+ * @interface ClientDtoAuthLocal
+ */
+export interface ClientDtoAuthLocal {
+    /**
+     * 
+     * @type {ClientDtoAuthLocalJwsd}
+     * @memberof ClientDtoAuthLocal
+     */
+    'jwsd': ClientDtoAuthLocalJwsd;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoAuthLocal
+     */
+    'allowedUsersJwksUrl': string | null;
+    /**
+     * 
+     * @type {Array<CreateClientDtoAuthLocalAllowedUsersInner>}
+     * @memberof ClientDtoAuthLocal
+     */
+    'allowedUsers': Array<CreateClientDtoAuthLocalAllowedUsersInner> | null;
+}
+/**
+ * 
+ * @export
+ * @interface ClientDtoAuthLocalJwsd
+ */
+export interface ClientDtoAuthLocalJwsd {
+    /**
+     * 
+     * @type {number}
+     * @memberof ClientDtoAuthLocalJwsd
+     */
+    'maxAge': number;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ClientDtoAuthLocalJwsd
+     */
+    'requiredComponents': Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface ClientDtoAuthTokenValidation
+ */
+export interface ClientDtoAuthTokenValidation {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ClientDtoAuthTokenValidation
+     */
+    'disabled': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoAuthTokenValidation
+     */
+    'url': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoAuthTokenValidation
+     */
+    'jwksUrl': string | null;
+    /**
+     * 
+     * @type {CreateClientDtoAuthTokenValidationPinnedPublicKey}
+     * @memberof ClientDtoAuthTokenValidation
+     */
+    'pinnedPublicKey': CreateClientDtoAuthTokenValidationPinnedPublicKey | null;
+    /**
+     * 
+     * @type {ClientDtoAuthTokenValidationVerification}
+     * @memberof ClientDtoAuthTokenValidation
+     */
+    'verification': ClientDtoAuthTokenValidationVerification;
+}
+/**
+ * 
+ * @export
+ * @interface ClientDtoAuthTokenValidationVerification
+ */
+export interface ClientDtoAuthTokenValidationVerification {
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'audience': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'issuer': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'maxTokenAge': number | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'requireBoundTokens': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'allowBearerTokens': boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ClientDtoAuthTokenValidationVerification
+     */
+    'allowWildcard': Array<string> | null;
+}
+/**
+ * 
+ * @export
+ * @interface ClientDtoBackupPublicKey
+ */
+export interface ClientDtoBackupPublicKey {
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'kty': ClientDtoBackupPublicKeyKtyEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'alg': ClientDtoBackupPublicKeyAlgEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'use'?: ClientDtoBackupPublicKeyUseEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'kid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'addr'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'n': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ClientDtoBackupPublicKey
+     */
+    'e': string;
+}
+
+export const ClientDtoBackupPublicKeyKtyEnum = {
+    Rsa: 'RSA'
+} as const;
+
+export type ClientDtoBackupPublicKeyKtyEnum = typeof ClientDtoBackupPublicKeyKtyEnum[keyof typeof ClientDtoBackupPublicKeyKtyEnum];
+export const ClientDtoBackupPublicKeyAlgEnum = {
+    Rs256: 'RS256'
+} as const;
+
+export type ClientDtoBackupPublicKeyAlgEnum = typeof ClientDtoBackupPublicKeyAlgEnum[keyof typeof ClientDtoBackupPublicKeyAlgEnum];
+export const ClientDtoBackupPublicKeyUseEnum = {
+    Sig: 'sig',
+    Enc: 'enc'
+} as const;
+
+export type ClientDtoBackupPublicKeyUseEnum = typeof ClientDtoBackupPublicKeyUseEnum[keyof typeof ClientDtoBackupPublicKeyUseEnum];
+
+/**
+ * @type ClientDtoConfigurationSource
+ * @export
+ */
+export type ClientDtoConfigurationSource = string;
+
+/**
+ * 
+ * @export
+ * @interface ConnectionListDto
+ */
+export interface ConnectionListDto {
+    /**
+     * 
+     * @type {Array<ConnectionListDtoConnectionsInner>}
+     * @memberof ConnectionListDto
+     */
+    'connections': Array<ConnectionListDtoConnectionsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface ConnectionListDtoConnectionsInner
+ */
+export interface ConnectionListDtoConnectionsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'provider': ConnectionListDtoConnectionsInnerProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'revokedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'status'?: ConnectionListDtoConnectionsInnerStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'updatedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectionListDtoConnectionsInner
+     */
+    'url'?: string;
+}
+
+export const ConnectionListDtoConnectionsInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type ConnectionListDtoConnectionsInnerProviderEnum = typeof ConnectionListDtoConnectionsInnerProviderEnum[keyof typeof ConnectionListDtoConnectionsInnerProviderEnum];
+export const ConnectionListDtoConnectionsInnerStatusEnum = {
+    Pending: 'pending',
+    Active: 'active',
+    Revoked: 'revoked'
+} as const;
+
+export type ConnectionListDtoConnectionsInnerStatusEnum = typeof ConnectionListDtoConnectionsInnerStatusEnum[keyof typeof ConnectionListDtoConnectionsInnerStatusEnum];
+
+/**
+ * 
+ * @export
  * @interface CreateClientDto
  */
 export interface CreateClientDto {
@@ -166,10 +458,34 @@ export interface CreateClientDto {
     'clientId'?: string;
     /**
      * 
-     * @type {CreateClientDtoEngineJwk}
+     * @type {string}
      * @memberof CreateClientDto
      */
-    'engineJwk'?: CreateClientDtoEngineJwk;
+    'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDto
+     */
+    'baseUrl'?: string;
+    /**
+     * 
+     * @type {EncryptionKeyDtoPublicKey}
+     * @memberof CreateClientDto
+     */
+    'backupPublicKey'?: EncryptionKeyDtoPublicKey;
+    /**
+     * 
+     * @type {CreateClientDtoAuth}
+     * @memberof CreateClientDto
+     */
+    'auth'?: CreateClientDtoAuth;
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocalAllowedUsersInnerPublicKey}
+     * @memberof CreateClientDto
+     */
+    'engineJwk'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKey;
     /**
      * 
      * @type {string}
@@ -190,329 +506,548 @@ export interface CreateClientDto {
     'maxTokenAge'?: number;
     /**
      * 
-     * @type {EncryptionKeyDtoPublicKey}
-     * @memberof CreateClientDto
-     */
-    'backupPublicKey'?: EncryptionKeyDtoPublicKey;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof CreateClientDto
-     */
-    'allowKeyExport'?: boolean;
-    /**
-     * 
      * @type {Array<string>}
      * @memberof CreateClientDto
      */
     'allowWildcard'?: Array<string>;
     /**
      * 
-     * @type {string}
+     * @type {boolean}
      * @memberof CreateClientDto
      */
-    'baseUrl'?: string;
+    'allowKeyExport'?: boolean;
 }
 /**
- * @type CreateClientDtoEngineJwk
+ * 
+ * @export
+ * @interface CreateClientDtoAuth
+ */
+export interface CreateClientDtoAuth {
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocal}
+     * @memberof CreateClientDtoAuth
+     */
+    'local'?: CreateClientDtoAuthLocal | null;
+    /**
+     * 
+     * @type {CreateClientDtoAuthTokenValidation}
+     * @memberof CreateClientDtoAuth
+     */
+    'tokenValidation'?: CreateClientDtoAuthTokenValidation;
+}
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoAuthLocal
+ */
+export interface CreateClientDtoAuthLocal {
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocalJwsd}
+     * @memberof CreateClientDtoAuthLocal
+     */
+    'jwsd'?: CreateClientDtoAuthLocalJwsd | null;
+    /**
+     * Pin specific users to be authorized; if set, ONLY these users are allowed
+     * @type {Array<CreateClientDtoAuthLocalAllowedUsersInner>}
+     * @memberof CreateClientDtoAuthLocal
+     */
+    'allowedUsers'?: Array<CreateClientDtoAuthLocalAllowedUsersInner> | null;
+}
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoAuthLocalAllowedUsersInner
+ */
+export interface CreateClientDtoAuthLocalAllowedUsersInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInner
+     */
+    'userId': string;
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocalAllowedUsersInnerPublicKey}
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInner
+     */
+    'publicKey': CreateClientDtoAuthLocalAllowedUsersInnerPublicKey;
+}
+/**
+ * @type CreateClientDtoAuthLocalAllowedUsersInnerPublicKey
  * @export
  */
-export type CreateClientDtoEngineJwk = CreateClientDtoEngineJwkOneOf | CreateClientDtoEngineJwkOneOf1 | CreateClientDtoEngineJwkOneOf2 | CreateClientDtoEngineJwkOneOf3 | EncryptionKeyDtoPublicKey;
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKey = CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1 | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2 | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3 | EncryptionKeyDtoPublicKey;
 
 /**
  * 
  * @export
- * @interface CreateClientDtoEngineJwkOneOf
+ * @interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
  */
-export interface CreateClientDtoEngineJwkOneOf {
+export interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf {
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
-    'kty': CreateClientDtoEngineJwkOneOfKtyEnum;
+    'kty': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfKtyEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
-    'alg': CreateClientDtoEngineJwkOneOfAlgEnum;
+    'alg': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfAlgEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
-    'use'?: CreateClientDtoEngineJwkOneOfUseEnum;
+    'use'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfUseEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
     'kid': string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
     'addr'?: string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
-    'crv': CreateClientDtoEngineJwkOneOfCrvEnum;
+    'crv': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfCrvEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
     'x': string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf
      */
     'y': string;
 }
 
-export const CreateClientDtoEngineJwkOneOfKtyEnum = {
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfKtyEnum = {
     Ec: 'EC'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOfKtyEnum = typeof CreateClientDtoEngineJwkOneOfKtyEnum[keyof typeof CreateClientDtoEngineJwkOneOfKtyEnum];
-export const CreateClientDtoEngineJwkOneOfAlgEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfKtyEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfKtyEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfKtyEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfAlgEnum = {
     Es256K: 'ES256K'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOfAlgEnum = typeof CreateClientDtoEngineJwkOneOfAlgEnum[keyof typeof CreateClientDtoEngineJwkOneOfAlgEnum];
-export const CreateClientDtoEngineJwkOneOfUseEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfAlgEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfAlgEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfAlgEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfUseEnum = {
     Sig: 'sig',
     Enc: 'enc'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOfUseEnum = typeof CreateClientDtoEngineJwkOneOfUseEnum[keyof typeof CreateClientDtoEngineJwkOneOfUseEnum];
-export const CreateClientDtoEngineJwkOneOfCrvEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfUseEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfUseEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfUseEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfCrvEnum = {
     Secp256k1: 'secp256k1'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOfCrvEnum = typeof CreateClientDtoEngineJwkOneOfCrvEnum[keyof typeof CreateClientDtoEngineJwkOneOfCrvEnum];
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfCrvEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfCrvEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOfCrvEnum];
 
 /**
  * 
  * @export
- * @interface CreateClientDtoEngineJwkOneOf1
+ * @interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
  */
-export interface CreateClientDtoEngineJwkOneOf1 {
+export interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1 {
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
-    'kty': CreateClientDtoEngineJwkOneOf1KtyEnum;
+    'kty': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1KtyEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
-    'alg': CreateClientDtoEngineJwkOneOf1AlgEnum;
+    'alg': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1AlgEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
-    'use'?: CreateClientDtoEngineJwkOneOf1UseEnum;
+    'use'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1UseEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
     'kid': string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
     'addr'?: string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
-    'crv': CreateClientDtoEngineJwkOneOf1CrvEnum;
+    'crv': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1CrvEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
     'x': string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf1
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1
      */
     'y': string;
 }
 
-export const CreateClientDtoEngineJwkOneOf1KtyEnum = {
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1KtyEnum = {
     Ec: 'EC'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf1KtyEnum = typeof CreateClientDtoEngineJwkOneOf1KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf1KtyEnum];
-export const CreateClientDtoEngineJwkOneOf1AlgEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1KtyEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1KtyEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1KtyEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1AlgEnum = {
     Es256: 'ES256'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf1AlgEnum = typeof CreateClientDtoEngineJwkOneOf1AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf1AlgEnum];
-export const CreateClientDtoEngineJwkOneOf1UseEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1AlgEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1AlgEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1AlgEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1UseEnum = {
     Sig: 'sig',
     Enc: 'enc'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf1UseEnum = typeof CreateClientDtoEngineJwkOneOf1UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf1UseEnum];
-export const CreateClientDtoEngineJwkOneOf1CrvEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1UseEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1UseEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1UseEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1CrvEnum = {
     P256: 'P-256'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf1CrvEnum = typeof CreateClientDtoEngineJwkOneOf1CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf1CrvEnum];
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1CrvEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1CrvEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1CrvEnum];
 
 /**
  * 
  * @export
- * @interface CreateClientDtoEngineJwkOneOf2
+ * @interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
  */
-export interface CreateClientDtoEngineJwkOneOf2 {
+export interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2 {
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
-    'kty': CreateClientDtoEngineJwkOneOf2KtyEnum;
+    'kty': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2KtyEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
-    'crv': CreateClientDtoEngineJwkOneOf2CrvEnum;
+    'crv': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2CrvEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
-    'alg': CreateClientDtoEngineJwkOneOf2AlgEnum;
+    'alg': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2AlgEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
-    'use'?: CreateClientDtoEngineJwkOneOf2UseEnum;
+    'use'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2UseEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
     'kid': string;
     /**
      * 
      * @type {any}
-     * @memberof CreateClientDtoEngineJwkOneOf2
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2
      */
     'addr': any;
 }
 
-export const CreateClientDtoEngineJwkOneOf2KtyEnum = {
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2KtyEnum = {
     Ec: 'EC'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf2KtyEnum = typeof CreateClientDtoEngineJwkOneOf2KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf2KtyEnum];
-export const CreateClientDtoEngineJwkOneOf2CrvEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2KtyEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2KtyEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2KtyEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2CrvEnum = {
     Secp256k1: 'secp256k1'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf2CrvEnum = typeof CreateClientDtoEngineJwkOneOf2CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf2CrvEnum];
-export const CreateClientDtoEngineJwkOneOf2AlgEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2CrvEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2CrvEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2CrvEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2AlgEnum = {
     Es256K: 'ES256K'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf2AlgEnum = typeof CreateClientDtoEngineJwkOneOf2AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf2AlgEnum];
-export const CreateClientDtoEngineJwkOneOf2UseEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2AlgEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2AlgEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2AlgEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2UseEnum = {
     Sig: 'sig',
     Enc: 'enc'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf2UseEnum = typeof CreateClientDtoEngineJwkOneOf2UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf2UseEnum];
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2UseEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2UseEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2UseEnum];
 
 /**
  * 
  * @export
- * @interface CreateClientDtoEngineJwkOneOf3
+ * @interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
  */
-export interface CreateClientDtoEngineJwkOneOf3 {
+export interface CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3 {
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
-    'kty': CreateClientDtoEngineJwkOneOf3KtyEnum;
+    'kty': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3KtyEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
-    'alg': CreateClientDtoEngineJwkOneOf3AlgEnum;
+    'alg': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3AlgEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
-    'use'?: CreateClientDtoEngineJwkOneOf3UseEnum;
+    'use'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3UseEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
     'kid': string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
     'addr'?: string;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
-    'crv': CreateClientDtoEngineJwkOneOf3CrvEnum;
+    'crv': CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3CrvEnum;
     /**
      * 
      * @type {string}
-     * @memberof CreateClientDtoEngineJwkOneOf3
+     * @memberof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3
      */
     'x': string;
 }
 
-export const CreateClientDtoEngineJwkOneOf3KtyEnum = {
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3KtyEnum = {
     Okp: 'OKP'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf3KtyEnum = typeof CreateClientDtoEngineJwkOneOf3KtyEnum[keyof typeof CreateClientDtoEngineJwkOneOf3KtyEnum];
-export const CreateClientDtoEngineJwkOneOf3AlgEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3KtyEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3KtyEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3KtyEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3AlgEnum = {
     Eddsa: 'EDDSA'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf3AlgEnum = typeof CreateClientDtoEngineJwkOneOf3AlgEnum[keyof typeof CreateClientDtoEngineJwkOneOf3AlgEnum];
-export const CreateClientDtoEngineJwkOneOf3UseEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3AlgEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3AlgEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3AlgEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3UseEnum = {
     Sig: 'sig',
     Enc: 'enc'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf3UseEnum = typeof CreateClientDtoEngineJwkOneOf3UseEnum[keyof typeof CreateClientDtoEngineJwkOneOf3UseEnum];
-export const CreateClientDtoEngineJwkOneOf3CrvEnum = {
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3UseEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3UseEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3UseEnum];
+export const CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3CrvEnum = {
     Ed25519: 'Ed25519'
 } as const;
 
-export type CreateClientDtoEngineJwkOneOf3CrvEnum = typeof CreateClientDtoEngineJwkOneOf3CrvEnum[keyof typeof CreateClientDtoEngineJwkOneOf3CrvEnum];
+export type CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3CrvEnum = typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3CrvEnum[keyof typeof CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3CrvEnum];
 
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoAuthLocalJwsd
+ */
+export interface CreateClientDtoAuthLocalJwsd {
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateClientDtoAuthLocalJwsd
+     */
+    'maxAge'?: number;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CreateClientDtoAuthLocalJwsd
+     */
+    'requiredComponents'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoAuthTokenValidation
+ */
+export interface CreateClientDtoAuthTokenValidation {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateClientDtoAuthTokenValidation
+     */
+    'disabled'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoAuthTokenValidation
+     */
+    'url'?: string | null;
+    /**
+     * 
+     * @type {CreateClientDtoAuthTokenValidationPinnedPublicKey}
+     * @memberof CreateClientDtoAuthTokenValidation
+     */
+    'pinnedPublicKey'?: CreateClientDtoAuthTokenValidationPinnedPublicKey | null;
+    /**
+     * 
+     * @type {CreateClientDtoAuthTokenValidationVerification}
+     * @memberof CreateClientDtoAuthTokenValidation
+     */
+    'verification'?: CreateClientDtoAuthTokenValidationVerification;
+}
+/**
+ * @type CreateClientDtoAuthTokenValidationPinnedPublicKey
+ * @export
+ */
+export type CreateClientDtoAuthTokenValidationPinnedPublicKey = CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf1 | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf2 | CreateClientDtoAuthLocalAllowedUsersInnerPublicKeyOneOf3 | EncryptionKeyDtoPublicKey;
+
+/**
+ * 
+ * @export
+ * @interface CreateClientDtoAuthTokenValidationVerification
+ */
+export interface CreateClientDtoAuthTokenValidationVerification {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'audience'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'issuer'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'maxTokenAge'?: number | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'requireBoundTokens'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'allowBearerTokens'?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CreateClientDtoAuthTokenValidationVerification
+     */
+    'allowWildcard'?: Array<string> | null;
+}
+/**
+ * 
+ * @export
+ * @interface CreateConnectionDto
+ */
+export interface CreateConnectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConnectionDto
+     */
+    'connectionId'?: string;
+    /**
+     * 
+     * @type {any}
+     * @memberof CreateConnectionDto
+     */
+    'createdAt'?: any;
+    /**
+     * RSA encrypted JSON string of the credentials
+     * @type {string}
+     * @memberof CreateConnectionDto
+     */
+    'encryptedCredentials'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConnectionDto
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConnectionDto
+     */
+    'provider': CreateConnectionDtoProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConnectionDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {CreateConnectionDtoCredentials}
+     * @memberof CreateConnectionDto
+     */
+    'credentials'?: CreateConnectionDtoCredentials;
+}
+
+export const CreateConnectionDtoProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type CreateConnectionDtoProviderEnum = typeof CreateConnectionDtoProviderEnum[keyof typeof CreateConnectionDtoProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface CreateConnectionDtoCredentials
+ */
+export interface CreateConnectionDtoCredentials {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConnectionDtoCredentials
+     */
+    'apiKey': string;
+    /**
+     * Ed25519 private key in hex format
+     * @type {any}
+     * @memberof CreateConnectionDtoCredentials
+     */
+    'privateKey'?: any;
+}
 /**
  * 
  * @export
@@ -709,6 +1244,475 @@ export interface ImportWalletDto {
 /**
  * 
  * @export
+ * @interface InitiateConnectionDto
+ */
+export interface InitiateConnectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof InitiateConnectionDto
+     */
+    'connectionId'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof InitiateConnectionDto
+     */
+    'provider': InitiateConnectionDtoProviderEnum;
+}
+
+export const InitiateConnectionDtoProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type InitiateConnectionDtoProviderEnum = typeof InitiateConnectionDtoProviderEnum[keyof typeof InitiateConnectionDtoProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedAccountsDto
+ */
+export interface PaginatedAccountsDto {
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInnerAccountsInner>}
+     * @memberof PaginatedAccountsDto
+     */
+    'accounts': Array<PaginatedWalletsDtoWalletsInnerAccountsInner>;
+    /**
+     * 
+     * @type {PaginatedWalletsDtoPage}
+     * @memberof PaginatedAccountsDto
+     */
+    'page'?: PaginatedWalletsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedAddressesDto
+ */
+export interface PaginatedAddressesDto {
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner>}
+     * @memberof PaginatedAddressesDto
+     */
+    'addresses': Array<PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner>;
+    /**
+     * 
+     * @type {PaginatedWalletsDtoPage}
+     * @memberof PaginatedAddressesDto
+     */
+    'page'?: PaginatedWalletsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedSyncsDto
+ */
+export interface PaginatedSyncsDto {
+    /**
+     * 
+     * @type {PaginatedWalletsDtoPage}
+     * @memberof PaginatedSyncsDto
+     */
+    'page'?: PaginatedWalletsDtoPage;
+    /**
+     * 
+     * @type {Array<SyncStatusDtoSyncsInner>}
+     * @memberof PaginatedSyncsDto
+     */
+    'syncs': Array<SyncStatusDtoSyncsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDto
+ */
+export interface PaginatedWalletsDto {
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInner>}
+     * @memberof PaginatedWalletsDto
+     */
+    'wallets': Array<PaginatedWalletsDtoWalletsInner>;
+    /**
+     * 
+     * @type {PaginatedWalletsDtoPage}
+     * @memberof PaginatedWalletsDto
+     */
+    'page'?: PaginatedWalletsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoPage
+ */
+export interface PaginatedWalletsDtoPage {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoPage
+     */
+    'next': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoWalletsInner
+ */
+export interface PaginatedWalletsDtoWalletsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'walletId': string;
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInnerAccountsInner>}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'accounts'?: Array<PaginatedWalletsDtoWalletsInnerAccountsInner>;
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInnerConnectionsInner>}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'connections': Array<PaginatedWalletsDtoWalletsInnerConnectionsInner>;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'label'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'provider': PaginatedWalletsDtoWalletsInnerProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInner
+     */
+    'updatedAt': any;
+}
+
+export const PaginatedWalletsDtoWalletsInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PaginatedWalletsDtoWalletsInnerProviderEnum = typeof PaginatedWalletsDtoWalletsInnerProviderEnum[keyof typeof PaginatedWalletsDtoWalletsInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoWalletsInnerAccountsInner
+ */
+export interface PaginatedWalletsDtoWalletsInnerAccountsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'accountId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'label'?: string | null;
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner>}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'addresses'?: Array<PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner>;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'provider': PaginatedWalletsDtoWalletsInnerAccountsInnerProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'walletId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInner
+     */
+    'updatedAt': any;
+}
+
+export const PaginatedWalletsDtoWalletsInnerAccountsInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PaginatedWalletsDtoWalletsInnerAccountsInnerProviderEnum = typeof PaginatedWalletsDtoWalletsInnerAccountsInnerProviderEnum[keyof typeof PaginatedWalletsDtoWalletsInnerAccountsInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+ */
+export interface PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'addressId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'provider': PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInnerProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'accountId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'address': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInner
+     */
+    'updatedAt': any;
+}
+
+export const PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInnerProviderEnum = typeof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInnerProviderEnum[keyof typeof PaginatedWalletsDtoWalletsInnerAccountsInnerAddressesInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoWalletsInnerConnectionsInner
+ */
+export interface PaginatedWalletsDtoWalletsInnerConnectionsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerConnectionsInner
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerConnectionsInner
+     */
+    'status'?: PaginatedWalletsDtoWalletsInnerConnectionsInnerStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerConnectionsInner
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoWalletsInnerConnectionsInner
+     */
+    'provider': PaginatedWalletsDtoWalletsInnerConnectionsInnerProviderEnum;
+}
+
+export const PaginatedWalletsDtoWalletsInnerConnectionsInnerStatusEnum = {
+    Pending: 'pending',
+    Active: 'active',
+    Revoked: 'revoked'
+} as const;
+
+export type PaginatedWalletsDtoWalletsInnerConnectionsInnerStatusEnum = typeof PaginatedWalletsDtoWalletsInnerConnectionsInnerStatusEnum[keyof typeof PaginatedWalletsDtoWalletsInnerConnectionsInnerStatusEnum];
+export const PaginatedWalletsDtoWalletsInnerConnectionsInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PaginatedWalletsDtoWalletsInnerConnectionsInnerProviderEnum = typeof PaginatedWalletsDtoWalletsInnerConnectionsInnerProviderEnum[keyof typeof PaginatedWalletsDtoWalletsInnerConnectionsInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PendingConnectionDto
+ */
+export interface PendingConnectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDto
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDto
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDto
+     */
+    'provider': PendingConnectionDtoProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDto
+     */
+    'status': PendingConnectionDtoStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof PendingConnectionDto
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {PendingConnectionDtoPublicKey}
+     * @memberof PendingConnectionDto
+     */
+    'publicKey'?: PendingConnectionDtoPublicKey;
+    /**
+     * 
+     * @type {PendingConnectionDtoEncryptionPublicKey}
+     * @memberof PendingConnectionDto
+     */
+    'encryptionPublicKey': PendingConnectionDtoEncryptionPublicKey;
+}
+
+export const PendingConnectionDtoProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PendingConnectionDtoProviderEnum = typeof PendingConnectionDtoProviderEnum[keyof typeof PendingConnectionDtoProviderEnum];
+export const PendingConnectionDtoStatusEnum = {
+    Pending: 'pending'
+} as const;
+
+export type PendingConnectionDtoStatusEnum = typeof PendingConnectionDtoStatusEnum[keyof typeof PendingConnectionDtoStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface PendingConnectionDtoEncryptionPublicKey
+ */
+export interface PendingConnectionDtoEncryptionPublicKey {
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDtoEncryptionPublicKey
+     */
+    'keyId'?: string;
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocalAllowedUsersInnerPublicKey}
+     * @memberof PendingConnectionDtoEncryptionPublicKey
+     */
+    'jwk'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKey;
+}
+/**
+ * 
+ * @export
+ * @interface PendingConnectionDtoPublicKey
+ */
+export interface PendingConnectionDtoPublicKey {
+    /**
+     * 
+     * @type {string}
+     * @memberof PendingConnectionDtoPublicKey
+     */
+    'keyId'?: string;
+    /**
+     * 
+     * @type {CreateClientDtoAuthLocalAllowedUsersInnerPublicKey}
+     * @memberof PendingConnectionDtoPublicKey
+     */
+    'jwk'?: CreateClientDtoAuthLocalAllowedUsersInnerPublicKey;
+    /**
+     * 
+     * @type {any}
+     * @memberof PendingConnectionDtoPublicKey
+     */
+    'hex'?: any;
+}
+/**
+ * 
+ * @export
  * @interface PongDto
  */
 export interface PongDto {
@@ -718,6 +1722,107 @@ export interface PongDto {
      * @memberof PongDto
      */
     'pong': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface ProviderAccountDto
+ */
+export interface ProviderAccountDto {
+    /**
+     * 
+     * @type {PaginatedWalletsDtoWalletsInnerAccountsInner}
+     * @memberof ProviderAccountDto
+     */
+    'account': PaginatedWalletsDtoWalletsInnerAccountsInner;
+}
+/**
+ * 
+ * @export
+ * @interface ProviderConnectionDto
+ */
+export interface ProviderConnectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDto
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'provider': ProviderConnectionDtoProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDto
+     */
+    'revokedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'status'?: ProviderConnectionDtoStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDto
+     */
+    'updatedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDto
+     */
+    'url'?: string;
+}
+
+export const ProviderConnectionDtoProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type ProviderConnectionDtoProviderEnum = typeof ProviderConnectionDtoProviderEnum[keyof typeof ProviderConnectionDtoProviderEnum];
+export const ProviderConnectionDtoStatusEnum = {
+    Pending: 'pending',
+    Active: 'active',
+    Revoked: 'revoked'
+} as const;
+
+export type ProviderConnectionDtoStatusEnum = typeof ProviderConnectionDtoStatusEnum[keyof typeof ProviderConnectionDtoStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ProviderWalletDto
+ */
+export interface ProviderWalletDto {
+    /**
+     * 
+     * @type {PaginatedWalletsDtoWalletsInner}
+     * @memberof ProviderWalletDto
+     */
+    'wallet': PaginatedWalletsDtoWalletsInner;
 }
 /**
  * 
@@ -1310,6 +2415,204 @@ export interface SignatureDto {
      * @memberof SignatureDto
      */
     'signature': any;
+}
+/**
+ * 
+ * @export
+ * @interface StartSyncDto
+ */
+export interface StartSyncDto {
+    /**
+     * The connection to sync. If undefined, start the sync on all active connections
+     * @type {string}
+     * @memberof StartSyncDto
+     */
+    'connectionId'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface SyncDto
+ */
+export interface SyncDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncDto
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SyncDto
+     */
+    'completedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncDto
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SyncDto
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {SyncStatusDtoSyncsInnerError}
+     * @memberof SyncDto
+     */
+    'error'?: SyncStatusDtoSyncsInnerError;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncDto
+     */
+    'status'?: SyncDtoStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncDto
+     */
+    'syncId': string;
+}
+
+export const SyncDtoStatusEnum = {
+    Processing: 'processing',
+    Success: 'success',
+    Failed: 'failed'
+} as const;
+
+export type SyncDtoStatusEnum = typeof SyncDtoStatusEnum[keyof typeof SyncDtoStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface SyncStatusDto
+ */
+export interface SyncStatusDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SyncStatusDto
+     */
+    'started': boolean;
+    /**
+     * 
+     * @type {Array<SyncStatusDtoSyncsInner>}
+     * @memberof SyncStatusDto
+     */
+    'syncs': Array<SyncStatusDtoSyncsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface SyncStatusDtoSyncsInner
+ */
+export interface SyncStatusDtoSyncsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'completedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {SyncStatusDtoSyncsInnerError}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'error'?: SyncStatusDtoSyncsInnerError;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'status'?: SyncStatusDtoSyncsInnerStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInner
+     */
+    'syncId': string;
+}
+
+export const SyncStatusDtoSyncsInnerStatusEnum = {
+    Processing: 'processing',
+    Success: 'success',
+    Failed: 'failed'
+} as const;
+
+export type SyncStatusDtoSyncsInnerStatusEnum = typeof SyncStatusDtoSyncsInnerStatusEnum[keyof typeof SyncStatusDtoSyncsInnerStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface SyncStatusDtoSyncsInnerError
+ */
+export interface SyncStatusDtoSyncsInnerError {
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInnerError
+     */
+    'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInnerError
+     */
+    'message'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SyncStatusDtoSyncsInnerError
+     */
+    'traceId'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateConnectionDto
+ */
+export interface UpdateConnectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateConnectionDto
+     */
+    'label'?: string;
+    /**
+     * RSA encrypted JSON string of the credentials
+     * @type {string}
+     * @memberof UpdateConnectionDto
+     */
+    'encryptedCredentials'?: string;
+    /**
+     * 
+     * @type {CreateConnectionDtoCredentials}
+     * @memberof UpdateConnectionDto
+     */
+    'credentials'?: CreateConnectionDtoCredentials;
 }
 /**
  * 
@@ -2083,6 +3386,2694 @@ export class EncryptionKeyApi extends BaseAPI {
      */
     public generate(xClientId: string, authorization: string, options?: RawAxiosRequestConfig) {
         return EncryptionKeyApiFp(this.configuration).generate(xClientId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderAccountApi - axios parameter creator
+ * @export
+ */
+export const ProviderAccountApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary List addresses for a specific account
+         * @param {string} accountId The ID of the account to retrieve addresses for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountAddresses: async (accountId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'accountId' is not null or undefined
+            assertParamExists('getAccountAddresses', 'accountId', accountId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getAccountAddresses', 'authorization', authorization)
+            const localVarPath = `/v1/provider/accounts/{accountId}/addresses`
+                .replace(`{${"accountId"}}`, encodeURIComponent(String(accountId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get a specific account by ID
+         * @param {string} accountId The ID of the account to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountById: async (accountId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'accountId' is not null or undefined
+            assertParamExists('getAccountById', 'accountId', accountId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getAccountById', 'authorization', authorization)
+            const localVarPath = `/v1/provider/accounts/{accountId}`
+                .replace(`{${"accountId"}}`, encodeURIComponent(String(accountId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List the client accounts
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listByClientId: async (authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('listByClientId', 'authorization', authorization)
+            const localVarPath = `/v1/provider/accounts`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderAccountApi - functional programming interface
+ * @export
+ */
+export const ProviderAccountApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderAccountApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary List addresses for a specific account
+         * @param {string} accountId The ID of the account to retrieve addresses for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccountAddresses(accountId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccountAddresses(accountId, authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.getAccountAddresses']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get a specific account by ID
+         * @param {string} accountId The ID of the account to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccountById(accountId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderAccountDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccountById(accountId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.getAccountById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the client accounts
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listByClientId(authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.listByClientId']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderAccountApi - factory interface
+ * @export
+ */
+export const ProviderAccountApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderAccountApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary List addresses for a specific account
+         * @param {string} accountId The ID of the account to retrieve addresses for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountAddresses(accountId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedAddressesDto> {
+            return localVarFp.getAccountAddresses(accountId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get a specific account by ID
+         * @param {string} accountId The ID of the account to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountById(accountId: string, authorization: string, options?: any): AxiosPromise<ProviderAccountDto> {
+            return localVarFp.getAccountById(accountId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the client accounts
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedAccountsDto> {
+            return localVarFp.listByClientId(authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderAccountApi - object-oriented interface
+ * @export
+ * @class ProviderAccountApi
+ * @extends {BaseAPI}
+ */
+export class ProviderAccountApi extends BaseAPI {
+    /**
+     * 
+     * @summary List addresses for a specific account
+     * @param {string} accountId The ID of the account to retrieve addresses for
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAccountApi
+     */
+    public getAccountAddresses(accountId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderAccountApiFp(this.configuration).getAccountAddresses(accountId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get a specific account by ID
+     * @param {string} accountId The ID of the account to retrieve
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAccountApi
+     */
+    public getAccountById(accountId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderAccountApiFp(this.configuration).getAccountById(accountId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the client accounts
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAccountApi
+     */
+    public listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderAccountApiFp(this.configuration).listByClientId(authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderAddressApi - axios parameter creator
+ * @export
+ */
+export const ProviderAddressApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get a specific address by ID
+         * @param {string} addressId The ID of the address to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAddressById: async (addressId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addressId' is not null or undefined
+            assertParamExists('getAddressById', 'addressId', addressId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getAddressById', 'authorization', authorization)
+            const localVarPath = `/v1/provider/addresses/{addressId}`
+                .replace(`{${"addressId"}}`, encodeURIComponent(String(addressId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List the client addresss
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('list', 'authorization', authorization)
+            const localVarPath = `/v1/provider/addresses`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderAddressApi - functional programming interface
+ * @export
+ */
+export const ProviderAddressApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderAddressApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get a specific address by ID
+         * @param {string} addressId The ID of the address to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAddressById(addressId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAddressById(addressId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.getAddressById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the client addresss
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderAddressApi - factory interface
+ * @export
+ */
+export const ProviderAddressApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderAddressApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get a specific address by ID
+         * @param {string} addressId The ID of the address to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAddressById(addressId: string, authorization: string, options?: any): AxiosPromise<PaginatedAddressesDto> {
+            return localVarFp.getAddressById(addressId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the client addresss
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedAddressesDto> {
+            return localVarFp.list(authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderAddressApi - object-oriented interface
+ * @export
+ * @class ProviderAddressApi
+ * @extends {BaseAPI}
+ */
+export class ProviderAddressApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get a specific address by ID
+     * @param {string} addressId The ID of the address to retrieve
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAddressApi
+     */
+    public getAddressById(addressId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderAddressApiFp(this.configuration).getAddressById(addressId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the client addresss
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAddressApi
+     */
+    public list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderAddressApiFp(this.configuration).list(authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderConnectionApi - axios parameter creator
+ * @export
+ */
+export const ProviderConnectionApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint securely stores the details of a provider connection, ensuring that all sensitive information is encrypted.
+         * @summary Store a provider connection securely
+         * @param {string} authorization 
+         * @param {CreateConnectionDto} createConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        create: async (authorization: string, createConnectionDto: CreateConnectionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('create', 'authorization', authorization)
+            // verify required parameter 'createConnectionDto' is not null or undefined
+            assertParamExists('create', 'createConnectionDto', createConnectionDto)
+            const localVarPath = `/v1/provider/connections`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createConnectionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint retrieves a list of accounts associated with a specific connection.
+         * @summary List accounts for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccounts: async (connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('getAccounts', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getAccounts', 'authorization', authorization)
+            const localVarPath = `/v1/provider/connections/{connectionId}/accounts`
+                .replace(`{${"connectionId"}}`, encodeURIComponent(String(connectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint retrieves the details of a specific connection associated with the client, identified by the ID.
+         * @summary Retrieve a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById: async (connectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('getById', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getById', 'authorization', authorization)
+            const localVarPath = `/v1/provider/connections/{connectionId}`
+                .replace(`{${"connectionId"}}`, encodeURIComponent(String(connectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint retrieves a list of wallets associated with a specific connection.
+         * @summary List wallets for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWallets: async (connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('getWallets', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getWallets', 'authorization', authorization)
+            const localVarPath = `/v1/provider/connections/{connectionId}/wallets`
+                .replace(`{${"connectionId"}}`, encodeURIComponent(String(connectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint initiates a new connection by generating a public key and an encryption key for secure communication.
+         * @summary Initiate a new provider connection
+         * @param {string} authorization 
+         * @param {InitiateConnectionDto} initiateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiate: async (authorization: string, initiateConnectionDto: InitiateConnectionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('initiate', 'authorization', authorization)
+            // verify required parameter 'initiateConnectionDto' is not null or undefined
+            assertParamExists('initiate', 'initiateConnectionDto', initiateConnectionDto)
+            const localVarPath = `/v1/provider/connections/initiate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(initiateConnectionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint retrieves a list of all connections associated with the client.
+         * @summary List all connections
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('list', 'authorization', authorization)
+            const localVarPath = `/v1/provider/connections`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint revokes an existing connection, effectively terminating any ongoing communication and invalidating the connection credentials.
+         * @summary Revoke an existing connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revoke: async (connectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('revoke', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('revoke', 'authorization', authorization)
+            const localVarPath = `/v1/provider/connections/{connectionId}`
+                .replace(`{${"connectionId"}}`, encodeURIComponent(String(connectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint updates the details of a specific connection associated with the client, identified by the connection ID.
+         * @summary Update a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {UpdateConnectionDto} updateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        update: async (connectionId: string, authorization: string, updateConnectionDto: UpdateConnectionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('update', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('update', 'authorization', authorization)
+            // verify required parameter 'updateConnectionDto' is not null or undefined
+            assertParamExists('update', 'updateConnectionDto', updateConnectionDto)
+            const localVarPath = `/v1/provider/connections/{connectionId}`
+                .replace(`{${"connectionId"}}`, encodeURIComponent(String(connectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateConnectionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderConnectionApi - functional programming interface
+ * @export
+ */
+export const ProviderConnectionApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderConnectionApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * This endpoint securely stores the details of a provider connection, ensuring that all sensitive information is encrypted.
+         * @summary Store a provider connection securely
+         * @param {string} authorization 
+         * @param {CreateConnectionDto} createConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async create(authorization: string, createConnectionDto: CreateConnectionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderConnectionDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.create(authorization, createConnectionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.create']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves a list of accounts associated with a specific connection.
+         * @summary List accounts for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccounts(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccounts(connectionId, authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.getAccounts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves the details of a specific connection associated with the client, identified by the ID.
+         * @summary Retrieve a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getById(connectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderConnectionDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(connectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.getById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves a list of wallets associated with a specific connection.
+         * @summary List wallets for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWallets(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedWalletsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWallets(connectionId, authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.getWallets']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint initiates a new connection by generating a public key and an encryption key for secure communication.
+         * @summary Initiate a new provider connection
+         * @param {string} authorization 
+         * @param {InitiateConnectionDto} initiateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async initiate(authorization: string, initiateConnectionDto: InitiateConnectionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingConnectionDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.initiate(authorization, initiateConnectionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.initiate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves a list of all connections associated with the client.
+         * @summary List all connections
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectionListDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint revokes an existing connection, effectively terminating any ongoing communication and invalidating the connection credentials.
+         * @summary Revoke an existing connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async revoke(connectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.revoke(connectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.revoke']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint updates the details of a specific connection associated with the client, identified by the connection ID.
+         * @summary Update a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {UpdateConnectionDto} updateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async update(connectionId: string, authorization: string, updateConnectionDto: UpdateConnectionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderConnectionDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.update(connectionId, authorization, updateConnectionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderConnectionApi.update']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderConnectionApi - factory interface
+ * @export
+ */
+export const ProviderConnectionApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderConnectionApiFp(configuration)
+    return {
+        /**
+         * This endpoint securely stores the details of a provider connection, ensuring that all sensitive information is encrypted.
+         * @summary Store a provider connection securely
+         * @param {string} authorization 
+         * @param {CreateConnectionDto} createConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        create(authorization: string, createConnectionDto: CreateConnectionDto, options?: any): AxiosPromise<ProviderConnectionDto> {
+            return localVarFp.create(authorization, createConnectionDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves a list of accounts associated with a specific connection.
+         * @summary List accounts for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccounts(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedAccountsDto> {
+            return localVarFp.getAccounts(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves the details of a specific connection associated with the client, identified by the ID.
+         * @summary Retrieve a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById(connectionId: string, authorization: string, options?: any): AxiosPromise<ProviderConnectionDto> {
+            return localVarFp.getById(connectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves a list of wallets associated with a specific connection.
+         * @summary List wallets for a specific connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWallets(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedWalletsDto> {
+            return localVarFp.getWallets(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint initiates a new connection by generating a public key and an encryption key for secure communication.
+         * @summary Initiate a new provider connection
+         * @param {string} authorization 
+         * @param {InitiateConnectionDto} initiateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiate(authorization: string, initiateConnectionDto: InitiateConnectionDto, options?: any): AxiosPromise<PendingConnectionDto> {
+            return localVarFp.initiate(authorization, initiateConnectionDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves a list of all connections associated with the client.
+         * @summary List all connections
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<ConnectionListDto> {
+            return localVarFp.list(authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint revokes an existing connection, effectively terminating any ongoing communication and invalidating the connection credentials.
+         * @summary Revoke an existing connection
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revoke(connectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.revoke(connectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint updates the details of a specific connection associated with the client, identified by the connection ID.
+         * @summary Update a specific connection by ID
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {UpdateConnectionDto} updateConnectionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        update(connectionId: string, authorization: string, updateConnectionDto: UpdateConnectionDto, options?: any): AxiosPromise<ProviderConnectionDto> {
+            return localVarFp.update(connectionId, authorization, updateConnectionDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderConnectionApi - object-oriented interface
+ * @export
+ * @class ProviderConnectionApi
+ * @extends {BaseAPI}
+ */
+export class ProviderConnectionApi extends BaseAPI {
+    /**
+     * This endpoint securely stores the details of a provider connection, ensuring that all sensitive information is encrypted.
+     * @summary Store a provider connection securely
+     * @param {string} authorization 
+     * @param {CreateConnectionDto} createConnectionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public create(authorization: string, createConnectionDto: CreateConnectionDto, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).create(authorization, createConnectionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves a list of accounts associated with a specific connection.
+     * @summary List accounts for a specific connection
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public getAccounts(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).getAccounts(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves the details of a specific connection associated with the client, identified by the ID.
+     * @summary Retrieve a specific connection by ID
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public getById(connectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).getById(connectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves a list of wallets associated with a specific connection.
+     * @summary List wallets for a specific connection
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public getWallets(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).getWallets(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint initiates a new connection by generating a public key and an encryption key for secure communication.
+     * @summary Initiate a new provider connection
+     * @param {string} authorization 
+     * @param {InitiateConnectionDto} initiateConnectionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public initiate(authorization: string, initiateConnectionDto: InitiateConnectionDto, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).initiate(authorization, initiateConnectionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves a list of all connections associated with the client.
+     * @summary List all connections
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public list(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).list(authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint revokes an existing connection, effectively terminating any ongoing communication and invalidating the connection credentials.
+     * @summary Revoke an existing connection
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public revoke(connectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).revoke(connectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint updates the details of a specific connection associated with the client, identified by the connection ID.
+     * @summary Update a specific connection by ID
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {UpdateConnectionDto} updateConnectionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderConnectionApi
+     */
+    public update(connectionId: string, authorization: string, updateConnectionDto: UpdateConnectionDto, options?: RawAxiosRequestConfig) {
+        return ProviderConnectionApiFp(this.configuration).update(connectionId, authorization, updateConnectionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderProxyApi - axios parameter creator
+ * @export
+ */
+export const ProviderProxyApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        _delete: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('_delete', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('_delete', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('_delete', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        _options: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('_options', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('_options', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('_options', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        get: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('get', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('get', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('get', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        head: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('head', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('head', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('head', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'HEAD', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        patch: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('patch', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('patch', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('patch', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        post: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('post', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('post', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('post', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        put: async (endpoint: string, xConnectionId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'endpoint' is not null or undefined
+            assertParamExists('put', 'endpoint', endpoint)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('put', 'xConnectionId', xConnectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('put', 'authorization', authorization)
+            const localVarPath = `/v1/provider/proxy/{endpoint}`
+                .replace(`{${"endpoint"}}`, encodeURIComponent(String(endpoint)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderProxyApi - functional programming interface
+ * @export
+ */
+export const ProviderProxyApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderProxyApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async _delete(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator._delete(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi._delete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async _options(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator._options(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi._options']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async get(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.get(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi.get']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async head(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.head(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi.head']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async patch(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.patch(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi.patch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async post(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.post(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi.post']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async put(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.put(endpoint, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderProxyApi.put']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderProxyApi - factory interface
+ * @export
+ */
+export const ProviderProxyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderProxyApiFp(configuration)
+    return {
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        _delete(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp._delete(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        _options(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp._options(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        get(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.get(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        head(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.head(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        patch(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.patch(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        post(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.post(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+         * @summary Authorizes and forwards the request to the provider
+         * @param {string} endpoint The raw endpoint path in the provider
+         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        put(endpoint: string, xConnectionId: string, authorization: string, options?: any): AxiosPromise<void> {
+            return localVarFp.put(endpoint, xConnectionId, authorization, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderProxyApi - object-oriented interface
+ * @export
+ * @class ProviderProxyApi
+ * @extends {BaseAPI}
+ */
+export class ProviderProxyApi extends BaseAPI {
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public _delete(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration)._delete(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public _options(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration)._options(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public get(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration).get(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public head(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration).head(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public patch(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration).patch(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public post(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration).post(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint uses the connection specified in the header to authorize and forward the request in the path to the provider.
+     * @summary Authorizes and forwards the request to the provider
+     * @param {string} endpoint The raw endpoint path in the provider
+     * @param {string} xConnectionId The connection ID used to forward request to provider
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderProxyApi
+     */
+    public put(endpoint: string, xConnectionId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderProxyApiFp(this.configuration).put(endpoint, xConnectionId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderSyncApi - axios parameter creator
+ * @export
+ */
+export const ProviderSyncApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        findAll: async (connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('findAll', 'connectionId', connectionId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('findAll', 'authorization', authorization)
+            const localVarPath = `/v1/provider/syncs`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (connectionId !== undefined) {
+                localVarQueryParameter['connectionId'] = connectionId;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
+         * @summary Retrieve a specific synchronization process by ID
+         * @param {string} syncId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        findById: async (syncId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'syncId' is not null or undefined
+            assertParamExists('findById', 'syncId', syncId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('findById', 'authorization', authorization)
+            const localVarPath = `/v1/provider/syncs/{syncId}`
+                .replace(`{${"syncId"}}`, encodeURIComponent(String(syncId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * This endpoint starts synchronization process for the client.
+         * @summary Start a synchronization process
+         * @param {string} authorization 
+         * @param {StartSyncDto} startSyncDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        start: async (authorization: string, startSyncDto: StartSyncDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('start', 'authorization', authorization)
+            // verify required parameter 'startSyncDto' is not null or undefined
+            assertParamExists('start', 'startSyncDto', startSyncDto)
+            const localVarPath = `/v1/provider/syncs`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(startSyncDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderSyncApi - functional programming interface
+ * @export
+ */
+export const ProviderSyncApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderSyncApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async findAll(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedSyncsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.findAll(connectionId, authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.findAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
+         * @summary Retrieve a specific synchronization process by ID
+         * @param {string} syncId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async findById(syncId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.findById(syncId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.findById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint starts synchronization process for the client.
+         * @summary Start a synchronization process
+         * @param {string} authorization 
+         * @param {StartSyncDto} startSyncDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async start(authorization: string, startSyncDto: StartSyncDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncStatusDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.start(authorization, startSyncDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.start']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderSyncApi - factory interface
+ * @export
+ */
+export const ProviderSyncApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderSyncApiFp(configuration)
+    return {
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {string} connectionId 
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        findAll(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedSyncsDto> {
+            return localVarFp.findAll(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
+         * @summary Retrieve a specific synchronization process by ID
+         * @param {string} syncId 
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        findById(syncId: string, authorization: string, options?: any): AxiosPromise<SyncDto> {
+            return localVarFp.findById(syncId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint starts synchronization process for the client.
+         * @summary Start a synchronization process
+         * @param {string} authorization 
+         * @param {StartSyncDto} startSyncDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        start(authorization: string, startSyncDto: StartSyncDto, options?: any): AxiosPromise<SyncStatusDto> {
+            return localVarFp.start(authorization, startSyncDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderSyncApi - object-oriented interface
+ * @export
+ * @class ProviderSyncApi
+ * @extends {BaseAPI}
+ */
+export class ProviderSyncApi extends BaseAPI {
+    /**
+     * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+     * @summary Retrieve a list of synchronization processes
+     * @param {string} connectionId 
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderSyncApi
+     */
+    public findAll(connectionId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderSyncApiFp(this.configuration).findAll(connectionId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
+     * @summary Retrieve a specific synchronization process by ID
+     * @param {string} syncId 
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderSyncApi
+     */
+    public findById(syncId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderSyncApiFp(this.configuration).findById(syncId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint starts synchronization process for the client.
+     * @summary Start a synchronization process
+     * @param {string} authorization 
+     * @param {StartSyncDto} startSyncDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderSyncApi
+     */
+    public start(authorization: string, startSyncDto: StartSyncDto, options?: RawAxiosRequestConfig) {
+        return ProviderSyncApiFp(this.configuration).start(authorization, startSyncDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderWalletApi - axios parameter creator
+ * @export
+ */
+export const ProviderWalletApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary List accounts for a specific wallet
+         * @param {string} walletId The ID of the wallet to retrieve accounts for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWalletAccounts: async (walletId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'walletId' is not null or undefined
+            assertParamExists('getWalletAccounts', 'walletId', walletId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getWalletAccounts', 'authorization', authorization)
+            const localVarPath = `/v1/provider/wallets/{walletId}/accounts`
+                .replace(`{${"walletId"}}`, encodeURIComponent(String(walletId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get a specific wallet by ID
+         * @param {string} walletId The ID of the wallet to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWalletById: async (walletId: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'walletId' is not null or undefined
+            assertParamExists('getWalletById', 'walletId', walletId)
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('getWalletById', 'authorization', authorization)
+            const localVarPath = `/v1/provider/wallets/{walletId}`
+                .replace(`{${"walletId"}}`, encodeURIComponent(String(walletId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listByClientId: async (authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('listByClientId', 'authorization', authorization)
+            const localVarPath = `/v1/provider/wallets`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderWalletApi - functional programming interface
+ * @export
+ */
+export const ProviderWalletApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderWalletApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary List accounts for a specific wallet
+         * @param {string} walletId The ID of the wallet to retrieve accounts for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWalletAccounts(walletId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWalletAccounts(walletId, authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.getWalletAccounts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get a specific wallet by ID
+         * @param {string} walletId The ID of the wallet to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWalletById(walletId: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderWalletDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWalletById(walletId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.getWalletById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedWalletsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listByClientId(authorization, cursor, limit, orderBy, desc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.listByClientId']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderWalletApi - factory interface
+ * @export
+ */
+export const ProviderWalletApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderWalletApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary List accounts for a specific wallet
+         * @param {string} walletId The ID of the wallet to retrieve accounts for
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWalletAccounts(walletId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedAccountsDto> {
+            return localVarFp.getWalletAccounts(walletId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get a specific wallet by ID
+         * @param {string} walletId The ID of the wallet to retrieve
+         * @param {string} authorization 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWalletById(walletId: string, authorization: string, options?: any): AxiosPromise<ProviderWalletDto> {
+            return localVarFp.getWalletById(walletId, authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the client wallets
+         * @param {string} authorization 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: any): AxiosPromise<PaginatedWalletsDto> {
+            return localVarFp.listByClientId(authorization, cursor, limit, orderBy, desc, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProviderWalletApi - object-oriented interface
+ * @export
+ * @class ProviderWalletApi
+ * @extends {BaseAPI}
+ */
+export class ProviderWalletApi extends BaseAPI {
+    /**
+     * 
+     * @summary List accounts for a specific wallet
+     * @param {string} walletId The ID of the wallet to retrieve accounts for
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderWalletApi
+     */
+    public getWalletAccounts(walletId: string, authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderWalletApiFp(this.configuration).getWalletAccounts(walletId, authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get a specific wallet by ID
+     * @param {string} walletId The ID of the wallet to retrieve
+     * @param {string} authorization 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderWalletApi
+     */
+    public getWalletById(walletId: string, authorization: string, options?: RawAxiosRequestConfig) {
+        return ProviderWalletApiFp(this.configuration).getWalletById(walletId, authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the client wallets
+     * @param {string} authorization 
+     * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+     * @param {number} [limit] Number of records to return per page
+     * @param {string} [orderBy] Field to order results by
+     * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderWalletApi
+     */
+    public listByClientId(authorization: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, options?: RawAxiosRequestConfig) {
+        return ProviderWalletApiFp(this.configuration).listByClientId(authorization, cursor, limit, orderBy, desc, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -218,7 +218,35 @@ describe('User Journeys', () => {
 
       expect(clientVault).toEqual({
         clientId: clientAuth.id,
-        engineJwk: clientAuth.policyEngine.nodes[0].publicKey,
+        name: expect.any(String),
+        backupPublicKey: null,
+        baseUrl: null,
+        configurationSource: 'dynamic',
+        auth: {
+          disabled: false,
+          local: {
+            jwsd: {
+              maxAge: 300,
+              requiredComponents: ['htm', 'uri', 'created', 'ath']
+            },
+            allowedUsersJwksUrl: null,
+            allowedUsers: null
+          },
+          tokenValidation: {
+            disabled: false,
+            url: null,
+            jwksUrl: null,
+            pinnedPublicKey: clientAuth.policyEngine.nodes[0].publicKey,
+            verification: {
+              audience: null,
+              issuer: null,
+              maxTokenAge: null,
+              requireBoundTokens: true,
+              allowBearerTokens: false,
+              allowWildcard: null
+            }
+          }
+        },
         createdAt: expect.any(String),
         updatedAt: expect.any(String)
       })

@@ -12,7 +12,7 @@ import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
 import { ConnectionListDto } from '../dto/response/connection-list.dto'
-import { ConnectionDto } from '../dto/response/connection.dto'
+import { ProviderConnectionDto } from '../dto/response/connection.dto'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedConnectionsDto } from '../dto/response/paginated-connections.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
@@ -78,12 +78,12 @@ export class ConnectionController {
   @ApiResponse({
     description: 'Returns a reference to the stored provider connection.',
     status: HttpStatus.CREATED,
-    type: ConnectionDto
+    type: ProviderConnectionDto
   })
-  async create(@ClientId() clientId: string, @Body() body: CreateConnectionDto): Promise<ConnectionDto> {
+  async create(@ClientId() clientId: string, @Body() body: CreateConnectionDto): Promise<ProviderConnectionDto> {
     const connection = await this.connectionService.create(clientId, body)
 
-    return ConnectionDto.create(connection)
+    return ProviderConnectionDto.create(connection)
   }
 
   @Delete(':connectionId')
@@ -135,13 +135,16 @@ export class ConnectionController {
   })
   @ApiResponse({
     description: 'Returns the details of the specified connection.',
-    type: ConnectionDto,
+    type: ProviderConnectionDto,
     status: HttpStatus.OK
   })
-  async getById(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<ConnectionDto> {
+  async getById(
+    @ClientId() clientId: string,
+    @Param('connectionId') connectionId: string
+  ): Promise<ProviderConnectionDto> {
     const connection = await this.connectionService.findById(clientId, connectionId)
 
-    return ConnectionDto.create(connection)
+    return ProviderConnectionDto.create(connection)
   }
 
   @Patch(':connectionId')
@@ -154,20 +157,20 @@ export class ConnectionController {
   @ApiResponse({
     description: 'Returns the updated details of the provider connection.',
     status: HttpStatus.OK,
-    type: ConnectionDto
+    type: ProviderConnectionDto
   })
   async update(
     @ClientId() clientId: string,
     @Param('connectionId') connectionId: string,
     @Body() body: UpdateConnectionDto
-  ): Promise<ConnectionDto> {
+  ): Promise<ProviderConnectionDto> {
     const connection = await this.connectionService.update({
       ...body,
       clientId,
       connectionId
     })
 
-    return ConnectionDto.create(connection)
+    return ProviderConnectionDto.create(connection)
   }
 
   @Get(':connectionId/wallets')

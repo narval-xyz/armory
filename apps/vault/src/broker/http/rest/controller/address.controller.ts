@@ -5,7 +5,7 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AddressService } from '../../../core/service/address.service'
-import { AddressDto } from '../dto/response/address.dto'
+import { ProviderAddressDto } from '../dto/response/address.dto'
 import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
 
 @Controller({
@@ -54,9 +54,12 @@ export class AddressController {
     status: HttpStatus.NOT_FOUND,
     description: 'Address not found'
   })
-  async getAddressById(@ClientId() clientId: string, @Param('addressId') addressId: string): Promise<AddressDto> {
+  async getAddressById(
+    @ClientId() clientId: string,
+    @Param('addressId') addressId: string
+  ): Promise<ProviderAddressDto> {
     const address = await this.addressService.getAddress(clientId, addressId)
 
-    return AddressDto.create({ address })
+    return ProviderAddressDto.create({ address })
   }
 }

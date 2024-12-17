@@ -6,7 +6,7 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
-import { AccountDto } from '../dto/response/account.dto'
+import { ProviderAccountDto } from '../dto/response/account.dto'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
 
@@ -50,15 +50,18 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: AccountDto
+    type: ProviderAccountDto
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Account not found'
   })
-  async getAccountById(@ClientId() clientId: string, @Param('accountId') accountId: string): Promise<AccountDto> {
+  async getAccountById(
+    @ClientId() clientId: string,
+    @Param('accountId') accountId: string
+  ): Promise<ProviderAccountDto> {
     const account = await this.accountService.getAccount(clientId, accountId)
-    return AccountDto.create({ account })
+    return ProviderAccountDto.create({ account })
   }
 
   @Get(':accountId/addresses')
