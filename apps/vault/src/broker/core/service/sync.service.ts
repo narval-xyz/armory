@@ -1,91 +1,58 @@
-import { PaginatedResult, TraceService } from '@narval/nestjs-shared'
+import { LoggerService, PaginatedResult, TraceService } from '@narval/nestjs-shared'
 import { Inject, Injectable } from '@nestjs/common/decorators'
 import { v4 as uuid } from 'uuid'
 import { FindAllPaginatedOptions, SyncRepository } from '../../persistence/repository/sync.repository'
-import { ActiveConnectionWithCredentials, ConnectionStatus, isActiveConnection } from '../type/connection.type'
-import { StartSync, Sync, SyncStatus } from '../type/sync.type'
+import { ActiveConnectionWithCredentials } from '../type/connection.type'
+import { StartSync, Sync, SyncStarted, SyncStatus } from '../type/sync.type'
 import { AnchorageSyncService } from './anchorage-sync.service'
-import { ConnectionService } from './connection.service'
 
 @Injectable()
 export class SyncService {
   constructor(
     private readonly syncRepository: SyncRepository,
-    private readonly connectionService: ConnectionService,
     private readonly anchorageSyncService: AnchorageSyncService,
+    private readonly logger: LoggerService,
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
-  async start(input: StartSync): Promise<{
-    started: boolean
-    syncs: Sync[]
-  }> {
-    const now = new Date()
-
-    if (input.connectionId) {
-      const syncId = uuid()
-      const connection = await this.connectionService.findById(input.clientId, input.connectionId, true)
-
-      const sync = await this.syncRepository.create(
-        this.toProcessingSync({
-          ...input,
-          connectionId: connection.connectionId,
-          createdAt: now,
-          syncId
-        })
-      )
-
-      if (isActiveConnection(connection)) {
-        this.anchorageSyncService
-          .sync(connection)
-          .then(async () => {
-            await this.complete(sync)
-          })
-          .catch(async (error) => {
-            await this.fail(sync, error)
-          })
-
-        return { started: true, syncs: [sync] }
-      }
-
-      return { started: false, syncs: [] }
-    }
-
-    const connections = await this.connectionService.findAll(input.clientId, {
-      filters: {
-        status: ConnectionStatus.ACTIVE
-      }
+  async start(connections: ActiveConnectionWithCredentials[]): Promise<SyncStarted> {
+    this.logger.log('Start connections sync', {
+      count: connections.length,
+      ids: connections.map((connectionId) => connectionId)
     })
 
-    const syncs = await this.syncRepository.bulkCreate(
-      connections.map(({ connectionId }) =>
-        this.toProcessingSync({
-          ...input,
-          connectionId,
-          createdAt: now,
-          syncId: uuid()
+    if (connections.length) {
+      const now = new Date()
+
+      const syncs = await this.syncRepository.bulkCreate(
+        connections.map(({ connectionId, clientId }) =>
+          this.toProcessingSync({
+            clientId,
+            connectionId,
+            createdAt: now,
+            syncId: uuid()
+          })
+        )
+      )
+
+      await Promise.allSettled(
+        connections.map(async (connection) => {
+          this.anchorageSyncService.sync(connection)
         })
       )
-    )
+        .then(async () => {
+          await Promise.all(syncs.map((sync) => this.complete(sync)))
+        })
+        .catch(async (error) => {
+          await Promise.all(syncs.map((sync) => this.fail(sync, error)))
+        })
 
-    await Promise.allSettled(
-      connections.map(async (connection) => {
-        const connectionWithCredentials = await this.connectionService.findById(
-          input.clientId,
-          connection.connectionId,
-          true
-        )
-        this.anchorageSyncService.sync(connectionWithCredentials as ActiveConnectionWithCredentials)
-      })
-    )
-      .then(async () => {
-        await Promise.all(syncs.map((sync) => this.complete(sync)))
-      })
-      .catch(async (error) => {
-        await Promise.all(syncs.map((sync) => this.fail(sync, error)))
-      })
+      return { started: true, syncs }
+    }
 
-    return { started: true, syncs }
+    this.logger.log('Skip sync because active connections list is empty')
+
+    return { started: false, syncs: [] }
   }
 
   private toProcessingSync(input: StartSync & { connectionId: string; createdAt?: Date; syncId?: string }): Sync {

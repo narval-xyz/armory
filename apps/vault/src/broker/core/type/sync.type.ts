@@ -32,3 +32,9 @@ export const StartSync = z.object({
     .optional()
 })
 export type StartSync = z.infer<typeof StartSync>
+
+export const SyncStarted = z.object({
+  started: z.boolean(),
+  syncs: z.array(Sync)
+})
+export type SyncStarted = z.infer<typeof SyncStarted>

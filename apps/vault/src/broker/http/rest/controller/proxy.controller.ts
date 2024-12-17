@@ -1,18 +1,18 @@
 import { All, Body, Controller, HttpStatus, Param, Req, Res } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { ProxyRequestException } from '../../../core/exception/proxy-request.exception'
-import { HttpMethod } from '../../../core/lib/anchorage-request-builder'
 import { ProxyService } from '../../../core/service/proxy.service'
 
 @Controller({
   path: 'proxy',
   version: '1'
 })
+@ApiTags('Provider Proxy')
 export class ProxyController {
   constructor(private readonly proxyService: ProxyService) {}
 
@@ -49,11 +49,11 @@ export class ProxyController {
     const sanitizedEndpoint = queryString ? `/${endpoint}?${queryString}` : `/${endpoint}`
 
     try {
-      const response = await this.proxyService.rawRequest(clientId, {
+      const response = await this.proxyService.forward(clientId, {
         connectionId,
         endpoint: sanitizedEndpoint,
-        method: HttpMethod.parse(request.method),
-        body
+        method: request.method,
+        data: body
       })
 
       res.status(response.code).set(response.headers).send(response.data)

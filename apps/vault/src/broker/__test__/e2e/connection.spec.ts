@@ -1,5 +1,6 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { hexSchema } from '@narval/policy-engine-shared'
 import {
   Alg,
   Ed25519PrivateKey,
@@ -11,7 +12,9 @@ import {
   rsaPublicKeySchema
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
+import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
@@ -25,7 +28,15 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ConnectionService } from '../../core/service/connection.service'
-import { ConnectionStatus, Provider, isActiveConnection, isRevokedConnection } from '../../core/type/connection.type'
+import { SyncService } from '../../core/service/sync.service'
+import {
+  ActiveConnectionWithCredentials,
+  ConnectionStatus,
+  Provider,
+  isActiveConnection,
+  isRevokedConnection
+} from '../../core/type/connection.type'
+import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
 import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
 import {
   TEST_ACCOUNTS,
@@ -63,6 +74,7 @@ describe('Connection', () => {
   let testPrismaService: TestPrismaService
   let provisionService: ProvisionService
   let clientService: ClientService
+  let eventEmitterMock: MockProxy<EventEmitter2>
 
   const url = 'http://provider.narval.xyz'
 
@@ -71,11 +83,24 @@ describe('Connection', () => {
   const clientId = testClient.clientId
 
   beforeAll(async () => {
+    // We mock the sync service here to prevent race conditions
+    // during the tests. This is because the ConnectionService sends a promise
+    // to start the sync but does not wait for it to complete.
+    const syncServiceMock = mock<SyncService>()
+    syncServiceMock.start.mockResolvedValue({ started: true, syncs: [] })
+
+    eventEmitterMock = mock<EventEmitter2>()
+    eventEmitterMock.emit.mockReturnValue(true)
+
     module = await Test.createTestingModule({
       imports: [MainModule]
     })
       .overrideModule(LoggerModule)
       .useModule(LoggerModule.forTest())
+      .overrideProvider(SyncService)
+      .useValue(syncServiceMock)
+      .overrideProvider(EventEmitter2)
+      .useValue(eventEmitterMock)
       .overrideProvider(KeyValueRepository)
       .useValue(new InMemoryKeyValueRepository())
       .overrideProvider(EncryptionModuleOptionProvider)
@@ -138,16 +163,61 @@ describe('Connection', () => {
         status: ConnectionStatus.PENDING
       })
 
-      expect(body.credentials.privateKey).toEqual(undefined)
+      // Ensure it doesn't leak the private key.
+      expect(body.credentials).toEqual(undefined)
+      expect(body.privateKey).toEqual(undefined)
 
-      toMatchZodSchema(body.credentials.publicKey, ed25519PublicKeySchema)
-      toMatchZodSchema(body.encryptionPublicKey, rsaPublicKeySchema)
+      // Ensure it doesn't leak a private key as JWK by including the `d`
+      // property.
+      toMatchZodSchema(body.publicKey.jwk, ed25519PublicKeySchema)
+      toMatchZodSchema(body.encryptionPublicKey.jwk, rsaPublicKeySchema)
+
+      toMatchZodSchema(body.publicKey.hex, hexSchema)
+
+      expect(body.publicKey.keyId).toEqual(expect.any(String))
+      expect(body.encryptionPublicKey.keyId).toEqual(expect.any(String))
 
       expect(status).toEqual(HttpStatus.CREATED)
     })
   })
 
   describe('POST /provider/connections', () => {
+    it('emits connection.activated event on connection create', async () => {
+      const privateKey = await generateJwk(Alg.EDDSA)
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      const connectionId = uuid()
+      const connection = {
+        provider: Provider.ANCHORAGE,
+        connectionId,
+        label: 'Test Anchorage Connection',
+        url,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: privateKeyHex
+        }
+      }
+
+      await request(app.getHttpServer())
+        .post('/provider/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: connection
+          })
+        )
+        .send(connection)
+
+      const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
+
+      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
+        'connection.activated',
+        new ConnectionActivatedEvent(createdConnection as ActiveConnectionWithCredentials)
+      )
+    })
+
     it('creates a new connection to anchorage with plain credentials', async () => {
       const privateKey = await generateJwk(Alg.EDDSA)
       const privateKeyHex = await privateKeyToHex(privateKey)
@@ -206,6 +276,58 @@ describe('Connection', () => {
         updatedAt: expect.any(Date),
         url: connection.url
       })
+    })
+
+    it('emits connection.activated on connection activation', async () => {
+      const connectionId = uuid()
+      const provider = Provider.ANCHORAGE
+      const label = 'Test Anchorage Connection'
+      const credentials = { apiKey: 'test-api-key' }
+
+      await request(app.getHttpServer())
+        .post('/provider/connections/initiate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections/initiate',
+            payload: { connectionId, provider }
+          })
+        )
+        .send({ connectionId, provider })
+
+      await request(app.getHttpServer())
+        .post('/provider/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: {
+              connectionId,
+              credentials,
+              label,
+              provider,
+              url
+            }
+          })
+        )
+        .send({
+          connectionId,
+          credentials,
+          label,
+          provider,
+          url
+        })
+
+      const createdConnection = await connectionService.findById(clientId, connectionId, true)
+
+      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
+        'connection.activated',
+        new ConnectionActivatedEvent(createdConnection as ActiveConnectionWithCredentials)
+      )
     })
 
     it('activates an anchorage pending connection with plain credentials', async () => {
@@ -280,7 +402,7 @@ describe('Connection', () => {
       if (isActiveConnection(createdConnection)) {
         expect(createdConnection.credentials).toMatchObject({
           apiKey: credentials.apiKey,
-          publicKey: pendingConnection.credentials.publicKey
+          publicKey: pendingConnection.publicKey.jwk
         })
       } else {
         fail('expected an active connection')
@@ -308,7 +430,10 @@ describe('Connection', () => {
         )
         .send({ connectionId, provider })
 
-      const encryptedCredentials = await rsaEncrypt(JSON.stringify(credentials), pendingConnection.encryptionPublicKey)
+      const encryptedCredentials = await rsaEncrypt(
+        JSON.stringify(credentials),
+        pendingConnection.encryptionPublicKey.jwk
+      )
 
       const { status, body } = await request(app.getHttpServer())
         .post('/provider/connections')
@@ -363,7 +488,7 @@ describe('Connection', () => {
       if (isActiveConnection(createdConnection)) {
         expect(createdConnection.credentials).toMatchObject({
           apiKey: credentials.apiKey,
-          publicKey: pendingConnection.credentials.publicKey
+          publicKey: pendingConnection.publicKey.jwk
         })
       } else {
         fail('expected an active connection')

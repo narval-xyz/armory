@@ -1,7 +1,9 @@
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
+import { mock } from 'jest-mock-extended'
 import nock from 'nock'
 import { EncryptionModuleOptionProvider } from 'packages/encryption-module/src/lib/encryption.module'
 import request from 'supertest'
@@ -41,6 +43,10 @@ describe('Proxy', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      // Mock the event emitter because we don't want to send a
+      // connection.activated event after the creation.
+      .overrideProvider(EventEmitter2)
+      .useValue(mock<EventEmitter2>())
       .compile()
 
     app = module.createNestApplication()

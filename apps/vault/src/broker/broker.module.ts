@@ -1,5 +1,6 @@
 import { HttpModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import { Module } from '@nestjs/common'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ClientModule } from '../client/client.module'
 import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../shared/constant'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
@@ -13,6 +14,7 @@ import { ConnectionService } from './core/service/connection.service'
 import { ProxyService } from './core/service/proxy.service'
 import { SyncService } from './core/service/sync.service'
 import { WalletService } from './core/service/wallet.service'
+import { ConnectionSyncEventHandler } from './event/handler/connection-sync.event-handler'
 import { AnchorageClient } from './http/client/anchorage.client'
 import { AccountController } from './http/rest/controller/account.controller'
 import { AddressController } from './http/rest/controller/address.controller'
@@ -31,6 +33,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
   imports: [
     PersistenceModule,
     TransitEncryptionModule,
+    EventEmitterModule.forRoot(),
     OpenTelemetryModule.forRoot(),
     HttpModule.register({
       retry: {
@@ -58,6 +61,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     ConnectionRepository,
     ConnectionSeedService,
     ConnectionService,
+    ConnectionSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
     ProxyService,

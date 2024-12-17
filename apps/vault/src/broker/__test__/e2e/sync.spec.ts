@@ -2,6 +2,7 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import request from 'supertest'
@@ -20,7 +21,7 @@ import {
 import { AnchorageSyncService } from '../../core/service/anchorage-sync.service'
 import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
-import { ActiveConnection, PendingConnection, Provider } from '../../core/type/connection.type'
+import { ActiveConnectionWithCredentials, PendingConnection, Provider } from '../../core/type/connection.type'
 import { SyncStatus } from '../../core/type/sync.type'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
@@ -34,7 +35,7 @@ describe('Sync', () => {
   let provisionService: ProvisionService
   let clientService: ClientService
 
-  let activeConnection: ActiveConnection
+  let activeConnection: ActiveConnectionWithCredentials
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let pendingConnection: PendingConnection
 
@@ -48,13 +49,14 @@ describe('Sync', () => {
 
   beforeAll(async () => {
     // We mock the provider's sync service here to prevent race conditions
-    // during testing. This is because the SyncService sends a promise to start
-    // the sync but does not wait for it to complete.
+    // during the tests. This is because the SyncService sends a promise to
+    // start the sync but does not wait for it to complete.
     //
     // NOTE: The sync logic is tested in the provider's sync service
     // integration tests.
     anchorageSyncServiceMock = mock<AnchorageSyncService>()
     anchorageSyncServiceMock.sync.mockResolvedValue()
+
     module = await Test.createTestingModule({
       imports: [MainModule]
     })
@@ -68,6 +70,10 @@ describe('Sync', () => {
       })
       .overrideProvider(AnchorageSyncService)
       .useValue(anchorageSyncServiceMock)
+      // Mock the event emitter because we don't want to send a
+      // connection.activated event after the creation.
+      .overrideProvider(EventEmitter2)
+      .useValue(mock<EventEmitter2>())
       .compile()
 
     app = module.createNestApplication()
@@ -210,10 +216,7 @@ describe('Sync', () => {
 
   describe('GET /syncs/:syncId', () => {
     it('responds with the specific sync', async () => {
-      const { syncs } = await syncService.start({
-        clientId,
-        connectionId: activeConnection.connectionId
-      })
+      const { syncs } = await syncService.start([activeConnection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -246,7 +249,7 @@ describe('Sync', () => {
 
   describe('GET /syncs', () => {
     it('responds with a list of syncs', async () => {
-      const { syncs } = await syncService.start({ clientId })
+      const { syncs } = await syncService.start([activeConnection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -283,7 +286,7 @@ describe('Sync', () => {
     })
 
     it('responds with the specific sync filter by connection', async () => {
-      const { syncs } = await syncService.start({ clientId })
+      const { syncs } = await syncService.start([activeConnection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -319,7 +322,7 @@ describe('Sync', () => {
     })
 
     it('responds with limited number of syncs when limit is given', async () => {
-      await syncService.start({ clientId })
+      await syncService.start([activeConnection])
 
       const { body } = await request(app.getHttpServer())
         .get('/provider/syncs')

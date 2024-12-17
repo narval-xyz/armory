@@ -1,4 +1,4 @@
-import { PaginatedResult } from '@narval/nestjs-shared'
+import { LoggerService, PaginatedResult } from '@narval/nestjs-shared'
 import {
   Alg,
   Ed25519PrivateKey,
@@ -9,6 +9,7 @@ import {
   privateKeyToJwk
 } from '@narval/signature'
 import { Injectable, NotImplementedException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
@@ -17,6 +18,7 @@ import {
   FilterOptions,
   FindAllPaginatedOptions
 } from '../../persistence/repository/connection.repository'
+import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
 import { ConnectionInvalidStatusException } from '../exception/connection-invalid-status.exception'
@@ -43,10 +45,14 @@ import {
 export class ConnectionService {
   constructor(
     private readonly connectionRepository: ConnectionRepository,
-    private readonly encryptionKeyService: EncryptionKeyService
+    private readonly encryptionKeyService: EncryptionKeyService,
+    private readonly logger: LoggerService,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async initiate(clientId: string, input: InitiateConnection): Promise<PendingConnectionWithCredentials> {
+    this.logger.log('Initiate pending connection', { clientId })
+
     const now = new Date()
     const privateKey = await this.generatePrivateKey()
     const encryptionKey = await this.encryptionKeyService.generate(clientId)
@@ -66,6 +72,11 @@ export class ConnectionService {
     }
 
     await this.connectionRepository.create(connection)
+
+    this.logger.log('Pending connection created', {
+      clientId,
+      connection: connection.connectionId
+    })
 
     return {
       clientId: connection.clientId,
@@ -88,6 +99,8 @@ export class ConnectionService {
   }
 
   async create(clientId: string, input: CreateConnection): Promise<ActiveConnectionWithCredentials> {
+    this.logger.log('Create active connection', { clientId })
+
     // If a connection ID is provided, check if the connection already exists.
     // If it does, activate the connection.
     if (input.connectionId) {
@@ -100,10 +113,14 @@ export class ConnectionService {
     }
 
     if (input.credentials) {
+      this.logger.log('Create active account from plain credentials', { clientId })
+
       return this.createActiveConnection(clientId, input)
     }
 
     if (input.encryptedCredentials) {
+      this.logger.log('Create active account from encrypted credentials', { clientId })
+
       const credentials = await this.getInputCredentials(clientId, input)
 
       return this.createActiveConnection(clientId, { ...input, credentials })
@@ -145,6 +162,8 @@ export class ConnectionService {
 
       await this.connectionRepository.create(connection)
 
+      this.eventEmitter.emit(ConnectionActivatedEvent.EVENT_NAME, new ConnectionActivatedEvent(connection))
+
       return connection
     }
 
@@ -158,7 +177,11 @@ export class ConnectionService {
     const pendingConnection = await this.connectionRepository.findById(clientId, input.connectionId, true)
 
     if (isPendingConnection(pendingConnection) && pendingConnection.credentials) {
-      // TODO: Ensure the connection status is pending.
+      this.logger.log('Activate pending connection', {
+        clientId,
+        connectionId: pendingConnection.connectionId
+      })
+
       const now = new Date()
 
       const credentials = await this.getInputCredentials(clientId, input)
@@ -180,8 +203,16 @@ export class ConnectionService {
 
       await this.connectionRepository.update(connection)
 
+      this.eventEmitter.emit(ConnectionActivatedEvent.EVENT_NAME, new ConnectionActivatedEvent(connection))
+
       return connection
     }
+
+    this.logger.log("Skip pending connection activation because status it's not pending or missing credentials", {
+      clientId,
+      connectionId: pendingConnection.connectionId,
+      status: pendingConnection.status
+    })
 
     throw new ConnectionInvalidStatusException({
       from: pendingConnection.status,
@@ -336,8 +367,12 @@ export class ConnectionService {
     return this.connectionRepository.findById(clientId, connectionId, includeCredentials)
   }
 
-  async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
-    return this.connectionRepository.findAll(clientId, options)
+  async findAll<T extends boolean = false>(
+    clientId: string,
+    options?: FilterOptions,
+    includeCredentials?: T
+  ): Promise<T extends true ? ConnectionWithCredentials[] : Connection[]> {
+    return this.connectionRepository.findAll(clientId, options, includeCredentials)
   }
 
   async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {
@@ -348,6 +383,11 @@ export class ConnectionService {
     const connection = await this.connectionRepository.findById(clientId, connectionId)
 
     if (isRevokedConnection(connection)) {
+      this.logger.log("Skip connection revoke because it's already revoked", {
+        clientId,
+        connectionId: connection.connectionId
+      })
+
       throw new ConnectionInvalidStatusException({
         from: connection.status,
         to: ConnectionStatus.REVOKED,
@@ -357,6 +397,11 @@ export class ConnectionService {
     }
 
     if (isActiveConnection(connection) || isPendingConnection(connection)) {
+      this.logger.log('Revoke active or pending connection', {
+        clientId,
+        connectionId: connection.connectionId
+      })
+
       await this.connectionRepository.update({
         ...connection,
         clientId,

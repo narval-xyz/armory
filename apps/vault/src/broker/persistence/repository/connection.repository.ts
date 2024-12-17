@@ -145,16 +145,26 @@ export class ConnectionRepository {
     throw new NotFoundException({ context: { clientId, connectionId } })
   }
 
-  async findAll(clientId: string, options?: FilterOptions): Promise<Connection[]> {
+  async findAll<T extends boolean = false>(
+    clientId: string,
+    options?: FilterOptions,
+    includeCredentials?: T
+  ): Promise<T extends true ? ConnectionWithCredentials[] : Connection[]> {
     const models = await this.prismaService.providerConnection.findMany({
-      select: connectionSelectWithoutCredentials,
       where: {
         clientId,
         status: options?.filters?.status
-      }
+      },
+      ...(includeCredentials
+        ? {}
+        : {
+            select: connectionSelectWithoutCredentials
+          })
     })
 
-    return models.map((model) => ConnectionRepository.parseModel(model, false))
+    return models.map((model) => ConnectionRepository.parseModel(model, includeCredentials)) as T extends true
+      ? ConnectionWithCredentials[]
+      : Connection[]
   }
 
   async findAllPaginated(clientId: string, options?: FindAllPaginatedOptions): Promise<PaginatedResult<Connection>> {

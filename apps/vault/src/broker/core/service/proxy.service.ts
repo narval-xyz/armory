@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { AnchorageClient } from '../../http/client/anchorage.client'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { ConnectionInvalidException } from '../exception/connection-invalid.exception'
-import { HttpMethod } from '../lib/anchorage-request-builder'
-import { ConnectionStatus } from '../type/connection.type'
+import { isActiveConnection } from '../type/connection.type'
 
-type RawRequestOptions = {
+type ProxyRequestOptions = {
   connectionId: string
-  body?: any
+  data?: any
   endpoint: string
-  method: HttpMethod
+  method: string
 }
+
 @Injectable()
 export class ProxyService {
   constructor(
@@ -18,12 +20,13 @@ export class ProxyService {
     private readonly connectionRepository: ConnectionRepository
   ) {}
 
-  async rawRequest(
+  async forward(
     clientId: string,
-    { connectionId, body, endpoint, method }: RawRequestOptions
+    { connectionId, data, endpoint, method }: ProxyRequestOptions
   ): Promise<{ data: any; code: HttpStatus; headers: Record<string, any> }> {
     const connection = await this.connectionRepository.findById(clientId, connectionId, true)
-    if (connection.status !== ConnectionStatus.ACTIVE) {
+
+    if (!isActiveConnection(connection)) {
       throw new ConnectionInvalidException({
         message: 'Connection is not active',
         context: { connectionId, clientId, status: connection.status }
@@ -32,18 +35,20 @@ export class ProxyService {
 
     const { url, credentials } = connection
     const { apiKey, privateKey } = credentials
-
     const fullUrl = `${url}${endpoint}`
 
     const response = await this.anchorageClient.forward({
       url: fullUrl,
       method,
-      body,
+      data,
       apiKey,
       signKey: privateKey
     })
 
-    const { status: code, headers, data } = response
-    return { data, code, headers }
+    return {
+      data: response.data,
+      code: response.status,
+      headers: response.headers
+    }
   }
 }

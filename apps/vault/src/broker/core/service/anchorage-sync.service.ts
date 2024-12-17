@@ -4,8 +4,8 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { uniq } from 'lodash'
 import { v4 as uuid } from 'uuid'
 import { AnchorageClient } from '../../http/client/anchorage.client'
-import { BrokerException } from '../exception/broker.exception'
 import { ConnectionInvalidException } from '../exception/connection-invalid.exception'
+import { SyncException } from '../exception/sync.exception'
 import { ActiveConnection, ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
 import { Account, Address, Wallet } from '../type/indexed-resources.type'
 import { AccountService } from './account.service'
@@ -69,7 +69,15 @@ export class AnchorageSyncService {
       walletId: uuid()
     }))
 
-    await this.walletService.bulkCreate(wallets)
+    try {
+      await this.walletService.bulkCreate(wallets)
+    } catch (error) {
+      throw new SyncException({
+        message: 'Fail to persist wallets',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
 
     return wallets
   }
@@ -120,7 +128,7 @@ export class AnchorageSyncService {
       const wallet = walletsIndexedByExternalId.get(anchorageWallet.vaultId)
 
       if (!wallet) {
-        throw new BrokerException({
+        throw new SyncException({
           message: 'Parent wallet for account not found',
           suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
           context: {
@@ -145,7 +153,15 @@ export class AnchorageSyncService {
       }
     })
 
-    await this.accountService.bulkCreate(accounts)
+    try {
+      await this.accountService.bulkCreate(accounts)
+    } catch (error) {
+      throw new SyncException({
+        message: 'Fail to persist accounts',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
 
     return accounts
   }
@@ -224,13 +240,21 @@ export class AnchorageSyncService {
         } satisfies Address
       }
 
-      throw new BrokerException({
+      throw new SyncException({
         message: 'Anchorage address parent account not found',
         suggestedHttpStatusCode: HttpStatus.NOT_FOUND
       })
     })
 
-    await this.addressService.bulkCreate(addresses)
+    try {
+      await this.addressService.bulkCreate(addresses)
+    } catch (error) {
+      throw new SyncException({
+        message: 'Fail to persist addresses',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
 
     return addresses
   }

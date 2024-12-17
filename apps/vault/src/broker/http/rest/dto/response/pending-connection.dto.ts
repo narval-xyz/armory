@@ -1,3 +1,4 @@
+import { hexSchema } from '@narval/policy-engine-shared'
 import { publicKeySchema } from '@narval/signature'
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
@@ -9,11 +10,18 @@ export class PendingConnectionDto extends createZodDto(
     connectionId: true,
     provider: true,
     status: true,
-    encryptionPublicKey: true,
     createdAt: true
   }).extend({
-    credentials: z.object({
-      publicKey: publicKeySchema.optional()
+    publicKey: z
+      .object({
+        keyId: z.string().optional(),
+        jwk: publicKeySchema.optional(),
+        hex: hexSchema.optional()
+      })
+      .optional(),
+    encryptionPublicKey: z.object({
+      keyId: z.string().optional(),
+      jwk: publicKeySchema.optional()
     })
   })
 ) {}

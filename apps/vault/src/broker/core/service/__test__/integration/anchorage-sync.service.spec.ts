@@ -2,7 +2,9 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule } from '@narval/nestjs-shared'
 import { Alg, generateJwk, privateKeyToHex } from '@narval/signature'
 import { INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
+import { mock } from 'jest-mock-extended'
 import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../../../client/core/service/client.service'
 import { MainModule } from '../../../../../main.module'
@@ -51,6 +53,10 @@ describe(AnchorageSyncService.name, () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      // Mock the event emitter because we don't want to send a
+      // connection.activated event after the creation.
+      .overrideProvider(EventEmitter2)
+      .useValue(mock<EventEmitter2>())
       .compile()
 
     app = module.createNestApplication()

@@ -4,7 +4,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
+import { ConnectionService } from '../../../core/service/connection.service'
 import { SyncService } from '../../../core/service/sync.service'
+import { ActiveConnectionWithCredentials, ConnectionStatus } from '../../../core/type/connection.type'
 import { StartSyncDto } from '../dto/request/start-sync.dto'
 import { PaginatedSyncsDto } from '../dto/response/paginated-syncs.dto'
 import { SyncStatusDto } from '../dto/response/sync-status.dto'
@@ -16,7 +18,10 @@ import { SyncDto } from '../dto/response/sync.dto'
 })
 @ApiTags('Provider Sync')
 export class SyncController {
-  constructor(private readonly syncService: SyncService) {}
+  constructor(
+    private readonly syncService: SyncService,
+    private readonly connectionService: ConnectionService
+  ) {}
 
   @Post()
   @PermissionGuard(VaultPermission.CONNECTION_READ) // Sync is a read operation even though it's a POST.
@@ -30,7 +35,23 @@ export class SyncController {
     type: SyncStatusDto
   })
   async start(@ClientId() clientId: string, @Body() body: StartSyncDto): Promise<SyncStatusDto> {
-    return SyncStatusDto.create(await this.syncService.start({ clientId, ...body }))
+    if (body.connectionId) {
+      const connection = await this.connectionService.findById(clientId, body.connectionId, true)
+
+      return SyncStatusDto.create(await this.syncService.start([connection as ActiveConnectionWithCredentials]))
+    }
+
+    const connections = await this.connectionService.findAll(
+      clientId,
+      {
+        filters: {
+          status: ConnectionStatus.ACTIVE
+        }
+      },
+      true
+    )
+
+    return SyncStatusDto.create(await this.syncService.start(connections as ActiveConnectionWithCredentials[]))
   }
 
   @Get(':syncId')

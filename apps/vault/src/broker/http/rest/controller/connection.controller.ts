@@ -1,4 +1,5 @@
 import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { publicKeyToHex } from '@narval/signature'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -44,7 +45,22 @@ export class ConnectionController {
   async initiate(@ClientId() clientId: string, @Body() body: InitiateConnectionDto): Promise<PendingConnectionDto> {
     const pendingConnection = await this.connectionService.initiate(clientId, body)
 
-    return PendingConnectionDto.create(pendingConnection)
+    return PendingConnectionDto.create({
+      ...pendingConnection,
+      encryptionPublicKey: {
+        keyId: pendingConnection.encryptionPublicKey?.kid,
+        jwk: pendingConnection.encryptionPublicKey
+      },
+      ...(pendingConnection.credentials
+        ? {
+            publicKey: {
+              keyId: pendingConnection.credentials.publicKey.kid,
+              jwk: pendingConnection.credentials.publicKey,
+              hex: await publicKeyToHex(pendingConnection.credentials.publicKey)
+            }
+          }
+        : {})
+    })
   }
 
   @Post()
@@ -187,7 +203,6 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    // TODO: Move the method from the connection service to accounts.
     const { data, page } = await this.accountService.findAllPaginated(clientId, {
       ...options,
       filters: { connectionId }
