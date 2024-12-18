@@ -35,9 +35,9 @@ export class SyncService {
         )
       )
 
-      await Promise.allSettled(
+      Promise.all(
         connections.map(async (connection) => {
-          this.anchorageSyncService.sync(connection)
+          return this.anchorageSyncService.sync(connection)
         })
       )
         .then(async () => {
