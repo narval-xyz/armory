@@ -9,13 +9,13 @@ import { ZodExceptionFilter } from '../shared/filter/zod-exception.filter'
 import { NonceGuard } from '../shared/guard/nonce.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
+import { TransitEncryptionModule } from '../transit-encryption/transit-encryption.module'
 import { AdminService } from './core/service/admin.service'
 import { ImportService } from './core/service/import.service'
 import { KeyGenerationService } from './core/service/key-generation.service'
 import { NonceService } from './core/service/nonce.service'
 import { SigningService } from './core/service/signing.service'
 import { AccountController } from './http/rest/controller/account.controller'
-import { EncryptionKeyController } from './http/rest/controller/encryption-key.controller'
 import { SignController } from './http/rest/controller/sign.controller'
 import { WalletController } from './http/rest/controller/wallet.controller'
 import { AccountRepository } from './persistence/repository/account.repository'
@@ -25,8 +25,8 @@ import { RootKeyRepository } from './persistence/repository/root-key.repository'
 import { VaultController } from './vault.controller'
 
 @Module({
-  imports: [HttpModule, PersistenceModule, KeyValueModule, ClientModule],
-  controllers: [VaultController, WalletController, SignController, AccountController, EncryptionKeyController],
+  imports: [HttpModule, PersistenceModule, KeyValueModule, ClientModule, TransitEncryptionModule],
+  controllers: [VaultController, WalletController, SignController, AccountController],
   providers: [
     AppRepository,
     AdminService,

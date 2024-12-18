@@ -22,7 +22,7 @@ import { Client } from '../../../shared/type/domain.type'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
-describe('Encryption-keys', () => {
+describe('Transit Encryption Key', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
@@ -128,14 +128,14 @@ describe('Encryption-keys', () => {
     await clientService.save(client)
   })
 
-  describe('POST', () => {
+  describe('POST /encryption-keys', () => {
     it('responds with unauthorized when client secret is missing', async () => {
       const { status } = await request(app.getHttpServer()).post('/encryption-keys').send()
 
       expect(status).toEqual(HttpStatus.UNAUTHORIZED)
     })
 
-    it('generates an RSA keypair', async () => {
+    it('generates an RSA key pair', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
 
       const { status, body } = await request(app.getHttpServer())
@@ -144,7 +144,7 @@ describe('Encryption-keys', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send({})
 
-      expect(body).toEqual({
+      expect(body).toMatchObject({
         publicKey: expect.objectContaining({
           kid: expect.any(String),
           kty: 'RSA',
@@ -154,6 +154,32 @@ describe('Encryption-keys', () => {
           e: expect.any(String)
         })
       })
+
+      expect(status).toEqual(HttpStatus.CREATED)
+    })
+
+    it('responds with rsa public key in different formats', async () => {
+      const accessToken = await getAccessToken([Permission.WALLET_IMPORT])
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/encryption-keys')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set('authorization', `GNAP ${accessToken}`)
+        .send({})
+
+      expect(body.data).toEqual({
+        keyId: expect.any(String),
+        jwk: expect.objectContaining({
+          kid: expect.any(String),
+          kty: 'RSA',
+          use: 'enc',
+          alg: 'RS256',
+          n: expect.any(String),
+          e: expect.any(String)
+        }),
+        pem: expect.any(String)
+      })
+
       expect(status).toEqual(HttpStatus.CREATED)
     })
   })
