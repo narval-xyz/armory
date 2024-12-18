@@ -84,6 +84,31 @@ describe(AnchorageClient.name, () => {
       )
     })
 
+    it('adds params as query string', () => {
+      const request: AxiosRequestConfig = {
+        method: 'POST',
+        url: '/v2/accounts',
+        data: undefined,
+        params: { foo: 'bar' }
+      }
+
+      expect(client.buildSignatureMessage(request, nowTimestamp)).toEqual(`${nowTimestamp}POST/v2/accounts?foo=bar`)
+    })
+
+    it('does not add ? to the url when params is defined with undefined items', () => {
+      const request: AxiosRequestConfig = {
+        method: 'POST',
+        url: '/v2/accounts',
+        data: undefined,
+        params: {
+          foo: undefined,
+          bar: undefined
+        }
+      }
+
+      expect(client.buildSignatureMessage(request, nowTimestamp)).toEqual(`${nowTimestamp}POST/v2/accounts`)
+    })
+
     it('handles undefined data for non-get requests', () => {
       const request: AxiosRequestConfig = {
         method: 'POST',

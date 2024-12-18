@@ -4,12 +4,12 @@ import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { sign } from '@noble/ed25519'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { isNil, omitBy } from 'lodash'
 import { EMPTY, Observable, catchError, expand, from, lastValueFrom, map, reduce, switchMap, tap } from 'rxjs'
 import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { ProxyRequestException } from '../../core/exception/proxy-request.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
-import { HttpMethod, buildAnchorageSignedRequest } from './anchorage-request-builder'
 
 const Amount = z.object({
   quantity: z.string(),
@@ -223,8 +223,10 @@ export class AnchorageClient {
 
     const endpoint = this.parseEndpoint(request.url)
     const method = request.method.toUpperCase()
+    const queryParams = new URLSearchParams(omitBy(request.params, isNil)).toString()
+    const path = queryParams ? `${endpoint}?${queryParams}` : endpoint
 
-    return `${timestamp}${method}${endpoint}${request.data && method !== 'GET' ? JSON.stringify(request.data) : ''}`
+    return `${timestamp}${method}${path}${request.data && method !== 'GET' ? JSON.stringify(request.data) : ''}`
   }
 
   private sendSignedRequest<T>(opts: {
@@ -234,15 +236,8 @@ export class AnchorageClient {
     apiKey: string
   }): Observable<T> {
     return from(
-      // this.authorize({
-      //   request: opts.request,
-      //   apiKey: opts.apiKey,
-      //   signKey: opts.signKey
-      // })
-      buildAnchorageSignedRequest({
-        url: opts.request.url as string,
-        method: opts.request.method as HttpMethod,
-        body: opts.request.data,
+      this.authorize({
+        request: opts.request,
         apiKey: opts.apiKey,
         signKey: opts.signKey
       })
@@ -320,17 +315,6 @@ export class AnchorageClient {
           throw error
         })
       )
-    )
-  }
-
-  private getVaultsPage(request: AxiosRequestConfig): Observable<GetVaultsResponse> {
-    return this.httpService.request(request).pipe(
-      tap((response) => {
-        this.logger.log('Received Anchorage vaults page', {
-          data: response.data
-        })
-      }),
-      map((response) => GetVaultsResponse.parse(response.data))
     )
   }
 
