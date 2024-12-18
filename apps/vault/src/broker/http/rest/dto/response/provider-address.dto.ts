@@ -4,6 +4,6 @@ import { Address } from '../../../../core/type/indexed-resources.type'
 
 export class ProviderAddressDto extends createZodDto(
   z.object({
-    address: Address
+    data: Address
   })
 ) {}

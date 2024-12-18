@@ -1,14 +1,13 @@
 import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
-
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
-import { ProviderAccountDto } from '../dto/response/account.dto'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
+import { ProviderAccountDto } from '../dto/response/provider-account.dto'
 
 @Controller({
   path: 'accounts',
@@ -27,16 +26,11 @@ export class AccountController {
     type: PaginatedAccountsDto,
     description: 'Returns a paginated list of accounts for the client'
   })
-  async listByClientId(
+  async list(
     @ClientId() clientId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.accountService.getAccounts(clientId, options)
-    const ret = PaginatedAccountsDto.create({
-      accounts: data,
-      page
-    })
-    return ret
+    return PaginatedAccountsDto.create(await this.accountService.getAccounts(clientId, options))
   }
 
   @Get(':accountId')
@@ -56,12 +50,10 @@ export class AccountController {
     status: HttpStatus.NOT_FOUND,
     description: 'Account not found'
   })
-  async getAccountById(
-    @ClientId() clientId: string,
-    @Param('accountId') accountId: string
-  ): Promise<ProviderAccountDto> {
-    const account = await this.accountService.getAccount(clientId, accountId)
-    return ProviderAccountDto.create({ account })
+  async getById(@ClientId() clientId: string, @Param('accountId') accountId: string): Promise<ProviderAccountDto> {
+    const data = await this.accountService.getAccount(clientId, accountId)
+
+    return ProviderAccountDto.create({ data })
   }
 
   @Get(':accountId/addresses')
@@ -81,16 +73,11 @@ export class AccountController {
     status: HttpStatus.NOT_FOUND,
     description: 'Address not found'
   })
-  async getAccountAddresses(
+  async listAddresses(
     @ClientId() clientId: string,
     @Param('accountId') accountId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAddressesDto> {
-    const { data, page } = await this.accountService.getAccountAddresses(clientId, accountId, options)
-
-    return PaginatedAddressesDto.create({
-      addresses: data,
-      page
-    })
+    return PaginatedAddressesDto.create(await this.accountService.getAccountAddresses(clientId, accountId, options))
   }
 }

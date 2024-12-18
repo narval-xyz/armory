@@ -5,7 +5,7 @@ import { Sync } from '../../../../core/type/sync.type'
 
 export class PaginatedSyncsDto extends createZodDto(
   z.object({
-    page: Page,
-    syncs: z.array(Sync)
+    data: z.array(Sync),
+    page: Page
   })
 ) {}

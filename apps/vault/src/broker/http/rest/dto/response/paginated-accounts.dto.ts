@@ -5,7 +5,7 @@ import { Account } from '../../../../core/type/indexed-resources.type'
 
 export class PaginatedAccountsDto extends createZodDto(
   z.object({
-    accounts: z.array(Account),
+    data: z.array(Account),
     page: Page
   })
 ) {}

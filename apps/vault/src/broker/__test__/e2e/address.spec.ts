@@ -59,7 +59,7 @@ describe('Address', () => {
 
   describe('GET /addresses', () => {
     it('returns the list of addresses for the client', async () => {
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -71,21 +71,22 @@ describe('Address', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
 
-      expect(response.body).toEqual({
-        addresses: TEST_ADDRESSES.map(getExpectedAddress).reverse(),
+      expect(body).toEqual({
+        data: TEST_ADDRESSES.map(getExpectedAddress).reverse(),
         page: {
           next: null
         }
       })
+
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 
   describe('GET /addresses with pagination', () => {
     it('returns limited number of addresses when limit parameter is provided', async () => {
       const limit = 1
-      const response = await request(app.getHttpServer())
+      const { body } = await request(app.getHttpServer())
         .get(`/provider/addresses?limit=${limit}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -98,8 +99,8 @@ describe('Address', () => {
           })
         )
 
-      expect(response.body.addresses).toHaveLength(limit)
-      expect(response.body.page).toHaveProperty('next')
+      expect(body.data).toHaveLength(limit)
+      expect(body.page).toHaveProperty('next')
     })
 
     it('returns next page of results using cursor', async () => {
@@ -119,6 +120,7 @@ describe('Address', () => {
         .expect(HttpStatus.OK)
 
       const cursor = firstResponse.body.page?.next
+
       expect(cursor).toBeDefined()
 
       // Second request using the cursor
@@ -136,37 +138,39 @@ describe('Address', () => {
         )
         .expect(HttpStatus.OK)
 
-      expect(secondResponse.body.addresses).toHaveLength(1)
-      expect(secondResponse.body.addresses[0].addressId).not.toBe(firstResponse.body.addresses[0].addressId)
+      expect(secondResponse.body.data).toHaveLength(1)
+      expect(secondResponse.body.data[0].addressId).not.toBe(firstResponse.body.data[0].addressId)
     })
 
-    it('handles ascending createdAt parameter correctly', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/provider/addresses?sortOrder=asc')
+    it('handles descending orderBy createdAt parameter correctly', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .get('/provider/addresses?orderBy=createdAt&desc=true')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
           'detached-jws',
           await getJwsd({
             userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses?sortOrder=asc',
+            requestUrl: '/provider/addresses?orderBy=createdAt&desc=true',
             payload: {},
             htm: 'GET'
           })
         )
-        .expect(HttpStatus.OK)
 
-      const returnedAddresses = response.body.addresses
-      expect(returnedAddresses).toHaveLength(TEST_ADDRESSES.length)
-      expect(new Date(returnedAddresses[1].createdAt).getTime()).toBeGreaterThanOrEqual(
-        new Date(returnedAddresses[0].createdAt).getTime()
+      const addresses = body.data
+
+      expect(addresses).toHaveLength(TEST_ADDRESSES.length)
+      expect(new Date(addresses[1].createdAt).getTime()).toBeGreaterThanOrEqual(
+        new Date(addresses[0].createdAt).getTime()
       )
+
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 
   describe('GET /addresses/:addressId', () => {
     it('returns the address details', async () => {
       const address = TEST_ADDRESSES[0]
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/addresses/${address.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -179,14 +183,15 @@ describe('Address', () => {
           })
         )
 
-      expect(response.body).toEqual({
-        address: getExpectedAddress(address)
+      expect(body).toEqual({
+        data: getExpectedAddress(address)
       })
-      expect(response.status).toBe(HttpStatus.OK)
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('returns 404 with proper error message for non-existent address', async () => {
-      const response = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get('/provider/addresses/non-existent')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -199,11 +204,11 @@ describe('Address', () => {
           })
         )
 
-      expect(response.status).toBe(HttpStatus.NOT_FOUND)
+      expect(status).toBe(HttpStatus.NOT_FOUND)
     })
 
     it('returns 404 when accessing address from different client', async () => {
-      const response = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get(`/provider/addresses/${TEST_ADDRESSES[0].id}`)
         .set(REQUEST_HEADER_CLIENT_ID, 'different-client')
         .set(
@@ -216,7 +221,7 @@ describe('Address', () => {
           })
         )
 
-      expect(response.status).toBe(HttpStatus.NOT_FOUND)
+      expect(status).toBe(HttpStatus.NOT_FOUND)
     })
   })
 })

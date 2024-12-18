@@ -8,7 +8,7 @@ import { AccountService } from '../../../core/service/account.service'
 import { WalletService } from '../../../core/service/wallet.service'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
-import { ProviderWalletDto } from '../dto/response/wallet.dto'
+import { ProviderWalletDto } from '../dto/response/provider-wallet.dto'
 
 @Controller({
   path: 'wallets',
@@ -30,16 +30,11 @@ export class WalletController {
     type: PaginatedWalletsDto,
     description: 'Returns a paginated list of wallets for the client'
   })
-  async listByClientId(
+  async list(
     @ClientId() clientId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    const { data, page } = await this.walletService.getWallets(clientId, options)
-    const ret = PaginatedWalletsDto.create({
-      wallets: data,
-      page
-    })
-    return ret
+    return PaginatedWalletsDto.create(await this.walletService.getWallets(clientId, options))
   }
 
   @Get(':walletId')
@@ -59,9 +54,10 @@ export class WalletController {
     status: HttpStatus.NOT_FOUND,
     description: 'Wallet not found'
   })
-  async getWalletById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<ProviderWalletDto> {
-    const wallet = await this.walletService.getWallet(clientId, walletId)
-    return ProviderWalletDto.create({ wallet })
+  async getById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<ProviderWalletDto> {
+    const data = await this.walletService.getWallet(clientId, walletId)
+
+    return ProviderWalletDto.create({ data })
   }
 
   @Get(':walletId/accounts')
@@ -81,19 +77,16 @@ export class WalletController {
     status: HttpStatus.NOT_FOUND,
     description: 'Wallet not found'
   })
-  async getWalletAccounts(
+  async listAccounts(
     @ClientId() clientId: string,
     @Param('walletId') walletId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.accountService.findAll(clientId, {
-      ...options,
-      filters: { walletId }
-    })
-
-    return PaginatedAccountsDto.create({
-      accounts: data,
-      page
-    })
+    return PaginatedAccountsDto.create(
+      await this.accountService.findAllPaginated(clientId, {
+        ...options,
+        filters: { walletId }
+      })
+    )
   }
 }

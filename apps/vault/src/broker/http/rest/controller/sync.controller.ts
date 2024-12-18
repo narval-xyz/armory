@@ -9,7 +9,7 @@ import { SyncService } from '../../../core/service/sync.service'
 import { ActiveConnectionWithCredentials, ConnectionStatus } from '../../../core/type/connection.type'
 import { StartSyncDto } from '../dto/request/start-sync.dto'
 import { PaginatedSyncsDto } from '../dto/response/paginated-syncs.dto'
-import { SyncStatusDto } from '../dto/response/sync-status.dto'
+import { SyncStartedDto } from '../dto/response/sync-started.dto'
 import { SyncDto } from '../dto/response/sync.dto'
 
 @Controller({
@@ -32,13 +32,14 @@ export class SyncController {
   @ApiResponse({
     description: 'Returns the status of the synchronization process.',
     status: HttpStatus.CREATED,
-    type: SyncStatusDto
+    type: SyncStartedDto
   })
-  async start(@ClientId() clientId: string, @Body() body: StartSyncDto): Promise<SyncStatusDto> {
+  async start(@ClientId() clientId: string, @Body() body: StartSyncDto): Promise<SyncStartedDto> {
     if (body.connectionId) {
       const connection = await this.connectionService.findById(clientId, body.connectionId, true)
+      const data = await this.syncService.start([connection as ActiveConnectionWithCredentials])
 
-      return SyncStatusDto.create(await this.syncService.start([connection as ActiveConnectionWithCredentials]))
+      return SyncStartedDto.create({ data })
     }
 
     const { data: connections } = await this.connectionService.findAll(
@@ -51,7 +52,9 @@ export class SyncController {
       true
     )
 
-    return SyncStatusDto.create(await this.syncService.start(connections as ActiveConnectionWithCredentials[]))
+    const data = await this.syncService.start(connections as ActiveConnectionWithCredentials[])
+
+    return SyncStartedDto.create({ data })
   }
 
   @Get(':syncId')
@@ -66,10 +69,10 @@ export class SyncController {
     status: HttpStatus.OK,
     type: SyncDto
   })
-  async findById(@ClientId() clientId: string, @Param('syncId') syncId: string): Promise<SyncDto> {
-    const sync = await this.syncService.findById(clientId, syncId)
+  async getById(@ClientId() clientId: string, @Param('syncId') syncId: string): Promise<SyncDto> {
+    const data = await this.syncService.findById(clientId, syncId)
 
-    return SyncDto.create(sync)
+    return SyncDto.create({ data })
   }
 
   @Get()
@@ -83,16 +86,16 @@ export class SyncController {
     type: PaginatedSyncsDto,
     description: 'Returns a paginated list of accounts associated with the connection'
   })
-  async findAll(
+  async list(
     @ClientId() clientId: string,
-    @PaginationParam() options: PaginationOptions,
+    @PaginationParam() pagination: PaginationOptions,
     @Query('connectionId') connectionId?: string
   ): Promise<PaginatedSyncsDto> {
-    const { data, page } = await this.syncService.findAll(clientId, {
-      ...options,
-      filters: { connectionId }
-    })
-
-    return PaginatedSyncsDto.create({ syncs: data, page: page })
+    return PaginatedSyncsDto.create(
+      await this.syncService.findAll(clientId, {
+        filters: { connectionId },
+        pagination
+      })
+    )
   }
 }

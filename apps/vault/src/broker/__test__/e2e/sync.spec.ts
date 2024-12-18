@@ -159,7 +159,7 @@ describe('Sync', () => {
       const syncs = await syncService.findAll(clientId)
       const [sync] = syncs.data
 
-      expect(body).toMatchObject({
+      expect(body.data).toMatchObject({
         started: true,
         syncs: [
           {
@@ -195,7 +195,7 @@ describe('Sync', () => {
       const syncs = await syncService.findAll(clientId)
       const [sync] = syncs.data
 
-      expect(body).toEqual({
+      expect(body.data).toEqual({
         started: true,
         syncs: [
           {
@@ -233,7 +233,7 @@ describe('Sync', () => {
         )
         .send()
 
-      expect(body).toMatchObject({
+      expect(body.data).toMatchObject({
         clientId: sync.clientId,
         connectionId: sync.connectionId,
         createdAt: sync.createdAt.toISOString(),
@@ -267,7 +267,7 @@ describe('Sync', () => {
         .send()
 
       expect(body).toMatchObject({
-        syncs: [
+        data: [
           {
             clientId: sync.clientId,
             connectionId: sync.connectionId,
@@ -282,7 +282,7 @@ describe('Sync', () => {
 
       expect(status).toEqual(HttpStatus.OK)
 
-      expect(body.syncs.length).toEqual(1)
+      expect(body.data.length).toEqual(1)
     })
 
     it('responds with the specific sync filter by connection', async () => {
@@ -305,7 +305,7 @@ describe('Sync', () => {
         .send()
 
       expect(body).toMatchObject({
-        syncs: [
+        data: [
           {
             clientId: sync.clientId,
             connectionId: sync.connectionId,
@@ -318,7 +318,7 @@ describe('Sync', () => {
 
       expect(status).toEqual(HttpStatus.OK)
 
-      expect(body.syncs.length).toEqual(1)
+      expect(body.data.length).toEqual(1)
     })
 
     it('responds with limited number of syncs when limit is given', async () => {
@@ -339,7 +339,7 @@ describe('Sync', () => {
         )
         .send()
 
-      expect(body.syncs.length).toEqual(1)
+      expect(body.data.length).toEqual(1)
       expect(body.page).toHaveProperty('next')
     })
   })

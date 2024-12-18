@@ -111,6 +111,7 @@ model ProviderWallet {
   sourceTransfers ProviderTransfer[]         @relation("SourceWallet")
 
   @@unique([clientId, externalId])
+
   @@map("provider_wallet")
 }
 
@@ -131,6 +132,7 @@ model ProviderAccount {
   sourceTransfers ProviderTransfer[] @relation("SourceAccount")
 
   @@unique([clientId, externalId])
+
   @@map("provider_account")
 }
 
@@ -149,6 +151,7 @@ model ProviderAddress {
   sourceTransfers ProviderTransfer[] @relation("SourceAddress")
 
   @@unique([clientId, externalId])
+
   @@map("provider_address")
 }
 
@@ -168,6 +171,7 @@ model ProviderKnownDestination {
   connection ProviderConnection @relation(fields: [connectionId], references: [id])
 
   @@unique([clientId, externalId])
+
   @@map("provider_known_destination")
 }
 

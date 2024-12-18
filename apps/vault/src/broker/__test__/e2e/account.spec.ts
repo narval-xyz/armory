@@ -66,7 +66,7 @@ describe('Account', () => {
 
   describe('GET /accounts', () => {
     it('returns the list of accounts with addresses for the client', async () => {
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -78,18 +78,19 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
 
-      expect(response.body).toEqual({
-        accounts: TEST_ACCOUNTS.map(getExpectedAccount).reverse(),
+      expect(body).toEqual({
+        data: TEST_ACCOUNTS.map(getExpectedAccount).reverse(),
         page: {
           next: null
         }
       })
+
+      expect(status).toEqual(HttpStatus.OK)
     })
 
-    it('returns empty list for unknown client', async () => {
-      const response = await request(app.getHttpServer())
+    it('returns 404 for unknown client', async () => {
+      const { status } = await request(app.getHttpServer())
         .get('/provider/accounts')
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
         .set(
@@ -101,14 +102,15 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.NOT_FOUND)
+
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 
   describe('GET /accounts with pagination', () => {
     it('returns limited number of accounts when limit parameter is provided', async () => {
       const limit = 1
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/accounts?limit=${limit}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -120,10 +122,11 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
 
-      expect(response.body.accounts).toHaveLength(limit)
-      expect(response.body.page).toHaveProperty('next')
+      expect(body.data).toHaveLength(limit)
+      expect(body.page).toHaveProperty('next')
+
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns next page of results using cursor', async () => {
@@ -140,6 +143,7 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
+
       expect(firstResponse.status).toEqual(HttpStatus.OK)
 
       const cursor = firstResponse.body.page?.next
@@ -158,10 +162,11 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(secondResponse.status).toEqual(HttpStatus.OK)
 
-      expect(secondResponse.body.accounts).toHaveLength(1)
-      expect(secondResponse.body.accounts[0].accountId).not.toBe(firstResponse.body.accounts[0].accountId)
+      expect(secondResponse.body.data).toHaveLength(1)
+      expect(secondResponse.body.data[0].accountId).not.toBe(firstResponse.body.data[0].accountId)
+
+      expect(secondResponse.status).toEqual(HttpStatus.OK)
     })
 
     it('handles ascending createdAt parameter correctly', async () => {
@@ -179,7 +184,7 @@ describe('Account', () => {
         )
       expect(response.status).toEqual(HttpStatus.OK)
 
-      const returnedAccounts = response.body.accounts
+      const returnedAccounts = response.body.data
       expect(returnedAccounts).toHaveLength(TEST_ACCOUNTS.length)
       expect(new Date(returnedAccounts[1].createdAt).getTime()).toBeGreaterThanOrEqual(
         new Date(returnedAccounts[0].createdAt).getTime()
@@ -190,7 +195,7 @@ describe('Account', () => {
   describe('GET /accounts/:accountId', () => {
     it('returns the account details with addresses', async () => {
       const account = TEST_ACCOUNTS[0]
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/accounts/${account.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -202,14 +207,16 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
-      expect(response.body).toEqual({
-        account: getExpectedAccount(account)
+
+      expect(body).toEqual({
+        data: getExpectedAccount(account)
       })
+
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns 404 with proper error message for non-existent account', async () => {
-      const response = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get(`/provider/accounts/non-existent`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -221,11 +228,12 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.NOT_FOUND)
+
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
 
     it('returns 404 when accessing account from unknown client', async () => {
-      const response = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get(`/provider/accounts/${TEST_ACCOUNTS[0].id}`)
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
         .set(
@@ -237,7 +245,8 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.NOT_FOUND)
+
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 
@@ -246,7 +255,7 @@ describe('Account', () => {
       const account = TEST_ACCOUNTS[0]
       const addresses = TEST_ADDRESSES.filter((addr) => addr.accountId === account.id)
 
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/accounts/${account.id}/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -258,14 +267,15 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
 
-      expect(response.body).toEqual({
-        addresses: addresses.map(getExpectedAddress),
+      expect(body).toEqual({
+        data: addresses.map(getExpectedAddress),
         page: {
           next: null
         }
       })
+
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns empty addresses array for account with no addresses', async () => {
@@ -279,7 +289,7 @@ describe('Account', () => {
         data: accountWithoutAddresses
       })
 
-      const response = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/accounts/${accountWithoutAddresses.id}/addresses`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -291,13 +301,15 @@ describe('Account', () => {
             htm: 'GET'
           })
         )
-      expect(response.status).toEqual(HttpStatus.OK)
-      expect(response.body).toEqual({
-        addresses: [],
+
+      expect(body).toEqual({
+        data: [],
         page: {
           next: null
         }
       })
+
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 })

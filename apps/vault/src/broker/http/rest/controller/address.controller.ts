@@ -5,8 +5,8 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AddressService } from '../../../core/service/address.service'
-import { ProviderAddressDto } from '../dto/response/address.dto'
 import { PaginatedAddressesDto } from '../dto/response/paginated-addresses.dto'
+import { ProviderAddressDto } from '../dto/response/provider-address.dto'
 
 @Controller({
   path: 'addresses',
@@ -29,12 +29,7 @@ export class AddressController {
     @ClientId() clientId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAddressesDto> {
-    const { data, page } = await this.addressService.getAddresses(clientId, options)
-
-    return PaginatedAddressesDto.create({
-      addresses: data,
-      page
-    })
+    return PaginatedAddressesDto.create(await this.addressService.getAddresses(clientId, options))
   }
 
   @Get(':addressId')
@@ -54,12 +49,9 @@ export class AddressController {
     status: HttpStatus.NOT_FOUND,
     description: 'Address not found'
   })
-  async getAddressById(
-    @ClientId() clientId: string,
-    @Param('addressId') addressId: string
-  ): Promise<ProviderAddressDto> {
-    const address = await this.addressService.getAddress(clientId, addressId)
+  async getById(@ClientId() clientId: string, @Param('addressId') addressId: string): Promise<ProviderAddressDto> {
+    const data = await this.addressService.getAddress(clientId, addressId)
 
-    return ProviderAddressDto.create({ address })
+    return ProviderAddressDto.create({ data })
   }
 }

@@ -5,7 +5,7 @@ import { Address } from '../../../../core/type/indexed-resources.type'
 
 export class PaginatedAddressesDto extends createZodDto(
   z.object({
-    addresses: z.array(Address),
+    data: z.array(Address),
     page: Page
   })
 ) {}

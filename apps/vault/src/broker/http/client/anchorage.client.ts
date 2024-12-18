@@ -323,6 +323,17 @@ export class AnchorageClient {
     )
   }
 
+  private getVaultsPage(request: AxiosRequestConfig): Observable<GetVaultsResponse> {
+    return this.httpService.request(request).pipe(
+      tap((response) => {
+        this.logger.log('Received Anchorage vaults page', {
+          data: response.data
+        })
+      }),
+      map((response) => GetVaultsResponse.parse(response.data))
+    )
+  }
+
   async getWallets(opts: RequestOptions): Promise<Wallet[]> {
     this.logger.log('Requesting Anchorage wallets page', {
       url: opts.url,

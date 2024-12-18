@@ -156,7 +156,9 @@ describe('Connection', () => {
         )
         .send(connection)
 
-      expect(body).toMatchObject({
+      const { data } = body
+
+      expect(data).toMatchObject({
         clientId,
         connectionId: connection.connectionId,
         provider: connection.provider,
@@ -164,19 +166,19 @@ describe('Connection', () => {
       })
 
       // Ensure it doesn't leak the private key.
-      expect(body.credentials).toEqual(undefined)
-      expect(body.privateKey).toEqual(undefined)
+      expect(data.credentials).toEqual(undefined)
+      expect(data.privateKey).toEqual(undefined)
 
       // Ensure it doesn't leak a private key as JWK by including the `d`
       // property.
-      toMatchZodSchema(body.publicKey.jwk, ed25519PublicKeySchema)
-      toMatchZodSchema(body.encryptionPublicKey.jwk, rsaPublicKeySchema)
+      toMatchZodSchema(data.publicKey.jwk, ed25519PublicKeySchema)
+      toMatchZodSchema(data.encryptionPublicKey.jwk, rsaPublicKeySchema)
 
-      toMatchZodSchema(body.publicKey.hex, hexSchema)
+      toMatchZodSchema(data.publicKey.hex, hexSchema)
 
-      expect(body.publicKey.keyId).toEqual(expect.any(String))
-      expect(body.encryptionPublicKey.keyId).toEqual(expect.any(String))
-      expect(body.encryptionPublicKey.pem).toEqual(expect.any(String)) // ensure we also respond w/ the PEM format.
+      expect(data.publicKey.keyId).toEqual(expect.any(String))
+      expect(data.encryptionPublicKey.keyId).toEqual(expect.any(String))
+      expect(data.encryptionPublicKey.pem).toEqual(expect.any(String)) // ensure we also respond w/ the PEM format.
 
       expect(status).toEqual(HttpStatus.CREATED)
     })
@@ -249,7 +251,7 @@ describe('Connection', () => {
 
       const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
 
-      expect(body).toEqual({
+      expect(body.data).toEqual({
         clientId,
         connectionId,
         url,
@@ -375,7 +377,7 @@ describe('Connection', () => {
           url
         })
 
-      expect(body).toEqual({
+      expect(body.data).toEqual({
         clientId,
         connectionId,
         label,
@@ -403,7 +405,7 @@ describe('Connection', () => {
       if (isActiveConnection(createdConnection)) {
         expect(createdConnection.credentials).toMatchObject({
           apiKey: credentials.apiKey,
-          publicKey: pendingConnection.publicKey.jwk
+          publicKey: pendingConnection.data.publicKey.jwk
         })
       } else {
         fail('expected an active connection')
@@ -433,7 +435,7 @@ describe('Connection', () => {
 
       const encryptedCredentials = await rsaEncrypt(
         JSON.stringify(credentials),
-        pendingConnection.encryptionPublicKey.jwk
+        pendingConnection.data.encryptionPublicKey.jwk
       )
 
       const { status, body } = await request(app.getHttpServer())
@@ -461,7 +463,7 @@ describe('Connection', () => {
           encryptedCredentials
         })
 
-      expect(body).toEqual({
+      expect(body.data).toEqual({
         clientId,
         connectionId,
         label,
@@ -489,7 +491,7 @@ describe('Connection', () => {
       if (isActiveConnection(createdConnection)) {
         expect(createdConnection.credentials).toMatchObject({
           apiKey: credentials.apiKey,
-          publicKey: pendingConnection.publicKey.jwk
+          publicKey: pendingConnection.data.publicKey.jwk
         })
       } else {
         fail('expected an active connection')
@@ -570,9 +572,9 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(body.connections.length).toEqual(3)
+      expect(body.data.length).toEqual(3)
 
-      expect(body.connections[0]).toMatchObject({
+      expect(body.data[0]).toMatchObject({
         clientId,
         url,
         connectionId: expect.any(String),
@@ -581,7 +583,7 @@ describe('Connection', () => {
         provider: Provider.ANCHORAGE,
         updatedAt: expect.any(String)
       })
-      expect(body.connections[0]).not.toHaveProperty('credentials')
+      expect(body.data[0]).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
     })
@@ -602,7 +604,7 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(body.connections.length).toEqual(1)
+      expect(body.data.length).toEqual(1)
       expect(body.page).toHaveProperty('next')
     })
 
@@ -636,7 +638,7 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(pageTwo.connections.length).toEqual(1)
+      expect(pageTwo.data.length).toEqual(1)
       expect(pageTwo.page).toHaveProperty('next')
     })
 
@@ -677,7 +679,7 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(body).toMatchObject({
+      expect(body.data).toMatchObject({
         connectionId: expect.any(String),
         clientId,
         createdAt: expect.any(String),
@@ -732,8 +734,8 @@ describe('Connection', () => {
           encryptedCredentials
         })
 
-      expect(body).toMatchObject({ label: 'new label' })
-      expect(body).not.toHaveProperty('credentials')
+      expect(body.data).toMatchObject({ label: 'new label' })
+      expect(body.data).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
 
@@ -765,7 +767,7 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
-        wallets: [getExpectedWallet(TEST_WALLETS[0])],
+        data: [getExpectedWallet(TEST_WALLETS[0])],
         page: {}
       })
     })
@@ -800,7 +802,7 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
-        wallets: [],
+        data: [],
         page: {}
       })
     })
@@ -835,7 +837,7 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
-        accounts: accountsForConnection.map(getExpectedAccount).reverse(),
+        data: accountsForConnection.map(getExpectedAccount).reverse(),
         page: {}
       })
     })
@@ -871,7 +873,7 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
-        accounts: [],
+        data: [],
         page: {}
       })
     })

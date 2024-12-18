@@ -5,7 +5,7 @@ import { PublicWallet } from '../../../../core/type/indexed-resources.type'
 
 export class PaginatedWalletsDto extends createZodDto(
   z.object({
-    wallets: z.array(PublicWallet),
+    data: z.array(PublicWallet),
     page: Page
   })
 ) {}

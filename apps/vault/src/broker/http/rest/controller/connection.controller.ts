@@ -11,12 +11,11 @@ import { WalletService } from '../../../core/service/wallet.service'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
-import { ConnectionListDto } from '../dto/response/connection-list.dto'
-import { ProviderConnectionDto } from '../dto/response/connection.dto'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedConnectionsDto } from '../dto/response/paginated-connections.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
-import { PendingConnectionDto } from '../dto/response/pending-connection.dto'
+import { ProviderConnectionDto } from '../dto/response/provider-connection.dto'
+import { ProviderPendingConnectionDto } from '../dto/response/provider-pending-connection.dto'
 
 @Controller({
   path: 'connections',
@@ -40,16 +39,19 @@ export class ConnectionController {
   @ApiResponse({
     description: 'Returns the public key and encryption key for the initiated connection.',
     status: HttpStatus.CREATED,
-    type: PendingConnectionDto
+    type: ProviderPendingConnectionDto
   })
-  async initiate(@ClientId() clientId: string, @Body() body: InitiateConnectionDto): Promise<PendingConnectionDto> {
+  async initiate(
+    @ClientId() clientId: string,
+    @Body() body: InitiateConnectionDto
+  ): Promise<ProviderPendingConnectionDto> {
     const pendingConnection = await this.connectionService.initiate(clientId, body)
 
     const encryptionPem = pendingConnection.encryptionPublicKey
       ? await publicKeyToPem(pendingConnection.encryptionPublicKey, pendingConnection.encryptionPublicKey.alg)
       : undefined
 
-    return PendingConnectionDto.create({
+    const data = {
       ...pendingConnection,
       encryptionPublicKey: {
         keyId: pendingConnection.encryptionPublicKey?.kid,
@@ -65,7 +67,9 @@ export class ConnectionController {
             }
           }
         : {})
-    })
+    }
+
+    return ProviderPendingConnectionDto.create({ data })
   }
 
   @Post()
@@ -81,9 +85,9 @@ export class ConnectionController {
     type: ProviderConnectionDto
   })
   async create(@ClientId() clientId: string, @Body() body: CreateConnectionDto): Promise<ProviderConnectionDto> {
-    const connection = await this.connectionService.create(clientId, body)
+    const data = await this.connectionService.create(clientId, body)
 
-    return ProviderConnectionDto.create(connection)
+    return ProviderConnectionDto.create({ data })
   }
 
   @Delete(':connectionId')
@@ -108,22 +112,17 @@ export class ConnectionController {
     summary: 'List all connections',
     description: 'This endpoint retrieves a list of all connections associated with the client.'
   })
-  @ApiResponse({
-    description: 'Returns a list of connections associated with the client.',
-    type: ConnectionListDto,
-    status: HttpStatus.OK
-  })
   @Paginated({
     type: PaginatedConnectionsDto,
-    description: 'Returns a paginated list of wallets associated with the connection'
+    description: 'Returns a paginated list of connections associated with the client'
   })
   async list(
     @ClientId() clientId: string,
-    @PaginationParam() options: PaginationOptions
+    @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedConnectionsDto> {
-    const { data, page } = await this.connectionService.findAll(clientId, { pagination: options })
+    const { data, page } = await this.connectionService.findAll(clientId, { pagination })
 
-    return PaginatedConnectionsDto.create({ connections: data, page })
+    return PaginatedConnectionsDto.create({ data, page })
   }
 
   @Get(':connectionId')
@@ -142,9 +141,9 @@ export class ConnectionController {
     @ClientId() clientId: string,
     @Param('connectionId') connectionId: string
   ): Promise<ProviderConnectionDto> {
-    const connection = await this.connectionService.findById(clientId, connectionId)
+    const data = await this.connectionService.findById(clientId, connectionId)
 
-    return ProviderConnectionDto.create(connection)
+    return ProviderConnectionDto.create({ data })
   }
 
   @Patch(':connectionId')
@@ -164,13 +163,13 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @Body() body: UpdateConnectionDto
   ): Promise<ProviderConnectionDto> {
-    const connection = await this.connectionService.update({
+    const data = await this.connectionService.update({
       ...body,
       clientId,
       connectionId
     })
 
-    return ProviderConnectionDto.create(connection)
+    return ProviderConnectionDto.create({ data })
   }
 
   @Get(':connectionId/wallets')
@@ -183,17 +182,17 @@ export class ConnectionController {
     type: PaginatedWalletsDto,
     description: 'Returns a paginated list of wallets associated with the connection'
   })
-  async getWallets(
+  async listWallets(
     @ClientId() clientId: string,
     @Param('connectionId') connectionId: string,
-    @PaginationParam() options: PaginationOptions
+    @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
     const { data, page } = await this.walletService.findAll(clientId, {
-      ...options,
-      filters: { connectionId }
+      filters: { connectionId },
+      pagination
     })
 
-    return PaginatedWalletsDto.create({ wallets: data, page })
+    return PaginatedWalletsDto.create({ data, page })
   }
 
   @Get(':connectionId/accounts')
@@ -206,16 +205,16 @@ export class ConnectionController {
     type: PaginatedAccountsDto,
     description: 'Returns a paginated list of accounts associated with the connection'
   })
-  async getAccounts(
+  async listAccounts(
     @ClientId() clientId: string,
     @Param('connectionId') connectionId: string,
-    @PaginationParam() options: PaginationOptions
+    @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
     const { data, page } = await this.accountService.findAll(clientId, {
-      ...options,
-      filters: { connectionId }
+      filters: { connectionId },
+      pagination
     })
 
-    return PaginatedAccountsDto.create({ accounts: data, page })
+    return PaginatedAccountsDto.create({ data, page })
   }
 }

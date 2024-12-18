@@ -48,6 +48,7 @@ describe('Wallet', () => {
     testPrismaService = module.get(TestPrismaService)
     provisionService = module.get<ProvisionService>(ProvisionService)
     clientService = module.get<ClientService>(ClientService)
+
     await testPrismaService.truncateAll()
   })
 
@@ -70,7 +71,7 @@ describe('Wallet', () => {
 
   describe('GET /wallets', () => {
     it('returns the list of wallets with accounts for the client', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -83,19 +84,20 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body).toEqual({
-        wallets: TEST_WALLETS.filter((w) => w.clientId === TEST_CLIENT_ID)
+      expect(body).toEqual({
+        data: TEST_WALLETS.filter((w) => w.clientId === TEST_CLIENT_ID)
           .map(getExpectedWallet)
           .reverse(),
         page: {
           next: null
         }
       })
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
-    it("doesn't return private connection information", async () => {
-      const res = await request(app.getHttpServer())
+    it('does not return private connection information', async () => {
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -108,18 +110,18 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-
-      for (const wallet of res.body.wallets) {
+      for (const wallet of body.data) {
         for (const connection of wallet.connections) {
           expect(connection).not.toHaveProperty('credentials')
           expect(connection).not.toHaveProperty('revokedAt')
         }
       }
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('returns 404 auth error for unknown client', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets')
         .set(REQUEST_HEADER_CLIENT_ID, 'unknown-client')
         .set(
@@ -132,19 +134,20 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.NOT_FOUND)
-      expect(res.body).toEqual({
+      expect(body).toEqual({
         message: 'Client not found',
         statusCode: HttpStatus.NOT_FOUND,
         stack: expect.any(String)
       })
+
+      expect(status).toBe(HttpStatus.NOT_FOUND)
     })
   })
 
   describe('GET /wallets with pagination', () => {
     it('returns limited number of wallets when limit parameter is provided', async () => {
       const limit = 2
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets?limit=${limit}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -157,16 +160,17 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body.wallets).toHaveLength(limit)
-      expect(res.body.page.next).toBeDefined()
+      expect(body.data).toHaveLength(limit)
+      expect(body.page.next).toBeDefined()
       // First two wallets should be returned in createdAt descending order
-      expect(res.body.wallets.map((w: Wallet) => w.walletId)).toEqual(['wallet-5', 'wallet-4'])
+      expect(body.data.map((w: Wallet) => w.walletId)).toEqual(['wallet-5', 'wallet-4'])
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('returns all wallets when limit exceeds total count', async () => {
       const limit = 10
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets?limit=${limit}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -179,9 +183,10 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body.wallets).toHaveLength(5) // Total wallets for TEST_CLIENT_ID
-      expect(res.body.page.next).toBeNull() // No next page
+      expect(body.data).toHaveLength(5) // Total wallets for TEST_CLIENT_ID
+      expect(body.page.next).toBeNull() // No next page
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('navigates through all pages using cursor', async () => {
@@ -194,7 +199,7 @@ describe('Wallet', () => {
           ? `/provider/wallets?limit=${limit}&cursor=${cursor}`
           : `/provider/wallets?limit=${limit}`
 
-        const res = await request(app.getHttpServer())
+        const { status, body } = await request(app.getHttpServer())
           .get(url)
           .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
           .set(
@@ -207,9 +212,9 @@ describe('Wallet', () => {
             })
           )
 
-        expect(res.status).toBe(HttpStatus.OK)
-        allWallets.push(...res.body.wallets)
-        cursor = res.body.page.next
+        expect(status).toBe(HttpStatus.OK)
+        allWallets.push(...body.data)
+        cursor = body.page.next
       } while (cursor)
 
       expect(allWallets).toHaveLength(5) // Total wallets for TEST_CLIENT_ID
@@ -219,7 +224,7 @@ describe('Wallet', () => {
     })
 
     it('handles descending order by createdAt parameter correctly', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets?sortOrder=desc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -232,20 +237,19 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      const wallets = res.body.wallets
-      // Should return wallets in reverse order
-      expect(wallets.map((w: Wallet) => w.walletId)).toEqual([
+      expect(body.data.map((w: Wallet) => w.walletId)).toEqual([
         'wallet-5',
         'wallet-4',
         'wallet-3',
         'wallet-2',
         'wallet-1'
       ])
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('handles ascending order by createdAt parameter correctly', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets?sortOrder=asc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -258,8 +262,7 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      const wallets = res.body.wallets
+      const wallets = body.data
       // Should return wallets in normal order
       expect(wallets.map((w: Wallet) => w.walletId)).toEqual([
         'wallet-1',
@@ -268,10 +271,12 @@ describe('Wallet', () => {
         'wallet-4',
         'wallet-5'
       ])
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('handles asc order when createdAt is same for multiple wallets', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets?sortOrder=asc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_DIFFERENT_CLIENT_ID)
         .set(
@@ -284,17 +289,18 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      const wallets = res.body.wallets
+      const wallets = body.data
 
       const walletIds = wallets.map((w: Wallet) => w.walletId)
 
       // Should return wallets in normal order
       expect(walletIds).toEqual(['wallet-6', 'wallet-7', 'wallet-8'])
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('handles desc order when createdAt is same for multiple wallets', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/provider/wallets?sortOrder=desc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_DIFFERENT_CLIENT_ID)
         .set(
@@ -307,12 +313,13 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      const wallets = res.body.wallets
+      const wallets = body.data
       const walletIds = wallets.map((w: Wallet) => w.walletId)
 
       // Should return wallets in normal order
       expect(walletIds).toEqual(['wallet-8', 'wallet-7', 'wallet-6'])
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     describe('GET /wallets pagination with different directions and sort orders', () => {
@@ -320,7 +327,7 @@ describe('Wallet', () => {
 
       beforeEach(async () => {
         // Get initial cursor from latest wallet
-        const initialRes = await request(app.getHttpServer())
+        const { status, body } = await request(app.getHttpServer())
           .get('/provider/wallets?limit=1&sortOrder=desc')
           .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
           .set(
@@ -333,12 +340,13 @@ describe('Wallet', () => {
             })
           )
 
-        expect(initialRes.status).toBe(HttpStatus.OK)
-        cursor = initialRes.body.page.next
+        expect(status).toBe(HttpStatus.OK)
+
+        cursor = body.page.next
       })
 
       it('returns no results when paginating prev in desc order from newest record', async () => {
-        const res = await request(app.getHttpServer())
+        const { status, body } = await request(app.getHttpServer())
           .get(`/provider/wallets?cursor=${cursor}&direction=prev&limit=2&sortOrder=desc`)
           .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
           .set(
@@ -351,13 +359,13 @@ describe('Wallet', () => {
             })
           )
 
-        expect(res.status).toBe(HttpStatus.OK)
-        expect(res.body.wallets).toHaveLength(0)
-        expect(res.body.wallets).toEqual([])
+        expect(body.data).toEqual([])
+
+        expect(status).toBe(HttpStatus.OK)
       })
 
       it('returns next older records when paginating next in desc order', async () => {
-        const res = await request(app.getHttpServer())
+        const { status, body } = await request(app.getHttpServer())
           .get(`/provider/wallets?cursor=${cursor}&direction=next&limit=2&sortOrder=desc`)
           .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
           .set(
@@ -370,13 +378,14 @@ describe('Wallet', () => {
             })
           )
 
-        expect(res.status).toBe(HttpStatus.OK)
-        expect(res.body.wallets).toHaveLength(2)
-        expect(res.body.wallets.map((w: Wallet) => w.walletId)).toEqual(['wallet-4', 'wallet-3'])
+        expect(body.data).toHaveLength(2)
+        expect(body.data.map((w: Wallet) => w.walletId)).toEqual(['wallet-4', 'wallet-3'])
+
+        expect(status).toBe(HttpStatus.OK)
       })
 
       it('returns next newer records when paginating prev in asc order', async () => {
-        const res = await request(app.getHttpServer())
+        const { status, body } = await request(app.getHttpServer())
           .get(`/provider/wallets?cursor=${cursor}&direction=prev&limit=2&sortOrder=asc`)
           .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
           .set(
@@ -389,15 +398,16 @@ describe('Wallet', () => {
             })
           )
 
-        expect(res.status).toBe(HttpStatus.OK)
-        expect(res.body.wallets).toHaveLength(2)
-        expect(res.body.wallets.map((w: Wallet) => w.walletId)).toEqual(['wallet-3', 'wallet-4'])
+        expect(body.data).toHaveLength(2)
+        expect(body.data.map((w: Wallet) => w.walletId)).toEqual(['wallet-3', 'wallet-4'])
+
+        expect(status).toBe(HttpStatus.OK)
       })
     })
 
     it('returns empty array when cursor points to first wallet and direction is prev', async () => {
       // First get the earliest wallet
-      const initialRes = await request(app.getHttpServer())
+      const firstRequest = await request(app.getHttpServer())
         .get('/provider/wallets?limit=1&sortOrder=asc')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -410,9 +420,9 @@ describe('Wallet', () => {
           })
         )
 
-      const cursor = initialRes.body.page.next
+      const cursor = firstRequest.body.page.next
 
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets?cursor=${cursor}&sortOrder=asc&direction=prev`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -425,16 +435,17 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body.wallets).toHaveLength(0)
-      expect(res.body.page.next).toBeNull()
+      expect(body.data).toHaveLength(0)
+      expect(body.page.next).toBeNull()
+
+      expect(status).toBe(HttpStatus.OK)
     })
   })
 
   describe('GET /wallets/:walletId', () => {
     it('returns the wallet details with accounts and addresses', async () => {
       const wallet = TEST_WALLETS[0]
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets/${wallet.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -447,15 +458,15 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-
-      expect(res.body).toEqual({
-        wallet: getExpectedWallet(wallet)
+      expect(body).toEqual({
+        data: getExpectedWallet(wallet)
       })
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('returns 404 with proper error message for non-existent wallet', async () => {
-      const res = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get(`/provider/wallets/non-existent`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -468,12 +479,12 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.NOT_FOUND)
+      expect(status).toBe(HttpStatus.NOT_FOUND)
     })
 
     it('returns 404 when accessing wallet from wrong client', async () => {
       const wallet = TEST_WALLETS[0]
-      const res = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get(`/provider/wallets/${wallet.id}`)
         .set(REQUEST_HEADER_CLIENT_ID, 'wrong-client')
         .set(
@@ -486,7 +497,7 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.NOT_FOUND)
+      expect(status).toBe(HttpStatus.NOT_FOUND)
     })
   })
 
@@ -494,7 +505,7 @@ describe('Wallet', () => {
     it('returns the list of accounts for the wallet', async () => {
       const wallet = TEST_WALLETS[0]
       const accounts = TEST_ACCOUNTS.filter((acc) => acc.walletId === wallet.id)
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets/${wallet.id}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -507,17 +518,18 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body).toEqual({
-        accounts: accounts.map(getExpectedAccount).reverse(),
+      expect(body).toEqual({
+        data: accounts.map(getExpectedAccount).reverse(),
         page: {
           next: null
         }
       })
+
+      expect(status).toBe(HttpStatus.OK)
     })
 
     it('returns empty accounts array for wallet with no accounts', async () => {
-      const res = await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get(`/provider/wallets/${TEST_WALLETS[1].id}/accounts`)
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
         .set(
@@ -530,13 +542,14 @@ describe('Wallet', () => {
           })
         )
 
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(res.body).toEqual({
-        accounts: [],
+      expect(body).toEqual({
+        data: [],
         page: {
           next: null
         }
       })
+
+      expect(status).toBe(HttpStatus.OK)
     })
   })
 })

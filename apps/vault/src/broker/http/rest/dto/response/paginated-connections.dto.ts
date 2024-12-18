@@ -5,7 +5,7 @@ import { BaseConnection } from '../../../../core/type/connection.type'
 
 export class PaginatedConnectionsDto extends createZodDto(
   z.object({
-    connections: z.array(BaseConnection),
+    data: z.array(BaseConnection),
     page: Page
   })
 ) {}
