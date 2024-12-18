@@ -9,6 +9,7 @@ import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { ProxyRequestException } from '../../core/exception/proxy-request.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
+import { HttpMethod, buildAnchorageSignedRequest } from './anchorage-request-builder'
 
 const Amount = z.object({
   quantity: z.string(),
@@ -174,6 +175,7 @@ export class AnchorageClient {
       'Api-Timestamp': timestamp,
       'Content-Type': 'application/json'
     }
+
     const data = request.data && request.method !== 'GET' ? request.data : undefined
 
     return {
@@ -232,8 +234,15 @@ export class AnchorageClient {
     apiKey: string
   }): Observable<T> {
     return from(
-      this.authorize({
-        request: opts.request,
+      // this.authorize({
+      //   request: opts.request,
+      //   apiKey: opts.apiKey,
+      //   signKey: opts.signKey
+      // })
+      buildAnchorageSignedRequest({
+        url: opts.request.url as string,
+        method: opts.request.method as HttpMethod,
+        body: opts.request.data,
         apiKey: opts.apiKey,
         signKey: opts.signKey
       })
