@@ -166,7 +166,7 @@ export const Header = z.intersection(
 )
 
 export const JwsdHeader = z.object({
-  alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191')]),
+  alg: z.union([z.literal('ES256K'), z.literal('ES256'), z.literal('RS256'), z.literal('EIP191'), z.literal('EDDSA')]),
   kid: z.string().min(1).describe('The key ID to identify the signing key.'),
   typ: z
     .literal('gnap-binding-jwsd')

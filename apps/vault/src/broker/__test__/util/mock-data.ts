@@ -1,13 +1,11 @@
 import {
-  buildSignerEip191,
+  buildSignerForAlg,
   hash,
   hexToBase64Url,
   JwsdHeader,
   PrivateKey,
-  privateKeyToHex,
   secp256k1PrivateKeyToJwk,
   secp256k1PrivateKeyToPublicJwk,
-  SigningAlg,
   signJwsd
 } from '@narval/signature'
 import { Client } from '../../../shared/type/domain.type'
@@ -26,11 +24,15 @@ const { d: _d, ...publicKey } = privateKey
 export const TEST_CLIENT_ID = 'test-client-id'
 export const TEST_DIFFERENT_CLIENT_ID = 'different-client-id'
 
-const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
-
 const now = new Date()
+const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 export const testUserPrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
 export const testUserPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
+/* Here's a variant of using an eddsa key to sign it too; just to prove it works with other alg*/
+// const PRIVATE_KEY = '0x0101010101010101010101010101010101010101010101010101010101010101'
+// export const testUserPrivateJwk = ed25519PrivateKeyToJwk(PRIVATE_KEY)
+// export const testUserPublicJWK = ed25519PrivateKeyToPublicJwk(PRIVATE_KEY)
+
 export const testClient: Client = {
   clientId: TEST_CLIENT_ID,
   auth: {
@@ -314,9 +316,9 @@ export const getJwsd = async ({
 }) => {
   const now = Math.floor(Date.now() / 1000)
 
-  const jwsdSigner = buildSignerEip191(await privateKeyToHex(userPrivateJwk))
+  const jwsdSigner = await buildSignerForAlg(userPrivateJwk)
   const jwsdHeader: JwsdHeader = {
-    alg: SigningAlg.EIP191,
+    alg: userPrivateJwk.alg,
     kid: userPrivateJwk.kid,
     typ: 'gnap-binding-jwsd',
     htm: htm || 'POST',

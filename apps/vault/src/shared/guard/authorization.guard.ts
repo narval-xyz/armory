@@ -75,6 +75,7 @@ export class AuthorizationGuard implements CanActivate {
           break
         } catch (err) {
           // Continue trying other keys
+          this.logger.warn('Invalid request signature, but could have another allowedUser key', { error: err })
           continue
         }
       }
