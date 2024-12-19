@@ -14,10 +14,6 @@ cors: []
 # Base URL where the Vault is deployed. Used to verify jwsd request signatures.
 baseUrl: http://localhost:3011
 
-# Database configuration
-database:
-  url: postgresql://postgres:postgres@localhost:5432/vault?schema=public
-
 # Application identity and security
 app:
   id: local-dev-vault-instance-1
