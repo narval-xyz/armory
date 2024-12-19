@@ -30,6 +30,10 @@ app:
     oidc: null
     # Local authentication options, either signed requests or basic api key
     local:
+      # [optional]: Sets the admin API key for client provisioning operations
+      #
+      # Key should be hashed, like this: `echo -n "my-api-key" | openssl dgst -sha256 | awk '{print $2}'`
+      # Plain text API key: vault-admin-api-key
       adminApiKeyHash: d4a6b4c1cb71dbdb68a1dd429ad737369f74b9e264b9dfa639258753987caaad
     # Auth config for requests from this service
     outgoing: null
@@ -63,7 +67,7 @@ clients:
 
     auth:
       # Disable all auth; only useful in dev
-      disabled: true
+      disabled: false
       # OIDC configuration to use an external auth provider
       oidc: null # TODO: add OIDC
       # Local authentication options, either signed requests or basic api key
@@ -88,22 +92,33 @@ clients:
           # Otherwise, any key can authenticate if it matches the authorized credential in a bound token.
           ##
           # [optional] URL of the JWKS endpoint that includes any keys that are valid "users"
-          allowedUsersJwksUrl: https://armory/.well-known/jwks.json
-          # [optional]: List of allowed users, pinning specific keys instead of jwskUrl
+          # allowedUsersJwksUrl: https://armory/.well-known/jwks.json
+
+          # [optional]: List of allowed users, pinning specific keys instead of jwskUr
           allowedUsers:
-            - userId: armory
+            ## Private Key for the below Public Key:
+            # kty: 'OKP'
+            # crv: 'Ed25519'
+            # alg: 'EDDSA'
+            # kid: '0x153ca7ec6216e131a7872c0330872d81c5388d0a3977960a9ee12267e3fc6b94'
+            # x: 'P8RMuLMuHwb13OfphR_zcvNsKvZN8kCawYeYtlD9aqI'
+            # d: 'CmvVBDCA64Oo26jeGTTUHaBSJJ2TuRiWGc7ILn4Z6K8'
+
+            # Hex Private Key: 0x0a6bd5043080eb83a8dba8de1934d41da052249d93b9189619cec82e7e19e8af
+            # Hex Public Key: 0x3fc44cb8b32e1f06f5dce7e9851ff372f36c2af64df2409ac18798b650fd6aa2
+            ##
+            - userId: dev-user-1
               publicKey:
-                kid: 'ZvO6VhPB2Ebe6qmk2RH5ly6qOb2O' # armory staging dev-client-1
-                kty: 'EC'
-                crv: 'secp256k1'
-                alg: 'ES256K'
-                x: 'PismhbGayPpeTjyxi021v6Z3gwaVak1A7l8PQC337XM'
-                y: 'I2pO8D3v9CFgcZo0ej9jhFHwI3QSVFlaw3l4Gx8QbGI'
+                kty: 'OKP'
+                crv: 'Ed25519'
+                alg: 'EDDSA'
+                kid: '0x153ca7ec6216e131a7872c0330872d81c5388d0a3977960a9ee12267e3fc6b94'
+                x: 'P8RMuLMuHwb13OfphR_zcvNsKvZN8kCawYeYtlD9aqI'
 
       # Authorization options, typically this will be used to pin the policy engine's public signing key.
       tokenValidation:
         # (optional) if you want to disable authorization for this client. DO NOT USE IN PRODUCTION.
-        disabled: false
+        disabled: true
         # The GNAP Authorization Server that issues tokens
         url: 'http://armory'
         # [optional] JWKS endpoint for the auth server; used for jwt verification. Or you can pin the key.

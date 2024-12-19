@@ -284,9 +284,10 @@ export type Config = z.output<typeof LoadConfig>
 
 export const load = (): Config => {
   const configFilePathEnv = process.env.CONFIG_FILE
+  const configFileRelativePathEnv = process.env.CONFIG_FILE_RELATIVE_PATH
   const filePath = configFilePathEnv
     ? path.resolve(configFilePathEnv)
-    : path.resolve(process.cwd(), 'config/vault-config.yml')
+    : path.resolve(process.cwd(), configFileRelativePathEnv || 'config/vault-config.yaml')
   let yamlConfigRaw = {}
   try {
     if (fs.existsSync(filePath)) {

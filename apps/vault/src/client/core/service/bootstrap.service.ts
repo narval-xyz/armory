@@ -65,7 +65,7 @@ export class BootstrapService {
     }))
 
     for (const client of declarativeClients) {
-      await this.clientService.save(client)
+      await this.clientService.save(client, true)
     }
   }
 
