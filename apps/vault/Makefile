@@ -20,6 +20,7 @@ vault/setup:
 vault/copy-default-env:
 	cp ${VAULT_PROJECT_DIR}/.env.default ${VAULT_PROJECT_DIR}/.env
 	cp ${VAULT_PROJECT_DIR}/.env.test.default ${VAULT_PROJECT_DIR}/.env.test
+	cp ./config/vault-config.example.yaml ./config/vault-config.local.yaml
 
 # === Build ===
 

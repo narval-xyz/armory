@@ -56,7 +56,7 @@ Thumbs.db
 .env.test
 
 config/*
-!config/*.local.yaml
+!config/*.example.yaml
 !config/*.template.yaml
 
 /rego-build
