@@ -1,7 +1,22 @@
 import { z } from 'zod'
 import { BaseConnection, Provider, PublicConnection } from './connection.type'
 
-// Base schemas without relationships
+export const KnownDestination = z.object({
+  knownDestinationId: z.string(),
+  clientId: z.string(),
+  connections: z.array(BaseConnection),
+  provider: z.nativeEnum(Provider),
+  label: z.string().nullable().optional(),
+  externalId: z.string(),
+  externalClassification: z.string().nullable().optional(),
+  address: z.string(),
+  assetId: z.string().nullable().optional(),
+  networkId: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date()
+})
+export type KnownDestination = z.infer<typeof KnownDestination>
+
 export const Address = z.object({
   addressId: z.string(),
   clientId: z.string(),

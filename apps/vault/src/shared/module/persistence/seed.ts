@@ -121,6 +121,7 @@ const ANCHORAGE_CONNECTIONS = [
       {
         id: 'dest1',
         clientId,
+        label: 'Destination 1',
         provider: 'anchorage',
         assetId: 'BTC',
         externalId: 'dest1',
@@ -252,8 +253,13 @@ async function main() {
       )
 
       const knownDestinations = group.knownDestinations.map((dest) => ({
-        ...dest,
-        connectionId: group.connection.connectionId
+        ...dest
+      }))
+
+      const knownDestinationConnection = knownDestinations.map((dest) => ({
+        clientId: dest.clientId,
+        connectionId: connection.connectionId,
+        knownDestinationId: dest.id
       }))
 
       const sync = {
@@ -285,6 +291,10 @@ async function main() {
 
       await txn.providerSync.create({
         data: sync
+      })
+
+      await txn.providerKnownDestinationConnection.createMany({
+        data: knownDestinationConnection
       })
     }
   })

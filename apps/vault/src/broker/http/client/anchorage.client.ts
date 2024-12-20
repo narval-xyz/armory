@@ -101,6 +101,28 @@ const GetVaultAddressesResponse = z.object({
 })
 type GetVaultAddressesResponse = z.infer<typeof GetVaultAddressesResponse>
 
+export const TrustedDestination = z.object({
+  id: z.string(),
+  type: z.literal('crypto'),
+  crypto: z.object({
+    address: z.string(),
+    networkId: z.string(),
+    // Asset type is optional. If it is not provided, then the destination will accept any network compatible transfer
+    // e.g: ETH network can accept only one specific token on ETH network
+    assetType: z.string().optional(),
+    memo: z.string().optional()
+  })
+})
+export type TrustedDestination = z.infer<typeof TrustedDestination>
+
+const GetTrustedDestinationsResponse = z.object({
+  data: z.array(TrustedDestination),
+  page: z.object({
+    next: z.string().nullish()
+  })
+})
+type GetTrustedDestinationsResponse = z.infer<typeof GetTrustedDestinationsResponse>
+
 interface RequestOptions {
   url: string
   apiKey: string
@@ -369,6 +391,62 @@ export class AnchorageClient {
         catchError((error) => {
           this.logger.error('Failed to get Anchorage wallets', { error })
 
+          throw error
+        })
+      )
+    )
+  }
+
+  async getTrustedDestinations(opts: RequestOptions): Promise<TrustedDestination[]> {
+    this.logger.log('Requesting Anchorage known addresses page', {
+      url: opts.url,
+      limit: opts.limit
+    })
+    const { apiKey, signKey, url } = opts
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetTrustedDestinationsResponse,
+        request: {
+          url: `${url}/v2/trusted-destinations`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        expand((response) => {
+          if (response.page.next) {
+            return this.sendSignedRequest({
+              schema: GetTrustedDestinationsResponse,
+              request: {
+                url: response.page.next
+              },
+              apiKey,
+              signKey
+            })
+          }
+
+          return EMPTY
+        }),
+        tap((response) => {
+          if (response.page.next) {
+            this.logger.log('Requesting Anchorage trusted-destinations next page', {
+              url: response.page.next,
+              limit: opts.limit
+            })
+          } else {
+            this.logger.log('Reached Anchorage trusted-destinations last page')
+          }
+        }),
+        reduce((trustedDestinations: TrustedDestination[], response) => [...trustedDestinations, ...response.data], []),
+        tap((trustedDestinations) => {
+          this.logger.log('Completed fetching all trusted-destinations', {
+            trustedDestinationsCount: trustedDestinations.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Anchorage trusted-destinations', { error })
           throw error
         })
       )

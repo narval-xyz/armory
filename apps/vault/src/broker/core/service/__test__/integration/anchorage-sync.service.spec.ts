@@ -21,7 +21,9 @@ import { AccountService } from '../../account.service'
 import { AddressService } from '../../address.service'
 import { AnchorageSyncService } from '../../anchorage-sync.service'
 import { ConnectionService } from '../../connection.service'
+import { KnownDestinationService } from '../../know-destination.service'
 import { WalletService } from '../../wallet.service'
+import { trustedDestinationsHandlers } from './mocks/anchorage/handlers'
 import { ANCHORAGE_TEST_API_BASE_URL, setupMockServer } from './mocks/anchorage/server'
 
 describe(AnchorageSyncService.name, () => {
@@ -34,12 +36,13 @@ describe(AnchorageSyncService.name, () => {
   let walletService: WalletRepository
   let accountService: AccountService
   let addressService: AddressService
+  let knownDestinationService: KnownDestinationService
   let provisionService: ProvisionService
   let clientService: ClientService
 
-  setupMockServer()
+  const server = setupMockServer()
 
-  const clientId = uuid()
+  const clientId = 'test-client-id'
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -67,6 +70,7 @@ describe(AnchorageSyncService.name, () => {
     walletService = module.get(WalletService)
     accountService = module.get(AccountService)
     addressService = module.get(AddressService)
+    knownDestinationService = module.get(KnownDestinationService)
     provisionService = module.get<ProvisionService>(ProvisionService)
     clientService = module.get<ClientService>(ClientService)
 
@@ -170,6 +174,89 @@ describe(AnchorageSyncService.name, () => {
 
       expect(first.length).toEqual(1)
       expect(second.length).toEqual(0)
+    })
+  })
+
+  describe('syncKnownDestinations', () => {
+    it('fetches anchorage addresses and persist them as known-addresses', async () => {
+      const { created } = await anchorageSyncService.syncKnownDestinations(connection)
+      const { data: knownDestinations } = await knownDestinationService.findAll(connection.clientId)
+
+      expect(created).toEqual(expect.arrayContaining(knownDestinations))
+    })
+
+    it('updates anchorage knownDestination when it already exists', async () => {
+      const { credentials, ...expectedConnection } = connection
+
+      // First sync - create initial destinations
+      server.use(trustedDestinationsHandlers(ANCHORAGE_TEST_API_BASE_URL).findAll)
+      await anchorageSyncService.syncKnownDestinations(connection)
+
+      const { data: initialDestinations } = await knownDestinationService.findAll(connection.clientId)
+      // Second sync with updated data
+      server.use(trustedDestinationsHandlers(ANCHORAGE_TEST_API_BASE_URL).deleteAndUpdate)
+      const { created, updated, deleted } = await anchorageSyncService.syncKnownDestinations(connection)
+
+      // Verify basic operations
+      expect(created).toEqual([])
+      expect(deleted).toEqual(1)
+
+      // Only the modified destination should be in updated
+      expect(updated).toHaveLength(1)
+      expect(updated[0]).toMatchObject({
+        externalId: 'toBeUpdated',
+        address: '0x8Bc2B8F33e5AeF847B8973Fa669B948A3028D6bd',
+        label: 'new memo',
+        assetId: 'USDC',
+        networkId: 'ETH',
+        connections: expect.arrayContaining([expectedConnection])
+      })
+
+      // Verify the update timestamp is newer
+      expect(updated[0].updatedAt.getTime()).toBeGreaterThan(updated[0].createdAt.getTime())
+
+      // Verify other destinations weren't affected
+      const { data: allDestinations } = await knownDestinationService.findAll(connection.clientId)
+      const unchangedDestination = allDestinations.find((d) => d.externalId === 'neverChanges')
+      const initialUnchangedDestination = initialDestinations.find((d) => d.externalId === 'neverChanges')
+      expect(unchangedDestination).toEqual(initialUnchangedDestination)
+    })
+
+    it('connects known-destination with the new connection', async () => {
+      const { credentials: firstCredentials, ...firstConnection } = connection
+      const secondConnectionWithCredentials = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        provider: Provider.ANCHORAGE,
+        url: ANCHORAGE_TEST_API_BASE_URL,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      const { credentials: secondCredentials, ...secondConnection } = secondConnectionWithCredentials
+
+      // First sync - should create all destinations
+      server.use(trustedDestinationsHandlers(ANCHORAGE_TEST_API_BASE_URL).findAll)
+      await anchorageSyncService.syncKnownDestinations(connection)
+
+      // Second sync with new connection that only finds one destination
+      server.use(trustedDestinationsHandlers(ANCHORAGE_TEST_API_BASE_URL).connect)
+      const { updated } = await anchorageSyncService.syncKnownDestinations(secondConnectionWithCredentials)
+
+      // We expect only one item to be updated - the one with connections to both accounts
+      expect(updated).toHaveLength(1)
+      expect(updated[0]).toMatchObject({
+        externalId: 'toBeConnected',
+        connections: expect.arrayContaining([firstConnection, secondConnection])
+      })
+
+      // Verify other destinations weren't affected
+      const { data: allDestinations } = await knownDestinationService.findAll(connection.clientId)
+      const unchangedDestinations = allDestinations.filter((d) => d.externalId !== 'toBeConnected')
+      unchangedDestinations.forEach((dest) => {
+        expect(dest.connections).toEqual(expect.arrayContaining([firstConnection]))
+      })
     })
   })
 })

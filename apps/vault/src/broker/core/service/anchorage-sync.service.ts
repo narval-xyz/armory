@@ -7,9 +7,10 @@ import { AnchorageClient } from '../../http/client/anchorage.client'
 import { ConnectionInvalidException } from '../exception/connection-invalid.exception'
 import { SyncException } from '../exception/sync.exception'
 import { ActiveConnection, ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
-import { Account, Address, Wallet } from '../type/indexed-resources.type'
+import { Account, Address, KnownDestination, Wallet } from '../type/indexed-resources.type'
 import { AccountService } from './account.service'
 import { AddressService } from './address.service'
+import { KnownDestinationService } from './know-destination.service'
 import { WalletService } from './wallet.service'
 
 @Injectable()
@@ -19,6 +20,7 @@ export class AnchorageSyncService {
     private readonly walletService: WalletService,
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
+    private readonly knownDestinationService: KnownDestinationService,
     private readonly logger: LoggerService
   ) {}
 
@@ -26,6 +28,7 @@ export class AnchorageSyncService {
     await this.syncWallets(connection)
     await this.syncAccounts(connection)
     await this.syncAddresses(connection)
+    await this.syncKnownDestinations(connection)
   }
 
   async syncWallets(connection: ActiveConnectionWithCredentials) {
@@ -257,6 +260,115 @@ export class AnchorageSyncService {
     }
 
     return addresses
+  }
+
+  async syncKnownDestinations(connection: ActiveConnectionWithCredentials): Promise<{
+    created: KnownDestination[]
+    updated: KnownDestination[]
+    deleted: number
+  }> {
+    this.logger.log('Sync Anchorage known destinations', {
+      connectionId: connection.credentials,
+      clientId: connection.clientId,
+      url: connection.url
+    })
+
+    this.validateConnection(connection)
+
+    // Fetch current state from Anchorage
+    const anchorageTrustedDestinations = await this.anchorageClient.getTrustedDestinations({
+      url: connection.url,
+      apiKey: connection.credentials.apiKey,
+      signKey: connection.credentials.privateKey
+    })
+
+    const now = new Date()
+
+    const { data: existingKnownDestinations } = await this.knownDestinationService.findAll(connection.clientId)
+
+    const incomingMap = new Map(anchorageTrustedDestinations.map((dest) => [dest.id, dest]))
+    const existingMap = new Map(existingKnownDestinations.map((dest) => [dest.externalId, dest]))
+
+    const toBeUpdated = anchorageTrustedDestinations
+      .filter((incoming) => {
+        // First check if we have an existing destination
+        const existing = existingMap.get(incoming.id)
+        if (!existing) return false
+
+        // Check if the connection is already tied to this destination
+        const hasConnection = existing.connections.some((conn) => conn.connectionId === connection.connectionId)
+
+        // Check if any data has changed
+        const hasDataChanges =
+          (existing.label || undefined) !== incoming.crypto.memo ||
+          (existing.assetId || undefined) !== incoming.crypto.assetType
+
+        // Only include if there are data changes or it needs the new connection
+        return hasDataChanges || !hasConnection
+      })
+      .map((incoming) => {
+        const lookup = existingMap.get(incoming.id)!
+        return {
+          ...lookup,
+          label: incoming.crypto.memo,
+          assetId: incoming.crypto.assetType,
+          updatedAt: now,
+          connections: [...lookup.connections, connection]
+        }
+      })
+
+    const toBeCreated: KnownDestination[] = anchorageTrustedDestinations
+      .filter((anchorageDest) => !existingMap.has(anchorageDest.id))
+      .map((anchorageDest) =>
+        KnownDestination.parse({
+          knownDestinationId: uuid(),
+          address: anchorageDest.crypto.address,
+          clientId: connection.clientId,
+          externalId: anchorageDest.id,
+          label: anchorageDest.crypto.memo,
+          assetId: anchorageDest.crypto.assetType,
+          provider: Provider.ANCHORAGE,
+          networkId: anchorageDest.crypto.networkId,
+          createdAt: now,
+          updatedAt: now,
+          connections: [connection]
+        })
+      )
+
+    const toBeDeleted = existingKnownDestinations.filter((dest) => !incomingMap.has(dest.externalId))
+
+    try {
+      this.logger.log('Deleting removed trusted destinations in anchorage from known destinations', {
+        deleting: toBeDeleted.map((dest) => ({
+          anchorageId: dest.externalId,
+          knownDestinationId: dest.knownDestinationId
+        })),
+        clientId: connection.clientId
+      })
+
+      const created = await this.knownDestinationService.bulkCreate(toBeCreated)
+      const deleted = await this.knownDestinationService.bulkDelete(toBeDeleted)
+      const updated = await this.knownDestinationService.bulkUpdate(toBeUpdated)
+
+      this.logger.log('Known destinations sync completed', {
+        totalCreated: created.length,
+        totalUpdated: updated.length,
+        totalDeleted: deleted,
+        clientId: connection.clientId
+      })
+
+      return {
+        created,
+        updated,
+        deleted
+      }
+    } catch (error) {
+      throw new SyncException({
+        message: 'Failed to sync known destinations',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
   }
 
   private validateConnection(

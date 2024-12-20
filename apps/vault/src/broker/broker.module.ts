@@ -11,6 +11,7 @@ import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
 import { AnchorageSyncService } from './core/service/anchorage-sync.service'
 import { ConnectionService } from './core/service/connection.service'
+import { KnownDestinationService } from './core/service/know-destination.service'
 import { ProxyService } from './core/service/proxy.service'
 import { SyncService } from './core/service/sync.service'
 import { WalletService } from './core/service/wallet.service'
@@ -26,6 +27,7 @@ import { ConnectionSeedService } from './persistence/connection.seed'
 import { AccountRepository } from './persistence/repository/account.repository'
 import { AddressRepository } from './persistence/repository/address.repository'
 import { ConnectionRepository } from './persistence/repository/connection.repository'
+import { KnownDestinationRepository } from './persistence/repository/known-destination.repository'
 import { SyncRepository } from './persistence/repository/sync.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 
@@ -64,6 +66,8 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     ConnectionSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
+    KnownDestinationRepository,
+    KnownDestinationService,
     ProxyService,
     SyncRepository,
     SyncService,

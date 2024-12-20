@@ -158,17 +158,17 @@ model ProviderAddress {
 model ProviderKnownDestination {
   id                     String   @id
   clientId               String   @map("client_id")
-  connectionId           String   @map("connection_id")
   provider               String
   externalId             String   @map("external_id")
   externalClassification String?  @map("external_classification")
   address                String
+  label                  String?
   assetId                String?  @map("asset_id")
   networkId              String   @map("network_id")
   createdAt              DateTime @default(now()) @map("created_at")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
-  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  connections ProviderKnownDestinationConnection[]
 
   @@unique([clientId, externalId])
   @@index([createdAt, clientId])
@@ -190,12 +190,25 @@ model ProviderConnection {
   updatedAt   DateTime  @map("updated_at")
   revokedAt   DateTime? @map("revoked_at")
 
-  knownDestinations ProviderKnownDestination[]
-  connections       ProviderWalletConnection[]
-  syncs             ProviderSync[]
+  knownDestinationConnections ProviderKnownDestinationConnection[]
+  connections                 ProviderWalletConnection[]
+  syncs                       ProviderSync[]
 
   @@index([createdAt, clientId])
   @@map("provider_connection")
+}
+
+model ProviderKnownDestinationConnection {
+  clientId           String   @map("client_id")
+  connectionId       String   @map("connection_id")
+  knownDestinationId String   @map("known_destination_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  connection       ProviderConnection       @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  knownDestination ProviderKnownDestination @relation(fields: [knownDestinationId], references: [id], onDelete: Cascade)
+
+  @@id([clientId, connectionId, knownDestinationId])
+  @@map("provider_known_destination_connection")
 }
 
 model ProviderWalletConnection {
@@ -204,8 +217,8 @@ model ProviderWalletConnection {
   walletId     String   @map("wallet_id")
   createdAt    DateTime @default(now()) @map("created_at")
 
-  connection ProviderConnection @relation(fields: [connectionId], references: [id])
-  wallet     ProviderWallet     @relation(fields: [walletId], references: [id])
+  connection ProviderConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  wallet     ProviderWallet     @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@id([clientId, connectionId, walletId])
   @@map("provider_wallet_connection")
