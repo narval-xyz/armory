@@ -182,6 +182,17 @@ export class ConnectionService {
 
       const credentials = await this.getInputCredentials(clientId, input)
 
+      const mergedCredentials = {
+        ...pendingConnection.credentials,
+        apiKey: credentials.apiKey
+      }
+
+      // If a private key is provided in the input, it overrides the private and public key from the pending connection.
+      if (credentials.privateKey) {
+        mergedCredentials.privateKey = privateKeyToJwk(credentials.privateKey, Alg.EDDSA)
+        mergedCredentials.publicKey = getPublicKey(mergedCredentials.privateKey)
+      }
+
       const connection: ActiveConnectionWithCredentials = {
         ...pendingConnection,
         clientId,
@@ -191,14 +202,9 @@ export class ConnectionService {
         url: input.url,
         updatedAt: now,
         createdAt: pendingConnection.createdAt,
-        credentials: {
-          ...pendingConnection.credentials,
-          apiKey: credentials.apiKey
-        }
+        credentials: mergedCredentials
       }
-
       await this.connectionRepository.update(connection)
-
       this.eventEmitter.emit(ConnectionActivatedEvent.EVENT_NAME, new ConnectionActivatedEvent(connection))
 
       return connection

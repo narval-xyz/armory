@@ -497,6 +497,101 @@ describe('Connection', () => {
         fail('expected an active connection')
       }
     })
+
+    it('overrides the existing connection privateKey when providing a new one on pending connection activation', async () => {
+      expect.assertions(6)
+
+      const connectionId = uuid()
+      const provider = Provider.ANCHORAGE
+      const label = 'Test Anchorage Connection'
+      const credentials = {
+        apiKey: 'test-api-key',
+        privateKey: '0x9ead9e0c93e9f4d02a09d4d3fdd35eac82452717a04ca98580302c16485b2480' // Adding private key to test override
+      }
+
+      // First create a pending connection
+      const { body: pendingConnection } = await request(app.getHttpServer())
+        .post('/provider/connections/initiate')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections/initiate',
+            payload: { connectionId, provider }
+          })
+        )
+        .send({ connectionId, provider })
+
+      // Encrypt the credentials including the new private key
+      const encryptedCredentials = await rsaEncrypt(
+        JSON.stringify(credentials),
+        pendingConnection.data.encryptionPublicKey.jwk
+      )
+
+      // Activate the connection with the new credentials
+      const { status, body } = await request(app.getHttpServer())
+        .post('/provider/connections')
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk,
+            requestUrl: '/provider/connections',
+            payload: {
+              provider,
+              connectionId,
+              label,
+              url,
+              encryptedCredentials
+            }
+          })
+        )
+        .send({
+          provider,
+          connectionId,
+          label,
+          url,
+          encryptedCredentials
+        })
+
+      // Verify the response structure
+      expect(body.data).toEqual({
+        clientId,
+        connectionId,
+        label,
+        provider,
+        url,
+        createdAt: expect.any(String),
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(String)
+      })
+      expect(status).toEqual(HttpStatus.CREATED)
+
+      // Verify the created connection in the database
+      const createdConnection = await connectionService.findById(clientId, connectionId, true)
+
+      expect(createdConnection).toMatchObject({
+        clientId,
+        connectionId,
+        label,
+        provider,
+        url,
+        createdAt: expect.any(Date),
+        status: ConnectionStatus.ACTIVE,
+        updatedAt: expect.any(Date)
+      })
+
+      if (isActiveConnection(createdConnection)) {
+        // Verify the private key was actually changed
+        expect(createdConnection.credentials.privateKey.d).not.toEqual(pendingConnection.data.privateKey?.d)
+        expect(createdConnection.credentials.publicKey.x).not.toEqual(pendingConnection.data.publicKey?.x)
+        const createdHex = await privateKeyToHex(createdConnection.credentials.privateKey)
+        expect(createdHex).toEqual(credentials.privateKey)
+      } else {
+        fail('expected an active connection')
+      }
+    })
   })
 
   describe('DELETE /provider/connections/:id', () => {
