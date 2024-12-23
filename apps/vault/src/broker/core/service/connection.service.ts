@@ -1,3 +1,4 @@
+import { ConfigService } from '@narval/config-module'
 import { LoggerService, PaginatedResult } from '@narval/nestjs-shared'
 import {
   Alg,
@@ -8,13 +9,15 @@ import {
   getPublicKey,
   privateKeyToJwk
 } from '@narval/signature'
-import { Injectable, NotImplementedException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotImplementedException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { SetRequired } from 'type-fest'
 import { v4 as uuid } from 'uuid'
+import { Config, Env } from '../../../main.config'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ConnectionRepository, FindAllOptions } from '../../persistence/repository/connection.repository'
 import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
+import { BrokerException } from '../exception/broker.exception'
 import { ConnectionInvalidCredentialsException } from '../exception/connection-invalid-credentials.exception'
 import { ConnectionInvalidPrivateKeyException } from '../exception/connection-invalid-private-key.exception'
 import { ConnectionInvalidStatusException } from '../exception/connection-invalid-status.exception'
@@ -43,7 +46,8 @@ export class ConnectionService {
     private readonly connectionRepository: ConnectionRepository,
     private readonly encryptionKeyService: EncryptionKeyService,
     private readonly logger: LoggerService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    private readonly configService: ConfigService<Config>
   ) {}
 
   async initiate(clientId: string, input: InitiateConnection): Promise<PendingConnectionWithCredentials> {
@@ -347,6 +351,13 @@ export class ConnectionService {
     }
 
     if (input.credentials) {
+      if (this.configService.get('env') === Env.PRODUCTION) {
+        throw new BrokerException({
+          message: 'Cannot create connection with plain credentials in production',
+          suggestedHttpStatusCode: HttpStatus.FORBIDDEN
+        })
+      }
+
       return input.credentials
     }
 

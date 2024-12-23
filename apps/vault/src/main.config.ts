@@ -157,9 +157,10 @@ const keyringSchema = z.union([
 const LoadConfig = VaultConfigSchema.transform((yaml, ctx) => {
   const appId = process.env.APP_UID || yaml.app?.id
   const databaseUrl = process.env.APP_DATABASE_URL || yaml.database?.url
-  const env = process.env.NODE_ENV || yaml.env
+  const env = z.nativeEnum(Env).parse(process.env.NODE_ENV || yaml.env)
   const port = process.env.PORT || yaml.port
   const baseUrl = process.env.BASE_URL || yaml.baseUrl
+
   if (!appId) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -171,13 +172,6 @@ const LoadConfig = VaultConfigSchema.transform((yaml, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'APP_DATABASE_URL is required'
-    })
-    return z.NEVER
-  }
-  if (!env) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'NODE_ENV is required'
     })
     return z.NEVER
   }
