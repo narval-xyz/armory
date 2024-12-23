@@ -9,7 +9,7 @@ import {
 } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
-import { Account, Wallet } from '../../core/type/indexed-resources.type'
+import { Account, UpdateWallet, Wallet } from '../../core/type/indexed-resources.type'
 import { AccountRepository } from './account.repository'
 import { ConnectionRepository, connectionSelectWithoutCredentials } from './connection.repository'
 
@@ -229,6 +229,46 @@ export class WalletRepository {
     })
 
     return wallets
+  }
+
+  async update(wallet: UpdateWallet) {
+    const providerWalletConnections = wallet.connections.map((connection) => {
+      return {
+        clientId: wallet.clientId,
+        walletId: wallet.walletId,
+        connectionId: connection.connectionId,
+        createdAt: wallet.updatedAt
+      }
+    })
+
+    await this.prismaService.providerWalletConnection.createMany({
+      data: providerWalletConnections,
+      skipDuplicates: true
+    })
+
+    const updatedWallet = await this.prismaService.providerWallet.update({
+      where: { id: wallet.walletId },
+      data: {
+        updatedAt: wallet.updatedAt,
+        label: wallet.label
+      },
+      include: {
+        connections: {
+          include: {
+            connection: {
+              select: connectionSelectWithoutCredentials
+            }
+          }
+        },
+        accounts: {
+          include: {
+            addresses: true
+          }
+        }
+      }
+    })
+
+    return WalletRepository.parseModel(updatedWallet)
   }
 
   private getWalletConnectionModel(wallet: Wallet): ProviderWalletConnection[] {

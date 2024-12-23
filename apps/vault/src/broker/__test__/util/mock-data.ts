@@ -19,6 +19,7 @@ const privateKey = {
   d: 'nq2eDJPp9NAqCdTT_dNerIJFJxegTKmFgDAsFkhbJIA'
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { d: _d, ...publicKey } = privateKey
 
 export const TEST_CLIENT_ID = 'test-client-id'

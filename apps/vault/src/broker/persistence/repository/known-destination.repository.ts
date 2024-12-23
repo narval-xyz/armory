@@ -22,10 +22,13 @@ type ProviderKnownDestinationAndRelations = ProviderKnownDestination & {
 export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
 const UpdateKnownDestination = KnownDestination.pick({
+  knownDestinationId: true,
   label: true,
   connections: true,
   externalClassification: true,
-  assetId: true
+  updatedAt: true,
+  assetId: true,
+  clientId: true
 })
 export type UpdateKnownDestination = z.infer<typeof UpdateKnownDestination>
 
@@ -212,87 +215,31 @@ export class KnownDestinationRepository {
     return count
   }
 
-  async connect(clientId: string, knownDestinationId: string, connectionId: string) {
-    const alreadyConnected = await this.prismaService.providerKnownDestinationConnection.findFirst({
-      where: {
-        clientId,
+  async update(knownDestination: UpdateKnownDestination) {
+    const { clientId, connections, updatedAt, knownDestinationId, ...data } = knownDestination
+
+    const connectionPayload = connections.map((connection) => {
+      return {
+        clientId: clientId,
         knownDestinationId,
-        connectionId
+        connectionId: connection.connectionId,
+        createdAt: updatedAt
       }
     })
 
-    if (alreadyConnected) {
-      return
-    }
-
-    const connectionExists = await this.prismaService.providerConnection.findUnique({
-      where: { clientId, id: connectionId }
+    await this.prismaService.providerKnownDestinationConnection.createMany({
+      data: connectionPayload,
+      skipDuplicates: true
     })
-
-    if (!connectionExists) {
-      throw new NotFoundException({
-        message: 'Connection not found',
-        context: { clientId, connectionId }
-      })
-    }
-
-    const knownDestinationExists = await this.prismaService.providerKnownDestination.findUnique({
-      where: { clientId, id: knownDestinationId }
-    })
-
-    if (!knownDestinationExists) {
-      throw new NotFoundException({
-        message: 'Known destination not found',
-        context: { clientId, knownDestinationId }
-      })
-    }
-
-    await this.prismaService.providerKnownDestinationConnection.create({
-      data: {
-        clientId,
-        knownDestinationId,
-        connectionId
-      }
-    })
-  }
-
-  async update(knownDestinationId: string, data: UpdateKnownDestination) {
-    const existingDest = await this.prismaService.providerKnownDestination.findUnique({
-      where: { id: knownDestinationId },
-      include: {
-        connections: {
-          include: {
-            connection: {
-              select: connectionSelectWithoutCredentials
-            }
-          }
-        }
-      }
-    })
-
-    if (!existingDest) {
-      throw new NotFoundException({
-        message: 'Destination not found',
-        context: { id: knownDestinationId }
-      })
-    }
-
-    const existingEntity = KnownDestinationRepository.parseModel(existingDest)
-
-    await Promise.all(
-      data.connections
-        .filter((connection) => !existingEntity.connections.find((c) => c.connectionId === connection.connectionId))
-        .map(async (connection) => {
-          await this.connect(existingEntity.clientId, knownDestinationId, connection.connectionId)
-        })
-    )
 
     const updatedKnownDest = await this.prismaService.providerKnownDestination.update({
       where: { id: knownDestinationId },
-      data: KnownDestinationRepository.parseEntity({
-        ...existingEntity,
-        ...data
-      }),
+      data: {
+        label: data.label,
+        externalClassification: data.externalClassification,
+        assetId: data.assetId,
+        updatedAt
+      },
       include: {
         connections: {
           include: {

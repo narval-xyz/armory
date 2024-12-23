@@ -56,6 +56,15 @@ export const Wallet = z.object({
 })
 export type Wallet = z.infer<typeof Wallet>
 
+export const UpdateWallet = Wallet.pick({
+  walletId: true,
+  clientId: true,
+  label: true,
+  connections: true,
+  updatedAt: true
+})
+export type UpdateWallet = z.infer<typeof UpdateWallet>
+
 export const PublicWallet = Wallet.extend({
   connections: z.array(PublicConnection)
 })

@@ -52,37 +52,58 @@ export class AnchorageSyncService {
       }
     })
 
-    const existingWalletByExternalId = new Map(existingWallets.map((wallet) => [wallet.externalId, wallet]))
-
-    const missingAnchorageVaults = anchorageVaults.filter(
-      (anchorageVault) => !existingWalletByExternalId.has(anchorageVault.vaultId)
-    )
-
     const now = new Date()
 
-    const wallets: Wallet[] = missingAnchorageVaults.map((vault) => ({
-      accounts: [],
-      clientId: connection.clientId,
-      connections: [ActiveConnection.parse(connection)],
-      createdAt: now,
-      externalId: vault.vaultId,
-      label: vault.name,
-      provider: Provider.ANCHORAGE,
-      updatedAt: now,
-      walletId: uuid()
-    }))
+    const existingMap = new Map(existingWallets.map((wallet) => [wallet.externalId, wallet]))
+
+    const toBeUpdated = anchorageVaults.reduce<Wallet[]>((acc, incoming) => {
+      const existing = existingMap.get(incoming.vaultId)
+      if (!existing) return acc
+
+      const hasConnection = existing.connections.some((conn) => conn.connectionId === connection.connectionId)
+      const hasDataChanges = existing.label !== incoming.name
+
+      if (hasDataChanges || !hasConnection) {
+        acc.push({
+          ...existing,
+          label: incoming.name,
+          updatedAt: now,
+          connections: [...existing.connections, connection]
+        })
+      }
+
+      return acc
+    }, [])
+
+    const toBeCreated: Wallet[] = anchorageVaults
+      .filter((vault) => !existingMap.has(vault.vaultId))
+      .map((vault) => ({
+        accounts: [],
+        clientId: connection.clientId,
+        connections: [ActiveConnection.parse(connection)],
+        createdAt: now,
+        externalId: vault.vaultId,
+        label: vault.name,
+        provider: Provider.ANCHORAGE,
+        updatedAt: now,
+        walletId: uuid()
+      }))
 
     try {
-      await this.walletService.bulkCreate(wallets)
+      const created = await this.walletService.bulkCreate(toBeCreated)
+      const updated = await this.walletService.bulkUpdate(toBeUpdated)
+
+      return {
+        created,
+        updated
+      }
     } catch (error) {
       throw new SyncException({
-        message: 'Fail to persist wallets',
+        message: 'Failed to persist wallets',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         origin: error
       })
     }
-
-    return wallets
   }
 
   async syncAccounts(connection: ActiveConnectionWithCredentials) {
@@ -289,33 +310,27 @@ export class AnchorageSyncService {
     const incomingMap = new Map(anchorageTrustedDestinations.map((dest) => [dest.id, dest]))
     const existingMap = new Map(existingKnownDestinations.map((dest) => [dest.externalId, dest]))
 
-    const toBeUpdated = anchorageTrustedDestinations
-      .filter((incoming) => {
-        // First check if we have an existing destination
-        const existing = existingMap.get(incoming.id)
-        if (!existing) return false
+    const toBeUpdated = anchorageTrustedDestinations.reduce<KnownDestination[]>((acc, incoming) => {
+      const existing = existingMap.get(incoming.id)
+      if (!existing) return acc
 
-        // Check if the connection is already tied to this destination
-        const hasConnection = existing.connections.some((conn) => conn.connectionId === connection.connectionId)
+      const hasConnection = existing.connections.some((conn) => conn.connectionId === connection.connectionId)
+      const hasDataChanges =
+        (existing.label || undefined) !== incoming.crypto.memo ||
+        (existing.assetId || undefined) !== incoming.crypto.assetType
 
-        // Check if any data has changed
-        const hasDataChanges =
-          (existing.label || undefined) !== incoming.crypto.memo ||
-          (existing.assetId || undefined) !== incoming.crypto.assetType
-
-        // Only include if there are data changes or it needs the new connection
-        return hasDataChanges || !hasConnection
-      })
-      .map((incoming) => {
-        const lookup = existingMap.get(incoming.id)!
-        return {
-          ...lookup,
+      if (hasDataChanges || !hasConnection) {
+        acc.push({
+          ...existing,
           label: incoming.crypto.memo,
           assetId: incoming.crypto.assetType,
           updatedAt: now,
-          connections: [...lookup.connections, connection]
-        }
-      })
+          connections: [...existing.connections, connection]
+        })
+      }
+
+      return acc
+    }, [])
 
     const toBeCreated: KnownDestination[] = anchorageTrustedDestinations
       .filter((anchorageDest) => !existingMap.has(anchorageDest.id))

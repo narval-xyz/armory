@@ -31,12 +31,10 @@ export class KnownDestinationService {
   }
 
   async bulkUpdate(knownDestinations: KnownDestination[]): Promise<KnownDestination[]> {
-    return Promise.all(
-      knownDestinations.map((knownDestination) => this.update(knownDestination.knownDestinationId, knownDestination))
-    )
+    return Promise.all(knownDestinations.map((knownDestination) => this.update(knownDestination)))
   }
-  async update(knownDestinationId: string, data: UpdateKnownDestination): Promise<KnownDestination> {
-    return this.knownDestinationRepository.update(knownDestinationId, data)
+  async update(knownDestination: UpdateKnownDestination): Promise<KnownDestination> {
+    return this.knownDestinationRepository.update(knownDestination)
   }
 
   async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<KnownDestination>> {

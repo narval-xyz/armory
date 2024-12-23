@@ -1,9 +1,9 @@
 import { BrokerException } from './broker.exception'
 
 export class ProxyRequestException extends BrokerException {
-  public data: any
+  public data: unknown
   public code: number
-  public headers: Record<string, any>
+  public headers: Record<string, unknown>
 
   constructor({
     data,
@@ -12,11 +12,11 @@ export class ProxyRequestException extends BrokerException {
     headers,
     context
   }: {
-    data: any
+    data: unknown
     status: number
     message: string
-    headers: Record<string, any>
-    context: Record<string, any>
+    headers: Record<string, unknown>
+    context: Record<string, unknown>
   }) {
     super({
       message: message ? message : 'Provider request failed',

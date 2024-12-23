@@ -23,7 +23,7 @@ import { AnchorageSyncService } from '../../anchorage-sync.service'
 import { ConnectionService } from '../../connection.service'
 import { KnownDestinationService } from '../../know-destination.service'
 import { WalletService } from '../../wallet.service'
-import { trustedDestinationsHandlers } from './mocks/anchorage/handlers'
+import { trustedDestinationsHandlers, vaultHandlers } from './mocks/anchorage/handlers'
 import { ANCHORAGE_TEST_API_BASE_URL, setupMockServer } from './mocks/anchorage/server'
 
 describe(AnchorageSyncService.name, () => {
@@ -104,10 +104,10 @@ describe(AnchorageSyncService.name, () => {
 
   describe('syncWallets', () => {
     it('fetches anchorage vaults and persist them as wallets', async () => {
-      const syncedWallets = await anchorageSyncService.syncWallets(connection)
+      const { created } = await anchorageSyncService.syncWallets(connection)
 
       const { data: wallets } = await walletService.findAll(connection.clientId)
-      expect(syncedWallets).toEqual(expect.arrayContaining(wallets))
+      expect(created).toEqual(expect.arrayContaining(wallets))
     })
 
     it('does not duplicate wallets', async () => {
@@ -116,8 +116,47 @@ describe(AnchorageSyncService.name, () => {
         await anchorageSyncService.syncWallets(connection)
       ])
 
-      expect(first.length).toEqual(2)
-      expect(second.length).toEqual(0)
+      expect(first.created.length).toEqual(2)
+      expect(second.created.length).toEqual(0)
+    })
+
+    it('connects wallet with the new connection', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { credentials: firstCredentials, ...firstConnection } = connection
+      const secondConnectionWithCredentials = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        provider: Provider.ANCHORAGE,
+        url: ANCHORAGE_TEST_API_BASE_URL,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { credentials: secondCredentials, ...secondConnection } = secondConnectionWithCredentials
+
+      // First sync - should create all wallets
+      server.use(vaultHandlers(ANCHORAGE_TEST_API_BASE_URL).findAll)
+      await anchorageSyncService.syncWallets(connection)
+
+      // Second sync with new connection that only finds one wallet and its label is changed
+      server.use(vaultHandlers(ANCHORAGE_TEST_API_BASE_URL).update)
+      const { updated } = await anchorageSyncService.syncWallets(secondConnectionWithCredentials)
+
+      expect(updated).toHaveLength(1)
+      expect(updated[0]).toMatchObject({
+        externalId: '084ff57c0984420efac31723579c94fc',
+        label: 'Vault 1 - renamed',
+        connections: [firstConnection, secondConnection]
+      })
+
+      // Verify other destinations weren't affected
+      const { data: allDestinations } = await walletService.findAll(connection.clientId)
+      const unchangedDestinations = allDestinations.filter((d) => d.externalId !== '084ff57c0984420efac31723579c94fc')
+      unchangedDestinations.forEach((dest) => {
+        expect(dest.connections).toEqual([firstConnection])
+      })
     })
   })
 
@@ -186,6 +225,7 @@ describe(AnchorageSyncService.name, () => {
     })
 
     it('updates anchorage knownDestination when it already exists', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { credentials, ...expectedConnection } = connection
 
       // First sync - create initial destinations
@@ -223,7 +263,8 @@ describe(AnchorageSyncService.name, () => {
     })
 
     it('connects known-destination with the new connection', async () => {
-      const { credentials: firstCredentials, ...firstConnection } = connection
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { credentials, ...firstConnection } = connection
       const secondConnectionWithCredentials = await connectionService.create(clientId, {
         connectionId: uuid(),
         provider: Provider.ANCHORAGE,
@@ -233,7 +274,7 @@ describe(AnchorageSyncService.name, () => {
           privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
         }
       })
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { credentials: secondCredentials, ...secondConnection } = secondConnectionWithCredentials
 
       // First sync - should create all destinations
@@ -248,14 +289,14 @@ describe(AnchorageSyncService.name, () => {
       expect(updated).toHaveLength(1)
       expect(updated[0]).toMatchObject({
         externalId: 'toBeConnected',
-        connections: expect.arrayContaining([firstConnection, secondConnection])
+        connections: [firstConnection, secondConnection]
       })
 
       // Verify other destinations weren't affected
       const { data: allDestinations } = await knownDestinationService.findAll(connection.clientId)
       const unchangedDestinations = allDestinations.filter((d) => d.externalId !== 'toBeConnected')
       unchangedDestinations.forEach((dest) => {
-        expect(dest.connections).toEqual(expect.arrayContaining([firstConnection]))
+        expect(dest.connections).toEqual([firstConnection])
       })
     })
   })
