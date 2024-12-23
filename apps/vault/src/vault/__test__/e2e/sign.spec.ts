@@ -229,13 +229,11 @@ describe('Sign', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
 
-      expect(body).toEqual(
-        expect.objectContaining({
-          context: expect.any(Object),
-          message: 'Internal validation error',
-          statusCode: HttpStatus.UNPROCESSABLE_ENTITY
-        })
-      )
+      expect(body).toMatchObject({
+        context: expect.any(Object),
+        message: 'Validation error',
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
       expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 

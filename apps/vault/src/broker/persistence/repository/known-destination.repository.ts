@@ -11,6 +11,7 @@ import { ConnectionRepository, connectionSelectWithoutCredentials } from './conn
 type FindAllFilters = {
   filters?: {
     externalIds?: string[]
+    addresses?: string[]
   }
 }
 
@@ -116,6 +117,13 @@ export class KnownDestinationRepository {
     const models = await this.prismaService.providerKnownDestination.findMany({
       where: {
         clientId,
+        ...(opts?.filters?.addresses
+          ? {
+              address: {
+                in: opts.filters.addresses
+              }
+            }
+          : {}),
         ...(opts?.filters?.externalIds
           ? {
               externalId: {
@@ -184,6 +192,7 @@ export class KnownDestinationRepository {
     // Use the same parsing logic as findAll
     return created.map(KnownDestinationRepository.parseModel)
   }
+
   async bulkDelete(knownDestinations: KnownDestination[]): Promise<number> {
     await this.prismaService.providerKnownDestinationConnection.deleteMany({
       where: {

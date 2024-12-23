@@ -18,41 +18,41 @@ export const KnownDestination = z.object({
 export type KnownDestination = z.infer<typeof KnownDestination>
 
 export const Address = z.object({
-  addressId: z.string(),
-  clientId: z.string(),
-  provider: z.nativeEnum(Provider),
-  externalId: z.string(),
   accountId: z.string(),
   address: z.string(),
+  addressId: z.string(),
+  clientId: z.string(),
   createdAt: z.date(),
+  externalId: z.string(),
+  provider: z.nativeEnum(Provider),
   updatedAt: z.date()
 })
 export type Address = z.infer<typeof Address>
 
 export const Account = z.object({
   accountId: z.string(),
-  label: z.string().nullable().optional(),
   addresses: z.array(Address).optional(),
   clientId: z.string(),
-  provider: z.nativeEnum(Provider),
-  externalId: z.string(),
-  walletId: z.string(),
-  networkId: z.string(),
   createdAt: z.date(),
-  updatedAt: z.date()
+  externalId: z.string(),
+  label: z.string().nullable().optional(),
+  networkId: z.string(),
+  provider: z.nativeEnum(Provider),
+  updatedAt: z.date(),
+  walletId: z.string()
 })
 export type Account = z.infer<typeof Account>
 
 export const Wallet = z.object({
-  walletId: z.string(),
   accounts: z.array(Account).optional(),
-  connections: z.array(BaseConnection),
-  label: z.string().nullable().optional(),
   clientId: z.string(),
-  provider: z.nativeEnum(Provider),
-  externalId: z.string(),
+  connections: z.array(BaseConnection),
   createdAt: z.date(),
-  updatedAt: z.date()
+  externalId: z.string(),
+  label: z.string().nullable().optional(),
+  provider: z.nativeEnum(Provider),
+  updatedAt: z.date(),
+  walletId: z.string()
 })
 export type Wallet = z.infer<typeof Wallet>
 

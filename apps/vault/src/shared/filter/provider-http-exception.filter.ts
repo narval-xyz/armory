@@ -2,22 +2,22 @@ import { ConfigService } from '@narval/config-module'
 import { LoggerService } from '@narval/nestjs-shared'
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, LogLevel } from '@nestjs/common'
 import { Response } from 'express'
+import { ProviderHttpException } from '../../broker/core/exception/provider-http.exception'
 import { Config, Env } from '../../main.config'
-import { ApplicationException } from '../../shared/exception/application.exception'
 import { HttpException } from '../type/http-exception.type'
 
-@Catch(ApplicationException)
-export class ApplicationExceptionFilter implements ExceptionFilter {
+@Catch(ProviderHttpException)
+export class ProviderHttpExceptionFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<Config>,
     private logger: LoggerService
   ) {}
 
-  catch(exception: ApplicationException, host: ArgumentsHost) {
+  catch(exception: ProviderHttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
-    const status = exception.getStatus()
     const isProduction = this.configService.get('env') === Env.PRODUCTION
+    const status = exception.response.status
 
     this.log(exception)
 
@@ -25,12 +25,12 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
       ? {
           statusCode: status,
           message: exception.message,
-          context: exception.context
+          context: this.buildContext(exception)
         }
       : {
           statusCode: status,
           message: exception.message,
-          context: exception.context,
+          context: this.buildContext(exception),
           stack: exception.stack,
           ...(exception.origin && { origin: exception.origin })
         }
@@ -38,15 +38,24 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
     response.status(status).json(body)
   }
 
-  private log(exception: ApplicationException) {
-    const level: LogLevel = exception.getStatus() >= HttpStatus.INTERNAL_SERVER_ERROR ? 'error' : 'warn'
+  private buildContext(exception: ProviderHttpException) {
+    return {
+      provider: exception.provider,
+      error: exception.response.body
+    }
+  }
+
+  private log(exception: ProviderHttpException) {
+    const level: LogLevel = exception.response.status >= HttpStatus.INTERNAL_SERVER_ERROR ? 'error' : 'warn'
 
     if (this.logger[level]) {
-      this.logger[level](exception.message, {
-        status: exception.getStatus(),
+      this.logger[level]('Provider HTTP exception', {
         context: exception.context,
-        stack: exception.stack,
-        origin: exception.origin
+        errorMessage: exception.message,
+        origin: exception.origin,
+        provider: exception.provider,
+        response: exception.response,
+        stack: exception.stack
       })
     }
   }

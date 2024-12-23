@@ -9,10 +9,9 @@ import { Address } from '../../core/type/indexed-resources.type'
 
 type FindAllFilters = {
   filters?: {
-    connectionId?: string
-    accountIds?: string[]
-    walletIds?: string[]
     externalIds?: string[]
+    addresses?: string[]
+    provider?: Provider
   }
 }
 
@@ -64,6 +63,7 @@ export class AddressRepository {
     const address = await this.prismaService.providerAddress.findUnique({
       where: { clientId, id: addressId }
     })
+
     if (!address) {
       throw new NotFoundException({
         message: 'Address not found',
@@ -80,6 +80,18 @@ export class AddressRepository {
     const models = await this.prismaService.providerAddress.findMany({
       where: {
         clientId,
+        ...(opts?.filters?.provider
+          ? {
+              provider: opts.filters.provider
+            }
+          : {}),
+        ...(opts?.filters?.addresses
+          ? {
+              address: {
+                in: opts.filters.addresses
+              }
+            }
+          : {}),
         ...(opts?.filters?.externalIds
           ? {
               externalId: {

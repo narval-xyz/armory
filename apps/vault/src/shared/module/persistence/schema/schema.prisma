@@ -106,9 +106,11 @@ model ProviderWallet {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  accounts        ProviderAccount[]
-  connections     ProviderWalletConnection[]
-  sourceTransfers ProviderTransfer[]         @relation("SourceWallet")
+  accounts    ProviderAccount[]
+  connections ProviderWalletConnection[]
+
+  sourceTransfers      ProviderTransfer[] @relation("SourceWallet")
+  destinationTransfers ProviderTransfer[] @relation("DestinationWallet")
 
   @@unique([clientId, externalId])
   @@index([createdAt, clientId])
@@ -129,7 +131,8 @@ model ProviderAccount {
   wallet    ProviderWallet    @relation(fields: [walletId], references: [id])
   addresses ProviderAddress[]
 
-  sourceTransfers ProviderTransfer[] @relation("SourceAccount")
+  sourceTransfers      ProviderTransfer[] @relation("SourceAccount")
+  destinationTransfers ProviderTransfer[] @relation("DestinationAccount")
 
   @@unique([clientId, externalId])
   @@index([createdAt, clientId])
@@ -148,7 +151,8 @@ model ProviderAddress {
 
   account ProviderAccount @relation(fields: [accountId], references: [id])
 
-  sourceTransfers ProviderTransfer[] @relation("SourceAddress")
+  sourceTransfers      ProviderTransfer[] @relation("SourceAddress")
+  destinationTransfers ProviderTransfer[] @relation("DestinationAddress")
 
   @@unique([clientId, externalId])
   @@index([createdAt, clientId])
@@ -241,21 +245,36 @@ model ProviderSync {
 }
 
 model ProviderTransfer {
-  id              String   @id
-  clientId        String   @map("client_id")
-  sourceWalletId  String?  @map("source_wallet_id")
-  sourceAccountId String?  @map("source_account_id")
-  sourceAddressId String?  @map("source_address_id")
-  provider        String
-  externalId      String   @map("external_id")
-  request         Json
-  createdAt       DateTime @default(now()) @map("created_at")
+  id                    String   @id
+  assetId               String   @map("asset_id")
+  clientId              String   @map("client_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  customerRefId         String?  @map("customer_ref_id")
+  destinationAccountId  String?  @map("destination_account_id")
+  destinationAddressId  String?  @map("destination_address_id")
+  destinationAddressRaw String?  @map("destination_address_raw")
+  destinationWalletId   String?  @map("destination_wallet_id")
+  externalId            String   @map("external_id")
+  grossAmount           String   @map("gross_amount")
+  idempotenceId         String?  @map("idempotence_id")
+  memo                  String?
+  networkFeeAttribution String   @map("network_fee_attribution")
+  provider              String
+  providerSpecific      String?  @map("provider_specific")
+  sourceAccountId       String?  @map("source_account_id")
+  sourceAddressId       String?  @map("source_address_id")
+  sourceWalletId        String?  @map("source_wallet_id")
 
   sourceWallet  ProviderWallet?  @relation("SourceWallet", fields: [sourceWalletId], references: [id])
   sourceAccount ProviderAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id])
   sourceAddress ProviderAddress? @relation("SourceAddress", fields: [sourceAddressId], references: [id])
 
+  destinationWallet  ProviderWallet?  @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
+  destinationAccount ProviderAccount? @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
+  destinationAddress ProviderAddress? @relation("DestinationAddress", fields: [destinationAddressId], references: [id])
+
   @@unique([clientId, externalId])
+  @@unique([clientId, idempotenceId])
   @@index([createdAt, clientId])
   @@map("provider_transfer")
 }

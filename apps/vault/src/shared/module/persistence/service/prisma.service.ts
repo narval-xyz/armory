@@ -8,6 +8,7 @@ import { bytesToHex } from '@noble/hashes/utils'
 import { Prisma, PrismaClient } from '@prisma/client/vault'
 import { canonicalize } from 'packages/signature/src/lib/json.util'
 import { Config } from '../../../../main.config'
+import { ParseException } from '../exception/parse.exception'
 
 const ENCRYPTION_PREFIX = 'enc.v1.' // Version prefix helps with future encryption changes
 const INTEGRITY_PREFIX = 'hmac.v1.' // Version prefix helps with future integrity changes
@@ -259,6 +260,52 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       logger.log('Instantiating Prisma encryption extension')
       Object.assign(this, this.$extends(buildEncryptionExtension(configService, logger, encryptionService)))
     }
+  }
+
+  static toPrismaJson<T>(value?: T | null): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull {
+    if (value === null || value === undefined) {
+      return Prisma.JsonNull
+    }
+
+    // Handle basic JSON-serializable types.
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || Array.isArray(value)) {
+      return value as Prisma.InputJsonValue
+    }
+
+    // For objects, ensure they're JSON-serializable.
+    if (typeof value === 'object') {
+      try {
+        return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
+      } catch (error) {
+        throw new ParseException(error)
+      }
+    }
+
+    return Prisma.JsonNull
+  }
+
+  static toStringJson<T>(value?: T | null): string | null {
+    if (value) {
+      try {
+        return JSON.stringify(value)
+      } catch (error) {
+        throw new ParseException(error)
+      }
+    }
+
+    return null
+  }
+
+  static toJson(value?: string | null) {
+    if (value) {
+      try {
+        return JSON.parse(value)
+      } catch (error) {
+        throw new ParseException(error)
+      }
+    }
+
+    return null
   }
 
   async onModuleInit() {

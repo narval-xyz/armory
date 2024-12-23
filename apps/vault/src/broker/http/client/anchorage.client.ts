@@ -3,13 +3,31 @@ import { Ed25519PrivateKey, privateKeyToHex } from '@narval/signature'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { sign } from '@noble/ed25519'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { isNil, omitBy } from 'lodash'
-import { EMPTY, Observable, catchError, expand, from, lastValueFrom, map, reduce, switchMap, tap } from 'rxjs'
+import {
+  EMPTY,
+  Observable,
+  OperatorFunction,
+  catchError,
+  expand,
+  from,
+  lastValueFrom,
+  map,
+  reduce,
+  switchMap,
+  tap
+} from 'rxjs'
 import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
+import { ProviderHttpException } from '../../core/exception/provider-http.exception'
 import { ProxyRequestException } from '../../core/exception/proxy-request.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
+import { Provider } from '../../core/type/connection.type'
+
+//
+// Response Schema
+//
 
 const Amount = z.object({
   quantity: z.string(),
@@ -77,6 +95,79 @@ const Address = z.object({
 })
 type Address = z.infer<typeof Address>
 
+const TransferAmount = z.object({
+  assetType: z.string(),
+  currentPrice: z.string().optional(),
+  currentUSDValue: z.string().optional(),
+  quantity: z.string()
+})
+
+const TransferFee = z.object({
+  assetType: z.string(),
+  quantity: z.string()
+})
+
+const Resource = z.object({
+  id: z.string(),
+  type: z.string()
+})
+
+const Transfer = z.object({
+  amount: TransferAmount,
+  assetType: z.string(),
+  blockchainTxId: z.string().optional(),
+  createdAt: z.string(),
+  destination: Resource,
+  endedAt: z.string().optional(),
+  fee: TransferFee.optional(),
+  source: Resource,
+  status: z.string(),
+  transferId: z.string(),
+  transferMemo: z.string().optional()
+})
+type Transfer = z.infer<typeof Transfer>
+
+const CreateTransfer = z.object({
+  amount: z.string(),
+  assetType: z.string(),
+  deductFeeFromAmountIfSameType: z.boolean(),
+  destination: Resource,
+  idempotenceId: z.string().max(128).nullable(),
+  source: Resource,
+  transferMemo: z.string().nullable()
+})
+type CreateTransfer = z.infer<typeof CreateTransfer>
+
+const CreatedTransfer = z.object({
+  transferId: z.string(),
+  status: z.string()
+})
+type CreatedTransfer = z.infer<typeof CreatedTransfer>
+
+const TrustedDestination = z.object({
+  id: z.string(),
+  type: z.literal('crypto'),
+  crypto: z.object({
+    address: z.string(),
+    networkId: z.string(),
+    // Asset type is optional. If it is not provided, then the destination will
+    // accept any network compatible transfer
+    // e.g: ETH network can accept only one specific token on ETH network
+    assetType: z.string().optional(),
+    memo: z.string().optional()
+  })
+})
+type TrustedDestination = z.infer<typeof TrustedDestination>
+
+//
+// Response Type
+//
+
+const CreateTransferResponse = z.object({
+  data: CreatedTransfer
+})
+type CreateTransferResponse = z.infer<typeof CreateTransferResponse>
+
 const GetVaultsResponse = z.object({
   data: z.array(Vault),
   page: z.object({
@@ -101,19 +192,10 @@ const GetVaultAddressesResponse = z.object({
 })
 type GetVaultAddressesResponse = z.infer<typeof GetVaultAddressesResponse>
 
-export const TrustedDestination = z.object({
-  id: z.string(),
-  type: z.literal('crypto'),
-  crypto: z.object({
-    address: z.string(),
-    networkId: z.string(),
-    // Asset type is optional. If it is not provided, then the destination will accept any network compatible transfer
-    // e.g: ETH network can accept only one specific token on ETH network
-    assetType: z.string().optional(),
-    memo: z.string().optional()
-  })
+const GetTransferResponse = z.object({
+  data: Transfer
 })
-export type TrustedDestination = z.infer<typeof TrustedDestination>
+type GetTransferResponse = z.infer<typeof GetTransferResponse>
 
 const GetTrustedDestinationsResponse = z.object({
   data: z.array(TrustedDestination),
@@ -122,6 +204,10 @@ const GetTrustedDestinationsResponse = z.object({
   })
 })
 type GetTrustedDestinationsResponse = z.infer<typeof GetTrustedDestinationsResponse>
+
+//
+// Request Type
+//
 
 interface RequestOptions {
   url: string
@@ -331,21 +417,15 @@ export class AnchorageClient {
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Anchorage vaults', { error })
-
-          throw error
-        })
+        this.handleError('Failed to get Anchorage vaults')
       )
     )
   }
 
   async getWallets(opts: RequestOptions): Promise<Wallet[]> {
-    this.logger.log('Requesting Anchorage wallets page', {
-      url: opts.url,
-      limit: opts.limit
-    })
-    const { apiKey, signKey, url } = opts
+    const { apiKey, signKey, url, limit } = opts
+
+    this.logger.log('Requesting Anchorage wallets page', { url, limit })
 
     return lastValueFrom(
       this.sendSignedRequest({
@@ -375,7 +455,7 @@ export class AnchorageClient {
           if (response.page.next) {
             this.logger.log('Requesting Anchorage wallets next page', {
               url: response.page.next,
-              limit: opts.limit
+              limit
             })
           } else {
             this.logger.log('Reached Anchorage wallets last page')
@@ -384,15 +464,11 @@ export class AnchorageClient {
         reduce((wallets: Wallet[], response) => [...wallets, ...response.data], []),
         tap((wallets) => {
           this.logger.log('Completed fetching all wallets', {
-            walletsCount: wallets.length,
-            url: opts.url
+            url,
+            walletsCount: wallets.length
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Anchorage wallets', { error })
-
-          throw error
-        })
+        this.handleError('Failed to get Anchorage wallets')
       )
     )
   }
@@ -454,12 +530,13 @@ export class AnchorageClient {
   }
 
   async getVaultAddresses(opts: RequestOptions & { vaultId: string; assetType: string }): Promise<Address[]> {
-    this.logger.log('Requesting Anchorage vault addresses page', {
-      url: opts.url,
-      vaultId: opts.vaultId,
-      assetType: opts.assetType
-    })
     const { apiKey, signKey, url, vaultId, assetType } = opts
+
+    this.logger.log('Requesting Anchorage vault addresses page', {
+      url,
+      vaultId,
+      assetType
+    })
 
     return lastValueFrom(
       this.sendSignedRequest({
@@ -508,12 +585,83 @@ export class AnchorageClient {
             url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Anchorage vault addresses', { error })
-
-          throw error
-        })
+        this.handleError('Failed to get Anchorage vault addresses')
       )
     )
+  }
+
+  async getTransferById(opts: RequestOptions & { transferId: string }): Promise<Transfer> {
+    const { apiKey, signKey, url, transferId } = opts
+
+    this.logger.log('Requesting Anchorage transfer', { url, transferId })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetTransferResponse,
+        request: {
+          url: `${url}/v2/transfers/${transferId}`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        map((response) => response.data),
+        tap((transfer) => {
+          this.logger.log('Successfully fetched transfer', {
+            transferId,
+            url,
+            status: transfer.status
+          })
+        }),
+        this.handleError('Failed to get Anchorage transfer')
+      )
+    )
+  }
+
+  async createTransfer(opts: RequestOptions & { data: CreateTransfer }): Promise<CreatedTransfer> {
+    const { apiKey, signKey, url, data } = opts
+
+    this.logger.log('Sending create transfer in request to Anchorage', { data })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: CreateTransferResponse,
+        request: {
+          url: `${url}/v2/transfers`,
+          method: 'POST',
+          data
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        map((response) => response.data),
+        tap((transfer) => {
+          this.logger.log('Successfully created transfer', {
+            transferId: transfer.transferId,
+            url
+          })
+        }),
+        this.handleError('Failed to create Anchorage transfer')
+      )
+    )
+  }
+
+  private handleError<T>(logMessage: string): OperatorFunction<T, T> {
+    return catchError((error: unknown): Observable<T> => {
+      this.logger.error(logMessage, { error })
+
+      if (error instanceof AxiosError) {
+        throw new ProviderHttpException({
+          provider: Provider.ANCHORAGE,
+          origin: error,
+          response: {
+            status: error.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+            body: error.response?.data
+          }
+        })
+      }
+
+      throw error
+    })
   }
 }
