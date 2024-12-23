@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "accountName": "Narval Account 1",
+      "assets": [
+        {
+          "assetType": "BTC_S",
+          "availableBalance": {
+            "assetType": "BTC_S",
+            "currentPrice": "100571.636951942",
+            "currentUSDValue": "502.86",
+            "quantity": "0.005"
+          },
+          "totalBalance": {
+            "assetType": "BTC_S",
+            "currentPrice": "100571.636951942",
+            "currentUSDValue": "502.86",
+            "quantity": "0.005"
+          },
+          "vaultId": "084ff57c0984420efac31723579c94fc",
+          "vaultName": "Vault 1 - renamed",
+          "walletId": "6a46a1977959e0529f567e8e927e3895"
+        }
+      ],
+      "description": "",
+      "name": "Vault 1 - renamed",
+      "type": "VAULT",
+      "vaultId": "084ff57c0984420efac31723579c94fc"
+    }
+  ],
+  "page": {
+    "next": null
+  }
+}
