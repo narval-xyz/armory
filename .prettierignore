@@ -6,6 +6,7 @@ dist/*
 .nx/cache/*
 deploy/charts/*
 /.nx/workspace-data
+.next/*
 
 # Generated code
 packages/armory-sdk/src/http/client

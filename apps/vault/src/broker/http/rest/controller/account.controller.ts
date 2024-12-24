@@ -1,4 +1,4 @@
-import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -13,8 +13,9 @@ import { ProviderAccountDto } from '../dto/response/provider-account.dto'
   path: 'accounts',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Account')
-export class AccountController {
+export class ProviderAccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Get()

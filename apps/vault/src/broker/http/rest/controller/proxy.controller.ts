@@ -1,3 +1,4 @@
+import { ApiClientIdHeader } from '@narval/nestjs-shared'
 import {
   Body,
   Controller,
@@ -51,6 +52,7 @@ const INACTIVE_CONNECTION_RESPONSE = {
   path: 'proxy',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Proxy')
 export class ProxyController {
   constructor(private readonly proxyService: ProxyService) {}

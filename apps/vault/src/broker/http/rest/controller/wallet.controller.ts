@@ -1,4 +1,4 @@
-import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -14,8 +14,9 @@ import { ProviderWalletDto } from '../dto/response/provider-wallet.dto'
   path: 'wallets',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Wallet')
-export class WalletController {
+export class ProviderWalletController {
   constructor(
     private readonly walletService: WalletService,
     private readonly accountService: AccountService

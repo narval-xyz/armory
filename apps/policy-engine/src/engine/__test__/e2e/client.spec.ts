@@ -3,6 +3,7 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
   LoggerModule,
   OpenTelemetryModule,
+  REQUEST_HEADER_ADMIN_API_KEY,
   REQUEST_HEADER_CLIENT_ID,
   REQUEST_HEADER_CLIENT_SECRET,
   secret
@@ -20,7 +21,6 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { Config, load } from '../../../policy-engine.config'
-import { REQUEST_HEADER_API_KEY } from '../../../policy-engine.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client } from '../../../shared/type/domain.type'
@@ -115,7 +115,7 @@ describe('Client', () => {
     it('creates a new client', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       const actualClient = await clientRepository.findById(clientId)
@@ -137,7 +137,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({ ...createClientPayload, clientSecret })
 
       expect(body.clientSecret).toEqual(clientSecret)
@@ -146,7 +146,7 @@ describe('Client', () => {
     it('creates a new client with engine key in the entity and policy keys for self-signed data', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({ ...createClientPayload, allowSelfSignedData: true })
 
       const actualClient = await clientRepository.findById(clientId)
@@ -175,7 +175,7 @@ describe('Client', () => {
     it('does not expose the signer private key', async () => {
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       expect(body.signer.key).not.toBeDefined()
@@ -188,12 +188,12 @@ describe('Client', () => {
     it('responds with an error when clientId already exist', async () => {
       await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       expect(body).toEqual({
@@ -206,7 +206,7 @@ describe('Client', () => {
     it('responds with forbidden when admin api key is invalid', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, 'invalid-api-key')
+        .set(REQUEST_HEADER_ADMIN_API_KEY, 'invalid-api-key')
         .send(createClientPayload)
 
       expect(body).toMatchObject({
@@ -225,7 +225,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({
           ...createClientPayload,
           clientId: uuid()

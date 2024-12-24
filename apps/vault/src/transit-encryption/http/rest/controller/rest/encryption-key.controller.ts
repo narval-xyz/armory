@@ -1,8 +1,8 @@
 import { Permission } from '@narval/armory-sdk'
-import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { ApiClientIdHeader } from '@narval/nestjs-shared'
 import { publicKeyToPem } from '@narval/signature'
 import { Controller, HttpStatus, Post } from '@nestjs/common'
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../../shared/type/domain.type'
@@ -15,10 +15,7 @@ import { EncryptionKeyDto } from '../dto/response/encryption-key.dto'
 })
 @PermissionGuard(Permission.WALLET_IMPORT, VaultPermission.CONNECTION_WRITE)
 @ApiTags('Encryption Key')
-@ApiHeader({
-  name: REQUEST_HEADER_CLIENT_ID,
-  required: true
-})
+@ApiClientIdHeader()
 export class EncryptionKeyController {
   constructor(private readonly encryptionKeyService: EncryptionKeyService) {}
 

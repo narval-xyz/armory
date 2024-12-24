@@ -4,6 +4,9 @@
 
 export const REQUEST_HEADER_CLIENT_ID = 'x-client-id'
 export const REQUEST_HEADER_CLIENT_SECRET = 'x-client-secret'
+export const REQUEST_HEADER_ADMIN_API_KEY = 'x-api-key'
+export const REQUEST_HEADER_DETACHED_JWS = 'detached-jws'
+export const REQUEST_HEADER_AUTHORIZATION = 'Authorization' // can be GNAP, Bearer, etc
 
 //
 // OpenTelemetry

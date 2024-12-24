@@ -1,3 +1,4 @@
+import { ApiClientIdHeader } from '@narval/nestjs-shared'
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -11,6 +12,7 @@ import { TransferDto } from '../dto/response/transfer.dto'
   path: 'transfers',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Transfer')
 export class TransferController {
   constructor(private readonly transferService: TransferService) {}

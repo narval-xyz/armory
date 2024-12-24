@@ -1,5 +1,5 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
+import { LoggerModule, REQUEST_HEADER_ADMIN_API_KEY } from '@narval/nestjs-shared'
 import {
   Alg,
   PrivateKey,
@@ -14,7 +14,6 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
-import { REQUEST_HEADER_API_KEY } from '../../../shared/constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { ClientRepository } from '../../persistence/repository/client.repository'
@@ -72,7 +71,7 @@ describe('Client', () => {
     it('creates a new client', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(payload)
 
       const actualClient = await clientRepository.findById(clientId)
@@ -99,7 +98,7 @@ describe('Client', () => {
       }
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(newPayload)
 
       const actualClient = await clientRepository.findById('client-2')
@@ -113,11 +112,11 @@ describe('Client', () => {
     })
 
     it('responds with an error when clientId already exist', async () => {
-      await request(app.getHttpServer()).post('/clients').set(REQUEST_HEADER_API_KEY, adminApiKey).send(payload)
+      await request(app.getHttpServer()).post('/clients').set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey).send(payload)
 
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(payload)
 
       expect(body.statusCode).toEqual(HttpStatus.BAD_REQUEST)
@@ -128,7 +127,7 @@ describe('Client', () => {
     it('responds with forbidden when admin api key is invalid', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, 'invalid-api-key')
+        .set(REQUEST_HEADER_ADMIN_API_KEY, 'invalid-api-key')
         .send(payload)
 
       expect(body).toMatchObject({
@@ -154,7 +153,7 @@ describe('Client', () => {
 
       const { status: rightKeyStatus } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(validClientPayload)
 
       expect(rightKeyStatus).toEqual(HttpStatus.CREATED)
@@ -173,7 +172,7 @@ describe('Client', () => {
 
       const { status: wrongKeyStatus } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(invalidClientPayload)
 
       expect(wrongKeyStatus).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -206,7 +205,7 @@ describe('Client', () => {
       }
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(newPayload)
 
       expect(status).toEqual(HttpStatus.CREATED)

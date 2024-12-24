@@ -1,4 +1,4 @@
-import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { publicKeyToHex, publicKeyToPem } from '@narval/signature'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
@@ -21,6 +21,7 @@ import { ProviderPendingConnectionDto } from '../dto/response/provider-pending-c
   path: 'connections',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Connection')
 export class ConnectionController {
   constructor(

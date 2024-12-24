@@ -67,9 +67,9 @@ export const getJwsdProof = async (args: GetJwsdProof): Promise<string> => {
   return parts.join('.')
 }
 
-export const getBearerToken = ({ value }: AccessToken): string => `GNAP ${value}`
+export const prefixGnapToken = ({ value }: AccessToken): string => `GNAP ${value}`
 
-export const parseToken = (value: string): string => value.replace('GNAP ', '')
+export const parseToken = (value: string): string => value.trim().replace(/^(GNAP|bearer)\s+/i, '')
 
 const getHtm = (method: string): Htm => {
   switch (method.toLowerCase()) {
@@ -90,10 +90,10 @@ export const interceptRequestAddDetachedJwsHeader =
     assert(config.url !== undefined, 'Missing request URL')
     assert(config.method !== undefined, 'Missing request method')
 
-    const bearerToken = config.headers['Authorization'] || config.headers['authorization']
+    const authorizationHeader = config.headers['Authorization'] || config.headers['authorization']
 
-    if (bearerToken) {
-      const token = parseToken(bearerToken)
+    if (authorizationHeader) {
+      const token = parseToken(authorizationHeader)
       const htm = getHtm(config.method)
       const payload = config.data ? JSON.parse(config.data) : {}
 

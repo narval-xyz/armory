@@ -7,13 +7,19 @@ import { instrumentTelemetry } from '@narval/open-telemetry'
 instrumentTelemetry({ serviceName: 'vault' })
 
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  securityOptions,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
 import { MainModule, ProvisionModule } from './main.module'
-import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './shared/constant'
 
 /**
  * Adds global pipes to the application.
@@ -59,7 +65,11 @@ async function bootstrap() {
           description:
             'Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0',
           version: '1.0',
-          security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
+          security: [securityOptions.gnap, securityOptions.adminApiKey, securityOptions.detachedJws],
+          server: {
+            url: configService.get('baseUrl'),
+            description: 'Narval Vault Base Url'
+          }
         })
       ),
       switchMap((app) => app.listen(port))

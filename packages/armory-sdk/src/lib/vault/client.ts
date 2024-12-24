@@ -10,6 +10,7 @@ import {
   ClientDto,
   Configuration,
   CreateClientDto,
+  CreateConnectionDto,
   DeriveAccountDto,
   DeriveAccountResponseDto,
   EncryptionKeyApiFactory,
@@ -17,27 +18,21 @@ import {
   ImportPrivateKeyDto,
   ImportWalletDto,
   PongDto,
+  ProviderConnectionApiFactory,
+  ProviderConnectionDto,
   SignApiFactory,
   SignatureDto,
   WalletApiFactory,
   WalletDto,
   WalletsDto
 } from '../http/client/vault'
-import { getBearerToken, interceptRequestAddDetachedJwsHeader } from '../shared/gnap'
-import {
-  AccountHttp,
-  EncryptionKeyHttp,
-  SignHttp,
-  VaultAdminConfig,
-  VaultClientHttp,
-  VaultConfig,
-  WalletHttp
-} from './type'
+import { interceptRequestAddDetachedJwsHeader, prefixGnapToken } from '../shared/gnap'
+import { VaultAdminConfig, VaultConfig } from './type'
 
 export class VaultAdminClient {
   private config: VaultAdminConfig
 
-  private clientHttp: VaultClientHttp
+  private clientHttp
 
   constructor(config: VaultAdminConfig) {
     const httpConfig = new Configuration({
@@ -51,7 +46,10 @@ export class VaultAdminClient {
   }
 
   async createClient(input: CreateClientDto): Promise<ClientDto> {
-    const { data } = await this.clientHttp.create(this.config.adminApiKey, input)
+    const { data } = await this.clientHttp.create({
+      xApiKey: this.config.adminApiKey,
+      createClientDto: input
+    })
 
     return data
   }
@@ -60,15 +58,17 @@ export class VaultAdminClient {
 export class VaultClient {
   private config: VaultConfig
 
-  private encryptionKeyHttp: EncryptionKeyHttp
+  private encryptionKeyHttp
 
-  private walletHttp: WalletHttp
+  private walletHttp
 
-  private accountHttp: AccountHttp
+  private accountHttp
 
-  private signHttp: SignHttp
+  private signHttp
 
-  private applicationApi: ApplicationApi
+  private connectionHttp
+
+  private applicationApi
 
   constructor(config: VaultConfig) {
     const httpConfig = new Configuration({
@@ -85,7 +85,7 @@ export class VaultClient {
     this.encryptionKeyHttp = EncryptionKeyApiFactory(httpConfig, config.host, axiosInstance)
     this.accountHttp = AccountApiFactory(httpConfig, config.host, axiosInstance)
     this.signHttp = SignApiFactory(httpConfig, config.host, axiosInstance)
-
+    this.connectionHttp = ProviderConnectionApiFactory(httpConfig, config.host, axiosInstance)
     this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
   }
 
@@ -96,9 +96,12 @@ export class VaultClient {
   }
 
   async generateEncryptionKey({ accessToken }: { accessToken: AccessToken }): Promise<RsaPublicKey> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
 
-    const { data: encryptionKey } = await this.encryptionKeyHttp.generate(this.config.clientId, token)
+    const { data: encryptionKey } = await this.encryptionKeyHttp.generate({
+      xClientId: this.config.clientId,
+      authorization: token
+    })
 
     return encryptionKey.publicKey
   }
@@ -111,9 +114,13 @@ export class VaultClient {
     accessToken: AccessToken
   }): Promise<WalletDto> {
     const payload = data || {}
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
 
-    const { data: wallet } = await this.walletHttp.generate(this.config.clientId, token, payload)
+    const { data: wallet } = await this.walletHttp.generate({
+      xClientId: this.config.clientId,
+      authorization: token,
+      generateWalletDto: payload
+    })
 
     return wallet
   }
@@ -127,20 +134,27 @@ export class VaultClient {
     encryptionKey: RsaPublicKey
     accessToken: AccessToken
   }): Promise<WalletDto> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
     const { seed, ...options } = data
     const encryptedSeed = await rsaEncrypt(seed, encryptionKey)
     const payload = { ...options, encryptedSeed }
 
-    const { data: wallet } = await this.walletHttp.importSeed(this.config.clientId, token, payload)
+    const { data: wallet } = await this.walletHttp.importSeed({
+      xClientId: this.config.clientId,
+      authorization: token,
+      importWalletDto: payload
+    })
 
     return wallet
   }
 
   async listWallets({ accessToken }: { accessToken: AccessToken }): Promise<WalletsDto> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
 
-    const { data: wallets } = await this.walletHttp.list(this.config.clientId, token)
+    const { data: wallets } = await this.walletHttp.list({
+      xClientId: this.config.clientId,
+      authorization: token
+    })
 
     return wallets
   }
@@ -152,9 +166,13 @@ export class VaultClient {
     data: DeriveAccountDto
     accessToken: AccessToken
   }): Promise<DeriveAccountResponseDto> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
 
-    const { data: account } = await this.accountHttp.derive(this.config.clientId, token, data)
+    const { data: account } = await this.accountHttp.derive({
+      xClientId: this.config.clientId,
+      authorization: token,
+      deriveAccountDto: data
+    })
 
     return account
   }
@@ -170,30 +188,59 @@ export class VaultClient {
   }): Promise<AccountDto> {
     const { privateKey, ...options } = data
     const encryptedPrivateKey = await rsaEncrypt(privateKey, encryptionKey)
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
     const payload = { ...options, encryptedPrivateKey }
 
-    const { data: account } = await this.accountHttp.importPrivateKey(this.config.clientId, token, payload)
+    const { data: account } = await this.accountHttp.importPrivateKey({
+      xClientId: this.config.clientId,
+      authorization: token,
+      importPrivateKeyDto: payload
+    })
 
     return account
   }
 
   async listAccounts({ accessToken }: { accessToken: AccessToken }): Promise<AccountsDto> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
 
-    const { data: accounts } = await this.accountHttp.list(this.config.clientId, token)
+    const { data: accounts } = await this.accountHttp.list({
+      xClientId: this.config.clientId,
+      authorization: token
+    })
 
     return accounts
   }
 
   async sign({ data, accessToken }: { data: Request; accessToken: AccessToken }): Promise<SignatureDto> {
-    const token = getBearerToken(accessToken)
+    const token = prefixGnapToken(accessToken)
     const parsedRequest = Request.parse(data)
 
-    const { data: signature } = await this.signHttp.sign(this.config.clientId, token, {
-      request: SerializedSignableRequest.parse(parsedRequest)
+    const { data: signature } = await this.signHttp.sign({
+      xClientId: this.config.clientId,
+      authorization: token,
+      signRequestDto: {
+        request: SerializedSignableRequest.parse(parsedRequest)
+      }
     })
 
     return signature
+  }
+
+  async createConnection({
+    data,
+    accessToken
+  }: {
+    data: CreateConnectionDto
+    accessToken?: AccessToken
+  }): Promise<ProviderConnectionDto> {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data: connection } = await this.connectionHttp.create({
+      xClientId: this.config.clientId,
+      authorization: token,
+      createConnectionDto: data
+    })
+
+    return connection
   }
 }

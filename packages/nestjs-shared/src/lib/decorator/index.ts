@@ -1,3 +1,5 @@
+export * from './api-client-id-header.decorator'
+export * from './api-detached-jws-security.decorator'
 export * from './api-gnap-security.decorator'
 export * from './is-hex-string.decorator'
 export * from './is-not-empty-array-enum.decorator'

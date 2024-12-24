@@ -1,14 +1,14 @@
+import { REQUEST_HEADER_ADMIN_API_KEY, securityOptions } from '@narval/nestjs-shared'
 import { UseGuards, applyDecorators } from '@nestjs/common'
 import { ApiHeader, ApiSecurity } from '@nestjs/swagger'
-import { ADMIN_API_KEY_SECURITY, REQUEST_HEADER_API_KEY } from '../constant'
 import { AdminApiKeyGuard } from '../guard/admin-api-key.guard'
 
 export function AdminGuard() {
   return applyDecorators(
     UseGuards(AdminApiKeyGuard),
-    ApiSecurity(ADMIN_API_KEY_SECURITY.name),
+    ApiSecurity(securityOptions.adminApiKey.name),
     ApiHeader({
-      name: REQUEST_HEADER_API_KEY,
+      name: REQUEST_HEADER_ADMIN_API_KEY,
       required: true
     })
   )

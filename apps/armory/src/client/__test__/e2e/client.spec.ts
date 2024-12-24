@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
-import { LoggerModule, OpenTelemetryModule, secret } from '@narval/nestjs-shared'
+import { LoggerModule, OpenTelemetryModule, REQUEST_HEADER_ADMIN_API_KEY, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
 import { getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
@@ -9,7 +9,6 @@ import request from 'supertest'
 import { generatePrivateKey } from 'viem/accounts'
 import { AppService } from '../../../app/core/service/app.service'
 import { Config, load } from '../../../armory.config'
-import { REQUEST_HEADER_API_KEY } from '../../../armory.constant'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { ClientModule } from '../../client.module'
 import { ClientService } from '../../core/service/client.service'
@@ -135,7 +134,7 @@ describe('Client', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       const actualClient = await clientService.findById(body.id)
@@ -171,7 +170,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientWithGivenPolicyEngine)
 
       const actualClient = await clientService.findById(body.id)
@@ -187,7 +186,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({ ...createClientPayload, clientSecret })
 
       const actualClient = await clientService.findById(body.id)
@@ -201,7 +200,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send(createClientPayload)
 
       const actualClient = await clientService.findById(body.id)
@@ -215,7 +214,7 @@ describe('Client', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({ ...createClientPayload, useManagedDataStore: true })
 
       const actualClient = await clientService.findById(body.id)
@@ -240,7 +239,7 @@ describe('Client', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({
           ...createClientPayload,
           useManagedDataStore: true,
@@ -277,7 +276,7 @@ describe('Client', () => {
     it('responds with unprocessable entity when payload is invalid', async () => {
       const { status } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, adminApiKey)
+        .set(REQUEST_HEADER_ADMIN_API_KEY, adminApiKey)
         .send({})
 
       expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -286,7 +285,7 @@ describe('Client', () => {
     it('responds with forbidden when admin api key is invalid', async () => {
       const { status } = await request(app.getHttpServer())
         .post('/clients')
-        .set(REQUEST_HEADER_API_KEY, 'invalid-admin-api-key')
+        .set(REQUEST_HEADER_ADMIN_API_KEY, 'invalid-admin-api-key')
         .send({})
 
       expect(status).toEqual(HttpStatus.FORBIDDEN)

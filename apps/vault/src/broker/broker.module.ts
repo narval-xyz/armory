@@ -22,13 +22,13 @@ import { TransferService } from './core/service/transfer.service'
 import { WalletService } from './core/service/wallet.service'
 import { ConnectionSyncEventHandler } from './event/handler/connection-sync.event-handler'
 import { AnchorageClient } from './http/client/anchorage.client'
-import { AccountController } from './http/rest/controller/account.controller'
+import { ProviderAccountController } from './http/rest/controller/account.controller'
 import { AddressController } from './http/rest/controller/address.controller'
 import { ConnectionController } from './http/rest/controller/connection.controller'
 import { ProxyController } from './http/rest/controller/proxy.controller'
 import { SyncController } from './http/rest/controller/sync.controller'
 import { TransferController } from './http/rest/controller/transfer.controller'
-import { WalletController } from './http/rest/controller/wallet.controller'
+import { ProviderWalletController } from './http/rest/controller/wallet.controller'
 import { ConnectionSeedService } from './persistence/connection.seed'
 import { AccountRepository } from './persistence/repository/account.repository'
 import { AddressRepository } from './persistence/repository/address.repository'
@@ -48,13 +48,13 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     TransitEncryptionModule
   ],
   controllers: [
-    AccountController,
+    ProviderAccountController,
     AddressController,
     ConnectionController,
     ProxyController,
     SyncController,
     TransferController,
-    WalletController
+    ProviderWalletController
   ],
   providers: [
     ...DEFAULT_HTTP_MODULE_PROVIDERS,

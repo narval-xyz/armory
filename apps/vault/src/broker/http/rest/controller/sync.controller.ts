@@ -1,4 +1,4 @@
-import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -16,6 +16,7 @@ import { SyncDto } from '../dto/response/sync.dto'
   path: 'syncs',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Sync')
 export class SyncController {
   constructor(

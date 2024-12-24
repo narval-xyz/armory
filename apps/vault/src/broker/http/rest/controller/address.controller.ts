@@ -1,4 +1,4 @@
-import { Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -12,6 +12,7 @@ import { ProviderAddressDto } from '../dto/response/provider-address.dto'
   path: 'addresses',
   version: '1'
 })
+@ApiClientIdHeader()
 @ApiTags('Provider Address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
