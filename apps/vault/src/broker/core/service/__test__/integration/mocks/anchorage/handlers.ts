@@ -11,15 +11,15 @@ import postTransferCreated from './response/post-transfer-201.json'
 
 export const trustedDestinationsHandlers = (baseUrl: string) => {
   return {
-    findAll: http.get(`${baseUrl}/v2/trusted-destinations`, () => {
+    findAll: http.get(`${baseUrl}/v2/trusted_destinations`, () => {
       return new HttpResponse(JSON.stringify(trustedDestinationsFirst))
     }),
 
-    deleteAndUpdate: http.get(`${baseUrl}/v2/trusted-destinations`, () => {
+    deleteAndUpdate: http.get(`${baseUrl}/v2/trusted_destinations`, () => {
       return new HttpResponse(JSON.stringify(trustedDestinationsSecond))
     }),
 
-    connect: http.get(`${baseUrl}/v2/trusted-destinations`, () => {
+    connect: http.get(`${baseUrl}/v2/trusted_destinations`, () => {
       return new HttpResponse(JSON.stringify(trustedDestinationsThird))
     })
   }

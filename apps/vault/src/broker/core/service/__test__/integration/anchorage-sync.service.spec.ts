@@ -21,7 +21,7 @@ import { AccountService } from '../../account.service'
 import { AddressService } from '../../address.service'
 import { AnchorageSyncService } from '../../anchorage-sync.service'
 import { ConnectionService } from '../../connection.service'
-import { KnownDestinationService } from '../../know-destination.service'
+import { KnownDestinationService } from '../../known-destination.service'
 import { WalletService } from '../../wallet.service'
 import { trustedDestinationsHandlers, vaultHandlers } from './mocks/anchorage/handlers'
 import { ANCHORAGE_TEST_API_BASE_URL, setupMockServer } from './mocks/anchorage/server'
@@ -217,7 +217,7 @@ describe(AnchorageSyncService.name, () => {
   })
 
   describe('syncKnownDestinations', () => {
-    it('fetches anchorage addresses and persist them as known-addresses', async () => {
+    it('fetches anchorage addresses and persist them as knownDestinations', async () => {
       const { created } = await anchorageSyncService.syncKnownDestinations(connection)
       const { data: knownDestinations } = await knownDestinationService.findAll(connection.clientId)
 

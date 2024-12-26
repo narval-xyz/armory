@@ -484,7 +484,7 @@ export class AnchorageClient {
       this.sendSignedRequest({
         schema: GetTrustedDestinationsResponse,
         request: {
-          url: `${url}/v2/trusted-destinations`,
+          url: `${url}/v2/trusted_destinations`,
           method: 'GET'
         },
         apiKey,

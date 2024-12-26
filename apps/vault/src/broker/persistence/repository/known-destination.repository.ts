@@ -12,6 +12,8 @@ type FindAllFilters = {
   filters?: {
     externalIds?: string[]
     addresses?: string[]
+    providers?: Provider[]
+    connections?: string[]
   }
 }
 
@@ -131,6 +133,24 @@ export class KnownDestinationRepository {
           ? {
               externalId: {
                 in: opts.filters.externalIds
+              }
+            }
+          : {}),
+        ...(opts?.filters?.providers
+          ? {
+              provider: {
+                in: opts.filters.providers
+              }
+            }
+          : {}),
+        ...(opts?.filters?.connections
+          ? {
+              connections: {
+                some: {
+                  connectionId: {
+                    in: opts.filters.connections
+                  }
+                }
               }
             }
           : {})

@@ -14,7 +14,7 @@ import { AddressService } from './core/service/address.service'
 import { AnchorageSyncService } from './core/service/anchorage-sync.service'
 import { AnchorageTransferService } from './core/service/anchorage-transfer.service'
 import { ConnectionService } from './core/service/connection.service'
-import { KnownDestinationService } from './core/service/know-destination.service'
+import { KnownDestinationService } from './core/service/known-destination.service'
 import { ProxyService } from './core/service/proxy.service'
 import { SyncService } from './core/service/sync.service'
 import { TransferPartyService } from './core/service/transfer-party.service'
@@ -25,6 +25,7 @@ import { AnchorageClient } from './http/client/anchorage.client'
 import { ProviderAccountController } from './http/rest/controller/account.controller'
 import { AddressController } from './http/rest/controller/address.controller'
 import { ConnectionController } from './http/rest/controller/connection.controller'
+import { KnownDestinationController } from './http/rest/controller/known-destination.controller'
 import { ProxyController } from './http/rest/controller/proxy.controller'
 import { SyncController } from './http/rest/controller/sync.controller'
 import { TransferController } from './http/rest/controller/transfer.controller'
@@ -51,6 +52,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     ProviderAccountController,
     AddressController,
     ConnectionController,
+    KnownDestinationController,
     ProxyController,
     SyncController,
     TransferController,

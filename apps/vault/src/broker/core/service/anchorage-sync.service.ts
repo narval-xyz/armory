@@ -10,7 +10,7 @@ import { ActiveConnection, ActiveConnectionWithCredentials, Provider } from '../
 import { Account, Address, KnownDestination, Wallet } from '../type/indexed-resources.type'
 import { AccountService } from './account.service'
 import { AddressService } from './address.service'
-import { KnownDestinationService } from './know-destination.service'
+import { KnownDestinationService } from './known-destination.service'
 import { WalletService } from './wallet.service'
 
 @Injectable()
