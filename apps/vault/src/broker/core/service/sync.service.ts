@@ -2,9 +2,11 @@ import { LoggerService, PaginatedResult, TraceService } from '@narval/nestjs-sha
 import { NotImplementedException } from '@nestjs/common'
 import { Inject, Injectable } from '@nestjs/common/decorators'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { SpanStatusCode } from '@opentelemetry/api'
 import { zip } from 'lodash'
 import { v4 as uuid } from 'uuid'
 import { FindAllOptions, SyncRepository } from '../../persistence/repository/sync.repository'
+import { OTEL_ATTR_CONNECTION_ID, OTEL_ATTR_CONNECTION_PROVIDER, OTEL_ATTR_SYNC_ID } from '../../shared/constant'
 import { SyncStartedEvent } from '../../shared/event/sync-started.event'
 import { AnchorageSyncService } from '../provider/anchorage/anchorage-sync.service'
 import { ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
@@ -38,8 +40,8 @@ export class SyncService {
 
   async start(connections: ActiveConnectionWithCredentials[]): Promise<SyncStarted> {
     this.logger.log('Start connections sync', {
-      count: connections.length,
-      ids: connections.map((connectionId) => connectionId)
+      connectionsCount: connections.length,
+      connectionIds: connections.map((connectionId) => connectionId)
     })
 
     if (connections.length) {
@@ -74,7 +76,29 @@ export class SyncService {
   }
 
   async sync(sync: Sync, connection: ActiveConnectionWithCredentials): Promise<Sync> {
+    const { clientId, syncId } = sync
+    const { provider, connectionId } = connection
+
+    this.logger.log('Sync connection', {
+      clientId,
+      syncId,
+      connectionId,
+      provider
+    })
+
+    const span = this.traceService.startSpan(`${SyncService.name}.sync`, {
+      attributes: {
+        [OTEL_ATTR_SYNC_ID]: syncId,
+        [OTEL_ATTR_CONNECTION_ID]: connectionId,
+        [OTEL_ATTR_CONNECTION_PROVIDER]: provider
+      }
+    })
+
     const result = await this.getProviderSyncService(connection.provider).sync(connection)
+
+    // The execute method has its own span.
+    span.end()
+
     const updatedSync = await this.execute(sync, result)
 
     return updatedSync
@@ -106,6 +130,10 @@ export class SyncService {
     // `sync.service.spec.ts`.
 
     const { clientId, syncId } = sync
+
+    const span = this.traceService.startSpan(`${SyncService.name}.execute`, {
+      attributes: { [OTEL_ATTR_SYNC_ID]: syncId }
+    })
 
     const walletCreateOperations = result.wallets.filter(isCreateOperation).map(({ create }) => create)
     const walletUpdateOperations = result.wallets.filter(isUpdateOperation).map(({ update }) => update)
@@ -216,13 +244,18 @@ export class SyncService {
       return await this.complete(sync)
     } catch (error) {
       return await this.fail(sync, error)
+    } finally {
+      span.end()
     }
   }
 
   async complete(sync: Sync): Promise<Sync> {
-    this.logger.log('Sync complete', {
-      clientId: sync.clientId,
-      syncId: sync.syncId
+    const { clientId, syncId } = sync
+
+    this.logger.log('Sync complete', { clientId, syncId })
+
+    const span = this.traceService.startSpan(`${SyncService.name}.complete`, {
+      attributes: { [OTEL_ATTR_SYNC_ID]: syncId }
     })
 
     const completedSync = {
@@ -233,15 +266,22 @@ export class SyncService {
 
     await this.syncRepository.update(completedSync)
 
+    span.end()
+
     return completedSync
   }
 
   async fail(sync: Sync, error: Error): Promise<Sync> {
-    this.logger.log('Sync fail', {
-      clientId: sync.clientId,
-      syncId: sync.syncId,
-      error
+    const { clientId, syncId } = sync
+
+    this.logger.log('Sync fail', { clientId, syncId, error })
+
+    const span = this.traceService.startSpan(`${SyncService.name}.fail`, {
+      attributes: { [OTEL_ATTR_SYNC_ID]: syncId }
     })
+
+    span.recordException(error)
+    span.setStatus({ code: SpanStatusCode.ERROR })
 
     const failedSync = {
       ...sync,
@@ -255,6 +295,8 @@ export class SyncService {
     }
 
     await this.syncRepository.update(failedSync)
+
+    span.end()
 
     return failedSync
   }

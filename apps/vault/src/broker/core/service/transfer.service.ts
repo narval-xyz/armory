@@ -1,6 +1,8 @@
-import { LoggerService } from '@narval/nestjs-shared'
-import { HttpStatus, Injectable, NotImplementedException } from '@nestjs/common'
+import { LoggerService, TraceService } from '@narval/nestjs-shared'
+import { HttpStatus, Inject, Injectable, NotImplementedException } from '@nestjs/common'
+import { SpanStatusCode } from '@opentelemetry/api'
 import { TransferRepository } from '../../persistence/repository/transfer.repository'
+import { OTEL_ATTR_CONNECTION_PROVIDER } from '../../shared/constant'
 import { BrokerException } from '../exception/broker.exception'
 import { AnchorageTransferService } from '../provider/anchorage/anchorage-transfer.service'
 import { ConnectionStatus, Provider, isActiveConnection } from '../type/connection.type'
@@ -16,7 +18,8 @@ export class TransferService {
     private readonly connectionService: ConnectionService,
     private readonly transferPartyService: TransferPartyService,
     private readonly anchorageTransferService: AnchorageTransferService,
-    private readonly logger: LoggerService
+    private readonly logger: LoggerService,
+    @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
   async findById(clientId: string, transferId: string): Promise<InternalTransfer> {
@@ -30,6 +33,8 @@ export class TransferService {
   async send(clientId: string, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send transfer', { clientId, sendTransfer })
 
+    const span = this.traceService.startSpan(`${TransferService.name}.sync`)
+
     const source = await this.transferPartyService.resolve(clientId, sendTransfer.source)
     const { data: connections } = await this.connectionService.findAll(
       clientId,
@@ -42,8 +47,22 @@ export class TransferService {
     )
 
     if (connections.length && isActiveConnection(connections[0])) {
-      return this.getProviderTransferService(source.provider).send(connections[0], sendTransfer)
+      const [connection] = connections
+
+      span.setAttribute(OTEL_ATTR_CONNECTION_PROVIDER, connection.provider)
+
+      const transfer = await this.getProviderTransferService(source.provider).send(connection, sendTransfer)
+
+      span.end()
+
+      return transfer
     }
+
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: 'Cannot find an active connection for the source'
+    })
+    span.end()
 
     throw new BrokerException({
       message: 'Cannot find an active connection for the source',
