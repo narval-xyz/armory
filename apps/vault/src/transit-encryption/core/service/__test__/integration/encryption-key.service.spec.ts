@@ -3,7 +3,6 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule } from '@narval/nestjs-shared'
 import {
   Alg,
-  RsaPrivateKey,
   RsaPublicKey,
   SMALLEST_RSA_MODULUS_LENGTH,
   Use,
@@ -85,7 +84,7 @@ describe(EncryptionKeyService.name, () => {
 
   describe('decrypt', () => {
     it('decrypts data using rsa private key', async () => {
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc', modulusLength: 2048 })
+      const privateKey = await generateJwk(Alg.RS256, { use: 'enc', modulusLength: 2048 })
       const publicKey = rsaPrivateKeyToPublicKey(privateKey)
       const encryptionKey = {
         clientId,
@@ -103,7 +102,7 @@ describe(EncryptionKeyService.name, () => {
     })
 
     it('throws InvalidJweHeaderException when public key kid is missing', async () => {
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
+      const privateKey = await generateJwk(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
       const publicKey = omit(rsaPrivateKeyToPublicKey(privateKey), 'kid')
 
       // Mock the repository to bypass schema validation
@@ -133,7 +132,7 @@ describe(EncryptionKeyService.name, () => {
     })
 
     it('throws NotFoundException when encryption key is not found', async () => {
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
+      const privateKey = await generateJwk(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
       const publicKey = rsaPrivateKeyToPublicKey(privateKey)
       const encryptedData = await rsaEncrypt('secret', publicKey)
 
@@ -148,7 +147,7 @@ describe(EncryptionKeyService.name, () => {
 
     it('throws UnauthorizedException when encryption key clientId is different than the given clientId', async () => {
       const differentClientId = uuid()
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
+      const privateKey = await generateJwk(Alg.RS256, GENERATE_RSA_KEY_OPTIONS)
       const publicKey = rsaPrivateKeyToPublicKey(privateKey)
       const encryptionKey = {
         clientId: differentClientId,

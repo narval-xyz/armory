@@ -2,7 +2,6 @@ import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_ADMIN_API_KEY } from '@narval/nestjs-shared'
 import {
   Alg,
-  PrivateKey,
   SMALLEST_RSA_MODULUS_LENGTH,
   generateJwk,
   rsaPublicKeySchema,
@@ -160,9 +159,7 @@ describe('Client', () => {
     })
 
     it('responds with unprocessable entity when backup key is not an RSA key', async () => {
-      const secpBackupKey = secp256k1PublicKeySchema.parse(
-        await generateJwk<PrivateKey>(Alg.ES256K, { keyId: 'secpBackupKeyId' })
-      )
+      const secpBackupKey = secp256k1PublicKeySchema.parse(await generateJwk(Alg.ES256K, { keyId: 'secpBackupKeyId' }))
 
       const invalidClientPayload = {
         ...payload,

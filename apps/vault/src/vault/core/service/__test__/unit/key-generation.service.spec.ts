@@ -5,13 +5,7 @@ import {
   OpenTelemetryModule,
   StatefulMetricService
 } from '@narval/nestjs-shared'
-import {
-  RsaPrivateKey,
-  generateJwk,
-  publicKeyToHex,
-  rsaDecrypt,
-  secp256k1PrivateKeyToPublicJwk
-} from '@narval/signature'
+import { Alg, generateJwk, publicKeyToHex, rsaDecrypt, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { v4 as uuid } from 'uuid'
@@ -129,7 +123,7 @@ describe('GenerateService', () => {
     })
 
     it('returns an encrypted backup if client has an RSA backupKey configured', async () => {
-      const rsaBackupKey = await generateJwk<RsaPrivateKey>('RS256')
+      const rsaBackupKey = await generateJwk(Alg.RS256)
 
       clientServiceMock.findById.mockResolvedValue({
         ...client,

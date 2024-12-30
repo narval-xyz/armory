@@ -5,7 +5,6 @@ import {
   Alg,
   Curves,
   Payload,
-  RsaPrivateKey,
   RsaPublicKey,
   SMALLEST_RSA_MODULUS_LENGTH,
   SigningAlg,
@@ -218,7 +217,7 @@ describe('Generate', () => {
     it('saves a backup when client got a backupKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
       const keyId = 'backupKeyId'
-      const backupKey = await generateJwk<RsaPrivateKey>(Alg.RS256, {
+      const backupKey = await generateJwk(Alg.RS256, {
         keyId,
         modulusLength: SMALLEST_RSA_MODULUS_LENGTH
       })

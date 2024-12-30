@@ -11,7 +11,6 @@ import {
   Alg,
   Header,
   Jwk,
-  RsaPrivateKey,
   Secp256k1PrivateKey,
   SigningAlg,
   p256PublicKeySchema,
@@ -176,7 +175,7 @@ describe('generateKeys', () => {
   })
   describe('rsaPrivateKeyToPublicKey', () => {
     it('converts private to public', async () => {
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
+      const privateKey = await generateJwk(Alg.RS256, { use: 'enc' })
       const publicKey = rsaPrivateKeyToPublicKey(privateKey)
       expect(publicKey).toEqual({
         alg: Alg.RS256,

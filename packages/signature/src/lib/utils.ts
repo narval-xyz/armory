@@ -370,7 +370,7 @@ type AlgToPrivateKeyType = {
   [Alg.ES256K]: Secp256k1PrivateKey
   [Alg.ES256]: P256PrivateKey
   [Alg.EDDSA]: Ed25519PrivateKey
-  [Alg.RS256]: never
+  [Alg.RS256]: RsaPrivateKey
 }
 
 export const privateKeyToJwk = <A extends Alg>(
@@ -451,8 +451,8 @@ export const rsaPrivateKeyToPublicKey = (jwk: RsaPrivateKey) => {
   return publicKey
 }
 
-export const generateJwk = async <T = Jwk>(
-  alg: Alg,
+export const generateJwk = async <A extends Alg>(
+  alg: A,
   opts?: {
     keyId?: string
     /**
@@ -467,23 +467,23 @@ export const generateJwk = async <T = Jwk>(
      */
     use?: Use
   }
-): Promise<T> => {
+): Promise<AlgToPrivateKeyType[A]> => {
   switch (alg) {
     case Alg.ES256K: {
       const privateKeyK1 = toHex(secp256k1.utils.randomPrivateKey())
-      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId) as T
+      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     case Alg.ES256: {
       const privateKeyP256 = toHex(p256.utils.randomPrivateKey())
-      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId) as T
+      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     case Alg.RS256: {
       const jwk = await generateRsaPrivateKey(opts)
-      return jwk as T
+      return jwk as AlgToPrivateKeyType[A]
     }
     case Alg.EDDSA: {
       const privateKeyEd25519 = toHex(ed25519.utils.randomPrivateKey())
-      return ed25519PrivateKeyToJwk(privateKeyEd25519, opts?.keyId) as T
+      return ed25519PrivateKeyToJwk(privateKeyEd25519, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
@@ -502,7 +502,7 @@ export const publicJwkToPem = async (jwk: Jwk): Promise<string> => {
 export const publicHexToPem = async (publicKey: Hex, alg: Alg): Promise<string> => {
   switch (alg) {
     case Alg.RS256:
-      return publicRsaJwkToPem((await publicKeyToJwk(publicKey, alg)) as RsaKey)
+      return publicRsaJwkToPem(publicKeyToJwk(publicKey, alg) as RsaKey)
     default:
       throw new Error('Unsupported algorithm')
   }

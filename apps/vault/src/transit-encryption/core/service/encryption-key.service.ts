@@ -3,7 +3,6 @@ import { LoggerService } from '@narval/nestjs-shared'
 import {
   Alg,
   DEFAULT_RSA_MODULUS_LENGTH,
-  RsaPrivateKey,
   SMALLEST_RSA_MODULUS_LENGTH,
   generateJwk,
   rsaDecrypt,
@@ -32,7 +31,7 @@ export class EncryptionKeyService {
 
   async generate(clientId: string, opts?: GenerateOptions): Promise<EncryptionKey> {
     const modulusLength = this.getRsaModulusLength(opts)
-    const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc', modulusLength })
+    const privateKey = await generateJwk(Alg.RS256, { use: 'enc', modulusLength })
     const publicKey = rsaPrivateKeyToPublicKey(privateKey)
 
     this.logger.log('Generate RSA encryption key', {
