@@ -20,7 +20,6 @@ import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
-import { ProxyRequestException } from '../../../core/exception/proxy-request.exception'
 import { ProxyService } from '../../../core/service/proxy.service'
 
 const API_PARAM = ':endpoint(*)'
@@ -68,22 +67,15 @@ export class ProxyController {
     const queryString = new URLSearchParams(request.query as Record<string, string>).toString()
     const sanitizedEndpoint = queryString ? `/${endpoint}?${queryString}` : `/${endpoint}`
 
-    try {
-      const response = await this.proxyService.forward(clientId, {
-        connectionId,
-        endpoint: sanitizedEndpoint,
-        method: request.method,
-        data: body
-      })
+    const response = await this.proxyService.forward(clientId, {
+      connectionId,
+      endpoint: sanitizedEndpoint,
+      method: request.method,
+      data: body
+    })
 
-      res.status(response.code).set(response.headers).send(response.data)
-    } catch (error) {
-      if (error instanceof ProxyRequestException) {
-        res.status(error.code).set(error.headers).send(error.data)
-      } else {
-        throw error
-      }
-    }
+    res.status(response.code).set(response.headers)
+    response.data.pipe(res)
   }
 
   // IMPORTANT: The `@All` decorator from NestJS cannot be used here because it

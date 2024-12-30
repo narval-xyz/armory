@@ -328,4 +328,32 @@ describe('Proxy', () => {
     })
     expect(response.status).toBe(HttpStatus.UNPROCESSABLE_ENTITY)
   })
+
+  it('correctly forwards response headers without conflicts', async () => {
+    nock(MOCK_API_URL).get('/v2/vaults').reply(
+      200,
+      { data: 'mock response' },
+      {
+        'transfer-encoding': 'chunked'
+      }
+    )
+
+    const response = await request(app.getHttpServer())
+      .get('/provider/proxy/v2/vaults')
+      .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
+      .set(REQUEST_HEADER_CONNECTION_ID, TEST_CONNECTION_ID)
+      .set(
+        'detached-jws',
+        await getJwsd({
+          userPrivateJwk: testUserPrivateJwk,
+          requestUrl: '/provider/proxy/v2/vaults',
+          payload: {},
+          htm: 'GET'
+        })
+      )
+
+    // If there's a header conflict, nock will throw before we get here
+    expect(response.body).toEqual({ data: 'mock response' })
+    expect(response.status).toBe(HttpStatus.OK)
+  })
 })

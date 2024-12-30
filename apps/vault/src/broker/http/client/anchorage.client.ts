@@ -21,7 +21,6 @@ import {
 import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { ProviderHttpException } from '../../core/exception/provider-http.exception'
-import { ProxyRequestException } from '../../core/exception/proxy-request.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
 import { Provider } from '../../core/type/connection.type'
 
@@ -236,28 +235,18 @@ export class AnchorageClient {
       request: {
         url,
         method,
-        data
+        data,
+        responseType: 'stream',
+        // Don't reject on error status codes. Needed to re-throw our exception
+        validateStatus: null
       },
       apiKey,
       signKey
     })
 
-    try {
-      const response = await axios(signedRequest)
+    const response = await axios(signedRequest)
 
-      return response
-    } catch (error) {
-      throw new ProxyRequestException({
-        message: 'Anchorage proxy request failed',
-        status: error.response?.status,
-        data: error.response?.data,
-        headers: error.response?.headers,
-        context: {
-          url,
-          method
-        }
-      })
-    }
+    return response
   }
 
   async authorize(opts: {
