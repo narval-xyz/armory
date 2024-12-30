@@ -9,7 +9,9 @@ import getVaultAddressesOk from './response/get-vaults-addresses-200.json'
 import getWalletsOk from './response/get-wallets-200.json'
 import postTransferCreated from './response/post-transfer-201.json'
 
-export const trustedDestinationsHandlers = (baseUrl: string) => {
+export const ANCHORAGE_TEST_API_BASE_URL = 'https://test-mock-api.anchorage.com'
+
+export const getTrustedDestinationHandlers = (baseUrl = ANCHORAGE_TEST_API_BASE_URL) => {
   return {
     findAll: http.get(`${baseUrl}/v2/trusted_destinations`, () => {
       return new HttpResponse(JSON.stringify(trustedDestinationsFirst))
@@ -25,7 +27,7 @@ export const trustedDestinationsHandlers = (baseUrl: string) => {
   }
 }
 
-export const vaultHandlers = (baseUrl: string) => {
+export const getVaultHandlers = (baseUrl = ANCHORAGE_TEST_API_BASE_URL) => {
   return {
     findAll: http.get(`${baseUrl}/v2/vaults`, () => {
       return new HttpResponse(JSON.stringify(getVaultsOk))
@@ -36,7 +38,7 @@ export const vaultHandlers = (baseUrl: string) => {
   }
 }
 
-export const getHandlers = (baseUrl: string) => [
+export const getHandlers = (baseUrl = ANCHORAGE_TEST_API_BASE_URL) => [
   http.get(`${baseUrl}/v2/vaults/:vaultId/addresses`, () => {
     return new HttpResponse(JSON.stringify(getVaultAddressesOk))
   }),
@@ -53,7 +55,7 @@ export const getHandlers = (baseUrl: string) => [
     return new HttpResponse(JSON.stringify(postTransferCreated))
   }),
 
-  vaultHandlers(baseUrl).findAll,
+  getVaultHandlers(baseUrl).findAll,
 
-  trustedDestinationsHandlers(baseUrl).findAll
+  getTrustedDestinationHandlers(baseUrl).findAll
 ]

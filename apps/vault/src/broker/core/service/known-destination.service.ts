@@ -26,18 +26,23 @@ export class KnownDestinationService {
     return this.knownDestinationRepository.bulkCreate(knownDestinations)
   }
 
-  async bulkDelete(knownDestinationId: KnownDestination[]): Promise<number> {
-    return this.knownDestinationRepository.bulkDelete(knownDestinationId)
+  async bulkDelete(knownDestinationIds: string[]): Promise<number> {
+    return this.knownDestinationRepository.bulkDelete(knownDestinationIds)
   }
 
   async bulkUpdate(knownDestinations: KnownDestination[]): Promise<KnownDestination[]> {
     return Promise.all(knownDestinations.map((knownDestination) => this.update(knownDestination)))
   }
+
   async update(knownDestination: UpdateKnownDestination): Promise<KnownDestination> {
     return this.knownDestinationRepository.update(knownDestination)
   }
 
   async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<KnownDestination>> {
     return this.knownDestinationRepository.findAll(clientId, opts)
+  }
+
+  async findById(clientId: string, knownDestinationId: string): Promise<KnownDestination> {
+    return this.knownDestinationRepository.findById(clientId, knownDestinationId)
   }
 }

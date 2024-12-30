@@ -69,12 +69,13 @@ const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
 describe('Connection', () => {
   let app: INestApplication
   let module: TestingModule
+  let testPrismaService: TestPrismaService
+
+  let clientService: ClientService
   let connectionService: ConnectionService
   let encryptionKeyService: EncryptionKeyService
-  let testPrismaService: TestPrismaService
-  let provisionService: ProvisionService
-  let clientService: ClientService
   let eventEmitterMock: MockProxy<EventEmitter2>
+  let provisionService: ProvisionService
 
   const url = 'http://provider.narval.xyz'
 
@@ -216,7 +217,7 @@ describe('Connection', () => {
       const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
 
       expect(eventEmitterMock.emit).toHaveBeenCalledWith(
-        'connection.activated',
+        ConnectionActivatedEvent.EVENT_NAME,
         new ConnectionActivatedEvent(createdConnection as ActiveConnectionWithCredentials)
       )
     })

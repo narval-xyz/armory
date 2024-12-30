@@ -29,9 +29,9 @@ export class ProviderAccountController {
   })
   async list(
     @ClientId() clientId: string,
-    @PaginationParam() options: PaginationOptions
+    @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    return PaginatedAccountsDto.create(await this.accountService.getAccounts(clientId, options))
+    return PaginatedAccountsDto.create(await this.accountService.findAll(clientId, { pagination }))
   }
 
   @Get(':accountId')
@@ -52,7 +52,7 @@ export class ProviderAccountController {
     description: 'Account not found'
   })
   async getById(@ClientId() clientId: string, @Param('accountId') accountId: string): Promise<ProviderAccountDto> {
-    const data = await this.accountService.getAccount(clientId, accountId)
+    const data = await this.accountService.findById(clientId, accountId)
 
     return ProviderAccountDto.create({ data })
   }

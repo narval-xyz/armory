@@ -4,25 +4,31 @@ import { Ed25519PrivateKey, getPublicKey } from '@narval/signature'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { v4 as uuid } from 'uuid'
-import { ClientService } from '../../../../../client/core/service/client.service'
-import { MainModule } from '../../../../../main.module'
-import { ProvisionService } from '../../../../../provision.service'
-import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
-import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { testClient } from '../../../../__test__/util/mock-data'
-import { AccountRepository } from '../../../../persistence/repository/account.repository'
-import { AddressRepository } from '../../../../persistence/repository/address.repository'
-import { ConnectionRepository } from '../../../../persistence/repository/connection.repository'
-import { KnownDestinationRepository } from '../../../../persistence/repository/known-destination.repository'
-import { TransferRepository } from '../../../../persistence/repository/transfer.repository'
-import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
-import { ActiveConnectionWithCredentials, ConnectionStatus, Provider } from '../../../type/connection.type'
-import { Account, Address, KnownDestination, Wallet } from '../../../type/indexed-resources.type'
-import { InternalTransfer, NetworkFeeAttribution, TransferPartyType, TransferStatus } from '../../../type/transfer.type'
+import { ClientService } from '../../../../../../client/core/service/client.service'
+import { MainModule } from '../../../../../../main.module'
+import { ProvisionService } from '../../../../../../provision.service'
+import { KeyValueRepository } from '../../../../../../shared/module/key-value/core/repository/key-value.repository'
+import { InMemoryKeyValueRepository } from '../../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { TestPrismaService } from '../../../../../../shared/module/persistence/service/test-prisma.service'
+import { getTestRawAesKeyring } from '../../../../../../shared/testing/encryption.testing'
+import { testClient } from '../../../../../__test__/util/mock-data'
+import { AccountRepository } from '../../../../../persistence/repository/account.repository'
+import { AddressRepository } from '../../../../../persistence/repository/address.repository'
+import { ConnectionRepository } from '../../../../../persistence/repository/connection.repository'
+import { KnownDestinationRepository } from '../../../../../persistence/repository/known-destination.repository'
+import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
+import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
+import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
+import { ActiveConnectionWithCredentials, ConnectionStatus, Provider } from '../../../../type/connection.type'
+import { Account, Address, KnownDestination, Wallet } from '../../../../type/indexed-resources.type'
+import {
+  InternalTransfer,
+  NetworkFeeAttribution,
+  TransferPartyType,
+  TransferStatus
+} from '../../../../type/transfer.type'
 import { AnchorageTransferService } from '../../anchorage-transfer.service'
-import { ANCHORAGE_TEST_API_BASE_URL, setupMockServer, useRequestSpy } from './mocks/anchorage/server'
+import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../server-mock/server'
 
 describe(AnchorageTransferService.name, () => {
   let app: INestApplication
@@ -39,7 +45,7 @@ describe(AnchorageTransferService.name, () => {
   let addressRepository: AddressRepository
   let knownDestinationRepository: KnownDestinationRepository
 
-  const server = setupMockServer()
+  const mockServer = setupMockServer(getHandlers())
 
   const clientId = uuid()
 
@@ -318,7 +324,7 @@ describe(AnchorageTransferService.name, () => {
     })
 
     it('calls Anchorage', async () => {
-      const [spy] = useRequestSpy(server)
+      const [spy] = useRequestSpy(mockServer)
       const sendTransfer = {
         ...requiredSendTransfer,
         memo: 'Integration test transfer',
@@ -343,7 +349,7 @@ describe(AnchorageTransferService.name, () => {
             amount: sendTransfer.amount,
             customerRefId: sendTransfer.customerRefId,
             transferMemo: sendTransfer.memo,
-            idempotenceId: sendTransfer.idempotenceId,
+            idempotentId: sendTransfer.idempotenceId,
             // Default `deductFeeFromAmountIfSameType` to false.
             deductFeeFromAmountIfSameType: false
           }
@@ -352,7 +358,7 @@ describe(AnchorageTransferService.name, () => {
     })
 
     it('handles provider specific', async () => {
-      const [spy] = useRequestSpy(server)
+      const [spy] = useRequestSpy(mockServer)
       const sendTransfer = {
         ...requiredSendTransfer,
         provider: Provider.ANCHORAGE,
@@ -372,7 +378,7 @@ describe(AnchorageTransferService.name, () => {
     })
 
     it('maps networkFeeAttribution on_top to deductFeeFromAmountIfSameType false', async () => {
-      const [spy] = useRequestSpy(server)
+      const [spy] = useRequestSpy(mockServer)
 
       await anchorageTransferService.send(connection, {
         ...requiredSendTransfer,
@@ -389,7 +395,7 @@ describe(AnchorageTransferService.name, () => {
     })
 
     it('maps networkFeeAttribution deduct to deductFeeFromAmountIfSameType true', async () => {
-      const [spy] = useRequestSpy(server)
+      const [spy] = useRequestSpy(mockServer)
 
       await anchorageTransferService.send(connection, {
         ...requiredSendTransfer,

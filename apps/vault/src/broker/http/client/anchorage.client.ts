@@ -131,7 +131,7 @@ const CreateTransfer = z.object({
   assetType: z.string(),
   deductFeeFromAmountIfSameType: z.boolean(),
   destination: Resource,
-  idempotenceId: z.string().max(128).nullable(),
+  idempotentId: z.string().max(128).nullable(),
   source: Resource,
   transferMemo: z.string().nullable()
 })

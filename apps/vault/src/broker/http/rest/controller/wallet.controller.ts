@@ -33,9 +33,9 @@ export class ProviderWalletController {
   })
   async list(
     @ClientId() clientId: string,
-    @PaginationParam() options: PaginationOptions
+    @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    return PaginatedWalletsDto.create(await this.walletService.getWallets(clientId, options))
+    return PaginatedWalletsDto.create(await this.walletService.findAll(clientId, { pagination }))
   }
 
   @Get(':walletId')
@@ -56,7 +56,7 @@ export class ProviderWalletController {
     description: 'Wallet not found'
   })
   async getById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<ProviderWalletDto> {
-    const data = await this.walletService.getWallet(clientId, walletId)
+    const data = await this.walletService.findById(clientId, walletId)
 
     return ProviderWalletDto.create({ data })
   }

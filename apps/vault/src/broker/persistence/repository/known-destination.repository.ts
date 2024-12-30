@@ -23,7 +23,7 @@ type ProviderKnownDestinationAndRelations = ProviderKnownDestination & {
 
 export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
-const UpdateKnownDestination = KnownDestination.pick({
+export const UpdateKnownDestination = KnownDestination.pick({
   knownDestinationId: true,
   label: true,
   connections: true,
@@ -45,12 +45,12 @@ export class KnownDestinationRepository {
       return ConnectionRepository.parseModel(join.connection)
     })
 
-    return {
+    return KnownDestination.parse({
       ...rest,
       connections: validConnections,
       knownDestinationId: id,
-      provider: z.nativeEnum(Provider).parse(model.provider)
-    }
+      provider: model.provider
+    })
   }
 
   static parseEntity(entity: KnownDestination): ProviderKnownDestination {
@@ -216,11 +216,11 @@ export class KnownDestinationRepository {
     return created.map(KnownDestinationRepository.parseModel)
   }
 
-  async bulkDelete(knownDestinations: KnownDestination[]): Promise<number> {
+  async bulkDelete(knownDestinationIds: string[]): Promise<number> {
     await this.prismaService.providerKnownDestinationConnection.deleteMany({
       where: {
         knownDestinationId: {
-          in: knownDestinations.map((d) => d.knownDestinationId)
+          in: knownDestinationIds
         }
       }
     })
@@ -228,10 +228,11 @@ export class KnownDestinationRepository {
     const { count } = await this.prismaService.providerKnownDestination.deleteMany({
       where: {
         id: {
-          in: knownDestinations.map((d) => d.knownDestinationId)
+          in: knownDestinationIds
         }
       }
     })
+
     return count
   }
 

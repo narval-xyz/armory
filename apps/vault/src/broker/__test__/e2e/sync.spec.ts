@@ -14,30 +14,28 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import {
-  ANCHORAGE_TEST_API_BASE_URL,
-  setupMockServer
-} from '../../core/service/__test__/integration/mocks/anchorage/server'
-import { AnchorageSyncService } from '../../core/service/anchorage-sync.service'
+import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/anchorage/__test__/server-mock/server'
+import { AnchorageSyncService } from '../../core/provider/anchorage/anchorage-sync.service'
 import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
-import { ActiveConnectionWithCredentials, PendingConnection, Provider } from '../../core/type/connection.type'
+import { ActiveConnectionWithCredentials, Provider } from '../../core/type/connection.type'
 import { SyncStatus } from '../../core/type/sync.type'
+import { setupMockServer } from '../../shared/__test__/mock-server'
+import { SyncStartedEvent } from '../../shared/event/sync-started.event'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('Sync', () => {
   let app: INestApplication
   let module: TestingModule
+
+  let eventEmitterMock: MockProxy<EventEmitter2>
   let syncService: SyncService
   let connectionService: ConnectionService
   let testPrismaService: TestPrismaService
   let anchorageSyncServiceMock: MockProxy<AnchorageSyncService>
   let provisionService: ProvisionService
   let clientService: ClientService
-
   let activeConnection: ActiveConnectionWithCredentials
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let pendingConnection: PendingConnection
 
   const url = ANCHORAGE_TEST_API_BASE_URL
 
@@ -45,17 +43,14 @@ describe('Sync', () => {
 
   const clientId = testClient.clientId
 
-  setupMockServer()
+  setupMockServer(getHandlers())
 
   beforeAll(async () => {
-    // We mock the provider's sync service here to prevent race conditions
-    // during the tests. This is because the SyncService sends a promise to
-    // start the sync but does not wait for it to complete.
-    //
-    // NOTE: The sync logic is tested in the provider's sync service
-    // integration tests.
-    anchorageSyncServiceMock = mock<AnchorageSyncService>()
-    anchorageSyncServiceMock.sync.mockResolvedValue()
+    // NOTE: The sync logic is tested in the provider's sync service and the
+    // sync service integration tests.
+
+    eventEmitterMock = mock<EventEmitter2>()
+    eventEmitterMock.emit.mockReturnValue(true)
 
     module = await Test.createTestingModule({
       imports: [MainModule]
@@ -70,10 +65,8 @@ describe('Sync', () => {
       })
       .overrideProvider(AnchorageSyncService)
       .useValue(anchorageSyncServiceMock)
-      // Mock the event emitter because we don't want to send a
-      // connection.activated event after the creation.
       .overrideProvider(EventEmitter2)
-      .useValue(mock<EventEmitter2>())
+      .useValue(eventEmitterMock)
       .compile()
 
     app = module.createNestApplication()
@@ -109,7 +102,7 @@ describe('Sync', () => {
       }
     })
 
-    pendingConnection = await connectionService.initiate(clientId, {
+    await connectionService.initiate(clientId, {
       connectionId: uuid(),
       provider: Provider.ANCHORAGE
     })
@@ -123,7 +116,7 @@ describe('Sync', () => {
     // single state throughout the entire test lifecycle. Therefore, changing
     // the order of this test will affect how many times the `sync` function is
     // called.
-    it('dispatches the sync to the provider specific service', async () => {
+    it('emits sync.started event on syncs start', async () => {
       await request(app.getHttpServer())
         .post('/provider/syncs')
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
@@ -138,7 +131,12 @@ describe('Sync', () => {
         )
         .send()
 
-      expect(anchorageSyncServiceMock.sync).toHaveBeenCalledTimes(1)
+      const { data: syncs } = await syncService.findAll(clientId)
+
+      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
+        SyncStartedEvent.EVENT_NAME,
+        new SyncStartedEvent(syncs[0], activeConnection)
+      )
     })
 
     it('starts a sync on every active connection', async () => {
@@ -238,9 +236,7 @@ describe('Sync', () => {
         connectionId: sync.connectionId,
         createdAt: sync.createdAt.toISOString(),
         syncId: sync.syncId,
-        // In between the calling `start` and sending the request, the sync
-        // status changed from `processing` to `success`.
-        status: SyncStatus.SUCCESS
+        status: SyncStatus.PROCESSING
       })
 
       expect(status).toEqual(HttpStatus.OK)
@@ -273,9 +269,7 @@ describe('Sync', () => {
             connectionId: sync.connectionId,
             createdAt: sync.createdAt.toISOString(),
             syncId: sync.syncId,
-            // In between the calling `start` and sending the request, the sync
-            // status changed from `processing` to `success`.
-            status: SyncStatus.SUCCESS
+            status: SyncStatus.PROCESSING
           }
         ]
       })
@@ -311,7 +305,7 @@ describe('Sync', () => {
             connectionId: sync.connectionId,
             createdAt: sync.createdAt.toISOString(),
             syncId: sync.syncId,
-            status: SyncStatus.SUCCESS
+            status: SyncStatus.PROCESSING
           }
         ]
       })

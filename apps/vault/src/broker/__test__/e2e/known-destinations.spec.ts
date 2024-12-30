@@ -14,7 +14,7 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { ANCHORAGE_TEST_API_BASE_URL } from '../../core/service/__test__/integration/mocks/anchorage/server'
+import { ANCHORAGE_TEST_API_BASE_URL } from '../../core/provider/anchorage/__test__/server-mock/server'
 import { ConnectionService } from '../../core/service/connection.service'
 import { KnownDestinationService } from '../../core/service/known-destination.service'
 import { Provider } from '../../core/type/connection.type'

@@ -15,11 +15,8 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import postAnchorageTransferBadRequest from '../../core/service/__test__/integration/mocks/anchorage/response/post-transfer-400.json'
-import {
-  ANCHORAGE_TEST_API_BASE_URL,
-  setupMockServer
-} from '../../core/service/__test__/integration/mocks/anchorage/server'
+import postAnchorageTransferBadRequest from '../../core/provider/anchorage/__test__/server-mock/response/post-transfer-400.json'
+import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/anchorage/__test__/server-mock/server'
 import { ActiveConnectionWithCredentials, ConnectionStatus, Provider } from '../../core/type/connection.type'
 import { Account, Wallet } from '../../core/type/indexed-resources.type'
 import {
@@ -32,6 +29,7 @@ import { AccountRepository } from '../../persistence/repository/account.reposito
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { TransferRepository } from '../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { setupMockServer } from '../../shared/__test__/mock-server'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 const ENDPOINT = '/provider/transfers'
@@ -138,7 +136,7 @@ describe('Transfer', () => {
     transferId: uuid()
   }
 
-  const mockServer = setupMockServer()
+  const mockServer = setupMockServer(getHandlers())
 
   beforeAll(async () => {
     module = await Test.createTestingModule({

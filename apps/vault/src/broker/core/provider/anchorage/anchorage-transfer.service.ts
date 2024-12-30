@@ -1,10 +1,12 @@
 import { LoggerService } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
-import { AnchorageClient } from '../../http/client/anchorage.client'
-import { TransferRepository } from '../../persistence/repository/transfer.repository'
-import { BrokerException } from '../exception/broker.exception'
-import { ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
+import { AnchorageClient } from '../../../http/client/anchorage.client'
+import { TransferRepository } from '../../../persistence/repository/transfer.repository'
+import { BrokerException } from '../../exception/broker.exception'
+import { TransferPartyService } from '../../service/transfer-party.service'
+import { ActiveConnectionWithCredentials, Provider } from '../../type/connection.type'
+import { ProviderTransferService } from '../../type/provider.type'
 import {
   Destination,
   InternalTransfer,
@@ -16,11 +18,10 @@ import {
   TransferStatus,
   isAddressDestination,
   isProviderSpecific
-} from '../type/transfer.type'
-import { TransferPartyService } from './transfer-party.service'
+} from '../../type/transfer.type'
 
 @Injectable()
-export class AnchorageTransferService {
+export class AnchorageTransferService implements ProviderTransferService {
   constructor(
     private readonly anchorageClient: AnchorageClient,
     private readonly transferPartyService: TransferPartyService,
@@ -128,7 +129,7 @@ export class AnchorageTransferService {
       amount: sendTransfer.amount,
       customerRefId: sendTransfer.customerRefId || null,
       transferMemo: sendTransfer.memo || null,
-      idempotenceId: sendTransfer.idempotenceId || null,
+      idempotentId: sendTransfer.idempotenceId || null,
       deductFeeFromAmountIfSameType: this.getDeductFeeFromAmountIfSameType(networkFeeAttribution),
       ...(isProviderSpecific(sendTransfer.providerSpecific) ? { ...sendTransfer.providerSpecific } : {})
     }

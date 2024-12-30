@@ -1,11 +1,9 @@
 import { afterAll, afterEach, beforeAll, jest } from '@jest/globals'
+import { HttpHandler } from 'msw'
 import { SetupServerApi, setupServer } from 'msw/node'
-import { disableNockProtection, restoreNockProtection } from '../../../../../../../../test/nock.util'
-import { getHandlers } from './handlers'
+import { disableNockProtection, restoreNockProtection } from '../../../../test/nock.util'
 
-export const ANCHORAGE_TEST_API_BASE_URL = 'https://test-mock-api.anchorage.com'
-
-export const getMockServer = () => setupServer(...getHandlers(ANCHORAGE_TEST_API_BASE_URL))
+export const getMockServer = (handlers: HttpHandler[]) => setupServer(...handlers)
 
 export const useRequestSpy = (server: SetupServerApi): [jest.Mock, SetupServerApi] => {
   const spy = jest.fn()
@@ -66,10 +64,10 @@ const attachToJestTestLifecycle = (server: SetupServerApi): SetupServerApi => {
  * `describe` or `it`. If you only need the server instance without attaching
  * it to the test lifecycle, use `getMockServer` instead.
  */
-export const setupMockServer = (server?: SetupServerApi): SetupServerApi => {
+export const setupMockServer = (handlers: HttpHandler[], server?: SetupServerApi): SetupServerApi => {
   if (server) {
     return attachToJestTestLifecycle(server)
   }
 
-  return attachToJestTestLifecycle(getMockServer())
+  return attachToJestTestLifecycle(getMockServer(handlers))
 }

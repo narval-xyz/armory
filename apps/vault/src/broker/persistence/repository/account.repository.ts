@@ -20,6 +20,14 @@ type FindAllFilters = {
 
 export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
+export type UpdateAccount = {
+  clientId: string
+  accountId: string
+  label?: string
+  addresses?: Address[]
+  updatedAt?: Date
+}
+
 @Injectable()
 export class AccountRepository {
   constructor(private prismaService: PrismaService) {}
@@ -116,20 +124,49 @@ export class AccountRepository {
     return accounts
   }
 
+  async bulkUpdate(updateAccounts: UpdateAccount[]): Promise<boolean> {
+    await Promise.all(updateAccounts.map((u) => this.update(u)))
+
+    return true
+  }
+
+  async update(updateAccount: UpdateAccount): Promise<boolean> {
+    await this.prismaService.providerAccount.update({
+      where: {
+        clientId: updateAccount.clientId,
+        id: updateAccount.accountId
+      },
+      data: {
+        label: updateAccount.label,
+        updatedAt: updateAccount.updatedAt || new Date()
+      }
+    })
+
+    return true
+  }
+
   async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Account>> {
     const pagination = applyPagination(options?.pagination)
 
     const models = await this.prismaService.providerAccount.findMany({
       where: {
         clientId,
-        walletId: options?.filters?.walletId,
-        wallet: {
-          connections: {
-            some: {
-              connectionId: options?.filters?.connectionId
+        ...(options?.filters?.walletId
+          ? {
+              walletId: options.filters.walletId
             }
-          }
-        },
+          : {}),
+        ...(options?.filters?.connectionId
+          ? {
+              wallet: {
+                connections: {
+                  some: {
+                    connectionId: options?.filters?.connectionId
+                  }
+                }
+              }
+            }
+          : {}),
         ...(options?.filters?.externalIds
           ? {
               externalId: {
