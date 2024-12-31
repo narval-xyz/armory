@@ -4,7 +4,7 @@ import * as ed25519 from '@noble/ed25519'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { sha512 } from '@noble/hashes/sha512'
 import { subtle } from 'crypto'
-import { exportJWK, exportSPKI, generateKeyPair, importJWK, importSPKI, KeyLike } from 'jose'
+import { exportJWK, exportPKCS8, exportSPKI, generateKeyPair, importJWK, importPKCS8, importSPKI, KeyLike } from 'jose'
 import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
@@ -539,6 +539,52 @@ export const publicPemToJwk = <T = Jwk>(pem: string, alg: Alg, kid?: string): T 
   switch (alg) {
     case Alg.RS256:
       return publicRsaPemToJwk(pem, { kid }) as T
+    default:
+      throw new Error('Unsupported algorithm')
+  }
+}
+
+export const privateJwkToPem = async (jwk: Jwk): Promise<string> => {
+  switch (jwk.kty) {
+    case KeyTypes.RSA:
+      return privateRsaJwkToPem(jwk as RsaKey)
+    default:
+      throw new Error('Unsupported key type')
+  }
+}
+
+export const privateRsaJwkToPem = async (rsaJwk: RsaKey): Promise<string> => {
+  const jk = (await importJWK(rsaJwk, 'RS256')) as KeyLike
+  const k = await exportPKCS8(jk)
+  return k
+}
+
+export const privateRsaPemToJwk = async (pem: string, opts?: { kid?: string }): Promise<RsaPrivateKey> => {
+  const jk = await importPKCS8(pem, 'RS256', {
+    extractable: true
+  })
+
+  const key = await exportJWK(jk)
+
+  return rsaPrivateKeySchema.parse({
+    ...key,
+    alg: 'RS256',
+    kid: opts?.kid || rsaKeyToKid({ n: key.n, e: key.e })
+  })
+}
+
+export const privateKeyToPem = async (privateKey: Jwk | Hex, alg: Alg): Promise<string> => {
+  if (typeof privateKey === 'string') {
+    return privateHexToPem(privateKey, alg)
+  }
+
+  return privateJwkToPem(privateKey)
+}
+
+export const privateHexToPem = async (privateKey: Hex, alg: Alg): Promise<string> => {
+  switch (alg) {
+    case Alg.RS256:
+      return privateRsaJwkToPem(privateKeyToJwk(privateKey, alg) as RsaKey)
     default:
       throw new Error('Unsupported algorithm')
   }

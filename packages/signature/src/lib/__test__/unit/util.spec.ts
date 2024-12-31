@@ -10,7 +10,9 @@ import { buildSignerEip191, signJwt } from '../../sign'
 import {
   Alg,
   Header,
+  Hex,
   Jwk,
+  RsaPrivateKey,
   Secp256k1PrivateKey,
   SigningAlg,
   p256PublicKeySchema,
@@ -22,8 +24,11 @@ import {
   ed25519polyfilled,
   ellipticPrivateKeyToHex,
   generateJwk,
+  privateJwkToPem,
   privateKeyToHex,
   privateKeyToJwk,
+  privateKeyToPem,
+  privateRsaPemToJwk,
   publicKeyToHex,
   publicKeyToJwk,
   publicKeyToPem,
@@ -339,6 +344,45 @@ kwIDAQAB
 
     const newJwk = await publicRsaPemToJwk(pem, { kid: publicJwk.kid })
     expect(newJwk).toEqual(publicJwk)
+  })
+})
+
+describe('privateJwkToPem', () => {
+  it('maps round-trip private rsa key to pem', async () => {
+    const privateKey = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
+    const pem = await privateJwkToPem(privateKey)
+
+    const roundTripJwk = await privateRsaPemToJwk(pem)
+
+    expect(roundTripJwk).toEqual(privateKey)
+  })
+
+  it('throws when privateJwkToPem fails', async () => {
+    const invalidJwk = { kty: 'RSA' } as RsaPrivateKey
+
+    await expect(privateKeyToPem(invalidJwk, Alg.RS256)).rejects.toThrow()
+  })
+})
+
+describe('privateKeyToPem', () => {
+  it('maps round-trip private rsa jwk to pem', async () => {
+    const privateKey = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
+    const pem = await privateKeyToPem(privateKey, Alg.RS256)
+    const roundTripJwk = await privateRsaPemToJwk(pem)
+
+    expect(roundTripJwk).toEqual(privateKey)
+  })
+
+  it('throws error when invalid hex is provided', async () => {
+    const invalidHex = 'invalid-hex' as Hex
+    await expect(privateKeyToPem(invalidHex, Alg.RS256)).rejects.toThrow()
+  })
+
+  it('throws error when invalid jwk is provided', async () => {
+    // Missing required JWK parameters
+    const invalidJwk = { kty: 'RSA' } as Jwk
+
+    await expect(privateKeyToPem(invalidJwk, Alg.RS256)).rejects.toThrow()
   })
 })
 
