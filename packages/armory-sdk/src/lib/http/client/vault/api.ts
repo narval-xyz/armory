@@ -1287,6 +1287,19 @@ export type InitiateConnectionDtoProviderEnum = typeof InitiateConnectionDtoProv
 /**
  * 
  * @export
+ * @interface KnownDestinationDto
+ */
+export interface KnownDestinationDto {
+    /**
+     * 
+     * @type {PaginatedKnownDestinationsDtoDataInner}
+     * @memberof KnownDestinationDto
+     */
+    'data': PaginatedKnownDestinationsDtoDataInner;
+}
+/**
+ * 
+ * @export
  * @interface PaginatedAccountsDto
  */
 export interface PaginatedAccountsDto {
@@ -1490,6 +1503,111 @@ export interface PaginatedConnectionsDto {
      */
     'page'?: PaginatedAccountsDtoPage;
 }
+/**
+ * 
+ * @export
+ * @interface PaginatedKnownDestinationsDto
+ */
+export interface PaginatedKnownDestinationsDto {
+    /**
+     * 
+     * @type {Array<PaginatedKnownDestinationsDtoDataInner>}
+     * @memberof PaginatedKnownDestinationsDto
+     */
+    'data': Array<PaginatedKnownDestinationsDtoDataInner>;
+    /**
+     * 
+     * @type {PaginatedAccountsDtoPage}
+     * @memberof PaginatedKnownDestinationsDto
+     */
+    'page'?: PaginatedAccountsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedKnownDestinationsDtoDataInner
+ */
+export interface PaginatedKnownDestinationsDtoDataInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'knownDestinationId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {Array<ProviderConnectionDtoData>}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'connections': Array<ProviderConnectionDtoData>;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'provider': PaginatedKnownDestinationsDtoDataInnerProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'label'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'externalClassification'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'address': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'assetId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedKnownDestinationsDtoDataInner
+     */
+    'updatedAt': any;
+}
+
+export const PaginatedKnownDestinationsDtoDataInnerProviderEnum = {
+    Anchorage: 'anchorage'
+} as const;
+
+export type PaginatedKnownDestinationsDtoDataInnerProviderEnum = typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum[keyof typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum];
+
 /**
  * 
  * @export
@@ -5682,6 +5800,332 @@ export class ProviderConnectionApi extends BaseAPI {
      */
     public update(requestParameters: ProviderConnectionApiUpdateRequest, options?: RawAxiosRequestConfig) {
         return ProviderConnectionApiFp(this.configuration).update(requestParameters.xClientId, requestParameters.connectionId, requestParameters.updateConnectionDto, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderKnownDestinationApi - axios parameter creator
+ * @export
+ */
+export const ProviderKnownDestinationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get known destination by ID
+         * @param {string} xClientId 
+         * @param {string} knownDestinationId 
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById: async (xClientId: string, knownDestinationId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('getById', 'xClientId', xClientId)
+            // verify required parameter 'knownDestinationId' is not null or undefined
+            assertParamExists('getById', 'knownDestinationId', knownDestinationId)
+            const localVarPath = `/v1/provider/known-destinations/{knownDestinationId}`
+                .replace(`{${"knownDestinationId"}}`, encodeURIComponent(String(knownDestinationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get known destinations across providers
+         * @param {string} xClientId 
+         * @param {string} connectionId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            // verify required parameter 'connectionId' is not null or undefined
+            assertParamExists('list', 'connectionId', connectionId)
+            const localVarPath = `/v1/provider/known-destinations`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
+
+            if (connectionId !== undefined) {
+                localVarQueryParameter['connectionId'] = connectionId;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderKnownDestinationApi - functional programming interface
+ * @export
+ */
+export const ProviderKnownDestinationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderKnownDestinationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get known destination by ID
+         * @param {string} xClientId 
+         * @param {string} knownDestinationId 
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getById(xClientId: string, knownDestinationId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<KnownDestinationDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, knownDestinationId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderKnownDestinationApi.getById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get known destinations across providers
+         * @param {string} xClientId 
+         * @param {string} connectionId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedKnownDestinationsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, connectionId, cursor, limit, orderBy, desc, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderKnownDestinationApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderKnownDestinationApi - factory interface
+ * @export
+ */
+export const ProviderKnownDestinationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderKnownDestinationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get known destination by ID
+         * @param {ProviderKnownDestinationApiGetByIdRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById(requestParameters: ProviderKnownDestinationApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<KnownDestinationDto> {
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.knownDestinationId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get known destinations across providers
+         * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedKnownDestinationsDto> {
+            return localVarFp.list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * Request parameters for getById operation in ProviderKnownDestinationApi.
+ * @export
+ * @interface ProviderKnownDestinationApiGetByIdRequest
+ */
+export interface ProviderKnownDestinationApiGetByIdRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiGetById
+     */
+    readonly xClientId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiGetById
+     */
+    readonly knownDestinationId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiGetById
+     */
+    readonly authorization?: string
+}
+
+/**
+ * Request parameters for list operation in ProviderKnownDestinationApi.
+ * @export
+ * @interface ProviderKnownDestinationApiListRequest
+ */
+export interface ProviderKnownDestinationApiListRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly xClientId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly connectionId: string
+
+    /**
+     * Cursor for pagination. Use the next cursor from previous response to get next page
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly cursor?: string
+
+    /**
+     * Number of records to return per page
+     * @type {number}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly limit?: number
+
+    /**
+     * Field to order results by
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly orderBy?: string
+
+    /**
+     * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly desc?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly authorization?: string
+}
+
+/**
+ * ProviderKnownDestinationApi - object-oriented interface
+ * @export
+ * @class ProviderKnownDestinationApi
+ * @extends {BaseAPI}
+ */
+export class ProviderKnownDestinationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get known destination by ID
+     * @param {ProviderKnownDestinationApiGetByIdRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderKnownDestinationApi
+     */
+    public getById(requestParameters: ProviderKnownDestinationApiGetByIdRequest, options?: RawAxiosRequestConfig) {
+        return ProviderKnownDestinationApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.knownDestinationId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get known destinations across providers
+     * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderKnownDestinationApi
+     */
+    public list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderKnownDestinationApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

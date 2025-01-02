@@ -338,10 +338,19 @@ export function verifyJwsdHeader(
       context: { header, opts }
     })
   }
+
+  // Ensure the token isn't too old. We also check the created timestamp wasn't created "in the future" (with 3s grace period);
+  // A future created stamp generally means milliseconds was used instead of seconds
   const now = nowSeconds()
   if (jwsdHeader.created && now - jwsdHeader.created > opts.maxTokenAge) {
     throw new JwtError({
       message: 'JWS is too old, created field is too far in the past',
+      context: { header, opts }
+    })
+  }
+  if (jwsdHeader.created && now - jwsdHeader.created < -3) {
+    throw new JwtError({
+      message: 'JWS is too old, created field is too far in the future, did you use milliseconds instead of seconds?',
       context: { header, opts }
     })
   }
