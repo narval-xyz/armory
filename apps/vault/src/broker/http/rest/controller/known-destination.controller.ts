@@ -1,4 +1,4 @@
-import { ApiClientIdHeader, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -20,21 +20,20 @@ export class KnownDestinationController {
   @Get()
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({ summary: 'Get known destinations across providers' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Returns paginated known destinations',
-    type: PaginatedKnownDestinationsDto
+  @Paginated({
+    type: PaginatedKnownDestinationsDto,
+    description: 'Returns a paginated list of known-destinations for the client'
   })
   async list(
     @ClientId() clientId: string,
-    @PaginationParam() paginationOptions: PaginationOptions,
+    @PaginationParam() pagination: PaginationOptions,
     @Query('connectionId') connectionId?: string
   ): Promise<PaginatedKnownDestinationsDto> {
     const filters = connectionId ? { connections: [connectionId] } : {}
 
     const { data, page } = await this.knownDestinationService.findAll(clientId, {
-      ...paginationOptions,
-      filters
+      filters,
+      pagination
     })
 
     return PaginatedKnownDestinationsDto.create({ data, page })

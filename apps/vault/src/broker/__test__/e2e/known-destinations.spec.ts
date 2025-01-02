@@ -289,6 +289,42 @@ describe('KnownDestination', () => {
       })
       expect(status).toBe(HttpStatus.OK)
     })
+
+    it('returns known destinations for a connection with pagination', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .get('/provider/known-destinations')
+        .set(REQUEST_HEADER_CLIENT_ID, testClient.clientId)
+        .query({ connectionId: connection1Id, limit: 1 })
+        .set(
+          'detached-jws',
+          await getJwsd({
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `/provider/known-destinations?connectionId=${connection1Id}&limit=1`,
+            payload: {},
+            htm: 'GET'
+          })
+        )
+
+      const expectedDestinations = [knownDestinations[0]]
+      expect(body).toEqual({
+        data: expectedDestinations.map((knownDestination) => ({
+          ...knownDestination,
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+          connections: knownDestination.connections.map((connection) => ({
+            updatedAt: expect.any(String),
+            createdAt: expect.any(String),
+            status: connection.status,
+            provider: connection.provider,
+            url: connection.url,
+            connectionId: connection.connectionId,
+            clientId: connection.clientId
+          }))
+        })),
+        page: { next: 'MjAyNS0wMS0wMVQwMDowMDowMC4wMDBafGMyZjdkMmYxLWUwYjUtNDk2Ni1hNTVmLTcyNTc0MjBkZjgxZg==' }
+      })
+      expect(status).toBe(HttpStatus.OK)
+    })
   })
 
   describe('GET /provider/known-destinations/:knownDestinationId', () => {
