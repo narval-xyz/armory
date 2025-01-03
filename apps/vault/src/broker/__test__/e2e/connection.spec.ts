@@ -11,6 +11,7 @@ import {
   getPublicKey,
   privateKeyToHex,
   privateKeyToJwk,
+  privateKeyToPem,
   rsaEncrypt,
   rsaPublicKeySchema
 } from '@narval/signature'
@@ -208,70 +209,6 @@ describe('Connection', () => {
       )
     })
 
-    it('creates a new connection to anchorage with plain credentials', async () => {
-      const privateKey = await generateJwk(Alg.EDDSA)
-      const privateKeyHex = await privateKeyToHex(privateKey)
-      const connectionId = uuid()
-      const connection = {
-        provider: Provider.ANCHORAGE,
-        connectionId,
-        label: 'Test Anchorage Connection',
-        url,
-        credentials: {
-          apiKey: 'test-api-key',
-          privateKey: privateKeyHex
-        }
-      }
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/provider/connections')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections',
-            payload: connection
-          })
-        )
-        .send(connection)
-
-      const createdConnection = await connectionService.findById(clientId, connection.connectionId)
-      const createdCredentials = await connectionService.findCredentials(createdConnection)
-
-      expect(body).toEqual({
-        data: {
-          clientId,
-          connectionId,
-          url,
-          createdAt: expect.any(String),
-          label: connection.label,
-          provider: connection.provider,
-          status: ConnectionStatus.ACTIVE,
-          updatedAt: expect.any(String)
-        }
-      })
-
-      expect(status).toEqual(HttpStatus.CREATED)
-
-      expect(createdConnection).toMatchObject({
-        clientId,
-        createdAt: expect.any(Date),
-        connectionId,
-        label: connection.label,
-        provider: connection.provider,
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(Date),
-        url: connection.url
-      })
-
-      expect(createdCredentials).toEqual({
-        apiKey: connection.credentials.apiKey,
-        privateKey,
-        publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
-      })
-    })
-
     it('emits connection.activated on connection activation', async () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
@@ -324,169 +261,6 @@ describe('Connection', () => {
         ConnectionActivatedEvent.EVENT_NAME,
         new ConnectionActivatedEvent(createdConnectionWithCredentials)
       )
-    })
-
-    it('activates an anchorage pending connection with plain credentials', async () => {
-      const connectionId = uuid()
-      const provider = Provider.ANCHORAGE
-      const label = 'Test Anchorage Connection'
-      const credentials = { apiKey: 'test-api-key' }
-
-      const { body: pendingConnection } = await request(app.getHttpServer())
-        .post('/provider/connections/initiate')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections/initiate',
-            payload: { connectionId, provider }
-          })
-        )
-        .send({ connectionId, provider })
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/provider/connections')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections',
-            payload: {
-              connectionId,
-              credentials,
-              label,
-              provider,
-              url
-            }
-          })
-        )
-        .send({
-          connectionId,
-          credentials,
-          label,
-          provider,
-          url
-        })
-
-      const createdConnection = await connectionService.findById(clientId, connectionId)
-      const createdCredentials = await connectionService.findCredentials(createdConnection)
-
-      expect(body).toEqual({
-        data: {
-          clientId,
-          connectionId,
-          label,
-          provider,
-          url,
-          createdAt: expect.any(String),
-          status: ConnectionStatus.ACTIVE,
-          updatedAt: expect.any(String)
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-
-      expect(createdConnection).toMatchObject({
-        clientId,
-        connectionId,
-        label,
-        provider,
-        url,
-        createdAt: expect.any(Date),
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(Date)
-      })
-
-      expect(createdCredentials).toMatchObject({
-        apiKey: credentials.apiKey,
-        publicKey: pendingConnection.data.publicKey.jwk
-      })
-    })
-
-    it('activates an anchorage pending connection with encrypted credentials', async () => {
-      const connectionId = uuid()
-      const provider = Provider.ANCHORAGE
-      const label = 'Test Anchorage Connection'
-      const credentials = {
-        apiKey: 'test-api-key'
-      }
-
-      const { body: pendingConnection } = await request(app.getHttpServer())
-        .post('/provider/connections/initiate')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections/initiate',
-            payload: { connectionId, provider }
-          })
-        )
-        .send({ connectionId, provider })
-
-      const encryptedCredentials = await rsaEncrypt(
-        JSON.stringify(credentials),
-        pendingConnection.data.encryptionPublicKey.jwk
-      )
-
-      const { status, body } = await request(app.getHttpServer())
-        .post('/provider/connections')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections',
-            payload: {
-              provider,
-              connectionId,
-              label,
-              url,
-              encryptedCredentials
-            }
-          })
-        )
-        .send({
-          provider,
-          connectionId,
-          label,
-          url,
-          encryptedCredentials
-        })
-
-      expect(body).toEqual({
-        data: {
-          clientId,
-          connectionId,
-          label,
-          provider,
-          url,
-          createdAt: expect.any(String),
-          status: ConnectionStatus.ACTIVE,
-          updatedAt: expect.any(String)
-        }
-      })
-      expect(status).toEqual(HttpStatus.CREATED)
-
-      const createdConnection = await connectionService.findById(clientId, connectionId)
-      const createdCredentials = await connectionService.findCredentials(createdConnection)
-
-      expect(createdConnection).toMatchObject({
-        clientId,
-        connectionId,
-        label,
-        provider,
-        url,
-        createdAt: expect.any(Date),
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(Date)
-      })
-
-      expect(createdCredentials).toMatchObject({
-        apiKey: credentials.apiKey,
-        publicKey: pendingConnection.data.publicKey.jwk
-      })
     })
 
     it('overrides the existing connection private key when providing a new one on pending connection activation', async () => {
@@ -578,6 +352,306 @@ describe('Connection', () => {
 
       expect(createdCredential?.publicKey).toEqual(getPublicKey(givenPrivateKey))
       expect(createdCredential?.privateKey).toEqual(givenPrivateKey)
+    })
+
+    describe('anchorage', () => {
+      it('creates a new connection to anchorage with plain credentials', async () => {
+        const privateKey = await generateJwk(Alg.EDDSA)
+        const privateKeyHex = await privateKeyToHex(privateKey)
+        const connectionId = uuid()
+        const connection = {
+          provider: Provider.ANCHORAGE,
+          connectionId,
+          label: 'Test Anchorage Connection',
+          url,
+          credentials: {
+            apiKey: 'test-api-key',
+            privateKey: privateKeyHex
+          }
+        }
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/provider/connections')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections',
+              payload: connection
+            })
+          )
+          .send(connection)
+
+        const createdConnection = await connectionService.findById(clientId, connection.connectionId)
+        const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+        expect(body).toEqual({
+          data: {
+            clientId,
+            connectionId,
+            url,
+            createdAt: expect.any(String),
+            label: connection.label,
+            provider: connection.provider,
+            status: ConnectionStatus.ACTIVE,
+            updatedAt: expect.any(String)
+          }
+        })
+
+        expect(status).toEqual(HttpStatus.CREATED)
+
+        expect(createdConnection).toMatchObject({
+          clientId,
+          createdAt: expect.any(Date),
+          connectionId,
+          label: connection.label,
+          provider: connection.provider,
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(Date),
+          url: connection.url
+        })
+
+        expect(createdCredentials).toEqual({
+          apiKey: connection.credentials.apiKey,
+          privateKey,
+          publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
+        })
+      })
+
+      it('activates an anchorage pending connection with plain credentials', async () => {
+        const connectionId = uuid()
+        const provider = Provider.ANCHORAGE
+        const label = 'Test Anchorage Connection'
+        const credentials = { apiKey: 'test-api-key' }
+
+        const { body: pendingConnection } = await request(app.getHttpServer())
+          .post('/provider/connections/initiate')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections/initiate',
+              payload: { connectionId, provider }
+            })
+          )
+          .send({ connectionId, provider })
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/provider/connections')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections',
+              payload: {
+                connectionId,
+                credentials,
+                label,
+                provider,
+                url
+              }
+            })
+          )
+          .send({
+            connectionId,
+            credentials,
+            label,
+            provider,
+            url
+          })
+
+        const createdConnection = await connectionService.findById(clientId, connectionId)
+        const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+        expect(body).toEqual({
+          data: {
+            clientId,
+            connectionId,
+            label,
+            provider,
+            url,
+            createdAt: expect.any(String),
+            status: ConnectionStatus.ACTIVE,
+            updatedAt: expect.any(String)
+          }
+        })
+        expect(status).toEqual(HttpStatus.CREATED)
+
+        expect(createdConnection).toMatchObject({
+          clientId,
+          connectionId,
+          label,
+          provider,
+          url,
+          createdAt: expect.any(Date),
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(Date)
+        })
+
+        expect(createdCredentials).toMatchObject({
+          apiKey: credentials.apiKey,
+          publicKey: pendingConnection.data.publicKey.jwk
+        })
+      })
+
+      it('activates an anchorage pending connection with encrypted credentials', async () => {
+        const connectionId = uuid()
+        const provider = Provider.ANCHORAGE
+        const label = 'Test Anchorage Connection'
+        const credentials = {
+          apiKey: 'test-api-key'
+        }
+
+        const { body: pendingConnection } = await request(app.getHttpServer())
+          .post('/provider/connections/initiate')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections/initiate',
+              payload: { connectionId, provider }
+            })
+          )
+          .send({ connectionId, provider })
+
+        const encryptedCredentials = await rsaEncrypt(
+          JSON.stringify(credentials),
+          pendingConnection.data.encryptionPublicKey.jwk
+        )
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/provider/connections')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections',
+              payload: {
+                provider,
+                connectionId,
+                label,
+                url,
+                encryptedCredentials
+              }
+            })
+          )
+          .send({
+            provider,
+            connectionId,
+            label,
+            url,
+            encryptedCredentials
+          })
+
+        expect(body).toEqual({
+          data: {
+            clientId,
+            connectionId,
+            label,
+            provider,
+            url,
+            createdAt: expect.any(String),
+            status: ConnectionStatus.ACTIVE,
+            updatedAt: expect.any(String)
+          }
+        })
+        expect(status).toEqual(HttpStatus.CREATED)
+
+        const createdConnection = await connectionService.findById(clientId, connectionId)
+        const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+        expect(createdConnection).toMatchObject({
+          clientId,
+          connectionId,
+          label,
+          provider,
+          url,
+          createdAt: expect.any(Date),
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(Date)
+        })
+
+        expect(createdCredentials).toMatchObject({
+          apiKey: credentials.apiKey,
+          publicKey: pendingConnection.data.publicKey.jwk
+        })
+      })
+    })
+
+    // NOTE: When adding tests for a new provider, focus only on testing
+    // provider-specific credential formats. Common functionality like
+    // credential encryption/decryption is already covered by existing tests.
+    // The main goal is to verify that the API correctly handles the unique
+    // input credential structure for each provider.
+    describe('fireblocks', () => {
+      it('creates a new connection to fireblocks with plain credentials', async () => {
+        const rsaPrivateKey = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
+        const pem = await privateKeyToPem(rsaPrivateKey, Alg.RS256)
+        const connectionId = uuid()
+        const connection = {
+          provider: Provider.FIREBLOCKS,
+          connectionId,
+          label: 'Test Fireblocks Connection',
+          url,
+          credentials: {
+            apiKey: 'test-api-key',
+            privateKey: Buffer.from(pem).toString('base64')
+          }
+        }
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/provider/connections')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections',
+              payload: connection
+            })
+          )
+          .send(connection)
+
+        const createdConnection = await connectionService.findById(clientId, connection.connectionId)
+        const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+        expect(body).toEqual({
+          data: {
+            clientId,
+            connectionId,
+            url,
+            createdAt: expect.any(String),
+            label: connection.label,
+            provider: connection.provider,
+            status: ConnectionStatus.ACTIVE,
+            updatedAt: expect.any(String)
+          }
+        })
+
+        expect(status).toEqual(HttpStatus.CREATED)
+
+        expect(createdConnection).toMatchObject({
+          clientId,
+          createdAt: expect.any(Date),
+          connectionId,
+          label: connection.label,
+          provider: connection.provider,
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(Date),
+          url: connection.url
+        })
+
+        expect(createdCredentials).toEqual({
+          apiKey: connection.credentials.apiKey,
+          privateKey: rsaPrivateKey,
+          publicKey: getPublicKey(rsaPrivateKey)
+        })
+      })
     })
   })
 
