@@ -198,10 +198,6 @@ async function main() {
 
   logger.log('Seeding Vault database with Anchorage provider data')
 
-  if (process.env.NODE_ENV === 'development') {
-    await connSeed.createNarvalDevConnection()
-  }
-
   await prisma.$transaction(async (txn) => {
     // Process each connection group
     for (const group of ANCHORAGE_CONNECTIONS) {
